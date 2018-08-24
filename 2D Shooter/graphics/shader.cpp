@@ -32,12 +32,14 @@ namespace graphics {
 		{
 			glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
 			std::cout << "ERROR Vertex shader compilation failed!\n" << infoLog << std::endl;
+			system("pause");
 		}
 		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
 		if (!success)
 		{
 			glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
 			std::cout << "ERROR Fragment shader compilation failed!\n" << infoLog << std::endl;
+			system("pause");
 		}
 
 		//Shader program
@@ -50,6 +52,7 @@ namespace graphics {
 		if (!success) {
 			glGetProgramInfoLog(mShaderProgram, 512, NULL, infoLog);
 			std::cout << "ERROR Shader program linking failed!\n" << infoLog << std::endl;
+			system("pause");
 		}
 
 		glDeleteShader(vertexShader);

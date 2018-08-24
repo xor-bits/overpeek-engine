@@ -1,2 +1,2 @@
-﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(391,5): warning MSB8028: The intermediate directory (C:\Users\Eemeli Lehtonen\source\repos\overpeek-engine\\bin\Debug\Intermediates\) contains files shared from another project (2D Shooter.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+﻿  simpleRenderer.cpp
   2D Shooter.vcxproj -> C:\Users\Eemeli Lehtonen\source\repos\overpeek-engine\\bin\Debug\overpeek-engine.exe

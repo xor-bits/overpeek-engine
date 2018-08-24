@@ -3,7 +3,7 @@
 
 namespace graphics {
 	
-	FontLoader::FontLoader(const char *fontPath, const char *vertShaderPath, const char *fragShaderPath) {
+	FontLoader::FontLoader(const char *fontPath) {
 		init(fontPath);
 
 		glGenVertexArrays(1, &mVAO);

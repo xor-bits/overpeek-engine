@@ -1,11 +1,14 @@
-﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(391,5): warning MSB8028: The intermediate directory (C:\Users\Eemeli Lehtonen\source\repos\overpeek-engine\\bin\Release\Intermediates\) contains files shared from another project (2D Shooter.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+﻿  fontLoader.cpp
+c:\users\eemeli lehtonen\source\repos\overpeek-engine\2d shooter\graphics\fontloader.cpp(61): warning C4838: conversion from 'FT_Pos' to 'GLuint' requires a narrowing conversion
+  shader.cpp
+  simpleRenderer.cpp
+  textureLoader.cpp
   main.cpp
-c:\users\eemeli lehtonen\source\repos\overpeek-engine\2d shooter\main.cpp(101): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\eemeli lehtonen\source\repos\overpeek-engine\2d shooter\main.cpp(111): warning C4305: '+=': truncation from 'double' to 'float'
+  window.cpp
 LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
   Generating code
-  1 of 560 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  All 563 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Finished generating code
 glew32s.lib(glew.obj) : warning LNK4099: PDB 'vc120.pdb' was not found with 'glew32s.lib(glew.obj)' or at 'C:\Users\Eemeli Lehtonen\source\repos\overpeek-engine\bin\Release\vc120.pdb'; linking object as if no debug info
-  2D Shooter.vcxproj -> C:\Users\Eemeli Lehtonen\source\repos\overpeek-engine\\bin\Release\overpeek-engine.exe
+  2D Shooter.vcxproj -> C:\Users\Eemeli Lehtonen\source\repos\overpeek-engine\bin\Release\overpeek-engine.exe

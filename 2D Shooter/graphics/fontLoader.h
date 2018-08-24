@@ -32,7 +32,7 @@ namespace graphics {
 		bool init(const char *fontPath);
 
 	public:
-		FontLoader(const char *fontPath, const char *vertShaderPath, const char *fragShaderPath);
+		FontLoader(const char *fontPath);
 		
 		void renderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color);
 	};
