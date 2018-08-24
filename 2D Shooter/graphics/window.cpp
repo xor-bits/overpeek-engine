@@ -22,6 +22,7 @@ namespace graphics {
 
 		if (!mInit()) {
 			glfwTerminate();
+			system("pause");
 			exit(EXIT_FAILURE);
 		}
 	}
