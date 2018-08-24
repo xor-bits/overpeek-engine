@@ -55,7 +55,7 @@ namespace graphics {
 		glfwSetKeyCallback(mWindow, key_callback);
 
 		glViewport(0, 0, mWidth, mHeight);
-		glfwSwapInterval(1);
+		glfwSwapInterval(0);
 
 		return true;
 	}
