@@ -19,7 +19,7 @@ namespace graphics {
 
 		// Activate corresponding render state
 		shader.enable();
-		shader.setUniform4f("testColor", color);
+		shader.setUniform4f("color", color);
 		glBindVertexArray(mVAO);
 
 		GLfloat vertices[6][2] = {
