@@ -11,6 +11,8 @@ namespace graphics {
 	bool Window::mButtons[M_NUM_BUTTONS];
 	double Window::mMouseX;
 	double Window::mMouseY;
+	void(*Window::mKeyCallback)(int, int);
+	void(*Window::mButtonCallback)(int, int);
 
 	Window::Window(unsigned int width, unsigned int height, std::string title) {
 		mWidth = width; mHeight = height; mTitle = title;
@@ -59,11 +61,15 @@ namespace graphics {
 	}
 
 	void Window::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+		if (mButtonCallback)
+			(*mButtonCallback)(button, action);
 		if (action == GLFW_PRESS) mButtons[button] = true;
 		else if (action == GLFW_RELEASE) mButtons[button] = false;
 	}
 
 	void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+		if (mKeyCallback)
+			(*mKeyCallback)(key, action);
 		if (action == GLFW_PRESS) mKeys[key] = true;
 		else if (action == GLFW_RELEASE) mKeys[key] = false;
 	}
@@ -93,6 +99,14 @@ namespace graphics {
 
 	void Window::clear() {
 		glClear(GL_COLOR_BUFFER_BIT);
+	}
+
+	void Window::setButtonCallback(void(*callback)(int, int)) {
+		mButtonCallback = callback;
+	}
+
+	void Window::setKeyboardCallback(void (*callback)(int, int)) {
+		mKeyCallback = callback;
 	}
 
 }

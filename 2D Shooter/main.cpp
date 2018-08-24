@@ -15,9 +15,14 @@
 using namespace glm;
 using namespace graphics;
 
+void key_callback(int key, int action) {
+	std::cout << key << action << std::endl;
+}
+
 int main() {
 	//Window
 	Window window = Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, "Test");
+	window.setKeyboardCallback(&key_callback);
 
 	//Load font
 	FontLoader fontLoader = FontLoader("arial.ttf", "graphics/shaders/shader.text.vert", "graphics/shaders/shader.text.frag");
@@ -86,10 +91,14 @@ int main() {
 	mat4 projection = ortho(-size * M_ASPECT, size * M_ASPECT, size, -size);
 	shader.SetUniformMat4("pr_matrix", projection);
 
+
+	float orientation = 0;
 	
 	//Main game loop
 	while (!window.close()) {
 		window.clear();
+
+		orientation += 0.03;
 
 		//Get mouse pos
 		double mouseX, mouseY;
@@ -107,11 +116,33 @@ int main() {
 		};
 
 		//glBindTexture(GL_TEXTURE_2D, texture);
-		
+		mat4 ml_matrix = mat4(1.0f);
+		ml_matrix *= translate(mat4(1.0f), vec3(0.0f, 0.0f, 0.0f));
+		ml_matrix *= rotate(mat4(1.0f), orientation, vec3(0.0f, 0.0f, 1.0f));
+
+		shader.SetUniformMat4("ml_matrix", ml_matrix);
 		fontLoader.renderText(shader, "Test", 0.0f, 0.0f, 1.0f, vec3(1.0f, 1.0f, 1.0f));
-		fontLoader.renderText(shader, "Red", 0.0f, 0.2f, 1.0f, vec3(1.0f, 0.2f, 0.2f));
-		fontLoader.renderText(shader, "Green", 0.0f, -0.2f, 1.0f, vec3(0.2f, 1.0f, 0.2f));
-		fontLoader.renderText(shader, "Blue", 0.0f, 0.4f, 1.0f, vec3(0.2f, 0.2f, 1.0f));
+
+		ml_matrix = mat4(1.0f);
+		ml_matrix *= translate(mat4(1.0f), vec3(0.0f, 0.2f, 0.0f));
+		ml_matrix *= rotate(mat4(1.0f), orientation, vec3(0.0f, 0.0f, 1.0f));
+
+		shader.SetUniformMat4("ml_matrix", ml_matrix);
+		fontLoader.renderText(shader, "Red", 0.0f, 0.0f, 1.0f, vec3(1.0f, 0.2f, 0.2f));
+
+		ml_matrix = mat4(1.0f);
+		ml_matrix *= translate(mat4(1.0f), vec3(0.0f, 0.4f, 0.0f));
+		ml_matrix *= rotate(mat4(1.0f), orientation, vec3(0.0f, 0.0f, 1.0f));
+
+		shader.SetUniformMat4("ml_matrix", ml_matrix);
+		fontLoader.renderText(shader, "Green", 0.0f, 0.0f, 1.0f, vec3(0.2f, 1.0f, 0.2f));
+
+		ml_matrix = mat4(1.0f);
+		ml_matrix *= translate(mat4(1.0f), vec3(0.0f, 0.6f, 0.0f));
+		ml_matrix *= rotate(mat4(1.0f), orientation, vec3(0.0f, 0.0f, 1.0f));
+
+		shader.SetUniformMat4("ml_matrix", ml_matrix);
+		fontLoader.renderText(shader, "Blue", 0.0f, 0.0f, 1.0f, vec3(0.2f, 0.2f, 1.0f));
 		
 
 		//Update window

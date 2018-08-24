@@ -18,6 +18,9 @@ namespace graphics {
 		static bool mKeys[];
 		static bool mButtons[];
 
+		static void (*mKeyCallback)(int, int);
+		static void (*mButtonCallback)(int, int);
+
 		//Functions
 		bool mInit();
 		static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
@@ -35,6 +38,9 @@ namespace graphics {
 		bool close();
 		void update();
 		void clear();
+
+		void setButtonCallback(void(*callback)(int, int));
+		void setKeyboardCallback(void(*callback)(int, int));
 
 		inline bool getButton(int button) { return mButtons[button]; }
 		inline bool getKey(int key) { return mKeys[key]; }
