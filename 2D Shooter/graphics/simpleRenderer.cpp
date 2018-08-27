@@ -29,6 +29,7 @@ namespace graphics {
 
 		// Activate corresponding render state
 		shader.enable();
+<<<<<<< HEAD
 		shader.setUniform4f("testColor", color);
 		glBindVertexArray(mVAOQuad);
 
@@ -58,6 +59,10 @@ namespace graphics {
 		shader.enable();
 		shader.setUniform4f("testColor", color);
 		glBindVertexArray(mVAOQuad);
+=======
+		shader.setUniform4f("color", color);
+		glBindVertexArray(mVAO);
+>>>>>>> e104e42458129b39e86597a09d16e0480e24bd4b
 
 		GLfloat vertices[6][2] = {
 				{ x - w / 2,  y + h / 2 },

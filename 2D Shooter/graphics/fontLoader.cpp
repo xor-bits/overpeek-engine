@@ -72,7 +72,7 @@ namespace graphics {
 	{
 		// Activate corresponding render state
 		shader.enable();
-		shader.setUniform3f("textColor", color);
+		shader.setUniform3f("color", color);
 		glActiveTexture(GL_TEXTURE0);
 		glBindVertexArray(mVAO);
 

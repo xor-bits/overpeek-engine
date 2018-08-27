@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <time.h>
+#include <ctime>
 
 #define M_WINDOW_WIDTH		1280
 #define M_WINDOW_HEIGHT		760
@@ -17,86 +17,62 @@
 using namespace glm;
 using namespace graphics;
 
+Window *window;
+SimpleRenderer *renderer;
+FontLoader *fontLoader;
+Shader *shader;
+Shader *shader2;
+
+unsigned int fps = 144;
+
 void key_callback(int key, int action) {
 	std::cout << key << action << std::endl;
 }
 
+void render() {
+	//Get mouse pos
+	double mouseX, mouseY;
+	window->getMousePos(mouseX, mouseY);
+	//shader.setUniform2f("mouse_pos", vec2(mouseX, mouseY));
+
+	renderer->renderQuad(*shader2, 0.0f, 0.0f, 0.5f, 0.5f, vec4(1.0f, 0.0f, 0.5f, 1.0f));
+	fontLoader->renderText(*shader, std::to_string(fps), -M_ASPECT, -0.9f, 1.0f, vec3(1.0f, 1.0f, 1.0f));
+}
+
 int main() {
 	//Window
-	Window window = Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, "Test");
-	window.setKeyboardCallback(&key_callback);
+	window = new Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, "Test");
+	window->setKeyboardCallback(&key_callback);
 
 	//Renderer
-	SimpleRenderer renderer = SimpleRenderer();
+	renderer = new SimpleRenderer();
 
 	//Load font
-	FontLoader fontLoader = FontLoader("arial.ttf");
+	fontLoader = new FontLoader("arial.ttf");
 
 	//Texture loader
+<<<<<<< HEAD
 	TextureLoader textureLoader = TextureLoader();
+=======
+	//TextureLoader textureLoader = TextureLoader();
+>>>>>>> e104e42458129b39e86597a09d16e0480e24bd4b
 	//unsigned int texture = textureLoader.getTexture("test.png");
 
 	//Settings
 	glClearColor(0.18f, 0.18f, 0.20f, 1.0f);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	{
-		//Setup vertex data
-	//float vertices[] = {
-	//	 //Position				//Color				//Texture pos
-	//	-0.5f, -0.5f,  0.0f,	1.0f, 0.0f, 0.0f,	//1.0f, 1.0f, //0 top left
-	//	 0.5f, -0.5f,  0.0f,	0.0f, 1.0f, 0.0f,	//0.0f, 1.0f, //1 top right
-	//	 0.5f,  0.5f,  0.0f,	0.0f, 0.0f, 1.0f,	//1.0f, 0.0f, //2 bottom right
-	//	-0.5f,  0.5f,  0.0f,	1.0f, 0.0f, 1.0f,	//0.0f, 0.0f  //3 bottom left
-	//};
-	//unsigned int indices[] = {
-	//	 0, 1, 3,
-	//	 1, 2, 3
-	//};
-
-	//unsigned int VBO, VAO, EBO;
-	//glGenVertexArrays(1, &VAO);
-	//glGenBuffers(1, &VBO);
-	//glGenBuffers(1, &EBO);
-
-	//glBindVertexArray(VAO);
-
-	//glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	//Vertex array configuration
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	//glEnableVertexAttribArray(0);
-
-	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	//glEnableVertexAttribArray(1);
-
-	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	//glEnableVertexAttribArray(2);
-
-	//unsigned int texture = TextureLoader::loadTexture("test.png", GL_RGB);
-
-	//Create normal shader
-	//Shader shader = Shader("graphics/shaders/shader.test.vert", "graphics/shaders/shader.test.frag");
-
-	//float size = 1.0f;
-	//mat4 projection = ortho(-size * M_ASPECT, size * M_ASPECT, size, -size);
-	//shader.SetUniformMat4("pr_matrix", projection);
-	};
 	
 	//Create text shader
-	Shader shader = Shader("graphics/shaders/shader.text.vert", "graphics/shaders/shader.text.frag");
+	shader = new Shader("graphics/shaders/shader.text.vert", "graphics/shaders/shader.text.frag");
 
 	//Create shader
-	Shader shader2 = Shader("graphics/shaders/shader.test.vert", "graphics/shaders/shader.test.frag");
-	shader2.enable();
+	shader2 = new Shader("graphics/shaders/shader.test.vert", "graphics/shaders/shader.test.frag");
+	shader2->enable();
 
 	float size = 1.0f;
 	mat4 projection = ortho(-size * M_ASPECT, size * M_ASPECT, size, -size);
+<<<<<<< HEAD
 	shader.enable();
 	shader.SetUniformMat4("pr_matrix", projection);
 	shader2.enable();
@@ -137,9 +113,34 @@ int main() {
 		renderer.renderQuad(shader2, 0.0f, 0.0f, 0.2f, 0.2f, vec4(1.0f, 1.0f, 1.0f, 1.0f));
 		//fontLoader.renderText(shader, "Test", 0.0f, 0.0f, 1.0f, vec3(1.0f, 1.0f, 1.0f));
 		
+=======
+	shader->enable();
+	shader->SetUniformMat4("pr_matrix", projection);
+	shader2->enable();
+	shader2->SetUniformMat4("pr_matrix", projection);
+
+
+
+	//Main game loop
+	clock_t startTime = 0;
+	unsigned int frames = 0;
+	while (!window->close()) {
+		window->clear();
+
+		render();
+
+		//Get fps
+		frames++;
+		if (clock() - startTime > CLOCKS_PER_SEC) { //every second
+			std::cout << frames << std::endl;
+			fps = frames;
+			frames = 0;
+			startTime = clock();
+		}
+>>>>>>> e104e42458129b39e86597a09d16e0480e24bd4b
 
 		//Update window
-		window.update();
+		window->update();
 	}
 	return 0;
 }
