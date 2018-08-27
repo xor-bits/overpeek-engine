@@ -4,6 +4,7 @@
 #include "graphics/fontLoader.h"
 #include "graphics/simpleRenderer.h"
 
+#include <glm/gtc/constants.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -33,7 +34,7 @@ int main() {
 
 	//Texture loader
 	TextureLoader textureLoader = TextureLoader();
-	unsigned int texture = textureLoader.getTexture("test.png");
+	//unsigned int texture = textureLoader.getTexture("test.png");
 
 	//Settings
 	glClearColor(0.18f, 0.18f, 0.20f, 1.0f);
@@ -100,19 +101,22 @@ int main() {
 	shader.SetUniformMat4("pr_matrix", projection);
 	shader2.enable();
 	shader2.SetUniformMat4("pr_matrix", projection);
-
-
-	float orientation = 0;
 	
 	//Main game loop
 	while (!window.close()) {
 		window.clear();
 
-		orientation += 0.03;
-
 		//Get mouse pos
 		double mouseX, mouseY;
 		window.getMousePos(mouseX, mouseY);
+
+		float orientation = atan2(mouseY, mouseX) + half_pi<float>();
+		
+
+
+		std::cout << orientation << std::endl;
+
+
 		//shader.setUniform2f("mouse_pos", vec2(mouseX, mouseY));
 
 		{
@@ -125,35 +129,13 @@ int main() {
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		};
 
-		renderer.renderQuad(shader2, 0.0f, 0.0f, 0.5f, 0.5f, vec4(1.0f, 0.0f, 0.5f, 1.0f));
-
 		mat4 ml_matrix = mat4(1.0f);
-		ml_matrix *= translate(mat4(1.0f), vec3(0.0f, 0.0f, 0.0f));
+		ml_matrix *= translate(mat4(1.0f), vec3(mouseX, mouseY, 0.0f));
 		ml_matrix *= rotate(mat4(1.0f), orientation, vec3(0.0f, 0.0f, 1.0f));
 
 		shader.SetUniformMat4("ml_matrix", ml_matrix);
-		fontLoader.renderText(shader, "Test", 0.0f, 0.0f, 1.0f, vec3(1.0f, 1.0f, 1.0f));
-
-		ml_matrix = mat4(1.0f);
-		ml_matrix *= translate(mat4(1.0f), vec3(0.0f, 0.2f, 0.0f));
-		ml_matrix *= rotate(mat4(1.0f), orientation, vec3(0.0f, 0.0f, 1.0f));
-
-		shader.SetUniformMat4("ml_matrix", ml_matrix);
-		fontLoader.renderText(shader, "Red", 0.0f, 0.0f, 1.0f, vec3(1.0f, 0.2f, 0.2f));
-
-		ml_matrix = mat4(1.0f);
-		ml_matrix *= translate(mat4(1.0f), vec3(0.0f, 0.4f, 0.0f));
-		ml_matrix *= rotate(mat4(1.0f), orientation, vec3(0.0f, 0.0f, 1.0f));
-
-		shader.SetUniformMat4("ml_matrix", ml_matrix);
-		fontLoader.renderText(shader, "Green", 0.0f, 0.0f, 1.0f, vec3(0.2f, 1.0f, 0.2f));
-
-		ml_matrix = mat4(1.0f);
-		ml_matrix *= translate(mat4(1.0f), vec3(0.0f, 0.6f, 0.0f));
-		ml_matrix *= rotate(mat4(1.0f), orientation, vec3(0.0f, 0.0f, 1.0f));
-
-		shader.SetUniformMat4("ml_matrix", ml_matrix);
-		fontLoader.renderText(shader, "Blue", 0.0f, 0.0f, 1.0f, vec3(0.2f, 0.2f, 1.0f));
+		renderer.renderQuad(shader2, 0.0f, 0.0f, 0.2f, 0.2f, vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		//fontLoader.renderText(shader, "Test", 0.0f, 0.0f, 1.0f, vec3(1.0f, 1.0f, 1.0f));
 		
 
 		//Update window

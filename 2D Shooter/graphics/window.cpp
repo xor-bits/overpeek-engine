@@ -15,7 +15,7 @@ namespace graphics {
 	void(*Window::mButtonCallback)(int, int);
 
 	Window::Window(unsigned int width, unsigned int height, std::string title) {
-		mWidth = width; mHeight = height; mTitle = title;
+		mWidth = width; mHeight = height; mTitle = title; mAspect = width / (float)height;
 
 		for (int i = 0; i < M_NUM_KEYS; i++) mKeys[i] = false;
 		for (int i = 0; i < M_NUM_BUTTONS; i++) mButtons[i] = false;

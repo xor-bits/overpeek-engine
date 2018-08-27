@@ -77,10 +77,11 @@
     <LibraryPath>$(SolutionDir)\Libraries\FreeType\lib;$(SolutionDir)\Libraries\GLFW\lib;$(SolutionDir)\Libraries\GLEW\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)bin\$(Configuration)\Intermediates\</IntDir>
+    <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\bin\$(Configuration)\Intermediates\</IntDir>
     <IncludePath>$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\stb-master;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\FreeType\lib;$(SolutionDir)\Libraries\GLFW\lib;$(SolutionDir)\Libraries\GLEW\lib;$(LibraryPath)</LibraryPath>
+    <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
@@ -89,10 +90,11 @@
     <LibraryPath>$(SolutionDir)\Libraries\FreeType\lib;$(SolutionDir)\Libraries\GLFW\lib;$(SolutionDir)\Libraries\GLEW\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)bin\$(Configuration)\Intermediates\</IntDir>
+    <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\bin\$(Configuration)\Intermediates\</IntDir>
     <IncludePath>$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\stb-master;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\FreeType\lib;$(SolutionDir)\Libraries\GLFW\lib;$(SolutionDir)\Libraries\GLEW\lib;$(LibraryPath)</LibraryPath>
+    <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -163,8 +165,8 @@
     <ClCompile Include="graphics\shader.cpp" />
     <ClCompile Include="graphics\simpleRenderer.cpp" />
     <ClCompile Include="graphics\textureLoader.cpp" />
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="graphics\window.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="graphics\fontLoader.h" />

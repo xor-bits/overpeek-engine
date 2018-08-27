@@ -12,6 +12,7 @@ namespace graphics {
 	private:
 		//Variables
 		unsigned int mWidth, mHeight;
+		float mAspect;
 		std::string mTitle;
 		GLFWwindow *mWindow;
 		static double mMouseX, mMouseY;
@@ -44,7 +45,7 @@ namespace graphics {
 
 		inline bool getButton(int button) { return mButtons[button]; }
 		inline bool getKey(int key) { return mKeys[key]; }
-		inline void getMousePos(double &mouseX, double &mouseY) { mouseX = mMouseX / mWidth * 16.0; mouseY = mMouseY / mHeight * 9.0; }
+		inline void getMousePos(double &mouseX, double &mouseY) { mouseX = (mMouseX / mWidth * 2.0 * mAspect) - mAspect; mouseY = mMouseY / mHeight * 2 - 1; }
 	};
 
 }
