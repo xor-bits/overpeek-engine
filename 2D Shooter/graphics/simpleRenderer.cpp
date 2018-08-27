@@ -29,26 +29,22 @@ namespace graphics {
 
 		// Activate corresponding render state
 		shader.enable();
-<<<<<<< HEAD
-		shader.setUniform4f("testColor", color);
-		glBindVertexArray(mVAOQuad);
+		shader.setUniform4f("color", color);
+		glBindVertexArray(mVAOTri);
 
-		GLfloat vertices[6][2] = {
-				{ x - w / 2,  y + h / 2 },
-				{ x - w / 2,  y - h / 2 },
-				{ x + w / 2,  y - h / 2 },
-				{ x - w / 2,  y + h / 2 },
-				{ x + w / 2,  y - h / 2 },
-				{ x + w / 2,  y + h / 2 }
+		GLfloat vertices[3][2] = {
+				{ x + w / 2,  y + h },
+				{ x        ,  y     },
+				{ x + w    ,  y     }
 		};
 
 		//Update content of VBO memory
-		glBindBuffer(GL_ARRAY_BUFFER, mVBOQuad);
+		glBindBuffer(GL_ARRAY_BUFFER, mVBOTri);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		//Render quad
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		//Unbind
 		glBindVertexArray(0);
@@ -57,12 +53,8 @@ namespace graphics {
 	void SimpleRenderer::renderTriangle(Shader &shader, float x, float y, float w, float h, glm::vec4 color) {
 		// Activate corresponding render state
 		shader.enable();
-		shader.setUniform4f("testColor", color);
-		glBindVertexArray(mVAOQuad);
-=======
 		shader.setUniform4f("color", color);
-		glBindVertexArray(mVAO);
->>>>>>> e104e42458129b39e86597a09d16e0480e24bd4b
+		glBindVertexArray(mVAOTri);
 
 		GLfloat vertices[6][2] = {
 				{ x - w / 2,  y + h / 2 },
