@@ -162,6 +162,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="graphics\fontLoader.cpp" />
+    <ClCompile Include="graphics\layers\textLayer.cpp" />
     <ClCompile Include="graphics\shader.cpp" />
     <ClCompile Include="graphics\simpleRenderer.cpp" />
     <ClCompile Include="graphics\textureLoader.cpp" />
@@ -170,6 +171,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="graphics\fontLoader.h" />
+    <ClInclude Include="graphics\layers\layer.h" />
+    <ClInclude Include="graphics\layers\textLayer.h" />
     <ClInclude Include="graphics\shader.h" />
     <ClInclude Include="graphics\simpleRenderer.h" />
     <ClInclude Include="graphics\textureLoader.h" />

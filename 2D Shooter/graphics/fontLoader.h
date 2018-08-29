@@ -3,6 +3,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#include <string>
 #include <iostream>
 #include <map>
 #include <GL/glew.h>
@@ -27,14 +28,16 @@ namespace graphics {
 
 		GLuint mVAO, mVBO;
 
+		Shader *mShader;
+
 	private:
 
-		bool init(const char *fontPath);
+		bool init(std::string fontPath);
 
 	public:
-		FontLoader(const char *fontPath);
+		FontLoader(std::string fontPath, Shader &shader);
 		
-		void renderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color);
+		void renderText(std::string text, float x, float y, float scaleX, float scaleY, glm::vec3 color);
 	};
 
 }
