@@ -3,8 +3,9 @@
 
 namespace graphics {
 	
-	FontLoader::FontLoader(const char *fontPath) {
+	FontLoader::FontLoader(std::string fontPath, Shader &shader) {
 		init(fontPath);
+		mShader = &shader;
 
 		glGenVertexArrays(1, &mVAO);
 		glGenBuffers(1, &mVBO);
@@ -18,7 +19,7 @@ namespace graphics {
 
 	}
 
-	bool FontLoader::init(const char *fontPath) {
+	bool FontLoader::init(std::string fontPath) {
 		FT_Library ft;
 		if (FT_Init_FreeType(&ft)) {
 			std::cout << "ERROR Initalizing FreeType!" << std::endl; 
@@ -26,7 +27,7 @@ namespace graphics {
 		}
 
 		FT_Face face;
-		if (FT_New_Face(ft, fontPath, 0, &face)) {
+		if (FT_New_Face(ft, fontPath.c_str(), 0, &face)) {
 			std::cout << "ERROR loading font!" << std::endl; 
 			return false;
 		}
@@ -68,11 +69,11 @@ namespace graphics {
 		return true;
 	}
 
-	void FontLoader::renderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color)
+	void FontLoader::renderText(std::string text, float x, float y, float scaleX, float scaleY, glm::vec3 color)
 	{
 		// Activate corresponding render state
-		shader.enable();
-		shader.setUniform3f("color", color);
+		mShader->enable();
+		mShader->setUniform3f("color", color);
 		glActiveTexture(GL_TEXTURE0);
 		glBindVertexArray(mVAO);
 
@@ -81,10 +82,10 @@ namespace graphics {
 		for (c = text.begin(); c != text.end(); c++)
 		{
 			Character ch = mCharacters[*c];
-			GLfloat xpos = x + ch.bearing.x * scale / 2560.0f;
-			GLfloat ypos = y - ch.bearing.y * scale / 2560.0f;
-			GLfloat w = ch.size.x * scale / 2560.0f;
-			GLfloat h = ch.size.y * scale / 2560.0f;
+			GLfloat xpos = x + ch.bearing.x * scaleX / 2560.0f;
+			GLfloat ypos = y - ch.bearing.y * scaleY / 2560.0f;
+			GLfloat w = ch.size.x * scaleX / 2560.0f;
+			GLfloat h = ch.size.y * scaleY / 2560.0f;
 
 			// Update VBO for each character
 			GLfloat vertices[6][4] = {
@@ -108,7 +109,7 @@ namespace graphics {
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 
 			// Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-			x += (ch.advance >> 6) * scale / 2560.0f; // Bitshift by 6 to get value in pixels (2^6 = 64)
+			x += (ch.advance >> 6) * scaleX / 2560.0f; // Bitshift by 6 to get value in pixels (2^6 = 64)
 		}
 
 		glBindVertexArray(0);
