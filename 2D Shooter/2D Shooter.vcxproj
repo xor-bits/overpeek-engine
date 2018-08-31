@@ -162,6 +162,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="graphics\fontLoader.cpp" />
+    <ClCompile Include="graphics\layers\buttonLayer.cpp" />
+    <ClCompile Include="graphics\layers\objectLayer.cpp" />
     <ClCompile Include="graphics\layers\textLayer.cpp" />
     <ClCompile Include="graphics\shader.cpp" />
     <ClCompile Include="graphics\simpleRenderer.cpp" />
@@ -171,12 +173,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="graphics\fontLoader.h" />
+    <ClInclude Include="graphics\layers\buttonLayer.h" />
     <ClInclude Include="graphics\layers\layer.h" />
+    <ClInclude Include="graphics\layers\objectLayer.h" />
     <ClInclude Include="graphics\layers\textLayer.h" />
     <ClInclude Include="graphics\shader.h" />
     <ClInclude Include="graphics\simpleRenderer.h" />
     <ClInclude Include="graphics\textureLoader.h" />
     <ClInclude Include="graphics\window.h" />
+    <ClInclude Include="tools\clock.h" />
     <ClInclude Include="tools\filereader.h" />
   </ItemGroup>
   <ItemGroup>

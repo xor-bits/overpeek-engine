@@ -37,6 +37,7 @@ namespace graphics {
 			return false;
 		}
 		glfwWindowHint(GLFW_RESIZABLE, 0);
+		glfwWindowHint(GLFW_SAMPLES, 16);
 		mWindow = glfwCreateWindow(mWidth, mHeight, mTitle.c_str(), NULL, NULL);
 		if (!mWindow) {
 			std::cerr << "ERROR Creating window!" << std::endl;
@@ -55,8 +56,9 @@ namespace graphics {
 		glfwSetMouseButtonCallback(mWindow, mouse_button_callback);
 		glfwSetKeyCallback(mWindow, key_callback);
 
+		glEnable(GL_MULTISAMPLE);
 		glViewport(0, 0, mWidth, mHeight);
-		glfwSwapInterval(0);
+		glfwSwapInterval(1);
 
 		return true;
 	}
@@ -91,10 +93,12 @@ namespace graphics {
 		return glfwWindowShouldClose(mWindow) == 1;
 	}
 
+	void Window::input() {
+		glfwPollEvents();
+	}
+
 	void Window::update() {
 		checkErrors();
-
-		glfwPollEvents();
 		glfwSwapBuffers(mWindow);
 	}
 

@@ -37,6 +37,7 @@ namespace graphics {
 
 		static void checkErrors();
 		bool close();
+		void input();
 		void update();
 		void clear();
 

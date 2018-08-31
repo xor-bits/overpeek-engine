@@ -24,7 +24,7 @@ namespace graphics {
 	}
 
 	void TextLayer::render() {
-		mFontLoader->renderText(mText, mX, mY, mSizeX, mSizeY, mColor);
+		mFontLoader->renderText(mText, mX + mRelativeX, mY + mRelativeY, mSizeX, mSizeY, mColor);
 	}
 
 	void TextLayer::update() {
