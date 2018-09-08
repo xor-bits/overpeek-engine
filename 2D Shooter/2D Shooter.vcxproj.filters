@@ -77,6 +77,12 @@
     <ClInclude Include="graphics\layers\buttonLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tools\random.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="logic\SAT.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="graphics\shaders\shader.text.vert" />

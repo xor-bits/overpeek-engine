@@ -58,7 +58,7 @@ namespace graphics {
 
 		glEnable(GL_MULTISAMPLE);
 		glViewport(0, 0, mWidth, mHeight);
-		glfwSwapInterval(1);
+		glfwSwapInterval(0);
 
 		return true;
 	}
