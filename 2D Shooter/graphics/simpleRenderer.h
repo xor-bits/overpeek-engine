@@ -13,15 +13,15 @@ namespace graphics {
 
 	class SimpleRenderer {
 	private:
-		GLuint mTriangleVAO, mTriangleVBO, mTriangleIBO;
-		Shader *mShader;
+		static GLuint mTriangleVAO, mTriangleVBO, mTriangleIBO;
+
+		static void setArrayObjects(GLfloat vertices[][2], GLuint &vao, GLuint &vbo, GLuint &ibo);
 
 	public:
-		SimpleRenderer(Shader &shader);
+		static void init();
 
-		void setArrayObjects(GLfloat vertices[][2], GLuint &vao, GLuint &vbo, GLuint &ibo);
+		static void renderTriangle(Shader *shader, glm::mat4 *ml_matrix, glm::vec4 color);
 
-		void renderTriangle(glm::mat4 modelMatrix, glm::vec4 color);
 	};
 	
 }

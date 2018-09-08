@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "layer.h"
 #include "../../graphics/fontLoader.h"
 
@@ -14,6 +13,7 @@ namespace graphics {
 		std::string mText;
 		glm::vec3 mColor;
 		FontLoader *mFontLoader;
+		int mXAlign = TEXT_ALIGN_LEFT, mYAlign = TEXT_ALIGN_TOP;
 
 	public:
 		TextLayer(float x, float y, glm::vec3 color, std::string text, FontLoader &fontLoader);
@@ -27,6 +27,11 @@ namespace graphics {
 
 		inline void setColor(glm::vec3 color) { mColor = color; }
 		inline glm::vec3 getColor() { return mColor; }
+
+		inline void setXAlignment(int value) { mXAlign = value; }
+		inline int getXAlignment() { return mXAlign; }
+		inline void setYAlignment(int value) { mYAlign = value; }
+		inline int getYAlignment() { return mXAlign; }
 
 	};
 

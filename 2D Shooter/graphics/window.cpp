@@ -1,5 +1,6 @@
 #include "window.h"
 #include <GL/GLU.h>
+#include "simpleRenderer.h"
 
 #define M_NUM_KEYS		512
 #define M_NUM_BUTTONS	128
@@ -25,6 +26,7 @@ namespace graphics {
 			system("pause");
 			exit(EXIT_FAILURE);
 		}
+		SimpleRenderer::init();
 	}
 
 	Window::~Window() {
@@ -102,7 +104,7 @@ namespace graphics {
 	}
 
 	void Window::update() {
-		checkErrors();
+		//checkErrors();
 		glfwSwapBuffers(mWindow);
 	}
 

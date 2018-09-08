@@ -91,9 +91,9 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="graphics\shaders\shader.text.vert" />
-    <None Include="graphics\shaders\shader.text.frag" />
-    <None Include="graphics\shaders\shader.test.frag" />
-    <None Include="graphics\shaders\shader.test.vert" />
+    <None Include="shaders\text.vert" />
+    <None Include="shaders\text.frag" />
+    <None Include="shaders\normal.frag" />
+    <None Include="shaders\normal.vert" />
   </ItemGroup>
 </Project>

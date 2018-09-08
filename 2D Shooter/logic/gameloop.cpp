@@ -34,10 +34,10 @@ namespace logic {
 		
 		
 			//Frame/update counter
-			if (current - start > 10000) {
+			if (current - start > 1000000) {
 				mFps = frames; mUps = updates;
 				frames = 0; updates = 0;
-				start += 10000;
+				start += 1000000;
 			}
 		}
 	}

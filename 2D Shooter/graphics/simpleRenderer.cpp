@@ -3,9 +3,11 @@
 
 namespace graphics {
 
-	SimpleRenderer::SimpleRenderer(Shader &shader) {
-		mShader = &shader;
+	GLuint SimpleRenderer::mTriangleVAO;
+	GLuint SimpleRenderer::mTriangleVBO;
+	GLuint SimpleRenderer::mTriangleIBO;
 
+	void SimpleRenderer::init() {
 		GLfloat vertices[3][2] = {
 			{  0.0f, -1.0f },
 			{  1.0f,  1.0f },
@@ -35,12 +37,13 @@ namespace graphics {
 		glBindVertexArray(0);
 	}
 
-	void SimpleRenderer::renderTriangle(glm::mat4 modelMatrix, glm::vec4 color) {
+	void SimpleRenderer::renderTriangle(Shader *shader, glm::mat4 *ml_matrix, glm::vec4 color) {
+		if (ml_matrix == NULL) ml_matrix = new glm::mat4(1.0f);
 
-		// Activate corresponding render state
-		mShader->enable();
-		mShader->setUniform4f("color", color);
-		mShader->SetUniformMat4("ml_matrix", modelMatrix);
+		shader->enable();
+		shader->setUniform4f("color", color);
+		shader->SetUniformMat4("ml_matrix", *ml_matrix);
+		delete ml_matrix;
 
 		//Bind
 		glBindVertexArray(mTriangleVAO);

@@ -73,6 +73,8 @@ namespace graphics {
 	void ObjectLayer::update() {
 		mX += mVelX; mY += mVelY;
 		mVelX += mAccX; mVelY += mAccY;
+		mRotationZ += mRotationSpeedZ;
+		mRotationSpeedZ += mRotationAccZ;
 	}
 
 }

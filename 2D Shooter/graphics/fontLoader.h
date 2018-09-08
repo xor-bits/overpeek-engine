@@ -14,6 +14,13 @@
 
 #include "shader.h"
 
+#define TEXT_ALIGN_LEFT 0
+#define TEXT_ALIGN_CENTER 1
+#define TEXT_ALIGN_RIGHT 2
+
+#define TEXT_ALIGN_TOP 3
+#define TEXT_ALIGN_BOTTOM 4
+
 namespace graphics {
 
 	class FontLoader {
@@ -37,7 +44,7 @@ namespace graphics {
 	public:
 		FontLoader(std::string fontPath, Shader &shader);
 		
-		void renderText(std::string text, float x, float y, float scaleX, float scaleY, glm::vec3 color);
+		void renderText(std::string text, glm::mat4 ml_matrix, glm::vec3 color, int textAlignmentX, int textAlignmentY);
 	};
 
 }

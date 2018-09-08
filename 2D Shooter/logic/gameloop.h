@@ -17,6 +17,8 @@ namespace logic {
 		void start();
 		void stop();
 
+		inline int getFPS() { return mFps; }
+		inline int getUPS() { return mUps; }
 	};
 
 }
