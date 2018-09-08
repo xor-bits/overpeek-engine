@@ -6,8 +6,12 @@
 #include "graphics/layers/textLayer.h"
 #include "graphics/layers/objectLayer.h"
 #include "graphics/layers/buttonLayer.h"
+#include "logic/SAT.h"
 
 #include "tools/clock.h"
+#include "tools/random.h"
+
+#define ROOT_TWO 1.4142135623730951
 
 #define M_WINDOW_WIDTH		1280
 #define M_WINDOW_HEIGHT		760
@@ -19,17 +23,16 @@ using namespace graphics;
 int fps = 0, ups = 0;
 
 Window *window;
-Shader *textShader;
 Shader *shader;
-FontLoader *fontLoader;
 ObjectLayer *layer3;
-std::vector<ObjectLayer> projectiles;
+ObjectLayer *layer2;
 SimpleRenderer *renderer;
 
 void render();
 void update();
 
 int main() {
+
 	//Window
 	window = new Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, "Test");
 
@@ -47,22 +50,15 @@ int main() {
 	shader->enable();
 	shader->SetUniformMat4("pr_matrix", projection);
 
-	//Create textshader
-	textShader = new Shader("graphics/shaders/shader.text.vert", "graphics/shaders/shader.text.frag");
-	textShader->enable();
-	textShader->SetUniformMat4("pr_matrix", projection);
-
 
 	//Renderer
 	renderer = new SimpleRenderer(*shader);
 
-	//Load font
-	fontLoader = new FontLoader("arial.ttf", *textShader);
 
 
-
-	//Set textlayer
-	layer3 = new ObjectLayer(0.0f, 0.0f, 0.1f, 0.1f, vec4(0.2f, 0.3f, 0.4f, 1.0f), *renderer, LAYER_OBJECT_QUAD);
+	//Set layer
+	layer3 = new ObjectLayer(0.2f, 0.0f, 0.1f, 0.1f, vec4(0.2f, 0.3f, 0.4f, 1.0f), *renderer, LAYER_OBJECT_CIRCLE, true);
+	layer2 = new ObjectLayer(0.0f, 0.0f, 0.1f, 0.1f, vec4(0.4f, 0.5f, 0.5f, 1.0f), *renderer, LAYER_OBJECT_CIRCLE, true);
 
 
 
@@ -95,10 +91,10 @@ int main() {
 
 
 		//Frame/update counter
-		if (current - start > 1000000) {
+		if (current - start > 10000) {
 			fps = frames; ups = updates;
 			frames = 0; updates = 0;
-			start += 1000000;
+			start += 10000;
 		}
 
 		//Update
@@ -108,36 +104,58 @@ int main() {
 }
 
 void render() {
-	for (int i = 0; i < projectiles.size(); i++)
-	{
-		projectiles[i].render();
-	}
+	//renderer->renderCircle(mat4(1.0f), 0.0f, 0.0f, layer3->getRotation(), 3, vec4(1.0f, 0.8f, 0.6f, 1.0f));
 
+	//renderer->renderQuad(mat4(1.0f), 0.5f, 1.0f, 0.1f, 0.1f, vec4(0.0f, 0.0f, 1.0f, 1.0f));
+	renderer->renderLine(mat4(1.0f), 2, vec2(1.0f, 0.0f), vec2(-1.0f, 1.0f), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	vec2 p = logic::closestPointOnLine(vec2(1.0f, 0.0f), vec2(-1.0f, 1.0f), vec2(layer3->getX(), layer3->getY()));
+	renderer->renderQuad(mat4(1.0f), p.x, p.y, 0.1f, 0.1f, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+
+	layer2->render();
 	layer3->render();
 }
 
 void update() {
-	fvec2 tmp = fvec2(0.0f, 0.0f);
-	if (window->getKey(GLFW_KEY_D)) layer3->setAccX(0.001f);
-	else if (window->getKey(GLFW_KEY_A)) layer3->setAccX(-0.001f);
+	if (window->getKey(GLFW_KEY_D)) layer3->setAccX(0.0008f);
+	else if (window->getKey(GLFW_KEY_A)) layer3->setAccX(-0.0008f);
 	else layer3->setAccX(0.0f);
-	if (window->getKey(GLFW_KEY_S)) layer3->setAccY(0.001f);
-	else if (window->getKey(GLFW_KEY_W)) layer3->setAccY(-0.001f);
+	if (window->getKey(GLFW_KEY_S)) layer3->setAccY(0.0008f);
+	else if (window->getKey(GLFW_KEY_W)) layer3->setAccY(-0.0008f);
 	else layer3->setAccY(0.0f);
-	layer3->setVelX(layer3->getVelX() / 1.03);
-	layer3->setVelY(layer3->getVelY() / 1.03);
 
-	if (window->getKey(GLFW_KEY_SPACE)) {
-		std::cout << projectiles.size() << std::endl;
-		ObjectLayer tmp2 = ObjectLayer(layer3->getX(), layer3->getY(), 0.1f, 0.1f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), *renderer, LAYER_OBJECT_TRIANGLE);
-		tmp2.setVelY(0.01f);
-		projectiles.push_back(tmp2);
+	if (layer2->getX() > M_ASPECT) layer2->setVelX(-layer2->getVelX());
+	else if (layer2->getX() < -M_ASPECT) layer2->setVelX(-layer2->getVelX());
+	if (layer2->getY() > 1.0) layer2->setVelY(-layer2->getVelY());
+	else if (layer2->getY() < -1.0) layer2->setVelY(-layer2->getVelY());
+	//layer2->setVelX(layer2->getVelX() * 0.99);
+	//layer2->setVelY(layer2->getVelY() * 0.99);
+
+	if (layer3->getX() > M_ASPECT) layer3->setX(-M_ASPECT);
+	else if (layer3->getX() < -M_ASPECT) layer3->setX(M_ASPECT);
+	if (layer3->getY() > 1.0) layer3->setY(-1.0);
+	else if (layer3->getY() < -1.0) layer3->setY(1.0);
+	layer3->setVelX(layer3->getVelX() * 0.95);
+	layer3->setVelY(layer3->getVelY() * 0.95);
+
+	double mX, mY;
+	window->getMousePos(mX, mY);
+	float angle = atan2(mY - layer3->getY(), mX - layer3->getX()) + glm::half_pi<float>();
+	layer3->setRotation(angle);
+
+	//Separating axis theorem
+	bool interact = logic::circleSAT(layer3, layer2);
+	if (interact) {
+		float tmpx = layer3->getVelX();
+		float tmpy = layer3->getVelY();
+		layer3->setVelX(layer2->getVelX());
+		layer3->setVelY(layer2->getVelY());
+
+		layer2->setVelX(tmpx);
+		layer2->setVelY(tmpy);
 	}
 
+	layer2->update();
 	layer3->update();
-	for (int i = 0; i < projectiles.size(); i++)
-	{
-		projectiles[i].update();
-	}
 
 }

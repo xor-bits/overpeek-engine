@@ -15,6 +15,7 @@
 #define LAYER_OBJECT_QUAD 2
 #define LAYER_OBJECT_PENTAGON 3
 #define LAYER_OBJECT_HEXAGON 4
+#define LAYER_OBJECT_CIRCLE 5
 
 namespace graphics {
 
@@ -27,14 +28,14 @@ namespace graphics {
 
 	public:
 		ObjectLayer(glm::vec2 topRightCorner, glm::vec2 botttomLeftCorner, glm::vec4 color, SimpleRenderer &renderer);
-		ObjectLayer(float x, float y, float sizeX, float sizeY, glm::vec4 color, SimpleRenderer &renderer, int layerObjectType);
+		ObjectLayer(float x, float y, float sizeX, float sizeY, glm::vec4 color, SimpleRenderer &renderer, int layerObjectType, bool center);
 		ObjectLayer(float x, float y, std::vector<glm::vec2> points, glm::vec4 color, int layerObjectType);
 
 		void render();
 		void update();
 
 		inline void setPoint(unsigned int atArray, glm::vec2 point) { mPoints.at(atArray) = point; }
-		inline std::vector<glm::vec2> getPoints(unsigned int atArray) { return mPoints; }
+		inline std::vector<glm::vec2> getPoints() { return mPoints; }
 		//inline void pushPoint(glm::vec2 point) { mPoints.push_back(point); }
 		//inline glm::vec2 getPoint(unsigned int atArray) { return mPoints.at(atArray); }
 
