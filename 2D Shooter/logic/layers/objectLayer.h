@@ -2,12 +2,12 @@
 
 
 #include "layer.h"
-#include "../fontLoader.h"
-#include "../shader.h"
-#include "../simpleRenderer.h"
+#include "../../graphics/shader.h"
+#include "../../graphics/simpleRenderer.h"
 
 #include <string>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 
 #define LAYER_OBJECT_NONE 0
@@ -27,9 +27,7 @@ namespace graphics {
 		SimpleRenderer *mRenderer;
 
 	public:
-		ObjectLayer(glm::vec2 topRightCorner, glm::vec2 botttomLeftCorner, glm::vec4 color, SimpleRenderer &renderer);
 		ObjectLayer(float x, float y, float sizeX, float sizeY, glm::vec4 color, SimpleRenderer &renderer, int layerObjectType, bool center);
-		ObjectLayer(float x, float y, std::vector<glm::vec2> points, glm::vec4 color, int layerObjectType);
 
 		void render();
 		void update();

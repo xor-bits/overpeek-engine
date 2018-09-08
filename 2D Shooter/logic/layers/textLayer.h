@@ -2,8 +2,7 @@
 
 
 #include "layer.h"
-#include "../fontLoader.h"
-#include "../shader.h"
+#include "../../graphics/fontLoader.h"
 
 #include <string>
 #include <glm/glm.hpp>

@@ -3,24 +3,6 @@
 
 namespace graphics {
 
-	ObjectLayer::ObjectLayer(glm::vec2 topRightCorner, glm::vec2 botttomLeftCorner, glm::vec4 color, SimpleRenderer &renderer) {
-		setX(0.0f); setY(0.0f);
-		setSizeX(1.0f); setSizeY(1.0f);
-		setRotation(0.0f);
-
-		mLayerObjectType = LAYER_OBJECT_QUAD;
-		mColor = color;
-		mRenderer = &renderer;
-
-		mPoints.push_back(glm::vec2(botttomLeftCorner.x, topRightCorner.y));
-		mPoints.push_back(glm::vec2(topRightCorner.x, topRightCorner.y));
-		mPoints.push_back(glm::vec2(topRightCorner.x, botttomLeftCorner.y));
-
-		mPoints.push_back(glm::vec2(botttomLeftCorner.x, topRightCorner.y));
-		mPoints.push_back(glm::vec2(botttomLeftCorner.x, botttomLeftCorner.y));
-		mPoints.push_back(glm::vec2(topRightCorner.x, botttomLeftCorner.y));
-	}
-
 	ObjectLayer::ObjectLayer(float x, float y, float sizeX, float sizeY, glm::vec4 color, SimpleRenderer &renderer, int layerObjectType, bool center) {
 		setX(x); setY(y);
 		setSizeX(sizeX); setSizeY(sizeY);
@@ -75,16 +57,16 @@ namespace graphics {
 			glm::mat4 model;
 			model = glm::translate(glm::mat4(1.0f), glm::vec3(mX + mRelativeX, mY + mRelativeY, 0.0f));
 			model *= glm::rotate(glm::mat4(1.0f), mRotationZ, glm::vec3(0.0f, 0.0f, 1.0f));
-			mRenderer->renderTriangle(model, 0.0f, 0.0f, mPoints, mColor);
+			//mRenderer->renderTriangle(model, 0.0f, 0.0f, mPoints, mColor);
 		}
 		else if (mLayerObjectType == LAYER_OBJECT_QUAD) {
-			glm::mat4 model;
-			model = glm::translate(glm::mat4(1.0f), glm::vec3(mX + mRelativeX, mY + mRelativeY, 0.0f));
-			model *= glm::rotate(glm::mat4(1.0f), mRotationZ, glm::vec3(0.0f, 0.0f, 1.0f));
-			mRenderer->renderQuad(model, 0.0f, 0.0f, mPoints, mColor);
+			//glm::mat4 model;
+			//model = glm::translate(glm::mat4(1.0f), glm::vec3(mX + mRelativeX, mY + mRelativeY, 0.0f));
+			//model *= glm::rotate(glm::mat4(1.0f), mRotationZ, glm::vec3(0.0f, 0.0f, 1.0f));
+			//mRenderer->renderQuad(model, 0.0f, 0.0f, mPoints, mColor);
 		}
 		else if (mLayerObjectType == LAYER_OBJECT_CIRCLE) {
-			mRenderer->renderCircle(glm::mat4(1.0f), mX, mY, mSizeX, 16, mColor);
+			//mRenderer->renderCircle(glm::mat4(1.0f), mX, mY, mSizeX, 16, mColor);
 		}
 	}
 

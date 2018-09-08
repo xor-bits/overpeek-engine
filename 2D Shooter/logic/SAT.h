@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "../graphics/layers/objectLayer.h"
+#include "layers/objectLayer.h"
 
 using namespace graphics;
 namespace logic {
@@ -85,7 +85,7 @@ namespace logic {
 	}
 
 	bool circleSAT(ObjectLayer *objA, ObjectLayer *objB) {
-
+		return true;
 	}
 
 }

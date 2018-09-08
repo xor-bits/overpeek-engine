@@ -58,6 +58,10 @@ namespace graphics {
 
 		glEnable(GL_MULTISAMPLE);
 		glViewport(0, 0, mWidth, mHeight);
+		glClearColor(0.18f, 0.18f, 0.20f, 1.0f);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		glfwSwapInterval(0);
 
 		return true;

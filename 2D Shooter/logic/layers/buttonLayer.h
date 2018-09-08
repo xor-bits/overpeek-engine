@@ -2,8 +2,7 @@
 
 
 #include "layer.h"
-#include "../window.h"
-#include "../fontLoader.h"
+#include "../../graphics/window.h"
 #include "objectLayer.h"
 #include "textLayer.h"
 
@@ -18,7 +17,6 @@ namespace graphics {
 		glm::vec2 mTopRightCornerOffset;
 		glm::vec2 mBottomRightCornerOffset;
 		Window *mWindow;
-		FontLoader *mFontLoader;
 
 		TextLayer *mTextLayer = nullptr;
 		ObjectLayer *mObjectLayer = nullptr;

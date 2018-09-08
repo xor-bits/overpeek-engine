@@ -1,11 +1,10 @@
 #pragma once
 
-
 #include <chrono>
 
-namespace tools {
+using namespace std::chrono;
 
-	using namespace std::chrono;
+namespace tools {
 
 	long long getMicroseconds() {
 		auto now = system_clock::now();
