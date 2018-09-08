@@ -13,11 +13,13 @@ namespace graphics {
 
 	class SimpleRenderer {
 	private:
-		GLuint mVAOQuad, mVBOQuad, mVAOTri, mVBOTri;
+		GLuint mVAOQuad, mVBOQuad, mVAOTri, mVBOTri, mVAOPoint, mVBOPoint;
 		Shader *mShader;
 
 	public:
 		SimpleRenderer(Shader &shader);
+
+		void renderPoints(std::vector<glm::vec2> points, glm::vec4 color);
 
 		void renderQuad(float x, float y, float w, float h, glm::vec4 color);
 		void renderQuad(float x, float y, std::vector<glm::vec2> points, glm::vec4 color);

@@ -25,6 +25,20 @@ namespace graphics {
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
+
+		glGenVertexArrays(1, &mVAOPoint);
+		glGenBuffers(1, &mVBOPoint);
+		glBindVertexArray(mVAOPoint);
+		glBindBuffer(GL_ARRAY_BUFFER, mVBOPoint);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * 2, NULL, GL_DYNAMIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+
+	void SimpleRenderer::renderPoints(std::vector<glm::vec2> points, glm::vec4 color) {
+
 	}
 
 	void SimpleRenderer::renderTriangle(float x, float y, float w, float h, glm::vec4 color) {
