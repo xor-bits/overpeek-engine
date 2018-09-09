@@ -35,16 +35,14 @@ namespace graphics {
 
 		GLuint mVAO, mVBO;
 
-		Shader *mShader;
-
 	private:
 
 		bool init(std::string fontPath);
 
 	public:
-		FontLoader(std::string fontPath, Shader &shader);
+		FontLoader(std::string fontPath);
 		
-		void renderText(std::string text, glm::mat4 ml_matrix, glm::vec3 color, int textAlignmentX, int textAlignmentY);
+		void renderText(Shader *shader, std::string text, glm::mat4 ml_matrix, glm::vec3 color, int textAlignmentX, int textAlignmentY);
 	};
 
 }

@@ -5,6 +5,7 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 namespace graphics {
 
@@ -46,7 +47,7 @@ namespace graphics {
 
 		inline bool getButton(int button) { return mButtons[button]; }
 		inline bool getKey(int key) { return mKeys[key]; }
-		inline void getMousePos(double &mouseX, double &mouseY) { mouseX = (mMouseX / mWidth * 2.0 * mAspect) - mAspect; mouseY = mMouseY / mHeight * 2 - 1; }
+		inline glm::vec2 getMousePos() { return glm::vec2((mMouseX / mWidth * 2.0 * mAspect) - mAspect, mMouseY / mHeight * 2 - 1); }
 	};
 
 }

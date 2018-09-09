@@ -26,7 +26,6 @@ namespace graphics {
 			system("pause");
 			exit(EXIT_FAILURE);
 		}
-		SimpleRenderer::init();
 	}
 
 	Window::~Window() {
@@ -57,14 +56,17 @@ namespace graphics {
 		glfwSetCursorPosCallback(mWindow, cursor_position_callback);
 		glfwSetMouseButtonCallback(mWindow, mouse_button_callback);
 		glfwSetKeyCallback(mWindow, key_callback);
+		glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		glEnable(GL_MULTISAMPLE);
 		glViewport(0, 0, mWidth, mHeight);
 		glClearColor(0.18f, 0.18f, 0.20f, 1.0f);
 		glEnable(GL_BLEND);
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		glfwSwapInterval(0);
+		glfwSwapInterval(1);
 
 		return true;
 	}
@@ -109,7 +111,7 @@ namespace graphics {
 	}
 
 	void Window::clear() {
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	void Window::setButtonCallback(void(*callback)(int, int)) {

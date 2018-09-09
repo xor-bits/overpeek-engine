@@ -161,7 +161,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="graphics\batchRenderer.cpp" />
+    <ClCompile Include="graphics\camera.cpp" />
     <ClCompile Include="graphics\fontLoader.cpp" />
+    <ClCompile Include="graphics\renderables\triangle.cpp" />
     <ClCompile Include="logic\gameloop.cpp" />
     <ClCompile Include="logic\layers\buttonLayer.cpp" />
     <ClCompile Include="logic\layers\objectLayer.cpp" />
@@ -171,9 +174,15 @@
     <ClCompile Include="graphics\textureLoader.cpp" />
     <ClCompile Include="graphics\window.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="graphics\renderables\quad.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="graphics\all.h" />
+    <ClInclude Include="graphics\batchRenderer.h" />
+    <ClInclude Include="graphics\camera.h" />
     <ClInclude Include="graphics\fontLoader.h" />
+    <ClInclude Include="graphics\renderables\renderable.h" />
+    <ClInclude Include="graphics\renderables\triangle.h" />
     <ClInclude Include="logic\gameloop.h" />
     <ClInclude Include="logic\layers\buttonLayer.h" />
     <ClInclude Include="logic\layers\layer.h" />
@@ -184,6 +193,7 @@
     <ClInclude Include="graphics\textureLoader.h" />
     <ClInclude Include="graphics\window.h" />
     <ClInclude Include="logic\SAT.h" />
+    <ClInclude Include="graphics\renderables\quad.h" />
     <ClInclude Include="tools\clock.h" />
     <ClInclude Include="tools\filereader.h" />
     <ClInclude Include="tools\random.h" />

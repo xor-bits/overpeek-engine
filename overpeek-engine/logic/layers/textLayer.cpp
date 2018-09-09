@@ -27,7 +27,7 @@ namespace graphics {
 		glm::mat4 ml_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(mX, mY, 0.0f));
 		ml_matrix *= glm::rotate(glm::mat4(1.0f), mRotationZ, glm::vec3(0.0f, 0.0f, 1.0f));
 		ml_matrix *= glm::scale(glm::mat4(1.0f), glm::vec3(mSizeX, mSizeY, 1.0f));
-		mFontLoader->renderText(mText, ml_matrix, mColor, mXAlign, mYAlign);
+		//mFontLoader->renderText(mText, ml_matrix, mColor, mXAlign, mYAlign);
 	}
 
 	void TextLayer::update() {

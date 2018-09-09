@@ -45,7 +45,8 @@ namespace graphics {
 			mTextLayer->setRelativeY(mY);
 		}
 
-		mWindow->getMousePos(mMouseX, mMouseY);
+		mMouseX = mWindow->getMousePos().x;
+		mMouseY = mWindow->getMousePos().y;
 		if ((mMouseX >= mX && mMouseX <= mX + mSizeX) && (mMouseY >= mY - mSizeY && mMouseY <= mY)) {
 			(*mHoverCallback)();
 			if (mWindow->getButton(GLFW_MOUSE_BUTTON_1)) {

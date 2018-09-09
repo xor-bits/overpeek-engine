@@ -5,9 +5,8 @@
 
 namespace graphics {
 	
-	FontLoader::FontLoader(std::string fontPath, Shader &shader) {
+	FontLoader::FontLoader(std::string fontPath) {
 		init(fontPath);
-		mShader = &shader;
 
 		glGenVertexArrays(1, &mVAO);
 		glGenBuffers(1, &mVBO);
@@ -71,12 +70,12 @@ namespace graphics {
 		return true;
 	}
 
-	void FontLoader::renderText(std::string text, glm::mat4 ml_matrix, glm::vec3 color, int textAlignmentX, int textAlignmentY)
+	void FontLoader::renderText(Shader *shader, std::string text, glm::mat4 ml_matrix, glm::vec3 color, int textAlignmentX, int textAlignmentY)
 	{
 		// Activate corresponding render state
-		mShader->enable();
-		mShader->setUniform3f("color", color);
-		mShader->SetUniformMat4("ml_matrix", ml_matrix);
+		shader->enable();
+		shader->setUniform3f("color", color);
+		shader->SetUniformMat4("ml_matrix", ml_matrix);
 		glActiveTexture(GL_TEXTURE0);
 		glBindVertexArray(mVAO);
 
@@ -92,7 +91,7 @@ namespace graphics {
 			{
 				textWidth += (mCharacters[*c].advance >> 6) / fontResolution;;
 			}
-			x = -textWidth;
+			x -= textWidth;
 		}
 		else if (textAlignmentX == TEXT_ALIGN_CENTER) {
 			GLfloat textWidth = 0.0f;
@@ -100,7 +99,7 @@ namespace graphics {
 			{
 				textWidth += (mCharacters[*c].advance >> 6) / fontResolution;;
 			}
-			x = -textWidth/2;
+			x -= textWidth/2;
 		}
 
 		if (textAlignmentY == TEXT_ALIGN_TOP) {} //Already
