@@ -3,8 +3,8 @@
 #include "logic/gameloop.h"
 #include "logic/SAT.h"
 
-#define M_WINDOW_WIDTH		1280
-#define M_WINDOW_HEIGHT		760
+#define M_WINDOW_WIDTH		1920
+#define M_WINDOW_HEIGHT		1080
 #define M_ASPECT			(float)M_WINDOW_WIDTH / (float)M_WINDOW_HEIGHT
 
 using namespace glm;
@@ -18,20 +18,25 @@ GameLoop *gameloop;
 Camera *camera;
 SimpleRenderer *renderer;
 
+Quad *sprite;
+
 vec3 camPos = vec3(0.0f);
+vec2 offset = dvec2(0.0, 0.0);
+float zoom = 2;
+float constant = 2;
+float expValue = 2;
 
 void render() {
 	window->clear();
 
-	vec3 points[4] = {
-		{ -1.0f, -1.0f, -1.0f },
-		{ 1.0f, -1.0f, -1.0f },
-		{ 1.0f, 1.0f, -1.0f },
-		{ -1.0f, 1.0f, -1.0f }
-	};
-	renderer->submit(new Quad(shader, points, vec4(1.0f, 0.0f, 0.0f, 1.0f)));
-
-	renderer->render();
+	//renderer->beginSubmits();
+	renderer->submit(sprite);
+	//renderer->endSubmits();
+	shader->setUniform1f("zoom", zoom);
+	shader->setUniform2f("offset", offset);
+	shader->setUniform1f("constant", constant);
+	shader->setUniform1f("exp", floor(expValue));
+ 	renderer->render();
 
 	window->update();
 	window->input();
@@ -45,13 +50,25 @@ void update() {
 	if (window->getKey(GLFW_KEY_W)) camPos.z -= 0.02f;
 	if (window->getKey(GLFW_KEY_D)) camPos.x += 0.02f;
 	if (window->getKey(GLFW_KEY_A)) camPos.x -= 0.02f;
-	if (window->getKey(GLFW_KEY_SPACE)) camPos.y += 0.02f;
-	if (window->getKey(GLFW_KEY_LEFT_SHIFT)) camPos.y -= 0.02f;
+
+	float speedMult = 1;
+	if (window->getKey(GLFW_KEY_LEFT_SHIFT)) speedMult = 5;
+	if (window->getKey(GLFW_KEY_R)) constant += speedMult * 0.001f;
+	if (window->getKey(GLFW_KEY_F)) constant -= speedMult * 0.001f;
+	if (window->getKey(GLFW_KEY_T)) expValue += speedMult * 0.01f;
+	if (window->getKey(GLFW_KEY_G)) expValue -= speedMult * 0.01f;
+
+	if (window->getKey(GLFW_KEY_PAGE_UP)) zoom *= 0.99;
+	if (window->getKey(GLFW_KEY_PAGE_DOWN)) zoom *= 1.01;
+	if (window->getKey(GLFW_KEY_UP)) offset.y += 0.01 * zoom;
+	if (window->getKey(GLFW_KEY_DOWN)) offset.y -= 0.01 * zoom;
+	if (window->getKey(GLFW_KEY_LEFT)) offset.x -= 0.01 * zoom;
+	if (window->getKey(GLFW_KEY_RIGHT)) offset.x += 0.01 * zoom;
+	
 
 
 	vec2 mouse = window->getMousePos();
 	std::cout << gameloop->getFPS() << std::endl;
-	//std::cout << mouse.x << ", " << mouse.y << std::endl;
 
 	camera->setRotation(mouse.x, mouse.y);
 	camera->setPosition(camPos);
@@ -64,7 +81,7 @@ void update() {
 int main() {
 	//Window
 	window = new Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, "Test");
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	//Create shader
 	shader = new Shader("shaders/normal.vert", "shaders/normal.frag");
@@ -78,8 +95,15 @@ int main() {
 
 	renderer = new SimpleRenderer();
 
+	vec3 points[4] = {
+		{ -1.0f, -1.0f, -1.0f },
+		{  1.0f, -1.0f, -1.0f },
+		{  1.0f,  1.0f, -1.0f },
+		{ -1.0f,  1.0f, -1.0f }
+	};
+	sprite = new Quad(shader, points, vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
 	//Main game loop
 	gameloop = new GameLoop(render, update, 10000);
 	gameloop->start();
-	return 0;
 }

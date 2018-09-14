@@ -6,11 +6,9 @@ namespace graphics {
 
 	class Triangle : public Renderable {
 	private:
-		glm::vec3 mPoints[3];
-		static GLuint VAO, VBO, IBO;
-		static bool first;
-
-		static void init();
+		VertexArray mVAO;
+		VertexBuffer *mVBO;
+		IndexBuffer *mIBO;
 	public:
 		Triangle(Shader *shader, glm::vec3 points[], glm::vec4 color);
 

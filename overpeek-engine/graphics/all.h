@@ -4,6 +4,7 @@
 #include "fontLoader.h"
 #include "shader.h"
 #include "simpleRenderer.h"
+#include "batchRenderer.h"
 #include "textureLoader.h"
 #include "window.h"
 

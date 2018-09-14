@@ -7,16 +7,18 @@ namespace graphics {
 
 	class Quad : public Renderable{
 	private:
-		glm::vec3 mPoints[4];
-		static GLuint VAO, VBO, IBO;
-		static bool first;
+		VertexArray mVAO;
+		VertexBuffer *mVBO;
+		IndexBuffer *mIBO;
 
-		static void init();
+		glm::vec3 mPoints[];
 
 	public:
 		Quad(Shader *shader, glm::vec3 points[], glm::vec4 color);
 
 		void render() override;
+
+		glm::vec3 getPoints(GLuint index) { return mPoints[index]; }
 	};
 
 }

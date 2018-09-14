@@ -22,7 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{4E67B5EF-25F9-4248-9027-DF3CED549DA1}</ProjectGuid>
     <RootNamespace>My2DShooter</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
     <ProjectName>overpeek-engine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -162,6 +162,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="graphics\batchRenderer.cpp" />
+    <ClCompile Include="graphics\buffers\indexBuffer.cpp" />
+    <ClCompile Include="graphics\buffers\vertexArray.cpp" />
+    <ClCompile Include="graphics\buffers\vertexBuffer.cpp" />
     <ClCompile Include="graphics\camera.cpp" />
     <ClCompile Include="graphics\fontLoader.cpp" />
     <ClCompile Include="graphics\renderables\triangle.cpp" />
@@ -179,6 +182,9 @@
   <ItemGroup>
     <ClInclude Include="graphics\all.h" />
     <ClInclude Include="graphics\batchRenderer.h" />
+    <ClInclude Include="graphics\buffers\indexBuffer.h" />
+    <ClInclude Include="graphics\buffers\vertexArray.h" />
+    <ClInclude Include="graphics\buffers\vertexBuffer.h" />
     <ClInclude Include="graphics\camera.h" />
     <ClInclude Include="graphics\fontLoader.h" />
     <ClInclude Include="graphics\renderables\renderable.h" />

@@ -30,7 +30,7 @@ namespace logic {
 			}
 		
 			frames++;
-			mCallbackRender();
+			if (mCallbackRender) mCallbackRender();
 		
 		
 			//Frame/update counter

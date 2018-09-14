@@ -1,9 +1,12 @@
 #include "window.h"
 #include <GL/GLU.h>
 #include "simpleRenderer.h"
+#include <Windows.h>
 
 #define M_NUM_KEYS		512
 #define M_NUM_BUTTONS	128
+
+_declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
 
 namespace graphics {
 
@@ -39,7 +42,7 @@ namespace graphics {
 		}
 		glfwWindowHint(GLFW_RESIZABLE, 0);
 		glfwWindowHint(GLFW_SAMPLES, 16);
-		mWindow = glfwCreateWindow(mWidth, mHeight, mTitle.c_str(), NULL, NULL);
+		mWindow = glfwCreateWindow(mWidth, mHeight, mTitle.c_str(), glfwGetPrimaryMonitor(), NULL);
 		if (!mWindow) {
 			std::cerr << "ERROR Creating window!" << std::endl;
 			return false;
@@ -65,6 +68,9 @@ namespace graphics {
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glFrontFace(GL_CCW);
 
 		glfwSwapInterval(1);
 
@@ -106,7 +112,7 @@ namespace graphics {
 	}
 
 	void Window::update() {
-		//checkErrors();
+		checkErrors();
 		glfwSwapBuffers(mWindow);
 	}
 
