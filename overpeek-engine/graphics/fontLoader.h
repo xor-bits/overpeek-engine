@@ -42,7 +42,7 @@ namespace graphics {
 	public:
 		FontLoader(std::string fontPath);
 		
-		void renderText(Shader *shader, std::string text, glm::mat4 ml_matrix, glm::vec3 color, int textAlignmentX, int textAlignmentY);
+		void renderText(Shader *shader, std::string text, float x, float y, float w, float h, glm::vec3 color, int textAlignmentX, int textAlignmentY);
 	};
 
 }

@@ -12,12 +12,12 @@ namespace logic {
 
 	void GameLoop::start() {
 		int frames = 0, updates = 0;
-		long long start = tools::getMicroseconds();
+		long long start = tools::Clock::getMicroseconds();
 		long long previous = start;
 		long long lag = 0;
 		while (mShouldRun)
 		{
-			long long current = tools::getMicroseconds();
+			long long current = tools::Clock::getMicroseconds();
 			long long elapsed = current - previous;
 			previous = current;
 			lag += elapsed;

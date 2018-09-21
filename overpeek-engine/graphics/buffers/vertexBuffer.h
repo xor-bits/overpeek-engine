@@ -11,11 +11,13 @@ namespace graphics {
 		GLuint mComponentCount;
 
 	public:
-		VertexBuffer(GLfloat *data, GLsizei count, GLuint componentCount);
+		VertexBuffer(GLfloat *data, GLsizei count, GLuint componentCount, GLenum usage);
 		~VertexBuffer();
 
 		void bind();
 		void unbind();
+
+		void setBufferData(GLfloat *data, GLsizei count, GLuint componentCount);
 
 		inline GLuint getComponentCount() { return mComponentCount; }
 	};

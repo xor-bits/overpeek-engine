@@ -3,7 +3,6 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-#include "renderables/quad.h"
 #include "buffers/indexBuffer.h"
 #include "buffers/vertexBuffer.h"
 #include "buffers/vertexArray.h"

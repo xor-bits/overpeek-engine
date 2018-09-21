@@ -2,12 +2,12 @@
 
 namespace graphics {
 
-	VertexBuffer::VertexBuffer(GLfloat *data, GLsizei count, GLuint componentCount) {
+	VertexBuffer::VertexBuffer(GLfloat *data, GLsizei count, GLuint componentCount, GLenum usage) {
 		mComponentCount = componentCount;
 		
 		glGenBuffers(1, &mID);
 		bind();
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * count, data, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * count, data, usage);
 		unbind();
 	}
 
@@ -21,6 +21,14 @@ namespace graphics {
 
 	void VertexBuffer::unbind() {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+
+	void VertexBuffer::setBufferData(GLfloat *data, GLsizei count, GLuint componentCount) {
+		mComponentCount = componentCount;
+
+		bind();
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * count, data);
+		unbind();
 	}
 
 }

@@ -6,8 +6,6 @@
 #define M_NUM_KEYS		512
 #define M_NUM_BUTTONS	128
 
-_declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
-
 namespace graphics {
 
 
@@ -18,8 +16,9 @@ namespace graphics {
 	void(*Window::mKeyCallback)(int, int);
 	void(*Window::mButtonCallback)(int, int);
 
-	Window::Window(unsigned int width, unsigned int height, std::string title) {
+	Window::Window(unsigned int width, unsigned int height, std::string title, bool fullscreen) {
 		mWidth = width; mHeight = height; mTitle = title; mAspect = width / (float)height;
+		m_fullscreen = fullscreen;
 
 		for (int i = 0; i < M_NUM_KEYS; i++) mKeys[i] = false;
 		for (int i = 0; i < M_NUM_BUTTONS; i++) mButtons[i] = false;
@@ -41,8 +40,12 @@ namespace graphics {
 			return false;
 		}
 		glfwWindowHint(GLFW_RESIZABLE, 0);
-		glfwWindowHint(GLFW_SAMPLES, 16);
-		mWindow = glfwCreateWindow(mWidth, mHeight, mTitle.c_str(), glfwGetPrimaryMonitor(), NULL);
+		//glfwWindowHint(GLFW_SAMPLES, 16);
+
+		if (m_fullscreen)
+			mWindow = glfwCreateWindow(mWidth, mHeight, mTitle.c_str(), glfwGetPrimaryMonitor(), NULL);
+		else
+			mWindow = glfwCreateWindow(mWidth, mHeight, mTitle.c_str(), NULL, NULL);
 		if (!mWindow) {
 			std::cerr << "ERROR Creating window!" << std::endl;
 			return false;
@@ -59,18 +62,19 @@ namespace graphics {
 		glfwSetCursorPosCallback(mWindow, cursor_position_callback);
 		glfwSetMouseButtonCallback(mWindow, mouse_button_callback);
 		glfwSetKeyCallback(mWindow, key_callback);
-		glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		//glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-		glEnable(GL_MULTISAMPLE);
+		//glEnable(GL_MULTISAMPLE);
 		glViewport(0, 0, mWidth, mHeight);
 		glClearColor(0.18f, 0.18f, 0.20f, 1.0f);
 		glEnable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-		glFrontFace(GL_CCW);
+		
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_BACK);
+		//glFrontFace(GL_CW);
 
 		glfwSwapInterval(1);
 
@@ -100,6 +104,9 @@ namespace graphics {
 		GLenum err = glGetError();
 		if (err != 0) {
 			std::cout << err << " " << glewGetErrorString(err) << std::endl;
+			glfwTerminate();
+			system("pause");
+			exit(EXIT_FAILURE);
 		}
 	}
 

@@ -70,18 +70,17 @@ namespace graphics {
 		return true;
 	}
 
-	void FontLoader::renderText(Shader *shader, std::string text, glm::mat4 ml_matrix, glm::vec3 color, int textAlignmentX, int textAlignmentY)
+	void FontLoader::renderText(Shader *shader, std::string text, float ox, float oy, float ow, float oh, glm::vec3 color, int textAlignmentX, int textAlignmentY)
 	{
 		// Activate corresponding render state
 		shader->enable();
 		shader->setUniform3f("color", color);
-		shader->SetUniformMat4("ml_matrix", ml_matrix);
 		glActiveTexture(GL_TEXTURE0);
 		glBindVertexArray(mVAO);
 
 
-		GLfloat x = 0.0f;
-		GLfloat y = 0.0f;
+		GLfloat x = ox;
+		GLfloat y = oy;
 		std::string::const_iterator c;
 
 		if (textAlignmentX == TEXT_ALIGN_LEFT) {} //Already
@@ -89,31 +88,31 @@ namespace graphics {
 			GLfloat textWidth = 0.0f;
 			for (c = text.begin(); c != text.end(); c++)
 			{
-				textWidth += (mCharacters[*c].advance >> 6) / fontResolution;;
+				textWidth += (mCharacters[*c].advance >> 6) / fontResolution * ow;
 			}
-			x -= textWidth;
+			ox -= textWidth;
 		}
 		else if (textAlignmentX == TEXT_ALIGN_CENTER) {
 			GLfloat textWidth = 0.0f;
 			for (c = text.begin(); c != text.end(); c++)
 			{
-				textWidth += (mCharacters[*c].advance >> 6) / fontResolution;;
+				textWidth += (mCharacters[*c].advance >> 6) / fontResolution * ow;
 			}
-			x -= textWidth/2;
+			ox -= textWidth/2.0;
 		}
 
 		if (textAlignmentY == TEXT_ALIGN_TOP) {} //Already
-		else if (textAlignmentY == TEXT_ALIGN_BOTTOM) y = 1.0f;
-		else if (textAlignmentY == TEXT_ALIGN_CENTER) y = 0.25f;
+		else if (textAlignmentY == TEXT_ALIGN_BOTTOM) y += 1.0f;
+		else if (textAlignmentY == TEXT_ALIGN_CENTER) y += 0.25f;
 
 		// Iterate through all characters
 		for (c = text.begin(); c != text.end(); c++)
 		{
 			Character ch = mCharacters[*c]; 
-			GLfloat xpos = x + ch.bearing.x / fontResolution;
-			GLfloat ypos = y - ch.bearing.y / fontResolution;
-			GLfloat w = ch.size.x / fontResolution;
-			GLfloat h = ch.size.y / fontResolution;
+			GLfloat xpos = x + ch.bearing.x / fontResolution * ow;
+			GLfloat ypos = y - ch.bearing.y / fontResolution * oh;
+			GLfloat w = ch.size.x / fontResolution * ow;
+			GLfloat h = ch.size.y / fontResolution * oh;
 
 			// Update VBO for each character
 			GLfloat vertices[6][4] = {
@@ -137,7 +136,7 @@ namespace graphics {
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 
 			// Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-			x += (ch.advance >> 6) / fontResolution; // Bitshift by 6 to get value in pixels (2^6 = 64)
+			x += (ch.advance >> 6) / fontResolution * ow; // Bitshift by 6 to get value in pixels (2^6 = 64)
 		}
 
 		glBindVertexArray(0);

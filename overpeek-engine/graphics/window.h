@@ -16,6 +16,7 @@ namespace graphics {
 		float mAspect;
 		std::string mTitle;
 		GLFWwindow *mWindow;
+		bool m_fullscreen;
 		static double mMouseX, mMouseY;
 		static bool mKeys[];
 		static bool mButtons[];
@@ -33,7 +34,7 @@ namespace graphics {
 
 		
 		//Functions
-		Window(unsigned int width, unsigned int height, std::string title);
+		Window(unsigned int width, unsigned int height, std::string title, bool fullscreen);
 		~Window();
 
 		static void checkErrors();
