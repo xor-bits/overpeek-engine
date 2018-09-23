@@ -46,6 +46,8 @@ namespace graphics {
 		void setButtonCallback(void(*callback)(int, int));
 		void setKeyboardCallback(void(*callback)(int, int));
 
+		inline float getAspect() { return mAspect; }
+
 		inline bool getButton(int button) { return mButtons[button]; }
 		inline bool getKey(int key) { return mKeys[key]; }
 		inline glm::vec2 getMousePos() { return glm::vec2((mMouseX / mWidth * 2.0 * mAspect) - mAspect, mMouseY / mHeight * 2 - 1); }

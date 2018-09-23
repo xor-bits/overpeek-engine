@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../logic/game.h"
+
 #define PLAYER_WIDTH 0.075
 #define PLAYER_HEIGHT 0.075
 
@@ -28,5 +30,12 @@ public:
 	inline float getY() { return m_y; }
 	inline float getVelY() { return m_vel_y; }
 	inline float getAccY() { return m_acc_y; }
-
+	inline int getRegionX() { 
+		if (m_x >= 0) return m_x / REGION_SIZE + 0.5;
+		else return m_x / REGION_SIZE - 0.5;
+	}
+	inline int getRegionY() {
+		if (m_y >= 0) return m_y / REGION_SIZE + 0.5;
+		else return m_y / REGION_SIZE - 0.5;
+	}
 };

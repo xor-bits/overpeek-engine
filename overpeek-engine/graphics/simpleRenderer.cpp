@@ -45,7 +45,7 @@ namespace graphics {
 		m_shader->enable();
 		m_shader->setUniform4f("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
 		m_VAO->bind();
-
+		
 		GLfloat vertices[] = {
 			x + 0, y + 0,
 			x + 0, y + h,
@@ -53,7 +53,7 @@ namespace graphics {
 			x + w, y + 0
 		};
 		m_VBO->setBufferData(vertices, 8, 2);
-
+		
 		m_IBO->bind();
 		glDrawElements(GL_TRIANGLES, m_IBO->getCount(), GL_UNSIGNED_SHORT, 0);
 	}
@@ -64,7 +64,7 @@ namespace graphics {
 		
 		m_VAO->bind();
 		glBindTexture(GL_TEXTURE_2D, texture);
-
+		
 		GLfloat vertices[] = {
 			x + 0, y + 0,
 			x + 0, y + h,
@@ -72,7 +72,7 @@ namespace graphics {
 			x + w, y + 0
 		};
 		m_VBO->setBufferData(vertices, 8, 2);
-
+		
 		m_IBO->bind();
 		glDrawElements(GL_TRIANGLES, m_IBO->getCount(), GL_UNSIGNED_SHORT, 0);
 	}

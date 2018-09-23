@@ -102,8 +102,8 @@ namespace graphics {
 		}
 
 		if (textAlignmentY == TEXT_ALIGN_TOP) {} //Already
-		else if (textAlignmentY == TEXT_ALIGN_BOTTOM) y += 1.0f;
-		else if (textAlignmentY == TEXT_ALIGN_CENTER) y += 0.25f;
+		else if (textAlignmentY == TEXT_ALIGN_BOTTOM) y += 1.0f * oh;
+		else if (textAlignmentY == TEXT_ALIGN_CENTER) y += 0.25f * oh;
 
 		// Iterate through all characters
 		for (c = text.begin(); c != text.end(); c++)

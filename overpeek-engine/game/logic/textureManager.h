@@ -7,10 +7,10 @@
 
 class TextureManager {
 private:
-	static std::map<int, GLuint> m_textures;
+	static GLuint m_textures[MAX_TEXTURES];
 
 public:
-	static void loadTexture(std::string filepath, int id);
+	static void loadTexture(std::string filepath, GLenum format, int id);
 	static GLuint getTexture(int id);
 
 };

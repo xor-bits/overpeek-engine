@@ -5,6 +5,10 @@
 
 Player::Player(float x, float y) {
 	m_x = x; m_y = y;
+	m_vel_x = 0;
+	m_vel_y = 0;
+	m_acc_x = 0;
+	m_acc_y = 0;
 }
 
 void Player::render() {
@@ -16,8 +20,8 @@ void Player::update() {
 	m_y += m_vel_y;
 	m_vel_x += m_acc_x;
 	m_vel_y += m_acc_y;
-	m_vel_x *= 0.95;
-	m_vel_y *= 0.95;
+	m_vel_x *= 0.8;
+	m_vel_y *= 0.8;
 	m_acc_x = 0;
 	m_acc_y = 0;
 }

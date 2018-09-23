@@ -1,6 +1,8 @@
 #include "../engine.h"
 #include "logic/game.h"
 
+#include <omp.h>
+
 #define M_WINDOW_WIDTH		900
 #define M_WINDOW_HEIGHT		600
 #define M_ASPECT			(float)M_WINDOW_WIDTH / (float)M_WINDOW_HEIGHT
@@ -26,22 +28,26 @@ void update() {
 	game->update();
 }
 
+void rapid() {
+	game->rapidUpdate();
+}
+
 int main() {
 	//Window
-	window = new graphics::Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, "Test", false);
+	window = new graphics::Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, "Test game", false);
 
 	//Create shader
 	shader = new graphics::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl");
 	textShader = new graphics::Shader("shaders/text.vert.glsl", "shaders/text.frag.glsl");
 	
-	glm::mat4 orthographic = glm::ortho(-M_ASPECT, M_ASPECT, 1.0f, -1.0f);
+	float debugZoom = 1.0;
+	glm::mat4 orthographic = glm::ortho(-M_ASPECT * debugZoom, M_ASPECT* debugZoom, debugZoom, -debugZoom);
 	shader->enable(); shader->SetUniformMat4("pr_matrix", orthographic);
 	textShader->enable(); textShader->SetUniformMat4("pr_matrix", orthographic);
 	graphics::SimpleRenderer::init(shader, textShader, "arial.ttf");
 
-	game->init(shader);
-
 	//Main game loop
-	gameloop = new logic::GameLoop(render, update, 10000);
+	gameloop = new logic::GameLoop(render, update, rapid, 10000);
+	game->init(shader, window, gameloop);
 	gameloop->start();
 }

@@ -81,6 +81,15 @@
     <ClCompile Include="game\logic\textureManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="logic\noise.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="audio\audioManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game\logic\inventory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="graphics\window.h">
@@ -159,6 +168,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game\logic\textureManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="logic\noise.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="audio\audioPlayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="audio\audioManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\logic\inventory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
