@@ -14,6 +14,7 @@ private:
 
 public:
 	Tile(long int x, long int y, int id, int object_id);
+	~Tile();
 
 	void render(float offx, float offy);
 	void update();

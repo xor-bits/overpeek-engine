@@ -18,6 +18,7 @@ private:
 
 public:
 	Region(int x, int y);
+	~Region();
 
 	void render(float offx, float offy);
 	void update();
@@ -25,4 +26,5 @@ public:
 	inline Tile *getTile(unsigned int x, unsigned int y) { return m_tiles[x][y]; }
 	inline int getX() { return (m_x - floor(RENDER_DST/2.0)) * REGION_SIZE; }
 	inline int getY() { return (m_y - floor(RENDER_DST/2.0)) * REGION_SIZE; }
+
 };
