@@ -10,6 +10,9 @@ private:
 	int m_wood;
 
 public:
+	bool visible;
+
+public:
 	Inventory(graphics::Shader *shader, graphics::SimpleRenderer *renderer, graphics::Window *window);
 
 	void render();

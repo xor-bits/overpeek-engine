@@ -7,6 +7,10 @@
 #define REGION_SIZE 8
 #define TILE_SIZE 0.2
 
+#define USER_PROFILE std::string(getenv("USERPROFILE"))
+#define SAVE_PATH std::string(USER_PROFILE + "\\AppData\\Roaming\\overpeek-game\\")
+#define WORLD_NAME std::string("test")
+
 class Tile;
 class Region;
 class Player;
@@ -23,15 +27,16 @@ private:
 
 	static float lastRegionX;
 	static float lastRegionY;
-
 	static int hitCooldown;
+
+	static void renderDebugScreen();
 
 public:
 	static void init(graphics::Shader *shader, graphics::Window * window, logic::GameLoop *loop);
 	static void render();
-	static void renderDebugScreen();
 	static void update();
 	static void rapidUpdate();
+	static void close();
 	
 	inline static graphics::Shader *getShader() { return m_shader; }
 	inline static graphics::Window *getWindow() { return m_window; }

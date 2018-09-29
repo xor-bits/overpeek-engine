@@ -4,6 +4,8 @@
 #include "../world/region.h"
 #include "../logic/inventory.h"
 
+#include <Windows.h>
+
 graphics::Window *Game::m_window;
 graphics::Shader *Game::m_shader;
 graphics::SimpleRenderer *Game::m_renderer;
@@ -13,16 +15,18 @@ Inventory *m_inventory;
 
 Region *Game::m_region[RENDER_DST * 2][RENDER_DST * 2];
 Player *Game::m_player;
-
 float Game::lastRegionX = 0;
 float Game::lastRegionY = 0;
 
 int Game::hitCooldown = 513709;
 
+bool holdingI = false;
+
 void Game::init(graphics::Shader *shader, graphics::Window * window, logic::GameLoop *loop) {
 	m_shader = shader; m_window = window; m_loop = loop;
 
-	logic::Noise::seed(tools::Clock::getMicroseconds());
+	system(std::string("mkdir \"" + SAVE_PATH + WORLD_NAME + "\\regions\"").c_str());
+	logic::Noise::seed(1);//tools::Clock::getMicroseconds());
 
 	graphics::TextureLoader::loadTexture("recourses/null.png", GL_RGB, 0);
 	graphics::TextureLoader::loadTexture("recourses/textures.png", GL_RGBA, 1);
@@ -80,33 +84,47 @@ void Game::renderDebugScreen() {
 
 void Game::update() {
 	//Player movement
-	float playerSpeed = 0.01;
-	if (m_window->getKey(GLFW_KEY_LEFT_SHIFT)) playerSpeed = 0.02;
+	float playerSpeed = 0.02;
+	if (m_window->getKey(GLFW_KEY_LEFT_SHIFT)) playerSpeed = 10;
 	if (m_window->getKey(GLFW_KEY_S)) m_player->setAccY(playerSpeed);
 	if (m_window->getKey(GLFW_KEY_D)) m_player->setAccX(playerSpeed);
 	if (m_window->getKey(GLFW_KEY_W)) m_player->setAccY(-playerSpeed);
 	if (m_window->getKey(GLFW_KEY_A)) m_player->setAccX(-playerSpeed);
 	m_player->update();
 
+	//Inventory
+	if (m_window->getKey(GLFW_KEY_I)) {
+		if (!holdingI) {
+			m_inventory->visible = !m_inventory->visible;
+		}
+		holdingI = true;
+	} else holdingI = false;
+	if (m_window->getKey(GLFW_KEY_ESCAPE)) m_inventory->visible = false;
+
+	//Move regions in array
 	if (m_player->getRegionX() > lastRegionX) {
+		for (int y = 0; y < RENDER_DST; y++) delete m_region[0][y];
 		for (int x = 0; x < RENDER_DST - 1; x++) {
 			for (int y = 0; y < RENDER_DST; y++) m_region[x][y] = m_region[x + 1][y];
 		}
 		for (int y = 0; y < RENDER_DST; y++) m_region[RENDER_DST - 1][y] = nullptr;
 	}
 	else if (m_player->getRegionX() < lastRegionX) {
+		for (int y = 0; y < RENDER_DST; y++) delete m_region[RENDER_DST - 1][y];
 		for (int x = RENDER_DST - 1; x > 0; x--) {
 			for (int y = 0; y < RENDER_DST; y++) m_region[x][y] = m_region[x - 1][y];
 		}
 		for (int y = 0; y < RENDER_DST; y++) m_region[0][y] = nullptr;
 	} 
 	if (m_player->getRegionY() > lastRegionY) {
+		for (int x = 0; x < RENDER_DST; x++) delete m_region[x][0];
 		for (int y = 0; y < RENDER_DST - 1; y++) {
 			for (int x = 0; x < RENDER_DST; x++) m_region[x][y] = m_region[x][y + 1];
 		}
 		for (int x = 0; x < RENDER_DST; x++) m_region[x][RENDER_DST - 1] = nullptr;
 	}
 	else if (m_player->getRegionY() < lastRegionY) {
+		for (int x = 0; x < RENDER_DST; x++) delete m_region[x][RENDER_DST - 1];
 		for (int y = RENDER_DST - 1; y > 0; y--) {
 			for (int x = 0; x < RENDER_DST; x++) m_region[x][y] = m_region[x][y - 1];
 		}
@@ -121,38 +139,63 @@ void Game::update() {
 	int hitSpeed = 2;
 	if (hitCooldown < hitSpeed) hitCooldown++;
 	if (m_window->getButton(GLFW_MOUSE_BUTTON_LEFT) && hitCooldown >= hitSpeed) {
+<<<<<<< HEAD
 		if (m_hover_tile->getObjectId() != 5) {
 			hitCooldown = 0;
 			audio::AudioManager::play(0);
 			if (m_hover_tile->decreaceObjectHealth(0.2f)) {
 				m_inventory->addItem(1);
 				std::cout << "Wood++\n";
+=======
+		if (m_hover_tile) {
+			if (m_hover_tile->getObjectId() != 0) {
+				hitCooldown = 0;
+				audio::AudioManager::play(0);
+				if (m_hover_tile->decreaceObjectHealth(0.2f)) {
+					m_inventory->addItem(1);
+					std::cout << "Wood++\n";
+				}
+>>>>>>> 58354a52ddbe18f20adb822ed668e871de978bb7
 			}
 		}
 	}
 
+<<<<<<< HEAD
 	for (int x = 0; x < RENDER_DST; x++)
 	{
 		for (int y = 0; y < RENDER_DST; y++)
 		{
 			if (m_region[x][y] != nullptr) m_region[x][y]->update(-m_player->getX() * TILE_SIZE, -m_player->getY() * TILE_SIZE);
+=======
+	lastRegionX = m_player->getRegionX();
+	lastRegionY = m_player->getRegionY();
+
+	//Update regions
+	for (int x = 0; x < RENDER_DST; x++) {
+		for (int y = 0; y < RENDER_DST; y++) {
+			if (m_region[x][y]) m_region[x][y]->update();
+>>>>>>> 58354a52ddbe18f20adb822ed668e871de978bb7
 		}
 	}
 
 	m_inventory->update();
-
-	lastRegionX = m_player->getRegionX();
-	lastRegionY = m_player->getRegionY();
 }
-
-//long long startTime = tools::Clock::getMicroseconds();
-//std::cout << "ms: " << (tools::Clock::getMicroseconds() - startTime) / 1000.0 << std::endl;
 
 void Game::rapidUpdate() {
 	for (int x = 0; x < RENDER_DST; x++) {
 		for (int y = 0; y < RENDER_DST; y++) {
 			if (m_region[x][y] == nullptr) {
 				m_region[x][y] = new Region(x + m_player->getRegionX(), y + m_player->getRegionY());
+			}
+		}
+	}
+}
+
+void Game::close() {
+	for (int x = 0; x < RENDER_DST; x++) {
+		for (int y = 0; y < RENDER_DST; y++) {
+			if (m_region[x][y] != nullptr) {
+				m_region[x][y]->saveTiles();
 			}
 		}
 	}
@@ -187,6 +230,8 @@ Tile *Game::getTile(int x, int y) {
 	if (regionAt) {
 		int finalX = x + ceil(REGION_SIZE / 2.0) - regionAt->getX();
 		int finalY = y + ceil(REGION_SIZE / 2.0) - regionAt->getY();
+		if (finalX < 0 || finalX > REGION_SIZE) return nullptr;
+		if (finalY < 0 || finalY > REGION_SIZE) return nullptr;
 		return regionAt->getTile(finalX, finalY);
 	}
 

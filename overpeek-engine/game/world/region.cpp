@@ -2,6 +2,7 @@
 
 #include "../../engine.h"
 #include "../logic/game.h"
+#include "../../engine.h"
 
 graphics::VertexArray *Region::m_vao;
 graphics::Buffer *Region::m_vbo;
@@ -88,7 +89,12 @@ void Region::initRender(graphics::Shader *shader) {
 
 Region::Region(int x, int y) {
 	m_x = x; m_y = y;
-	createTiles();
+	if (tools::BinaryIO::read(getSaveLocation()) != nullptr) loadTiles();
+	else createTiles();
+}
+
+Region::~Region() {
+	saveTiles();
 }
 
 Region::~Region() {
@@ -136,6 +142,7 @@ void Region::createTiles() {
 	}
 }
 
+<<<<<<< HEAD
 void Region::render() {
 	m_shader->enable();
 	m_shader->SetUniformMat4("ml_matrix", m_ml_matrix);
@@ -144,6 +151,44 @@ void Region::render() {
 	m_vao->bind();
 	m_tid->setBufferData(m_texture_id_array, REGION_SIZE * REGION_SIZE * 6 * 2, 1);
 	glDrawArrays(GL_TRIANGLES, 0, REGION_SIZE * REGION_SIZE * 6 * 2);
+=======
+void Region::loadTiles() {
+	unsigned char *readData = tools::BinaryIO::read(getSaveLocation());
+	for (int x = 0; x < REGION_SIZE; x++)
+	{
+		for (int y = 0; y < REGION_SIZE; y++)
+		{
+			long int tilex = x + ((m_x - RENDER_DST / 2.0) * REGION_SIZE);
+			long int tiley = y + ((m_y - RENDER_DST / 2.0) * REGION_SIZE);
+			int id = readData[x + (y * REGION_SIZE)];
+			int objid = readData[x + (y * REGION_SIZE) + REGION_SIZE * REGION_SIZE];
+			m_tiles[x][y] = new Tile(tilex, tiley, id, objid);
+		}
+	}
+}
+
+void Region::saveTiles() {
+	unsigned char data[REGION_SIZE*REGION_SIZE*2];
+	for (int x = 0; x < REGION_SIZE; x++)
+	{
+		for (int y = 0; y < REGION_SIZE; y++)
+		{
+			data[x + (y * REGION_SIZE)] = m_tiles[x][y]->getId();
+			data[x + (y * REGION_SIZE) + REGION_SIZE * REGION_SIZE] = m_tiles[x][y]->getObjectId();
+		}
+	}
+	tools::BinaryIO::write(getSaveLocation(), data, sizeof(data) / sizeof(unsigned char));
+}
+
+void Region::render(float offx, float offy) {
+	for (int x = 0; x < REGION_SIZE; x++)
+	{
+		for (int y = 0; y < REGION_SIZE; y++)
+		{
+			m_tiles[x][y]->render(offx, offy);
+		}
+	}
+>>>>>>> 58354a52ddbe18f20adb822ed668e871de978bb7
 }
 
 void Region::update(float offx, float offy) {
