@@ -1,8 +1,8 @@
-#include "vertexBuffer.h"
+#include "buffer.h"
 
 namespace graphics {
 
-	VertexBuffer::VertexBuffer(GLfloat *data, GLsizei count, GLuint componentCount, GLenum usage) {
+	Buffer::Buffer(GLfloat *data, GLsizei count, GLuint componentCount, GLenum usage) {
 		mComponentCount = componentCount;
 		
 		glGenBuffers(1, &mID);
@@ -11,19 +11,19 @@ namespace graphics {
 		unbind();
 	}
 
-	VertexBuffer::~VertexBuffer() {
+	Buffer::~Buffer() {
 		glDeleteBuffers(1, &mID);
 	}
 
-	void VertexBuffer::bind() {
+	void Buffer::bind() {
 		glBindBuffer(GL_ARRAY_BUFFER, mID);
 	}
 
-	void VertexBuffer::unbind() {
+	void Buffer::unbind() {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	void VertexBuffer::setBufferData(GLfloat *data, GLsizei count, GLuint componentCount) {
+	void Buffer::setBufferData(GLfloat *data, GLsizei count, GLuint componentCount) {
 		mComponentCount = componentCount;
 
 		bind();

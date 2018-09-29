@@ -1,18 +1,17 @@
 #pragma once
 
 #include <GL/glew.h>
-#include "vertexBuffer.h"
 
 namespace graphics {
 
-	class VertexBuffer {
+	class Buffer {
 	private:
 		GLuint mID;
 		GLuint mComponentCount;
 
 	public:
-		VertexBuffer(GLfloat *data, GLsizei count, GLuint componentCount, GLenum usage);
-		~VertexBuffer();
+		Buffer(GLfloat *data, GLsizei count, GLuint componentCount, GLenum usage);
+		~Buffer();
 
 		void bind();
 		void unbind();
