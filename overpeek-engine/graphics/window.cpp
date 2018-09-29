@@ -76,7 +76,7 @@ namespace graphics {
 		//glCullFace(GL_BACK);
 		//glFrontFace(GL_CW);
 
-		glfwSwapInterval(1);
+		glfwSwapInterval(0);
 
 		return true;
 	}

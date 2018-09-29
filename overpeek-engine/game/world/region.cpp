@@ -2,10 +2,16 @@
 
 #include "../../engine.h"
 #include "../logic/game.h"
+#include "../../engine.h"
 
 Region::Region(int x, int y) {
 	m_x = x; m_y = y;
-	createTiles();
+	if (tools::BinaryIO::read(getSaveLocation()) != nullptr) loadTiles();
+	else createTiles();
+}
+
+Region::~Region() {
+	saveTiles();
 }
 
 void Region::createTiles() {
@@ -29,6 +35,34 @@ void Region::createTiles() {
 			m_tiles[x][y] = new Tile(tilex, tiley, id, object_id);
 		}
 	}
+}
+
+void Region::loadTiles() {
+	unsigned char *readData = tools::BinaryIO::read(getSaveLocation());
+	for (int x = 0; x < REGION_SIZE; x++)
+	{
+		for (int y = 0; y < REGION_SIZE; y++)
+		{
+			long int tilex = x + ((m_x - RENDER_DST / 2.0) * REGION_SIZE);
+			long int tiley = y + ((m_y - RENDER_DST / 2.0) * REGION_SIZE);
+			int id = readData[x + (y * REGION_SIZE)];
+			int objid = readData[x + (y * REGION_SIZE) + REGION_SIZE * REGION_SIZE];
+			m_tiles[x][y] = new Tile(tilex, tiley, id, objid);
+		}
+	}
+}
+
+void Region::saveTiles() {
+	unsigned char data[REGION_SIZE*REGION_SIZE*2];
+	for (int x = 0; x < REGION_SIZE; x++)
+	{
+		for (int y = 0; y < REGION_SIZE; y++)
+		{
+			data[x + (y * REGION_SIZE)] = m_tiles[x][y]->getId();
+			data[x + (y * REGION_SIZE) + REGION_SIZE * REGION_SIZE] = m_tiles[x][y]->getObjectId();
+		}
+	}
+	tools::BinaryIO::write(getSaveLocation(), data, sizeof(data) / sizeof(unsigned char));
 }
 
 void Region::render(float offx, float offy) {

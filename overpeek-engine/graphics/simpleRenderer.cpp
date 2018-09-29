@@ -10,16 +10,22 @@ namespace graphics {
 
 	FontLoader *SimpleRenderer::m_fontLoader;
 	Shader *SimpleRenderer::m_shader;
+	Shader *SimpleRenderer::m_textureshader;
 	Shader *SimpleRenderer::m_textShader;
+
+	glm::vec4 SimpleRenderer::m_color;
 
 	bool renderInitialized;
 	bool fontInitialized;
 
-	void SimpleRenderer::init(Shader *shader, Shader *textShader, std::string fontpath) {
+	void SimpleRenderer::init(Shader *shader, Shader *textureshader, Shader *textShader, std::string fontpath) {
 		m_shader = shader;
+		m_textureshader = textureshader;
 		m_textShader = textShader;
 
 		m_fontLoader = new FontLoader(fontpath);
+
+		m_color = glm::vec4(1.0);
 
 		GLfloat textureCoords[] = {
 			0.0, 0.0,
@@ -43,8 +49,9 @@ namespace graphics {
 
 	void SimpleRenderer::renderBox(float x, float y, float w, float h) {
 		m_shader->enable();
-		m_shader->setUniform4f("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+		m_shader->setUniform4f("color", m_color);
 		m_VAO->bind();
+		std::cout << "render\n";
 		
 		GLfloat vertices[] = {
 			x + 0, y + 0,
@@ -59,11 +66,11 @@ namespace graphics {
 	}
 
 	void SimpleRenderer::renderBox(float x, float y, float w, float h, GLuint texture) {
-		m_shader->enable();
-		m_shader->setUniform4f("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+		m_textureshader->enable();
+		m_textureshader->setUniform4f("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+		glBindTexture(GL_TEXTURE_2D, texture);
 		
 		m_VAO->bind();
-		glBindTexture(GL_TEXTURE_2D, texture);
 		
 		GLfloat vertices[] = {
 			x + 0, y + 0,

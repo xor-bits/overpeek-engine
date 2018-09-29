@@ -191,6 +191,7 @@
     <ClCompile Include="graphics\window.cpp" />
     <ClCompile Include="game\main.cpp" />
     <ClCompile Include="logic\noise.cpp" />
+    <ClCompile Include="tools\binaryIO.cpp" />
     <ClCompile Include="tools\clock.cpp" />
     <ClCompile Include="tools\random.cpp" />
     <ClCompile Include="tools\textureloader.cpp" />
@@ -198,6 +199,7 @@
   <ItemGroup>
     <ClInclude Include="engine.h" />
     <ClInclude Include="game\creatures\player.h" />
+    <ClInclude Include="game\logic\ui\application.h" />
     <ClInclude Include="game\logic\game.h" />
     <ClInclude Include="game\logic\inventory.h" />
     <ClInclude Include="game\logic\textureManager.h" />
@@ -222,6 +224,7 @@
     <ClInclude Include="logic\SAT.h" />
     <ClInclude Include="audio\audioManager.h" />
     <ClInclude Include="audio\audioPlayer.h" />
+    <ClInclude Include="tools\binaryIO.h" />
     <ClInclude Include="tools\clock.h" />
     <ClInclude Include="tools\filereader.h" />
     <ClInclude Include="tools\random.h" />
