@@ -14,6 +14,12 @@ Region::~Region() {
 	saveTiles();
 }
 
+Region::~Region() {
+	for (Tile *i : *m_tiles) {
+		delete i;
+	}
+}
+
 void Region::createTiles() {
 	for (int x = 0; x < REGION_SIZE; x++)
 	{

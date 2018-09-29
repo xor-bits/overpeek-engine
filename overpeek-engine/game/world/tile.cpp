@@ -11,6 +11,8 @@ Tile::Tile(long int x, long int y, int id, int object_id) {
 	m_texture = TextureManager::getTexture(m_id);
 }
 
+Tile::~Tile() {}
+
 void Tile::render(float offx, float offy) {
 	if (m_x*TILE_SIZE + offx >= Game::getWindow()->getAspect()) return;
 	if (m_x*TILE_SIZE + offx + TILE_SIZE <= -Game::getWindow()->getAspect()) return;
