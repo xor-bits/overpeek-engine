@@ -2,12 +2,12 @@
 
 namespace graphics {
 
-	Buffer::Buffer(GLfloat *data, GLsizei count, GLuint componentCount, GLenum usage) {
+	Buffer::Buffer(const GLvoid *data, GLsizei count, GLuint componentCount, GLsizei componentSize, GLenum usage) {
 		mComponentCount = componentCount;
 		
 		glGenBuffers(1, &mID);
 		bind();
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * count, data, usage);
+		glBufferData(GL_ARRAY_BUFFER, componentSize * count, data, usage);
 		unbind();
 	}
 
@@ -23,11 +23,11 @@ namespace graphics {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	void Buffer::setBufferData(GLfloat *data, GLsizei count, GLuint componentCount) {
+	void Buffer::setBufferData(const GLvoid *data, GLsizei count, GLuint componentCount, GLsizei componentSize) {
 		mComponentCount = componentCount;
 
 		bind();
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * count, data);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, componentSize * count, data);
 		unbind();
 	}
 

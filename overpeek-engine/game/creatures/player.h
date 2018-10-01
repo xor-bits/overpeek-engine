@@ -9,6 +9,6 @@ private:
 public:
 	Player(float x, float y, graphics::Shader *shader);
 
-	void render();
+	void render(float renderOffsetX, float renderOffsetY);
 	void update();
 };

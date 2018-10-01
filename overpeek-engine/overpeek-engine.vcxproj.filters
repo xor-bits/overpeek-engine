@@ -84,7 +84,6 @@
     <ClCompile Include="game\logic\inventory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-<<<<<<< HEAD
     <ClCompile Include="graphics\textureLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -92,9 +91,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="game\creatures\creature.cpp">
-=======
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="tools\binaryIO.cpp">
->>>>>>> 58354a52ddbe18f20adb822ed668e871de978bb7
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game\creatures\enemy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -183,7 +185,6 @@
     <ClInclude Include="game\logic\inventory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-<<<<<<< HEAD
     <ClInclude Include="graphics\textureLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -191,12 +192,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game\creatures\creature.h">
-=======
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="tools\binaryIO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="game\logic\ui\application.h">
->>>>>>> 58354a52ddbe18f20adb822ed668e871de978bb7
+    <ClInclude Include="logic\aabb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\creatures\enemy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

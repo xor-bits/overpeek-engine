@@ -10,13 +10,13 @@ namespace graphics {
 		GLuint mComponentCount;
 
 	public:
-		Buffer(GLfloat *data, GLsizei count, GLuint componentCount, GLenum usage);
+		Buffer(const GLvoid *data, GLsizei count, GLuint componentCount, GLsizei componentSize, GLenum usage);
 		~Buffer();
 
 		void bind();
 		void unbind();
 
-		void setBufferData(GLfloat *data, GLsizei count, GLuint componentCount);
+		void setBufferData(const GLvoid *data, GLsizei count, GLuint componentCount, GLsizei componentSize);
 
 		inline GLuint getComponentCount() { return mComponentCount; }
 	};

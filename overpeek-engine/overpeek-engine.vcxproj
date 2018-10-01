@@ -171,6 +171,7 @@
   <ItemGroup>
     <ClCompile Include="audio\audioManager.cpp" />
     <ClCompile Include="game\creatures\creature.cpp" />
+    <ClCompile Include="game\creatures\enemy.cpp" />
     <ClCompile Include="game\creatures\player.cpp" />
     <ClCompile Include="game\logic\game.cpp" />
     <ClCompile Include="game\logic\inventory.cpp" />
@@ -200,8 +201,8 @@
   <ItemGroup>
     <ClInclude Include="engine.h" />
     <ClInclude Include="game\creatures\creature.h" />
+    <ClInclude Include="game\creatures\enemy.h" />
     <ClInclude Include="game\creatures\player.h" />
-    <ClInclude Include="game\logic\ui\application.h" />
     <ClInclude Include="game\logic\game.h" />
     <ClInclude Include="game\logic\inventory.h" />
     <ClInclude Include="game\world\map.h" />
@@ -214,6 +215,7 @@
     <ClInclude Include="graphics\camera.h" />
     <ClInclude Include="graphics\fontLoader.h" />
     <ClInclude Include="graphics\textureLoader.h" />
+    <ClInclude Include="logic\aabb.h" />
     <ClInclude Include="logic\gameloop.h" />
     <ClInclude Include="logic\layers\buttonLayer.h" />
     <ClInclude Include="logic\layers\layer.h" />

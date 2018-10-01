@@ -5,15 +5,12 @@
 
 #define M_WINDOW_WIDTH		900
 #define M_WINDOW_HEIGHT		600
-#define UPDATERATE 50
-
 #define M_ASPECT			(float)M_WINDOW_WIDTH / (float)M_WINDOW_HEIGHT
-#define MICRO_S_PER_UPDATE 1000000.0 / UPDATERATE
 
 graphics::Window *window;
 graphics::Shader *shader;
-graphics::Shader *textureShader;
 graphics::Shader *textShader;
+graphics::Shader *textureShader;
 logic::GameLoop *gameloop;
 graphics::Camera *camera;
 Game *game;
@@ -28,7 +25,7 @@ void render() {
 }
 
 void update() {
-	//if (window->close() || window->getKey(GLFW_KEY_ESCAPE)) gameloop->stop();
+	if (window->close() || window->getKey(GLFW_KEY_ESCAPE)) gameloop->stop();
 	game->update();
 }
 
@@ -45,16 +42,15 @@ int main() {
 	textureShader = new graphics::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl");
 	textShader = new graphics::Shader("shaders/text.vert.glsl", "shaders/text.frag.glsl");
 	
-	float debugZoom = 2.0;
+	float debugZoom = 1.0;
 	glm::mat4 orthographic = glm::ortho(-M_ASPECT * debugZoom, M_ASPECT* debugZoom, debugZoom, -debugZoom);
 	shader->enable(); shader->SetUniformMat4("pr_matrix", orthographic);
-	textureShader->enable(); shader->SetUniformMat4("pr_matrix", orthographic);
+	textureShader->enable(); textureShader->SetUniformMat4("pr_matrix", orthographic);
 	textShader->enable(); textShader->SetUniformMat4("pr_matrix", orthographic);
 	graphics::SimpleRenderer::init(shader, textureShader, textShader, "arial.ttf");
 
 	//Main game loop
-	gameloop = new logic::GameLoop(render, update, rapid, MICRO_S_PER_UPDATE);
-	game->init(shader, window, gameloop);
+	gameloop = new logic::GameLoop(render, update, rapid, 10000);
+	game->init(textureShader, window, gameloop);
 	gameloop->start();
-	game->close();
 }

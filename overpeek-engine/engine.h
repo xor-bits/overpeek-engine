@@ -8,4 +8,3 @@
 #include "tools/binaryIO.h"
 #include "logic/gameloop.h"
 #include "audio/audioManager.h"
-#include <glm/glm.hpp>

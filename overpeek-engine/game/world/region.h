@@ -1,10 +1,11 @@
 #pragma once
 
-#define NOISE_SCALE 0.01
+#define NOISE_SCALE 0.02
 
-#define LEVEL_WATER 0.0
-#define LEVEL_SAND 0.05
-#define LEVEL_GRASS 0.15
+#define LEVEL_WATER 0.5
+#define LEVEL_SAND 0.52
+#define LEVEL_GRASS 0.7
+#define LEVEL_STONE 0.72
 
 #include "tile.h"
 #include "../logic/game.h"
@@ -13,7 +14,7 @@ class Region {
 private:
 	int m_x, m_y;
 	Tile *m_tiles[REGION_SIZE][REGION_SIZE];
-	GLfloat m_texture_id_array[REGION_SIZE * REGION_SIZE * 6 * 2];
+	GLint m_texture_off_array[REGION_SIZE * REGION_SIZE * 6 * 2];
 	glm::mat4 m_ml_matrix;
 
 	static graphics::VertexArray *m_vao;
@@ -37,14 +38,9 @@ public:
 	Region(int x, int y);
 	~Region();
 
-<<<<<<< HEAD
 	void render();
 	void update(float offx, float offy);
-=======
-	void render(float offx, float offy);
-	void update();
 	void saveTiles();
->>>>>>> 58354a52ddbe18f20adb822ed668e871de978bb7
 
 	inline Tile *getTile(unsigned int x, unsigned int y) { return m_tiles[x][y]; }
 	inline int getX() { return (m_x - floor(RENDER_DST/2.0)) * REGION_SIZE; }

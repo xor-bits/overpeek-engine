@@ -2,6 +2,9 @@
 
 #include "../logic/game.h"
 
+#define CREAURE_WIDTH 0.8
+#define CREAURE_HEIGHT 0.8
+
 class Creature {
 protected:
 	float m_x, m_y;
@@ -20,8 +23,10 @@ protected:
 public:
 	Creature(float x, float y, graphics::Shader *shader);
 
-	virtual void render();
+	virtual void render(float renderOffsetX, float renderOffsetY);
 	virtual void update();
+
+	void collide();
 
 	inline void setX(float value) { m_x = value; }
 	inline void setVelX(float value) { m_vel_x = value; }

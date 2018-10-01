@@ -41,8 +41,8 @@ namespace graphics {
 
 		m_VAO = new VertexArray();
 		m_IBO = new IndexBuffer(indices, 6);
-		m_VBO = new Buffer(0, 8, 2, GL_DYNAMIC_DRAW);
-		m_TBO = new Buffer(textureCoords, 8, 2, GL_STATIC_DRAW);
+		m_VBO = new Buffer(0, 8, 2, sizeof(GLfloat), GL_DYNAMIC_DRAW);
+		m_TBO = new Buffer(textureCoords, 8, 2, sizeof(GLfloat), GL_STATIC_DRAW);
 		m_VAO->addBuffer(m_VBO, 0);
 		m_VAO->addBuffer(m_TBO, 1);
 	}
@@ -59,7 +59,7 @@ namespace graphics {
 			x + w, y + h,
 			x + w, y + 0
 		};
-		m_VBO->setBufferData(vertices, 8, 2);
+		m_VBO->setBufferData(vertices, 8, sizeof(GLfloat), 2);
 		
 		m_IBO->bind();
 		glDrawElements(GL_TRIANGLES, m_IBO->getCount(), GL_UNSIGNED_SHORT, 0);
@@ -78,7 +78,7 @@ namespace graphics {
 			x + w, y + h,
 			x + w, y + 0
 		};
-		m_VBO->setBufferData(vertices, 8, 2);
+		m_VBO->setBufferData(vertices, 8, sizeof(GLfloat), 2);
 		
 		m_IBO->bind();
 		glDrawElements(GL_TRIANGLES, m_IBO->getCount(), GL_UNSIGNED_SHORT, 0);
