@@ -81,7 +81,7 @@ void Region::initRender(graphics::Shader *shader) {
 	//Texture buffer object
 	m_vbo = new graphics::Buffer(xy, xyCount, 2, sizeof(GLfloat), GL_STATIC_DRAW);
 	m_tbo = new graphics::Buffer(uv, uvCount, 2, sizeof(GLfloat), GL_STATIC_DRAW);
-	m_tid = new graphics::Buffer(0, REGION_SIZE * REGION_SIZE * 6 * 2, 1, sizeof(GLint), GL_DYNAMIC_DRAW);
+	m_tid = new graphics::Buffer(0, REGION_SIZE * REGION_SIZE * 6 * 2 * 4, 4, sizeof(GLfloat), GL_DYNAMIC_DRAW);
 	m_vao->addBuffer(m_vbo, 0);
 	m_vao->addBuffer(m_tbo, 1);
 	m_vao->addBuffer(m_tid, 2);
@@ -127,19 +127,23 @@ void Region::createTiles() {
 				object_id = 9;
 			}
 
-			m_tiles[x][y] = new Tile(tilex, tiley, id, object_id);
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = m_tiles[x][y]->getObjectTexture();
-			m_texture_off_array[tmp++] = id;							 
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = m_tiles[x][y]->getObjectTexture();
-			m_texture_off_array[tmp++] = id;							 
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = m_tiles[x][y]->getObjectTexture();
-			m_texture_off_array[tmp++] = id;							 
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = m_tiles[x][y]->getObjectTexture();
-			m_texture_off_array[tmp++] = id;							 
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = m_tiles[x][y]->getObjectTexture();
-			m_texture_off_array[tmp++] = id;							 
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = m_tiles[x][y]->getObjectTexture();
-			m_texture_off_array[tmp++] = id;
+			m_tiles[x][y] = Tile(tilex, tiley, id, object_id);
+
+			glm::vec4 arrayid = glm::vec4(1, 1, id % 16, (id - (id % 16)) / 16);
+			glm::vec4 arrayobjectid = glm::vec4(1, 1, m_tiles[x][y].getObjectTexture() % 16, (m_tiles[x][y].getObjectTexture() - (m_tiles[x][y].getObjectTexture() % 16)) / 16);
+
+			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
+			m_texture_off_array[tmp++] = arrayid;
+			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
+			m_texture_off_array[tmp++] = arrayid;
+			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
+			m_texture_off_array[tmp++] = arrayid;
+			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
+			m_texture_off_array[tmp++] = arrayid;
+			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
+			m_texture_off_array[tmp++] = arrayid;
+			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
+			m_texture_off_array[tmp++] = arrayid;
 		}
 	}
 	//for (int i = 0; i < REGION_SIZE * REGION_SIZE * 6 * 2; i++)
@@ -151,10 +155,10 @@ void Region::createTiles() {
 void Region::render() {
 	m_shader->enable();
 	m_shader->SetUniformMat4("ml_matrix", m_ml_matrix);
-	m_shader->setUniform1i("overwrite_off", 0);
+	m_shader->setUniform4i("overwrite_off", glm::ivec4(0));
 
 	m_vao->bind();
-	m_tid->setBufferData(m_texture_off_array, REGION_SIZE * REGION_SIZE * 6 * 2, 1, sizeof(GLint));
+	m_tid->setBufferData(m_texture_off_array, REGION_SIZE * REGION_SIZE * 6 * 2 * 4, 4, sizeof(GLfloat));
 	glDrawArrays(GL_TRIANGLES, 0, REGION_SIZE * REGION_SIZE * 6 * 2);
 }
 
@@ -169,20 +173,23 @@ void Region::loadTiles() {
 			long int tiley = y + ((m_y - RENDER_DST / 2.0) * REGION_SIZE);
 			int id = readData[x + (y * REGION_SIZE)];
 			int objid = readData[x + (y * REGION_SIZE) + REGION_SIZE * REGION_SIZE];
-			m_tiles[x][y] = new Tile(tilex, tiley, id, objid);
+			m_tiles[x][y] = Tile(tilex, tiley, id, objid);
 
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = m_tiles[x][y]->getObjectTexture();
-			m_texture_off_array[tmp++] = m_tiles[x][y]->getFloorTexture();
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = m_tiles[x][y]->getObjectTexture();
-			m_texture_off_array[tmp++] = m_tiles[x][y]->getFloorTexture();
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = m_tiles[x][y]->getObjectTexture();
-			m_texture_off_array[tmp++] = m_tiles[x][y]->getFloorTexture();
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = m_tiles[x][y]->getObjectTexture();
-			m_texture_off_array[tmp++] = m_tiles[x][y]->getFloorTexture();
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = m_tiles[x][y]->getObjectTexture();
-			m_texture_off_array[tmp++] = m_tiles[x][y]->getFloorTexture();
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = m_tiles[x][y]->getObjectTexture();
-			m_texture_off_array[tmp++] = m_tiles[x][y]->getFloorTexture();
+			glm::vec4 arrayid = glm::vec4(1, 1, id % 16, (id - (id % 16)) / 16);
+			glm::vec4 arrayobjectid = glm::vec4(1, 1, m_tiles[x][y].getObjectTexture() % 16, (m_tiles[x][y].getObjectTexture() - (m_tiles[x][y].getObjectTexture() % 16)) / 16);
+
+			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
+			m_texture_off_array[tmp++] = arrayid;
+			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
+			m_texture_off_array[tmp++] = arrayid;
+			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
+			m_texture_off_array[tmp++] = arrayid;
+			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
+			m_texture_off_array[tmp++] = arrayid;
+			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
+			m_texture_off_array[tmp++] = arrayid;
+			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
+			m_texture_off_array[tmp++] = arrayid;
 		}
 	}
 }
@@ -193,8 +200,8 @@ void Region::saveTiles() {
 	{
 		for (int y = 0; y < REGION_SIZE; y++)
 		{
-			data[x + (y * REGION_SIZE)] = m_tiles[x][y]->getId();
-			data[x + (y * REGION_SIZE) + REGION_SIZE * REGION_SIZE] = m_tiles[x][y]->getObjectId();
+			data[x + (y * REGION_SIZE)] = m_tiles[x][y].getId();
+			data[x + (y * REGION_SIZE) + REGION_SIZE * REGION_SIZE] = m_tiles[x][y].getObjectId();
 		}
 	}
 	tools::BinaryIO::write(getSaveLocation(), data, sizeof(data) / sizeof(unsigned char));
@@ -210,23 +217,29 @@ void Region::update(float offx, float offy) {
 	{
 		for (int y = 0; y < REGION_SIZE; y++)
 		{
-			m_tiles[x][y]->update();
+			m_tiles[x][y].update();
 
-			int id = m_tiles[x][y]->getFloorTexture();
-			int objid = m_tiles[x][y]->getObjectTexture();
+			int id = m_tiles[x][y].getFloorTexture();
+			int objid = m_tiles[x][y].getObjectTexture();
 
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = objid;
-			m_texture_off_array[tmp++] = id;
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = objid;
-			m_texture_off_array[tmp++] = id;
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = objid;
-			m_texture_off_array[tmp++] = id;
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = objid;
-			m_texture_off_array[tmp++] = id;
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = objid;
-			m_texture_off_array[tmp++] = id;
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = objid;
-			m_texture_off_array[tmp++] = id;
+
+			glm::vec4 arrayid = glm::vec4(1, 1, id % 16, (id - (id % 16)) / 16);
+			glm::vec4 arrayobjectid = glm::vec4(1, 1, objid % 16, (objid - (objid % 16)) / 16);
+
+			//std::cout << arrayid.x << ", " << arrayid.y << ", " << arrayid.z << ", " << arrayid.w << std::endl;
+
+			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
+			m_texture_off_array[tmp++] = arrayid;
+			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
+			m_texture_off_array[tmp++] = arrayid;
+			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
+			m_texture_off_array[tmp++] = arrayid;
+			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
+			m_texture_off_array[tmp++] = arrayid;
+			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
+			m_texture_off_array[tmp++] = arrayid;
+			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
+			m_texture_off_array[tmp++] = arrayid;
 		}
 	}
 }

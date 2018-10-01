@@ -50,7 +50,8 @@ int main() {
 	graphics::SimpleRenderer::init(shader, textureShader, textShader, "arial.ttf");
 
 	//Main game loop
-	gameloop = new logic::GameLoop(render, update, rapid, 10000);
+	gameloop = new logic::GameLoop(render, update, rapid, 10000, 30);
 	game->init(textureShader, window, gameloop);
 	gameloop->start();
+	game->close();
 }

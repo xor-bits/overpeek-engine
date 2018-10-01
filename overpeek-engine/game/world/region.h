@@ -13,8 +13,8 @@
 class Region {
 private:
 	int m_x, m_y;
-	Tile *m_tiles[REGION_SIZE][REGION_SIZE];
-	GLint m_texture_off_array[REGION_SIZE * REGION_SIZE * 6 * 2];
+	Tile m_tiles[REGION_SIZE][REGION_SIZE];
+	glm::fvec4 m_texture_off_array[REGION_SIZE * REGION_SIZE * 6 * 2];
 	glm::mat4 m_ml_matrix;
 
 	static graphics::VertexArray *m_vao;
@@ -42,7 +42,19 @@ public:
 	void update(float offx, float offy);
 	void saveTiles();
 
-	inline Tile *getTile(unsigned int x, unsigned int y) { return m_tiles[x][y]; }
+	inline Tile getTile(unsigned int x, unsigned int y) { return m_tiles[x][y]; }
+	inline int getTileId(unsigned int x, unsigned int y) { return m_tiles[x][y].getId(); }
+	inline int getTileObjectId(unsigned int x, unsigned int y) { return m_tiles[x][y].getObjectId(); }
+
+	inline void setTileId(unsigned int x, unsigned int y, int id) { m_tiles[x][y].setId(id); }
+	inline void setTileObjectId(unsigned int x, unsigned int y, int id) { m_tiles[x][y].setObjectId(id); }
+	inline void addObjectHealth(unsigned int x, unsigned int y, float amount) { m_tiles[x][y].addObjectHealth(amount); }
+	inline void healObject(unsigned int x, unsigned int y) { m_tiles[x][y].healObject(); }
+	
+	inline int getTileX(unsigned int x, unsigned int y) { return m_tiles[x][y].getX(); }
+	inline int getTileY(unsigned int x, unsigned int y) { return m_tiles[x][y].getY(); }
+
+
 	inline int getX() { return (m_x - floor(RENDER_DST/2.0)) * REGION_SIZE; }
 	inline int getY() { return (m_y - floor(RENDER_DST/2.0)) * REGION_SIZE; }
 

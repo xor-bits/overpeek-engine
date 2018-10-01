@@ -28,6 +28,7 @@ private:
 
 public:
 	Tile(long int x, long int y, int id, int object_id);
+	Tile();
 
 	int getFloorTexture();
 	int getObjectTexture();
@@ -43,6 +44,6 @@ public:
 
 	static int idToTextureId(int id);
 
-	bool decreaceObjectHealth(float amount);
+	inline void addObjectHealth(float amount) { m_object_health += amount; }
 	inline void healObject() { m_object_health = 1.0; }
 };

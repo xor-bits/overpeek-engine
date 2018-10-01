@@ -48,10 +48,11 @@ namespace graphics {
 	}
 
 	void SimpleRenderer::renderBox(float x, float y, float w, float h) {
+		glm::mat4 ml_matrix = glm::mat4(1.0f);
 		m_shader->enable();
+		m_shader->SetUniformMat4("ml_matrix", ml_matrix);
 		m_shader->setUniform4f("color", m_color);
 		m_VAO->bind();
-		std::cout << "render\n";
 		
 		GLfloat vertices[] = {
 			x + 0, y + 0,
@@ -59,16 +60,19 @@ namespace graphics {
 			x + w, y + h,
 			x + w, y + 0
 		};
-		m_VBO->setBufferData(vertices, 8, sizeof(GLfloat), 2);
+		m_VBO->setBufferData(vertices, 8, 2, sizeof(GLfloat));
 		
 		m_IBO->bind();
 		glDrawElements(GL_TRIANGLES, m_IBO->getCount(), GL_UNSIGNED_SHORT, 0);
 	}
 
-	void SimpleRenderer::renderBox(float x, float y, float w, float h, GLuint texture) {
+	void SimpleRenderer::renderBox(float x, float y, float w, float h, int texture) {
+		glm::mat4 ml_matrix = glm::mat4(1.0f);
 		m_textureshader->enable();
+		m_textureshader->SetUniformMat4("ml_matrix", ml_matrix);
 		m_textureshader->setUniform4f("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
-		glBindTexture(GL_TEXTURE_2D, texture);
+		m_textureshader->setUniform1i("overwrite_off", texture);
+		//glBindTexture(GL_TEXTURE_2D, texture);
 		
 		m_VAO->bind();
 		
@@ -78,7 +82,7 @@ namespace graphics {
 			x + w, y + h,
 			x + w, y + 0
 		};
-		m_VBO->setBufferData(vertices, 8, sizeof(GLfloat), 2);
+		m_VBO->setBufferData(vertices, 8, 2, sizeof(GLfloat));
 		
 		m_IBO->bind();
 		glDrawElements(GL_TRIANGLES, m_IBO->getCount(), GL_UNSIGNED_SHORT, 0);

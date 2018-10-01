@@ -48,11 +48,11 @@ Creature::Creature(float x, float y, graphics::Shader *shader) {
 }
 
 void Creature::render(float renderOffsetX, float renderOffsetY) {
-	glm::mat4 ml_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(m_x + renderOffsetX, m_y + renderOffsetY, 0.0));
+	glm::mat4 ml_matrix = glm::translate(glm::mat4(1.0f), glm::vec3((m_x + renderOffsetX) * TILE_SIZE, (m_y + renderOffsetY) * TILE_SIZE, 0.0));
 	m_shader->enable();
 	m_shader->SetUniformMat4("ml_matrix", ml_matrix);
 	//m_shader->setUniform2i("overwrite_off", glm::vec2(m_texture, 0.0));
-	m_shader->setUniform1i("overwrite_off", m_texture);
+	m_shader->setUniform4i("overwrite_off", glm::ivec4(1, 1, m_texture, 0));
 
 	m_vao->bind();
 	glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -71,50 +71,51 @@ void Creature::update() {
 }
 
 void Creature::collide() {
-	std::cout << m_x << ", " << m_y << std::endl;
 	for (int x = -2; x < 3; x++)
 	{
 		for (int y = -2; y < 3; y++)
 		{
-			Tile* tile = Game::getTile(floor(m_x) + x, floor(m_y) + y);
-			if (!tile) continue;
+			int tileid = Game::getTileObjectId(floor(m_x) + x, floor(m_y) + y);
+			if (tileid == 0) continue;
 
-			if (tile->getObjectId() == 9) {
+			if (tileid == 9) {
+				int tilex = floor(m_x) + x;
+				int tiley = floor(m_y) + y;
 				//LEFT COLLIDER
 				if (logic::AABB(
 					glm::vec2(m_x - CREAURE_WIDTH / 2.0, (m_y - CREAURE_HEIGHT / 2.0) + 0.3),
 					glm::vec2(CREAURE_WIDTH / 2.0, CREAURE_HEIGHT - 0.6),
-					glm::vec2(tile->getX(), tile->getY()),
+					glm::vec2(tilex, tiley),
 					glm::vec2(1, 1)
 				)) {
-					m_x = tile->getX() + 1 + (CREAURE_WIDTH / 2.0);
+					m_x = tilex + 1 + (CREAURE_WIDTH / 2.0);
 				}
 				//RIGHT COLLIDER
 				if (logic::AABB(
 					glm::vec2(m_x, (m_y - CREAURE_HEIGHT / 2.0) + 0.3),
 					glm::vec2(CREAURE_WIDTH / 2.0, CREAURE_HEIGHT - 0.6),
-					glm::vec2(tile->getX(), tile->getY()),
+					glm::vec2(tilex, tiley),
 					glm::vec2(1, 1)
 				)) {
-					m_x = tile->getX() - (CREAURE_WIDTH / 2.0);
+					m_x = tilex - (CREAURE_WIDTH / 2.0);
 				}
 				//TOP COLLIDER
 				if (logic::AABB(
 					glm::vec2((m_x - CREAURE_WIDTH / 2.0) + 0.3, m_y - CREAURE_HEIGHT / 2.0),
 					glm::vec2(CREAURE_WIDTH - 0.6, CREAURE_HEIGHT / 2.0),
-					glm::vec2(tile->getX(), tile->getY()),
+					glm::vec2(tilex, tiley),
 					glm::vec2(1, 1)
 				)) {
-					m_y = tile->getY() + 1 + (CREAURE_HEIGHT / 2.0);
+					m_y = tiley + 1 + (CREAURE_HEIGHT / 2.0);
 				}
 				//BOTTOM COLLIDER
 				if (logic::AABB(
 					glm::vec2((m_x - CREAURE_WIDTH / 2.0) + 0.3, m_y),
 					glm::vec2(CREAURE_WIDTH - 0.6, CREAURE_HEIGHT / 2.0),
-					glm::vec2(tile->getX(), tile->getY()),
+					glm::vec2(tilex, tiley),
 					glm::vec2(1, 1)
 				)) {
-					m_y = tile->getY() - (CREAURE_HEIGHT / 2.0);
+					m_y = tiley - (CREAURE_HEIGHT / 2.0);
 				}
 			}
 		}

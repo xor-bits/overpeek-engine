@@ -8,6 +8,7 @@ namespace logic {
 		void(*mCallbackUpdate)();
 		void(*mCallbackConstantly)();
 		long long mMicroSPer;
+		long long m_fpsCap;
 		bool mShouldRun = true;
 
 		int mFps, mUps;
@@ -18,9 +19,12 @@ namespace logic {
 		long long m_start;
 		long long m_previous;
 		long long m_lag;
+		long long m_fpslastTime;
+		long long m_fpsstartTime;
+
 
 	public:
-		GameLoop(void(*callbackRender)(), void(*callbackUpdate)(), void(*callbackConstantly)(), long long microSecondsPerUpdate);
+		GameLoop(void(*callbackRender)(), void(*callbackUpdate)(), void(*callbackConstantly)(), long long microSecondsPerUpdate, unsigned int fpsCap);
 
 		void start();
 		void stop();

@@ -21,7 +21,7 @@ private:
 	static graphics::Shader *m_shader;
 	static graphics::SimpleRenderer *m_renderer;
 	static logic::GameLoop *m_loop;
-	static Tile *m_hover_tile;
+	static glm::ivec2 m_hover_tile;
 
 	static Region *m_region[RENDER_DST * 2][RENDER_DST * 2];
 	static Player *m_player;
@@ -37,6 +37,7 @@ public:
 	static void render();
 	static void renderDebugScreen();
 	static void update();
+	static void close();
 	static void rapidUpdate();
 	
 	inline static graphics::Shader *getShader() { return m_shader; }
@@ -45,5 +46,13 @@ public:
 	static int screenToWorldX(float x);
 	static int screenToWorldY(float y);
 	static Region *getRegion(int x, int y);
-	static Tile *getTile(int x, int y);
+
+	static Tile getTile(int x, int y);
+	static int getTileId(int x, int y);
+	static int getTileObjectId(int x, int y);
+
+	static void setTileId(int x, int y, int id);
+	static void setTileObjectId(int x, int y, int id);
+	static void addTileObjectHealth(int x, int y, float amount);
+	static void healTileObject(int x, int y);
 };

@@ -9,7 +9,7 @@ Enemy::Enemy(float x, float y, graphics::Shader *shader) : Creature(x, y, shader
 }
 
 void Enemy::render(float renderOffsetX, float renderOffsetY) {
-	Creature::render(0.0, 0.0);
+	Creature::render(renderOffsetX, renderOffsetY);
 }
 
 void Enemy::update() {
@@ -19,8 +19,9 @@ void Enemy::update() {
 	if (m_untilnexttarget < 0) {
 		m_wait = 100; 
 		m_untilnexttarget = 100000000000000;
-		m_curtarget_x = tools::Random::random(-0.01, 0.01);
-		m_curtarget_y = tools::Random::random(-0.01, 0.01);
+		float direction = tools::Random::random(0, glm::two_pi<float>());
+		m_curtarget_x = cos(direction) / 100;
+		m_curtarget_y = sin(direction) / 100;
 	}
 	if (m_wait < 0) {
 		m_untilnexttarget = tools::Random::random(10, 500);
@@ -29,8 +30,8 @@ void Enemy::update() {
 		m_curtarget_y = 0;
 	}
 
-	//m_vel_x = m_curtarget_x;
-	//m_vel_y = m_curtarget_y;
+	m_acc_x = m_curtarget_x;
+	m_acc_y = m_curtarget_y;
 	Creature::update();
 	Creature::collide();
 }

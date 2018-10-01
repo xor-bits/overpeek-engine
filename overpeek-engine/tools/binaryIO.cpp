@@ -9,6 +9,7 @@ namespace tools {
 
 	void BinaryIO::write(std::string name, unsigned char *data, size_t dataSize) {
 		FILE *pFile = fopen((filePath + name).c_str(), "wb");
+		//std::cout << (filePath + name) << std::endl;
 		if (pFile == NULL) { fputs("ERROR Opening file!", stderr); system("pause");  exit(1); }
 		fwrite(data, sizeof(unsigned char), dataSize, pFile);
 		fclose(pFile);
