@@ -6,19 +6,19 @@
 
 namespace logic {
 
-	GameLoop::GameLoop(void(*callbackRender)(), void(*callbackUpdate)(), void(*callbackConstantly)(), long long microSecondsPerUpdate, unsigned int fpsCap) {
-		mMicroSPer = microSecondsPerUpdate;
+	GameLoop::GameLoop(void(*callbackRender)(), void(*callbackUpdate)(), void(*callbackConstantly)(), unsigned int upsCap, unsigned int fpsCap) {
+		m_upsCap = 1000000 / upsCap;
 		m_fpsCap = 1000000 / fpsCap;
-		m_fpslastTime = 0.0;
-		m_fpsstartTime = tools::Clock::getMicroseconds();
+		m_frame_lastTime = 0.0;
+		m_frame_startTime = tools::Clock::getMicroseconds();
+		m_counter = 0.0;
 		mCallbackRender = callbackRender;
 		mCallbackUpdate = callbackUpdate;
 		mCallbackConstantly = callbackConstantly;
 
-		m_frames = 0, m_updates = 0;
-		m_start = tools::Clock::getMicroseconds();
-		m_previous = m_start;
-		m_lag = 0;
+		m_update_start = tools::Clock::getMicroseconds();
+		m_update_previous = m_update_start;
+		m_update_lag = 0;
 	}
 
 	void GameLoop::start() {
@@ -36,32 +36,34 @@ namespace logic {
 	}
 
 	void GameLoop::loop() {
-		long long fpstime = tools::Clock::getMicroseconds() - m_fpsstartTime;
-		long long fpsdeltaTime = fpstime - m_fpslastTime;
+		long long time = tools::Clock::getMicroseconds() - m_frame_startTime;
+		long long fpsdeltaTime = time - m_frame_lastTime;
 
 		long long current = tools::Clock::getMicroseconds();
-		long long elapsed = current - m_previous;
-		m_previous = current;
-		m_lag += elapsed;
+		long long elapsed = current - m_update_previous;
+		m_update_previous = current;
+		m_update_lag += elapsed;
 
-		while (m_lag >= mMicroSPer)
-		{
+		while (m_update_lag >= m_upsCap) {
+			m_update_lag -= m_upsCap;
+
 			m_updates++;
 			mCallbackUpdate();
-			m_lag -= mMicroSPer;
 		}
 
 		if (fpsdeltaTime >= m_fpsCap) {
-			m_fpslastTime = fpstime;
-			m_frames++;
-			if (mCallbackRender) mCallbackRender();
+			m_frame_lastTime = time;
 		}
 
-		//Frame/update counter
-		if (current - m_start > 1000000) {
-			mFps = m_frames; mUps = m_updates;
-			m_frames = 0; m_updates = 0;
-			m_start += 1000000;
+		m_frames++;
+		mCallbackRender();
+
+		if (time - m_counter > 1000000) {
+			m_counter += 1000000;
+			m_fps = m_frames;
+			m_ups = m_updates;
+			m_frames = 0;
+			m_updates = 0;
 		}
 	}
 

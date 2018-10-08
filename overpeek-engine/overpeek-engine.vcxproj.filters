@@ -24,18 +24,6 @@
     <ClCompile Include="graphics\shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="graphics\simpleRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="logic\layers\buttonLayer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="logic\layers\objectLayer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="logic\layers\textLayer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="logic\gameloop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -99,6 +87,9 @@
     <ClCompile Include="game\creatures\enemy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="graphics\renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="graphics\window.h">
@@ -113,9 +104,6 @@
     <ClInclude Include="graphics\shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="graphics\simpleRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="tools\clock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -125,25 +113,10 @@
     <ClInclude Include="logic\SAT.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="logic\layers\buttonLayer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="logic\layers\layer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="logic\layers\objectLayer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="logic\layers\textLayer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="logic\gameloop.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="graphics\camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="graphics\all.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="graphics\buffers\vertexArray.h">
@@ -201,6 +174,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game\creatures\enemy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics\renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -2,6 +2,7 @@
 #include "logic/game.h"
 
 #include <omp.h>
+#include <Windows.h>
 
 #define M_WINDOW_WIDTH		900
 #define M_WINDOW_HEIGHT		600
@@ -9,8 +10,7 @@
 
 graphics::Window *window;
 graphics::Shader *shader;
-graphics::Shader *textShader;
-graphics::Shader *textureShader;
+graphics::Renderer *renderer;
 logic::GameLoop *gameloop;
 graphics::Camera *camera;
 Game *game;
@@ -24,34 +24,47 @@ void render() {
 	window->input();
 }
 
+int x = 0;
 void update() {
 	if (window->close() || window->getKey(GLFW_KEY_ESCAPE)) gameloop->stop();
 	game->update();
+	x++;
+	if (x > 100) {
+		x = 0;
+		std::cout << "FPS: " << gameloop->getFPS() << std::endl;
+		std::cout << "UPS: " << gameloop->getUPS() << std::endl;
+	}
+
 }
 
 void rapid() {
 	game->rapidUpdate();
 }
 
-int main() {
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow) {
 	//Window
 	window = new graphics::Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, "Test game", false);
 
 	//Create shader
-	shader = new graphics::Shader("shaders/basic.vert.glsl", "shaders/basic.frag.glsl");
-	textureShader = new graphics::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl");
-	textShader = new graphics::Shader("shaders/text.vert.glsl", "shaders/text.frag.glsl");
+	shader = new graphics::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl");
 	
+	//Shader stuff
 	float debugZoom = 1.0;
 	glm::mat4 orthographic = glm::ortho(-M_ASPECT * debugZoom, M_ASPECT* debugZoom, debugZoom, -debugZoom);
 	shader->enable(); shader->SetUniformMat4("pr_matrix", orthographic);
-	textureShader->enable(); textureShader->SetUniformMat4("pr_matrix", orthographic);
-	textShader->enable(); textShader->SetUniformMat4("pr_matrix", orthographic);
-	graphics::SimpleRenderer::init(shader, textureShader, textShader, "arial.ttf");
+	renderer = new graphics::Renderer("arial.ttf");
+
+	//Load textures
+	graphics::TextureLoader n;
+	n.loadTexture("recourses/tiles.png", GL_RGBA, 1);
+	n.loadTexture("recourses/items.png", GL_RGBA, 2);
+	n.loadTexture("recourses/ui.png", GL_RGBA, 3);
+	
+	glBindTexture(GL_TEXTURE_2D, n.getTexture(1));
 
 	//Main game loop
-	gameloop = new logic::GameLoop(render, update, rapid, 10000, 30);
-	game->init(textureShader, window, gameloop);
+	gameloop = new logic::GameLoop(render, update, rapid, 100, 10000);
+	game->init(shader, window, gameloop);
 	gameloop->start();
 	game->close();
 }

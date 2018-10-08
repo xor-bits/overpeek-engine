@@ -5,7 +5,6 @@
 class Inventory {
 private:
 	graphics::Shader *m_shader;
-	graphics::SimpleRenderer *m_renderer;
 	graphics::Window *m_window;
 	int m_wood;
 
@@ -13,7 +12,7 @@ public:
 	bool visible;
 
 public:
-	Inventory(graphics::Shader *shader, graphics::SimpleRenderer *renderer, graphics::Window *window);
+	Inventory(graphics::Shader *shader, graphics::Window *window);
 
 	void render();
 	void update();

@@ -4,12 +4,13 @@
 #include "../creatures/enemy.h"
 #include "../world/region.h"
 #include "../logic/inventory.h"
+#include "../../graphics/textureLoader.h"
 
 #include <windows.h>
 
 graphics::Window *Game::m_window;
 graphics::Shader *Game::m_shader;
-graphics::SimpleRenderer *Game::m_renderer;
+graphics::Renderer *Game::m_renderer;
 logic::GameLoop *Game::m_loop;
 glm::ivec2 Game::m_hover_tile;
 Inventory *m_inventory;
@@ -27,16 +28,16 @@ bool holdingI = false;
 void Game::init(graphics::Shader *shader, graphics::Window * window, logic::GameLoop *loop) {
 	m_shader = shader; m_window = window; m_loop = loop;
 
+	//Initializing
 	system(("mkdir \"" + SAVE_PATH + WORLD_NAME + "\\regions\"").c_str());
 	logic::Noise::seed(0);//tools::Clock::getMicroseconds());
 
-	graphics::TextureLoader::loadTexture("recourses/tiles.png", GL_RGBA, 1);
-	graphics::TextureLoader::loadTexture("recourses/items.png", GL_RGBA, 2);
-	graphics::TextureLoader::loadTexture("recourses/ui.png", GL_RGBA, 3);
+	m_renderer = new graphics::Renderer("arial.ttf");
 
 	audio::AudioManager::init();
 	audio::AudioManager::loadAudio("recourses/hit.wav", 0);
 
+	//Instantiating
 	for (int x = 0; x < RENDER_DST; x++)
 	{
 		for (int y = 0; y < RENDER_DST; y++)
@@ -44,47 +45,52 @@ void Game::init(graphics::Shader *shader, graphics::Window * window, logic::Game
 			m_region[x][y] = new Region(x, y);
 		}
 	}
-	Region::initRender(m_shader);
 	m_player = new Player(0.0, 0.0, m_shader);
 	m_enemy = new Enemy(-1, -1, m_shader);
 
-	m_inventory = new Inventory(m_shader, m_renderer, m_window);
+	m_inventory = new Inventory(m_shader, m_window);
+
+
+	m_shader->enable();
+	m_shader->SetUniformMat4("ml_matrix", glm::mat4(1.0f));
 }
 
 void Game::render() {
-	glBindTexture(GL_TEXTURE_2D, graphics::TextureLoader::getTexture(1));
+	m_renderer->clear();
 	for (int x = 0; x < RENDER_DST; x++)
 	{
 		for (int y = 0; y < RENDER_DST; y++)
 		{
-			if (m_region[x][y] != nullptr) m_region[x][y]->render();
+			if (m_region[x][y] != nullptr) m_region[x][y]->submitToRenderer(m_renderer, -m_player->getX(), -m_player->getY());
 		}
 	}
-	m_player->render(0.0, 0.0);
-	m_enemy->render(-m_player->getX(), -m_player->getY());
+	m_player->submitToRenderer(m_renderer, -m_player->getX(), -m_player->getY());
+	m_enemy->submitToRenderer(m_renderer, -m_player->getX(), -m_player->getY());
+	
 	
 	if (m_loop) renderDebugScreen(); 
 	m_inventory->render();
+
+	m_renderer->flush();
 }
 
 void Game::renderDebugScreen() {
-
-	std::string fpsString = "Fps: "; fpsString += std::to_string(m_loop->getFPS());
-	std::string upsString = "Ups: "; upsString += std::to_string(m_loop->getUPS());
-	std::string posString = "X: "; posString += std::to_string(m_player->getX());
-	posString += ", Y: "; posString += std::to_string(m_player->getY());
-
-	m_renderer->renderText(-m_window->getAspect(), -1.00, 0.05, 0.05, fpsString, glm::vec3(1.0f, 1.0f, 1.0f), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
-	m_renderer->renderText(-m_window->getAspect(), -0.95, 0.05, 0.05, upsString, glm::vec3(1.0f, 1.0f, 1.0f), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
-	m_renderer->renderText(-m_window->getAspect(), -0.90, 0.05, 0.05, posString, glm::vec3(1.0f, 1.0f, 1.0f), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
-
-	if (getTileId(m_hover_tile.x, m_hover_tile.y) != 0) {
-		std::string hoverTile = "Tile X: "; hoverTile += std::to_string(m_hover_tile.x);
-		hoverTile += ", Tile Y: "; hoverTile += std::to_string(m_hover_tile.y);
-		hoverTile += ", Tile ID: "; hoverTile += std::to_string(getTileId(m_hover_tile.x, m_hover_tile.y));
-		hoverTile += ", Tile Object ID: "; hoverTile += std::to_string(getTileObjectId(m_hover_tile.x, m_hover_tile.y));
-		m_renderer->renderText(-m_window->getAspect(), -0.85, 0.05, 0.05, hoverTile, glm::vec3(1.0f, 1.0f, 1.0f), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
-	}
+	//std::string fpsString = "Fps: "; fpsString += std::to_string(m_loop->getFPS());
+	//std::string upsString = "Ups: "; upsString += std::to_string(m_loop->getUPS());
+	//std::string posString = "X: "; posString += std::to_string(m_player->getX());
+	//posString += ", Y: "; posString += std::to_string(m_player->getY());
+	//
+	//m_renderer->renderText(-m_window->getAspect(), -1.00, 0.05, 0.05, fpsString, glm::vec3(1.0f, 1.0f, 1.0f), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
+	//m_renderer->renderText(-m_window->getAspect(), -0.95, 0.05, 0.05, upsString, glm::vec3(1.0f, 1.0f, 1.0f), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
+	//m_renderer->renderText(-m_window->getAspect(), -0.90, 0.05, 0.05, posString, glm::vec3(1.0f, 1.0f, 1.0f), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
+	//
+	//if (getTileId(m_hover_tile.x, m_hover_tile.y) != 0) {
+	//	std::string hoverTile = "Tile X: "; hoverTile += std::to_string(m_hover_tile.x);
+	//	hoverTile += ", Tile Y: "; hoverTile += std::to_string(m_hover_tile.y);
+	//	hoverTile += ", Tile ID: "; hoverTile += std::to_string(getTileId(m_hover_tile.x, m_hover_tile.y));
+	//	hoverTile += ", Tile Object ID: "; hoverTile += std::to_string(getTileObjectId(m_hover_tile.x, m_hover_tile.y));
+	//	m_renderer->renderText(-m_window->getAspect(), -0.85, 0.05, 0.05, hoverTile, glm::vec3(1.0f, 1.0f, 1.0f), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
+	//}
 }
 
 void Game::update() {
@@ -149,7 +155,6 @@ void Game::update() {
 		if (m_window->getButton(GLFW_MOUSE_BUTTON_LEFT) && hitCooldown >= hitSpeed) {
 			hitCooldown = 0;
 			audio::AudioManager::play(0);
-			std::cout << "hit\n";
 			addTileObjectHealth(m_hover_tile.x, m_hover_tile.y, -1.0);
 		}
 	}
@@ -166,7 +171,7 @@ void Game::update() {
 		for (int y = 0; y < RENDER_DST; y++)
 		{
 			if (m_region[x][y] != nullptr) {
-				m_region[x][y]->update(-m_player->getX() * TILE_SIZE, -m_player->getY() * TILE_SIZE);
+				m_region[x][y]->update();
 				//m_region[x][y]->saveTiles();
 			}
 		}
@@ -194,9 +199,7 @@ void Game::rapidUpdate() {
 void Game::close() {
 	for (int x = 0; x < RENDER_DST; x++) {
 		for (int y = 0; y < RENDER_DST; y++) {
-			if (m_region[x][y]) {
-				m_region[x][y]->saveTiles();
-			}
+			if (m_region[x][y]) m_region[x][y]->saveTiles();
 		}
 	}
 }

@@ -2,13 +2,12 @@
 
 namespace graphics {
 
-	IndexBuffer::IndexBuffer(GLushort *data, GLsizei count) {
+	IndexBuffer::IndexBuffer(GLushort *data, GLsizei count, GLenum usage) {
 		mCount = count;
 
 		glGenBuffers(1, &mID);
 		bind();
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * count, data, GL_STATIC_DRAW);
-		unbind();
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * count, data, usage);
 	}
 
 	IndexBuffer::~IndexBuffer() {
@@ -21,6 +20,13 @@ namespace graphics {
 
 	void IndexBuffer::unbind() {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	}
+
+	void IndexBuffer::setBufferData(const GLvoid *data, GLsizei count) {
+		mCount = count;
+
+		bind();
+		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(GLushort) * count, data);
 	}
 
 }

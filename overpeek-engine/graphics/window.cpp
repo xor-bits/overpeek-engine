@@ -1,7 +1,8 @@
 #include "window.h"
 #include <GL/GLU.h>
-#include "simpleRenderer.h"
 #include <Windows.h>
+
+#include "stb_image.h"
 
 #define M_NUM_KEYS		512
 #define M_NUM_BUTTONS	128
@@ -59,6 +60,12 @@ namespace graphics {
 		std::cout << glGetString(GL_RENDERER) << std::endl;
 		std::cout << "OpenGL " << glGetString(GL_VERSION) << std::endl;
 
+
+		int width, height, nrChannels;
+		GLubyte *data = stbi_load("recourses/icon.png", &width, &height, &nrChannels, 0);
+		GLFWimage icon; icon.height = height; icon.width = width; icon.pixels = data;
+		glfwSetWindowIcon(mWindow, 1, &icon);
+
 		glfwSetCursorPosCallback(mWindow, cursor_position_callback);
 		glfwSetMouseButtonCallback(mWindow, mouse_button_callback);
 		glfwSetKeyCallback(mWindow, key_callback);
@@ -72,9 +79,9 @@ namespace graphics {
 		glDepthFunc(GL_LEQUAL);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
-		//glEnable(GL_CULL_FACE);
-		//glCullFace(GL_BACK);
-		//glFrontFace(GL_CW);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glFrontFace(GL_CCW);
 
 		glfwSwapInterval(0);
 
@@ -103,7 +110,31 @@ namespace graphics {
 	void Window::checkErrors() {
 		GLenum err = glGetError();
 		if (err != 0) {
-			std::cout << err << " " << glewGetErrorString(err) << std::endl;
+			std::cout << err << " ";
+			switch (err)
+			{
+			case GL_NO_ERROR:
+				std::cout << "No error, lol you shouldn't see this" << std::endl;
+				break;
+			case GL_INVALID_ENUM:
+				std::cout << "Invalid enum!" << std::endl;
+				break;
+			case GL_INVALID_VALUE:
+				std::cout << "Invalid value!" << std::endl;
+				break;
+			case GL_INVALID_OPERATION:
+				std::cout << "Invalid operation!" << std::endl;
+				break;
+			case GL_INVALID_FRAMEBUFFER_OPERATION:
+				std::cout << "Invalid framebuffer operation!" << std::endl;
+				break;
+			case GL_OUT_OF_MEMORY:
+				std::cout << "Out of memory!" << std::endl;
+				break;
+			default:
+				std::cout << "Unknown error!" << std::endl;
+				break;
+			}
 			glfwTerminate();
 			system("pause");
 			exit(EXIT_FAILURE);

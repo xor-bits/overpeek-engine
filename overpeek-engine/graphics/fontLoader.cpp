@@ -78,7 +78,6 @@ namespace graphics {
 		glActiveTexture(GL_TEXTURE0);
 		glBindVertexArray(mVAO);
 
-
 		GLfloat x = ox;
 		GLfloat y = oy;
 		std::string::const_iterator c;

@@ -19,7 +19,7 @@ class Game {
 private:
 	static graphics::Window *m_window;
 	static graphics::Shader *m_shader;
-	static graphics::SimpleRenderer *m_renderer;
+	static graphics::Renderer *m_renderer;
 	static logic::GameLoop *m_loop;
 	static glm::ivec2 m_hover_tile;
 

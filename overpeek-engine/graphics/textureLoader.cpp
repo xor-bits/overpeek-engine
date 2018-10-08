@@ -5,8 +5,6 @@
 
 namespace graphics {
 
-	unsigned int TextureLoader::mTextures[MAX_TEXTURES];
-
 	unsigned int TextureLoader::loadTexture(std::string path, GLenum format, int id) {
 
 		unsigned int texture;

@@ -8,8 +8,8 @@ Enemy::Enemy(float x, float y, graphics::Shader *shader) : Creature(x, y, shader
 	m_wait = 0;
 }
 
-void Enemy::render(float renderOffsetX, float renderOffsetY) {
-	Creature::render(renderOffsetX, renderOffsetY);
+void Enemy::submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY) {
+	Creature::submitToRenderer(renderer, renderOffsetX, renderOffsetY);
 }
 
 void Enemy::update() {

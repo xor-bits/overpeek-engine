@@ -10,12 +10,11 @@ namespace graphics {
 
 	class TextureLoader {
 	private:
-		static unsigned int mTextures[MAX_TEXTURES];
+		unsigned int mTextures[MAX_TEXTURES];
 
 	public:
-		/*DEFAULT FORMAT IS GL_RGBA*/
-		static unsigned int loadTexture(std::string path, GLenum format, int id);
-		static unsigned int getTexture(int id);
+		unsigned int loadTexture(std::string path, GLenum format, int id);
+		unsigned int getTexture(int id);
 
 	};
 

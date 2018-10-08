@@ -145,7 +145,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>freetype.lib;glew32s.lib;glu32.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -165,7 +165,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>freetype.lib;glew32s.lib;glu32.lib;glfw3.lib;opengl32.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -185,11 +185,8 @@
     <ClCompile Include="graphics\fontLoader.cpp" />
     <ClCompile Include="graphics\textureLoader.cpp" />
     <ClCompile Include="logic\gameloop.cpp" />
-    <ClCompile Include="logic\layers\buttonLayer.cpp" />
-    <ClCompile Include="logic\layers\objectLayer.cpp" />
-    <ClCompile Include="logic\layers\textLayer.cpp" />
     <ClCompile Include="graphics\shader.cpp" />
-    <ClCompile Include="graphics\simpleRenderer.cpp" />
+    <ClCompile Include="graphics\renderer.cpp" />
     <ClCompile Include="graphics\window.cpp" />
     <ClCompile Include="game\main.cpp" />
     <ClCompile Include="logic\noise.cpp" />
@@ -208,7 +205,6 @@
     <ClInclude Include="game\world\map.h" />
     <ClInclude Include="game\world\region.h" />
     <ClInclude Include="game\world\tile.h" />
-    <ClInclude Include="graphics\all.h" />
     <ClInclude Include="graphics\buffers\indexBuffer.h" />
     <ClInclude Include="graphics\buffers\vertexArray.h" />
     <ClInclude Include="graphics\buffers\buffer.h" />
@@ -217,12 +213,8 @@
     <ClInclude Include="graphics\textureLoader.h" />
     <ClInclude Include="logic\aabb.h" />
     <ClInclude Include="logic\gameloop.h" />
-    <ClInclude Include="logic\layers\buttonLayer.h" />
-    <ClInclude Include="logic\layers\layer.h" />
-    <ClInclude Include="logic\layers\objectLayer.h" />
-    <ClInclude Include="logic\layers\textLayer.h" />
     <ClInclude Include="graphics\shader.h" />
-    <ClInclude Include="graphics\simpleRenderer.h" />
+    <ClInclude Include="graphics\renderer.h" />
     <ClInclude Include="graphics\window.h" />
     <ClInclude Include="logic\noise.h" />
     <ClInclude Include="logic\SAT.h" />

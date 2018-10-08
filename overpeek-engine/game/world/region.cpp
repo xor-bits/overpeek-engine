@@ -1,94 +1,8 @@
 #include "region.h"
 
-#include "../../engine.h"
-#include "../logic/game.h"
-#include "../../engine.h"
-
-graphics::VertexArray *Region::m_vao;
-graphics::Buffer *Region::m_vbo;
-graphics::Buffer *Region::m_tbo;
-graphics::Shader *Region::m_shader;
-graphics::Buffer *Region::m_tid;
-
-void Region::initRender(graphics::Shader *shader) {
-	m_shader = shader;
-	m_vao = new graphics::VertexArray();
-
-	//Vertex buffer object
-	const int xyCount = REGION_SIZE * REGION_SIZE * 6 * 2 * 2;
-	const int uvCount = REGION_SIZE * REGION_SIZE * 6 * 2 * 2;
-	GLfloat xy[xyCount];
-	GLfloat uv[uvCount];
-
-	int tmp = 0;
-	for (int i = 0; i < 2; i++)
-	{
-		for (int x = 0; x < REGION_SIZE; x++)
-		{
-			for (int y = 0; y < REGION_SIZE; y++)
-			{
-				xy[tmp++] = (x * TILE_SIZE);
-				xy[tmp++] = (y * TILE_SIZE);
-
-				xy[tmp++] = (x * TILE_SIZE) + TILE_SIZE;
-				xy[tmp++] = (y * TILE_SIZE);
-
-				xy[tmp++] = (x * TILE_SIZE) + TILE_SIZE;
-				xy[tmp++] = (y * TILE_SIZE) + TILE_SIZE;
-
-
-				xy[tmp++] = (x * TILE_SIZE);
-				xy[tmp++] = (y * TILE_SIZE);
-
-				xy[tmp++] = (x * TILE_SIZE) + TILE_SIZE;
-				xy[tmp++] = (y * TILE_SIZE) + TILE_SIZE;
-
-				xy[tmp++] = (x * TILE_SIZE);
-				xy[tmp++] = (y * TILE_SIZE) + TILE_SIZE;
-			}
-		}
-	}
-
-	tmp = 0;
-	for (int i = 0; i < 2; i++)
-	{
-		for (int x = 0; x < REGION_SIZE; x++)
-		{
-			for (int y = 0; y < REGION_SIZE; y++)
-			{
-				uv[tmp++] = 0.0;
-				uv[tmp++] = 0.0;
-
-				uv[tmp++] = 1.0;
-				uv[tmp++] = 0.0;
-
-				uv[tmp++] = 1.0;
-				uv[tmp++] = 1.0;
-
-
-				uv[tmp++] = 0.0;
-				uv[tmp++] = 0.0;
-
-				uv[tmp++] = 1.0;
-				uv[tmp++] = 1.0;
-
-				uv[tmp++] = 0.0;
-				uv[tmp++] = 1.0;
-			}
-		}
-	}
-
-	//Texture buffer object
-	m_vbo = new graphics::Buffer(xy, xyCount, 2, sizeof(GLfloat), GL_STATIC_DRAW);
-	m_tbo = new graphics::Buffer(uv, uvCount, 2, sizeof(GLfloat), GL_STATIC_DRAW);
-	m_tid = new graphics::Buffer(0, REGION_SIZE * REGION_SIZE * 6 * 2 * 4, 4, sizeof(GLfloat), GL_DYNAMIC_DRAW);
-	m_vao->addBuffer(m_vbo, 0);
-	m_vao->addBuffer(m_tbo, 1);
-	m_vao->addBuffer(m_tid, 2);
-}
-
 Region::Region(int x, int y) {
 	m_x = x; m_y = y;
+	m_creatureAmount = 0;
 	if (tools::BinaryIO::read(getSaveLocation()) != nullptr) loadTiles();
 	else createTiles();
 }
@@ -128,38 +42,8 @@ void Region::createTiles() {
 			}
 
 			m_tiles[x][y] = Tile(tilex, tiley, id, object_id);
-
-			glm::vec4 arrayid = glm::vec4(1, 1, id % 16, (id - (id % 16)) / 16);
-			glm::vec4 arrayobjectid = glm::vec4(1, 1, m_tiles[x][y].getObjectTexture() % 16, (m_tiles[x][y].getObjectTexture() - (m_tiles[x][y].getObjectTexture() % 16)) / 16);
-
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
-			m_texture_off_array[tmp++] = arrayid;
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
-			m_texture_off_array[tmp++] = arrayid;
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
-			m_texture_off_array[tmp++] = arrayid;
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
-			m_texture_off_array[tmp++] = arrayid;
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
-			m_texture_off_array[tmp++] = arrayid;
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
-			m_texture_off_array[tmp++] = arrayid;
 		}
 	}
-	//for (int i = 0; i < REGION_SIZE * REGION_SIZE * 6 * 2; i++)
-	//{
-	//	std::cout << i << ", " << m_texture_off_array[i] << std::endl;
-	//}
-}
-
-void Region::render() {
-	m_shader->enable();
-	m_shader->SetUniformMat4("ml_matrix", m_ml_matrix);
-	m_shader->setUniform4i("overwrite_off", glm::ivec4(0));
-
-	m_vao->bind();
-	m_tid->setBufferData(m_texture_off_array, REGION_SIZE * REGION_SIZE * 6 * 2 * 4, 4, sizeof(GLfloat));
-	glDrawArrays(GL_TRIANGLES, 0, REGION_SIZE * REGION_SIZE * 6 * 2);
 }
 
 void Region::loadTiles() {
@@ -174,22 +58,6 @@ void Region::loadTiles() {
 			int id = readData[x + (y * REGION_SIZE)];
 			int objid = readData[x + (y * REGION_SIZE) + REGION_SIZE * REGION_SIZE];
 			m_tiles[x][y] = Tile(tilex, tiley, id, objid);
-
-			glm::vec4 arrayid = glm::vec4(1, 1, id % 16, (id - (id % 16)) / 16);
-			glm::vec4 arrayobjectid = glm::vec4(1, 1, m_tiles[x][y].getObjectTexture() % 16, (m_tiles[x][y].getObjectTexture() - (m_tiles[x][y].getObjectTexture() % 16)) / 16);
-
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
-			m_texture_off_array[tmp++] = arrayid;
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
-			m_texture_off_array[tmp++] = arrayid;
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
-			m_texture_off_array[tmp++] = arrayid;
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
-			m_texture_off_array[tmp++] = arrayid;
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
-			m_texture_off_array[tmp++] = arrayid;
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
-			m_texture_off_array[tmp++] = arrayid;
 		}
 	}
 }
@@ -207,39 +75,32 @@ void Region::saveTiles() {
 	tools::BinaryIO::write(getSaveLocation(), data, sizeof(data) / sizeof(unsigned char));
 }
 
-void Region::update(float offx, float offy) {
-	float rx = (m_x - RENDER_DST / 2.0) * (float)TILE_SIZE * REGION_SIZE + offx;
-	float ry = (m_y - RENDER_DST / 2.0) * (float)TILE_SIZE * REGION_SIZE + offy;
-	m_ml_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(rx, ry, 0.0));
-
-	int tmp = 0;
+void Region::update() {
 	for (int x = 0; x < REGION_SIZE; x++)
 	{
 		for (int y = 0; y < REGION_SIZE; y++)
 		{
 			m_tiles[x][y].update();
+		}
+	}
+}
 
+void Region::submitToRenderer(graphics::Renderer *renderer, float offx, float offy) {
+	float rx = (m_x - RENDER_DST / 2.0) * (float)TILE_SIZE * REGION_SIZE + offx * TILE_SIZE;
+	float ry = (m_y - RENDER_DST / 2.0) * (float)TILE_SIZE * REGION_SIZE + offy * TILE_SIZE;
+	for (int x = 0; x < REGION_SIZE; x++)
+	{
+		for (int y = 0; y < REGION_SIZE; y++)
+		{
 			int id = m_tiles[x][y].getFloorTexture();
 			int objid = m_tiles[x][y].getObjectTexture();
 
+			glm::vec2 arrayid = glm::vec2(id % 16, (id - (id % 16)) / 16);
+			glm::vec2 arrayobjectid = glm::vec2(objid % 16, (objid - (objid % 16)) / 16);
 
-			glm::vec4 arrayid = glm::vec4(1, 1, id % 16, (id - (id % 16)) / 16);
-			glm::vec4 arrayobjectid = glm::vec4(1, 1, objid % 16, (objid - (objid % 16)) / 16);
-
-			//std::cout << arrayid.x << ", " << arrayid.y << ", " << arrayid.z << ", " << arrayid.w << std::endl;
-
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
-			m_texture_off_array[tmp++] = arrayid;
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
-			m_texture_off_array[tmp++] = arrayid;
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
-			m_texture_off_array[tmp++] = arrayid;
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
-			m_texture_off_array[tmp++] = arrayid;
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
-			m_texture_off_array[tmp++] = arrayid;
-			m_texture_off_array[tmp + (REGION_SIZE * REGION_SIZE * 6)] = arrayobjectid;
-			m_texture_off_array[tmp++] = arrayid;
+			float renderx = x * TILE_SIZE + rx, rendery = y * TILE_SIZE + ry;
+			renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, arrayid.x / 16.0, arrayid.y / 16.0, 1 / 16.0, 1 / 16.0);
+			renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, arrayobjectid.x / 16.0, arrayobjectid.y / 16.0, 1 / 16.0, 1 / 16.0);
 		}
 	}
 }

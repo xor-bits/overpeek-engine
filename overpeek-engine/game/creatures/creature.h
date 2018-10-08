@@ -12,18 +12,10 @@ protected:
 	float m_acc_x, m_acc_y;
 	int m_texture;
 
-	static graphics::VertexArray *m_vao;
-	static graphics::Buffer *m_vbo;
-	static graphics::Buffer *m_tbo;
-	static graphics::Shader *m_shader;
-
-	static bool renderInited;
-	static void initRender();
-
 public:
 	Creature(float x, float y, graphics::Shader *shader);
 
-	virtual void render(float renderOffsetX, float renderOffsetY);
+	virtual void submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY);
 	virtual void update();
 
 	void collide();
