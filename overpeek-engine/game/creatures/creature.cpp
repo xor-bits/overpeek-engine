@@ -2,7 +2,8 @@
 #include "../world/tile.h"
 #include "../../logic/aabb.h"
 
-Creature::Creature(float x, float y, graphics::Shader *shader) {
+Creature::Creature(float x, float y, graphics::Shader *shader, Inventory *inv) {
+	m_inv = inv;
 	m_x = x; m_y = y;
 	m_vel_x = 0;
 	m_vel_y = 0;
@@ -11,8 +12,7 @@ Creature::Creature(float x, float y, graphics::Shader *shader) {
 }
 
 void Creature::submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY) {
-	glm::vec2 arrayid = glm::vec2(m_texture % 16, (m_texture - (m_texture % 16)) / 16);
-	renderer->renderBox((m_x + renderOffsetX - 0.5) * TILE_SIZE, (m_y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, arrayid.x / 16.0, arrayid.y / 16.0, 1 / 16.0, 1 / 16.0);
+	renderer->renderBox((m_x + renderOffsetX - 0.5) * TILE_SIZE, (m_y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, m_texture);
 }
 
 void Creature::update() {
@@ -31,10 +31,10 @@ void Creature::collide() {
 	{
 		for (int y = -2; y < 3; y++)
 		{
-			int tileid = Game::getTileObjectId(floor(m_x) + x, floor(m_y) + y);
-			if (tileid == 0) continue;
+			Tile* tile = Game::getTile(floor(m_x) + x, floor(m_y) + y);
+			if (tile == nullptr) continue;
 
-			if (tileid == 9) {
+			if (tile->getObjectId() == 9) {
 				int tilex = floor(m_x) + x;
 				int tiley = floor(m_y) + y;
 				//LEFT COLLIDER

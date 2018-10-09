@@ -27,11 +27,14 @@ namespace graphics {
 		VertexArray *m_VAO;
 		Buffer *m_VBO;
 		Buffer *m_UV;
+		Buffer *m_ID;
+
 		IndexBuffer *m_IBO;
 
 		GLuint quadCount;
 		GLfloat m_vertex[MAX_VBO];
 		GLfloat m_uv[MAX_VBO];
+		GLfloat m_id[MAX_VBO];
 		GLushort m_index[MAX_IBO];
 
 		struct Character {
@@ -47,7 +50,7 @@ namespace graphics {
 	public:
 		Renderer(std::string fontpath);
 
-		void renderBox(float x, float y, float w, float h, float t_x, float t_y, float t_w, float t_h);
+		void renderBox(float x, float y, float w, float h, int textureID);
 		void renderText(float x, float y, float w, float h, std::string text, glm::vec3 color, int xAlign, int yAlign);
 		
 		void flush();

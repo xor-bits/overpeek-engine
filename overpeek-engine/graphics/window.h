@@ -20,6 +20,8 @@ namespace graphics {
 		static double mMouseX, mMouseY;
 		static bool mKeys[];
 		static bool mButtons[];
+		static bool mSingleKeys[];
+		static bool mSingleButtons[];
 
 		static void (*mKeyCallback)(int, int);
 		static void (*mButtonCallback)(int, int);

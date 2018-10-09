@@ -39,17 +39,7 @@ public:
 	void update();
 	void submitToRenderer(graphics::Renderer *renderer, float offx, float offy);
 
-	inline Tile getTile(unsigned int x, unsigned int y) { return m_tiles[x][y]; }
-	inline int getTileId(unsigned int x, unsigned int y) { return m_tiles[x][y].getId(); }
-	inline int getTileObjectId(unsigned int x, unsigned int y) { return m_tiles[x][y].getObjectId(); }
-
-	inline void setTileId(unsigned int x, unsigned int y, int id) { m_tiles[x][y].setId(id); }
-	inline void setTileObjectId(unsigned int x, unsigned int y, int id) { m_tiles[x][y].setObjectId(id); }
-	inline void addObjectHealth(unsigned int x, unsigned int y, float amount) { m_tiles[x][y].addObjectHealth(amount); }
-	inline void healObject(unsigned int x, unsigned int y) { m_tiles[x][y].healObject(); }
-
-	inline int getTileX(unsigned int x, unsigned int y) { return m_tiles[x][y].getX(); }
-	inline int getTileY(unsigned int x, unsigned int y) { return m_tiles[x][y].getY(); }
+	inline Tile* getTile(unsigned int x, unsigned int y) { return &m_tiles[x][y]; }
 
 	inline void addCreature(Creature *creature) { m_creatures[m_creatureAmount++] = creature; }
 	inline void removeCreature(Creature *creature) { m_creatures[m_creatureAmount++] = creature; }

@@ -1,20 +1,33 @@
 #include "inventory.h"
 
-#define WIDTH 1.4
-#define HEIGHT 1.0
-#define X WIDTH / -2.0
-#define Y HEIGHT / -2.0
-
 Inventory::Inventory(graphics::Shader *shader, graphics::Window *window) {
 	m_shader = shader; m_window = window;
-	m_wood = 5;
+
+	for (int x = 0; x < INVENTORY_WIDTH; x++)
+	{
+		for (int y = 0; y < INVENTORY_HEIGHT + 1; y++)
+		{
+			itemIds[x][y] = 0;
+		}
+	}
 }
 
-void Inventory::render() {
+void Inventory::render(graphics::Renderer *m_renderer) {
+	for (int x = 0; x < INVENTORY_WIDTH; x++)
+	{
+		m_renderer->renderBox((x - (INVENTORY_WIDTH / 2.0)) * INVENTORY_SCALE, -1.0, INVENTORY_SCALE, INVENTORY_SCALE, 38);
+		if (itemIds[x][0] != 0) m_renderer->renderBox((x - (INVENTORY_WIDTH / 2.0)) * INVENTORY_SCALE, -1.0, INVENTORY_SCALE, INVENTORY_SCALE, 19);
+	}
+
 	if (visible) {
-		//glBindTexture(GL_TEXTURE_2D, graphics::TextureLoader::getTexture(3));
-		//graphics::Renderer::renderBox(X, Y, WIDTH, HEIGHT);
-		//graphics::Renderer::renderText(X, Y, 0.1, 0.1, "Inventory", glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
+		for (int y = 0; y < INVENTORY_HEIGHT; y++)
+		{
+			for (int x = 0; x < INVENTORY_WIDTH; x++)
+			{
+				m_renderer->renderBox((x - (INVENTORY_WIDTH / 2.0)) * INVENTORY_SCALE, (y - (INVENTORY_HEIGHT / 2.0)) * INVENTORY_SCALE, INVENTORY_SCALE, INVENTORY_SCALE, 38);
+				if (itemIds[x][y+1] != 0) m_renderer->renderBox((x - (INVENTORY_WIDTH / 2.0)) * INVENTORY_SCALE, (y - (INVENTORY_HEIGHT / 2.0)) * INVENTORY_SCALE, INVENTORY_SCALE, INVENTORY_SCALE, 19);
+			}
+		}
 	}
 }
 

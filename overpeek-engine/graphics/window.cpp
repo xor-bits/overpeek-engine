@@ -12,6 +12,8 @@ namespace graphics {
 
 	bool Window::mKeys[M_NUM_KEYS];
 	bool Window::mButtons[M_NUM_BUTTONS];
+	bool Window::mSingleKeys[M_NUM_KEYS];
+	bool Window::mSingleButtons[M_NUM_BUTTONS];
 	double Window::mMouseX;
 	double Window::mMouseY;
 	void(*Window::mKeyCallback)(int, int);
@@ -23,6 +25,8 @@ namespace graphics {
 
 		for (int i = 0; i < M_NUM_KEYS; i++) mKeys[i] = false;
 		for (int i = 0; i < M_NUM_BUTTONS; i++) mButtons[i] = false;
+		for (int i = 0; i < M_NUM_KEYS; i++) mSingleKeys[i] = false;
+		for (int i = 0; i < M_NUM_BUTTONS; i++) mSingleButtons[i] = false;
 
 		if (!mInit()) {
 			glfwTerminate();
@@ -89,15 +93,17 @@ namespace graphics {
 	}
 
 	void Window::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
-		if (mButtonCallback)
-			(*mButtonCallback)(button, action);
+		if (mButtonCallback && action == GLFW_PRESS && !mSingleButtons[button]) { mSingleButtons[button] = true; (*mButtonCallback)(button, action); }
+		else if (action == GLFW_RELEASE) mSingleButtons[button] = false;
+
 		if (action == GLFW_PRESS) mButtons[button] = true;
 		else if (action == GLFW_RELEASE) mButtons[button] = false;
 	}
 
 	void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-		if (mKeyCallback)
-			(*mKeyCallback)(key, action);
+		if (mKeyCallback && action == GLFW_PRESS && !mSingleKeys[key]) { mSingleKeys[key] = true; (*mKeyCallback)(key, action); }
+		else if (action == GLFW_RELEASE) mSingleKeys[key] = false;
+
 		if (action == GLFW_PRESS) mKeys[key] = true;
 		else if (action == GLFW_RELEASE) mKeys[key] = false;
 	}

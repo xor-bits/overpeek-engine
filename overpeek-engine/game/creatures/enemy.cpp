@@ -2,7 +2,7 @@
 #include "../../engine.h"
 #include "../logic/game.h"
 
-Enemy::Enemy(float x, float y, graphics::Shader *shader) : Creature(x, y, shader) {
+Enemy::Enemy(float x, float y, graphics::Shader *shader, Inventory *inv) : Creature(x, y, shader, inv) {
 	m_texture = 4;
 	m_untilnexttarget = 0;
 	m_wait = 0;

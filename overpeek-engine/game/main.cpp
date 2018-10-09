@@ -13,12 +13,21 @@ graphics::Shader *shader;
 graphics::Renderer *renderer;
 logic::GameLoop *gameloop;
 graphics::Camera *camera;
-Game *game;
+Game game;
+
+
+void keyPress(int key, int action) {
+	if (action == GLFW_PRESS) game.keyPress(key);
+}
+
+void buttonPress(int button, int action) {
+	if (action == GLFW_PRESS) game.buttonPress(button);
+}
 
 void render() {
 	window->clear();
 
-	game->render();
+	game.render();
 
 	window->update();
 	window->input();
@@ -27,7 +36,7 @@ void render() {
 int x = 0;
 void update() {
 	if (window->close() || window->getKey(GLFW_KEY_ESCAPE)) gameloop->stop();
-	game->update();
+	game.update();
 	x++;
 	if (x > 100) {
 		x = 0;
@@ -38,12 +47,15 @@ void update() {
 }
 
 void rapid() {
-	game->rapidUpdate();
+	game.rapidUpdate();
 }
 
-int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow) {
+//int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow) {
+int main() {
 	//Window
 	window = new graphics::Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, "Test game", false);
+	window->setButtonCallback(buttonPress);
+	window->setKeyboardCallback(keyPress);
 
 	//Create shader
 	shader = new graphics::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl");
@@ -54,17 +66,9 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 	shader->enable(); shader->SetUniformMat4("pr_matrix", orthographic);
 	renderer = new graphics::Renderer("arial.ttf");
 
-	//Load textures
-	graphics::TextureLoader n;
-	n.loadTexture("recourses/tiles.png", GL_RGBA, 1);
-	n.loadTexture("recourses/items.png", GL_RGBA, 2);
-	n.loadTexture("recourses/ui.png", GL_RGBA, 3);
-	
-	glBindTexture(GL_TEXTURE_2D, n.getTexture(1));
-
 	//Main game loop
 	gameloop = new logic::GameLoop(render, update, rapid, 100, 10000);
-	game->init(shader, window, gameloop);
+	game.init(shader, window, gameloop);
 	gameloop->start();
-	game->close();
+	game.close();
 }

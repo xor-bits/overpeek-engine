@@ -1,19 +1,22 @@
 #pragma once
 
 #include "../logic/game.h"
+#include "../logic/inventory.h"
 
 #define CREAURE_WIDTH 0.8
 #define CREAURE_HEIGHT 0.8
 
 class Creature {
 protected:
+	Inventory *m_inv;
 	float m_x, m_y;
 	float m_vel_x, m_vel_y;
 	float m_acc_x, m_acc_y;
 	int m_texture;
+	int m_swingDir;
 
 public:
-	Creature(float x, float y, graphics::Shader *shader);
+	Creature(float x, float y, graphics::Shader *shader, Inventory *inv);
 
 	virtual void submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY);
 	virtual void update();

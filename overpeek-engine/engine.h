@@ -15,7 +15,7 @@
 #include "graphics/shader.h"
 #include "graphics/renderer.h"
 #include "graphics/window.h"
-#include "graphics/textureLoader.h"
+#include "graphics/textureManager.h"
 #include "graphics/buffers/buffer.h"
 #include "graphics/buffers/vertexArray.h"
 #include "graphics/buffers/indexBuffer.h"

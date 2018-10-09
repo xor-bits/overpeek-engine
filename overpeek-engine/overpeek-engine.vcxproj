@@ -145,7 +145,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>freetype.lib;glew32s.lib;glu32.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -165,7 +165,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>freetype.lib;glew32s.lib;glu32.lib;glfw3.lib;opengl32.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -183,7 +183,7 @@
     <ClCompile Include="graphics\buffers\buffer.cpp" />
     <ClCompile Include="graphics\camera.cpp" />
     <ClCompile Include="graphics\fontLoader.cpp" />
-    <ClCompile Include="graphics\textureLoader.cpp" />
+    <ClCompile Include="graphics\textureManager.cpp" />
     <ClCompile Include="logic\gameloop.cpp" />
     <ClCompile Include="graphics\shader.cpp" />
     <ClCompile Include="graphics\renderer.cpp" />
@@ -193,7 +193,6 @@
     <ClCompile Include="tools\binaryIO.cpp" />
     <ClCompile Include="tools\clock.cpp" />
     <ClCompile Include="tools\random.cpp" />
-    <ClCompile Include="tools\textureloader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -210,7 +209,7 @@
     <ClInclude Include="graphics\buffers\buffer.h" />
     <ClInclude Include="graphics\camera.h" />
     <ClInclude Include="graphics\fontLoader.h" />
-    <ClInclude Include="graphics\textureLoader.h" />
+    <ClInclude Include="graphics\textureManager.h" />
     <ClInclude Include="logic\aabb.h" />
     <ClInclude Include="logic\gameloop.h" />
     <ClInclude Include="graphics\shader.h" />
@@ -224,7 +223,6 @@
     <ClInclude Include="tools\clock.h" />
     <ClInclude Include="tools\filereader.h" />
     <ClInclude Include="tools\random.h" />
-    <ClInclude Include="tools\textureloader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\basic.frag.glsl" />

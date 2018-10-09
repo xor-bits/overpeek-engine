@@ -2,6 +2,7 @@
 
 #include <GL/glew.h>
 #include "../../engine.h"
+#include "../logic/inventory.h"
 
 /*
 	FLOORS
@@ -44,6 +45,16 @@ public:
 
 	static int idToTextureId(int id);
 
-	inline void addObjectHealth(float amount) { m_object_health += amount; }
+	inline void addObjectHealth(float amount) { 
+		m_object_health += amount; 
+	}
+	inline void hitObject(float damage, Inventory *inv) {
+		m_object_health -= damage;
+		if (m_object_health <= 0 && (m_object_id == 7 || m_object_id == 8)) {
+			if (!inv->addItem(m_object_id)) {
+				m_object_health = 1.0;
+			}
+		}
+	}
 	inline void healObject() { m_object_health = 1.0; }
 };

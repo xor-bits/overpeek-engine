@@ -35,24 +35,19 @@ private:
 public:
 	static void init(graphics::Shader *shader, graphics::Window * window, logic::GameLoop *loop);
 	static void render();
-	static void renderDebugScreen();
 	static void update();
 	static void close();
 	static void rapidUpdate();
+
+	void keyPress(int key);
+	void buttonPress(int button);
 	
 	inline static graphics::Shader *getShader() { return m_shader; }
 	inline static graphics::Window *getWindow() { return m_window; }
 
 	static int screenToWorldX(float x);
 	static int screenToWorldY(float y);
-	static Region *getRegion(int x, int y);
-
-	static Tile getTile(int x, int y);
-	static int getTileId(int x, int y);
-	static int getTileObjectId(int x, int y);
-
-	static void setTileId(int x, int y, int id);
-	static void setTileObjectId(int x, int y, int id);
-	static void addTileObjectHealth(int x, int y, float amount);
-	static void healTileObject(int x, int y);
+	
+	static Region* getRegion(float x, float y);
+	static Tile* getTile(float x, float y);
 };

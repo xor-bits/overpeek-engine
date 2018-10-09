@@ -4,11 +4,14 @@
 #include "creature.h"
 
 class Player : public Creature {
-private:
-
 public:
-	Player(float x, float y, graphics::Shader *shader);
+	Player(float x, float y, graphics::Shader *shader, Inventory *inv);
 
 	void submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY);
 	void update();
+
+	void hitUp(); 
+	void hitDown(); 
+	void hitRight(); 
+	void hitLeft();
 };

@@ -18,31 +18,31 @@ int Tile::getFloorTexture() {
 }
 
 int Tile::getObjectTexture() {
-	if (m_object_health < 0) {
+	if (m_object_health <= 0) {
 		m_object_id = 5;
 	}
 
 	glm::vec2 off = glm::vec2(m_object_id, 0);
 	if (m_object_id == 9) {
-		int right = Game::getTileObjectId(m_x + 1, m_y);
-		int top = Game::getTileObjectId(m_x, m_y - 1);
-		int left = Game::getTileObjectId(m_x - 1, m_y);
-		int bottom = Game::getTileObjectId(m_x, m_y + 1);
+		Tile* right = Game::getTile(m_x + 1, m_y);
+		Tile* top = Game::getTile(m_x, m_y - 1);
+		Tile* left = Game::getTile(m_x - 1, m_y);
+		Tile* bottom = Game::getTile(m_x, m_y + 1);
+		
+		Tile* topright = Game::getTile(m_x + 1, m_y - 1);
+		Tile* topleft = Game::getTile(m_x - 1, m_y - 1);
+		Tile* bottomleft = Game::getTile(m_x - 1, m_y + 1);
+		Tile* bottomright = Game::getTile(m_x + 1, m_y + 1);
 
-		int topright = Game::getTileObjectId(m_x + 1, m_y - 1);
-		int topleft = Game::getTileObjectId(m_x - 1, m_y - 1);
-		int bottomleft = Game::getTileObjectId(m_x - 1, m_y + 1);
-		int bottomright = Game::getTileObjectId(m_x + 1, m_y + 1);
+		bool rightAir = right && !(right->getObjectId() >= 9 && right->getObjectId() <= 17);
+		bool topAir = top && !(top->getObjectId() >= 9 && top->getObjectId() <= 17);
+		bool leftAir = left && !(left->getObjectId() >= 9 && left->getObjectId() <= 17);
+		bool bottomAir = bottom && !(bottom->getObjectId() >= 9 && bottom->getObjectId() <= 17);
 
-		bool rightAir = right != 0 && !(right >= 9 && right <= 17);
-		bool topAir = top != 0 && !(top >= 9 && top <= 17);
-		bool leftAir = left != 0 && !(left >= 9 && left <= 17);
-		bool bottomAir = bottom != 0 && !(bottom >= 9 && bottom <= 17);
-
-		bool topRightAir = topright != 0 && !(topright >= 9 && topright <= 17);
-		bool topLeftAir = topleft != 0 && !(topleft >= 9 && topleft <= 17);
-		bool bottomLeftAir = bottomleft != 0 && !(bottomleft >= 9 && bottomleft <= 17);
-		bool bottomRightAir = bottomright != 0 && !(bottomright >= 9 && bottomright <= 17);
+		bool topRightAir = topright && !(topright->getObjectId() >= 9 && topright->getObjectId() <= 17);
+		bool topLeftAir = topleft && !(topleft->getObjectId() >= 9 && topleft->getObjectId() <= 17);
+		bool bottomLeftAir = bottomleft && !(bottomleft->getObjectId() >= 9 && bottomleft->getObjectId() <= 17);
+		bool bottomRightAir = bottomright && !(bottomright->getObjectId() >= 9 && bottomright->getObjectId() <= 17);
 
 		bool allSidesAir = rightAir && topAir && leftAir && bottomAir;
 		bool allCornersAir = topRightAir && topLeftAir && bottomLeftAir && bottomRightAir;

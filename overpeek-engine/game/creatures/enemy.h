@@ -11,7 +11,7 @@ private:
 	float m_curtarget_y;
 
 public:
-	Enemy(float x, float y, graphics::Shader *shader);
+	Enemy(float x, float y, graphics::Shader *shader, Inventory *inv);
 
 	void submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY);
 	void update();

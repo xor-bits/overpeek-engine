@@ -4,7 +4,6 @@
 #include "../creatures/enemy.h"
 #include "../world/region.h"
 #include "../logic/inventory.h"
-#include "../../graphics/textureLoader.h"
 
 #include <windows.h>
 
@@ -36,6 +35,12 @@ void Game::init(graphics::Shader *shader, graphics::Window * window, logic::Game
 
 	audio::AudioManager::init();
 	audio::AudioManager::loadAudio("recourses/hit.wav", 0);
+	audio::AudioManager::loadAudio("recourses/swing.wav", 1);
+
+	graphics::TextureManager n;
+	n.loadTexture("recourses/atlas.png", GL_RGBA, 0);
+
+	m_inventory = new Inventory(m_shader, m_window);
 
 	//Instantiating
 	for (int x = 0; x < RENDER_DST; x++)
@@ -45,10 +50,8 @@ void Game::init(graphics::Shader *shader, graphics::Window * window, logic::Game
 			m_region[x][y] = new Region(x, y);
 		}
 	}
-	m_player = new Player(0.0, 0.0, m_shader);
-	m_enemy = new Enemy(-1, -1, m_shader);
-
-	m_inventory = new Inventory(m_shader, m_window);
+	m_player = new Player(0.0, 0.0, m_shader, m_inventory);
+	m_enemy = new Enemy(-1, -1, m_shader, nullptr);
 
 
 	m_shader->enable();
@@ -64,33 +67,12 @@ void Game::render() {
 			if (m_region[x][y] != nullptr) m_region[x][y]->submitToRenderer(m_renderer, -m_player->getX(), -m_player->getY());
 		}
 	}
-	m_player->submitToRenderer(m_renderer, -m_player->getX(), -m_player->getY());
 	m_enemy->submitToRenderer(m_renderer, -m_player->getX(), -m_player->getY());
+	m_player->submitToRenderer(m_renderer, -m_player->getX(), -m_player->getY());
 	
-	
-	if (m_loop) renderDebugScreen(); 
-	m_inventory->render();
+	m_inventory->render(m_renderer);
 
 	m_renderer->flush();
-}
-
-void Game::renderDebugScreen() {
-	//std::string fpsString = "Fps: "; fpsString += std::to_string(m_loop->getFPS());
-	//std::string upsString = "Ups: "; upsString += std::to_string(m_loop->getUPS());
-	//std::string posString = "X: "; posString += std::to_string(m_player->getX());
-	//posString += ", Y: "; posString += std::to_string(m_player->getY());
-	//
-	//m_renderer->renderText(-m_window->getAspect(), -1.00, 0.05, 0.05, fpsString, glm::vec3(1.0f, 1.0f, 1.0f), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
-	//m_renderer->renderText(-m_window->getAspect(), -0.95, 0.05, 0.05, upsString, glm::vec3(1.0f, 1.0f, 1.0f), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
-	//m_renderer->renderText(-m_window->getAspect(), -0.90, 0.05, 0.05, posString, glm::vec3(1.0f, 1.0f, 1.0f), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
-	//
-	//if (getTileId(m_hover_tile.x, m_hover_tile.y) != 0) {
-	//	std::string hoverTile = "Tile X: "; hoverTile += std::to_string(m_hover_tile.x);
-	//	hoverTile += ", Tile Y: "; hoverTile += std::to_string(m_hover_tile.y);
-	//	hoverTile += ", Tile ID: "; hoverTile += std::to_string(getTileId(m_hover_tile.x, m_hover_tile.y));
-	//	hoverTile += ", Tile Object ID: "; hoverTile += std::to_string(getTileObjectId(m_hover_tile.x, m_hover_tile.y));
-	//	m_renderer->renderText(-m_window->getAspect(), -0.85, 0.05, 0.05, hoverTile, glm::vec3(1.0f, 1.0f, 1.0f), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM);
-	//}
 }
 
 void Game::update() {
@@ -102,8 +84,8 @@ void Game::update() {
 	if (m_window->getKey(GLFW_KEY_W)) m_player->setAccY(-playerSpeed);
 	if (m_window->getKey(GLFW_KEY_A)) m_player->setAccX(-playerSpeed);
 
-	m_player->update();
 	m_enemy->update();
+	m_player->update();
 
 	if (m_player->getRegionX() > lastRegionX) {
 		for (int y = 0; y < RENDER_DST; y++) delete m_region[0][y];
@@ -144,35 +126,12 @@ void Game::update() {
 	else holdingI = false;
 	if (m_window->getKey(GLFW_KEY_ESCAPE)) m_inventory->visible = false;
 
-	//Cursor
-	float c_x = m_window->getMousePos().x, c_y = m_window->getMousePos().y;
-	m_hover_tile = glm::ivec2(screenToWorldX(c_x), screenToWorldY(c_y));
-	
-	//Hitting
-	int hitSpeed = 2;
-	if (hitCooldown < hitSpeed) hitCooldown++;
-	if (getTileObjectId(m_hover_tile.x, m_hover_tile.y) != 0 && getTileObjectId(m_hover_tile.x, m_hover_tile.y) != 5) {
-		if (m_window->getButton(GLFW_MOUSE_BUTTON_LEFT) && hitCooldown >= hitSpeed) {
-			hitCooldown = 0;
-			audio::AudioManager::play(0);
-			addTileObjectHealth(m_hover_tile.x, m_hover_tile.y, -1.0);
-		}
-	}
-	else if (getTileId(m_hover_tile.x, m_hover_tile.y) != 0) {
-		if (m_window->getButton(GLFW_MOUSE_BUTTON_RIGHT)) {
-			audio::AudioManager::play(0); 
-			setTileObjectId(m_hover_tile.x, m_hover_tile.y, 9);
-			healTileObject(m_hover_tile.x, m_hover_tile.y);
-		}
-	}
-
 	for (int x = 0; x < RENDER_DST; x++)
 	{
 		for (int y = 0; y < RENDER_DST; y++)
 		{
 			if (m_region[x][y] != nullptr) {
 				m_region[x][y]->update();
-				//m_region[x][y]->saveTiles();
 			}
 		}
 	}
@@ -196,6 +155,15 @@ void Game::rapidUpdate() {
 	}
 }
 
+void Game::keyPress(int key) {
+	if (m_player && key == GLFW_KEY_UP) m_player->hitUp();
+	if (m_player && key == GLFW_KEY_DOWN) m_player->hitDown();
+	if (m_player && key == GLFW_KEY_LEFT) m_player->hitLeft();
+	if (m_player && key == GLFW_KEY_RIGHT) m_player->hitRight();
+}
+
+void Game::buttonPress(int button) {}
+
 void Game::close() {
 	for (int x = 0; x < RENDER_DST; x++) {
 		for (int y = 0; y < RENDER_DST; y++) {
@@ -203,6 +171,19 @@ void Game::close() {
 		}
 	}
 }
+
+
+
+
+/*
+
+NOTHING GOOD TO EDIT AFTER THIS
+ALL JUST SOME GETTERS AND STUFF
+
+*/
+
+
+
 
 int Game::screenToWorldX(float x) {
 	if (x / TILE_SIZE + m_player->getX() >= 0) return x / TILE_SIZE + m_player->getX();
@@ -213,7 +194,8 @@ int Game::screenToWorldY(float y) {
 	else return y / TILE_SIZE - 1 + m_player->getY();
 }
 
-Region *Game::getRegion(int x, int y) {
+Region* Game::getRegion(float x, float y) {
+	x = floor(x); y = floor(y);
 	if (m_player) {
 		int cursorRegionX = floor((x / (float)REGION_SIZE) + 0.5);
 		int cursorRegionY = floor((y / (float)REGION_SIZE) + 0.5);
@@ -230,75 +212,14 @@ Region *Game::getRegion(int x, int y) {
 	return nullptr;
 }
 
-Tile Game::getTile(int x, int y) {
+Tile* Game::getTile(float x, float y) {
+	x = floor(x); y = floor(y);
 	Region *regionAt = getRegion(x, y);
 	if (regionAt) {
-		int finalX = x + ceil(REGION_SIZE / 2.0) - regionAt->getX();
-		int finalY = y + ceil(REGION_SIZE / 2.0) - regionAt->getY();
-		if (finalX < 0 || finalX > REGION_SIZE || finalY < 0 || finalY > REGION_SIZE) return Tile();
+		int finalX = floor(x) + ceil(REGION_SIZE / 2.0) - regionAt->getX();
+		int finalY = floor(y) + ceil(REGION_SIZE / 2.0) - regionAt->getY();
+		if (finalX < 0 || finalX > REGION_SIZE || finalY < 0 || finalY > REGION_SIZE) return nullptr;
 		return regionAt->getTile(finalX, finalY);
 	}
-	return Tile();
-}
-
-int Game::getTileId(int x, int y) {
-	Region *regionAt = getRegion(x, y);
-	if (regionAt) {
-		int finalX = x + ceil(REGION_SIZE / 2.0) - regionAt->getX();
-		int finalY = y + ceil(REGION_SIZE / 2.0) - regionAt->getY();
-		if (finalX < 0 || finalX > REGION_SIZE || finalY < 0 || finalY > REGION_SIZE) return 0;
-		return regionAt->getTileId(finalX, finalY);
-	}
-	return 0;
-}
-
-int Game::getTileObjectId(int x, int y) {
-	Region *regionAt = getRegion(x, y);
-	if (regionAt) {
-		int finalX = x + ceil(REGION_SIZE / 2.0) - regionAt->getX();
-		int finalY = y + ceil(REGION_SIZE / 2.0) - regionAt->getY();
-		if (finalX < 0 || finalX > REGION_SIZE || finalY < 0 || finalY > REGION_SIZE) return 0;
-		return regionAt->getTileObjectId(finalX, finalY);
-	}
-	return 0;
-}
-
-void Game::setTileId(int x, int y, int id) {
-	Region *regionAt = getRegion(x, y);
-	if (regionAt) {
-		int finalX = x + ceil(REGION_SIZE / 2.0) - regionAt->getX();
-		int finalY = y + ceil(REGION_SIZE / 2.0) - regionAt->getY();
-		if (finalX < 0 || finalX > REGION_SIZE || finalY < 0 || finalY > REGION_SIZE) return;
-		regionAt->setTileId(finalX, finalY, id);
-	}
-}
-
-void Game::setTileObjectId(int x, int y, int id) {
-	Region *regionAt = getRegion(x, y);
-	if (regionAt) {
-		int finalX = x + ceil(REGION_SIZE / 2.0) - regionAt->getX();
-		int finalY = y + ceil(REGION_SIZE / 2.0) - regionAt->getY();
-		if (finalX < 0 || finalX > REGION_SIZE || finalY < 0 || finalY > REGION_SIZE) return;
-		regionAt->setTileObjectId(finalX, finalY, id);
-	}
-}
-
-void Game::addTileObjectHealth(int x, int y, float amount) {
-	Region *regionAt = getRegion(x, y);
-	if (regionAt) {
-		int finalX = x + ceil(REGION_SIZE / 2.0) - regionAt->getX();
-		int finalY = y + ceil(REGION_SIZE / 2.0) - regionAt->getY();
-		if (finalX < 0 || finalX > REGION_SIZE || finalY < 0 || finalY > REGION_SIZE) return;
-		regionAt->addObjectHealth(finalX, finalY, amount);
-	}
-}
-
-void Game::healTileObject(int x, int y) {
-	Region *regionAt = getRegion(x, y);
-	if (regionAt) {
-		int finalX = x + ceil(REGION_SIZE / 2.0) - regionAt->getX();
-		int finalY = y + ceil(REGION_SIZE / 2.0) - regionAt->getY();
-		if (finalX < 0 || finalX > REGION_SIZE || finalY < 0 || finalY > REGION_SIZE) return;
-		regionAt->healObject(finalX, finalY);
-	}
+	return nullptr;
 }

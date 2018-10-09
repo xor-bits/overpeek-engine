@@ -3,8 +3,9 @@
 Region::Region(int x, int y) {
 	m_x = x; m_y = y;
 	m_creatureAmount = 0;
-	if (tools::BinaryIO::read(getSaveLocation()) != nullptr) loadTiles();
-	else createTiles();
+	//if (tools::BinaryIO::read(getSaveLocation()) != nullptr) loadTiles();
+	//else createTiles();
+	createTiles();
 }
 
 Region::~Region() {
@@ -95,12 +96,9 @@ void Region::submitToRenderer(graphics::Renderer *renderer, float offx, float of
 			int id = m_tiles[x][y].getFloorTexture();
 			int objid = m_tiles[x][y].getObjectTexture();
 
-			glm::vec2 arrayid = glm::vec2(id % 16, (id - (id % 16)) / 16);
-			glm::vec2 arrayobjectid = glm::vec2(objid % 16, (objid - (objid % 16)) / 16);
-
 			float renderx = x * TILE_SIZE + rx, rendery = y * TILE_SIZE + ry;
-			renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, arrayid.x / 16.0, arrayid.y / 16.0, 1 / 16.0, 1 / 16.0);
-			renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, arrayobjectid.x / 16.0, arrayobjectid.y / 16.0, 1 / 16.0, 1 / 16.0);
+			renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, id);
+			renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, objid);
 		}
 	}
 }
