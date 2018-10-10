@@ -15,4 +15,5 @@ public:
 
 	void submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY);
 	void update();
+	void hit();
 };

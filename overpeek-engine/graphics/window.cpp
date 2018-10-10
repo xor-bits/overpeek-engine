@@ -14,10 +14,13 @@ namespace graphics {
 	bool Window::mButtons[M_NUM_BUTTONS];
 	bool Window::mSingleKeys[M_NUM_KEYS];
 	bool Window::mSingleButtons[M_NUM_BUTTONS];
+
 	double Window::mMouseX;
 	double Window::mMouseY;
+
 	void(*Window::mKeyCallback)(int, int);
 	void(*Window::mButtonCallback)(int, int);
+	void(*Window::m_scroll_callback)(double);
 
 	Window::Window(unsigned int width, unsigned int height, std::string title, bool fullscreen) {
 		mWidth = width; mHeight = height; mTitle = title; mAspect = width / (float)height;
@@ -73,6 +76,7 @@ namespace graphics {
 		glfwSetCursorPosCallback(mWindow, cursor_position_callback);
 		glfwSetMouseButtonCallback(mWindow, mouse_button_callback);
 		glfwSetKeyCallback(mWindow, key_callback);
+		glfwSetScrollCallback(mWindow, scroll_callback);
 		//glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		//glEnable(GL_MULTISAMPLE);
@@ -90,6 +94,11 @@ namespace graphics {
 		glfwSwapInterval(0);
 
 		return true;
+	}
+
+	void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+	{
+		if (m_scroll_callback) m_scroll_callback(yoffset);
 	}
 
 	void Window::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
@@ -170,6 +179,10 @@ namespace graphics {
 
 	void Window::setKeyboardCallback(void (*callback)(int, int)) {
 		mKeyCallback = callback;
+	}
+
+	void Window::setScrollCallback(void(*callback)(double)) {
+		m_scroll_callback = callback;
 	}
 
 }

@@ -19,7 +19,7 @@ int Tile::getFloorTexture() {
 
 int Tile::getObjectTexture() {
 	if (m_object_health <= 0) {
-		m_object_id = 5;
+		m_object_id = 0;
 	}
 
 	glm::vec2 off = glm::vec2(m_object_id, 0);

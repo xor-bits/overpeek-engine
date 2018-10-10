@@ -30,8 +30,12 @@ void Enemy::update() {
 		m_curtarget_y = 0;
 	}
 
-	m_acc_x = m_curtarget_x;
-	m_acc_y = m_curtarget_y;
+	vel_x = m_curtarget_x;
+	vel_y = m_curtarget_y;
 	Creature::update();
 	Creature::collide();
+}
+
+void Enemy::hit() {
+	Creature::hit();
 }

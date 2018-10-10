@@ -9,9 +9,5 @@ public:
 
 	void submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY);
 	void update();
-
-	void hitUp(); 
-	void hitDown(); 
-	void hitRight(); 
-	void hitLeft();
+	void hit();
 };

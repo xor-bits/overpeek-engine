@@ -32,6 +32,8 @@ private:
 
 	static int hitCooldown;
 
+	static void processNewArea();
+
 public:
 	static void init(graphics::Shader *shader, graphics::Window * window, logic::GameLoop *loop);
 	static void render();
@@ -41,6 +43,7 @@ public:
 
 	void keyPress(int key);
 	void buttonPress(int button);
+	void scroll(double y);
 	
 	inline static graphics::Shader *getShader() { return m_shader; }
 	inline static graphics::Window *getWindow() { return m_window; }
@@ -50,4 +53,7 @@ public:
 	
 	static Region* getRegion(float x, float y);
 	static Tile* getTile(float x, float y);
+
+	static bool trySetTileObject(float x, float y, int id);
+	static bool trySetTileObject(Tile *tile, int id);
 };

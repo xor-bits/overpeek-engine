@@ -24,6 +24,10 @@ void buttonPress(int button, int action) {
 	if (action == GLFW_PRESS) game.buttonPress(button);
 }
 
+void scroll(double y) {
+	game.scroll(y);
+}
+
 void render() {
 	window->clear();
 
@@ -56,6 +60,7 @@ int main() {
 	window = new graphics::Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, "Test game", false);
 	window->setButtonCallback(buttonPress);
 	window->setKeyboardCallback(keyPress);
+	window->setScrollCallback(scroll);
 
 	//Create shader
 	shader = new graphics::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl");

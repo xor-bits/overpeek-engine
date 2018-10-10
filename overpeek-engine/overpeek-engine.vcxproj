@@ -199,6 +199,7 @@
     <ClInclude Include="game\creatures\creature.h" />
     <ClInclude Include="game\creatures\enemy.h" />
     <ClInclude Include="game\creatures\player.h" />
+    <ClInclude Include="game\logic\database.h" />
     <ClInclude Include="game\logic\game.h" />
     <ClInclude Include="game\logic\inventory.h" />
     <ClInclude Include="game\world\map.h" />

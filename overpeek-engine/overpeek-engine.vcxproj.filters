@@ -15,25 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="graphics\window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="graphics\fontLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="graphics\shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="logic\gameloop.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="graphics\camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="graphics\buffers\vertexArray.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="graphics\buffers\indexBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="game\main.cpp">
@@ -69,9 +51,6 @@
     <ClCompile Include="game\logic\inventory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="graphics\buffers\buffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="game\creatures\creature.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -81,24 +60,36 @@
     <ClCompile Include="game\creatures\enemy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="graphics\buffers\buffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="graphics\buffers\indexBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="graphics\buffers\vertexArray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="graphics\camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="graphics\fontLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="graphics\renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="graphics\shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="graphics\textureManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="graphics\window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="graphics\window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="tools\filereader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="graphics\fontLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="graphics\shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tools\clock.h">
@@ -111,15 +102,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="logic\gameloop.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="graphics\camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="graphics\buffers\vertexArray.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="graphics\buffers\indexBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game\world\region.h">
@@ -152,9 +134,6 @@
     <ClInclude Include="game\logic\inventory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="graphics\buffers\buffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="game\creatures\creature.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -167,10 +146,34 @@
     <ClInclude Include="game\creatures\enemy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="graphics\buffers\buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics\buffers\indexBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics\buffers\vertexArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics\camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics\fontLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="graphics\renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="graphics\shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="graphics\textureManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics\window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\logic\database.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

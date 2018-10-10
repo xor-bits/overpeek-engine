@@ -22,14 +22,17 @@ void Region::createTiles() {
 			long int tiley = y + ((m_y - RENDER_DST / 2.0) * REGION_SIZE);
 			float height = (logic::Noise::octaveNoise((tilex + INT_MAX / 2) * NOISE_SCALE, (tiley + INT_MAX / 2) * NOISE_SCALE, 3) + 1.0) / 2.0;
 			int id = 1;
-			int object_id = 5;
+			int object_id = 0;
 
 			//height is from 0 to 1
 			if (height <= LEVEL_WATER) id = 2;
 			else if (height <= LEVEL_SAND) id = 3;
 			else if (height <= LEVEL_GRASS) {
-				id = 1;
-				float d = tools::Random::random(-0.5, 1.5);
+				float d = tools::Random::random(-0.5, 0.5);
+				if (d > 0.0) id = 1;
+				else  id = 5;
+
+				d = tools::Random::random(-0.5, 1.5);
 				if (d > 1.0) object_id = 6;
 				else if (d > 0.5) object_id = 7;
 				else if (d > 0.0) object_id = 8;
