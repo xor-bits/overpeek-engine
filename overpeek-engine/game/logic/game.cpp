@@ -1,7 +1,6 @@
 #include "game.h"
 
 #include "../creatures/player.h"
-#include "../creatures/enemy.h"
 #include "../world/region.h"
 #include "../logic/inventory.h"
 
@@ -16,7 +15,6 @@ Inventory *m_inventory;
 
 Region *Game::m_region[RENDER_DST * 2][RENDER_DST * 2];
 Player *Game::m_player;
-Enemy *Game::m_enemy;
 
 float Game::lastRegionX = 0;
 float Game::lastRegionY = 0;
@@ -40,6 +38,7 @@ void Game::init(graphics::Shader *shader, graphics::Window * window, logic::Game
 
 	graphics::TextureManager n;
 	n.loadTexture("recourses/atlas.png", GL_RGBA, 0);
+	Database::init();
 
 	m_inventory = new Inventory(m_shader, m_window);
 
@@ -51,8 +50,7 @@ void Game::init(graphics::Shader *shader, graphics::Window * window, logic::Game
 			m_region[x][y] = new Region(x, y);
 		}
 	}
-	m_player = new Player(0.0, 0.0, m_shader, m_inventory);
-	m_enemy = new Enemy(-1, -1, m_shader, nullptr);
+	m_player = new Player(0.0, 0.0, m_inventory);
 
 
 	m_shader->enable();
@@ -68,7 +66,6 @@ void Game::render() {
 			if (m_region[x][y] != nullptr) m_region[x][y]->submitToRenderer(m_renderer, -m_player->x, -m_player->y);
 		}
 	}
-	m_enemy->submitToRenderer(m_renderer, -m_player->x, -m_player->y);
 	m_player->submitToRenderer(m_renderer, -m_player->x, -m_player->y);
 	
 	m_inventory->render(m_renderer);
@@ -85,8 +82,7 @@ void Game::update() {
 	if (m_window->getKey(GLFW_KEY_W)) { m_player->acc_y = -playerSpeed; }
 	if (m_window->getKey(GLFW_KEY_A)) { m_player->acc_x = -playerSpeed; }
 
-	m_enemy->hit();
-	m_enemy->update();
+	//m_enemy->hit();
 	m_player->update();
 
 	processNewArea();

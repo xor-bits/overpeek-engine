@@ -9,9 +9,15 @@
 class Creature {
 protected:
 	int m_counterToRemoveSwingAnimation = 0;
-	Inventory *m_inv;
-	int m_texture;
+	int m_id;
 	int m_swingDir;
+
+	int m_untilnexttarget;
+	int m_wait;
+	float m_curtarget_x;
+	float m_curtarget_y;
+
+	void enemyAi();
 
 public:
 	float x, y;
@@ -20,14 +26,16 @@ public:
 	uint8_t heading : 2;
 
 
-	Creature(float x, float y, graphics::Shader *shader, Inventory *inv);
+	Creature(float x, float y, int id);
+	Creature();
 
 	virtual void submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY);
 	virtual void update();
 	virtual void hit();
-	virtual void place();
 
 	void collide();
+
+	inline int getId() { return m_id; }
 
 	inline int getRegionX() {
 		if (x >= 0) return x / REGION_SIZE + 0.5;

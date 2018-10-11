@@ -3,7 +3,7 @@
 #include "../logic/game.h"
 #include "creature.h"
 
-class Enemy : public Creature {
+class Item : public Creature {
 private:
 	int m_untilnexttarget;
 	int m_wait;
@@ -11,9 +11,8 @@ private:
 	float m_curtarget_y;
 
 public:
-	Enemy(float x, float y, graphics::Shader *shader, Inventory *inv);
+	Item(float x, float y);
 
 	void submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY);
 	void update();
-	void hit();
 };

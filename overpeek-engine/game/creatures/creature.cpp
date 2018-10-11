@@ -1,19 +1,35 @@
 #include "creature.h"
 #include "../world/tile.h"
 #include "../../logic/aabb.h"
+#include "../logic/database.h"
 
-Creature::Creature(float x, float y, graphics::Shader *shader, Inventory *inv) {
-	m_inv = inv;
-	x = x; y = y;
+Creature::Creature(float _x, float _y, int id) {
+	m_id = id;
+	x = _x; y = _y;
 	vel_x = 0;
 	vel_y = 0;
 	acc_x = 0;
 	acc_y = 0;
 	m_swingDir = 0;
+
+	m_untilnexttarget = 500;
+	m_wait = 0;
+}
+
+Creature::Creature() {
+	x = 0; y = 0;
+	vel_x = 0;
+	vel_y = 0;
+	acc_x = 0;
+	acc_y = 0;
+	m_swingDir = 0;
+
+	m_untilnexttarget = 0;
+	m_wait = 0;
 }
 
 void Creature::submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY) {
-	renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, m_texture);
+	renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, Database::creatures[m_id].texture);
 
 	switch (m_swingDir)
 	{
@@ -38,6 +54,9 @@ void Creature::submitToRenderer(graphics::Renderer *renderer, float renderOffset
 }
 
 void Creature::update() {
+	//std::cout << m_id << std::endl;
+	if (m_id == 1) enemyAi();
+
 	vel_x += acc_x;
 	vel_y += acc_y;
 	x += vel_x * 4;
@@ -85,39 +104,6 @@ void Creature::hit() {
 		break;
 	}
 
-	if (tmp) {
-		tmp->hitObject(2.2, m_inv);
-		//if (m_inv->selectedId == 0) tmp->hitObject(2.2, m_inv);
-		//if (m_inv->selectedId != 0 && Game::trySetTileObject(tmp, m_inv->selectedId)) m_inv->removeSelected();
-	}
-	audio::AudioManager::play(1);
-}
-
-void Creature::place() {
-	Tile* tmp;
-	switch (heading)
-	{
-	case 0:
-		tmp = Game::getTile(x, y - 1);
-		m_swingDir = 1;
-		break;
-	case 1:
-		tmp = Game::getTile(x + 1, y);
-		m_swingDir = 2;
-		break;
-	case 2:
-		tmp = Game::getTile(x, y + 1);
-		m_swingDir = 3;
-		break;
-	default:
-		tmp = Game::getTile(x - 1, y);
-		m_swingDir = 4;
-		break;
-	}
-
-	if (tmp && m_inv->selectedId != 0) {
-		tmp->hitObject(2.2, m_inv);
-	}
 	audio::AudioManager::play(1);
 }
 
@@ -171,4 +157,26 @@ void Creature::collide() {
 			}
 		}
 	}
+}
+
+void Creature::enemyAi() {
+	m_untilnexttarget--;
+	m_wait--;
+
+	if (m_untilnexttarget < 0) {
+		m_wait = 100;
+		m_untilnexttarget = 100000000000000;
+		float direction = tools::Random::random(0, glm::two_pi<float>());
+		m_curtarget_x = cos(direction) / 100;
+		m_curtarget_y = sin(direction) / 100;
+	}
+	if (m_wait < 0) {
+		m_untilnexttarget = tools::Random::random(10, 500);
+		m_wait = 10000000000000;
+		m_curtarget_x = 0;
+		m_curtarget_y = 0;
+	}
+
+	vel_x = m_curtarget_x;
+	vel_y = m_curtarget_y;
 }

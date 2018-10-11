@@ -77,8 +77,8 @@
     <LibraryPath>$(SolutionDir)\Libraries\FreeType\lib;$(SolutionDir)\Libraries\GLFW\lib;$(SolutionDir)\Libraries\GLEW\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\bin\$(Configuration)\Intermediates\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin\$(Configuration)\Intermediates\</IntDir>
     <IncludePath>$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\stb-master;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\FreeType\lib;$(SolutionDir)\Libraries\GLFW\lib;$(SolutionDir)\Libraries\GLEW\lib;$(LibraryPath)</LibraryPath>
     <TargetExt>.exe</TargetExt>
@@ -90,8 +90,8 @@
     <LibraryPath>$(SolutionDir)\Libraries\FreeType\lib;$(SolutionDir)\Libraries\GLFW\lib;$(SolutionDir)\Libraries\GLEW\lib;$(SolutionDir)\Libraries\al\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\bin\$(Configuration)\Intermediates\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin\$(Configuration)\Intermediates\</IntDir>
     <IncludePath>$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\al\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\FreeType\lib;$(SolutionDir)\Libraries\GLFW\lib;$(SolutionDir)\Libraries\GLEW\lib;$(SolutionDir)\Libraries\al\lib;$(LibraryPath)</LibraryPath>
     <TargetExt>.exe</TargetExt>
@@ -171,8 +171,9 @@
   <ItemGroup>
     <ClCompile Include="audio\audioManager.cpp" />
     <ClCompile Include="game\creatures\creature.cpp" />
-    <ClCompile Include="game\creatures\enemy.cpp" />
+    <ClCompile Include="game\creatures\item.cpp" />
     <ClCompile Include="game\creatures\player.cpp" />
+    <ClCompile Include="game\logic\database.cpp" />
     <ClCompile Include="game\logic\game.cpp" />
     <ClCompile Include="game\logic\inventory.cpp" />
     <ClCompile Include="game\world\map.cpp" />
@@ -197,7 +198,7 @@
   <ItemGroup>
     <ClInclude Include="engine.h" />
     <ClInclude Include="game\creatures\creature.h" />
-    <ClInclude Include="game\creatures\enemy.h" />
+    <ClInclude Include="game\creatures\item.h" />
     <ClInclude Include="game\creatures\player.h" />
     <ClInclude Include="game\logic\database.h" />
     <ClInclude Include="game\logic\game.h" />

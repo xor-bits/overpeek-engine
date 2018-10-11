@@ -1,8 +1,9 @@
 #pragma once
 
 #include "../../engine.h"
+#include "database.h"
 
-#define RENDER_DST 5
+#define RENDER_DST 1
 
 #define REGION_SIZE 8
 #define TILE_SIZE 0.2
@@ -25,7 +26,6 @@ private:
 
 	static Region *m_region[RENDER_DST * 2][RENDER_DST * 2];
 	static Player *m_player;
-	static Enemy *m_enemy;
 
 	static float lastRegionX;
 	static float lastRegionY;

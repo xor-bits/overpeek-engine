@@ -15,6 +15,7 @@ logic::GameLoop *gameloop;
 graphics::Camera *camera;
 Game game;
 
+long long tmp = 0;
 
 void keyPress(int key, int action) {
 	if (action == GLFW_PRESS) game.keyPress(key);
@@ -31,7 +32,9 @@ void scroll(double y) {
 void render() {
 	window->clear();
 
+	long long startTime = tools::Clock::getMicroseconds();
 	game.render();
+	tmp += (tools::Clock::getMicroseconds() - startTime) / 1000.0;
 
 	window->update();
 	window->input();
@@ -44,8 +47,9 @@ void update() {
 	x++;
 	if (x > 100) {
 		x = 0;
-		std::cout << "FPS: " << gameloop->getFPS() << std::endl;
+		std::cout << "FPS: " << gameloop->getFPS() << " (" << tmp / (float)gameloop->getFPS() << "ms)" << std::endl;
 		std::cout << "UPS: " << gameloop->getUPS() << std::endl;
+		tmp = 0;
 	}
 
 }

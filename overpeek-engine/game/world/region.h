@@ -4,7 +4,7 @@
 
 #define LEVEL_WATER 0.5
 #define LEVEL_SAND 0.52
-#define LEVEL_GRASS 0.7
+#define LEVEL_SOIL 0.7
 #define LEVEL_STONE 0.72
 
 #define MAX_CREATURES 128
@@ -18,8 +18,7 @@ class Region {
 private:
 	int m_x, m_y;
 	Tile m_tiles[REGION_SIZE][REGION_SIZE];
-	Creature *m_creatures[MAX_CREATURES];
-	unsigned int m_creatureAmount;
+	Creature m_creatures[MAX_CREATURES];
 	glm::fvec4 m_texture_off_array[REGION_SIZE * REGION_SIZE * 6 * 2];
 
 	void createTiles();
@@ -41,8 +40,18 @@ public:
 
 	inline Tile* getTile(unsigned int x, unsigned int y) { return &m_tiles[x][y]; }
 
-	inline void addCreature(Creature *creature) { m_creatures[m_creatureAmount++] = creature; }
-	inline void removeCreature(Creature *creature) { m_creatures[m_creatureAmount++] = creature; }
+	void addCreature(float x, float y, int id) { 
+		for (int i = 0; i < MAX_CREATURES; i++)
+		{
+			if (m_creatures[i].getId() == -1) { 
+				m_creatures[i] = Creature(x, y, id); 
+				return;
+			}
+		}
+	}
+	void removeCreature(int i) { 
+		m_creatures[i] = Creature(0, 0, -1);
+	}
 
 	inline int getX() { return (m_x - floor(RENDER_DST/2.0)) * REGION_SIZE; }
 	inline int getY() { return (m_y - floor(RENDER_DST/2.0)) * REGION_SIZE; }

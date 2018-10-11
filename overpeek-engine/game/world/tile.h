@@ -31,7 +31,7 @@ public:
 	Tile(long int x, long int y, int id, int object_id);
 	Tile();
 
-	int getFloorTexture();
+	int getTexture();
 	int getObjectTexture();
 	void update();
 
@@ -43,17 +43,14 @@ public:
 	inline void setId(int id) { m_id = id; }
 	inline void setObjectId(int id) { m_object_id = id; }
 
-	static int idToTextureId(int id);
-
 	inline void addObjectHealth(float amount) { 
 		m_object_health += amount; 
 	}
 	inline void hitObject(float damage, Inventory *inv) {
 		m_object_health -= damage;
-		if (m_object_health <= 0 && (m_object_id == 7 || m_object_id == 8)) {
-			if (!inv->addItem(m_object_id)) {
-				m_object_health = 1.0;
-			}
+		if (m_object_health <= 0) {
+			m_object_id = 0;
+			std::cout << "Drop item!" << std::endl;
 		}
 	}
 	inline void healObject() { m_object_health = 1.0; }
