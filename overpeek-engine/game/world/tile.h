@@ -4,22 +4,10 @@
 #include "../../engine.h"
 #include "../logic/inventory.h"
 
-/*
-	FLOORS
-	0	NULL
-	1	LAWN
-	2	WATER
-	3	SAND
-	4	STONE
-
-	OBJECTS
-	6	GRASS
-	7	TREE
-	8	TREE2
-	9	STONE
-*/
-
 class Tile {
+public:
+	bool m_real = false;
+
 private:
 	int m_id;
 	int m_object_id;
@@ -45,6 +33,10 @@ public:
 
 	inline void addObjectHealth(float amount) { 
 		m_object_health += amount; 
+		if (m_object_health <= 0) {
+			m_object_id = 0;
+			std::cout << "Drop item!" << std::endl;
+		}
 	}
 	inline void hitObject(float damage, Inventory *inv) {
 		m_object_health -= damage;

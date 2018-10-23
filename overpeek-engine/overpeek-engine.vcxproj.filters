@@ -87,9 +87,6 @@
     <ClCompile Include="game\logic\database.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="game\creatures\item.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tools\filereader.h">
@@ -174,9 +171,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game\logic\database.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game\creatures\item.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

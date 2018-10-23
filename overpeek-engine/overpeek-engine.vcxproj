@@ -171,7 +171,6 @@
   <ItemGroup>
     <ClCompile Include="audio\audioManager.cpp" />
     <ClCompile Include="game\creatures\creature.cpp" />
-    <ClCompile Include="game\creatures\item.cpp" />
     <ClCompile Include="game\creatures\player.cpp" />
     <ClCompile Include="game\logic\database.cpp" />
     <ClCompile Include="game\logic\game.cpp" />
@@ -198,7 +197,6 @@
   <ItemGroup>
     <ClInclude Include="engine.h" />
     <ClInclude Include="game\creatures\creature.h" />
-    <ClInclude Include="game\creatures\item.h" />
     <ClInclude Include="game\creatures\player.h" />
     <ClInclude Include="game\logic\database.h" />
     <ClInclude Include="game\logic\game.h" />

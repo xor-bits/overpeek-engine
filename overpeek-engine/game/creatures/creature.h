@@ -20,13 +20,14 @@ protected:
 	void enemyAi();
 
 public:
+	bool m_item;
 	float x, y;
 	float vel_x, vel_y;
 	float acc_x, acc_y;
 	uint8_t heading : 2;
 
 
-	Creature(float x, float y, int id);
+	Creature(float x, float y, int id, bool item);
 	Creature();
 
 	virtual void submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY);

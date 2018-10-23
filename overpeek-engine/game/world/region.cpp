@@ -2,7 +2,7 @@
 
 Region::Region(int x, int y) {
 	m_x = x; m_y = y;
-	for (int i = 0; i < MAX_CREATURES; i++) m_creatures[i] = Creature(0, 0, -1);
+	for (int i = 0; i < MAX_CREATURES; i++) m_creatures[i] = nullptr;
 	if (tools::BinaryIO::read(getSaveLocation()) != nullptr) loadTiles();
 	else createTiles();
 }
@@ -13,7 +13,6 @@ Region::~Region() {
 
 void Region::createTiles() {
 	int tmp = 0;
-	addCreature(-1, -1, 1);
 	for (int x = 0; x < REGION_SIZE; x++)
 	{
 		for (int y = 0; y < REGION_SIZE; y++)
@@ -41,7 +40,7 @@ void Region::createTiles() {
 			else if (height <= LEVEL_STONE) id = 4;
 			else { id = 4; object_id = 5; }
 
-			m_tiles[x][y] = Tile(tilex, tiley, id, object_id);
+			m_tiles[x][y] = new Tile(tilex, tiley, id, object_id);
 		}
 	}
 }
@@ -57,55 +56,53 @@ void Region::loadTiles() {
 			long int tiley = y + ((m_y - RENDER_DST / 2.0) * REGION_SIZE);
 			int id = readData[x + (y * REGION_SIZE)];
 			int objid = readData[x + (y * REGION_SIZE) + REGION_SIZE * REGION_SIZE];
-			m_tiles[x][y] = Tile(tilex, tiley, id, objid);
+			m_tiles[x][y] = new Tile(tilex, tiley, id, objid);
 		}
 	}
 
 	unsigned char *readCreatures = tools::BinaryIO::read(getSaveLocation() + " c");
-	for (int i = 0; i < MAX_CREATURES * 3; i += 3)
+	for (int i = 0; i < MAX_CREATURES * 4; i += 4)
 	{
 		if (readCreatures[i] == 1) {
-			addCreature(readCreatures[i + 1] - ceil(REGION_SIZE / 2.0) + getX(), readCreatures[i + 2] - ceil(REGION_SIZE / 2.0) + getY(), readCreatures[i + 0]);
-			std::cout << (int)readCreatures[i + 0] << " ";
-			std::cout << (int)readCreatures[i + 1] - ceil(REGION_SIZE / 2.0) + getX() << " ";
-			std::cout << (int)readCreatures[i + 2] - ceil(REGION_SIZE / 2.0) + getY() << " ";
+			addCreature(readCreatures[i + 1] - ceil(REGION_SIZE / 2.0) + getX(), readCreatures[i + 2] - ceil(REGION_SIZE / 2.0) + getY(), readCreatures[i + 0], (bool)readCreatures[i + 3]);
+			//std::cout << (int)readCreatures[i + 0] << " ";
+			//std::cout << (int)readCreatures[i + 1] - ceil(REGION_SIZE / 2.0) + getX() << " ";
+			//std::cout << (int)readCreatures[i + 2] - ceil(REGION_SIZE / 2.0) + getY() << " ";
 		}
 	}
 }
 
 void Region::saveTiles() {
-	update();
-
 	unsigned char data[REGION_SIZE*REGION_SIZE * 2];
 	for (int x = 0; x < REGION_SIZE; x++)
 	{
 		for (int y = 0; y < REGION_SIZE; y++)
 		{
-			data[x + (y * REGION_SIZE)] = m_tiles[x][y].getId();
-			data[x + (y * REGION_SIZE) + REGION_SIZE * REGION_SIZE] = m_tiles[x][y].getObjectId();
+			data[x + (y * REGION_SIZE)] = m_tiles[x][y]->getId();
+			data[x + (y * REGION_SIZE) + REGION_SIZE * REGION_SIZE] = m_tiles[x][y]->getObjectId();
 		}
 	}
 
-	unsigned char dataCreature[MAX_CREATURES * 3];
-	std::cout << m_x << ", " << m_y << " SAVE: ";
-	for (int i = 0; i < MAX_CREATURES * 3; i += 3)
+	unsigned char dataCreature[MAX_CREATURES * 4];
+	for (int i = 0; i < MAX_CREATURES * 4; i += 4)
 	{
-		if (m_creatures[i / 3].getId() != -1) {
-			dataCreature[i + 0] = m_creatures[i / 3].getId();
-			dataCreature[i + 1] = floor(m_creatures[i / 3].x) + ceil(REGION_SIZE / 2.0) - getX();
-			dataCreature[i + 2] = floor(m_creatures[i / 3].y) + ceil(REGION_SIZE / 2.0) - getY();
-			std::cout << m_creatures[i / 3].getId() << " ";
-			std::cout << m_creatures[i / 3].x << " ";
-			std::cout << m_creatures[i / 3].y << " ";
+		if (m_creatures[i / 4]) {
+			dataCreature[i + 0] = m_creatures[i / 4]->getId();
+			dataCreature[i + 1] = floor(m_creatures[i / 4]->x) + ceil(REGION_SIZE / 2.0) - getX();
+			dataCreature[i + 2] = floor(m_creatures[i / 4]->y) + ceil(REGION_SIZE / 2.0) - getY();
+			dataCreature[i + 3] = (char)m_creatures[i / 4]->m_item;
+			//std::cout << (int)dataCreature[i + 0] << " ";
+			//std::cout << (int)dataCreature[i + 1] << " ";
+			//std::cout << (int)dataCreature[i + 2] << " ";
 		}
 		else {
 			dataCreature[i + 0] = 0;
 			dataCreature[i + 1] = 0;
 			dataCreature[i + 2] = 0;
+			dataCreature[i + 3] = 0;
 		}
 	}
-	std::cout << "END\n";
-
+	
 	tools::BinaryIO::write(getSaveLocation(), data, sizeof(data) / sizeof(unsigned char));
 	tools::BinaryIO::write(getSaveLocation() + " c", dataCreature, sizeof(dataCreature) / sizeof(unsigned char));
 }
@@ -115,21 +112,33 @@ void Region::update() {
 	{
 		for (int y = 0; y < REGION_SIZE; y++)
 		{
-			m_tiles[x][y].update();
+			m_tiles[x][y]->update();
 		}
 	}
 
 	for (int i = 0; i < MAX_CREATURES; i++)
 	{
-		if (m_creatures[i].getId() != -1) {
-			m_creatures[i].update();
-			if (m_creatures[i].getRegionX() != m_x || m_creatures[i].getRegionY() != m_y) {
-				std::cout << m_creatures[i].getRegionX() << m_creatures[i].getRegionY() << std::endl;
-				Region *tmp = new Region(m_creatures[i].getRegionX(), m_creatures[i].getRegionY());
-				tmp->addCreature(m_creatures[i].x, m_creatures[i].y, m_creatures[i].getId());
-				removeCreature(i);
-				tmp->saveTiles();
-				delete tmp;
+		if (m_creatures[i]) {
+			m_creatures[i]->update();
+			if (m_creatures[i]->getRegionX() * REGION_SIZE != getX() || m_creatures[i]->getRegionY() * REGION_SIZE != getY()) {
+				//std::cout << "Creature region: " << m_creatures[i]->getRegionX() * REGION_SIZE << ", " << m_creatures[i]->getRegionY() * REGION_SIZE << std::endl;
+				//std::cout << "This region: " << getX() << ", " << getY() << std::endl;
+				Region *tmp;
+
+				tmp = Game::getRegion(m_creatures[i]->getRegionX() * REGION_SIZE, m_creatures[i]->getRegionY() * REGION_SIZE);
+				if (tmp) {
+					//tmp->addCreature(m_creatures[i]->x, m_creatures[i]->y, m_creatures[i]->getId());
+					tmp->addCreature(m_creatures[i]);
+					removeCreature(i);
+				}
+				else {
+					tmp = new Region(m_creatures[i]->getRegionX(), m_creatures[i]->getRegionY());
+					//tmp->addCreature(m_creatures[i]->x, m_creatures[i]->y, m_creatures[i]->getId());
+					tmp->addCreature(m_creatures[i]);
+					removeCreature(i);
+					tmp->saveTiles();
+					delete tmp;
+				}
 			}
 		}
 	}
@@ -142,17 +151,19 @@ void Region::submitToRenderer(graphics::Renderer *renderer, float offx, float of
 	{
 		for (int y = 0; y < REGION_SIZE; y++)
 		{
-			int id = m_tiles[x][y].getTexture();
-			int objid = m_tiles[x][y].getObjectTexture();
+			int id = m_tiles[x][y]->getTexture();
+			int objid = m_tiles[x][y]->getObjectTexture();
 
 			float renderx = x * TILE_SIZE + rx, rendery = y * TILE_SIZE + ry;
 			renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, id);
 			renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, objid);
 		}
 	}
+}
 
+void Region::submitCreaturesToRenderer(graphics::Renderer *renderer, float offx, float offy) {
 	for (int i = 0; i < MAX_CREATURES; i++)
 	{
-		if (m_creatures[i].getId() != -1) m_creatures[i].submitToRenderer(renderer, offx, offy);
+		if (m_creatures[i]) m_creatures[i]->submitToRenderer(renderer, offx, offy);
 	}
 }

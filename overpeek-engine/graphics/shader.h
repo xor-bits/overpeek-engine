@@ -10,6 +10,7 @@ namespace graphics {
 	private:
 		unsigned int mShaderProgram;
 	public:
+		Shader() {}
 		Shader(const char *vertexPath, const char *fragmentPath);
 		
 		inline void enable() { glUseProgram(mShaderProgram); }

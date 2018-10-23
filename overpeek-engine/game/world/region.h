@@ -17,8 +17,8 @@
 class Region {
 private:
 	int m_x, m_y;
-	Tile m_tiles[REGION_SIZE][REGION_SIZE];
-	Creature m_creatures[MAX_CREATURES];
+	Tile *m_tiles[REGION_SIZE][REGION_SIZE];
+	Creature *m_creatures[MAX_CREATURES];
 	glm::fvec4 m_texture_off_array[REGION_SIZE * REGION_SIZE * 6 * 2];
 
 	void createTiles();
@@ -37,20 +37,33 @@ public:
 	void saveTiles();
 	void update();
 	void submitToRenderer(graphics::Renderer *renderer, float offx, float offy);
+	void submitCreaturesToRenderer(graphics::Renderer *renderer, float offx, float offy);
 
-	inline Tile* getTile(unsigned int x, unsigned int y) { return &m_tiles[x][y]; }
+	inline Tile* getTile(unsigned int x, unsigned int y) { return m_tiles[x][y]; }
 
-	void addCreature(float x, float y, int id) { 
+	void addCreature(float x, float y, int id, bool item) {
 		for (int i = 0; i < MAX_CREATURES; i++)
 		{
-			if (m_creatures[i].getId() == -1) { 
-				m_creatures[i] = Creature(x, y, id); 
+			if (!m_creatures[i]) {
+				m_creatures[i] = new Creature(x, y, id, item);
 				return;
 			}
 		}
 	}
+
+	void addCreature(Creature *creature) {
+		for (int i = 0; i < MAX_CREATURES; i++)
+		{
+			if (!m_creatures[i]) {
+				m_creatures[i] = creature;
+				return;
+			}
+		}
+	}
+
 	void removeCreature(int i) { 
-		m_creatures[i] = Creature(0, 0, -1);
+		//delete m_creatures[i];
+		m_creatures[i] = nullptr;
 	}
 
 	inline int getX() { return (m_x - floor(RENDER_DST/2.0)) * REGION_SIZE; }

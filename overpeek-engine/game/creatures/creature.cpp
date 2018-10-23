@@ -3,13 +3,12 @@
 #include "../../logic/aabb.h"
 #include "../logic/database.h"
 
-Creature::Creature(float _x, float _y, int id) {
-	m_id = id;
+Creature::Creature(float _x, float _y, int _id, bool _item) {
+	m_id = _id;
 	x = _x; y = _y;
-	vel_x = 0;
-	vel_y = 0;
-	acc_x = 0;
-	acc_y = 0;
+	m_item = _item;
+	vel_x = 0; vel_y = 0;
+	acc_x = 0; acc_y = 0;
 	m_swingDir = 0;
 
 	m_untilnexttarget = 500;
@@ -18,10 +17,8 @@ Creature::Creature(float _x, float _y, int id) {
 
 Creature::Creature() {
 	x = 0; y = 0;
-	vel_x = 0;
-	vel_y = 0;
-	acc_x = 0;
-	acc_y = 0;
+	vel_x = 0; vel_y = 0;
+	acc_x = 0; acc_y = 0;
 	m_swingDir = 0;
 
 	m_untilnexttarget = 0;
@@ -29,60 +26,68 @@ Creature::Creature() {
 }
 
 void Creature::submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY) {
-	renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, Database::creatures[m_id].texture);
+	if (!m_item) {
+		renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, Database::creatures[m_id].texture);
 
-	switch (m_swingDir)
-	{
-	case 0:
-		break;
-	case 1:
-		renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 1.0) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 13);
-		break;
-	case 2:
-		renderer->renderBox((x + renderOffsetX - 0.0) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 12);
-		break;
-	case 3:
-		renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.0) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 15);
-		break;
-	case 4:
-		renderer->renderBox((x + renderOffsetX - 1.0) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 14);
-		break;
-	default:
-		break;
+		switch (m_swingDir)
+		{
+		case 0:
+			break;
+		case 1:
+			renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 1.0) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 13);
+			break;
+		case 2:
+			renderer->renderBox((x + renderOffsetX - 0.0) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 12);
+			break;
+		case 3:
+			renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.0) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 15);
+			break;
+		case 4:
+			renderer->renderBox((x + renderOffsetX - 1.0) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 14);
+			break;
+		default:
+			break;
+		}
+	}
+	else {
+		renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, Database::items[m_id].texture);
 	}
 
 }
 
 void Creature::update() {
-	//std::cout << m_id << std::endl;
-	if (m_id == 1) enemyAi();
+	if (!m_item) {
+		if (m_id == 1) enemyAi();
+
+		if (m_swingDir != 0) {
+			m_counterToRemoveSwingAnimation++;
+		}
+		if (m_counterToRemoveSwingAnimation > 10) {
+			m_counterToRemoveSwingAnimation = 0;
+			m_swingDir = 0;
+		}
+	}
 
 	vel_x += acc_x;
 	vel_y += acc_y;
 	x += vel_x * 4;
 	y += vel_y * 4;
 
-	if (vel_y < 0) heading = 0;
-	else if (vel_y > 0) heading = 2;
-	else if (vel_x > 0) heading = 1;
-	else if (vel_x < 0) heading = 3;
+	if (!m_item) {
+		if (vel_y < 0) heading = 0;
+		else if (vel_y > 0) heading = 2;
+		else if (vel_x > 0) heading = 1;
+		else if (vel_x < 0) heading = 3;
+	}
 
 	vel_x = 0.0;
 	vel_y = 0.0;
 	acc_x = 0;
 	acc_y = 0;
-
-
-	if (m_swingDir != 0) {
-		m_counterToRemoveSwingAnimation++;
-	}
-	if (m_counterToRemoveSwingAnimation > 10) {
-		m_counterToRemoveSwingAnimation = 0;
-		m_swingDir = 0;
-	}
 }
 
 void Creature::hit() {
+	if (m_item) return;
 	Tile* tmp;
 	switch (heading)
 	{
@@ -103,11 +108,15 @@ void Creature::hit() {
 		m_swingDir = 4;
 		break;
 	}
+	if (tmp) {
+		tmp->addObjectHealth(-0.5f);
+	}
 
 	audio::AudioManager::play(1);
 }
 
 void Creature::collide() {
+	if (m_item) return;
 	for (int _x = -2; _x < 3; _x++)
 	{
 		for (int _y = -2; _y < 3; _y++)
@@ -115,7 +124,7 @@ void Creature::collide() {
 			Tile* tile = Game::getTile(floor(x) + _x, floor(y) + _y);
 			if (tile == nullptr) continue;
 
-			if (tile->getObjectId() == 9) {
+			if (Database::objects[tile->getObjectId()].wall) {
 				int tilex = floor(x) + _x;
 				int tiley = floor(y) + _y;
 				//LEFT COLLIDER

@@ -4,9 +4,11 @@
 #include "creature.h"
 
 class Player : public Creature {
-private:
-	Inventory *m_inv;
 public:
+	Inventory *inventory;
+
+public:
+	Player() {}
 	Player(float x, float y, Inventory *inv);
 
 	void submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY);

@@ -3,8 +3,8 @@
 #include "../logic/game.h"
 #include "../world/tile.h"
 
-Player::Player(float x, float y, Inventory *inv) : Creature(x, y, 0) {
-	m_inv = inv;
+Player::Player(float x, float y, Inventory *inv) : Creature(x, y, 0, false) {
+	inventory = inv;
 }
 
 void Player::submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY) {
@@ -42,8 +42,8 @@ void Player::place() {
 		break;
 	}
 
-	if (tmp && m_inv->selectedId != 0) {
-		tmp->hitObject(2.2, m_inv);
+	if (tmp && inventory->selectedId != 0) {
+		tmp->hitObject(2.2, inventory);
 	}
 	audio::AudioManager::play(1);
 }

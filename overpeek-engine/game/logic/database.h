@@ -6,9 +6,9 @@
 #include <iostream>
 
 #define COUNT_ITEMS 3
-#define COUNT_TILES 4
-#define COUNT_OBJECTS 5
-#define COUNT_CREATURES 2
+#define COUNT_TILES 5
+#define COUNT_OBJECTS 6
+#define COUNT_CREATURES 3
 
 class Database {
 public:
@@ -226,7 +226,7 @@ public:
 
 
 	static void init() {
-		
+
 		//Items
 		items[0] = { "Log", 0, 19, 0 };
 		items[1] = { "Stone", 1, 20, 0 };

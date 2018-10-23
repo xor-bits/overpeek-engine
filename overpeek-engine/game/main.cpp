@@ -45,12 +45,12 @@ void update() {
 	if (window->close() || window->getKey(GLFW_KEY_ESCAPE)) gameloop->stop();
 	game.update();
 	x++;
-	if (x > 100) {
-		x = 0;
-		std::cout << "FPS: " << gameloop->getFPS() << " (" << tmp / (float)gameloop->getFPS() << "ms)" << std::endl;
-		std::cout << "UPS: " << gameloop->getUPS() << std::endl;
-		tmp = 0;
-	}
+	//if (x > 100) {
+	//	x = 0;
+	//	std::cout << "FPS: " << gameloop->getFPS() << " (" << tmp / (float)gameloop->getFPS() << "ms)" << std::endl;
+	//	std::cout << "UPS: " << gameloop->getUPS() << std::endl;
+	//	tmp = 0;
+	//}
 
 }
 
@@ -70,7 +70,7 @@ int main() {
 	shader = new graphics::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl");
 	
 	//Shader stuff
-	float debugZoom = 1.0;
+	float debugZoom = 2.0;
 	glm::mat4 orthographic = glm::ortho(-M_ASPECT * debugZoom, M_ASPECT* debugZoom, debugZoom, -debugZoom);
 	shader->enable(); shader->SetUniformMat4("pr_matrix", orthographic);
 	renderer = new graphics::Renderer("arial.ttf");

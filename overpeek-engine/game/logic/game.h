@@ -3,13 +3,13 @@
 #include "../../engine.h"
 #include "database.h"
 
-#define RENDER_DST 1
+#define RENDER_DST 3
 
 #define REGION_SIZE 8
 #define TILE_SIZE 0.2
 
 #define USER_PROFILE std::string(getenv("USERPROFILE"))
-#define SAVE_PATH std::string(USER_PROFILE + "\\AppData\\Roaming\\overpeek-game\\")
+#define SAVE_PATH std::string(USER_PROFILE + "\\AppData\\Roaming\\_overpeek-game\\")
 #define WORLD_NAME std::string("test")
 
 class Tile;
