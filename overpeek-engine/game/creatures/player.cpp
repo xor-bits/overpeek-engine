@@ -3,7 +3,7 @@
 #include "../logic/game.h"
 #include "../world/tile.h"
 
-Player::Player(float x, float y, Inventory *inv) : Creature(x, y, 0, false) {
+Player::Player(float x, float y, Inventory *inv) : Creature(x, y, 0, false, nullptr) {
 	inventory = inv;
 }
 
@@ -26,24 +26,24 @@ void Player::place() {
 	{
 	case 0:
 		tmp = Game::getTile(x, y - 1);
-		m_swingDir = 1;
+		//m_swingDir = 1;
 		break;
 	case 1:
 		tmp = Game::getTile(x + 1, y);
-		m_swingDir = 2;
+		//m_swingDir = 2;
 		break;
 	case 2:
 		tmp = Game::getTile(x, y + 1);
-		m_swingDir = 3;
+		//m_swingDir = 3;
 		break;
 	default:
 		tmp = Game::getTile(x - 1, y);
-		m_swingDir = 4;
+		//m_swingDir = 4;
 		break;
 	}
 
-	if (tmp && inventory->selectedId != 0) {
-		tmp->hitObject(2.2, inventory);
+	if (tmp) {
+		Game::trySetTileObject(tmp, 4);
 	}
 	audio::AudioManager::play(1);
 }

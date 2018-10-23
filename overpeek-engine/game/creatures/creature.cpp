@@ -1,9 +1,12 @@
 #include "creature.h"
 #include "../world/tile.h"
+#include "../world/region.h"
 #include "../../logic/aabb.h"
 #include "../logic/database.h"
+#include "player.h"
 
-Creature::Creature(float _x, float _y, int _id, bool _item) {
+Creature::Creature(float _x, float _y, int _id, bool _item, Region *_parent) {
+	m_parent = _parent;
 	m_id = _id;
 	x = _x; y = _y;
 	m_item = _item;
@@ -16,6 +19,7 @@ Creature::Creature(float _x, float _y, int _id, bool _item) {
 }
 
 Creature::Creature() {
+	m_parent = nullptr;
 	x = 0; y = 0;
 	vel_x = 0; vel_y = 0;
 	acc_x = 0; acc_y = 0;
@@ -27,7 +31,23 @@ Creature::Creature() {
 
 void Creature::submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY) {
 	if (!m_item) {
-		renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, Database::creatures[m_id].texture);
+		switch (heading)
+		{
+		case HEADING_UP:
+			renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, Database::creatures[m_id].texture_heading_up);
+			break;
+		case HEADING_DOWN:
+			renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, Database::creatures[m_id].texture_heading_down);
+			break;
+		case HEADING_LEFT:
+			renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, Database::creatures[m_id].texture_heading_left);
+			break;
+		case HEADING_RIGHT:
+			renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, Database::creatures[m_id].texture_heading_right);
+			break;
+		default:
+			break;
+		}
 
 		switch (m_swingDir)
 		{
@@ -67,23 +87,33 @@ void Creature::update() {
 			m_swingDir = 0;
 		}
 	}
+	else {
+		float distanceToPlayer = abs(x - Game::getPlayer()->x) + abs(y - Game::getPlayer()->y);
+		if (distanceToPlayer < 0.8) {
+			std::cout << "Collect this item!" << std::endl;
+			m_parent->removeCreature(this);
+			audio::AudioManager::play(2);
+		}
+	}
 
 	vel_x += acc_x;
 	vel_y += acc_y;
 	x += vel_x * 4;
 	y += vel_y * 4;
 
-	if (!m_item) {
-		if (vel_y < 0) heading = 0;
-		else if (vel_y > 0) heading = 2;
-		else if (vel_x > 0) heading = 1;
-		else if (vel_x < 0) heading = 3;
-	}
+	//if (!m_item) {
+	//	if (vel_y < 0) heading = 0;
+	//	else if (vel_y > 0) heading = 2;
+	//	else if (vel_x > 0) heading = 1;
+	//	else if (vel_x < 0) heading = 3;
+	//}
 
 	vel_x = 0.0;
 	vel_y = 0.0;
 	acc_x = 0;
 	acc_y = 0;
+
+	if (m_id == 1) collide();
 }
 
 void Creature::hit() {
@@ -108,8 +138,9 @@ void Creature::hit() {
 		m_swingDir = 4;
 		break;
 	}
-	if (tmp) {
-		tmp->addObjectHealth(-0.5f);
+
+	if (tmp && Database::objects[tmp->getObjectId()].destructable) {
+		tmp->hitObject(0.5f);
 	}
 
 	audio::AudioManager::play(1);

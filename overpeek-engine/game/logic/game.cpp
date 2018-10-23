@@ -35,6 +35,7 @@ void Game::init(graphics::Shader *shader, graphics::Window * window, logic::Game
 	audio::AudioManager::init();
 	audio::AudioManager::loadAudio("recourses/hit.wav", 0);
 	audio::AudioManager::loadAudio("recourses/swing.wav", 1);
+	audio::AudioManager::loadAudio("recourses/collect.wav", 2);
 
 	graphics::TextureManager n;
 	n.loadTexture("recourses/atlas.png", GL_RGBA, 0);
@@ -48,7 +49,6 @@ void Game::init(graphics::Shader *shader, graphics::Window * window, logic::Game
 		for (int y = 0; y < RENDER_DST; y++)
 		{
 			m_region[x][y] = new Region(x, y);
-			m_region[x][y]->addCreature(0, 0, 1, false);
 		}
 	}
 	m_player = new Player(0.0, 0.0, m_inventory);
@@ -106,9 +106,6 @@ void Game::update() {
 
 	lastRegionX = m_player->getRegionX();
 	lastRegionY = m_player->getRegionY();
-}
-
-void Game::rapidUpdate() {
 	for (int x = 0; x < RENDER_DST; x++)
 	{
 		for (int y = 0; y < RENDER_DST; y++)
@@ -118,10 +115,25 @@ void Game::rapidUpdate() {
 	}
 }
 
+void Game::rapidUpdate() {
+	//for (int x = 0; x < RENDER_DST; x++)
+	//{
+	//	for (int y = 0; y < RENDER_DST; y++)
+	//	{
+	//		if (!m_region[x][y]) m_region[x][y] = new Region(x + m_player->getRegionX(), y + m_player->getRegionY());
+	//	}
+	//}
+}
+
 void Game::keyPress(int key) {
 	//Player Hitting
-	if (m_player && key == GLFW_KEY_E) { m_player->hit(); return; }
-	if (m_player && key == GLFW_KEY_Q) { m_player->place(); return; }
+	if (key == GLFW_KEY_UP) { m_player->heading = HEADING_UP; m_player->hit(); return; }
+	if (key == GLFW_KEY_DOWN) { m_player->heading = HEADING_DOWN; m_player->hit(); return; }
+	if (key == GLFW_KEY_LEFT) { m_player->heading = HEADING_LEFT; m_player->hit(); return; }
+	if (key == GLFW_KEY_RIGHT) { m_player->heading = HEADING_RIGHT; m_player->hit(); return; }
+
+	//if (key == GLFW_KEY_E) { m_player->hit(); return; }
+	//if (key == GLFW_KEY_Q) { m_player->place(); return; }
 
 	//Inventory
 	if (key == GLFW_KEY_R) { m_inventory->visible = !m_inventory->visible; return; }
@@ -253,6 +265,10 @@ Tile* Game::getTile(float x, float y) {
 	return tile;
 }
 
+Player *Game::getPlayer() {
+	return m_player;
+}
+
 bool Game::trySetTileObject(float x, float y, int id) {
 	Tile *tile = getTile(x, y);
 	if (!tile) return false;
@@ -262,8 +278,11 @@ bool Game::trySetTileObject(float x, float y, int id) {
 }
 
 bool Game::trySetTileObject(Tile *tile, int id) {
+	std::cout << "Set to " << id << std::endl;
 	if (!tile) return false;
-	if (tile->getObjectId() != 5) return false;
+	std::cout << "Set to " << id << std::endl;
+	if (tile->getObjectId() == 5) return false;
 	tile->setObjectId(id);
+	std::cout << "Set to " << id << std::endl;
 	return true;
 }

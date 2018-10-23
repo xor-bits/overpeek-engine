@@ -29,9 +29,9 @@ namespace logic {
 			}
 		}
 		else if (omp_get_thread_num() == 1) {
-			while (mShouldRun) {
-				mCallbackConstantly();
-			}
+			//while (mShouldRun) {
+			//	mCallbackConstantly();
+			//}
 		}
 	}
 

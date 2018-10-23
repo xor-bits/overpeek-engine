@@ -45,7 +45,7 @@ public:
 		for (int i = 0; i < MAX_CREATURES; i++)
 		{
 			if (!m_creatures[i]) {
-				m_creatures[i] = new Creature(x, y, id, item);
+				m_creatures[i] = new Creature(x, y, id, item, this);
 				return;
 			}
 		}
@@ -62,8 +62,18 @@ public:
 	}
 
 	void removeCreature(int i) { 
-		//delete m_creatures[i];
 		m_creatures[i] = nullptr;
+	}
+
+	void removeCreature(Creature *creature) {
+		for (int i = 0; i < MAX_CREATURES; i++)
+		{
+			if (m_creatures[i] == creature) {
+				m_creatures[i] = nullptr;
+				std::cout << "Removed!" << std::endl;
+				return;
+			}
+		}
 	}
 
 	inline int getX() { return (m_x - floor(RENDER_DST/2.0)) * REGION_SIZE; }

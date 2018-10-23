@@ -6,11 +6,18 @@
 #define CREAURE_WIDTH 0.8
 #define CREAURE_HEIGHT 0.8
 
+#define HEADING_UP 0
+#define HEADING_DOWN 2
+#define HEADING_LEFT 3
+#define HEADING_RIGHT 1
+
+class Region;
 class Creature {
 protected:
 	int m_counterToRemoveSwingAnimation = 0;
 	int m_id;
 	int m_swingDir;
+	Region *m_parent;
 
 	int m_untilnexttarget;
 	int m_wait;
@@ -27,7 +34,7 @@ public:
 	uint8_t heading : 2;
 
 
-	Creature(float x, float y, int id, bool item);
+	Creature(float x, float y, int id, bool item, Region *parent);
 	Creature();
 
 	virtual void submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY);

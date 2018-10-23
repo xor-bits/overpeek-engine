@@ -51,8 +51,9 @@ public:
 	static int screenToWorldX(float x);
 	static int screenToWorldY(float y);
 	
-	static Region* getRegion(float x, float y);
-	static Tile* getTile(float x, float y);
+	static Region *getRegion(float x, float y);
+	static Tile *getTile(float x, float y);
+	static Player *getPlayer();
 
 	static bool trySetTileObject(float x, float y, int id);
 	static bool trySetTileObject(Tile *tile, int id);

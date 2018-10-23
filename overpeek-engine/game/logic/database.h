@@ -163,10 +163,10 @@ public:
 			else if (noSideAir && topRightAir && topLeftAir && !bottomLeftAir && bottomRightAir) {
 				index += 12 + 0 * 16;
 			}
-			else if (noSideAir && topRightAir && !topLeftAir && bottomLeftAir && bottomRightAir) {
+			else if (noSideAir && !topRightAir && topLeftAir && bottomLeftAir && bottomRightAir) {
 				index += 13 + 0 * 16;
 			}
-			else if (noSideAir && !topRightAir && topLeftAir && bottomLeftAir && bottomRightAir) {
+			else if (noSideAir && topRightAir && !topLeftAir && bottomLeftAir && bottomRightAir) {
 				index += 14 + 0 * 16;
 			}
 
@@ -215,7 +215,10 @@ public:
 	{
 		std::string name = "null";
 		unsigned int id = 0;
-		unsigned int texture = 0;
+		unsigned int texture_heading_up = 0;
+		unsigned int texture_heading_down = 0;
+		unsigned int texture_heading_left = 0;
+		unsigned int texture_heading_right = 0;
 		bool friendly = 0;
 		glm::vec3 color = glm::vec3(0.0);
 
@@ -228,9 +231,9 @@ public:
 	static void init() {
 
 		//Items
-		items[0] = { "Log", 0, 19, 0 };
-		items[1] = { "Stone", 1, 20, 0 };
-		items[2] = { "Plant fiber", 2, 21, 0 };
+		items[0] = { "Log", 0, 16, 0 };
+		items[1] = { "Stone", 1, 17, 0 };
+		items[2] = { "Plant fiber", 2, 18, 0 };
 
 		//Tiles
 		tiles[0] = { "Soil", 0, 0 };
@@ -248,8 +251,8 @@ public:
 		objects[5] = { "Stone wall", 5, 0, true, true, false, true, glm::vec3(0.5, 0.5, 0.5), 3.5, 1 };
 
 		//Creatures
-		creatures[0] = { "Player", 0, 3, true, glm::vec3(0.0, 0.0, 1.0), 5.0, 0 };
-		creatures[1] = { "Enemy", 1, 3, false, glm::vec3(1.0, 0.0, 0.0), 5.0, 2 };
+		creatures[0] = { "Player", 0, 3, 19, 35, 51, true, glm::vec3(0.0, 0.0, 1.0), 5.0, 0 };
+		creatures[1] = { "Enemy", 1, 3, 19, 35, 51, false, glm::vec3(1.0, 0.0, 0.0), 5.0, 2 };
 
 	}
 
