@@ -45,12 +45,12 @@ public:
 
 	inline int getId() { return m_id; }
 
-	inline int getRegionX() {
-		if (x >= 0) return x / REGION_SIZE + 0.5;
-		else return x / REGION_SIZE - 0.5;
+	inline float getRegionX() {
+		if (x >= 0) return x / (float)REGION_SIZE + 0.5;
+		else return x / (float)REGION_SIZE - 0.5;
 	}
-	inline int getRegionY() {
-		if (y >= 0) return y / REGION_SIZE + 0.5;
-		else return y / REGION_SIZE - 0.5;
+	inline float getRegionY() {
+		if (y >= 0) return y / (float)REGION_SIZE + 0.5;
+		else return y / (float)REGION_SIZE - 0.5;
 	}
 };

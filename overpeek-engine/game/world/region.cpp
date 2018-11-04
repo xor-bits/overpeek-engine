@@ -65,11 +65,7 @@ void Region::loadTiles() {
 	for (int i = 0; i < readCreatures[0] * 4; i += 4)
 	{
 		if (readCreatures[i + 1] == 1) {
-			//std::cout << "add loaded creature" << std::endl;
 			addCreature(readCreatures[i + 1 + 1] - ceil(REGION_SIZE / 2.0) + getX(), readCreatures[i + 2 + 1] - ceil(REGION_SIZE / 2.0) + getY(), readCreatures[i + 0 + 1], (bool)readCreatures[i + 3 + 1]);
-			//std::cout << (int)readCreatures[i + 0] << " ";
-			//std::cout << (int)readCreatures[i + 1] - ceil(REGION_SIZE / 2.0) + getX() << " ";
-			//std::cout << (int)readCreatures[i + 2] - ceil(REGION_SIZE / 2.0) + getY() << " ";
 		}
 	}
 }
@@ -95,9 +91,6 @@ void Region::saveTiles() {
 			dataCreature[i + 1 + 1] = floor(m_creatures[i / 4]->x) + ceil(REGION_SIZE / 2.0) - getX();
 			dataCreature[i + 2 + 1] = floor(m_creatures[i / 4]->y) + ceil(REGION_SIZE / 2.0) - getY();
 			dataCreature[i + 3 + 1] = (char)m_creatures[i / 4]->m_item;
-			//std::cout << (int)dataCreature[i + 0] << " ";
-			//std::cout << (int)dataCreature[i + 1] << " ";
-			//std::cout << (int)dataCreature[i + 2] << " ";
 		}
 		else {
 			dataCreature[i + 0 + 1] = 0;
@@ -109,8 +102,8 @@ void Region::saveTiles() {
 
 	dataCreature[0] = amountOfCreatures;
 	
-	tools::BinaryIO::write(getSaveLocation(), data, sizeof(data) / sizeof(unsigned char));
-	tools::BinaryIO::write(getSaveLocation() + " c", dataCreature, amountOfCreatures * 4 + 1);
+	//tools::BinaryIO::write(getSaveLocation(), data, sizeof(data) / sizeof(unsigned char));
+	//tools::BinaryIO::write(getSaveLocation() + " c", dataCreature, amountOfCreatures * 4 + 1);
 }
 
 void Region::update() {
@@ -127,23 +120,13 @@ void Region::update() {
 		if (m_creatures[i]) m_creatures[i]->update();
 		if (m_creatures[i]) {
 			if (m_creatures[i]->getRegionX() * REGION_SIZE != getX() || m_creatures[i]->getRegionY() * REGION_SIZE != getY()) {
-				//std::cout << "Creature region: " << m_creatures[i]->getRegionX() * REGION_SIZE << ", " << m_creatures[i]->getRegionY() * REGION_SIZE << std::endl;
-				//std::cout << "This region: " << getX() << ", " << getY() << std::endl;
-				Region *tmp;
-
-				tmp = Game::getRegion(m_creatures[i]->getRegionX() * REGION_SIZE, m_creatures[i]->getRegionY() * REGION_SIZE);
+				Region *tmp = Game::getRegion(m_creatures[i]->getRegionX() * REGION_SIZE, m_creatures[i]->getRegionY() * REGION_SIZE);
 				if (tmp) {
-					//tmp->addCreature(m_creatures[i]->x, m_creatures[i]->y, m_creatures[i]->getId());
 					tmp->addCreature(m_creatures[i]);
 					removeCreature(i);
 				}
 				else {
-					//std::cout << "This: " << getX() / REGION_SIZE << ", " << getY() / REGION_SIZE << std::endl;
-					//std::cout << "This nonformated: " << m_x << ", " << m_y<< std::endl;
-					//std::cout << "New: " << m_creatures[i]->getRegionX() << ", " << m_creatures[i]->getRegionY() << std::endl;
-					//std::cout << "New: " << m_creatures[i]->getRegionX() + floor(RENDER_DST / 2.0) << ", " << m_creatures[i]->getRegionY() + floor(RENDER_DST / 2.0) << std::endl;
 					tmp = new Region(m_creatures[i]->getRegionX() + floor(RENDER_DST / 2.0), m_creatures[i]->getRegionY() + floor(RENDER_DST / 2.0));
-					//tmp->addCreature(m_creatures[i]->x, m_creatures[i]->y, m_creatures[i]->getId());
 					tmp->addCreature(m_creatures[i]);
 					removeCreature(i);
 					tmp->saveTiles();
@@ -165,10 +148,16 @@ void Region::submitToRenderer(graphics::Renderer *renderer, float offx, float of
 			int objid = m_tiles[x][y]->getObjectTexture();
 
 			float renderx = x * TILE_SIZE + rx, rendery = y * TILE_SIZE + ry;
+			
 			renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, id);
-			renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, objid);
+			if (objid != 0) renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, objid);
 		}
 	}
+
+	renderer->renderBox(rx, ry, 0.02, REGION_SIZE * TILE_SIZE, 20);
+	renderer->renderBox(rx + REGION_SIZE * TILE_SIZE - 0.02, ry, 0.02, REGION_SIZE * TILE_SIZE, 21);
+	renderer->renderBox(rx, ry, REGION_SIZE * TILE_SIZE, 0.02, 22);
+	renderer->renderBox(rx, ry + REGION_SIZE * TILE_SIZE - 0.02, REGION_SIZE * TILE_SIZE, 0.02, 23);
 }
 
 void Region::submitCreaturesToRenderer(graphics::Renderer *renderer, float offx, float offy) {

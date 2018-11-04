@@ -1,4 +1,5 @@
 #include "renderer.h"
+#include "textureManager.h"
 
 
 namespace graphics {
@@ -34,23 +35,23 @@ namespace graphics {
 		m_VAO->addBuffer(m_VBO, 0);
 		m_VAO->addBuffer(m_UV, 1);
 		m_VAO->addBuffer(m_ID, 2);
+
+		initText(fontpath);
 	}
 
-	void Renderer::initText(std::string fontPath) {}
+	void Renderer::initText(std::string fontPath) {
+		fontLoader = new FontLoader(fontPath);
+	}
 
 	void Renderer::renderBox(float x, float y, float w, float h, int textureID) {
-		//0
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 0] = x + 0; 
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 1] = y + 0;
-		//1
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 2] = x + 0; 
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 0] = x; 
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 1] = y;
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 2] = x; 
 		m_vertex[(quadCount * VERTEX_PER_QUAD) + 3] = y + h;
-		//2
 		m_vertex[(quadCount * VERTEX_PER_QUAD) + 4] = x + w; 
 		m_vertex[(quadCount * VERTEX_PER_QUAD) + 5] = y + h;
-		//3
 		m_vertex[(quadCount * VERTEX_PER_QUAD) + 6] = x + w; 
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 7] = y + 0;
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 7] = y;
 
 		m_id[(quadCount * VERTEX_PER_QUAD) + 0] = textureID;
 		m_id[(quadCount * VERTEX_PER_QUAD) + 1] = textureID;
@@ -64,20 +65,28 @@ namespace graphics {
 		quadCount++;
 	}
 
-	void Renderer::renderText(float x, float y, float w, float h, std::string text, glm::vec3 color, int xAlign, int yAlign) {
-		//m_fontLoader->renderText(m_textureshader, text, x, y, w, h, color, xAlign, yAlign);
-	}
-
-	void Renderer::flush() {
+	void Renderer::flush(Shader *shader, int quadTexture) {
+		//Flush quads
+		shader->enable();
+		shader->setUniform1i("unif_text", 0);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, graphics::TextureManager::getTexture(quadTexture));
 		m_VAO->bind();
-
+		
 		m_VBO->setBufferData(m_vertex, quadCount * VERTEX_PER_QUAD, 2, sizeof(GLfloat));
 		m_ID->setBufferData(m_id, quadCount * VERTEX_PER_QUAD, 2, sizeof(GLfloat));
-
+		
 		glDrawElements(GL_TRIANGLES, quadCount * 6, GL_UNSIGNED_SHORT, 0);
+	
+		//FLush text
+		shader->setUniform1i("unif_text", 1);
+		fontLoader->flush();
 	}
 
 	void Renderer::clear() {
 		quadCount = 0;
+	}
+
+	void Renderer::renderText(float x, float y, float w, float h, std::string text, glm::vec3 color, int xAlign, int yAlign) {// Activate corresponding render state
+		fontLoader->renderText(x, y, w, h, text, color, xAlign, yAlign);
 	}
 }

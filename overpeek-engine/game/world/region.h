@@ -39,7 +39,7 @@ public:
 	void submitToRenderer(graphics::Renderer *renderer, float offx, float offy);
 	void submitCreaturesToRenderer(graphics::Renderer *renderer, float offx, float offy);
 
-	inline Tile* getTile(unsigned int x, unsigned int y) { return m_tiles[x][y]; }
+	inline Tile* getTile(unsigned int x, unsigned int y) { if (x > REGION_SIZE || x < 0 || y > REGION_SIZE || y < 0)return nullptr; else return m_tiles[x][y]; }
 
 	void addCreature(float x, float y, int id, bool item) {
 		for (int i = 0; i < MAX_CREATURES; i++)
@@ -74,6 +74,8 @@ public:
 				return;
 			}
 		}
+		std::cout << "Couldn't find creature!" << std::endl;
+		throw;
 	}
 
 	inline int getX() { return (m_x - floor(RENDER_DST/2.0)) * REGION_SIZE; }

@@ -10,7 +10,6 @@
 
 graphics::Window *window;
 graphics::Shader *shader;
-graphics::Renderer *renderer;
 logic::GameLoop *gameloop;
 graphics::Camera *camera;
 Game game;
@@ -70,10 +69,9 @@ int main() {
 	shader = new graphics::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl");
 	
 	//Shader stuff
-	float debugZoom = 2.0;
+	float debugZoom = 3.0;
 	glm::mat4 orthographic = glm::ortho(-M_ASPECT * debugZoom, M_ASPECT* debugZoom, debugZoom, -debugZoom);
 	shader->enable(); shader->SetUniformMat4("pr_matrix", orthographic);
-	renderer = new graphics::Renderer("arial.ttf");
 
 	//Main game loop
 	gameloop = new logic::GameLoop(render, update, rapid, 100, 10000);

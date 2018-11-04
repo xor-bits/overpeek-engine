@@ -18,8 +18,6 @@
 #define MAX_VBO MAX_QUADS_PER_FLUSH * VERTEX_PER_QUAD
 #define MAX_IBO MAX_QUADS_PER_FLUSH * INDEX_PER_QUAD
 
-#define FONT_RESOLUTION 128
-
 namespace graphics {
 
 	class Renderer {
@@ -37,13 +35,7 @@ namespace graphics {
 		GLfloat m_id[MAX_VBO];
 		GLushort m_index[MAX_IBO];
 
-		struct Character {
-			GLuint textureID;	//Glyph texture id
-			glm::ivec2 size;	//Glyph size
-			glm::ivec2 bearing; //Offset from baseline to top left
-			GLuint advance;		//Offset to advance to next glyph
-		};
-		std::map<GLchar, Character> m_characters;
+		FontLoader *fontLoader;
 
 		void initText(std::string fontpath);
 
@@ -53,7 +45,7 @@ namespace graphics {
 		void renderBox(float x, float y, float w, float h, int textureID);
 		void renderText(float x, float y, float w, float h, std::string text, glm::vec3 color, int xAlign, int yAlign);
 		
-		void flush();
+		void flush(Shader *shader, int quadTexture);
 		void clear();
 	};
 	

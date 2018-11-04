@@ -13,7 +13,7 @@ void Player::submitToRenderer(graphics::Renderer *renderer, float renderOffsetX,
 
 void Player::update() {
 	Creature::update();
-	Creature::collide();
+	if (!Game::debugMode) Creature::collide();
 }
 
 void Player::hit() {

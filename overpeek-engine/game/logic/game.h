@@ -31,10 +31,13 @@ private:
 	static float lastRegionY;
 
 	static int hitCooldown;
-
+	
+	static void renderInfoScreen();
 	static void processNewArea();
 
 public:
+	static bool debugMode;
+
 	static void init(graphics::Shader *shader, graphics::Window * window, logic::GameLoop *loop);
 	static void render();
 	static void update();
@@ -50,6 +53,7 @@ public:
 
 	static int screenToWorldX(float x);
 	static int screenToWorldY(float y);
+	static int posToRegionPos(float xOrY);
 	
 	static Region *getRegion(float x, float y);
 	static Tile *getTile(float x, float y);

@@ -90,9 +90,11 @@ void Creature::update() {
 	else {
 		float distanceToPlayer = abs(x - Game::getPlayer()->x) + abs(y - Game::getPlayer()->y);
 		if (distanceToPlayer < 0.8) {
-			std::cout << "Collect this item!" << std::endl;
-			m_parent->removeCreature(this);
-			audio::AudioManager::play(2);
+			if (Game::getPlayer()->inventory->addItem(m_id)) {
+				std::cout << "Collect this item!" << std::endl;
+				m_parent->removeCreature(this);
+				audio::AudioManager::play(2);
+			}
 		}
 	}
 
@@ -113,7 +115,7 @@ void Creature::update() {
 	acc_x = 0;
 	acc_y = 0;
 
-	if (m_id == 1) collide();
+	//if (m_id == 1) collide();
 }
 
 void Creature::hit() {
@@ -148,16 +150,19 @@ void Creature::hit() {
 
 void Creature::collide() {
 	if (m_item) return;
-	for (int _x = -2; _x < 3; _x++)
+	for (int _x = -1; _x < 2; _x++)
 	{
-		for (int _y = -2; _y < 3; _y++)
+		for (int _y = -1; _y < 2; _y++)
 		{
 			Tile* tile = Game::getTile(floor(x) + _x, floor(y) + _y);
 			if (tile == nullptr) continue;
 
 			if (Database::objects[tile->getObjectId()].wall) {
+				//if (m_id == 0) std::cout << tile->getX() << ", " << tile->getY() << ", " << floor(x) + _x << ", " << floor(y) + _y << std::endl;
 				int tilex = floor(x) + _x;
 				int tiley = floor(y) + _y;
+				bool collide = false;
+
 				//LEFT COLLIDER
 				if (logic::AABB(
 					glm::vec2(x - CREAURE_WIDTH / 2.0, (y - CREAURE_HEIGHT / 2.0) + 0.3),
@@ -165,6 +170,7 @@ void Creature::collide() {
 					glm::vec2(tilex, tiley),
 					glm::vec2(1, 1)
 				)) {
+					collide = true;
 					x = tilex + 1 + (CREAURE_WIDTH / 2.0);
 				}
 				//RIGHT COLLIDER
@@ -174,6 +180,7 @@ void Creature::collide() {
 					glm::vec2(tilex, tiley),
 					glm::vec2(1, 1)
 				)) {
+					collide = true;
 					x = tilex - (CREAURE_WIDTH / 2.0);
 				}
 				//TOP COLLIDER
@@ -183,6 +190,7 @@ void Creature::collide() {
 					glm::vec2(tilex, tiley),
 					glm::vec2(1, 1)
 				)) {
+					collide = true;
 					y = tiley + 1 + (CREAURE_HEIGHT / 2.0);
 				}
 				//BOTTOM COLLIDER
@@ -192,6 +200,7 @@ void Creature::collide() {
 					glm::vec2(tilex, tiley),
 					glm::vec2(1, 1)
 				)) {
+					collide = true;
 					y = tiley - (CREAURE_HEIGHT / 2.0);
 				}
 			}

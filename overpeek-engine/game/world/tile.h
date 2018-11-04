@@ -27,10 +27,10 @@ public:
 
 	void hitObject(float amount);
 
-	inline int getX() { return m_x; }
-	inline int getY() { return m_y; }
-	inline int getId() { return m_id; }
-	inline int getObjectId() { return m_object_id; }
+	inline int getX() { if (!this) return 0; else return m_x; }
+	inline int getY() { if (!this) return 0; else return m_y; }
+	inline int getId() { if (!this) return 0; else return m_id; }
+	inline int getObjectId() { if (!this) return 0; else return m_object_id; }
 
 	inline void setId(int id) { m_id = id; }
 	inline void setObjectId(int id) { m_object_id = id; }
