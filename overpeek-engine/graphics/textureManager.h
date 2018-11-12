@@ -14,6 +14,7 @@ namespace graphics {
 
 	public:
 		static unsigned int loadTexture(std::string path, GLenum format, int id);
+		static unsigned int loadTextureAtlas(std::string path, GLenum format, int id);
 		static unsigned int getTexture(int id);
 
 	};

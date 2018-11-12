@@ -8,11 +8,41 @@ namespace graphics {
 	unsigned int TextureManager::mTextures[MAX_TEXTURES];
 
 	unsigned int TextureManager::loadTexture(std::string path, GLenum format, int id) {
+		int width, height, nrChannels;
+		GLubyte *tmpdata = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+		if (!tmpdata) {
+			std::cout << "Image couldn't be loaded!" << std::endl;
+			system("pause");
+			exit(-1);
+		}
+
+		unsigned int texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, tmpdata);
+		stbi_image_free(tmpdata);
+
+		mTextures[id] = texture;
+		return texture;
+	}
+
+	unsigned int TextureManager::loadTextureAtlas(std::string path, GLenum format, int id) {
 
 		const int dataSize = 4 * 16 * 16 * 256;
 
 		int width, height, nrChannels;
 		GLubyte *tmpdata = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+		if (!tmpdata) {
+			std::cout << "Image couldn't be loaded!" << std::endl;
+			system("pause");
+			exit(-1);
+		}
 
 		GLubyte data[dataSize];
 		for (int i = 0; i < 256; i++) {

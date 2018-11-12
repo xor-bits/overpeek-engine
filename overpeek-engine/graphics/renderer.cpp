@@ -43,15 +43,48 @@ namespace graphics {
 		fontLoader = new FontLoader(fontPath);
 	}
 
-	void Renderer::renderBox(float x, float y, float w, float h, int textureID) {
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 0] = x; 
+	/*Angle is radian*/
+	void Renderer::renderBox(float x, float y, float w, float h, float angle, int textureID) {
+		//m_vertex[(quadCount * VERTEX_PER_QUAD) + 0] = x;
+		//m_vertex[(quadCount * VERTEX_PER_QUAD) + 1] = y;
+		//m_vertex[(quadCount * VERTEX_PER_QUAD) + 2] = x + w * sin(angle);
+		//m_vertex[(quadCount * VERTEX_PER_QUAD) + 3] = y + h * cos(angle);
+		//m_vertex[(quadCount * VERTEX_PER_QUAD) + 4] = x + w * sin(angle);
+		//m_vertex[(quadCount * VERTEX_PER_QUAD) + 5] = y + h * sin(angle);
+		//m_vertex[(quadCount * VERTEX_PER_QUAD) + 6] = x + w * cos(angle);
+		//m_vertex[(quadCount * VERTEX_PER_QUAD) + 7] = y + h * sin(angle);
+
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 0] = x;
 		m_vertex[(quadCount * VERTEX_PER_QUAD) + 1] = y;
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 2] = x; 
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 3] = y + h;
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 4] = x + w; 
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 5] = y + h;
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 6] = x + w; 
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 2] = x;
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 3] = y + h * cos(angle);
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 4] = x + w * sin(angle);
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 5] = y + h * sin(angle);
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 6] = x + w * cos(angle);
 		m_vertex[(quadCount * VERTEX_PER_QUAD) + 7] = y;
+
+		m_id[(quadCount * VERTEX_PER_QUAD) + 0] = textureID;
+		m_id[(quadCount * VERTEX_PER_QUAD) + 1] = textureID;
+		m_id[(quadCount * VERTEX_PER_QUAD) + 2] = textureID;
+		m_id[(quadCount * VERTEX_PER_QUAD) + 3] = textureID;
+		m_id[(quadCount * VERTEX_PER_QUAD) + 4] = textureID;
+		m_id[(quadCount * VERTEX_PER_QUAD) + 5] = textureID;
+		m_id[(quadCount * VERTEX_PER_QUAD) + 6] = textureID;
+		m_id[(quadCount * VERTEX_PER_QUAD) + 7] = textureID;
+
+		quadCount++;
+	}
+
+	/*Angle is radian*/
+	void Renderer::renderBoxCentered(float x, float y, float w, float h, float angle, int textureID) {
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 0] = x - (w * cos(angle)) / 2.0;
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 1] = y - (h * sin(angle)) / 2.0;
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 2] = x - (w * cos(angle)) / 2.0;
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 3] = y + (h * sin(angle)) / 2.0;
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 4] = x + (w * cos(angle)) / 2.0;
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 5] = y + (h * sin(angle)) / 2.0;
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 6] = x + (w * cos(angle)) / 2.0;
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 7] = y - (h * sin(angle)) / 2.0;
 
 		m_id[(quadCount * VERTEX_PER_QUAD) + 0] = textureID;
 		m_id[(quadCount * VERTEX_PER_QUAD) + 1] = textureID;
@@ -86,7 +119,8 @@ namespace graphics {
 		quadCount = 0;
 	}
 
-	void Renderer::renderText(float x, float y, float w, float h, std::string text, glm::vec3 color, int xAlign, int yAlign) {// Activate corresponding render state
+	/*Angle is radian*/
+	void Renderer::renderText(float x, float y, float w, float h, float angle, std::string text, glm::vec3 color, int xAlign, int yAlign) {// Activate corresponding render state
 		fontLoader->renderText(x, y, w, h, text, color, xAlign, yAlign);
 	}
 }

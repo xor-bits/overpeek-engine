@@ -18,40 +18,13 @@
     <ClCompile Include="logic\gameloop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="game\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="game\world\region.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="game\world\tile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="game\world\map.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="tools\clock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tools\random.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="game\creatures\player.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="game\logic\game.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="logic\noise.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="audio\audioManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="game\logic\inventory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="game\creatures\creature.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tools\binaryIO.cpp">
@@ -84,7 +57,10 @@
     <ClCompile Include="graphics\window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="game\logic\database.cpp">
+    <ClCompile Include="game2\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="audio\audioManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -104,37 +80,10 @@
     <ClInclude Include="logic\gameloop.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="game\world\region.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="game\world\tile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game\world\map.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game\creatures\player.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game\logic\game.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="logic\noise.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="audio\audioPlayer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="audio\audioManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game\logic\inventory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game\creatures\creature.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tools\binaryIO.h">
@@ -170,7 +119,10 @@
     <ClInclude Include="graphics\window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="game\logic\database.h">
+    <ClInclude Include="audio\audioManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="audio\audioPlayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -42,8 +42,9 @@ namespace graphics {
 	public:
 		Renderer(std::string fontpath);
 
-		void renderBox(float x, float y, float w, float h, int textureID);
-		void renderText(float x, float y, float w, float h, std::string text, glm::vec3 color, int xAlign, int yAlign);
+		void renderBox(float x, float y, float w, float h, float angle, int textureID);
+		void renderBoxCentered(float x, float y, float w, float h, float angle, int textureID);
+		void renderText(float x, float y, float w, float h, float angle, std::string text, glm::vec3 color, int xAlign, int yAlign);
 		
 		void flush(Shader *shader, int quadTexture);
 		void clear();
