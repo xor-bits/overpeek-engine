@@ -16,6 +16,7 @@ namespace graphics {
 		static unsigned int loadTexture(std::string path, GLenum format, int id);
 		static unsigned int loadTextureAtlas(std::string path, GLenum format, int id);
 		static unsigned int getTexture(int id);
+		static void saveTexture(std::string path, GLubyte *data, int width, int height, bool preview);
 
 	};
 

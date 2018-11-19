@@ -52,6 +52,8 @@ namespace graphics {
 		void setKeyboardCallback(void(*callback)(int, int));
 		void setScrollCallback(void(*callback)(double));
 
+		void setSwapInterval(unsigned int interval);
+
 		inline float getAspect() { return mAspect; }
 
 		inline bool getButton(int button) { return mButtons[button]; }

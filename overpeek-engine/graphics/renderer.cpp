@@ -43,25 +43,43 @@ namespace graphics {
 		fontLoader = new FontLoader(fontPath);
 	}
 
+	glm::vec2 rotatePoint(float cx, float cy, float angle, glm::vec2 p)
+	{
+		float s = sin(angle);
+		float c = cos(angle);
+
+		// translate point back to origin:
+		p.x -= cx;
+		p.y -= cy;
+
+		// rotate point
+		float xnew = p.x * c - p.y * s;
+		float ynew = p.x * s + p.y * c;
+
+		// translate point back:
+		p.x = xnew + cx;
+		p.y = ynew + cy;
+		return p;
+	}
+
 	/*Angle is radian*/
 	void Renderer::renderBox(float x, float y, float w, float h, float angle, int textureID) {
-		//m_vertex[(quadCount * VERTEX_PER_QUAD) + 0] = x;
-		//m_vertex[(quadCount * VERTEX_PER_QUAD) + 1] = y;
-		//m_vertex[(quadCount * VERTEX_PER_QUAD) + 2] = x + w * sin(angle);
-		//m_vertex[(quadCount * VERTEX_PER_QUAD) + 3] = y + h * cos(angle);
-		//m_vertex[(quadCount * VERTEX_PER_QUAD) + 4] = x + w * sin(angle);
-		//m_vertex[(quadCount * VERTEX_PER_QUAD) + 5] = y + h * sin(angle);
-		//m_vertex[(quadCount * VERTEX_PER_QUAD) + 6] = x + w * cos(angle);
-		//m_vertex[(quadCount * VERTEX_PER_QUAD) + 7] = y + h * sin(angle);
+		///TODO FIX:
+		w = w * 2;
+		h = h * 2;
 
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 0] = x;
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 1] = y;
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 2] = x;
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 3] = y + h * cos(angle);
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 4] = x + w * sin(angle);
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 5] = y + h * sin(angle);
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 6] = x + w * cos(angle);
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 7] = y;
+		glm::vec2 pnt = rotatePoint(x, y, angle, glm::vec2(x, y));
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 0] = x + pnt.x;
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 1] = y + pnt.y;
+		pnt = rotatePoint(x, y, angle, glm::vec2(x, y + h));
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 2] = x + pnt.x;
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 3] = y + pnt.y;
+		pnt = rotatePoint(x, y, angle, glm::vec2(x + w, y + h));
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 4] = x + pnt.x;
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 5] = y + pnt.y;
+		pnt = rotatePoint(x, y, angle, glm::vec2(x + w, y));
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 6] = x + pnt.x;
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 7] = y + pnt.y;
 
 		m_id[(quadCount * VERTEX_PER_QUAD) + 0] = textureID;
 		m_id[(quadCount * VERTEX_PER_QUAD) + 1] = textureID;
@@ -77,14 +95,18 @@ namespace graphics {
 
 	/*Angle is radian*/
 	void Renderer::renderBoxCentered(float x, float y, float w, float h, float angle, int textureID) {
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 0] = x - (w * cos(angle)) / 2.0;
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 1] = y - (h * sin(angle)) / 2.0;
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 2] = x - (w * cos(angle)) / 2.0;
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 3] = y + (h * sin(angle)) / 2.0;
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 4] = x + (w * cos(angle)) / 2.0;
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 5] = y + (h * sin(angle)) / 2.0;
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 6] = x + (w * cos(angle)) / 2.0;
-		m_vertex[(quadCount * VERTEX_PER_QUAD) + 7] = y - (h * sin(angle)) / 2.0;
+		glm::vec2 pnt = rotatePoint(x, y, angle, glm::vec2(x - w / 2.0, y - h / 2.0));
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 0] = x + pnt.x;
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 1] = y + pnt.y;
+		pnt = rotatePoint(x, y, angle, glm::vec2(x - w / 2.0, y + h / 2.0));
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 2] = x + pnt.x;
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 3] = y + pnt.y;
+		pnt = rotatePoint(x, y, angle, glm::vec2(x + w / 2.0, y + h / 2.0));
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 4] = x + pnt.x;
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 5] = y + pnt.y;
+		pnt = rotatePoint(x, y, angle, glm::vec2(x + w / 2.0, y - h / 2.0));
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 6] = x + pnt.x;
+		m_vertex[(quadCount * VERTEX_PER_QUAD) + 7] = y + pnt.y;
 
 		m_id[(quadCount * VERTEX_PER_QUAD) + 0] = textureID;
 		m_id[(quadCount * VERTEX_PER_QUAD) + 1] = textureID;

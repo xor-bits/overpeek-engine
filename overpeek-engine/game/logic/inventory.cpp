@@ -23,17 +23,17 @@ void Inventory::render(graphics::Renderer *m_renderer) {
 	for (int x = 0; x < INVENTORY_WIDTH; x++)
 	{
 		if (x == int(selectedSlot)) {
-			m_renderer->renderBox((x - ((INVENTORY_WIDTH+0.2) / 2.0)) * INVENTORY_SCALE, -1.0, INVENTORY_SCALE*1.2, INVENTORY_SCALE*1.2, 80);
-			if (m_itemIds[x][0] != 0) m_renderer->renderBox((x - ((INVENTORY_WIDTH + 0.2) / 2.0)) * INVENTORY_SCALE, -1.0, INVENTORY_SCALE*1.2, INVENTORY_SCALE*1.2, Database::items[m_itemIds[x][0]].texture);
+			m_renderer->renderBox((x - ((INVENTORY_WIDTH+0.2) / 2.0)) * INVENTORY_SCALE, -1.0, INVENTORY_SCALE*1.2, INVENTORY_SCALE*1.2, 0, 80);
+			if (m_itemIds[x][0] != 0) m_renderer->renderBox((x - ((INVENTORY_WIDTH + 0.2) / 2.0)) * INVENTORY_SCALE, -1.0, INVENTORY_SCALE*1.2, INVENTORY_SCALE*1.2, 0, Database::items[m_itemIds[x][0]].texture);
 		} else if (x > int(selectedSlot)) {
-			m_renderer->renderBox((x - ((INVENTORY_WIDTH + 0.2) / 2.0) + 0.2) * INVENTORY_SCALE, -1.0, INVENTORY_SCALE, INVENTORY_SCALE, 80);
+			m_renderer->renderBox((x - ((INVENTORY_WIDTH + 0.2) / 2.0) + 0.2) * INVENTORY_SCALE, -1.0, INVENTORY_SCALE, INVENTORY_SCALE, 0, 80);
 			if (m_itemIds[x][0] != 0) {
-				m_renderer->renderBox((x - ((INVENTORY_WIDTH + 0.2) / 2.0) + 0.2) * INVENTORY_SCALE, -1.0, INVENTORY_SCALE, INVENTORY_SCALE, Database::items[m_itemIds[x][0]].texture);
+				m_renderer->renderBox((x - ((INVENTORY_WIDTH + 0.2) / 2.0) + 0.2) * INVENTORY_SCALE, -1.0, INVENTORY_SCALE, INVENTORY_SCALE, 0, Database::items[m_itemIds[x][0]].texture);
 			}
 		}
 		else {
-			m_renderer->renderBox((x - ((INVENTORY_WIDTH + 0.2) / 2.0)) * INVENTORY_SCALE, -1.0, INVENTORY_SCALE, INVENTORY_SCALE, 80);
-			if (m_itemIds[x][0] != 0) m_renderer->renderBox((x - ((INVENTORY_WIDTH + 0.2) / 2.0)) * INVENTORY_SCALE, -1.0, INVENTORY_SCALE, INVENTORY_SCALE, Database::items[m_itemIds[x][0]].texture);
+			m_renderer->renderBox((x - ((INVENTORY_WIDTH + 0.2) / 2.0)) * INVENTORY_SCALE, -1.0, INVENTORY_SCALE, INVENTORY_SCALE, 0, 80);
+			if (m_itemIds[x][0] != 0) m_renderer->renderBox((x - ((INVENTORY_WIDTH + 0.2) / 2.0)) * INVENTORY_SCALE, -1.0, INVENTORY_SCALE, INVENTORY_SCALE, 0, Database::items[m_itemIds[x][0]].texture);
 		}
 	}
 
@@ -42,8 +42,8 @@ void Inventory::render(graphics::Renderer *m_renderer) {
 		{
 			for (int x = 0; x < INVENTORY_WIDTH; x++)
 			{
-				m_renderer->renderBox((x - (INVENTORY_WIDTH / 2.0)) * INVENTORY_SCALE, (y - (INVENTORY_HEIGHT / 2.0)) * INVENTORY_SCALE, INVENTORY_SCALE, INVENTORY_SCALE, 80);
-				if (m_itemIds[x][y+1] != 0) m_renderer->renderBox((x - ((INVENTORY_WIDTH + 0.2) / 2.0)) * INVENTORY_SCALE, (y - (INVENTORY_HEIGHT / 2.0)) * INVENTORY_SCALE, INVENTORY_SCALE, INVENTORY_SCALE, Database::items[m_itemIds[x][y + 1]].texture);
+				m_renderer->renderBox((x - (INVENTORY_WIDTH / 2.0)) * INVENTORY_SCALE, (y - (INVENTORY_HEIGHT / 2.0)) * INVENTORY_SCALE, INVENTORY_SCALE, INVENTORY_SCALE, 0, 80);
+				if (m_itemIds[x][y+1] != 0) m_renderer->renderBox((x - ((INVENTORY_WIDTH + 0.2) / 2.0)) * INVENTORY_SCALE, (y - (INVENTORY_HEIGHT / 2.0)) * INVENTORY_SCALE, INVENTORY_SCALE, INVENTORY_SCALE, 0, Database::items[m_itemIds[x][y + 1]].texture);
 			}
 		}
 	}

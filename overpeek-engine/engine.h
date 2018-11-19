@@ -9,6 +9,7 @@
 #include "tools/clock.h"
 #include "tools/random.h"
 #include "tools/binaryIO.h"
+#include "tools/logger.h"
 
 #include "graphics/camera.h"
 #include "graphics/fontLoader.h"

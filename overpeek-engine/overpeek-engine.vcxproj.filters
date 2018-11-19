@@ -57,10 +57,13 @@
     <ClCompile Include="graphics\window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="game2\main.cpp">
+    <ClCompile Include="audio\audioManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="audio\audioManager.cpp">
+    <ClCompile Include="tools\Source.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game3\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -123,6 +126,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="audio\audioPlayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

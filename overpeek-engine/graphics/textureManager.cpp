@@ -1,17 +1,24 @@
 #include "textureManager.h"
+#include "../tools/logger.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/opencv.hpp>
+#include <time.h>
 
 namespace graphics {
 
 	unsigned int TextureManager::mTextures[MAX_TEXTURES];
 
 	unsigned int TextureManager::loadTexture(std::string path, GLenum format, int id) {
+		tools::Logger::setup();
+		
 		int width, height, nrChannels;
 		GLubyte *tmpdata = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
 		if (!tmpdata) {
-			std::cout << "Image couldn't be loaded!" << std::endl;
+			tools::Logger::error(std::string("Image couldn't be loaded at path (") + path + std::string(")"));
 			system("pause");
 			exit(-1);
 		}
@@ -39,7 +46,7 @@ namespace graphics {
 		int width, height, nrChannels;
 		GLubyte *tmpdata = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
 		if (!tmpdata) {
-			std::cout << "Image couldn't be loaded!" << std::endl;
+			tools::Logger::error(std::string("Image couldn't be loaded at path (") + path + std::string(")"));
 			system("pause");
 			exit(-1);
 		}
@@ -80,6 +87,16 @@ namespace graphics {
 
 	unsigned int TextureManager::getTexture(int id) {
 		return mTextures[id];
+	}
+
+	void TextureManager::saveTexture(std::string path, GLubyte *data, int width, int height, bool preview) {
+		cv::Mat image(height, width, CV_8UC3, data);
+		cv::cvtColor(image, image, CV_RGB2BGR);
+		cv::imwrite((std::string)"./mandelbrot" + std::to_string(time(0)) + (std::string)".png", image);
+
+		if (!preview) return;
+		cv::namedWindow("Preview", cv::WINDOW_AUTOSIZE);
+		cv::imshow("Preview", image);
 	}
 
 }

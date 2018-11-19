@@ -1,8 +1,10 @@
 #include "window.h"
 #include <GL/GLU.h>
 #include <Windows.h>
+#include <string>
 
 #include "stb_image.h"
+#include "../tools/logger.h"
 
 #define M_NUM_KEYS		512
 #define M_NUM_BUTTONS	128
@@ -31,6 +33,8 @@ namespace graphics {
 		for (int i = 0; i < M_NUM_KEYS; i++) mSingleKeys[i] = false;
 		for (int i = 0; i < M_NUM_BUTTONS; i++) mSingleButtons[i] = false;
 
+		tools::Logger::setup();
+
 		if (!mInit()) {
 			glfwTerminate();
 			system("pause");
@@ -44,7 +48,7 @@ namespace graphics {
 
 	bool Window::mInit() {
 		if (!glfwInit()) {
-			std::cerr << "ERROR Initalizing GLFW!" << std::endl;
+			tools::Logger::error("Failed to initialize GLFW!");
 			return false;
 		}
 		glfwWindowHint(GLFW_RESIZABLE, 0);
@@ -55,17 +59,19 @@ namespace graphics {
 		else
 			mWindow = glfwCreateWindow(mWidth, mHeight, mTitle.c_str(), NULL, NULL);
 		if (!mWindow) {
-			std::cerr << "ERROR Creating window!" << std::endl;
+			tools::Logger::error("Failed to create window!");
 			return false;
 		}
 		glfwMakeContextCurrent(mWindow);
 
 		if (glewInit() != GLEW_OK) {
-			std::cerr << "ERROR Initalizing GLEW!" << std::endl;
+			tools::Logger::error("Failed to initalize GLEW!");
 			return false;
 		}
-		std::cout << glGetString(GL_RENDERER) << std::endl;
-		std::cout << "OpenGL " << glGetString(GL_VERSION) << std::endl;
+
+		tools::Logger::info("Window created.");
+		tools::Logger::info("OpenGL Renderer: " + std::string((char*)glGetString(GL_RENDERER)));
+		tools::Logger::info("OpenGL Version: " + std::string((char*)glGetString(GL_VERSION)));
 
 
 		int width, height, nrChannels;
@@ -94,6 +100,10 @@ namespace graphics {
 		glfwSwapInterval(0);
 
 		return true;
+	}
+
+	void Window::setSwapInterval(unsigned int interval) {
+		glfwSwapInterval(interval);
 	}
 
 	void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -125,31 +135,32 @@ namespace graphics {
 	void Window::checkErrors() {
 		GLenum err = glGetError();
 		if (err != 0) {
-			std::cout << err << " ";
+			std::string errorText;
 			switch (err)
 			{
 			case GL_NO_ERROR:
-				std::cout << "No error, lol you shouldn't see this" << std::endl;
+				errorText = "If you see this, your processor is propably broken or something?";
 				break;
 			case GL_INVALID_ENUM:
-				std::cout << "Invalid enum!" << std::endl;
+				errorText = "Invalid enum!";
 				break;
 			case GL_INVALID_VALUE:
-				std::cout << "Invalid value!" << std::endl;
+				errorText = "Invalid value!";
 				break;
 			case GL_INVALID_OPERATION:
-				std::cout << "Invalid operation!" << std::endl;
+				errorText = "Invalid operation!";
 				break;
 			case GL_INVALID_FRAMEBUFFER_OPERATION:
-				std::cout << "Invalid framebuffer operation!" << std::endl;
+				errorText = "Invalid framebuffer operation!";
 				break;
 			case GL_OUT_OF_MEMORY:
-				std::cout << "Out of memory!" << std::endl;
+				errorText = "Out of memory!";
 				break;
 			default:
-				std::cout << "Unknown error!" << std::endl;
+				errorText = "Unknown error!";
 				break;
 			}
+			tools::Logger::error(std::string("OpenGL ") + std::to_string(err) + std::string(": ") + errorText);
 			glfwTerminate();
 			system("pause");
 			exit(EXIT_FAILURE);

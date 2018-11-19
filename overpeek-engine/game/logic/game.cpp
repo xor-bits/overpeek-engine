@@ -5,7 +5,7 @@
 #include "../logic/inventory.h"
 
 #include <windows.h>
-#include <algorithm>
+#include <math.h>
 
 graphics::Window *Game::m_window;
 graphics::Shader *Game::m_shader;
@@ -39,8 +39,7 @@ void Game::init(graphics::Shader *shader, graphics::Window * window, logic::Game
 	audio::AudioManager::loadAudio("recourses/swing.wav", 1);
 	audio::AudioManager::loadAudio("recourses/collect.wav", 2);
 
-	graphics::TextureManager n;
-	n.loadTexture("recourses/atlas.png", GL_RGBA, 0);
+	graphics::TextureManager::loadTextureAtlas("recourses/atlas.png", GL_RGBA, 0);
 	Database::init();
 
 	m_inventory = new Inventory(m_shader, m_window);
@@ -66,14 +65,14 @@ void Game::renderInfoScreen() {
 	m_shader->setUniform1i("unif_text", 1);
 
 	std::string text = "FPS: " + std::to_string(m_loop->getFPS());
-	m_renderer->renderText(-m_window->getAspect(), -1.0, 0.1, 0.1, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	m_renderer->renderText(-m_window->getAspect(), -1.0, 0.1, 0.1, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 	text = "UPS: " + std::to_string(m_loop->getUPS());
-	m_renderer->renderText(-m_window->getAspect(), -0.9, 0.1, 0.1, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	m_renderer->renderText(-m_window->getAspect(), -0.9, 0.1, 0.1, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 
 	text = "Position X: " + std::to_string(m_player->x) + ", Y: " + std::to_string(m_player->y);
-	m_renderer->renderText(-m_window->getAspect(), -0.8, 0.1, 0.1, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	m_renderer->renderText(-m_window->getAspect(), -0.8, 0.1, 0.1, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 	text = "Region X: " + std::to_string(posToRegionPos(m_player->x)) + ", Y: " + std::to_string(posToRegionPos(m_player->y));
-	m_renderer->renderText(-m_window->getAspect(), -0.7, 0.1, 0.1, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	m_renderer->renderText(-m_window->getAspect(), -0.7, 0.1, 0.1, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 }
 
 void Game::render() {
@@ -101,7 +100,7 @@ void Game::render() {
 
 double clamp(double x, double upper, double lower)
 {
-	return min(upper, max(x, lower));
+	return std::min(upper, std::max(x, lower));
 }
 
 void Game::update() {

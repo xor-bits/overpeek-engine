@@ -149,15 +149,15 @@ void Region::submitToRenderer(graphics::Renderer *renderer, float offx, float of
 
 			float renderx = x * TILE_SIZE + rx, rendery = y * TILE_SIZE + ry;
 			
-			renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, id);
-			if (objid != 0) renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, objid);
+			renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, 0, id);
+			if (objid != 0) renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, 0, objid);
 		}
 	}
 
-	renderer->renderBox(rx, ry, 0.02, REGION_SIZE * TILE_SIZE, 20);
-	renderer->renderBox(rx + REGION_SIZE * TILE_SIZE - 0.02, ry, 0.02, REGION_SIZE * TILE_SIZE, 21);
-	renderer->renderBox(rx, ry, REGION_SIZE * TILE_SIZE, 0.02, 22);
-	renderer->renderBox(rx, ry + REGION_SIZE * TILE_SIZE - 0.02, REGION_SIZE * TILE_SIZE, 0.02, 23);
+	renderer->renderBox(rx, ry, 0.02, REGION_SIZE * TILE_SIZE, 0, 20);
+	renderer->renderBox(rx + REGION_SIZE * TILE_SIZE - 0.02, ry, 0.02, REGION_SIZE * TILE_SIZE, 0, 21);
+	renderer->renderBox(rx, ry, REGION_SIZE * TILE_SIZE, 0.02, 0, 22);
+	renderer->renderBox(rx, ry + REGION_SIZE * TILE_SIZE - 0.02, REGION_SIZE * TILE_SIZE, 0.02, 0, 23);
 }
 
 void Region::submitCreaturesToRenderer(graphics::Renderer *renderer, float offx, float offy) {

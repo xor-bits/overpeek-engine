@@ -1,6 +1,7 @@
 #include "shader.h"
 #include "window.h"
 #include "../tools/filereader.h"
+#include "../tools/logger.h"
 
 namespace graphics {
 
@@ -24,6 +25,8 @@ namespace graphics {
 		glShaderSource(fragmentShader, 1, &fragmentShaderChar, NULL);
 		glCompileShader(fragmentShader);
 
+		tools::Logger::setup();
+
 		//Compilation error logger
 		int success;
 		char infoLog[512];
@@ -31,7 +34,7 @@ namespace graphics {
 		if (!success)
 		{
 			glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-			std::cout << "ERROR Vertex shader compilation failed!\n" << infoLog << std::endl;
+			tools::Logger::error(std::string("Vertex shader compilation failed!\n") + infoLog);
 			glfwTerminate();
 			system("pause");
 			exit(EXIT_FAILURE);
@@ -40,7 +43,7 @@ namespace graphics {
 		if (!success)
 		{
 			glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-			std::cout << "ERROR Fragment shader compilation failed!\n" << infoLog << std::endl;
+			tools::Logger::error(std::string("Fragment shader compilation failed!\n") + infoLog);
 			glfwTerminate();
 			system("pause");
 			exit(EXIT_FAILURE);
@@ -55,7 +58,7 @@ namespace graphics {
 		glGetProgramiv(mShaderProgram, GL_LINK_STATUS, &success);
 		if (!success) {
 			glGetProgramInfoLog(mShaderProgram, 512, NULL, infoLog);
-			std::cout << "ERROR Shader program linking failed!\n" << infoLog << std::endl;
+			tools::Logger::error(std::string("Shader program linking failed!\n") + infoLog);
 			glfwTerminate();
 			system("pause");
 			exit(EXIT_FAILURE);
