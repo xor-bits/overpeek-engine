@@ -51,7 +51,7 @@ int Tile::getObjectTexture() {
 void Tile::hitObject(float damage) {
 	m_object_health -= damage;
 	if (m_object_health <= 0) {
-		m_parent->addCreature(float(m_x + 1.0 / 2.0), float(m_y + 1.0 / 2.0), Database::items[Database::objects[m_object_id].dropsAs].id, true);
+		m_parent->addCreature(m_x, m_y, Database::items[Database::objects[m_object_id].dropsAs].id, true);
 		m_object_id = 0;
 	}
 }

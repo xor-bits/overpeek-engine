@@ -174,7 +174,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="audio\audioManager.cpp" />
-    <ClCompile Include="game3\main.cpp" />
+    <ClCompile Include="game\creatures\creature.cpp" />
+    <ClCompile Include="game\creatures\player.cpp" />
+    <ClCompile Include="game\logic\database.cpp" />
+    <ClCompile Include="game\logic\game.cpp" />
+    <ClCompile Include="game\logic\inventory.cpp" />
+    <ClCompile Include="game\main.cpp" />
+    <ClCompile Include="game\world\map.cpp" />
+    <ClCompile Include="game\world\region.cpp" />
+    <ClCompile Include="game\world\tile.cpp" />
     <ClCompile Include="graphics\buffers\indexBuffer.cpp" />
     <ClCompile Include="graphics\buffers\vertexArray.cpp" />
     <ClCompile Include="graphics\buffers\buffer.cpp" />
@@ -195,6 +203,14 @@
     <ClInclude Include="audio\audioManager.h" />
     <ClInclude Include="audio\audioPlayer.h" />
     <ClInclude Include="engine.h" />
+    <ClInclude Include="game\creatures\creature.h" />
+    <ClInclude Include="game\creatures\player.h" />
+    <ClInclude Include="game\logic\database.h" />
+    <ClInclude Include="game\logic\game.h" />
+    <ClInclude Include="game\logic\inventory.h" />
+    <ClInclude Include="game\world\map.h" />
+    <ClInclude Include="game\world\region.h" />
+    <ClInclude Include="game\world\tile.h" />
     <ClInclude Include="graphics\buffers\indexBuffer.h" />
     <ClInclude Include="graphics\buffers\vertexArray.h" />
     <ClInclude Include="graphics\buffers\buffer.h" />

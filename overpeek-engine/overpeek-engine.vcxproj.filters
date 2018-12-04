@@ -63,7 +63,31 @@
     <ClCompile Include="tools\Source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="game3\main.cpp">
+    <ClCompile Include="game\creatures\creature.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game\creatures\player.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game\logic\database.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game\logic\game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game\logic\inventory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game\world\map.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game\world\region.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game\world\tile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -129,6 +153,30 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tools\logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\creatures\creature.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\creatures\player.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\logic\database.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\logic\game.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\logic\inventory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\world\map.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\world\region.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\world\tile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

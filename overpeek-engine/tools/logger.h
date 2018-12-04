@@ -1,6 +1,9 @@
 #pragma once
 
+#include <gl/glew.h>
+#include <GLFW/glfw3.h>
 #include <string>
+#include <ostream>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
@@ -19,20 +22,27 @@ namespace tools {
 			m_initalized = true;
 		}
 
-		static void info(std::string output) {
+		template <class T>
+		static void info(T output) {
 			m_console->info(output);
 		}
 
-		static void warning(std::string output) {
+		template <class T>
+		static void warning(T output) {
 			m_console->warn(output);
 		}
 
-		static void critical(std::string output) {
+		template <class T>
+		static void critical(T output) {
 			m_console->critical(output);
 		}
 
-		static void error(std::string output) {
+		template <class T>
+		static void error(T output) {
 			m_console->error(output);
+			system("pause");
+			glfwTerminate();
+			exit(-1);
 		}
 
 	};

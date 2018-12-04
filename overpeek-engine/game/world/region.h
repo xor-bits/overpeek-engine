@@ -1,13 +1,6 @@
 #pragma once
 
-#define NOISE_SCALE 0.02
-
-#define LEVEL_WATER 0.5
-#define LEVEL_SAND 0.52
-#define LEVEL_SOIL 0.7
-#define LEVEL_STONE 0.72
-
-#define MAX_CREATURES 128
+#define MAX_CREATURES 8
 
 #include "tile.h"
 #include "../logic/game.h"
@@ -39,7 +32,34 @@ public:
 	void submitToRenderer(graphics::Renderer *renderer, float offx, float offy);
 	void submitCreaturesToRenderer(graphics::Renderer *renderer, float offx, float offy);
 
-	inline Tile* getTile(unsigned int x, unsigned int y) { if (x > REGION_SIZE || x < 0 || y > REGION_SIZE || y < 0)return nullptr; else return m_tiles[x][y]; }
+	inline void debugCeilCreatures() {
+		for (int i = 0; i < MAX_CREATURES; i++)
+		{
+			if (!m_creatures[i]) {
+				Tile* tmp;
+				tmp = Game::getTile(m_creatures[i]->getX() + 1, m_creatures[i]->getY());
+				if (tmp) tmp->setObjectId(4);
+				tmp = Game::getTile(m_creatures[i]->getX() - 1, m_creatures[i]->getY());
+				if (tmp) tmp->setObjectId(4);
+				tmp = Game::getTile(m_creatures[i]->getX(), m_creatures[i]->getY() + 1);
+				if (tmp) tmp->setObjectId(4);
+				tmp = Game::getTile(m_creatures[i]->getX(), m_creatures[i]->getY() - 1);
+				if (tmp) tmp->setObjectId(4);
+
+				return;
+			}
+		}
+	}
+
+	inline Tile* getTile(unsigned int x, unsigned int y) { 
+		if (x > REGION_SIZE || x < 0 || y > REGION_SIZE || y < 0) {
+			tools::Logger::warning(std::string("Coordinates were out of range when getting tile form region!"));
+			return nullptr;
+		}
+		else { 
+			return m_tiles[x][y]; 
+		}
+	}
 
 	void addCreature(float x, float y, int id, bool item) {
 		for (int i = 0; i < MAX_CREATURES; i++)
@@ -56,6 +76,7 @@ public:
 		{
 			if (!m_creatures[i]) {
 				m_creatures[i] = creature;
+				m_creatures[i]->setRegion(this);
 				return;
 			}
 		}
@@ -70,15 +91,16 @@ public:
 		{
 			if (m_creatures[i] == creature) {
 				m_creatures[i] = nullptr;
-				std::cout << "Removed!" << std::endl;
 				return;
 			}
 		}
-		std::cout << "Couldn't find creature!" << std::endl;
-		throw;
+		char buff[100];
+		snprintf(buff, sizeof(buff), "%p", (void*)creature);
+		std::string buffAsStdStr = buff;
+		tools::Logger::critical("Couldn't find creature: " + buffAsStdStr + "!");
 	}
 
-	inline int getX() { return (m_x - floor(RENDER_DST/2.0)) * REGION_SIZE; }
-	inline int getY() { return (m_y - floor(RENDER_DST/2.0)) * REGION_SIZE; }
+	inline int getX() { return (m_x - floor(RENDER_DST / 2.0)) * REGION_SIZE; }
+	inline int getY() { return (m_y - floor(RENDER_DST / 2.0)) * REGION_SIZE; }
 
 };

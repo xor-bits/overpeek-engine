@@ -4,7 +4,12 @@
 
 namespace graphics {
 
-	Renderer::Renderer(std::string fontpath) {
+	Renderer::Renderer(std::string fontpath) : Renderer::Renderer() {
+		textRender = true;
+		initText(fontpath);
+	}
+
+	Renderer::Renderer() {
 		quadCount = 0;
 
 		for (int i = 0; i < MAX_QUADS_PER_FLUSH; i++)
@@ -35,8 +40,6 @@ namespace graphics {
 		m_VAO->addBuffer(m_VBO, 0);
 		m_VAO->addBuffer(m_UV, 1);
 		m_VAO->addBuffer(m_ID, 2);
-
-		initText(fontpath);
 	}
 
 	void Renderer::initText(std::string fontPath) {
@@ -65,8 +68,8 @@ namespace graphics {
 	/*Angle is radian*/
 	void Renderer::renderBox(float x, float y, float w, float h, float angle, int textureID) {
 		///TODO FIX:
-		w = w * 2;
-		h = h * 2;
+		x = x / 2.0;
+		y = y / 2.0;
 
 		glm::vec2 pnt = rotatePoint(x, y, angle, glm::vec2(x, y));
 		m_vertex[(quadCount * VERTEX_PER_QUAD) + 0] = x + pnt.x;
@@ -134,7 +137,8 @@ namespace graphics {
 	
 		//FLush text
 		shader->setUniform1i("unif_text", 1);
-		fontLoader->flush();
+
+		if (textRender) fontLoader->flush();
 	}
 
 	void Renderer::clear() {
@@ -143,6 +147,6 @@ namespace graphics {
 
 	/*Angle is radian*/
 	void Renderer::renderText(float x, float y, float w, float h, float angle, std::string text, glm::vec3 color, int xAlign, int yAlign) {// Activate corresponding render state
-		fontLoader->renderText(x, y, w, h, text, color, xAlign, yAlign);
+		if (textRender) fontLoader->renderText(x, y, w, h, text, color, xAlign, yAlign);
 	}
 }

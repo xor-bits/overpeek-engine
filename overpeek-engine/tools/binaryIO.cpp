@@ -7,7 +7,7 @@ namespace tools {
 	
 	std::string BinaryIO::filePath;
 
-	void BinaryIO::write(std::string name, unsigned char *data, size_t dataSize) {
+	void BinaryIO::write(std::string name, void* data, size_t dataSize) {
 		FILE *pFile = fopen((filePath + name).c_str(), "wb");
 		//std::cout << (filePath + name) << std::endl;
 		if (pFile == NULL) { fputs("ERROR Opening file!", stderr); system("pause");  exit(1); }
@@ -15,7 +15,7 @@ namespace tools {
 		fclose(pFile);
 	}
 	
-	unsigned char *BinaryIO::read(std::string name) {
+	void* BinaryIO::read(std::string name) {
 		FILE *pFile;
 		long lSize;
 		unsigned char *buffer;

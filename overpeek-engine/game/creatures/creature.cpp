@@ -8,7 +8,7 @@
 Creature::Creature(float _x, float _y, int _id, bool _item, Region *_parent) {
 	m_parent = _parent;
 	m_id = _id;
-	x = _x; y = _y;
+	x = _x + 0.5; y = _y + 0.5;
 	m_item = _item;
 	vel_x = 0; vel_y = 0;
 	acc_x = 0; acc_y = 0;
@@ -91,12 +91,13 @@ void Creature::update() {
 		float distanceToPlayer = abs(x - Game::getPlayer()->x) + abs(y - Game::getPlayer()->y);
 		if (distanceToPlayer < 0.8) {
 			if (Game::getPlayer()->inventory->addItem(m_id)) {
-				std::cout << "Collect this item!" << std::endl;
 				m_parent->removeCreature(this);
 				audio::AudioManager::play(2);
+				return;
 			}
 		}
 	}
+
 
 	vel_x += acc_x;
 	vel_y += acc_y;
@@ -114,8 +115,6 @@ void Creature::update() {
 	vel_y = 0.0;
 	acc_x = 0;
 	acc_y = 0;
-
-	//if (m_id == 1) collide();
 }
 
 void Creature::hit() {
@@ -124,19 +123,19 @@ void Creature::hit() {
 	switch (heading)
 	{
 	case 0:
-		tmp = Game::getTile(x, y - 1);
+		tmp = Game::getTile(getX(), getY() - 1);
 		m_swingDir = 1;
 		break;
 	case 1:
-		tmp = Game::getTile(x + 1, y);
+		tmp = Game::getTile(getX() + 1, getY());
 		m_swingDir = 2;
 		break;
 	case 2:
-		tmp = Game::getTile(x, y + 1);
+		tmp = Game::getTile(getX(), getY() + 1);
 		m_swingDir = 3;
 		break;
 	default:
-		tmp = Game::getTile(x - 1, y);
+		tmp = Game::getTile(getX() - 1, getY());
 		m_swingDir = 4;
 		break;
 	}
@@ -158,7 +157,6 @@ void Creature::collide() {
 			if (tile == nullptr) continue;
 
 			if (Database::objects[tile->getObjectId()].wall) {
-				//if (m_id == 0) std::cout << tile->getX() << ", " << tile->getY() << ", " << floor(x) + _x << ", " << floor(y) + _y << std::endl;
 				int tilex = floor(x) + _x;
 				int tiley = floor(y) + _y;
 				bool collide = false;

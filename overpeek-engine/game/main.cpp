@@ -4,8 +4,8 @@
 #include <omp.h>
 #include <Windows.h>
 
-#define M_WINDOW_WIDTH		900
-#define M_WINDOW_HEIGHT		600
+#define M_WINDOW_WIDTH		600
+#define M_WINDOW_HEIGHT		340
 #define M_ASPECT			(float)M_WINDOW_WIDTH / (float)M_WINDOW_HEIGHT
 
 graphics::Window *window;
@@ -44,13 +44,6 @@ void update() {
 	if (window->close() || window->getKey(GLFW_KEY_ESCAPE)) gameloop->stop();
 	game.update();
 	x++;
-	//if (x > 100) {
-	//	x = 0;
-	//	std::cout << "FPS: " << gameloop->getFPS() << " (" << tmp / (float)gameloop->getFPS() << "ms)" << std::endl;
-	//	std::cout << "UPS: " << gameloop->getUPS() << std::endl;
-	//	tmp = 0;
-	//}
-
 }
 
 void rapid() {
@@ -59,8 +52,10 @@ void rapid() {
 
 //int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow) {
 int main() {
+	//
 	//Window
 	window = new graphics::Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, "Test game", false);
+	window->setSwapInterval(3);
 	window->setButtonCallback(buttonPress);
 	window->setKeyboardCallback(keyPress);
 	window->setScrollCallback(scroll);
@@ -69,8 +64,7 @@ int main() {
 	shader = new graphics::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl");
 	
 	//Shader stuff
-	float debugZoom = 3.0;
-	glm::mat4 orthographic = glm::ortho(-M_ASPECT * debugZoom, M_ASPECT* debugZoom, debugZoom, -debugZoom);
+	glm::mat4 orthographic = glm::ortho(-M_ASPECT * DEBUG_ZOOM, M_ASPECT * DEBUG_ZOOM, DEBUG_ZOOM, -DEBUG_ZOOM);
 	shader->enable(); shader->SetUniformMat4("pr_matrix", orthographic);
 
 	//Main game loop

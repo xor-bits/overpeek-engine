@@ -39,8 +39,11 @@ namespace graphics {
 
 		void initText(std::string fontpath);
 
+		bool textRender = false;
+
 	public:
 		Renderer(std::string fontpath);
+		Renderer();
 
 		void renderBox(float x, float y, float w, float h, float angle, int textureID);
 		void renderBoxCentered(float x, float y, float w, float h, float angle, int textureID);

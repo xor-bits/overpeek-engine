@@ -17,4 +17,13 @@ namespace tools {
 		return min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - min)));
 	}
 
+	unsigned long Random::hash(const char* str) {
+		unsigned long h = PRIME_H;
+		while (*str) {
+			h = (h * PRIME_A) ^ (str[0] * PRIME_B);
+			str++;
+		}
+		return h % PRIME_C;
+	}
+
 }

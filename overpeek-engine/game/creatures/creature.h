@@ -33,24 +33,30 @@ public:
 	float acc_x, acc_y;
 	uint8_t heading : 2;
 
-
 	Creature(float x, float y, int id, bool item, Region *parent);
 	Creature();
 
 	virtual void submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY);
 	virtual void update();
+	virtual void collide(); //Collision check must happen after processing new area
 	virtual void hit();
-
-	void collide();
 
 	inline int getId() { return m_id; }
 
-	inline float getRegionX() {
+	inline float getListRegionX() {
 		if (x >= 0) return x / (float)REGION_SIZE + 0.5;
 		else return x / (float)REGION_SIZE - 0.5;
 	}
-	inline float getRegionY() {
+	inline float getListRegionY() {
 		if (y >= 0) return y / (float)REGION_SIZE + 0.5;
 		else return y / (float)REGION_SIZE - 0.5;
 	}
+
+	inline float getX() { return x - 0.5; }
+	inline float getY() { return y - 0.5; }
+	inline void setX(float n) { x = n + 0.5; }
+	inline void setY(float n) { y = n + 0.5; }
+
+	inline Region* getRegion() { return m_parent; }
+	inline void setRegion(Region* region) { m_parent = region; }
 };

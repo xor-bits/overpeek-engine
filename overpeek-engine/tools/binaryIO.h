@@ -8,8 +8,8 @@ namespace tools {
 	class BinaryIO {
 	public:
 		static std::string filePath;
-		static void write(std::string name, unsigned char *data, size_t dataSize);
-		static unsigned char* read(std::string name);
+		static void write(std::string name, void* data, size_t dataSize);
+		static void* read(std::string name);
 
 	};
 

@@ -3,7 +3,9 @@
 #include "../../engine.h"
 #include "database.h"
 
-#define RENDER_DST 3
+#define DEBUG_ZOOM 3.0
+
+#define RENDER_DST 2 * 2
 
 #define REGION_SIZE 8
 #define TILE_SIZE 0.2
@@ -20,11 +22,14 @@ class Game {
 private:
 	static graphics::Window *m_window;
 	static graphics::Shader *m_shader;
-	static graphics::Renderer *m_renderer;
+	static graphics::Shader *m_guishader;
+	static graphics::Renderer *m_worldrenderer;
+	static graphics::Renderer *m_creaturerenderer;
+	static graphics::Renderer *m_guirenderer;
 	static logic::GameLoop *m_loop;
 	static glm::ivec2 m_hover_tile;
 
-	static Region *m_region[RENDER_DST * 2][RENDER_DST * 2];
+	static Region *m_region[RENDER_DST][RENDER_DST];
 	static Player *m_player;
 
 	static float lastRegionX;
@@ -51,9 +56,11 @@ public:
 	inline static graphics::Shader *getShader() { return m_shader; }
 	inline static graphics::Window *getWindow() { return m_window; }
 
+	static void getInfoFromNoise(int &tileId, int &objId, double x, double y);
+
 	static int screenToWorldX(float x);
 	static int screenToWorldY(float y);
-	static int posToRegionPos(float xOrY);
+	static float posToRegionPos(float xOrY);
 	
 	static Region *getRegion(float x, float y);
 	static Tile *getTile(float x, float y);
