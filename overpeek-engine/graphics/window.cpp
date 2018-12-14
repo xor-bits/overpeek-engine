@@ -6,8 +6,8 @@
 #include "stb_image.h"
 #include "../tools/logger.h"
 
-#define M_NUM_KEYS		512
-#define M_NUM_BUTTONS	128
+#define M_NUM_KEYS		2048
+#define M_NUM_BUTTONS	1024
 
 namespace graphics {
 
@@ -69,7 +69,7 @@ namespace graphics {
 			return false;
 		}
 
-		tools::Logger::info("Window created.");
+		tools::Logger::info("Window created");
 		tools::Logger::info("OpenGL Renderer: " + std::string((char*)glGetString(GL_RENDERER)));
 		tools::Logger::info("OpenGL Version: " + std::string((char*)glGetString(GL_VERSION)));
 
@@ -112,6 +112,7 @@ namespace graphics {
 	}
 
 	void Window::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+		if (button >= M_NUM_BUTTONS || button < 0) return;
 		if (mButtonCallback && action == GLFW_PRESS && !mSingleButtons[button]) { mSingleButtons[button] = true; (*mButtonCallback)(button, action); }
 		else if (action == GLFW_RELEASE) mSingleButtons[button] = false;
 
@@ -120,6 +121,8 @@ namespace graphics {
 	}
 
 	void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+		if (key >= M_NUM_KEYS || key < 0) return;
+
 		if (mKeyCallback && action == GLFW_PRESS && !mSingleKeys[key]) { mSingleKeys[key] = true; (*mKeyCallback)(key, action); }
 		else if (action == GLFW_RELEASE) mSingleKeys[key] = false;
 

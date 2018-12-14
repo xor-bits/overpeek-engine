@@ -1,5 +1,6 @@
 #include "gameloop.h"
 
+#include "../engine.h"
 #include "../tools/clock.h"
 #include <iostream>
 #include <omp.h>
@@ -22,17 +23,9 @@ namespace logic {
 	}
 
 	void GameLoop::start() {
-		#pragma omp parallel 
-		if (omp_get_thread_num() == 0) {
-			while (mShouldRun) {
-				loop();
-			}
-		}
-		else if (omp_get_thread_num() == 1) {
-			//while (mShouldRun) {
-			//	mCallbackConstantly();
-			//}
-		}
+		do {
+			loop();
+		} while (mShouldRun);
 	}
 
 	void GameLoop::loop() {

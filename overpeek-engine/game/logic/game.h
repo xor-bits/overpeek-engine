@@ -3,12 +3,13 @@
 #include "../../engine.h"
 #include "database.h"
 
-#define DEBUG_ZOOM 3.0
+#define DEBUG_ZOOM 1.0
+#define ENABLE_AUDIO false
 
 #define RENDER_DST 2 * 2
 
 #define REGION_SIZE 8
-#define TILE_SIZE 0.2
+#define TILE_SIZE 0.1
 
 #define USER_PROFILE std::string(getenv("USERPROFILE"))
 #define SAVE_PATH std::string(USER_PROFILE + "\\AppData\\Roaming\\_overpeek-game\\")
@@ -17,7 +18,7 @@
 class Tile;
 class Region;
 class Player;
-class Enemy;
+class Creature;
 class Game {
 private:
 	static graphics::Window *m_window;
@@ -29,7 +30,7 @@ private:
 	static logic::GameLoop *m_loop;
 	static glm::ivec2 m_hover_tile;
 
-	static Region *m_region[RENDER_DST][RENDER_DST];
+	static Region m_region[RENDER_DST][RENDER_DST];
 	static Player *m_player;
 
 	static float lastRegionX;
@@ -38,9 +39,11 @@ private:
 	static int hitCooldown;
 	
 	static void renderInfoScreen();
-	static void processNewArea();
+	static void shiftRegions(int deltaX, int deltaY, int playerRegionX, int playerRegionY);
+	static void shiftRegionLoop(int x, int y, int deltaX, int deltaY, int playerRegionX, int playerRegionY);
 
 public:
+	static bool tilesChanged;
 	static bool debugMode;
 
 	static void init(graphics::Shader *shader, graphics::Window * window, logic::GameLoop *loop);
@@ -48,6 +51,7 @@ public:
 	static void update();
 	static void close();
 	static void rapidUpdate();
+	static void processNewArea();
 
 	void keyPress(int key);
 	void buttonPress(int button);
@@ -63,7 +67,8 @@ public:
 	static float posToRegionPos(float xOrY);
 	
 	static Region *getRegion(float x, float y);
-	static Tile *getTile(float x, float y);
+	static Tile *getTile(float x, float y, std::string debugText);
+	static void findAllCreatures(Region* region, int x, int y, Creature** array, unsigned int& amount);
 	static Player *getPlayer();
 
 	static bool trySetTileObject(float x, float y, int id);

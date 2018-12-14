@@ -3,10 +3,15 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+
+#include <time.h>
+
+#define USING_OPENCV 0
+#if USING_OPENCV
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/opencv.hpp>
-#include <time.h>
+#endif
 
 namespace graphics {
 
@@ -90,6 +95,7 @@ namespace graphics {
 	}
 
 	void TextureManager::saveTexture(std::string path, GLubyte *data, int width, int height, bool preview) {
+#if USING_OPENCV
 		cv::Mat image(height, width, CV_8UC3, data);
 		cv::cvtColor(image, image, CV_RGB2BGR);
 		cv::imwrite((std::string)"./mandelbrot" + std::to_string(time(0)) + (std::string)".png", image);
@@ -97,6 +103,7 @@ namespace graphics {
 		if (!preview) return;
 		cv::namedWindow("Preview", cv::WINDOW_AUTOSIZE);
 		cv::imshow("Preview", image);
+#endif
 	}
 
 }

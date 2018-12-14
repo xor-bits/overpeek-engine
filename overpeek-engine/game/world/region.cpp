@@ -1,14 +1,35 @@
 #include "region.h"
 
+#define DEBUG_DISABLE_SAVING false
+
+
 Region::Region(int x, int y) {
-	m_x = x; m_y = y;
+	m_x = x; m_y = y; null = false;
 	for (int i = 0; i < MAX_CREATURES; i++) m_creatures[i] = nullptr;
-	if (tools::BinaryIO::read(getSaveLocation()) != nullptr) loadTiles();
-	else createTiles();
+	
+#if !DEBUG_DISABLE_SAVING
+	void* tileData = tools::BinaryIO::read(getSaveLocation());
+	if (tileData != nullptr) {
+		loadTiles((unsigned char*)tileData, (unsigned char*)tools::BinaryIO::read(getSaveLocation() + " c"));
+	}
+	else {
+		createTiles();
+	}
+#else
+	createTiles();
+#endif
 }
 
-Region::~Region() {
-	saveTiles();
+Region::Region() {
+	null = true;
+	for (int i = 0; i < MAX_CREATURES; i++) m_creatures[i] = nullptr;
+}
+
+Region::~Region() {}
+
+std::string Region::getSaveLocation() {
+	std::string regionname = std::to_string(m_x) + ", " + std::to_string(m_y);
+	return (SAVE_PATH + WORLD_NAME + "\\regions\\" + regionname).c_str();
 }
 
 void Region::createTiles() {
@@ -25,31 +46,46 @@ void Region::createTiles() {
 			int id = 0;
 			int object_id = 0;
 			Game::getInfoFromNoise(id, object_id, tilex, tiley);
-			m_tiles[x][y] = new Tile(tilex, tiley, id, object_id, this);
+			m_tiles[x][y] = Tile(tilex, tiley, id, object_id, this, x, y);
+			m_renderIdArray[x][y] = Database::tiles[id].texture;
+			m_renderIdObjectArray[x][y] = Database::objects[object_id].texture;
 		}
 	}
 }
 
-void Region::loadTiles() {
+void Region::tilesChanged() {
+	for (int x = 0; x < REGION_SIZE; x++)
+	{
+		for (int y = 0; y < REGION_SIZE; y++)
+		{
+			m_renderIdArray[x][y] = m_tiles[x][y].getTexture();
+			m_renderIdObjectArray[x][y] = m_tiles[x][y].getObjectTexture();
+		}
+	}
+}
+
+void Region::deleteRegion() {
+	saveTiles();
+}
+
+void Region::loadTiles(unsigned char *tileData, unsigned char *creatureData) {
 	int tmp = 0;
-	unsigned char *readData = (unsigned char*)tools::BinaryIO::read(getSaveLocation());
 	for (int x = 0; x < REGION_SIZE; x++)
 	{
 		for (int y = 0; y < REGION_SIZE; y++)
 		{
 			long int tilex = x + ((m_x - RENDER_DST / 2.0) * REGION_SIZE);
 			long int tiley = y + ((m_y - RENDER_DST / 2.0) * REGION_SIZE);
-			int id = readData[x + (y * REGION_SIZE)];
-			int objid = readData[x + (y * REGION_SIZE) + REGION_SIZE * REGION_SIZE];
-			m_tiles[x][y] = new Tile(tilex, tiley, id, objid, this);
+			int id = tileData[x + (y * REGION_SIZE)];
+			int objid = tileData[x + (y * REGION_SIZE) + REGION_SIZE * REGION_SIZE];
+			m_tiles[x][y] = Tile(tilex, tiley, id, objid, this, x, y);
 		}
 	}
 
-	unsigned char *readCreatures = (unsigned char*)tools::BinaryIO::read(getSaveLocation() + " c");
-	for (int i = 0; i < readCreatures[0] * 4; i += 4)
+	for (int i = 0; i < creatureData[0] * 4; i += 4)
 	{
-		if (readCreatures[i + 1] == 1) {
-			addCreature(readCreatures[i + 1 + 1] - ceil(REGION_SIZE / 2.0) + getX(), readCreatures[i + 2 + 1] - ceil(REGION_SIZE / 2.0) + getY(), readCreatures[i + 0 + 1], (bool)readCreatures[i + 3 + 1]);
+		if (creatureData[i + 1] == 1) {
+			addCreature(creatureData[i + 1 + 1] - ceil(REGION_SIZE / 2.0) + getX(), creatureData[i + 2 + 1] - ceil(REGION_SIZE / 2.0) + getY(), creatureData[i + 0 + 1], (bool)creatureData[i + 3 + 1]);
 		}
 	}
 }
@@ -60,8 +96,8 @@ void Region::saveTiles() {
 	{
 		for (int y = 0; y < REGION_SIZE; y++)
 		{
-			data[x + (y * REGION_SIZE)] = m_tiles[x][y]->getId();
-			data[x + (y * REGION_SIZE) + REGION_SIZE * REGION_SIZE] = m_tiles[x][y]->getObjectId();
+			data[x + (y * REGION_SIZE)] = m_tiles[x][y].getId();
+			data[x + (y * REGION_SIZE) + REGION_SIZE * REGION_SIZE] = m_tiles[x][y].getObjectId();
 		}
 	}
 
@@ -84,6 +120,7 @@ void Region::saveTiles() {
 		}
 	}
 
+
 	dataCreature[0] = amountOfCreatures;
 	
 	tools::BinaryIO::write(getSaveLocation(), data, sizeof(data) / sizeof(unsigned char));
@@ -95,14 +132,14 @@ void Region::update() {
 	{
 		for (int y = 0; y < REGION_SIZE; y++)
 		{
-			m_tiles[x][y]->update();
+			m_tiles[x][y].update();
 		}
 	}
 	for (int i = 0; i < MAX_CREATURES; i++)
 	{
 		if (m_creatures[i]) m_creatures[i]->update();
 		if (m_creatures[i]) {
-			m_creatures[i]->collide();
+			//m_creatures[i]->collide();
 			if (Game::posToRegionPos(m_creatures[i]->getX()) * REGION_SIZE != getX() || Game::posToRegionPos(m_creatures[i]->getY()) * REGION_SIZE != getY()) {
 				Region *tmp = Game::getRegion(Game::posToRegionPos(m_creatures[i]->getX()) * REGION_SIZE, Game::posToRegionPos(m_creatures[i]->getY()) * REGION_SIZE);
 				if (tmp) {
@@ -128,21 +165,21 @@ void Region::submitToRenderer(graphics::Renderer *renderer, float offx, float of
 	{
 		for (int y = 0; y < REGION_SIZE; y++)
 		{
-			int id = m_tiles[x][y]->getTexture();
-			int objid = m_tiles[x][y]->getObjectTexture();
-
+			int id = m_renderIdArray[x][y];
+			int objid = m_renderIdObjectArray[x][y];
+	
 			float renderx = x * TILE_SIZE + rx, rendery = y * TILE_SIZE + ry;
 			
 			renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, 0, id);
 			if (objid != 0) renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, 0, objid);
 		}
 	}
-
+	
 	if (!Game::debugMode) return;
-	renderer->renderBox(rx, ry, 0.02, REGION_SIZE * TILE_SIZE, 0, 20);
-	renderer->renderBox(rx + REGION_SIZE * TILE_SIZE - 0.02, ry, 0.02, REGION_SIZE * TILE_SIZE, 0, 21);
-	renderer->renderBox(rx, ry, REGION_SIZE * TILE_SIZE, 0.02, 0, 22);
-	renderer->renderBox(rx, ry + REGION_SIZE * TILE_SIZE - 0.02, REGION_SIZE * TILE_SIZE, 0.02, 0, 23);
+	renderer->renderBox(rx, ry, TILE_SIZE / 10.0, REGION_SIZE * TILE_SIZE, 0, 20);
+	renderer->renderBox(rx + REGION_SIZE * TILE_SIZE - TILE_SIZE / 10.0, ry, TILE_SIZE / 10.0, REGION_SIZE * TILE_SIZE, 0, 21);
+	renderer->renderBox(rx, ry, REGION_SIZE * TILE_SIZE, TILE_SIZE / 10.0, 0, 22);
+	renderer->renderBox(rx, ry + REGION_SIZE * TILE_SIZE - TILE_SIZE / 10.0, REGION_SIZE * TILE_SIZE, TILE_SIZE / 10.0, 0, 23);
 }
 
 void Region::submitCreaturesToRenderer(graphics::Renderer *renderer, float offx, float offy) {
@@ -150,4 +187,75 @@ void Region::submitCreaturesToRenderer(graphics::Renderer *renderer, float offx,
 	{
 		if (m_creatures[i]) m_creatures[i]->submitToRenderer(renderer, offx, offy);
 	}
+}
+
+void Region::debugCeilCreatures() {
+	for (int i = 0; i < MAX_CREATURES; i++)
+	{
+		if (m_creatures[i]) {
+			m_creatures[i]->setX(round(m_creatures[i]->getX()));
+			m_creatures[i]->setY(round(m_creatures[i]->getY()));
+
+			Tile* tmp;
+			tmp = Game::getTile(m_creatures[i]->getX() + 1, m_creatures[i]->getY(), "from region to ceil creature");
+			if (tmp) tmp->setObjectId(4);
+			tmp = Game::getTile(m_creatures[i]->getX() - 1, m_creatures[i]->getY(), "from region to ceil creature");
+			if (tmp) tmp->setObjectId(4);
+			tmp = Game::getTile(m_creatures[i]->getX(), m_creatures[i]->getY() + 1, "from region to ceil creature");
+			if (tmp) tmp->setObjectId(4);
+			tmp = Game::getTile(m_creatures[i]->getX(), m_creatures[i]->getY() - 1, "from region to ceil creature");
+			if (tmp) tmp->setObjectId(4);
+
+			return;
+		}
+	}
+}
+
+Tile* Region::getTile(unsigned int x, unsigned int y) {
+	if (x > REGION_SIZE || x < 0 || y > REGION_SIZE || y < 0) {
+		tools::Logger::warning(std::string("Coordinates were out of range when getting tile form region!"));
+		return nullptr;
+	}
+	else {
+		return &m_tiles[x][y];
+	}
+}
+
+void Region::addCreature(float x, float y, int id, bool item) {
+	for (int i = 0; i < MAX_CREATURES; i++)
+	{
+		if (!m_creatures[i]) {
+			m_creatures[i] = new Creature(x, y, id, item, this);
+			return;
+		}
+	}
+}
+
+void Region::addCreature(Creature *creature) {
+	for (int i = 0; i < MAX_CREATURES; i++)
+	{
+		if (!m_creatures[i]) {
+			m_creatures[i] = creature;
+			m_creatures[i]->setRegion(this);
+			return;
+		}
+	}
+}
+
+void Region::removeCreature(int i) {
+	m_creatures[i] = nullptr;
+}
+
+void Region::removeCreature(Creature *creature) {
+	for (int i = 0; i < MAX_CREATURES; i++)
+	{
+		if (m_creatures[i] == creature) {
+			m_creatures[i] = nullptr;
+			return;
+		}
+	}
+	char buff[100];
+	snprintf(buff, sizeof(buff), "%p", (void*)creature);
+	std::string buffAsStdStr = buff;
+	tools::Logger::critical("Couldn't find creature: " + buffAsStdStr + "!");
 }

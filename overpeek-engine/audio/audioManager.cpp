@@ -1,9 +1,9 @@
 #include "audioManager.h"
 
-#include <iostream>
+#include "../engine.h"
+
 #include <fstream>
-#include <cstring>
-#include <GLFW/glfw3.h>
+
 
 namespace audio {
 
@@ -34,8 +34,8 @@ namespace audio {
 		in.read(buffer, 4);
 		if (strncmp(buffer, "RIFF", 4) != 0)
 		{
-			std::cout << "this is not a valid WAVE file" << std::endl;
-			return NULL;
+			tools::Logger::error("Audio file not valid!");
+			return nullptr;
 		}
 		in.read(buffer, 4);
 		in.read(buffer, 4);      //WAVE
@@ -59,10 +59,11 @@ namespace audio {
 	}
 
 	void AudioManager::init() {
+		tools::Logger::info("Creating audio device");
 		ALCdevice* device = alcOpenDevice(NULL);
 		if (device == NULL)
 		{
-			std::cout << "ERROR Cannot open sound card!" << std::endl;
+			tools::Logger::error("Cannot open sound card!");
 			glfwTerminate();
 			system("pause");
 			exit(EXIT_FAILURE);
@@ -70,12 +71,13 @@ namespace audio {
 		ALCcontext* context = alcCreateContext(device, NULL);
 		if (context == NULL)
 		{
-			std::cout << "ERROR Cannot open context!" << std::endl;
+			tools::Logger::error("Cannot open audio context!");
 			glfwTerminate();
 			system("pause");
 			exit(EXIT_FAILURE);
 		}
 		alcMakeContextCurrent(context);
+		tools::Logger::info("Audio device done!");
 	}
 
 	void AudioManager::loadAudio(std::string filepath, int id) {
@@ -98,6 +100,8 @@ namespace audio {
 	}
 
 	void AudioManager::play(int id) {
+#if ENABLE_AUDIO
 		alSourcePlay(sources[id]);
+#endif
 	}
 }

@@ -8,6 +8,7 @@ namespace graphics {
 	Shader::Shader(const char *vertexPath, const char *fragmentPath) {
 
 		//Vertex shader
+		tools::Logger::info("Reading vertex shader...");
 		std::string vertexShaderStr = tools::readFile(vertexPath);
 		const char *vertexShaderChar = vertexShaderStr.c_str();
 
@@ -17,6 +18,7 @@ namespace graphics {
 		glCompileShader(vertexShader);
 
 		//Fragment shader
+		tools::Logger::info("Reading fragment shader...");
 		std::string fragmentShaderStr = tools::readFile(fragmentPath);
 		const char *fragmentShaderChar = fragmentShaderStr.c_str();
 
@@ -24,8 +26,7 @@ namespace graphics {
 		fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(fragmentShader, 1, &fragmentShaderChar, NULL);
 		glCompileShader(fragmentShader);
-
-		tools::Logger::setup();
+		tools::Logger::info("Shader compilation done");
 
 		//Compilation error logger
 		int success;

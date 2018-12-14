@@ -16,6 +16,7 @@ namespace audio {
 		static void init();
 		static void loadAudio(std::string filepath, int id);
 		static void play(int id);
+
 	};
 
 }

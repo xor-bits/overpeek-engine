@@ -101,18 +101,11 @@ void Creature::update() {
 
 	vel_x += acc_x;
 	vel_y += acc_y;
-	x += vel_x * 4;
-	y += vel_y * 4;
+	x += vel_x;
+	y += vel_y;
 
-	//if (!m_item) {
-	//	if (vel_y < 0) heading = 0;
-	//	else if (vel_y > 0) heading = 2;
-	//	else if (vel_x > 0) heading = 1;
-	//	else if (vel_x < 0) heading = 3;
-	//}
-
-	vel_x = 0.0;
-	vel_y = 0.0;
+	vel_x *= 0.90;
+	vel_y *= 0.90;
 	acc_x = 0;
 	acc_y = 0;
 }
@@ -123,24 +116,26 @@ void Creature::hit() {
 	switch (heading)
 	{
 	case 0:
-		tmp = Game::getTile(getX(), getY() - 1);
+		tmp = Game::getTile(getX(), getY() - 1, "from creature to hit object");
 		m_swingDir = 1;
 		break;
 	case 1:
-		tmp = Game::getTile(getX() + 1, getY());
+		tmp = Game::getTile(getX() + 1, getY(), "from creature to hit object");
 		m_swingDir = 2;
 		break;
 	case 2:
-		tmp = Game::getTile(getX(), getY() + 1);
+		tmp = Game::getTile(getX(), getY() + 1, "from creature to hit object");
 		m_swingDir = 3;
 		break;
 	default:
-		tmp = Game::getTile(getX() - 1, getY());
+		tmp = Game::getTile(getX() - 1, getY(), "from creature to hit object");
 		m_swingDir = 4;
 		break;
 	}
 
-	if (tmp && Database::objects[tmp->getObjectId()].destructable) {
+	if (tmp) {
+		tmp->getObjectId();
+		if (!Database::objects[tmp->getObjectId()].destructable) return;
 		tmp->hitObject(0.5f);
 	}
 
@@ -149,17 +144,17 @@ void Creature::hit() {
 
 void Creature::collide() {
 	if (m_item) return;
+	
 	for (int _x = -1; _x < 2; _x++)
 	{
 		for (int _y = -1; _y < 2; _y++)
 		{
-			Tile* tile = Game::getTile(floor(x) + _x, floor(y) + _y);
+			Tile* tile = Game::getTile(floor(x) + _x, floor(y) + _y, std::string("from creature to collide ") + std::to_string(m_id));
 			if (tile == nullptr) continue;
 
 			if (Database::objects[tile->getObjectId()].wall) {
 				int tilex = floor(x) + _x;
 				int tiley = floor(y) + _y;
-				bool collide = false;
 
 				//LEFT COLLIDER
 				if (logic::AABB(
@@ -168,8 +163,10 @@ void Creature::collide() {
 					glm::vec2(tilex, tiley),
 					glm::vec2(1, 1)
 				)) {
-					collide = true;
 					x = tilex + 1 + (CREAURE_WIDTH / 2.0);
+
+					//Process new area if player
+					if (m_id = 0) Game::processNewArea();
 				}
 				//RIGHT COLLIDER
 				if (logic::AABB(
@@ -178,8 +175,10 @@ void Creature::collide() {
 					glm::vec2(tilex, tiley),
 					glm::vec2(1, 1)
 				)) {
-					collide = true;
 					x = tilex - (CREAURE_WIDTH / 2.0);
+
+					//Process new area if player
+					if (m_id = 0) Game::processNewArea();
 				}
 				//TOP COLLIDER
 				if (logic::AABB(
@@ -188,8 +187,10 @@ void Creature::collide() {
 					glm::vec2(tilex, tiley),
 					glm::vec2(1, 1)
 				)) {
-					collide = true;
 					y = tiley + 1 + (CREAURE_HEIGHT / 2.0);
+
+					//Process new area if player
+					if (m_id = 0) Game::processNewArea();
 				}
 				//BOTTOM COLLIDER
 				if (logic::AABB(
@@ -198,8 +199,10 @@ void Creature::collide() {
 					glm::vec2(tilex, tiley),
 					glm::vec2(1, 1)
 				)) {
-					collide = true;
 					y = tiley - (CREAURE_HEIGHT / 2.0);
+
+					//Process new area if player
+					if (m_id = 0) Game::processNewArea();
 				}
 			}
 		}
@@ -224,6 +227,6 @@ void Creature::enemyAi() {
 		m_curtarget_y = 0;
 	}
 
-	vel_x = m_curtarget_x;
-	vel_y = m_curtarget_y;
+	x += m_curtarget_x;
+	y += m_curtarget_y;
 }

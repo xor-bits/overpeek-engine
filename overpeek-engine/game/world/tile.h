@@ -14,26 +14,32 @@ private:
 	int m_object_id;
 	long int m_x, m_y;
 	Region *m_parent;
+	unsigned int m_localX, m_localY;
 
 	float m_object_health;
 
 public:
-	Tile(long int x, long int y, int id, int object_id, Region *parent);
+	Tile(long int x, long int y, int id, int object_id, Region *parent, unsigned int localX, unsigned int localY);
 	Tile();
+	~Tile();
 
 	int getTexture();
 	int getObjectTexture();
 	void update();
 
+
+	void setId(int id);
+	void setObjectId(int id);
+
+	void healObject();
 	void hitObject(float amount);
 
 	inline int getX() { if (!this) return 0; else return m_x; }
 	inline int getY() { if (!this) return 0; else return m_y; }
+	inline int getLocalX() { if (!this) return 0; else return m_localX; }
+	inline int getLocalY() { if (!this) return 0; else return m_localY; }
 	inline int getId() { if (!this) return 0; else return m_id; }
 	inline int getObjectId() { if (!this) return 0; else return m_object_id; }
 
-	inline void setId(int id) { m_id = id; }
-	inline void setObjectId(int id) { m_object_id = id; }
-
-	inline void healObject() { m_object_health = 1.0; }
+	Region* getRegion();
 };

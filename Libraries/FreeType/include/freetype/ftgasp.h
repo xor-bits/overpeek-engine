@@ -29,9 +29,6 @@
 #endif
 
 
-FT_BEGIN_HEADER
-
-
   /***************************************************************************
    *
    * @section:
@@ -133,8 +130,6 @@ FT_BEGIN_HEADER
 
   /* */
 
-
-FT_END_HEADER
 
 #endif /* FTGASP_H_ */
 

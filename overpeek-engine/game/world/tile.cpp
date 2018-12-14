@@ -3,8 +3,8 @@
 #include "region.h"
 #include "../logic/game.h"
 
-Tile::Tile(long int x, long int y, int id, int object_id, Region *parent) {
-	m_id = id; m_object_id = object_id; m_x = x; m_y = y;
+Tile::Tile(long int x, long int y, int id, int object_id, Region *parent, unsigned int localX, unsigned int localY) {
+	m_id = id; m_object_id = object_id; m_x = x; m_y = y; m_localX = localX; m_localY = localY;
 	m_object_health = 1.0; m_real = true;
 	m_parent = parent;
 }
@@ -14,23 +14,31 @@ Tile::Tile() {
 	m_object_health = 0.0; m_real = false;
 }
 
+Tile::~Tile() {
+
+}
+
 int Tile::getTexture() {
 	if (!m_real) return 0;
+
 	return Database::tiles[m_id].texture;
 }
 
 int Tile::getObjectTexture() {
 	if (!m_real) return 0;
-	if (Database::objects[m_object_id].multitexture) {
-		Tile* right = Game::getTile(m_x + 1, m_y);
-		Tile* top = Game::getTile(m_x, m_y - 1);
-		Tile* left = Game::getTile(m_x - 1, m_y);
-		Tile* bottom = Game::getTile(m_x, m_y + 1);
 
-		Tile* topright = Game::getTile(m_x + 1, m_y - 1);
-		Tile* topleft = Game::getTile(m_x - 1, m_y - 1);
-		Tile* bottomleft = Game::getTile(m_x - 1, m_y + 1);
-		Tile* bottomright = Game::getTile(m_x + 1, m_y + 1);
+	
+
+	if (Database::objects[m_object_id].multitexture) {
+		Tile* right = Game::getTile(m_x + 1, m_y, "from tile to get right texture");
+		Tile* top = Game::getTile(m_x, m_y - 1, "from tile to get right texture");
+		Tile* left = Game::getTile(m_x - 1, m_y, "from tile to get right texture");
+		Tile* bottom = Game::getTile(m_x, m_y + 1, "from tile to get right texture");
+
+		Tile* topright = Game::getTile(m_x + 1, m_y - 1, "from tile to get right texture");
+		Tile* topleft = Game::getTile(m_x - 1, m_y - 1, "from tile to get right texture");
+		Tile* bottomleft = Game::getTile(m_x - 1, m_y + 1, "from tile to get right texture");
+		Tile* bottomright = Game::getTile(m_x + 1, m_y + 1, "from tile to get right texture");
 
 		bool rightAir = right && !Database::objects[right->getObjectId()].wall;
 		bool topAir = top && !Database::objects[top->getObjectId()].wall;
@@ -54,6 +62,27 @@ void Tile::hitObject(float damage) {
 		m_parent->addCreature(m_x, m_y, Database::items[Database::objects[m_object_id].dropsAs].id, true);
 		m_object_id = 0;
 	}
+	Game::tilesChanged = true;
 }
 
-void Tile::update() {}
+void Tile::update() {
+}
+
+void Tile::setId(int id) { 
+	m_id = id;
+	Game::tilesChanged = true;
+}
+
+void Tile::setObjectId(int id) { 
+	m_object_id = id;
+	Game::tilesChanged = true;
+}
+
+void Tile::healObject() { 
+	m_object_health = 1.0;
+	Game::tilesChanged = true;
+}
+
+Region* Tile::getRegion() {
+	return m_parent;
+}
