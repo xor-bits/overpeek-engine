@@ -7,7 +7,7 @@
 
 namespace logic {
 
-	GameLoop::GameLoop(void(*callbackRender)(), void(*callbackUpdate)(), void(*callbackConstantly)(), unsigned int upsCap, unsigned int fpsCap) {
+	GameLoop::GameLoop(void(*callbackRender)(), void(*callbackUpdate)(), unsigned int upsCap, unsigned int fpsCap) {
 		m_upsCap = 1000000 / upsCap;
 		m_fpsCap = 1000000 / fpsCap;
 		m_frame_lastTime = 0.0;
@@ -15,7 +15,6 @@ namespace logic {
 		m_counter = 0.0;
 		mCallbackRender = callbackRender;
 		mCallbackUpdate = callbackUpdate;
-		mCallbackConstantly = callbackConstantly;
 
 		m_update_start = tools::Clock::getMicroseconds();
 		m_update_previous = m_update_start;

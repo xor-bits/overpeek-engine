@@ -17,7 +17,7 @@ protected:
 	int m_counterToRemoveSwingAnimation = 0;
 	int m_id;
 	int m_swingDir;
-	Region *m_parent;
+	int m_regionIndex;
 
 	int m_untilnexttarget;
 	int m_wait;
@@ -33,7 +33,7 @@ public:
 	float acc_x, acc_y;
 	uint8_t heading : 2;
 
-	Creature(float x, float y, int id, bool item, Region *parent);
+	Creature(float x, float y, int id, bool item);
 	Creature();
 
 	virtual void submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY);
@@ -56,7 +56,6 @@ public:
 	inline float getY() { return y - 0.5; }
 	inline void setX(float n) { x = n + 0.5; }
 	inline void setY(float n) { y = n + 0.5; }
-
-	inline Region* getRegion() { return m_parent; }
-	inline void setRegion(Region* region) { m_parent = region; }
+	inline void setRegionIndex(int i) { m_regionIndex = i; }
+	inline int getRegionIndex() { return m_regionIndex; }
 };

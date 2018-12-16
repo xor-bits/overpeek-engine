@@ -10,6 +10,7 @@
 
 graphics::Window *Game::m_window;
 graphics::Shader *Game::m_shader;
+graphics::Shader *Game::m_postshader;
 graphics::Shader *Game::m_guishader;
 graphics::Renderer *Game::m_worldrenderer;
 graphics::Renderer *Game::m_creaturerenderer;
@@ -24,6 +25,7 @@ Player *Game::m_player;
 float Game::lastRegionX = 0;
 float Game::lastRegionY = 0;
 bool Game::debugMode = false;
+bool Game::advancedDebugMode = false;
 bool Game::tilesChanged = true;
 
 int Game::hitCooldown = 513709;
@@ -31,8 +33,42 @@ bool holdingI = false;
 
 bool paused = false;
 
-void Game::init(graphics::Shader *shader, graphics::Window * window, logic::GameLoop *loop) {
-	m_shader = shader; m_window = window; m_loop = loop;
+void Game::init() {
+	tools::Logger::setup();
+
+	//Audio
+#if ENABLE_AUDIO
+	tools::Logger::info("Creating audio device");
+	audio::AudioManager::init();
+	audio::AudioManager::loadAudio("recourses/hit.wav", 0);
+	audio::AudioManager::loadAudio("recourses/swing.wav", 1);
+	audio::AudioManager::loadAudio("recourses/collect.wav", 2);
+#endif
+
+	//Window
+	tools::Logger::info("Creating window");
+	m_window = new graphics::Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, M_WINDOW_DEFAULT_TITLE, false, M_DEFAULT_MULTISAMPLE);
+	m_window->setSwapInterval(NULL);
+	m_window->setButtonCallback(buttonPress);
+	m_window->setKeyboardCallback(keyPress);
+	m_window->setScrollCallback(scroll);
+
+	//Create shader
+	tools::Logger::info("Creating shader");
+	tools::Logger::info("postprocess");
+	m_postshader = new graphics::Shader("shaders/postprocess.vert.glsl", "shaders/postprocess.frag.glsl");
+	tools::Logger::info("texture");
+	m_shader = new graphics::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl");
+	tools::Logger::info("Shader created!");
+
+	//Shader stuff
+	glm::mat4 orthographic = glm::ortho(-M_ASPECT * DEBUG_ZOOM, M_ASPECT * DEBUG_ZOOM, DEBUG_ZOOM, -DEBUG_ZOOM);
+	m_postshader->enable(); m_postshader->SetUniformMat4("pr_matrix", orthographic);
+	m_shader->enable(); m_shader->SetUniformMat4("pr_matrix", orthographic);
+	
+	//Gameloop
+	tools::Logger::info("Starting gameloop");
+	m_loop = new logic::GameLoop(render, update, 100, 10000);
 
 	//Initializing
 	tools::Logger::info("Creating game...");
@@ -44,12 +80,6 @@ void Game::init(graphics::Shader *shader, graphics::Window * window, logic::Game
 	m_worldrenderer = new graphics::Renderer();
 	m_creaturerenderer = new graphics::Renderer();
 	m_guirenderer = new graphics::Renderer("arial.ttf");
-
-#if ENABLE_AUDIO
-	audio::AudioManager::loadAudio("recourses/hit.wav", 0);
-	audio::AudioManager::loadAudio("recourses/swing.wav", 1);
-	audio::AudioManager::loadAudio("recourses/collect.wav", 2);
-#endif
 
 	tools::Logger::info("Loading textures");
 	graphics::TextureManager::loadTextureAtlas("recourses/atlas.png", GL_RGBA, 0);
@@ -73,33 +103,38 @@ void Game::init(graphics::Shader *shader, graphics::Window * window, logic::Game
 	m_shader->enable();
 	m_shader->SetUniformMat4("ml_matrix", glm::mat4(1.0f));
 	tools::Logger::info("Game ready!");
+
+	m_loop->start();
 }
 
 void Game::renderInfoScreen() {
 	if (!debugMode) return;
-	m_shader->enable();
-	m_shader->setUniform1i("unif_text", 1);
 
 	float textScale = 0.05;
+	float x = -m_window->getAspect();
 
 	std::string text = "FPS: " + std::to_string(m_loop->getFPS());
-	m_guirenderer->renderText(-m_window->getAspect(), -1.0 + (textScale * 0), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	m_guirenderer->renderText(x, -1.0 + (textScale * 0), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 	text = "UPS: " + std::to_string(m_loop->getUPS());
-	m_guirenderer->renderText(-m_window->getAspect(), -1.0 + (textScale * 1), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	m_guirenderer->renderText(x, -1.0 + (textScale * 1), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 
+
+	if (!advancedDebugMode) return;
 	text = "Position X: " + std::to_string(m_player->getX()) + ", Y: " + std::to_string(m_player->getY());
-	m_guirenderer->renderText(-m_window->getAspect(), -1.0 + (textScale * 2), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	m_guirenderer->renderText(x, -1.0 + (textScale * 2), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 	text = "Tile X: " + std::to_string(getTile(m_player->getX(), m_player->getY(), "Info render")->getX()) + ", Y: " + std::to_string(getTile(m_player->getX(), m_player->getY(), "Info render")->getY());
-	m_guirenderer->renderText(-m_window->getAspect(), -1.0 + (textScale * 3), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	m_guirenderer->renderText(x, -1.0 + (textScale * 3), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 	text = "Region X: " + std::to_string(posToRegionPos(m_player->getX())) + ", Y: " + std::to_string(posToRegionPos(m_player->getY()));
-	m_guirenderer->renderText(-m_window->getAspect(), -1.0 + (textScale * 4), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	m_guirenderer->renderText(x, -1.0 + (textScale * 4), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 	text = "Region pos X: " + std::to_string(getRegion(m_player->getX(), m_player->getY())->getX()) + ", Y: " + std::to_string(getRegion(m_player->getX(), m_player->getY())->getY());
-	m_guirenderer->renderText(-m_window->getAspect(), -1.0 + (textScale * 5), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	m_guirenderer->renderText(x, -1.0 + (textScale * 5), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 	text = "Renderer: " + std::string((char*)glGetString(GL_RENDERER));
-	m_guirenderer->renderText(-m_window->getAspect(), -1.0 + (textScale * 6), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	m_guirenderer->renderText(x, -1.0 + (textScale * 6), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 }
 
 void Game::render() {
+	if (!m_window) return;
+	
 	//World
 	m_worldrenderer->clear();
 	for (int x = 0; x < RENDER_DST; x++)
@@ -125,13 +160,23 @@ void Game::render() {
 
 	//Gui
 	m_guirenderer->clear();
+	m_inventory->render(m_guirenderer); 
 	renderInfoScreen();
-	m_inventory->render(m_guirenderer);
+	//long long startTime = tools::Clock::getMicroseconds();
+	//tools::Logger::info(tools::Clock::getMicroseconds() - startTime);
 	
 	//Flush
+	m_shader->enable();
 	m_worldrenderer->flush(m_shader, 0);
 	m_creaturerenderer->flush(m_shader, 0);
 	m_guirenderer->flush(m_shader, 0);
+
+	// Render to our framebuffer
+	//m_worldrenderer->renderToFramebuffer(m_postshader, m_shader, 0);
+
+	m_window->update();
+	m_window->clear();
+	m_window->input();
 }
 
 double clamp(double x, double upper, double lower)
@@ -140,6 +185,9 @@ double clamp(double x, double upper, double lower)
 }
 
 void Game::update() {
+	if (!m_window) return;
+
+	if (m_window->close()) m_loop->stop();
 	if (!paused) {
 		//Player movement
 		float playerSpeed = 0.03;
@@ -188,7 +236,7 @@ void Game::update() {
 
 void Game::rapidUpdate() {}
 
-void Game::keyPress(int key) {
+void Game::keyPress(int key, int action) {
 	//Player Hitting
 	if (key == GLFW_KEY_UP) { m_player->heading = HEADING_UP; m_player->hit(); return; }
 	if (key == GLFW_KEY_DOWN) { m_player->heading = HEADING_DOWN; m_player->hit(); return; }
@@ -209,10 +257,16 @@ void Game::keyPress(int key) {
 	else if (key == GLFW_KEY_4) { m_inventory->selectedSlot = 3; return; }
 	else if (key == GLFW_KEY_5) { m_inventory->selectedSlot = 4; return; }
 
-	if (key == GLFW_KEY_F1) { debugMode = !debugMode; return; }
-
+	//Debug commands
+	if (key == GLFW_KEY_F1) { 
+		debugMode = !debugMode; 
+		if (m_window->getKey(GLFW_KEY_LEFT_SHIFT)) {
+			advancedDebugMode = debugMode;
+		}
+		else advancedDebugMode = false;
+		return; 
+	}
 	if (key == GLFW_KEY_F2) {
-		tools::Logger::info(std::string("Fps: ") + std::to_string(m_loop->getFPS()));
 		for (int x = 0; x < RENDER_DST; x++)
 		{
 			for (int y = 0; y < RENDER_DST; y++)
@@ -221,9 +275,56 @@ void Game::keyPress(int key) {
 			}
 		}
 	}
+	if (key == GLFW_KEY_F3) {
+		delete m_inventory;
+		delete m_player;
+
+		lastRegionX = 0;
+		lastRegionY = 0;
+		debugMode = false;
+		tilesChanged = true;
+
+		hitCooldown = 513709;
+		holdingI = false;
+
+		paused = false;
+
+		//Initializing
+		tools::Logger::info("Creating game...");
+		system(("mkdir \"" + SAVE_PATH + WORLD_NAME + "\\regions\"").c_str());
+		logic::Noise::seed(1);
+		tools::Random::seed(0);
+
+		tools::Logger::info("Loading textures");
+		graphics::TextureManager::loadTextureAtlas("recourses/atlas.png", GL_RGBA, 0);
+		Database::init();
+		tools::Logger::info("Textures loaded!");
+
+		m_inventory = new Inventory(m_shader, m_window);
+
+		//Constructing objects
+		m_region[0][0];
+		for (int x = 0; x < RENDER_DST; x++)
+		{
+			for (int y = 0; y < RENDER_DST; y++)
+			{
+				m_region[x][y] = Region(x, y);
+			}
+		}
+		m_player = new Player(0.0, 0.0, m_inventory);
+
+
+		m_shader->enable();
+		m_shader->SetUniformMat4("ml_matrix", glm::mat4(1.0f));
+		tools::Logger::info("Game ready!");
+
+		return;
+	}
+	if (key == GLFW_KEY_F4) tools::Logger::info(std::string("Fps: ") + std::to_string(m_loop->getFPS()));
+	if (key == GLFW_KEY_F5) m_inventory->clear();
 }
 
-void Game::buttonPress(int button) {}
+void Game::buttonPress(int button, int action) {}
 
 void Game::scroll(double y) {
 	//Inventory slot scrolling
@@ -281,7 +382,7 @@ void Game::getInfoFromNoise(int &tileId, int &objId, double x, double y) {
 
 
 //long long startTime = tools::Clock::getMicroseconds();
-//std::cout << "microseconds: " << tools::Clock::getMicroseconds() - startTime << std::endl;
+//tools::Logger::info(tools::Clock::getMicroseconds() - startTime);
 ///	 _____   _____   _____   _____   _____   _____   _____   _____   _____   _____   _____   _____   _____   _______   _   _     _	 _____ 
 ///	/  _  \ /  _  \ /  _  \ /  _  \ /  _  \ /  _  \ /  _  \ /  _  \ /  _  \ /  _  \ /  _  \ /  _  \ /  _  \ |  ___  \ | | | |   | |	/  _  \
 ///	| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |___| | | | |  \  | |	| | |_|
@@ -357,13 +458,9 @@ void Game::shiftRegionLoop(int x, int y, int deltaX, int deltaY, int playerRegio
 	}
 }
 
-int Game::screenToWorldX(float x) {
-	if (x / TILE_SIZE + m_player->getX() >= 0) return x / TILE_SIZE + m_player->getX();
-	else return x / TILE_SIZE - 1 + m_player->getX();
-}
-int Game::screenToWorldY(float y) {
-	if (y / TILE_SIZE + m_player->getY() >= 0) return y / TILE_SIZE + m_player->getY();
-	else return y / TILE_SIZE - 1 + m_player->getY();
+void Game::addCreature(float x, float y, int id, bool item) {
+	Region *regionToAdd = getRegion(x, y);
+	regionToAdd->addCreature(x, y, id, item);
 }
 
 #define REGION_LOAD_FUNC false
@@ -414,6 +511,10 @@ Region* Game::getRegion(float x, float y) {
 	int finalY = y - m_region[finalRegionX][finalRegionY].getY();
 
 	if (!logic::isInRange(finalX, 0, REGION_SIZE - 1) || !logic::isInRange(finalY, 0, REGION_SIZE - 1)) {
+#if !SHOW_DEBUG_MESSAGES
+		return nullptr;
+#endif
+
 		if (debugMode) tools::Logger::warning("Finals out of range!");
 		if (debugMode) tools::Logger::warning("");
 		if (debugMode) tools::Logger::warning(std::to_string(x) + std::string(", ") + std::to_string(y));
@@ -421,6 +522,7 @@ Region* Game::getRegion(float x, float y) {
 		if (debugMode) tools::Logger::warning(std::to_string(finalX) + std::string(", ") + std::to_string(finalY));
 		if (debugMode) tools::Logger::warning(std::to_string(finalRegionX) + std::string(", ") + std::to_string(finalRegionY));
 		if (debugMode) tools::Logger::warning(std::to_string(selectedRegionX) + std::string(", ") + std::to_string(selectedRegionY));
+
 		return nullptr;
 	}
 
@@ -432,7 +534,11 @@ Tile* Game::getTile(float x, float y, std::string debugText) {
 
 	Region *regionAt = getRegion(x, y);
 	if (!regionAt) {
+#if !SHOW_DEBUG_MESSAGES
+		return nullptr;
+#endif
 		if (debugMode) tools::Logger::warning(std::string("Region was nullptr!"));
+
 		return nullptr;
 	}
 
@@ -440,26 +546,43 @@ Tile* Game::getTile(float x, float y, std::string debugText) {
 	int finalY = y - regionAt->getY();
 
 	if (!logic::isInRange(finalX, 0, REGION_SIZE - 1) || !logic::isInRange(finalY, 0, REGION_SIZE - 1)) {
+#if !SHOW_DEBUG_MESSAGES
+		return nullptr;
+#endif
+
 		if (debugMode) tools::Logger::warning("Finals out of range!");
 		if (debugMode) tools::Logger::warning(debugText);
 		if (debugMode) tools::Logger::warning(std::to_string(x) + std::string(", ") + std::to_string(y));
 		if (debugMode) tools::Logger::warning(std::to_string(regionAt->getX()) + std::string(", ") + std::to_string(regionAt->getY()));
 		if (debugMode) tools::Logger::warning(std::to_string(finalX) + std::string(", ") + std::to_string(finalY));
+
 		return nullptr;
 	}
 
 	Tile *tile = regionAt->getTile(finalX, finalY);
 	if (!tile) {
+#if !SHOW_DEBUG_MESSAGES
+		return nullptr;
+#endif
+
 		if (debugMode) tools::Logger::error(std::string("region returned nullptr instead of tile"));
+
 		return nullptr;
 	}
 	if (tile->getObjectId() > COUNT_OBJECTS || tile->getObjectId() < 0) {
+#if !SHOW_DEBUG_MESSAGES
+		return nullptr;
+#endif
+
 		if (debugMode) tools::Logger::error(std::string("getTile error at ") + std::to_string(finalX) + std::string(", ") + std::to_string(finalY));
+
 		return nullptr;
 	}
 
 	if (tile->getX() != x || tile->getY() != y) {
-		if (!debugMode) return nullptr;
+#if !SHOW_DEBUG_MESSAGES
+		return nullptr;
+#endif
 
 		int selectedRegionX = posToRegionPos(x);
 		int selectedRegionY = posToRegionPos(y);
@@ -484,22 +607,32 @@ Tile* Game::getTile(float x, float y, std::string debugText) {
 		tools::Logger::info(std::string("FinalXY ") + std::to_string(finalX) + std::string(", ") + std::to_string(finalY));
 		tools::Logger::info(std::string("tile getXY ") + std::to_string(tile->getX()) + std::string(", ") + std::to_string(tile->getY()));
 		tools::Logger::info(std::string("debug text: ") + debugText);
+
+		return nullptr;
 	}
 
 	return tile;
 }
 
-void Game::findAllCreatures(Region* region, int x, int y, Creature** array, unsigned int& amount) {
-	amount = 0;
+void Game::findAllCreatures(int _x, int _y, Creature** _array, unsigned int& _amount, float _radius) {
+	_amount = 0;
 
-	for (int i = 0; i < MAX_CREATURES; i++)
+	for (int x = 0; x < RENDER_DST; x++)
 	{
-		Creature *creature = region->getCreature(i);
-		if (creature) {
-			if (creature->getX() > x - 1 && creature->getX() < x + 1) {
-				if (creature->getY() > y - 1 && creature->getY() < y + 1) {
-					array[amount] = creature;
-					amount++;
+		for (int y = 0; y < RENDER_DST; y++)
+		{
+			if (m_region[x][y].null) continue;
+
+			for (int i = 0; i < MAX_CREATURES; i++)
+			{
+				Creature *creature = m_region[x][y].getCreature(i);
+				if (creature) {
+					if (creature->getX() > _x - _radius && creature->getX() < _x + _radius) {
+						if (creature->getY() > _y - _radius && creature->getY() < _y + _radius) {
+							_array[_amount] = creature;
+							_amount++;
+						}
+					}
 				}
 			}
 		}

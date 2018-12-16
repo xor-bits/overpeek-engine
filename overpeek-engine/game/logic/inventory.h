@@ -23,27 +23,8 @@ public:
 
 	void render(graphics::Renderer *m_renderer);
 	void update();
-
-	inline void removeSelected() {
-		if (!this) return;
-
-		m_itemIds[int(selectedId)][0] = 0;
-	}
-
-	inline bool addItem(int id) {
-		if (!this) return true;
-
-		for (int y = 0; y < INVENTORY_HEIGHT + 1; y++)
-		{
-			for (int x = 0; x < INVENTORY_WIDTH; x++)
-			{
-				if (m_itemIds[x][y] == 0) {
-					m_itemIds[x][y] = id;
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+	void clear();
+	void removeSelected();
+	bool addItem(int id);
 
 };

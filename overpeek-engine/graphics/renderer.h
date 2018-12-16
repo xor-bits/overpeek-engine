@@ -35,6 +35,10 @@ namespace graphics {
 		GLfloat m_id[MAX_VBO];
 		GLushort m_index[MAX_IBO];
 
+		GLuint m_framebuffer;
+		GLuint m_frametexture;
+		GLuint m_quad_vertexbuffer;
+
 		FontLoader *fontLoader;
 
 		void initText(std::string fontpath);
@@ -50,6 +54,7 @@ namespace graphics {
 		void renderText(float x, float y, float w, float h, float angle, std::string text, glm::vec3 color, int xAlign, int yAlign);
 		
 		void flush(Shader *shader, int quadTexture);
+		GLuint renderToFramebuffer(Shader *postshader, Shader *shader, int quadTexture);
 		void clear();
 	};
 	

@@ -182,13 +182,22 @@
     <ClInclude Include="logic\math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\basic.frag.glsl" />
-    <None Include="shaders\basic.vert.glsl" />
-    <None Include="shaders\text.frag.glsl" />
-    <None Include="shaders\text.vert.glsl" />
     <None Include="shaders\texture.frag.glsl" />
     <None Include="shaders\texture.vert.glsl" />
+    <None Include="shaders\postprocess.vert.glsl" />
+    <None Include="shaders\postprocess.frag.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="game\overpeek-engine.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

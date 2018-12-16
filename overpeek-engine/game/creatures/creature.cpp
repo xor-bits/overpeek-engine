@@ -5,8 +5,7 @@
 #include "../logic/database.h"
 #include "player.h"
 
-Creature::Creature(float _x, float _y, int _id, bool _item, Region *_parent) {
-	m_parent = _parent;
+Creature::Creature(float _x, float _y, int _id, bool _item) {
 	m_id = _id;
 	x = _x + 0.5; y = _y + 0.5;
 	m_item = _item;
@@ -19,7 +18,6 @@ Creature::Creature(float _x, float _y, int _id, bool _item, Region *_parent) {
 }
 
 Creature::Creature() {
-	m_parent = nullptr;
 	x = 0; y = 0;
 	vel_x = 0; vel_y = 0;
 	acc_x = 0; acc_y = 0;
@@ -91,7 +89,7 @@ void Creature::update() {
 		float distanceToPlayer = abs(x - Game::getPlayer()->x) + abs(y - Game::getPlayer()->y);
 		if (distanceToPlayer < 0.8) {
 			if (Game::getPlayer()->inventory->addItem(m_id)) {
-				m_parent->removeCreature(this);
+				Game::getRegion(getX(), getY())->removeCreature(m_regionIndex, true);
 				audio::AudioManager::play(2);
 				return;
 			}
@@ -112,39 +110,58 @@ void Creature::update() {
 
 void Creature::hit() {
 	if (m_item) return;
-	Tile* tmp;
+	float hitx = getX(), hity = getY();
 	switch (heading)
 	{
 	case 0:
-		tmp = Game::getTile(getX(), getY() - 1, "from creature to hit object");
+		hity -= 1;
 		m_swingDir = 1;
 		break;
 	case 1:
-		tmp = Game::getTile(getX() + 1, getY(), "from creature to hit object");
+		hitx += 1;
 		m_swingDir = 2;
 		break;
 	case 2:
-		tmp = Game::getTile(getX(), getY() + 1, "from creature to hit object");
+		hity += 1;
 		m_swingDir = 3;
 		break;
 	default:
-		tmp = Game::getTile(getX() - 1, getY(), "from creature to hit object");
+		hitx -= 1;
 		m_swingDir = 4;
 		break;
 	}
 
+	//Tile hitting
+	Tile* tmp = Game::getTile(hitx, hity, "from creature to hit object");
 	if (tmp) {
-		tmp->getObjectId();
-		if (!Database::objects[tmp->getObjectId()].destructable) return;
-		tmp->hitObject(0.5f);
+		if (Database::objects[tmp->getObjectId()].destructable) {
+			tmp->hitObject(0.5f);
+		}
 	}
 
+
+	//Creature hitting
+	Creature* creatureArray[MAX_CREATURES];
+	unsigned int amount;
+	Region* thisRegion = Game::getRegion(hitx, hity);
+	Game::findAllCreatures(hitx, hity, creatureArray, amount, 1);
+
+	for (int i = 0; i < amount; i++)
+	{
+		glm::vec2 directionVector = glm::vec2(creatureArray[i]->getX() - getX(), creatureArray[i]->getY() - getY());
+		directionVector = glm::normalize(directionVector);
+		
+		creatureArray[i]->acc_x = directionVector.x / 10.0 * Database::creatures[m_id].knockback;
+		creatureArray[i]->acc_y = directionVector.y / 10.0 * Database::creatures[m_id].knockback;
+	}
+
+	//Swing noise
 	audio::AudioManager::play(1);
 }
 
 void Creature::collide() {
-	if (m_item) return;
-	
+	if (!m_item && Database::creatures[m_id].ghost) return;
+
 	for (int _x = -1; _x < 2; _x++)
 	{
 		for (int _y = -1; _y < 2; _y++)

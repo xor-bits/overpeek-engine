@@ -17,6 +17,7 @@ namespace graphics {
 		std::string mTitle;
 		GLFWwindow *mWindow;
 		bool m_fullscreen;
+		unsigned int m_multisample;
 		static double mMouseX, mMouseY;
 
 		static bool mKeys[];
@@ -39,7 +40,7 @@ namespace graphics {
 
 		
 		//Functions
-		Window(unsigned int width, unsigned int height, std::string title, bool fullscreen);
+		Window(unsigned int width, unsigned int height, std::string title, bool fullscreen, unsigned int multisample);
 		~Window();
 
 		static void checkErrors();

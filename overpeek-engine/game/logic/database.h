@@ -220,7 +220,9 @@ public:
 		unsigned int texture_heading_left = 0;
 		unsigned int texture_heading_right = 0;
 		bool friendly = 0;
+		bool ghost = false;
 		glm::vec3 color = glm::vec3(0.0);
+		float knockback = 0;
 
 		float health = 0;
 		unsigned int dropsAs;
@@ -251,8 +253,8 @@ public:
 		objects[5] = { "Stone wall", 5, 0, true, true, false, true, glm::vec3(0.5, 0.5, 0.5), 3.5, 1 };
 
 		//Creatures
-		creatures[0] = { "Player", 0, 3, 19, 35, 51, true, glm::vec3(0.0, 0.0, 1.0), 5.0, 0 };
-		creatures[1] = { "Enemy", 1, 3, 19, 35, 51, false, glm::vec3(1.0, 0.0, 0.0), 5.0, 2 };
+		creatures[0] = { "Player", 0, 3, 19, 35, 51, true, false, glm::vec3(0.0, 0.0, 1.0), 1.0, 5.0, 0 };
+		creatures[1] = { "Enemy", 1, 3, 19, 35, 51, false, false, glm::vec3(1.0, 0.0, 0.0), 1.0, 5.0, 2 };
 
 	}
 

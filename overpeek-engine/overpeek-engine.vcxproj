@@ -212,6 +212,7 @@
     <ClInclude Include="game\logic\database.h" />
     <ClInclude Include="game\logic\game.h" />
     <ClInclude Include="game\logic\inventory.h" />
+    <ClInclude Include="game\resource.h" />
     <ClInclude Include="game\world\map.h" />
     <ClInclude Include="game\world\region.h" />
     <ClInclude Include="game\world\tile.h" />
@@ -229,6 +230,7 @@
     <ClInclude Include="logic\math.h" />
     <ClInclude Include="logic\noise.h" />
     <ClInclude Include="logic\SAT.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="tools\binaryIO.h" />
     <ClInclude Include="tools\clock.h" />
     <ClInclude Include="tools\filereader.h" />
@@ -236,12 +238,13 @@
     <ClInclude Include="tools\random.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\basic.frag.glsl" />
-    <None Include="shaders\text.frag.glsl" />
-    <None Include="shaders\text.vert.glsl" />
-    <None Include="shaders\basic.vert.glsl" />
     <None Include="shaders\texture.frag.glsl" />
     <None Include="shaders\texture.vert.glsl" />
+    <None Include="shaders\postprocess.frag.glsl" />
+    <None Include="shaders\postprocess.vert.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="game\overpeek-engine.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

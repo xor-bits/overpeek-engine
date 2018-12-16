@@ -40,6 +40,48 @@ namespace graphics {
 		m_VAO->addBuffer(m_VBO, 0);
 		m_VAO->addBuffer(m_UV, 1);
 		m_VAO->addBuffer(m_ID, 2);
+
+		//Post processing
+
+		// The fullscreen quad's FBO
+		GLfloat g_quad_vertex_buffer_data[] = {
+			-0.2f, -0.2f, 0.0f,
+			 0.2f, -0.2f, 0.0f,
+			-0.2f,  0.2f, 0.0f,
+			-0.2f,  0.2f, 0.0f,
+			 0.2f, -0.2f, 0.0f,
+			 0.2f,  0.2f, 0.0f,
+		};
+		
+		m_quad_vertexbuffer;
+		glGenBuffers(1, &m_quad_vertexbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, m_quad_vertexbuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
+		
+		
+		
+		glGenFramebuffers(1, &m_framebuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
+		
+		m_frametexture;
+		glGenTextures(1, &m_frametexture);
+		
+		glBindTexture(GL_TEXTURE_2D, m_frametexture);
+		
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1280, 720, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+		
+		// Poor filtering. Needed !
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_frametexture, 0);
+		
+		// Set the list of draw buffers.
+		GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
+		glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+		
+		while (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	void Renderer::initText(std::string fontPath) {
@@ -124,6 +166,7 @@ namespace graphics {
 	}
 
 	void Renderer::flush(Shader *shader, int quadTexture) {
+		glActiveTexture(GL_TEXTURE0);
 		//Flush quads
 		shader->enable();
 		shader->setUniform1i("unif_text", 0);
@@ -139,6 +182,46 @@ namespace graphics {
 		shader->setUniform1i("unif_text", 1);
 
 		if (textRender) fontLoader->flush();
+	}
+
+	GLuint Renderer::renderToFramebuffer(Shader *postshader, Shader *shader, int quadTexture) {
+		glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
+		glViewport(0, 0, 1280, 720); // Render on the whole framebuffer, complete from the lower left corner to the upper right
+
+		// Clear the screen
+		glClearColor(0.3, 0.3, 0.3, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		flush(shader, quadTexture);
+
+		postshader->enable();
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, 1280, 720); // Render on the whole framebuffer, complete from the lower left corner to the upper right
+
+
+		// Clear the screen
+		glClearColor(0.5, 0.5, 0.0, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT);
+		
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, m_frametexture);
+		postshader->setUniform1i("renderedTexture", 0);
+
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, m_quad_vertexbuffer);
+		glVertexAttribPointer(
+			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+			3,                  // size
+			GL_FLOAT,           // type
+			GL_FALSE,           // normalized?
+			0,                  // stride
+			(void*)0            // array buffer offset
+		);
+
+		// Draw the triangles !
+		glDrawArrays(GL_TRIANGLES, 0, 6); // 2*3 indices starting at 0 -> 2 triangles
+
+		return m_framebuffer;
 	}
 
 	void Renderer::clear() {

@@ -39,8 +39,8 @@ public:
 
 	void addCreature(float x, float y, int id, bool item);
 	void addCreature(Creature *creature);
-	void removeCreature(int i);
-	void removeCreature(Creature *creature);
+	void removeCreature(int i, bool _delete);
+	void removeCreature(Creature *creature, bool _delete);
 
 	inline void submitToRenderArray(unsigned int x, unsigned int y, int id, int objid) { m_renderIdArray[x][y] = id; m_renderIdObjectArray[x][y] = objid; }
 

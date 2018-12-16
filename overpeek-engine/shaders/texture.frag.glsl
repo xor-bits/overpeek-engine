@@ -3,7 +3,7 @@
 in vec2 uv;
 flat in int id;
 
-out vec4 color;
+layout(location = 0) out vec4 color;
 
 uniform sampler2DArray tex;
 uniform bool unif_text;

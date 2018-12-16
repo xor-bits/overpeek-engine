@@ -3,10 +3,9 @@
 #include "region.h"
 #include "../logic/game.h"
 
-Tile::Tile(long int x, long int y, int id, int object_id, Region *parent, unsigned int localX, unsigned int localY) {
+Tile::Tile(long int x, long int y, int id, int object_id, unsigned int localX, unsigned int localY) {
 	m_id = id; m_object_id = object_id; m_x = x; m_y = y; m_localX = localX; m_localY = localY;
 	m_object_health = 1.0; m_real = true;
-	m_parent = parent;
 }
 
 Tile::Tile() {
@@ -59,7 +58,7 @@ int Tile::getObjectTexture() {
 void Tile::hitObject(float damage) {
 	m_object_health -= damage;
 	if (m_object_health <= 0) {
-		m_parent->addCreature(m_x, m_y, Database::items[Database::objects[m_object_id].dropsAs].id, true);
+		Game::addCreature(m_x, m_y, Database::items[Database::objects[m_object_id].dropsAs].id, true);
 		m_object_id = 0;
 	}
 	Game::tilesChanged = true;
@@ -81,8 +80,4 @@ void Tile::setObjectId(int id) {
 void Tile::healObject() { 
 	m_object_health = 1.0;
 	Game::tilesChanged = true;
-}
-
-Region* Tile::getRegion() {
-	return m_parent;
 }

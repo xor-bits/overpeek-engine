@@ -46,7 +46,7 @@ void Region::createTiles() {
 			int id = 0;
 			int object_id = 0;
 			Game::getInfoFromNoise(id, object_id, tilex, tiley);
-			m_tiles[x][y] = Tile(tilex, tiley, id, object_id, this, x, y);
+			m_tiles[x][y] = Tile(tilex, tiley, id, object_id, x, y);
 			m_renderIdArray[x][y] = Database::tiles[id].texture;
 			m_renderIdObjectArray[x][y] = Database::objects[object_id].texture;
 		}
@@ -78,15 +78,18 @@ void Region::loadTiles(unsigned char *tileData, unsigned char *creatureData) {
 			long int tiley = y + ((m_y - RENDER_DST / 2.0) * REGION_SIZE);
 			int id = tileData[x + (y * REGION_SIZE)];
 			int objid = tileData[x + (y * REGION_SIZE) + REGION_SIZE * REGION_SIZE];
-			m_tiles[x][y] = Tile(tilex, tiley, id, objid, this, x, y);
+			m_tiles[x][y] = Tile(tilex, tiley, id, objid, x, y);
 		}
 	}
 
 	for (int i = 0; i < creatureData[0] * 4; i += 4)
 	{
-		if (creatureData[i + 1] == 1) {
-			addCreature(creatureData[i + 1 + 1] - ceil(REGION_SIZE / 2.0) + getX(), creatureData[i + 2 + 1] - ceil(REGION_SIZE / 2.0) + getY(), creatureData[i + 0 + 1], (bool)creatureData[i + 3 + 1]);
-		}
+		addCreature(
+			creatureData[i + 1 + 1] - ceil(REGION_SIZE / 2.0) + getX(),
+			creatureData[i + 2 + 1] - ceil(REGION_SIZE / 2.0) + getY(),
+			creatureData[i + 0 + 1],
+			(bool)creatureData[i + 3 + 1]
+		);
 	}
 }
 
@@ -139,17 +142,17 @@ void Region::update() {
 	{
 		if (m_creatures[i]) m_creatures[i]->update();
 		if (m_creatures[i]) {
-			//m_creatures[i]->collide();
+			m_creatures[i]->collide();
 			if (Game::posToRegionPos(m_creatures[i]->getX()) * REGION_SIZE != getX() || Game::posToRegionPos(m_creatures[i]->getY()) * REGION_SIZE != getY()) {
 				Region *tmp = Game::getRegion(Game::posToRegionPos(m_creatures[i]->getX()) * REGION_SIZE, Game::posToRegionPos(m_creatures[i]->getY()) * REGION_SIZE);
 				if (tmp) {
 					tmp->addCreature(m_creatures[i]);
-					removeCreature(i);
+					removeCreature(i, false);
 				}
 				else {
 					tmp = new Region(Game::posToRegionPos(m_creatures[i]->getX()) + floor(RENDER_DST / 2.0), Game::posToRegionPos(m_creatures[i]->getY()) + floor(RENDER_DST / 2.0));
 					tmp->addCreature(m_creatures[i]);
-					removeCreature(i);
+					removeCreature(i, false);
 					tmp->saveTiles();
 					delete tmp;
 				}
@@ -169,7 +172,7 @@ void Region::submitToRenderer(graphics::Renderer *renderer, float offx, float of
 			int objid = m_renderIdObjectArray[x][y];
 	
 			float renderx = x * TILE_SIZE + rx, rendery = y * TILE_SIZE + ry;
-			
+
 			renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, 0, id);
 			if (objid != 0) renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, 0, objid);
 		}
@@ -225,7 +228,8 @@ void Region::addCreature(float x, float y, int id, bool item) {
 	for (int i = 0; i < MAX_CREATURES; i++)
 	{
 		if (!m_creatures[i]) {
-			m_creatures[i] = new Creature(x, y, id, item, this);
+			m_creatures[i] = new Creature(x, y, id, item);
+			m_creatures[i]->setRegionIndex(i);
 			return;
 		}
 	}
@@ -236,17 +240,20 @@ void Region::addCreature(Creature *creature) {
 	{
 		if (!m_creatures[i]) {
 			m_creatures[i] = creature;
-			m_creatures[i]->setRegion(this);
+			m_creatures[i]->setRegionIndex(i);
 			return;
 		}
 	}
 }
 
-void Region::removeCreature(int i) {
+void Region::removeCreature(int i, bool _delete) {
+	if (!m_creatures[i]) return;
+
+	if (_delete) delete m_creatures[i];
 	m_creatures[i] = nullptr;
 }
 
-void Region::removeCreature(Creature *creature) {
+void Region::removeCreature(Creature *creature, bool _delete) {
 	for (int i = 0; i < MAX_CREATURES; i++)
 	{
 		if (m_creatures[i] == creature) {

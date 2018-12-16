@@ -19,7 +19,7 @@ private:
 	float m_object_health;
 
 public:
-	Tile(long int x, long int y, int id, int object_id, Region *parent, unsigned int localX, unsigned int localY);
+	Tile(long int x, long int y, int id, int object_id, unsigned int localX, unsigned int localY);
 	Tile();
 	~Tile();
 
@@ -40,6 +40,4 @@ public:
 	inline int getLocalY() { if (!this) return 0; else return m_localY; }
 	inline int getId() { if (!this) return 0; else return m_id; }
 	inline int getObjectId() { if (!this) return 0; else return m_object_id; }
-
-	Region* getRegion();
 };

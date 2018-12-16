@@ -24,9 +24,9 @@ namespace graphics {
 	void(*Window::mButtonCallback)(int, int);
 	void(*Window::m_scroll_callback)(double);
 
-	Window::Window(unsigned int width, unsigned int height, std::string title, bool fullscreen) {
+	Window::Window(unsigned int width, unsigned int height, std::string title, bool fullscreen, unsigned int multisample) {
 		mWidth = width; mHeight = height; mTitle = title; mAspect = width / (float)height;
-		m_fullscreen = fullscreen;
+		m_fullscreen = fullscreen; m_multisample = multisample;
 
 		for (int i = 0; i < M_NUM_KEYS; i++) mKeys[i] = false;
 		for (int i = 0; i < M_NUM_BUTTONS; i++) mButtons[i] = false;
@@ -51,8 +51,8 @@ namespace graphics {
 			tools::Logger::error("Failed to initialize GLFW!");
 			return false;
 		}
+		if (m_multisample != 0) glfwWindowHint(GLFW_SAMPLES, m_multisample);
 		glfwWindowHint(GLFW_RESIZABLE, 0);
-		//glfwWindowHint(GLFW_SAMPLES, 16);
 
 		if (m_fullscreen)
 			mWindow = glfwCreateWindow(mWidth, mHeight, mTitle.c_str(), glfwGetPrimaryMonitor(), NULL);
@@ -85,7 +85,8 @@ namespace graphics {
 		glfwSetScrollCallback(mWindow, scroll_callback);
 		//glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-		//glEnable(GL_MULTISAMPLE);
+		if (m_multisample != 0) glEnable(GL_MULTISAMPLE);
+
 		glViewport(0, 0, mWidth, mHeight);
 		glClearColor(0.18f, 0.18f, 0.20f, 1.0f);
 		glEnable(GL_BLEND);

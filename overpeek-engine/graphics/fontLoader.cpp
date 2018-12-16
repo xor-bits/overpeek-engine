@@ -1,4 +1,7 @@
 #include "fontLoader.h"
+#include "../engine.h"
+
+
 #include <vector>
 
 #define FONT_RESOLUTION 48.0
@@ -14,8 +17,8 @@ namespace graphics {
 			m_uv[(i * TEXT_VERTEX_PER_QUAD) + 0] = 0.0;
 			m_uv[(i * TEXT_VERTEX_PER_QUAD) + 1] = 1.0;
 
-			m_uv[(i * TEXT_VERTEX_PER_QUAD) + 2] = 0.0;
-			m_uv[(i * TEXT_VERTEX_PER_QUAD) + 3] = 0.0;
+			m_uv[(i * TEXT_VERTEX_PER_QUAD) + 2] = 1.0;
+			m_uv[(i * TEXT_VERTEX_PER_QUAD) + 3] = 1.0;
 
 			m_uv[(i * TEXT_VERTEX_PER_QUAD) + 4] = 1.0;
 			m_uv[(i * TEXT_VERTEX_PER_QUAD) + 5] = 0.0;
@@ -26,8 +29,8 @@ namespace graphics {
 			m_uv[(i * TEXT_VERTEX_PER_QUAD) + 8] = 1.0;
 			m_uv[(i * TEXT_VERTEX_PER_QUAD) + 9] = 0.0;
 
-			m_uv[(i * TEXT_VERTEX_PER_QUAD) + 10] = 1.0;
-			m_uv[(i * TEXT_VERTEX_PER_QUAD) + 11] = 1.0;
+			m_uv[(i * TEXT_VERTEX_PER_QUAD) + 10] = 0.0;
+			m_uv[(i * TEXT_VERTEX_PER_QUAD) + 11] = 0.0;
 		}
 
 		m_VAO = new VertexArray();
@@ -183,16 +186,21 @@ namespace graphics {
 
 			m_vertex[(quadCount * TEXT_VERTEX_PER_QUAD) + 0] = xpos;
 			m_vertex[(quadCount * TEXT_VERTEX_PER_QUAD) + 1] = ypos + _h;
-			m_vertex[(quadCount * TEXT_VERTEX_PER_QUAD) + 2] = xpos;
-			m_vertex[(quadCount * TEXT_VERTEX_PER_QUAD) + 3] = ypos;
+
+			m_vertex[(quadCount * TEXT_VERTEX_PER_QUAD) + 2] = xpos + _w;
+			m_vertex[(quadCount * TEXT_VERTEX_PER_QUAD) + 3] = ypos + _h;
+
 			m_vertex[(quadCount * TEXT_VERTEX_PER_QUAD) + 4] = xpos + _w;
 			m_vertex[(quadCount * TEXT_VERTEX_PER_QUAD) + 5] = ypos;
+
 			m_vertex[(quadCount * TEXT_VERTEX_PER_QUAD) + 6] = xpos;
 			m_vertex[(quadCount * TEXT_VERTEX_PER_QUAD) + 7] = ypos + _h;
+
 			m_vertex[(quadCount * TEXT_VERTEX_PER_QUAD) + 8] = xpos + _w;
 			m_vertex[(quadCount * TEXT_VERTEX_PER_QUAD) + 9] = ypos;
-			m_vertex[(quadCount * TEXT_VERTEX_PER_QUAD) + 10] = xpos + _w;
-			m_vertex[(quadCount * TEXT_VERTEX_PER_QUAD) + 11] = ypos + _h;
+
+			m_vertex[(quadCount * TEXT_VERTEX_PER_QUAD) + 10] = xpos;
+			m_vertex[(quadCount * TEXT_VERTEX_PER_QUAD) + 11] = ypos;
 
 			m_id[(quadCount * TEXT_VERTEX_PER_QUAD) + 0] = m_characters[*c].textureID;
 			m_id[(quadCount * TEXT_VERTEX_PER_QUAD) + 1] = m_characters[*c].textureID;
@@ -213,6 +221,4 @@ namespace graphics {
 			x += (ch.advance >> 6) / FONT_RESOLUTION * _w; // Bitshift by 6 to get value in pixels (2^6 = 64)
 		}
 	}
-
-
 }

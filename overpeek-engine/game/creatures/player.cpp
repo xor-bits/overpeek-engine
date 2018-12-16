@@ -4,7 +4,7 @@
 #include "../world/tile.h"
 #include "../world/region.h"
 
-Player::Player(float x, float y, Inventory *inv) : Creature(x, y, 0, false, nullptr) {
+Player::Player(float x, float y, Inventory *inv) : Creature(x, y, 0, false) {
 	inventory = inv;
 }
 
@@ -22,25 +22,6 @@ void Player::collide() {
 
 void Player::hit() {
 	Creature::hit();
-
-
-	float knockBack = 1.0;
-
-	Creature* creatureArray[MAX_CREATURES];
-	unsigned int amount;
-	Region* thisRegion = Game::getRegion(getX(), getY());
-	Game::findAllCreatures(thisRegion, getX(), getY(), creatureArray, amount);
-
-	for (int i = 0; i < amount; i++)
-	{
-		glm::vec2 directionVector = glm::vec2(creatureArray[i]->getX() - getX(), creatureArray[i]->getY() - getY());
-		directionVector = glm::normalize(directionVector);
-
-		creatureArray[i]->acc_x = directionVector.x;
-		creatureArray[i]->acc_y = directionVector.y;
-
-		std::cout << directionVector.x << ", " << directionVector.y << std::endl;
-	}
 }
 
 void Player::place() {
