@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include <iostream>
 
-#define COUNT_ITEMS 3
+#define COUNT_ITEMS 4
 #define COUNT_TILES 5
 #define COUNT_OBJECTS 6
 #define COUNT_CREATURES 3
@@ -233,9 +233,10 @@ public:
 	static void init() {
 
 		//Items
-		items[0] = { "Log", 0, 16, 0 };
+		items[0] = { "Empty", 0, 0, 0 };
 		items[1] = { "Stone", 1, 17, 0 };
 		items[2] = { "Plant fiber", 2, 18, 0 };
+		items[3] = { "Log", 3, 16, 0 };
 
 		//Tiles
 		tiles[0] = { "Soil", 0, 0 };
@@ -247,9 +248,9 @@ public:
 		//Objects
 		objects[0] = { "Air", 0, 9, false, false, false, false, glm::vec3(1), 0, 0 };
 		objects[1] = { "Grass", 1, 5, false, false, false, true, glm::vec3(1), 0.3, 2 };
-		objects[2] = { "Spruce", 2, 6, false, false, false, true, glm::vec3(1), 1.0, 0 };
-		objects[3] = { "Birch", 3, 7, false, false, false, true, glm::vec3(1), 1.0, 0 };
-		objects[4] = { "Wood wall", 4, 0, true, true, true, true, glm::vec3(0.588235, 0.435294, 0.2), 2.0, 0 };
+		objects[2] = { "Spruce", 2, 6, false, false, false, true, glm::vec3(1), 1.0, 3 };
+		objects[3] = { "Birch", 3, 7, false, false, false, true, glm::vec3(1), 1.0, 3 };
+		objects[4] = { "Wood wall", 4, 0, true, true, true, true, glm::vec3(0.588235, 0.435294, 0.2), 2.0, 3 };
 		objects[5] = { "Stone wall", 5, 0, true, true, false, true, glm::vec3(0.5, 0.5, 0.5), 3.5, 1 };
 
 		//Creatures

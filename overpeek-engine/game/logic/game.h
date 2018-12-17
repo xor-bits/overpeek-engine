@@ -6,6 +6,7 @@
 #define DEBUG_ZOOM				1.0
 #define ENABLE_AUDIO			false
 #define SHOW_DEBUG_MESSAGES		false
+#define DEBUG_DISABLE_SAVING	true
 
 #define M_WINDOW_WIDTH			1280
 #define M_WINDOW_HEIGHT			720
@@ -77,9 +78,11 @@ public:
 	
 	static Region *getRegion(float x, float y);
 	static Tile *getTile(float x, float y, std::string debugText);
-	static void findAllCreatures(int x, int y, Creature** array, unsigned int& amount, float radius);
+	static void findAllCreatures(float x, float y, Creature** array, unsigned int& amount, float radius);
 	static Player *getPlayer();
 
 	static bool trySetTileObject(float x, float y, int id);
 	static bool trySetTileObject(Tile *tile, int id);
+
+	static std::string getSaveLocation();
 };

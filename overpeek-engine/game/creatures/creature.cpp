@@ -101,7 +101,7 @@ void Creature::update() {
 	vel_y += acc_y;
 	x += vel_x;
 	y += vel_y;
-
+	
 	vel_x *= 0.90;
 	vel_y *= 0.90;
 	acc_x = 0;
@@ -131,20 +131,11 @@ void Creature::hit() {
 		break;
 	}
 
-	//Tile hitting
-	Tile* tmp = Game::getTile(hitx, hity, "from creature to hit object");
-	if (tmp) {
-		if (Database::objects[tmp->getObjectId()].destructable) {
-			tmp->hitObject(0.5f);
-		}
-	}
-
-
 	//Creature hitting
 	Creature* creatureArray[MAX_CREATURES];
 	unsigned int amount;
 	Region* thisRegion = Game::getRegion(hitx, hity);
-	Game::findAllCreatures(hitx, hity, creatureArray, amount, 1);
+	Game::findAllCreatures(hitx, hity, creatureArray, amount, 1.0);
 
 	for (int i = 0; i < amount; i++)
 	{
@@ -153,6 +144,14 @@ void Creature::hit() {
 		
 		creatureArray[i]->acc_x = directionVector.x / 10.0 * Database::creatures[m_id].knockback;
 		creatureArray[i]->acc_y = directionVector.y / 10.0 * Database::creatures[m_id].knockback;
+	}
+
+	//Tile hitting
+	Tile* tmp = Game::getTile(hitx, hity, "from creature to hit object");
+	if (tmp) {
+		if (Database::objects[tmp->getObjectId()].destructable) {
+			tmp->hitObject(0.5f);
+		}
 	}
 
 	//Swing noise
@@ -183,7 +182,7 @@ void Creature::collide() {
 					x = tilex + 1 + (CREAURE_WIDTH / 2.0);
 
 					//Process new area if player
-					if (m_id = 0) Game::processNewArea();
+					if (m_id == 0) Game::processNewArea();
 				}
 				//RIGHT COLLIDER
 				if (logic::AABB(
@@ -195,7 +194,7 @@ void Creature::collide() {
 					x = tilex - (CREAURE_WIDTH / 2.0);
 
 					//Process new area if player
-					if (m_id = 0) Game::processNewArea();
+					if (m_id == 0) Game::processNewArea();
 				}
 				//TOP COLLIDER
 				if (logic::AABB(
@@ -207,7 +206,7 @@ void Creature::collide() {
 					y = tiley + 1 + (CREAURE_HEIGHT / 2.0);
 
 					//Process new area if player
-					if (m_id = 0) Game::processNewArea();
+					if (m_id == 0) Game::processNewArea();
 				}
 				//BOTTOM COLLIDER
 				if (logic::AABB(
@@ -219,7 +218,7 @@ void Creature::collide() {
 					y = tiley - (CREAURE_HEIGHT / 2.0);
 
 					//Process new area if player
-					if (m_id = 0) Game::processNewArea();
+					if (m_id == 0) Game::processNewArea();
 				}
 			}
 		}

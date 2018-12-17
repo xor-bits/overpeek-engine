@@ -198,7 +198,6 @@
     <ClCompile Include="graphics\renderer.cpp" />
     <ClCompile Include="graphics\window.cpp" />
     <ClCompile Include="logic\noise.cpp" />
-    <ClCompile Include="tools\binaryIO.cpp" />
     <ClCompile Include="tools\clock.cpp" />
     <ClCompile Include="tools\random.cpp" />
     <ClCompile Include="tools\Source.cpp" />

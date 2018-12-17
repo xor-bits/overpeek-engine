@@ -34,7 +34,7 @@ namespace audio {
 		in.read(buffer, 4);
 		if (strncmp(buffer, "RIFF", 4) != 0)
 		{
-			tools::Logger::error("Audio file not valid!");
+			tools::Logger::error("Audio not valid!");
 			return nullptr;
 		}
 		in.read(buffer, 4);

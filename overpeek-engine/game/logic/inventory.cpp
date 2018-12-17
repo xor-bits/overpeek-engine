@@ -70,14 +70,13 @@ void Inventory::removeSelected() {
 }
 
 bool Inventory::addItem(int id) {
-	if (!this) return true;
-
 	for (int y = 0; y < INVENTORY_HEIGHT + 1; y++)
 	{
 		for (int x = 0; x < INVENTORY_WIDTH; x++)
 		{
 			if (m_itemIds[x][y] == 0) {
 				m_itemIds[x][y] = id;
+				tools::Logger::info(id);
 				return true;
 			}
 		}

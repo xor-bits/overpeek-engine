@@ -1,16 +1,14 @@
 #include "region.h"
 
-#define DEBUG_DISABLE_SAVING false
-
 
 Region::Region(int x, int y) {
 	m_x = x; m_y = y; null = false;
 	for (int i = 0; i < MAX_CREATURES; i++) m_creatures[i] = nullptr;
 	
 #if !DEBUG_DISABLE_SAVING
-	void* tileData = tools::BinaryIO::read(getSaveLocation());
+	void* tileData = tools::BinaryIO::read<unsigned int>(getSaveLocation());
 	if (tileData != nullptr) {
-		loadTiles((unsigned char*)tileData, (unsigned char*)tools::BinaryIO::read(getSaveLocation() + " c"));
+		loadTiles((unsigned char*)tileData, (float*)tools::BinaryIO::read<float>(getSaveLocation() + " c"));
 	}
 	else {
 		createTiles();
@@ -68,7 +66,7 @@ void Region::deleteRegion() {
 	saveTiles();
 }
 
-void Region::loadTiles(unsigned char *tileData, unsigned char *creatureData) {
+void Region::loadTiles(unsigned char *tileData, float *creatureData) {
 	int tmp = 0;
 	for (int x = 0; x < REGION_SIZE; x++)
 	{
@@ -88,7 +86,7 @@ void Region::loadTiles(unsigned char *tileData, unsigned char *creatureData) {
 			creatureData[i + 1 + 1] - ceil(REGION_SIZE / 2.0) + getX(),
 			creatureData[i + 2 + 1] - ceil(REGION_SIZE / 2.0) + getY(),
 			creatureData[i + 0 + 1],
-			(bool)creatureData[i + 3 + 1]
+			creatureData[i + 3 + 1]
 		);
 	}
 }
@@ -104,16 +102,16 @@ void Region::saveTiles() {
 		}
 	}
 
-	unsigned char dataCreature[MAX_CREATURES * 4 + 1];
+	float dataCreature[MAX_CREATURES * 4 + 1];
 	int amountOfCreatures = 0;
 	for (int i = 0; i < MAX_CREATURES * 4; i += 4)
 	{
 		if (m_creatures[i / 4]) {
 			amountOfCreatures++;
 			dataCreature[i + 0 + 1] = m_creatures[i / 4]->getId();
-			dataCreature[i + 1 + 1] = floor(m_creatures[i / 4]->getX()) + ceil(REGION_SIZE / 2.0) - getX();
-			dataCreature[i + 2 + 1] = floor(m_creatures[i / 4]->getY()) + ceil(REGION_SIZE / 2.0) - getY();
-			dataCreature[i + 3 + 1] = (char)m_creatures[i / 4]->m_item;
+			dataCreature[i + 1 + 1] = m_creatures[i / 4]->getX() + ceil(REGION_SIZE / 2.0) - getX();
+			dataCreature[i + 2 + 1] = m_creatures[i / 4]->getY() + ceil(REGION_SIZE / 2.0) - getY();
+			dataCreature[i + 3 + 1] = m_creatures[i / 4]->m_item;
 		}
 		else {
 			dataCreature[i + 0 + 1] = 0;
@@ -126,8 +124,8 @@ void Region::saveTiles() {
 
 	dataCreature[0] = amountOfCreatures;
 	
-	tools::BinaryIO::write(getSaveLocation(), data, sizeof(data) / sizeof(unsigned char));
-	tools::BinaryIO::write(getSaveLocation() + " c", dataCreature, amountOfCreatures * 4 + 1);
+	tools::BinaryIO::write<unsigned int>(getSaveLocation(), data, sizeof(data) / sizeof(unsigned char));
+	tools::BinaryIO::write<float>(getSaveLocation() + " c", dataCreature, amountOfCreatures * 4 + 1);
 }
 
 void Region::update() {

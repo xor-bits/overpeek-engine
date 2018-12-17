@@ -97,7 +97,10 @@ void Game::init() {
 			m_region[x][y] = Region(x, y);
 		}
 	}
-	m_player = new Player(0, 0.0, m_inventory);
+	float playerX = 0, playerY = 0;
+	float *playerData = (float*)tools::BinaryIO::read<float>(getSaveLocation() + "player_data");
+	if (playerData) { playerX = playerData[0]; playerY = playerData[1]; }
+	m_player = new Player(playerX, playerY, m_inventory);
 
 
 	m_shader->enable();
@@ -237,6 +240,8 @@ void Game::update() {
 void Game::rapidUpdate() {}
 
 void Game::keyPress(int key, int action) {
+	if (key == GLFW_KEY_ESCAPE) m_loop->stop();
+
 	//Player Hitting
 	if (key == GLFW_KEY_UP) { m_player->heading = HEADING_UP; m_player->hit(); return; }
 	if (key == GLFW_KEY_DOWN) { m_player->heading = HEADING_DOWN; m_player->hit(); return; }
@@ -258,7 +263,8 @@ void Game::keyPress(int key, int action) {
 	else if (key == GLFW_KEY_5) { m_inventory->selectedSlot = 4; return; }
 
 	//Debug commands
-	if (key == GLFW_KEY_F1) { 
+	//Activate debug and advanced debug modes
+	if (key == GLFW_KEY_F1) {
 		debugMode = !debugMode; 
 		if (m_window->getKey(GLFW_KEY_LEFT_SHIFT)) {
 			advancedDebugMode = debugMode;
@@ -266,6 +272,8 @@ void Game::keyPress(int key, int action) {
 		else advancedDebugMode = false;
 		return; 
 	}
+
+	//Debug ceil creaures
 	if (key == GLFW_KEY_F2) {
 		for (int x = 0; x < RENDER_DST; x++)
 		{
@@ -275,7 +283,10 @@ void Game::keyPress(int key, int action) {
 			}
 		}
 	}
+	
+	//Reload game
 	if (key == GLFW_KEY_F3) {
+		close();
 		delete m_inventory;
 		delete m_player;
 
@@ -311,7 +322,10 @@ void Game::keyPress(int key, int action) {
 				m_region[x][y] = Region(x, y);
 			}
 		}
-		m_player = new Player(0.0, 0.0, m_inventory);
+		float playerX = 0, playerY = 0;
+		float *playerData = (float*)tools::BinaryIO::read<float>(getSaveLocation() + "player_data");
+		if (playerData) { playerX = playerData[0]; playerY = playerData[1]; }
+		m_player = new Player(playerX, playerY, m_inventory);
 
 
 		m_shader->enable();
@@ -320,8 +334,15 @@ void Game::keyPress(int key, int action) {
 
 		return;
 	}
+
+	//Get FPS
 	if (key == GLFW_KEY_F4) tools::Logger::info(std::string("Fps: ") + std::to_string(m_loop->getFPS()));
+	
+	//Clear inventoy
 	if (key == GLFW_KEY_F5) m_inventory->clear();
+	
+	//Add creature at player
+	if (key == GLFW_KEY_F6) addCreature(m_player->getX(), m_player->getY(), 1, true);
 }
 
 void Game::buttonPress(int button, int action) {}
@@ -333,6 +354,8 @@ void Game::scroll(double y) {
 }
 
 void Game::close() {
+	float playerData[2] = { m_player->getX(), m_player->getY() };
+	tools::BinaryIO::write<float>(getSaveLocation() + "player_data", (void*)playerData, 2);
 	for (int x = 0; x < RENDER_DST; x++) {
 		for (int y = 0; y < RENDER_DST; y++) {
 			if (!m_region[x][y].null) {
@@ -343,12 +366,16 @@ void Game::close() {
 }
 
 //Free to edit; world generating noise
-#define NOISE_SCALE 0.02
+#define NOISE_SCALE			0.02
 
-#define LEVEL_WATER 0.5
-#define LEVEL_SAND 0.52
-#define LEVEL_SOIL 0.7
-#define LEVEL_STONE 0.72
+#define LEVEL_WATER			0.5
+#define LEVEL_SAND			0.52
+#define LEVEL_SOIL			0.7
+#define LEVEL_STONE			0.72
+
+#define NOISE_GRASS			0.4
+#define NOISE_FOREST		0.3
+
 void Game::getInfoFromNoise(int &tileId, int &objId, double x, double y) {
 	x *= NOISE_SCALE;
 	y *= NOISE_SCALE;
@@ -361,12 +388,12 @@ void Game::getInfoFromNoise(int &tileId, int &objId, double x, double y) {
 	else if (height <= LEVEL_SAND) id = 2;
 	else if (height <= LEVEL_SOIL) {
 		float n = (logic::Noise::octaveNoise(x * 3.0, y * 3.0, 3) + 1.0) / 2.0;
-		if (n > 0.7 || n < 0.3) id = 3;
+		if (n > 1.0 - NOISE_GRASS || n < NOISE_GRASS) id = 3;
 		else  id = 0;
 	
-		if (n > 0.8) object_id = 2;
-		else if (n < 0.2) object_id = 3;
-		else if (n > 0.7 || n < 0.3) {
+		if (n > 1 - NOISE_FOREST) object_id = round(tools::Random::random(2.0, 3.0));
+		else if (n < NOISE_FOREST) object_id = round(tools::Random::random(2.0, 3.0));
+		else if (n > 1.0 - NOISE_GRASS || n < NOISE_GRASS) {
 			if (tools::Random::random(0.0, 1.0) > 0.5) object_id = 1;
 		}
 	}
@@ -614,7 +641,7 @@ Tile* Game::getTile(float x, float y, std::string debugText) {
 	return tile;
 }
 
-void Game::findAllCreatures(int _x, int _y, Creature** _array, unsigned int& _amount, float _radius) {
+void Game::findAllCreatures(float _x, float _y, Creature** _array, unsigned int& _amount, float _radius) {
 	_amount = 0;
 
 	for (int x = 0; x < RENDER_DST; x++)
@@ -625,10 +652,10 @@ void Game::findAllCreatures(int _x, int _y, Creature** _array, unsigned int& _am
 
 			for (int i = 0; i < MAX_CREATURES; i++)
 			{
-				Creature *creature = m_region[x][y].getCreature(i);
+				Creature *creature = m_region[x][y].getCreature(i); 
 				if (creature) {
-					if (creature->getX() > _x - _radius && creature->getX() < _x + _radius) {
-						if (creature->getY() > _y - _radius && creature->getY() < _y + _radius) {
+					if (creature->getX() >= _x - _radius && creature->getX() <= _x + _radius) {
+						if (creature->getY() >= _y - _radius && creature->getY() <= _y + _radius) {
 							_array[_amount] = creature;
 							_amount++;
 						}
@@ -659,4 +686,8 @@ bool Game::trySetTileObject(Tile *tile, int id) {
 	tile->setObjectId(id);
 	std::cout << "Set to " << id << std::endl;
 	return true;
+}
+
+std::string Game::getSaveLocation() {
+	return (SAVE_PATH + WORLD_NAME + "\\").c_str();
 }

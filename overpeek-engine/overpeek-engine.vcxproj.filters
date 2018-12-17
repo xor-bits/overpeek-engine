@@ -27,9 +27,6 @@
     <ClCompile Include="logic\noise.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tools\binaryIO.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="graphics\buffers\buffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

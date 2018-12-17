@@ -1,6 +1,6 @@
 #pragma once
 
-#define MAX_CREATURES 8
+#define MAX_CREATURES 256
 
 #include "tile.h"
 #include "../logic/game.h"
@@ -18,7 +18,7 @@ private:
 	int m_renderIdObjectArray[REGION_SIZE][REGION_SIZE];
 
 	void createTiles();
-	void loadTiles(unsigned char *tileData, unsigned char *creatureData);
+	void loadTiles(unsigned char *tileData, float *creatureData);
 
 	std::string getSaveLocation();
 
