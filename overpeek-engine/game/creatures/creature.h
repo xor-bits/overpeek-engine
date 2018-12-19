@@ -23,6 +23,7 @@ protected:
 	int m_wait;
 	float m_curtarget_x;
 	float m_curtarget_y;
+	float m_health;
 
 	void enemyAi();
 
@@ -52,10 +53,15 @@ public:
 		else return y / (float)REGION_SIZE - 0.5;
 	}
 
+	inline float getHealth() { return m_health; }
 	inline float getX() { return x - 0.5; }
 	inline float getY() { return y - 0.5; }
+
+	inline int getRegionIndex() { return m_regionIndex; }
+	
 	inline void setX(float n) { x = n + 0.5; }
 	inline void setY(float n) { y = n + 0.5; }
 	inline void setRegionIndex(int i) { m_regionIndex = i; }
-	inline int getRegionIndex() { return m_regionIndex; }
+	void heal(float amount);
+	void heal();
 };

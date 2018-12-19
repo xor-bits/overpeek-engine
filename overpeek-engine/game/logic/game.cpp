@@ -24,6 +24,8 @@ Player *Game::m_player;
 
 float Game::lastRegionX = 0;
 float Game::lastRegionY = 0;
+int Game::seed = 0;
+
 bool Game::debugMode = false;
 bool Game::advancedDebugMode = false;
 bool Game::tilesChanged = true;
@@ -32,6 +34,9 @@ int Game::hitCooldown = 513709;
 bool holdingI = false;
 
 bool paused = false;
+
+
+std::string renderer;
 
 void Game::init() {
 	tools::Logger::setup();
@@ -70,42 +75,8 @@ void Game::init() {
 	tools::Logger::info("Starting gameloop");
 	m_loop = new logic::GameLoop(render, update, 100, 10000);
 
-	//Initializing
-	tools::Logger::info("Creating game...");
-	system(("mkdir \"" + SAVE_PATH + WORLD_NAME + "\\regions\"").c_str());
-	logic::Noise::seed(1);
-	//logic::Noise::seed(tools::Clock::getMicroseconds());
-	tools::Random::seed(0);
-
-	m_worldrenderer = new graphics::Renderer();
-	m_creaturerenderer = new graphics::Renderer();
-	m_guirenderer = new graphics::Renderer("arial.ttf");
-
-	tools::Logger::info("Loading textures");
-	graphics::TextureManager::loadTextureAtlas("recourses/atlas.png", GL_RGBA, 0);
-	Database::init();
-	tools::Logger::info("Textures loaded!");
-
-	m_inventory = new Inventory(m_shader, m_window);
-
-	//Constructing objects
-	m_region[0][0];
-	for (int x = 0; x < RENDER_DST; x++)
-	{
-		for (int y = 0; y < RENDER_DST; y++)
-		{
-			m_region[x][y] = Region(x, y);
-		}
-	}
-	float playerX = 0, playerY = 0;
-	float *playerData = (float*)tools::BinaryIO::read<float>(getSaveLocation() + "player_data");
-	if (playerData) { playerX = playerData[0]; playerY = playerData[1]; }
-	m_player = new Player(playerX, playerY, m_inventory);
-
-
-	m_shader->enable();
-	m_shader->SetUniformMat4("ml_matrix", glm::mat4(1.0f));
-	tools::Logger::info("Game ready!");
+	loadGame();
+	renderer = std::string((char*)glGetString(GL_RENDERER));
 
 	m_loop->start();
 }
@@ -131,8 +102,10 @@ void Game::renderInfoScreen() {
 	m_guirenderer->renderText(x, -1.0 + (textScale * 4), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 	text = "Region pos X: " + std::to_string(getRegion(m_player->getX(), m_player->getY())->getX()) + ", Y: " + std::to_string(getRegion(m_player->getX(), m_player->getY())->getY());
 	m_guirenderer->renderText(x, -1.0 + (textScale * 5), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
-	text = "Renderer: " + std::string((char*)glGetString(GL_RENDERER));
+	text = "Renderer: " + renderer;
 	m_guirenderer->renderText(x, -1.0 + (textScale * 6), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	text = "Biome: " + std::string(Database::getBiome(getTileBiome(m_player->getX(), m_player->getY(), BIOME_SCRAMBLE1), getTileBiome(m_player->getX(), m_player->getY(), BIOME_SCRAMBLE2)).name);
+	m_guirenderer->renderText(x, -1.0 + (textScale * 7), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 }
 
 void Game::render() {
@@ -196,6 +169,7 @@ void Game::update() {
 		float playerSpeed = 0.03;
 		if (m_window->getKey(GLFW_KEY_LEFT_SHIFT)) playerSpeed *= 2;
 		else if (m_window->getKey(GLFW_KEY_LEFT_CONTROL)) playerSpeed *= 0.2;
+		else if (m_window->getKey(GLFW_KEY_TAB)) playerSpeed *= 20;
 		if (m_window->getKey(GLFW_KEY_S)) { m_player->vel_y = playerSpeed; }
 		if (m_window->getKey(GLFW_KEY_D)) { m_player->vel_x = playerSpeed; }
 		if (m_window->getKey(GLFW_KEY_W)) { m_player->vel_y = -playerSpeed; }
@@ -299,38 +273,8 @@ void Game::keyPress(int key, int action) {
 		holdingI = false;
 
 		paused = false;
-
-		//Initializing
-		tools::Logger::info("Creating game...");
-		system(("mkdir \"" + SAVE_PATH + WORLD_NAME + "\\regions\"").c_str());
-		logic::Noise::seed(1);
-		tools::Random::seed(0);
-
-		tools::Logger::info("Loading textures");
-		graphics::TextureManager::loadTextureAtlas("recourses/atlas.png", GL_RGBA, 0);
-		Database::init();
-		tools::Logger::info("Textures loaded!");
-
-		m_inventory = new Inventory(m_shader, m_window);
-
-		//Constructing objects
-		m_region[0][0];
-		for (int x = 0; x < RENDER_DST; x++)
-		{
-			for (int y = 0; y < RENDER_DST; y++)
-			{
-				m_region[x][y] = Region(x, y);
-			}
-		}
-		float playerX = 0, playerY = 0;
-		float *playerData = (float*)tools::BinaryIO::read<float>(getSaveLocation() + "player_data");
-		if (playerData) { playerX = playerData[0]; playerY = playerData[1]; }
-		m_player = new Player(playerX, playerY, m_inventory);
-
-
-		m_shader->enable();
-		m_shader->SetUniformMat4("ml_matrix", glm::mat4(1.0f));
-		tools::Logger::info("Game ready!");
+		
+		loadGame();
 
 		return;
 	}
@@ -342,7 +286,7 @@ void Game::keyPress(int key, int action) {
 	if (key == GLFW_KEY_F5) m_inventory->clear();
 	
 	//Add creature at player
-	if (key == GLFW_KEY_F6) addCreature(m_player->getX(), m_player->getY(), 1, true);
+	if (key == GLFW_KEY_F6) addCreature(m_player->getX(), m_player->getY(), 1, false);
 }
 
 void Game::buttonPress(int button, int action) {}
@@ -354,8 +298,13 @@ void Game::scroll(double y) {
 }
 
 void Game::close() {
+	saveGame();
+}
+
+void Game::saveGame() {
+
+#if !DEBUG_DISABLE_SAVING
 	float playerData[2] = { m_player->getX(), m_player->getY() };
-	tools::BinaryIO::write<float>(getSaveLocation() + "player_data", (void*)playerData, 2);
 	for (int x = 0; x < RENDER_DST; x++) {
 		for (int y = 0; y < RENDER_DST; y++) {
 			if (!m_region[x][y].null) {
@@ -363,45 +312,125 @@ void Game::close() {
 			}
 		}
 	}
+	tools::Logger::info(seed);
+	int worldData[1] = { seed }; 
+
+
+	tools::BinaryIO::write<float>(getSaveLocation() + "player_data", playerData, 2);
+	tools::BinaryIO::write<int>(getSaveLocation() + "world_data", worldData, 1);
+#endif
+
+	tools::Logger::info("Save complete!");
 }
 
-//Free to edit; world generating noise
-#define NOISE_SCALE			0.02
+void Game::loadGame() {
+	//Initializing
+	tools::Logger::info("Creating game...");
+	system(("mkdir \"" + SAVE_PATH + WORLD_NAME + "\\regions\"").c_str());
 
-#define LEVEL_WATER			0.5
-#define LEVEL_SAND			0.52
-#define LEVEL_SOIL			0.7
-#define LEVEL_STONE			0.72
+	//Load seed
+#if !DEBUG_DISABLE_SAVING
+	void* seedptr = tools::BinaryIO::read<int>(getSaveLocation() + "world_data");
+	if (seedptr) seed = ((int*)seedptr)[0];
+	else seed = tools::Clock::getMicroseconds();
+#else
+	seed = tools::Clock::getMicroseconds();
+	seed = 0;
+#endif
+	logic::Noise::seed(seed);
+	tools::Random::seed(seed);
 
-#define NOISE_GRASS			0.4
-#define NOISE_FOREST		0.3
+	tools::Logger::info(std::string("World seed: ") + std::to_string(seed)); // 2058261791
 
-void Game::getInfoFromNoise(int &tileId, int &objId, double x, double y) {
-	x *= NOISE_SCALE;
-	y *= NOISE_SCALE;
-	float height = (logic::Noise::octaveNoise(x, y, 3) + 1.0) / 2.0;
-	int id = 0;
-	int object_id = 0;
-	
-	//height is from 0 to 1
-	if (height <= LEVEL_WATER) id = 1;
-	else if (height <= LEVEL_SAND) id = 2;
-	else if (height <= LEVEL_SOIL) {
-		float n = (logic::Noise::octaveNoise(x * 3.0, y * 3.0, 3) + 1.0) / 2.0;
-		if (n > 1.0 - NOISE_GRASS || n < NOISE_GRASS) id = 3;
-		else  id = 0;
-	
-		if (n > 1 - NOISE_FOREST) object_id = round(tools::Random::random(2.0, 3.0));
-		else if (n < NOISE_FOREST) object_id = round(tools::Random::random(2.0, 3.0));
-		else if (n > 1.0 - NOISE_GRASS || n < NOISE_GRASS) {
-			if (tools::Random::random(0.0, 1.0) > 0.5) object_id = 1;
+	m_worldrenderer = new graphics::Renderer();
+	m_creaturerenderer = new graphics::Renderer();
+	m_guirenderer = new graphics::Renderer("arial.ttf");
+
+	tools::Logger::info("Loading textures");
+	graphics::TextureManager::loadTextureAtlas("recourses/atlas.png", GL_RGBA, 0);
+	tools::Logger::info("Textures loaded!");
+	tools::Logger::info("Loading database");
+	Database::init();
+	tools::Logger::info("Database loaded!");
+
+	m_inventory = new Inventory(m_shader, m_window);
+
+	//Constructing objects
+	m_region[0][0];
+	for (int x = 0; x < RENDER_DST; x++)
+	{
+		for (int y = 0; y < RENDER_DST; y++)
+		{
+			m_region[x][y] = Region(x, y);
 		}
 	}
-	else if (height <= LEVEL_STONE) id = 4;
-	else { id = 4; object_id = 5; }
+	float playerX = 0, playerY = 0;
+
+#if !DEBUG_DISABLE_SAVING
+	float *playerData = (float*)tools::BinaryIO::read<float>(getSaveLocation() + "player_data");
+	if (playerData) { playerX = playerData[0]; playerY = playerData[1]; }
+#endif
+	m_player = new Player(playerX, playerY, m_inventory);
+
+
+	m_shader->enable();
+	m_shader->SetUniformMat4("ml_matrix", glm::mat4(1.0f));
+	tools::Logger::info("Game ready!");
+}
+
+float Game::getTileBiome(float x, float y, float z) {
+	x += z * 3; y -= z;
+	float height = (logic::Noise::octaveNoise(x * 0.02 / 4.0, y * 0.02 / 4.0, 3) + 1.0) / 2.0;
+	return height;
+}
+
+void Game::getInfoFromNoise(int &tileId, int &objId, double x, double y) {
+	Database::Biome biome = Database::getBiome(getTileBiome(x, y, BIOME_SCRAMBLE1), getTileBiome(x, y, BIOME_SCRAMBLE2));
+
+	x += 99999; y -= 555555;
+
+	x *= NOISE_SCALE; y *= NOISE_SCALE;
+
+	float height = (logic::Noise::octaveNoise(x, y, 3) + 1.0) / 2.0;
 	
-	tileId = id;
-	objId = object_id;
+	for (int i = 0; i < biome.heightMap.size(); i++)
+	{
+		if (height <= biome.heightMap[i].height) {
+			tileId = biome.heightMap[i].id;
+
+			if (biome.heightMap[i].grassId != 0) {
+				float grassnoise = (logic::Noise::octaveNoise(x * biome.heightMap[i].grassNoiseFrequency, y * biome.heightMap[i].grassNoiseFrequency, 578.1) + 1.0) / 2.0;
+				if (grassnoise > biome.heightMap[i].grassRarity) objId = biome.heightMap[i].grassId;
+			}
+			if (biome.heightMap[i].plantId != 0) {
+				//long long startTime = tools::Clock::getMicroseconds();
+				//tools::Logger::info(tools::Clock::getMicroseconds() - startTime);
+				float plantnoise = (logic::Noise::octaveNoise(14.2 + x * biome.heightMap[i].plantNoiseFrequency, 4.75 - y * biome.heightMap[i].plantNoiseFrequency, 34.24) + 1.0) / 2.0;
+				if (plantnoise > biome.heightMap[i].plantRarity) objId = biome.heightMap[i].plantId;
+			}
+			break;
+		}
+	}
+	//tools::Logger::info(biome.name);
+	//tools::Logger::info(biome.heightMap[0].id);
+	
+	
+	//tools::Logger::info("Id " + Database::tiles[id].name);
+	//if (height <= LEVEL_WATER) id = 1;
+	//else if (height <= LEVEL_SAND) id = 2;
+	//else if (height <= LEVEL_SOIL) {
+	//	float n = (logic::Noise::octaveNoise(x * 3.0, y * 3.0, 3) + 1.0) / 2.0;
+	//	if (n > 1.0 - NOISE_GRASS || n < NOISE_GRASS) id = 3;
+	//	else  id = 0;
+	//
+	//	if (n > 1 - NOISE_FOREST) object_id = round(tools::Random::random(2.0, 3.0));
+	//	else if (n < NOISE_FOREST) object_id = round(tools::Random::random(2.0, 3.0));
+	//	else if (n > 1.0 - NOISE_GRASS || n < NOISE_GRASS) {
+	//		if (tools::Random::random(0.0, 1.0) > 0.5) object_id = 1;
+	//	}
+	//}
+	//else if (height <= LEVEL_STONE) id = 4;
+	//else { id = 4; object_id = 5; }
 }
 
 
@@ -473,9 +502,11 @@ void Game::shiftRegions(int deltaX, int deltaY, int playerRegionX, int playerReg
 }
 
 void Game::shiftRegionLoop(int x, int y, int deltaX, int deltaY, int playerRegionX, int playerRegionY) {
+#if !DEBUG_DISABLE_SAVING
 	if (!logic::isInRange(x - deltaX, 0, RENDER_DST - 1) || !logic::isInRange(y - deltaY, 0, RENDER_DST - 1)) {
 		m_region[x][y].saveTiles();
 	}
+#endif
 	if (logic::isInRange(x + deltaX, 0, RENDER_DST - 1) && logic::isInRange(y + deltaY, 0, RENDER_DST - 1)) {
 		m_region[x][y] = m_region[x + deltaX][y + deltaY];
 	}
@@ -495,8 +526,8 @@ void Game::processNewArea() {
 	float playerX = m_player->getX();
 	float playerY = m_player->getY();
 
-	int playerRegionX = posToRegionPos(playerX - REGION_SIZE / 2.0) + 1;
 	int playerRegionY = posToRegionPos(playerY - REGION_SIZE / 2.0) + 1;
+	int playerRegionX = posToRegionPos(playerX - REGION_SIZE / 2.0) + 1;
 
 	if (lastRegionX != playerRegionX || lastRegionY != playerRegionY) {
 
@@ -523,8 +554,8 @@ Region* Game::getRegion(float x, float y) {
 	int playerRegionX = posToRegionPos(round(m_player->getX()));
 	int playerRegionY = posToRegionPos(round(m_player->getY()));
 
-	int offsetRegionX = posToRegionPos(round(m_player->getX())) - posToRegionPos(round(m_player->getX() - REGION_SIZE / 2.0)) + 1; //Change last ( + 2) when changing render dst
-	int offsetRegionY = posToRegionPos(round(m_player->getY())) - posToRegionPos(round(m_player->getY() - REGION_SIZE / 2.0)) + 1; //Change last ( + 2) when changing render dst
+	int offsetRegionX = posToRegionPos(round(m_player->getX())) - posToRegionPos(round(m_player->getX() - REGION_SIZE / 2.0)) + 2; //Change last ( + 2) when changing render dst
+	int offsetRegionY = posToRegionPos(round(m_player->getY())) - posToRegionPos(round(m_player->getY() - REGION_SIZE / 2.0)) + 2; //Change last ( + 2) when changing render dst
 
 	int finalRegionX = selectedRegionX - playerRegionX + offsetRegionX;
 	int finalRegionY = selectedRegionY - playerRegionY + offsetRegionY;

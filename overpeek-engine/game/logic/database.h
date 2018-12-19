@@ -4,11 +4,13 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <iostream>
+#include <map>
 
-#define COUNT_ITEMS 4
-#define COUNT_TILES 5
-#define COUNT_OBJECTS 6
+#define COUNT_ITEMS		4
+#define COUNT_TILES		5
+#define COUNT_OBJECTS	6
 #define COUNT_CREATURES 3
+#define COUNT_BIOMES	5
 
 class Database {
 public:
@@ -223,10 +225,35 @@ public:
 		bool ghost = false;
 		glm::vec3 color = glm::vec3(0.0);
 		float knockback = 0;
+		float meleeDamage = 0;
 
 		float health = 0;
 		unsigned int dropsAs;
 	} creatures[COUNT_CREATURES];
+
+	static struct BiomeTileHeight 
+	{
+		float height;
+		int id;
+		
+		unsigned int grassId = 0;
+		float grassRarity = 0.0;
+		float grassNoiseFrequency = 0.0;
+
+		unsigned int plantId = 0;
+		float plantRarity = 0.0;
+		float plantNoiseFrequency = 0.0;
+	};
+
+	static struct Biome 
+	{
+		std::string name = "null";
+		unsigned int id = 0;
+		float temperature = 0;	//0 - 1.
+		float humidity = 0;		//0 - 1.
+		float noiseScale = 0;
+		std::vector<BiomeTileHeight> heightMap;
+	} biomes[COUNT_BIOMES];
 
 
 
@@ -254,9 +281,61 @@ public:
 		objects[5] = { "Stone wall", 5, 0, true, true, false, true, glm::vec3(0.5, 0.5, 0.5), 3.5, 1 };
 
 		//Creatures
-		creatures[0] = { "Player", 0, 3, 19, 35, 51, true, false, glm::vec3(0.0, 0.0, 1.0), 1.0, 5.0, 0 };
-		creatures[1] = { "Enemy", 1, 3, 19, 35, 51, false, false, glm::vec3(1.0, 0.0, 0.0), 1.0, 5.0, 2 };
+		creatures[0] = { "Player", 0, 3, 19, 35, 51, true, false, glm::vec3(0.0, 0.0, 1.0), 1.0, 1.0, 5.0, 0 };
+		creatures[1] = { "Enemy", 1, 3, 19, 35, 51, false, false, glm::vec3(1.0, 0.0, 0.0), 1.0, 1.0, 5.0, 2 };
 
+		//Biomes
+#define NOISE_SCALE			0.02
+#define NOISE_GRASS			0.4
+#define NOISE_FOREST		0.3
+
+		BiomeTileHeight height0;
+		BiomeTileHeight height1;
+		BiomeTileHeight height2;
+		BiomeTileHeight height3;
+
+		//Ocean
+		height0 = { 0.8, 1};
+		height1 = { 0.95, 2 };
+		height2 = { 1.0, 0 };
+		biomes[0] = { "Ocean", 0, 0.5, 0.5, 0.02, std::vector<BiomeTileHeight> { height0, height1, height2 } };
+
+		//Beach
+		height0 = { 1.0, 2 };
+		biomes[1] = { "Beach", 0, 0.5, 0.5, 0.02, std::vector<BiomeTileHeight> { height0 } };
+
+		//Default
+		height0 = { 0.05, 1 };
+		height1 = { 0.10, 2 };
+		height2 = { 0.80, 0, 1, 0.6, 20.0 };
+		height3 = { 1.00, 4 };
+		biomes[2] = { "Default", 0, 0.5, 0.5, 0.02, std::vector<BiomeTileHeight> { height0, height1, height2, height3 } };
+
+		//Forest
+		height0 = { 0.05, 1 };
+		height1 = { 0.10, 2 };
+		height2 = { 0.80, 0, 1, 0.6, 20.0, 2, 0.6, 20.0 };
+		height3 = { 1.00, 4 };
+		biomes[3] = { "Forest", 0, 0.5, 0.5, 0.02, std::vector<BiomeTileHeight> { height0, height1, height2, height3 } };
+
+		//Forest 2
+		height0 = { 0.05, 1 };
+		height1 = { 0.10, 2 };
+		height2 = { 0.80, 0, 1, 0.6, 20.0, 3, 0.6, 20.0 };
+		height3 = { 1.09, 4 };
+		biomes[4] = { "Forest 2", 0, 0.5, 0.5, 0.02, std::vector<BiomeTileHeight> { height0, height1, height2, height3 } };
+	}
+
+	static Biome getBiome(float height, float height2) {
+		if (height < 0.5) return biomes[0];
+		if (height < 0.51) return biomes[1];
+		else if (height < 1) {
+			if (height2 < 0.5) return biomes[2];
+			else if (height2 < 0.75) return biomes[3];
+			else if (height2 < 1.0) return biomes[4];
+		}
+		
+		return Biome();
 	}
 
 };

@@ -12,6 +12,7 @@ Creature::Creature(float _x, float _y, int _id, bool _item) {
 	vel_x = 0; vel_y = 0;
 	acc_x = 0; acc_y = 0;
 	m_swingDir = 0;
+	m_health = Database::creatures[m_id].health;
 
 	m_untilnexttarget = 500;
 	m_wait = 0;
@@ -22,6 +23,7 @@ Creature::Creature() {
 	vel_x = 0; vel_y = 0;
 	acc_x = 0; acc_y = 0;
 	m_swingDir = 0;
+	m_health = 0;
 
 	m_untilnexttarget = 0;
 	m_wait = 0;
@@ -141,9 +143,10 @@ void Creature::hit() {
 	{
 		glm::vec2 directionVector = glm::vec2(creatureArray[i]->getX() - getX(), creatureArray[i]->getY() - getY());
 		directionVector = glm::normalize(directionVector);
-		
+
 		creatureArray[i]->acc_x = directionVector.x / 10.0 * Database::creatures[m_id].knockback;
 		creatureArray[i]->acc_y = directionVector.y / 10.0 * Database::creatures[m_id].knockback;
+		creatureArray[i]->heal(-Database::creatures[m_id].meleeDamage);
 	}
 
 	//Tile hitting
@@ -245,4 +248,20 @@ void Creature::enemyAi() {
 
 	x += m_curtarget_x;
 	y += m_curtarget_y;
+}
+
+void Creature::heal() {
+	if (m_item) return;
+
+	m_health = Database::creatures[m_id].health;
+}
+
+void Creature::heal(float amount) {
+	if (m_item) return;
+
+	m_health += amount;
+	if (m_health <= 0) {
+		Game::addCreature(getX(), getY(), Database::creatures[m_id].dropsAs, true);
+		Game::getRegion(getX(), getY())->removeCreature(m_regionIndex, true);
+	}
 }

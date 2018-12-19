@@ -15,7 +15,9 @@
 #define M_WINDOW_DEFAULT_TITLE	"Tile Game"
 
 
-#define RENDER_DST				2 * 2
+#define BIOME_SCRAMBLE1			-24.5
+#define BIOME_SCRAMBLE2			92.3
+#define RENDER_DST				3 * 2
 
 #define REGION_SIZE				8
 #define TILE_SIZE				0.1
@@ -45,6 +47,7 @@ private:
 
 	static float lastRegionX;
 	static float lastRegionY;
+	static int seed;
 
 	static int hitCooldown;
 	
@@ -61,6 +64,8 @@ public:
 	static void render();
 	static void update();
 	static void close();
+	static void saveGame();
+	static void loadGame();
 	static void rapidUpdate();
 	static void processNewArea();
 
@@ -72,6 +77,7 @@ public:
 	inline static graphics::Window *getWindow() { return m_window; }
 
 	static void getInfoFromNoise(int &tileId, int &objId, double x, double y);
+	static float getTileBiome(float x, float y, float z);
 
 	static float posToRegionPos(float xOrY);
 	static void addCreature(float x, float y, int id, bool item);

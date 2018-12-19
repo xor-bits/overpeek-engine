@@ -4,7 +4,7 @@
 Region::Region(int x, int y) {
 	m_x = x; m_y = y; null = false;
 	for (int i = 0; i < MAX_CREATURES; i++) m_creatures[i] = nullptr;
-	
+
 #if !DEBUG_DISABLE_SAVING
 	void* tileData = tools::BinaryIO::read<unsigned int>(getSaveLocation());
 	if (tileData != nullptr) {

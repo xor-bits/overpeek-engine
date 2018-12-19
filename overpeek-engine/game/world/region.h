@@ -13,6 +13,7 @@ private:
 	Tile m_tiles[REGION_SIZE][REGION_SIZE];
 	Creature *m_creatures[MAX_CREATURES];
 	glm::fvec4 m_texture_off_array[REGION_SIZE * REGION_SIZE * 6 * 2];
+	int m_biome;
 
 	int m_renderIdArray[REGION_SIZE][REGION_SIZE];
 	int m_renderIdObjectArray[REGION_SIZE][REGION_SIZE];

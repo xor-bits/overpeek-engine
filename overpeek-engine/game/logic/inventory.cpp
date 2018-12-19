@@ -76,7 +76,7 @@ bool Inventory::addItem(int id) {
 		{
 			if (m_itemIds[x][y] == 0) {
 				m_itemIds[x][y] = id;
-				tools::Logger::info(id);
+				//tools::Logger::info(id);
 				return true;
 			}
 		}
