@@ -80,14 +80,16 @@ void Region::loadTiles(unsigned char *tileData, float *creatureData) {
 		}
 	}
 
-	for (int i = 0; i < creatureData[0] * 4; i += 4)
-	{
-		addCreature(
-			creatureData[i + 1 + 1] - ceil(REGION_SIZE / 2.0) + getX(),
-			creatureData[i + 2 + 1] - ceil(REGION_SIZE / 2.0) + getY(),
-			creatureData[i + 0 + 1],
-			creatureData[i + 3 + 1]
-		);
+	if (creatureData) {
+		for (int i = 0; i < creatureData[0] * 4; i += 4)
+		{
+			addCreature(
+				creatureData[i + 1 + 1] - ceil(REGION_SIZE / 2.0) + getX(),
+				creatureData[i + 2 + 1] - ceil(REGION_SIZE / 2.0) + getY(),
+				creatureData[i + 0 + 1],
+				creatureData[i + 3 + 1]
+			);
+		}
 	}
 }
 

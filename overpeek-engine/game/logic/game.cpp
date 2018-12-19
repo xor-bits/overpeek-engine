@@ -20,6 +20,8 @@ glm::ivec2 Game::m_hover_tile;
 Inventory *m_inventory;
 
 Region Game::m_region[RENDER_DST][RENDER_DST];
+bool Game::m_regionExist[RENDER_DST][RENDER_DST];
+std::vector<Region> Game::m_regionUnloadArray;
 Player *Game::m_player;
 
 float Game::lastRegionX = 0;
@@ -31,6 +33,10 @@ bool Game::advancedDebugMode = false;
 bool Game::tilesChanged = true;
 
 int Game::hitCooldown = 513709;
+int Game::asyncLoadX = 0;
+int Game::asyncLoadY = 0;
+int Game::asyncSaveIndex = 0;
+
 bool holdingI = false;
 
 bool paused = false;
@@ -117,7 +123,7 @@ void Game::render() {
 	{
 		for (int y = 0; y < RENDER_DST; y++)
 		{
-			if (!m_region[x][y].null) m_region[x][y].submitToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
+			if (m_regionExist[x][y]) m_region[x][y].submitToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
 		}
 	}
 
@@ -128,7 +134,7 @@ void Game::render() {
 	{
 		for (int y = 0; y < RENDER_DST; y++)
 		{
-			if (!m_region[x][y].null) m_region[x][y].submitCreaturesToRenderer(m_creaturerenderer, -m_player->x, -m_player->y);
+			if (m_regionExist[x][y]) m_region[x][y].submitCreaturesToRenderer(m_creaturerenderer, -m_player->x, -m_player->y);
 		}
 	}
 	m_player->submitToRenderer(m_creaturerenderer, -m_player->x, -m_player->y);
@@ -195,6 +201,7 @@ void Game::update() {
 		}
 
 	}
+	asyncLoadRegions();
 
 	//Load regions after camera/player moves
 	processNewArea();
@@ -203,7 +210,7 @@ void Game::update() {
 		for (int y = 0; y < RENDER_DST; y++)
 		{
 			if (tilesChanged) {
-				m_region[x][y].tilesChanged();
+				if (m_regionExist[x][y]) m_region[x][y].tilesChanged();
 			}
 		}
 	}
@@ -253,7 +260,7 @@ void Game::keyPress(int key, int action) {
 		{
 			for (int y = 0; y < RENDER_DST; y++)
 			{
-				if (!m_region[x][y].null) m_region[x][y].debugCeilCreatures();
+				if (m_regionExist[x][y])  m_region[x][y].debugCeilCreatures();
 			}
 		}
 	}
@@ -307,9 +314,7 @@ void Game::saveGame() {
 	float playerData[2] = { m_player->getX(), m_player->getY() };
 	for (int x = 0; x < RENDER_DST; x++) {
 		for (int y = 0; y < RENDER_DST; y++) {
-			if (!m_region[x][y].null) {
-				m_region[x][y].saveTiles();
-			}
+			if (m_regionExist[x][y]) m_region[x][y].saveTiles();
 		}
 	}
 	tools::Logger::info(seed);
@@ -361,7 +366,7 @@ void Game::loadGame() {
 	{
 		for (int y = 0; y < RENDER_DST; y++)
 		{
-			m_region[x][y] = Region(x, y);
+			m_regionExist[x][y] = false;
 		}
 	}
 	float playerX = 0, playerY = 0;
@@ -384,53 +389,39 @@ float Game::getTileBiome(float x, float y, float z) {
 	return height;
 }
 
-void Game::getInfoFromNoise(int &tileId, int &objId, double x, double y) {
+int getInfoFromNoiseIfLoop(Database::Biome biome, float x, float y, int index) {
+	if (biome.heightMap[index].grassId != 0) {
+		float grassnoise = (logic::Noise::octaveNoise(x * biome.heightMap[index].grassNoiseFrequency, y * biome.heightMap[index].grassNoiseFrequency, 578.1) + 1.0) / 2.0;
+		if (grassnoise > biome.heightMap[index].grassRarity) return biome.heightMap[index].grassId;
+	}
+	if (biome.heightMap[index].plantId != 0) {
+		float plantnoise = (logic::Noise::octaveNoise(14.2 + x * biome.heightMap[index].plantNoiseFrequency, 4.75 - y * biome.heightMap[index].plantNoiseFrequency, 34.24) + 1.0) / 2.0;
+		if (plantnoise > biome.heightMap[index].plantRarity) return biome.heightMap[index].plantId;
+	}
+	return 0;
+}
+
+void Game::getInfoFromNoise(int &tileId, int &objId, float x, float y) {
 	Database::Biome biome = Database::getBiome(getTileBiome(x, y, BIOME_SCRAMBLE1), getTileBiome(x, y, BIOME_SCRAMBLE2));
-
-	x += 99999; y -= 555555;
-
-	x *= NOISE_SCALE; y *= NOISE_SCALE;
-
-	float height = (logic::Noise::octaveNoise(x, y, 3) + 1.0) / 2.0;
 	
-	for (int i = 0; i < biome.heightMap.size(); i++)
-	{
-		if (height <= biome.heightMap[i].height) {
-			tileId = biome.heightMap[i].id;
+	if (biome.heightMap.size() == 1) {
+		tileId = biome.heightMap[0].id;
+		objId = getInfoFromNoiseIfLoop(biome, x, y, 0);
+	}
+	else {
+		x += 99999; y -= 555555;
+		x *= NOISE_SCALE; y *= NOISE_SCALE;
 
-			if (biome.heightMap[i].grassId != 0) {
-				float grassnoise = (logic::Noise::octaveNoise(x * biome.heightMap[i].grassNoiseFrequency, y * biome.heightMap[i].grassNoiseFrequency, 578.1) + 1.0) / 2.0;
-				if (grassnoise > biome.heightMap[i].grassRarity) objId = biome.heightMap[i].grassId;
+		float height = (logic::Noise::octaveNoise(x, y, 3) + 1.0) / 2.0;
+		for (int i = 0; i < biome.heightMap.size(); i++)
+		{
+			if (height <= biome.heightMap[i].height) {
+				tileId = biome.heightMap[i].id;
+				objId = getInfoFromNoiseIfLoop(biome, x, y, i);
+				break;
 			}
-			if (biome.heightMap[i].plantId != 0) {
-				//long long startTime = tools::Clock::getMicroseconds();
-				//tools::Logger::info(tools::Clock::getMicroseconds() - startTime);
-				float plantnoise = (logic::Noise::octaveNoise(14.2 + x * biome.heightMap[i].plantNoiseFrequency, 4.75 - y * biome.heightMap[i].plantNoiseFrequency, 34.24) + 1.0) / 2.0;
-				if (plantnoise > biome.heightMap[i].plantRarity) objId = biome.heightMap[i].plantId;
-			}
-			break;
 		}
 	}
-	//tools::Logger::info(biome.name);
-	//tools::Logger::info(biome.heightMap[0].id);
-	
-	
-	//tools::Logger::info("Id " + Database::tiles[id].name);
-	//if (height <= LEVEL_WATER) id = 1;
-	//else if (height <= LEVEL_SAND) id = 2;
-	//else if (height <= LEVEL_SOIL) {
-	//	float n = (logic::Noise::octaveNoise(x * 3.0, y * 3.0, 3) + 1.0) / 2.0;
-	//	if (n > 1.0 - NOISE_GRASS || n < NOISE_GRASS) id = 3;
-	//	else  id = 0;
-	//
-	//	if (n > 1 - NOISE_FOREST) object_id = round(tools::Random::random(2.0, 3.0));
-	//	else if (n < NOISE_FOREST) object_id = round(tools::Random::random(2.0, 3.0));
-	//	else if (n > 1.0 - NOISE_GRASS || n < NOISE_GRASS) {
-	//		if (tools::Random::random(0.0, 1.0) > 0.5) object_id = 1;
-	//	}
-	//}
-	//else if (height <= LEVEL_STONE) id = 4;
-	//else { id = 4; object_id = 5; }
 }
 
 
@@ -460,7 +451,100 @@ void Game::getInfoFromNoise(int &tileId, int &objId, double x, double y) {
 
 
 
+void Game::addRegionToUnloadArray(Region region) {
+	m_regionUnloadArray.push_back(region);
+}
 
+void Game::asyncLoadRegions() {
+	asyncLoadX++;
+
+	if (asyncLoadX >= RENDER_DST_HALF) {
+		asyncLoadX = 0;
+		asyncLoadY++;
+		if (asyncLoadY >= RENDER_DST_HALF) asyncLoadY = 0;
+	}
+
+	float playerX = m_player->getX();
+	float playerY = m_player->getY();
+
+	int playerRegionY = posToRegionPos(playerY - REGION_SIZE / 2.0) + 1;
+	int playerRegionX = posToRegionPos(playerX - REGION_SIZE / 2.0) + 1;
+
+	//Load regions top left
+	if (!m_regionExist[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY]) {
+		asyncLoadRegionSection(RENDER_DST_HALF - 1 - asyncLoadX, RENDER_DST_HALF - 1 - asyncLoadY);
+	}
+	if (m_region[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY].getX() !=
+		Region(RENDER_DST_HALF - 1 - asyncLoadX + playerRegionX, RENDER_DST_HALF - 1 - asyncLoadY + playerRegionY).getX()) {
+		m_regionExist[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY] = false;
+	}
+	if (m_region[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY].getY() !=
+		Region(RENDER_DST_HALF - 1 - asyncLoadX + playerRegionX, RENDER_DST_HALF - 1 - asyncLoadY + playerRegionY).getY()) {
+		m_regionExist[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY] = false;
+	}
+
+	//Load regions bottom right
+	if (!m_regionExist[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF + asyncLoadY]) {
+		asyncLoadRegionSection(RENDER_DST_HALF + asyncLoadX, RENDER_DST_HALF + asyncLoadY);
+	}
+	if (m_region[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF + asyncLoadY].getX() !=
+		Region(RENDER_DST_HALF + asyncLoadX + playerRegionX, RENDER_DST_HALF + asyncLoadY + playerRegionY).getX()) {
+		m_regionExist[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF + asyncLoadY] = false;
+	}
+	if (m_region[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF + asyncLoadY].getY() !=
+		Region(RENDER_DST_HALF + asyncLoadX + playerRegionX, RENDER_DST_HALF + asyncLoadY + playerRegionY).getY()) {
+		m_regionExist[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF + asyncLoadY] = false;
+	}
+
+	//Load regions top right
+	if (!m_regionExist[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY]) {
+		asyncLoadRegionSection(RENDER_DST_HALF + asyncLoadX, RENDER_DST_HALF - 1 - asyncLoadY);
+	}
+	if (m_region[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY].getX() !=
+		Region(RENDER_DST_HALF + asyncLoadX + playerRegionX, RENDER_DST_HALF - 1 - asyncLoadY + playerRegionY).getX()) {
+		m_regionExist[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY] = false;
+	}
+	if (m_region[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY].getY() !=
+		Region(RENDER_DST_HALF + asyncLoadX + playerRegionX, RENDER_DST_HALF - 1 - asyncLoadY + playerRegionY).getY()) {
+		m_regionExist[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY] = false;
+	}
+
+	//Load regions bottom left
+	if (!m_regionExist[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF + asyncLoadY]) {
+		asyncLoadRegionSection(RENDER_DST_HALF - 1 - asyncLoadX, RENDER_DST_HALF + asyncLoadY);
+	}
+	if (m_region[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF + asyncLoadY].getX() != 
+		Region(RENDER_DST_HALF - 1 - asyncLoadX + playerRegionX, RENDER_DST_HALF + asyncLoadY + playerRegionY).getX() ) {
+		m_regionExist[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF + asyncLoadY] = false;
+	}
+	if (m_region[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF + asyncLoadY].getY() !=
+		Region(RENDER_DST_HALF - 1 - asyncLoadX + playerRegionX, RENDER_DST_HALF + asyncLoadY + playerRegionY).getY()) {
+		m_regionExist[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF + asyncLoadY] = false;
+	}
+		
+
+	if (m_regionUnloadArray.size() > 0) {
+		asyncSaveIndex++;
+		if (asyncSaveIndex >= m_regionUnloadArray.size()) {
+			asyncSaveIndex = 0;
+		}
+
+		m_regionUnloadArray[asyncSaveIndex].saveTiles();
+		m_regionUnloadArray.erase(m_regionUnloadArray.begin() + asyncSaveIndex);
+	}
+}
+
+void Game::asyncLoadRegionSection(unsigned int x, unsigned int y) {
+	float playerX = m_player->getX();
+	float playerY = m_player->getY();
+
+	int playerRegionY = posToRegionPos(playerY - REGION_SIZE / 2.0) + 1;
+	int playerRegionX = posToRegionPos(playerX - REGION_SIZE / 2.0) + 1;
+
+	m_region[x][y] = Region(x + playerRegionX, y + playerRegionY);
+	m_regionExist[x][y] = true;
+	tilesChanged = true;
+}
 
 void Game::shiftRegions(int deltaX, int deltaY, int playerRegionX, int playerRegionY) {
 	if (deltaX >= 0 && deltaY >= 0) {
@@ -504,16 +588,20 @@ void Game::shiftRegions(int deltaX, int deltaY, int playerRegionX, int playerReg
 void Game::shiftRegionLoop(int x, int y, int deltaX, int deltaY, int playerRegionX, int playerRegionY) {
 #if !DEBUG_DISABLE_SAVING
 	if (!logic::isInRange(x - deltaX, 0, RENDER_DST - 1) || !logic::isInRange(y - deltaY, 0, RENDER_DST - 1)) {
-		m_region[x][y].saveTiles();
+		addRegionToUnloadArray(m_region[x][y]);
 	}
 #endif
 	if (logic::isInRange(x + deltaX, 0, RENDER_DST - 1) && logic::isInRange(y + deltaY, 0, RENDER_DST - 1)) {
-		m_region[x][y] = m_region[x + deltaX][y + deltaY];
+		if (m_regionExist[x + deltaX][y + deltaY]) {
+			m_region[x][y] = m_region[x + deltaX][y + deltaY];
+		}
 	}
 	else {
-		m_region[x][y] = Region(x + playerRegionX, y + playerRegionY); 
-		tilesChanged = true;
+		m_regionExist[x][y] = false;
 	}
+
+	asyncLoadX = 0;
+	asyncLoadY = 0;
 }
 
 void Game::addCreature(float x, float y, int id, bool item) {
@@ -551,38 +639,23 @@ Region* Game::getRegion(float x, float y) {
 	int selectedRegionX = posToRegionPos(x);
 	int selectedRegionY = posToRegionPos(y);
 
-	int playerRegionX = posToRegionPos(round(m_player->getX()));
-	int playerRegionY = posToRegionPos(round(m_player->getY()));
+	int playerRegionX = posToRegionPos(m_player->getX() + REGION_SIZE / 2.0);
+	int playerRegionY = posToRegionPos(m_player->getY() + REGION_SIZE / 2.0);
 
 	int offsetRegionX = posToRegionPos(round(m_player->getX())) - posToRegionPos(round(m_player->getX() - REGION_SIZE / 2.0)) + 2; //Change last ( + 2) when changing render dst
 	int offsetRegionY = posToRegionPos(round(m_player->getY())) - posToRegionPos(round(m_player->getY() - REGION_SIZE / 2.0)) + 2; //Change last ( + 2) when changing render dst
 
-	int finalRegionX = selectedRegionX - playerRegionX + offsetRegionX;
-	int finalRegionY = selectedRegionY - playerRegionY + offsetRegionY;
+	int finalRegionX = selectedRegionX - playerRegionX + RENDER_DST / 2.0;
+	int finalRegionY = selectedRegionY - playerRegionY + RENDER_DST / 2.0;
 
 
-	if (finalRegionX < 0 || finalRegionX > RENDER_DST - 1 || finalRegionY < 0 || finalRegionY > RENDER_DST - 1) {
-		if (!debugMode) return nullptr;
-	}
+	if (!logic::isInRange(finalRegionX, 0, RENDER_DST - 1) || !logic::isInRange(finalRegionY, 0, RENDER_DST - 1)) return nullptr;
 
 	int finalX = x - m_region[finalRegionX][finalRegionY].getX();
 	int finalY = y - m_region[finalRegionX][finalRegionY].getY();
 
-	if (!logic::isInRange(finalX, 0, REGION_SIZE - 1) || !logic::isInRange(finalY, 0, REGION_SIZE - 1)) {
-#if !SHOW_DEBUG_MESSAGES
-		return nullptr;
-#endif
-
-		if (debugMode) tools::Logger::warning("Finals out of range!");
-		if (debugMode) tools::Logger::warning("");
-		if (debugMode) tools::Logger::warning(std::to_string(x) + std::string(", ") + std::to_string(y));
-		if (debugMode) tools::Logger::warning(std::to_string(m_region[finalRegionX][finalRegionY].getX()) + std::string(", ") + std::to_string(m_region[finalRegionX][finalRegionY].getY()));
-		if (debugMode) tools::Logger::warning(std::to_string(finalX) + std::string(", ") + std::to_string(finalY));
-		if (debugMode) tools::Logger::warning(std::to_string(finalRegionX) + std::string(", ") + std::to_string(finalRegionY));
-		if (debugMode) tools::Logger::warning(std::to_string(selectedRegionX) + std::string(", ") + std::to_string(selectedRegionY));
-
-		return nullptr;
-	}
+	if (!logic::isInRange(finalX, 0, REGION_SIZE - 1) || !logic::isInRange(finalY, 0, REGION_SIZE - 1)) return nullptr;
+	if (!m_regionExist[finalRegionX][finalRegionY]) return nullptr;
 
 	return &m_region[finalRegionX][finalRegionY];
 }
@@ -591,14 +664,7 @@ Tile* Game::getTile(float x, float y, std::string debugText) {
 	x = round(x); y = round(y);
 
 	Region *regionAt = getRegion(x, y);
-	if (!regionAt) {
-#if !SHOW_DEBUG_MESSAGES
-		return nullptr;
-#endif
-		if (debugMode) tools::Logger::warning(std::string("Region was nullptr!"));
-
-		return nullptr;
-	}
+	if (!regionAt) return nullptr;
 
 	int finalX = x - regionAt->getX();
 	int finalY = y - regionAt->getY();

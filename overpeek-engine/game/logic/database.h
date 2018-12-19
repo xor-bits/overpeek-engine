@@ -10,7 +10,7 @@
 #define COUNT_TILES		5
 #define COUNT_OBJECTS	6
 #define COUNT_CREATURES 3
-#define COUNT_BIOMES	5
+#define COUNT_BIOMES	6
 
 class Database {
 public:
@@ -324,16 +324,21 @@ public:
 		height2 = { 0.80, 0, 1, 0.6, 20.0, 3, 0.6, 20.0 };
 		height3 = { 1.09, 4 };
 		biomes[4] = { "Forest 2", 0, 0.5, 0.5, 0.02, std::vector<BiomeTileHeight> { height0, height1, height2, height3 } };
+
+		//Mountains
+		height0 = { 1.0, 4, 5, 0.0, 0.0 };
+		biomes[5] = { "Mountains", 0, 0.5, 0.5, 0.02, std::vector<BiomeTileHeight> { height0 } };
 	}
 
 	static Biome getBiome(float height, float height2) {
 		if (height < 0.5) return biomes[0];
 		if (height < 0.51) return biomes[1];
-		else if (height < 1) {
-			if (height2 < 0.5) return biomes[2];
-			else if (height2 < 0.75) return biomes[3];
+		else if (height < 0.75) {
+			if (height2 < 0.4) return biomes[2];
+			else if (height2 < 0.7) return biomes[3];
 			else if (height2 < 1.0) return biomes[4];
 		}
+		else if (height < 1.0) return biomes[5];
 		
 		return Biome();
 	}

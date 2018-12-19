@@ -101,6 +101,7 @@ namespace audio {
 
 	void AudioManager::play(int id) {
 #if ENABLE_AUDIO
+		tools::Logger::info("Sound");
 		alSourcePlay(sources[id]);
 #endif
 	}
