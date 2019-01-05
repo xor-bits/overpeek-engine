@@ -34,7 +34,8 @@ public:
 	void update();
 	void tilesChanged();
 	void deleteRegion();
-	void submitToRenderer(graphics::Renderer *renderer, float offx, float offy);
+	void submitTilesToRenderer(graphics::Renderer *renderer, float offx, float offy);
+	void submitObjectsToRenderer(graphics::Renderer *renderer, float offx, float offy);
 	void submitCreaturesToRenderer(graphics::Renderer *renderer, float offx, float offy);
 	void debugCeilCreatures();
 

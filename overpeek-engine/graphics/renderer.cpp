@@ -36,14 +36,16 @@ namespace graphics {
 		m_UV = new Buffer(m_uv, MAX_VBO, 2, sizeof(GLfloat), GL_STATIC_DRAW);
 		m_VBO = new Buffer(0, MAX_VBO, 2, sizeof(GLfloat), GL_DYNAMIC_DRAW);
 		m_ID = new Buffer(0, MAX_VBO, 2, sizeof(GLfloat), GL_DYNAMIC_DRAW);
+		m_COLOR = new Buffer(0, MAX_VBO * 2, 4, sizeof(GLfloat), GL_DYNAMIC_DRAW);
 
 		m_VAO->addBuffer(m_VBO, 0);
 		m_VAO->addBuffer(m_UV, 1);
 		m_VAO->addBuffer(m_ID, 2);
+		m_VAO->addBuffer(m_COLOR, 3);
 
 		//Post processing
 
-		// The fullscreen quad's FBO
+		// The fullscreen quad's VBO
 		GLfloat g_quad_vertex_buffer_data[] = {
 			-0.2f, -0.2f, 0.0f,
 			 0.2f, -0.2f, 0.0f,
@@ -108,10 +110,11 @@ namespace graphics {
 	}
 
 	/*Angle is radian*/
-	void Renderer::renderBox(float x, float y, float w, float h, float angle, int textureID) {
+	void Renderer::renderBox(float x, float y, float w, float h, float angle, int textureID, glm::vec4 color) {
 		///TODO FIX:
 		x = x / 2.0;
 		y = y / 2.0;
+		
 
 		glm::vec2 pnt = rotatePoint(x, y, angle, glm::vec2(x, y));
 		m_vertex[(quadCount * VERTEX_PER_QUAD) + 0] = x + pnt.x;
@@ -128,18 +131,41 @@ namespace graphics {
 
 		m_id[(quadCount * VERTEX_PER_QUAD) + 0] = textureID;
 		m_id[(quadCount * VERTEX_PER_QUAD) + 1] = textureID;
+
 		m_id[(quadCount * VERTEX_PER_QUAD) + 2] = textureID;
 		m_id[(quadCount * VERTEX_PER_QUAD) + 3] = textureID;
+
 		m_id[(quadCount * VERTEX_PER_QUAD) + 4] = textureID;
 		m_id[(quadCount * VERTEX_PER_QUAD) + 5] = textureID;
+
 		m_id[(quadCount * VERTEX_PER_QUAD) + 6] = textureID;
 		m_id[(quadCount * VERTEX_PER_QUAD) + 7] = textureID;
+
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 0] = color.r;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 1] = color.g;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 2] = color.b;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 3] = color.a;
+
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 4] = color.r;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 5] = color.g;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 6] = color.b;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 7] = color.a;
+
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 8] = color.r;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 9] = color.g;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 10] = color.b;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 11] = color.a;
+
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 12] = color.r;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 13] = color.g;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 14] = color.b;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 15] = color.a;
 
 		quadCount++;
 	}
 
 	/*Angle is radian*/
-	void Renderer::renderBoxCentered(float x, float y, float w, float h, float angle, int textureID) {
+	void Renderer::renderBoxCentered(float x, float y, float w, float h, float angle, int textureID, glm::vec4 color) {
 		glm::vec2 pnt = rotatePoint(x, y, angle, glm::vec2(x - w / 2.0, y - h / 2.0));
 		m_vertex[(quadCount * VERTEX_PER_QUAD) + 0] = x + pnt.x;
 		m_vertex[(quadCount * VERTEX_PER_QUAD) + 1] = y + pnt.y;
@@ -175,6 +201,7 @@ namespace graphics {
 		
 		m_VBO->setBufferData(m_vertex, quadCount * VERTEX_PER_QUAD, 2, sizeof(GLfloat));
 		m_ID->setBufferData(m_id, quadCount * VERTEX_PER_QUAD, 2, sizeof(GLfloat));
+		m_COLOR->setBufferData(m_color, quadCount * VERTEX_PER_QUAD * 2, 4, sizeof(GLfloat));
 		
 		glDrawElements(GL_TRIANGLES, quadCount * 6, GL_UNSIGNED_SHORT, 0);
 	
@@ -229,7 +256,7 @@ namespace graphics {
 	}
 
 	/*Angle is radian*/
-	void Renderer::renderText(float x, float y, float w, float h, float angle, std::string text, glm::vec3 color, int xAlign, int yAlign) {// Activate corresponding render state
+	void Renderer::renderText(float x, float y, float w, float h, float angle, std::string text, glm::vec4 color, int xAlign, int yAlign) {// Activate corresponding render state
 		if (textRender) fontLoader->renderText(x, y, w, h, text, color, xAlign, yAlign);
 	}
 }

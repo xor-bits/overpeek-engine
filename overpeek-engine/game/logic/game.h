@@ -17,12 +17,12 @@
 
 #define BIOME_SCRAMBLE1			-120.5
 #define BIOME_SCRAMBLE2			500.3
-#define RENDER_DST				4 * 2
+#define RENDER_DST				3 * 2
 #define RENDER_DST_HALF			RENDER_DST / 2
 
 #define REGION_SIZE				8
 #define REGOIN_SIZE_HALF		REGION_SIZE / 2.0
-#define TILE_SIZE				0.08
+#define TILE_SIZE				0.1
 
 #define USER_PROFILE std::string(getenv("USERPROFILE"))
 #define SAVE_PATH std::string(USER_PROFILE + "\\AppData\\Roaming\\_overpeek-game\\")
@@ -38,7 +38,8 @@ private:
 	static graphics::Shader *m_shader;
 	static graphics::Shader *m_postshader;
 	static graphics::Shader *m_guishader;
-	static graphics::Renderer *m_worldrenderer;
+	static graphics::Renderer *m_worldtilerenderer;
+	static graphics::Renderer *m_worldobjectrenderer;
 	static graphics::Renderer *m_creaturerenderer;
 	static graphics::Renderer *m_guirenderer;
 	static logic::GameLoop *m_loop;
@@ -59,11 +60,13 @@ private:
 	static int asyncSaveIndex;
 	
 	static void renderInfoScreen();
+	static void renderPauseScreen();
 	static void shiftRegions(int deltaX, int deltaY, int playerRegionX, int playerRegionY);
 	static void shiftRegionLoop(int x, int y, int deltaX, int deltaY, int playerRegionX, int playerRegionY);
 	static void addRegionToUnloadArray(Region region);
 	static void asyncLoadRegions();
-	static void asyncLoadRegionSection(unsigned int x, unsigned int y);
+	static void asyncLoadRegionSection(unsigned int x, unsigned int y, int playerRegionX, int playerRegionY);
+	static void asyncUnload();
 
 public:
 	static bool tilesChanged;

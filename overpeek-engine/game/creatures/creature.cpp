@@ -34,16 +34,16 @@ void Creature::submitToRenderer(graphics::Renderer *renderer, float renderOffset
 		switch (heading)
 		{
 		case HEADING_UP:
-			renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, Database::creatures[m_id].texture_heading_up);
+			renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, Database::creatures[m_id].texture_heading_up, glm::vec4(1.0, 1.0, 1.0, 1.0));
 			break;
 		case HEADING_DOWN:
-			renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, Database::creatures[m_id].texture_heading_down);
+			renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, Database::creatures[m_id].texture_heading_down, glm::vec4(1.0, 1.0, 1.0, 1.0));
 			break;
 		case HEADING_LEFT:
-			renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, Database::creatures[m_id].texture_heading_left);
+			renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, Database::creatures[m_id].texture_heading_left, glm::vec4(1.0, 1.0, 1.0, 1.0));
 			break;
 		case HEADING_RIGHT:
-			renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, Database::creatures[m_id].texture_heading_right);
+			renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, Database::creatures[m_id].texture_heading_right, glm::vec4(1.0, 1.0, 1.0, 1.0));
 			break;
 		default:
 			break;
@@ -54,23 +54,23 @@ void Creature::submitToRenderer(graphics::Renderer *renderer, float renderOffset
 		case 0:
 			break;
 		case 1:
-			renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 1.0) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, 13);
+			renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 1.0) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, 13, glm::vec4(1.0, 1.0, 1.0, 1.0));
 			break;
 		case 2:
-			renderer->renderBox((x + renderOffsetX - 0.0) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, 12);
+			renderer->renderBox((x + renderOffsetX - 0.0) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, 12, glm::vec4(1.0, 1.0, 1.0, 1.0));
 			break;
 		case 3:
-			renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.0) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, 15);
+			renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.0) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, 15, glm::vec4(1.0, 1.0, 1.0, 1.0));
 			break;
 		case 4:
-			renderer->renderBox((x + renderOffsetX - 1.0) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, 14);
+			renderer->renderBox((x + renderOffsetX - 1.0) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, 14, glm::vec4(1.0, 1.0, 1.0, 1.0));
 			break;
 		default:
 			break;
 		}
 	}
 	else {
-		renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, Database::items[m_id].texture);
+		renderer->renderBox((x + renderOffsetX - 0.5) * TILE_SIZE, (y + renderOffsetY - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, Database::items[m_id].texture, glm::vec4(1.0, 1.0, 1.0, 1.0));
 	}
 
 }

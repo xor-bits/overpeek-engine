@@ -26,6 +26,7 @@ namespace graphics {
 		Buffer *m_VBO;
 		Buffer *m_UV;
 		Buffer *m_ID;
+		Buffer *m_COLOR;
 
 		IndexBuffer *m_IBO;
 
@@ -34,6 +35,7 @@ namespace graphics {
 		GLfloat m_uv[MAX_VBO];
 		GLfloat m_id[MAX_VBO];
 		GLushort m_index[MAX_IBO];
+		GLubyte m_color[MAX_VBO * 2];
 
 		GLuint m_framebuffer;
 		GLuint m_frametexture;
@@ -49,9 +51,9 @@ namespace graphics {
 		Renderer(std::string fontpath);
 		Renderer();
 
-		void renderBox(float x, float y, float w, float h, float angle, int textureID);
-		void renderBoxCentered(float x, float y, float w, float h, float angle, int textureID);
-		void renderText(float x, float y, float w, float h, float angle, std::string text, glm::vec3 color, int xAlign, int yAlign);
+		void renderBox(float x, float y, float w, float h, float angle, int textureID, glm::vec4 color);
+		void renderBoxCentered(float x, float y, float w, float h, float angle, int textureID, glm::vec4 color);
+		void renderText(float x, float y, float w, float h, float angle, std::string text, glm::vec4 color, int xAlign, int yAlign);
 		
 		void flush(Shader *shader, int quadTexture);
 		GLuint renderToFramebuffer(Shader *postshader, Shader *shader, int quadTexture);

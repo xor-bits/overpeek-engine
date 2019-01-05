@@ -6,6 +6,7 @@ namespace logic {
 	private:
 		void(*mCallbackRender)();
 		void(*mCallbackUpdate)();
+		void(*mCallbackRapid)();
 		long long m_upsCap;
 		long long m_fpsCap;
 		bool mShouldRun = true;
@@ -25,7 +26,7 @@ namespace logic {
 		void loop();
 
 	public:
-		GameLoop(void(*callbackRender)(), void(*callbackUpdate)(), unsigned int upsCap, unsigned int fpsCap);
+		GameLoop(void(*callbackRender)(), void(*callbackUpdate)(), void(*callbackRapid)(), unsigned int upsCap, unsigned int fpsCap);
 
 		void start();
 		void stop();

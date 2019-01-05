@@ -7,7 +7,7 @@
 
 namespace logic {
 
-	GameLoop::GameLoop(void(*callbackRender)(), void(*callbackUpdate)(), unsigned int upsCap, unsigned int fpsCap) {
+	GameLoop::GameLoop(void(*callbackRender)(), void(*callbackUpdate)(), void(*callbackRapid)(), unsigned int upsCap, unsigned int fpsCap) {
 		m_upsCap = 1000000 / upsCap;
 		m_fpsCap = 1000000 / fpsCap;
 		m_frame_lastTime = 0.0;
@@ -15,6 +15,7 @@ namespace logic {
 		m_counter = 0.0;
 		mCallbackRender = callbackRender;
 		mCallbackUpdate = callbackUpdate;
+		mCallbackRapid = callbackRapid;
 
 		m_update_start = tools::Clock::getMicroseconds();
 		m_update_previous = m_update_start;
@@ -22,9 +23,19 @@ namespace logic {
 	}
 
 	void GameLoop::start() {
-		do {
-			loop();
-		} while (mShouldRun);
+#pragma omp parallel 
+		{
+			if (omp_get_thread_num() == 0) {
+				while (mShouldRun) {
+					loop();
+				}
+			}
+			//else if (omp_get_thread_num() == 1) {
+			//	while (mShouldRun) {
+			//		mCallbackRapid();
+			//	}
+			//}
+		}
 	}
 
 	void GameLoop::loop() {

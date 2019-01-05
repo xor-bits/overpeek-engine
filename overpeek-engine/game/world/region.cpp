@@ -161,7 +161,7 @@ void Region::update() {
 	}
 }
 
-void Region::submitToRenderer(graphics::Renderer *renderer, float offx, float offy) {
+void Region::submitTilesToRenderer(graphics::Renderer *renderer, float offx, float offy) {
 	float rx = (m_x - RENDER_DST / 2.0) * (float)TILE_SIZE * REGION_SIZE + offx * TILE_SIZE;
 	float ry = (m_y - RENDER_DST / 2.0) * (float)TILE_SIZE * REGION_SIZE + offy * TILE_SIZE;
 	for (int x = 0; x < REGION_SIZE; x++)
@@ -169,20 +169,29 @@ void Region::submitToRenderer(graphics::Renderer *renderer, float offx, float of
 		for (int y = 0; y < REGION_SIZE; y++)
 		{
 			int id = m_renderIdArray[x][y];
-			int objid = m_renderIdObjectArray[x][y];
-	
 			float renderx = x * TILE_SIZE + rx, rendery = y * TILE_SIZE + ry;
-
-			renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, 0, id);
-			if (objid != 0) renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, 0, objid);
+			renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, 0, id, glm::vec4(1.0, 1.0, 1.0, 1.0));
 		}
 	}
-	
+}
+
+void Region::submitObjectsToRenderer(graphics::Renderer *renderer, float offx, float offy) {
+	float rx = (m_x - RENDER_DST / 2.0) * (float)TILE_SIZE * REGION_SIZE + offx * TILE_SIZE;
+	float ry = (m_y - RENDER_DST / 2.0) * (float)TILE_SIZE * REGION_SIZE + offy * TILE_SIZE;
+	for (int x = 0; x < REGION_SIZE; x++)
+	{
+		for (int y = 0; y < REGION_SIZE; y++) {
+			int objid = m_renderIdObjectArray[x][y];
+			float renderx = x * TILE_SIZE + rx, rendery = y * TILE_SIZE + ry;
+			if (objid != 0) renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, 0, objid, glm::vec4(1.0, 1.0, 1.0, 1.0));
+		}
+	}
+
 	if (!Game::debugMode) return;
-	renderer->renderBox(rx, ry, TILE_SIZE / 10.0, REGION_SIZE * TILE_SIZE, 0, 20);
-	renderer->renderBox(rx + REGION_SIZE * TILE_SIZE - TILE_SIZE / 10.0, ry, TILE_SIZE / 10.0, REGION_SIZE * TILE_SIZE, 0, 21);
-	renderer->renderBox(rx, ry, REGION_SIZE * TILE_SIZE, TILE_SIZE / 10.0, 0, 22);
-	renderer->renderBox(rx, ry + REGION_SIZE * TILE_SIZE - TILE_SIZE / 10.0, REGION_SIZE * TILE_SIZE, TILE_SIZE / 10.0, 0, 23);
+	renderer->renderBox(rx, ry, TILE_SIZE / 10.0, REGION_SIZE * TILE_SIZE, 0, 20, glm::vec4(1.0, 1.0, 1.0, 1.0));
+	renderer->renderBox(rx + REGION_SIZE * TILE_SIZE - TILE_SIZE / 10.0, ry, TILE_SIZE / 10.0, REGION_SIZE * TILE_SIZE, 0, 21, glm::vec4(1.0, 1.0, 1.0, 1.0));
+	renderer->renderBox(rx, ry, REGION_SIZE * TILE_SIZE, TILE_SIZE / 10.0, 0, 22, glm::vec4(1.0, 1.0, 1.0, 1.0));
+	renderer->renderBox(rx, ry + REGION_SIZE * TILE_SIZE - TILE_SIZE / 10.0, REGION_SIZE * TILE_SIZE, TILE_SIZE / 10.0, 0, 23, glm::vec4(1.0, 1.0, 1.0, 1.0));
 }
 
 void Region::submitCreaturesToRenderer(graphics::Renderer *renderer, float offx, float offy) {

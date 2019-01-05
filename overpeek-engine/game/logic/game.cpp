@@ -12,7 +12,8 @@ graphics::Window *Game::m_window;
 graphics::Shader *Game::m_shader;
 graphics::Shader *Game::m_postshader;
 graphics::Shader *Game::m_guishader;
-graphics::Renderer *Game::m_worldrenderer;
+graphics::Renderer *Game::m_worldtilerenderer;
+graphics::Renderer *Game::m_worldobjectrenderer;
 graphics::Renderer *Game::m_creaturerenderer;
 graphics::Renderer *Game::m_guirenderer;
 logic::GameLoop *Game::m_loop;
@@ -79,12 +80,25 @@ void Game::init() {
 	
 	//Gameloop
 	tools::Logger::info("Starting gameloop");
-	m_loop = new logic::GameLoop(render, update, 100, 10000);
+	m_loop = new logic::GameLoop(render, update, rapidUpdate, 100, 10000);
 
 	loadGame();
 	renderer = std::string((char*)glGetString(GL_RENDERER));
 
 	m_loop->start();
+}
+
+void Game::rapidUpdate() {
+
+}
+
+void Game::renderPauseScreen() {
+	float textScale = 0.1;
+
+	//m_guirenderer->renderBox(-m_window->getAspect(), -1.0, 2 * m_window->getAspect(), 2.0, 0, 8, glm::vec4(1.0, 1.0, 1.0, 1.0));
+
+	std::string text = "PAUSED";
+	m_guirenderer->renderText(0, -0.5, textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
 }
 
 void Game::renderInfoScreen() {
@@ -94,39 +108,48 @@ void Game::renderInfoScreen() {
 	float x = -m_window->getAspect();
 
 	std::string text = "FPS: " + std::to_string(m_loop->getFPS());
-	m_guirenderer->renderText(x, -1.0 + (textScale * 0), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	m_guirenderer->renderText(x, -1.0 + (textScale * 0), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 	text = "UPS: " + std::to_string(m_loop->getUPS());
-	m_guirenderer->renderText(x, -1.0 + (textScale * 1), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	m_guirenderer->renderText(x, -1.0 + (textScale * 1), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 
 
 	if (!advancedDebugMode) return;
 	text = "Position X: " + std::to_string(m_player->getX()) + ", Y: " + std::to_string(m_player->getY());
-	m_guirenderer->renderText(x, -1.0 + (textScale * 2), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	m_guirenderer->renderText(x, -1.0 + (textScale * 2), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 	text = "Tile X: " + std::to_string(getTile(m_player->getX(), m_player->getY(), "Info render")->getX()) + ", Y: " + std::to_string(getTile(m_player->getX(), m_player->getY(), "Info render")->getY());
-	m_guirenderer->renderText(x, -1.0 + (textScale * 3), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	m_guirenderer->renderText(x, -1.0 + (textScale * 3), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 	text = "Region X: " + std::to_string(posToRegionPos(m_player->getX())) + ", Y: " + std::to_string(posToRegionPos(m_player->getY()));
-	m_guirenderer->renderText(x, -1.0 + (textScale * 4), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	m_guirenderer->renderText(x, -1.0 + (textScale * 4), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 	text = "Region pos X: " + std::to_string(getRegion(m_player->getX(), m_player->getY())->getX()) + ", Y: " + std::to_string(getRegion(m_player->getX(), m_player->getY())->getY());
-	m_guirenderer->renderText(x, -1.0 + (textScale * 5), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	m_guirenderer->renderText(x, -1.0 + (textScale * 5), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 	text = "Renderer: " + renderer;
-	m_guirenderer->renderText(x, -1.0 + (textScale * 6), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	m_guirenderer->renderText(x, -1.0 + (textScale * 6), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 	text = "Biome: " + std::string(Database::getBiome(getTileBiome(m_player->getX(), m_player->getY(), BIOME_SCRAMBLE1), getTileBiome(m_player->getX(), m_player->getY(), BIOME_SCRAMBLE2)).name);
-	m_guirenderer->renderText(x, -1.0 + (textScale * 7), textScale, textScale, 0, text, glm::vec3(1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	m_guirenderer->renderText(x, -1.0 + (textScale * 7), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 }
 
 void Game::render() {
 	if (!m_window) return;
 	
-	//World
-	m_worldrenderer->clear();
+	//World tiles
+	m_worldtilerenderer->clear();
 	for (int x = 0; x < RENDER_DST; x++)
 	{
 		for (int y = 0; y < RENDER_DST; y++)
 		{
-			if (m_regionExist[x][y]) m_region[x][y].submitToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
+			if (m_regionExist[x][y]) m_region[x][y].submitTilesToRenderer(m_worldtilerenderer, -m_player->x, -m_player->y);
 		}
 	}
 
+	//World Objects
+	m_worldobjectrenderer->clear();
+	for (int x = 0; x < RENDER_DST; x++)
+	{
+		for (int y = 0; y < RENDER_DST; y++)
+		{
+			if (m_regionExist[x][y]) m_region[x][y].submitObjectsToRenderer(m_worldobjectrenderer, -m_player->x, -m_player->y);
+		}
+	}
 
 	//Creature
 	m_creaturerenderer->clear();
@@ -144,14 +167,21 @@ void Game::render() {
 	m_guirenderer->clear();
 	m_inventory->render(m_guirenderer); 
 	renderInfoScreen();
-	//long long startTime = tools::Clock::getMicroseconds();
-	//tools::Logger::info(tools::Clock::getMicroseconds() - startTime);
+	if (paused) renderPauseScreen();
 	
 	//Flush
 	m_shader->enable();
-	m_worldrenderer->flush(m_shader, 0);
+	m_shader->setUniform1i("unif_blending", 1);
+	m_worldtilerenderer->flush(m_shader, 0);
+
+	m_shader->setUniform1i("unif_blending", 0);
+	m_worldobjectrenderer->flush(m_shader, 0);
+
 	m_creaturerenderer->flush(m_shader, 0);
 	m_guirenderer->flush(m_shader, 0);
+	
+	//m_guirenderer->renderBox(-0.5, -0.5, 1.0, 1.0, 0, 0, glm::vec4(0.0, 0.0, 0.0, 0.0));
+	//m_guirenderer->clear();
 
 	// Render to our framebuffer
 	//m_worldrenderer->renderToFramebuffer(m_postshader, m_shader, 0);
@@ -201,7 +231,9 @@ void Game::update() {
 		}
 
 	}
+
 	asyncLoadRegions();
+	asyncUnload();
 
 	//Load regions after camera/player moves
 	processNewArea();
@@ -218,10 +250,19 @@ void Game::update() {
 
 }
 
-void Game::rapidUpdate() {}
+void Game::asyncUnload() {
+	if (m_regionUnloadArray.size() > 0) {
+		asyncSaveIndex++;
+		if (asyncSaveIndex >= m_regionUnloadArray.size()) {
+			asyncSaveIndex = 0;
+		}
+
+		m_regionUnloadArray[asyncSaveIndex].saveTiles();
+		m_regionUnloadArray.erase(m_regionUnloadArray.begin() + asyncSaveIndex);
+	}
+}
 
 void Game::keyPress(int key, int action) {
-	if (key == GLFW_KEY_ESCAPE) m_loop->stop();
 
 	//Player Hitting
 	if (key == GLFW_KEY_UP) { m_player->heading = HEADING_UP; m_player->hit(); return; }
@@ -229,7 +270,7 @@ void Game::keyPress(int key, int action) {
 	if (key == GLFW_KEY_LEFT) { m_player->heading = HEADING_LEFT; m_player->hit(); return; }
 	if (key == GLFW_KEY_RIGHT) { m_player->heading = HEADING_RIGHT; m_player->hit(); return; }
 	
-	if (key == GLFW_KEY_P) { paused = !paused; return; }
+	if (key == GLFW_KEY_ESCAPE) { paused = !paused; return; }
 	if (key == GLFW_KEY_E) { m_player->setX(round(m_player->getX())); m_player->setY(round(m_player->getY())); return; }
 
 	//Inventory
@@ -347,7 +388,8 @@ void Game::loadGame() {
 
 	tools::Logger::info(std::string("World seed: ") + std::to_string(seed)); // 2058261791
 
-	m_worldrenderer = new graphics::Renderer();
+	m_worldtilerenderer = new graphics::Renderer();
+	m_worldobjectrenderer = new graphics::Renderer();
 	m_creaturerenderer = new graphics::Renderer();
 	m_guirenderer = new graphics::Renderer("arial.ttf");
 
@@ -472,75 +514,26 @@ void Game::asyncLoadRegions() {
 
 	//Load regions top left
 	if (!m_regionExist[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY]) {
-		asyncLoadRegionSection(RENDER_DST_HALF - 1 - asyncLoadX, RENDER_DST_HALF - 1 - asyncLoadY);
-	}
-	if (m_region[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY].getX() !=
-		Region(RENDER_DST_HALF - 1 - asyncLoadX + playerRegionX, RENDER_DST_HALF - 1 - asyncLoadY + playerRegionY).getX()) {
-		m_regionExist[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY] = false;
-	}
-	if (m_region[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY].getY() !=
-		Region(RENDER_DST_HALF - 1 - asyncLoadX + playerRegionX, RENDER_DST_HALF - 1 - asyncLoadY + playerRegionY).getY()) {
-		m_regionExist[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY] = false;
+		asyncLoadRegionSection(RENDER_DST_HALF - 1 - asyncLoadX, RENDER_DST_HALF - 1 - asyncLoadY, playerRegionX, playerRegionY);
 	}
 
 	//Load regions bottom right
 	if (!m_regionExist[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF + asyncLoadY]) {
-		asyncLoadRegionSection(RENDER_DST_HALF + asyncLoadX, RENDER_DST_HALF + asyncLoadY);
-	}
-	if (m_region[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF + asyncLoadY].getX() !=
-		Region(RENDER_DST_HALF + asyncLoadX + playerRegionX, RENDER_DST_HALF + asyncLoadY + playerRegionY).getX()) {
-		m_regionExist[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF + asyncLoadY] = false;
-	}
-	if (m_region[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF + asyncLoadY].getY() !=
-		Region(RENDER_DST_HALF + asyncLoadX + playerRegionX, RENDER_DST_HALF + asyncLoadY + playerRegionY).getY()) {
-		m_regionExist[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF + asyncLoadY] = false;
+		asyncLoadRegionSection(RENDER_DST_HALF + asyncLoadX, RENDER_DST_HALF + asyncLoadY, playerRegionX, playerRegionY);
 	}
 
 	//Load regions top right
 	if (!m_regionExist[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY]) {
-		asyncLoadRegionSection(RENDER_DST_HALF + asyncLoadX, RENDER_DST_HALF - 1 - asyncLoadY);
-	}
-	if (m_region[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY].getX() !=
-		Region(RENDER_DST_HALF + asyncLoadX + playerRegionX, RENDER_DST_HALF - 1 - asyncLoadY + playerRegionY).getX()) {
-		m_regionExist[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY] = false;
-	}
-	if (m_region[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY].getY() !=
-		Region(RENDER_DST_HALF + asyncLoadX + playerRegionX, RENDER_DST_HALF - 1 - asyncLoadY + playerRegionY).getY()) {
-		m_regionExist[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY] = false;
+		asyncLoadRegionSection(RENDER_DST_HALF + asyncLoadX, RENDER_DST_HALF - 1 - asyncLoadY, playerRegionX, playerRegionY);
 	}
 
 	//Load regions bottom left
 	if (!m_regionExist[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF + asyncLoadY]) {
-		asyncLoadRegionSection(RENDER_DST_HALF - 1 - asyncLoadX, RENDER_DST_HALF + asyncLoadY);
-	}
-	if (m_region[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF + asyncLoadY].getX() != 
-		Region(RENDER_DST_HALF - 1 - asyncLoadX + playerRegionX, RENDER_DST_HALF + asyncLoadY + playerRegionY).getX() ) {
-		m_regionExist[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF + asyncLoadY] = false;
-	}
-	if (m_region[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF + asyncLoadY].getY() !=
-		Region(RENDER_DST_HALF - 1 - asyncLoadX + playerRegionX, RENDER_DST_HALF + asyncLoadY + playerRegionY).getY()) {
-		m_regionExist[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF + asyncLoadY] = false;
-	}
-		
-
-	if (m_regionUnloadArray.size() > 0) {
-		asyncSaveIndex++;
-		if (asyncSaveIndex >= m_regionUnloadArray.size()) {
-			asyncSaveIndex = 0;
-		}
-
-		m_regionUnloadArray[asyncSaveIndex].saveTiles();
-		m_regionUnloadArray.erase(m_regionUnloadArray.begin() + asyncSaveIndex);
+		asyncLoadRegionSection(RENDER_DST_HALF - 1 - asyncLoadX, RENDER_DST_HALF + asyncLoadY, playerRegionX, playerRegionY);
 	}
 }
 
-void Game::asyncLoadRegionSection(unsigned int x, unsigned int y) {
-	float playerX = m_player->getX();
-	float playerY = m_player->getY();
-
-	int playerRegionY = posToRegionPos(playerY - REGION_SIZE / 2.0) + 1;
-	int playerRegionX = posToRegionPos(playerX - REGION_SIZE / 2.0) + 1;
-
+void Game::asyncLoadRegionSection(unsigned int x, unsigned int y, int playerRegionX, int playerRegionY) {
 	m_region[x][y] = Region(x + playerRegionX, y + playerRegionY);
 	m_regionExist[x][y] = true;
 	tilesChanged = true;
@@ -592,9 +585,8 @@ void Game::shiftRegionLoop(int x, int y, int deltaX, int deltaY, int playerRegio
 	}
 #endif
 	if (logic::isInRange(x + deltaX, 0, RENDER_DST - 1) && logic::isInRange(y + deltaY, 0, RENDER_DST - 1)) {
-		if (m_regionExist[x + deltaX][y + deltaY]) {
-			m_region[x][y] = m_region[x + deltaX][y + deltaY];
-		}
+		m_region[x][y] = m_region[x + deltaX][y + deltaY];
+		m_regionExist[x][y] = m_regionExist[x + deltaX][y + deltaY];
 	}
 	else {
 		m_regionExist[x][y] = false;
