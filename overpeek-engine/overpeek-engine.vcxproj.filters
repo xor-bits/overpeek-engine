@@ -51,9 +51,6 @@
     <ClCompile Include="audio\audioManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tools\Source.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="logic\gameloop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -63,7 +60,7 @@
     <ClCompile Include="logic\FastNoise.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="game4\main.cpp">
+    <ClCompile Include="tools\logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -122,9 +119,6 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="logic\aabb.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="logic\gameloop.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -138,9 +132,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="logic\FastNoise.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game4\particle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

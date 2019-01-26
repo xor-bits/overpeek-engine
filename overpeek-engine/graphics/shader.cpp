@@ -34,8 +34,13 @@ namespace graphics {
 		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
 		if (!success)
 		{
+			GLint infoLogLength;
+			glGetProgramiv(vertexShader, GL_INFO_LOG_LENGTH, &infoLogLength);
+			GLchar* infoLog = new GLchar[infoLogLength + 1];
 			glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-			tools::Logger::error(std::string("Vertex shader compilation failed!\n") + infoLog);
+
+			tools::Logger::error(std::string("Fragment shader compilation failed!\n") + infoLog);
+			std::cout << infoLog << std::endl;
 			glfwTerminate();
 			system("pause");
 			exit(EXIT_FAILURE);
@@ -43,8 +48,13 @@ namespace graphics {
 		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
 		if (!success)
 		{
-			glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+			GLint infoLogLength;
+			glGetProgramiv(fragmentShader, GL_INFO_LOG_LENGTH, &infoLogLength);
+			GLchar* infoLog = new GLchar[infoLogLength + 1];
+			glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+
 			tools::Logger::error(std::string("Fragment shader compilation failed!\n") + infoLog);
+			std::cout << infoLog << std::endl;
 			glfwTerminate();
 			system("pause");
 			exit(EXIT_FAILURE);

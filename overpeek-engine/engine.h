@@ -1,5 +1,7 @@
 #pragma once
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "audio/audioManager.h"
 
 #include "logic/gameloop.h"

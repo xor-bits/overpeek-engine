@@ -5,6 +5,11 @@ VisualStudioVersion = 15.0.27703.2047
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "overpeek-engine", "overpeek-engine\overpeek-engine.vcxproj", "{4E67B5EF-25F9-4248-9027-DF3CED549DA1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Unnamed game", "Project1\Project1.vcxproj", "{F4959298-8FCF-495F-83A3-2AC7D1588AC4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4E67B5EF-25F9-4248-9027-DF3CED549DA1} = {4E67B5EF-25F9-4248-9027-DF3CED549DA1}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +26,14 @@ Global
 		{4E67B5EF-25F9-4248-9027-DF3CED549DA1}.Release|x64.Build.0 = Release|x64
 		{4E67B5EF-25F9-4248-9027-DF3CED549DA1}.Release|x86.ActiveCfg = Release|Win32
 		{4E67B5EF-25F9-4248-9027-DF3CED549DA1}.Release|x86.Build.0 = Release|Win32
+		{F4959298-8FCF-495F-83A3-2AC7D1588AC4}.Debug|x64.ActiveCfg = Debug|x64
+		{F4959298-8FCF-495F-83A3-2AC7D1588AC4}.Debug|x64.Build.0 = Debug|x64
+		{F4959298-8FCF-495F-83A3-2AC7D1588AC4}.Debug|x86.ActiveCfg = Debug|Win32
+		{F4959298-8FCF-495F-83A3-2AC7D1588AC4}.Debug|x86.Build.0 = Debug|Win32
+		{F4959298-8FCF-495F-83A3-2AC7D1588AC4}.Release|x64.ActiveCfg = Release|x64
+		{F4959298-8FCF-495F-83A3-2AC7D1588AC4}.Release|x64.Build.0 = Release|x64
+		{F4959298-8FCF-495F-83A3-2AC7D1588AC4}.Release|x86.ActiveCfg = Release|Win32
+		{F4959298-8FCF-495F-83A3-2AC7D1588AC4}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

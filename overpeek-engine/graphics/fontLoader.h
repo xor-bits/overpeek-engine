@@ -58,6 +58,11 @@ namespace graphics {
 		bool init(std::string fontPath);
 
 	public:
+		//enum textOrigin
+		//{
+		//	textOriginLeft, textOriginRight, textOriginCenter, textOriginTop, textOriginBottom
+		//};
+
 		FontLoader(std::string fontPath);
 		
 		void renderText(float x, float y, float w, float h, std::string text, glm::vec3 color, int textOriginX, int textOriginY);
