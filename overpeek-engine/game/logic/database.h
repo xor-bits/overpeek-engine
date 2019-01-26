@@ -12,6 +12,12 @@
 #define COUNT_CREATURES 3
 #define COUNT_BIOMES	6
 
+
+#define MAP_BIOME_FREQ	0.005
+#define MAP_BIOME_OCTA	8
+#define MAP_FREQ		0.02
+#define MAP_OCTA		4
+
 class Database {
 public:
 
@@ -228,6 +234,9 @@ public:
 		float meleeDamage = 0;
 
 		float health = 0;
+		float healthgain = 0;
+		float stamina = 0;
+		float staminagain = 0;
 		unsigned int dropsAs;
 	} creatures[COUNT_CREATURES];
 
@@ -281,8 +290,8 @@ public:
 		objects[5] = { "Stone wall", 5, 0, true, true, false, true, glm::vec3(0.5, 0.5, 0.5), 3.5, 1 };
 
 		//Creatures
-		creatures[0] = { "Player", 0, 3, 19, 35, 51, true, false, glm::vec3(0.0, 0.0, 1.0), 1.0, 1.0, 5.0, 0 };
-		creatures[1] = { "Enemy", 1, 3, 19, 35, 51, false, false, glm::vec3(1.0, 0.0, 0.0), 1.0, 1.0, 5.0, 2 };
+		creatures[0] = { "Player", 0, 3, 19, 35, 51, true, false, glm::vec3(0.0, 0.0, 1.0), 1.0, 1.0, 5.0, 0.005, 5.0, 0.005, 0 };
+		creatures[1] = { "Enemy", 1, 3, 19, 35, 51, false, false, glm::vec3(1.0, 0.0, 0.0), 1.0, 1.0, 5.0, 0.0, 5.0, 5.0, 2 };
 
 		//Biomes
 #define NOISE_SCALE			0.02

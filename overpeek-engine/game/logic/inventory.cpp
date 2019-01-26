@@ -1,9 +1,31 @@
 #include "inventory.h"
 #include "database.h"
+#include "game.h"
 
 Inventory::Inventory(graphics::Shader *shader, graphics::Window *window) {
 	m_shader = shader; m_window = window;
 
+#if !DEBUG_DISABLE_SAVING
+	short *data = (short*)tools::BinaryIO::read<short>(Game::getSaveLocation() + "inventory_data");
+	if (data) {
+		for (int x = 0; x < INVENTORY_WIDTH; x++)
+		{
+			for (int y = 0; y < INVENTORY_HEIGHT + 1; y++)
+			{
+				m_itemIds[x][y] = data[x + INVENTORY_WIDTH * y];
+			}
+		}
+	}
+	else {
+		for (int x = 0; x < INVENTORY_WIDTH; x++)
+		{
+			for (int y = 0; y < INVENTORY_HEIGHT + 1; y++)
+			{
+				m_itemIds[x][y] = 0;
+			}
+		}
+	}
+#else
 	for (int x = 0; x < INVENTORY_WIDTH; x++)
 	{
 		for (int y = 0; y < INVENTORY_HEIGHT + 1; y++)
@@ -11,6 +33,19 @@ Inventory::Inventory(graphics::Shader *shader, graphics::Window *window) {
 			m_itemIds[x][y] = 0;
 		}
 	}
+#endif
+}
+
+void Inventory::save() {
+	short data[INVENTORY_WIDTH * (INVENTORY_HEIGHT + 1)];
+	for (int x = 0; x < INVENTORY_WIDTH; x++)
+	{
+		for (int y = 0; y < INVENTORY_HEIGHT + 1; y++)
+		{
+			data[x + INVENTORY_WIDTH * y] = m_itemIds[x][y];
+		}
+	}
+	tools::BinaryIO::write<short>(Game::getSaveLocation() + "inventory_data", data, INVENTORY_WIDTH * (INVENTORY_HEIGHT + 1));
 }
 
 void Inventory::render(graphics::Renderer *m_renderer) {

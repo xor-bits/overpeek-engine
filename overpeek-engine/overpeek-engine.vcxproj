@@ -178,25 +178,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="audio\audioManager.cpp" />
-    <ClCompile Include="game\creatures\creature.cpp" />
-    <ClCompile Include="game\creatures\player.cpp" />
-    <ClCompile Include="game\logic\database.cpp" />
-    <ClCompile Include="game\logic\game.cpp" />
-    <ClCompile Include="game\logic\inventory.cpp" />
-    <ClCompile Include="game\main.cpp" />
-    <ClCompile Include="game\world\map.cpp" />
-    <ClCompile Include="game\world\region.cpp" />
-    <ClCompile Include="game\world\tile.cpp" />
+    <ClCompile Include="game4\main.cpp" />
     <ClCompile Include="graphics\buffers\indexBuffer.cpp" />
     <ClCompile Include="graphics\buffers\vertexArray.cpp" />
     <ClCompile Include="graphics\buffers\buffer.cpp" />
     <ClCompile Include="graphics\camera.cpp" />
     <ClCompile Include="graphics\fontLoader.cpp" />
     <ClCompile Include="graphics\textureManager.cpp" />
-    <ClCompile Include="logic\gameloop.cpp" />
     <ClCompile Include="graphics\shader.cpp" />
     <ClCompile Include="graphics\renderer.cpp" />
     <ClCompile Include="graphics\window.cpp" />
+    <ClCompile Include="logic\FastNoise.cpp" />
+    <ClCompile Include="logic\gameloop.cpp" />
     <ClCompile Include="logic\noise.cpp" />
     <ClCompile Include="tools\clock.cpp" />
     <ClCompile Include="tools\random.cpp" />
@@ -206,26 +199,19 @@
     <ClInclude Include="audio\audioManager.h" />
     <ClInclude Include="audio\audioPlayer.h" />
     <ClInclude Include="engine.h" />
-    <ClInclude Include="game\creatures\creature.h" />
-    <ClInclude Include="game\creatures\player.h" />
-    <ClInclude Include="game\logic\database.h" />
-    <ClInclude Include="game\logic\game.h" />
-    <ClInclude Include="game\logic\inventory.h" />
-    <ClInclude Include="game\resource.h" />
-    <ClInclude Include="game\world\map.h" />
-    <ClInclude Include="game\world\region.h" />
-    <ClInclude Include="game\world\tile.h" />
+    <ClInclude Include="game4\particle.h" />
     <ClInclude Include="graphics\buffers\indexBuffer.h" />
     <ClInclude Include="graphics\buffers\vertexArray.h" />
     <ClInclude Include="graphics\buffers\buffer.h" />
     <ClInclude Include="graphics\camera.h" />
     <ClInclude Include="graphics\fontLoader.h" />
     <ClInclude Include="graphics\textureManager.h" />
-    <ClInclude Include="logic\aabb.h" />
-    <ClInclude Include="logic\gameloop.h" />
     <ClInclude Include="graphics\shader.h" />
     <ClInclude Include="graphics\renderer.h" />
     <ClInclude Include="graphics\window.h" />
+    <ClInclude Include="logic\aabb.h" />
+    <ClInclude Include="logic\FastNoise.h" />
+    <ClInclude Include="logic\gameloop.h" />
     <ClInclude Include="logic\math.h" />
     <ClInclude Include="logic\noise.h" />
     <ClInclude Include="logic\SAT.h" />
@@ -241,9 +227,6 @@
     <None Include="shaders\texture.vert.glsl" />
     <None Include="shaders\postprocess.frag.glsl" />
     <None Include="shaders\postprocess.vert.glsl" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="game\overpeek-engine.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

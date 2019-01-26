@@ -21,6 +21,7 @@ public:
 public:
 	Inventory(graphics::Shader *shader, graphics::Window *window);
 
+	void save();
 	void render(graphics::Renderer *m_renderer);
 	void update();
 	void clear();

@@ -23,6 +23,9 @@ namespace logic {
 
 		long long m_counter;
 
+		short int m_microsec_frame;
+		short int m_microsec_update;
+
 		void loop();
 
 	public:
@@ -33,6 +36,9 @@ namespace logic {
 
 		inline int getFPS() { return m_fps; }
 		inline int getUPS() { return m_ups; }
+
+		inline short int getFMS() { return m_microsec_frame; }
+		inline short int getUMS() { return m_microsec_update; }
 	};
 
 }

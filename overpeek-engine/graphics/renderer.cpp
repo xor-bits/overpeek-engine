@@ -4,13 +4,16 @@
 
 namespace graphics {
 
-	Renderer::Renderer(std::string fontpath) : Renderer::Renderer() {
+	Renderer::Renderer(std::string fontpath, Window *window) : Renderer::Renderer(window) {
 		textRender = true;
 		initText(fontpath);
 	}
 
-	Renderer::Renderer() {
+	Renderer::Renderer(Window *window) {
 		quadCount = 0;
+		m_window = window;
+
+		if (!m_window) return;
 
 		for (int i = 0; i < MAX_QUADS_PER_FLUSH; i++)
 		{
@@ -44,45 +47,68 @@ namespace graphics {
 		m_VAO->addBuffer(m_COLOR, 3);
 
 		//Post processing
+		//return;
 
 		// The fullscreen quad's VBO
 		GLfloat g_quad_vertex_buffer_data[] = {
-			-0.2f, -0.2f, 0.0f,
-			 0.2f, -0.2f, 0.0f,
-			-0.2f,  0.2f, 0.0f,
-			-0.2f,  0.2f, 0.0f,
-			 0.2f, -0.2f, 0.0f,
-			 0.2f,  0.2f, 0.0f,
+			-1.0f, -1.0f,
+			 1.0f, -1.0f,
+			 1.0f,  1.0f,
+			-1.0f, -1.0f,
+			 1.0f,  1.0f,
+			-1.0f,  1.0f,
 		};
 		
-		m_quad_vertexbuffer;
-		glGenBuffers(1, &m_quad_vertexbuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, m_quad_vertexbuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
-		
-		
-		
+		m_ScreenVAO = new VertexArray();
+		m_ScreenVBO = new Buffer(g_quad_vertex_buffer_data, 18, 2, sizeof(GLfloat), GL_STATIC_DRAW);
+		m_ScreenVAO->addBuffer(m_ScreenVBO, 0);
+		m_ScreenVAO->unbind();
+
+		//Render buffer object
+		unsigned int rbo;
+		glGenRenderbuffers(1, &rbo);
+		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_window->getWidth(), m_window->getHeight());
+
+		//First framebuffer and frametexture
+		//buffer
 		glGenFramebuffers(1, &m_framebuffer);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
-		
-		m_frametexture;
+
+		//texture
 		glGenTextures(1, &m_frametexture);
-		
 		glBindTexture(GL_TEXTURE_2D, m_frametexture);
-		
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1280, 720, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
-		
-		// Poor filtering. Needed !
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_window->getWidth(), m_window->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_frametexture, 0);
-		
-		// Set the list of draw buffers.
-		GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
-		glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
-		
-		while (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE);
+
+		//attach
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) tools::Logger::error("Framebuffer is not complete!");
+
+		//Second framebuffer and frametexture
+		//buffer
+		glGenFramebuffers(1, &m_framebuffer2);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer2);
+
+		//texture
+		glGenTextures(1, &m_frametexture2);
+		glBindTexture(GL_TEXTURE_2D, m_frametexture2);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_window->getWidth(), m_window->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_frametexture2, 0);
+
+		//attach
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) tools::Logger::error("Framebuffer is not complete!");
+
+		//Unbinding
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
@@ -181,26 +207,56 @@ namespace graphics {
 
 		m_id[(quadCount * VERTEX_PER_QUAD) + 0] = textureID;
 		m_id[(quadCount * VERTEX_PER_QUAD) + 1] = textureID;
+		
 		m_id[(quadCount * VERTEX_PER_QUAD) + 2] = textureID;
 		m_id[(quadCount * VERTEX_PER_QUAD) + 3] = textureID;
+		
 		m_id[(quadCount * VERTEX_PER_QUAD) + 4] = textureID;
 		m_id[(quadCount * VERTEX_PER_QUAD) + 5] = textureID;
+
 		m_id[(quadCount * VERTEX_PER_QUAD) + 6] = textureID;
 		m_id[(quadCount * VERTEX_PER_QUAD) + 7] = textureID;
+
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 0] = color.r;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 1] = color.g;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 2] = color.b;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 3] = color.a;
+
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 4] = color.r;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 5] = color.g;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 6] = color.b;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 7] = color.a;
+
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 8] = color.r;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 9] = color.g;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 10] = color.b;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 11] = color.a;
+
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 12] = color.r;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 13] = color.g;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 14] = color.b;
+		m_color[(quadCount * VERTEX_PER_QUAD * 2) + 15] = color.a;
 
 		quadCount++;
 	}
 
 	void Renderer::flush(Shader *shader, int quadTexture) {
-		glActiveTexture(GL_TEXTURE0);
+		glEnable(GL_DEPTH_TEST);
+
+		if (!m_window) return;
+
 		//Flush quads
 		shader->enable();
 		shader->setUniform1i("unif_text", 0);
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D_ARRAY, graphics::TextureManager::getTexture(quadTexture));
 		m_VAO->bind();
 		
+		m_VBO->bind();
 		m_VBO->setBufferData(m_vertex, quadCount * VERTEX_PER_QUAD, 2, sizeof(GLfloat));
+		m_ID->bind();
 		m_ID->setBufferData(m_id, quadCount * VERTEX_PER_QUAD, 2, sizeof(GLfloat));
+		m_COLOR->bind();
 		m_COLOR->setBufferData(m_color, quadCount * VERTEX_PER_QUAD * 2, 4, sizeof(GLfloat));
 		
 		glDrawElements(GL_TRIANGLES, quadCount * 6, GL_UNSIGNED_SHORT, 0);
@@ -209,46 +265,52 @@ namespace graphics {
 		shader->setUniform1i("unif_text", 1);
 
 		if (textRender) fontLoader->flush();
+		glDisable(GL_DEPTH_TEST);
 	}
 
-	GLuint Renderer::renderToFramebuffer(Shader *postshader, Shader *shader, int quadTexture) {
-		glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
-		glViewport(0, 0, 1280, 720); // Render on the whole framebuffer, complete from the lower left corner to the upper right
+	/*scale must not be above 1.0 yet*/
+	void Renderer::renderToFramebuffer(Shader *shader, int quadTexture, int framebufferindex) {
+		if (framebufferindex == 0) glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
+		else if (framebufferindex == 1) glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer2);
 
-		// Clear the screen
-		glClearColor(0.3, 0.3, 0.3, 1.0);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		flush(shader, quadTexture);
 
-		postshader->enable();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glViewport(0, 0, 1280, 720); // Render on the whole framebuffer, complete from the lower left corner to the upper right
+		glViewport(0, 0, m_window->getWidth(), m_window->getHeight());
+	}
 
-
-		// Clear the screen
-		glClearColor(0.5, 0.5, 0.0, 1.0);
-		glClear(GL_COLOR_BUFFER_BIT);
+	void Renderer::flushFramebufferToFramebuffer(Shader *postshader, int first, int second) {
+		if (second == 0) glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
+		else if (second == 1) glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer2);
 		
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, m_frametexture);
+		flushFramebuffer(postshader, first);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void Renderer::flushFramebuffer(Shader *postshader, int framebufferindex) {
+		//Render quad to whole screen
+		glClear(GL_COLOR_BUFFER_BIT);
+		glDisable(GL_DEPTH_TEST);
+
+		postshader->enable();
 		postshader->setUniform1i("renderedTexture", 0);
+		glActiveTexture(GL_TEXTURE0);
 
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, m_quad_vertexbuffer);
-		glVertexAttribPointer(
-			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-			3,                  // size
-			GL_FLOAT,           // type
-			GL_FALSE,           // normalized?
-			0,                  // stride
-			(void*)0            // array buffer offset
-		);
+		if (framebufferindex == 0) {
+			glBindTexture(GL_TEXTURE_2D, m_frametexture);
+		}
+		else if (framebufferindex == 1) {
+			glBindTexture(GL_TEXTURE_2D, m_frametexture2);
+		}
+		
 
-		// Draw the triangles !
-		glDrawArrays(GL_TRIANGLES, 0, 6); // 2*3 indices starting at 0 -> 2 triangles
-
-		return m_framebuffer;
+		m_ScreenVAO->bind();
+		m_ScreenVBO->bind();
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glEnable(GL_DEPTH_TEST);
 	}
 
 	void Renderer::clear() {

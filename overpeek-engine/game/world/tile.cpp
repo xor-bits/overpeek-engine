@@ -3,6 +3,8 @@
 #include "region.h"
 #include "../logic/game.h"
 
+#if !STORE_MAP_IN_RAM
+
 Tile::Tile(long int x, long int y, int id, int object_id, unsigned int localX, unsigned int localY) {
 	m_id = id; m_object_id = object_id; m_x = x; m_y = y; m_localX = localX; m_localY = localY;
 	m_object_health = 1.0; m_real = true;
@@ -81,3 +83,5 @@ void Tile::healObject() {
 	m_object_health = 1.0;
 	Game::tilesChanged = true;
 }
+
+#endif

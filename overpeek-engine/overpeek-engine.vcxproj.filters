@@ -15,16 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="logic\gameloop.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="tools\clock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tools\random.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="logic\noise.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="graphics\buffers\buffer.cpp">
@@ -60,31 +54,16 @@
     <ClCompile Include="tools\Source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="game\creatures\creature.cpp">
+    <ClCompile Include="logic\gameloop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="game\creatures\player.cpp">
+    <ClCompile Include="logic\noise.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="game\logic\database.cpp">
+    <ClCompile Include="logic\FastNoise.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="game\logic\game.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="game\logic\inventory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="game\world\map.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="game\world\region.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="game\world\tile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="game\main.cpp">
+    <ClCompile Include="game4\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -98,22 +77,10 @@
     <ClInclude Include="tools\random.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="logic\SAT.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="logic\gameloop.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="logic\noise.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="tools\binaryIO.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="logic\aabb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="graphics\buffers\buffer.h">
@@ -152,37 +119,28 @@
     <ClInclude Include="tools\logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="game\creatures\creature.h">
+    <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="game\creatures\player.h">
+    <ClInclude Include="logic\aabb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="game\logic\database.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game\logic\game.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game\logic\inventory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game\world\map.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game\world\region.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game\world\tile.h">
+    <ClInclude Include="logic\gameloop.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="logic\math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="logic\noise.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="game\resource.h">
+    <ClInclude Include="logic\SAT.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="logic\FastNoise.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game4\particle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -191,10 +149,5 @@
     <None Include="shaders\texture.vert.glsl" />
     <None Include="shaders\postprocess.vert.glsl" />
     <None Include="shaders\postprocess.frag.glsl" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="game\overpeek-engine.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
   </ItemGroup>
 </Project>

@@ -1,5 +1,5 @@
 #include "region.h"
-
+#if !STORE_MAP_IN_RAM
 
 Region::Region(int x, int y) {
 	m_x = x; m_y = y; null = false;
@@ -44,6 +44,7 @@ void Region::createTiles() {
 			int id = 0;
 			int object_id = 0;
 			Game::getInfoFromNoise(id, object_id, tilex, tiley);
+
 			m_tiles[x][y] = Tile(tilex, tiley, id, object_id, x, y);
 			m_renderIdArray[x][y] = Database::tiles[id].texture;
 			m_renderIdObjectArray[x][y] = Database::objects[object_id].texture;
@@ -57,7 +58,8 @@ void Region::tilesChanged() {
 		for (int y = 0; y < REGION_SIZE; y++)
 		{
 			m_renderIdArray[x][y] = m_tiles[x][y].getTexture();
-			m_renderIdObjectArray[x][y] = m_tiles[x][y].getObjectTexture();
+			m_renderIdObjectArray[x][y] = m_tiles[x][y].getObjectTexture(); 
+			m_renderColorObjectArray[x][y] = Database::objects[m_tiles[x][y].getObjectId()].color;
 		}
 	}
 }
@@ -183,7 +185,7 @@ void Region::submitObjectsToRenderer(graphics::Renderer *renderer, float offx, f
 		for (int y = 0; y < REGION_SIZE; y++) {
 			int objid = m_renderIdObjectArray[x][y];
 			float renderx = x * TILE_SIZE + rx, rendery = y * TILE_SIZE + ry;
-			if (objid != 0) renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, 0, objid, glm::vec4(1.0, 1.0, 1.0, 1.0));
+			if (objid != 0) renderer->renderBox(renderx, rendery, TILE_SIZE, TILE_SIZE, 0, objid, glm::vec4(m_renderColorObjectArray[x][y], 1.0));
 		}
 	}
 
@@ -275,3 +277,5 @@ void Region::removeCreature(Creature *creature, bool _delete) {
 	std::string buffAsStdStr = buff;
 	tools::Logger::critical("Couldn't find creature: " + buffAsStdStr + "!");
 }
+
+#endif

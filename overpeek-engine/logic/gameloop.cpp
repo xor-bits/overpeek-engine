@@ -23,13 +23,13 @@ namespace logic {
 	}
 
 	void GameLoop::start() {
-#pragma omp parallel 
+//#pragma omp parallel 
 		{
-			if (omp_get_thread_num() == 0) {
+			//if (omp_get_thread_num() == 0) {
 				while (mShouldRun) {
 					loop();
 				}
-			}
+			//}
 			//else if (omp_get_thread_num() == 1) {
 			//	while (mShouldRun) {
 			//		mCallbackRapid();
@@ -51,7 +51,9 @@ namespace logic {
 			m_update_lag -= m_upsCap;
 
 			m_updates++;
+			long long timeupdate = tools::Clock::getMicroseconds();
 			mCallbackUpdate();
+			m_microsec_update = tools::Clock::getMicroseconds() - timeupdate;
 		}
 
 		if (fpsdeltaTime >= m_fpsCap) {
@@ -59,7 +61,9 @@ namespace logic {
 		}
 
 		m_frames++;
+		long long timeframe = tools::Clock::getMicroseconds();
 		mCallbackRender();
+		m_microsec_frame = tools::Clock::getMicroseconds() - timeframe;
 
 		if (time - m_counter > 1000000) {
 			m_counter += 1000000;

@@ -15,10 +15,15 @@ void main()
 	if (unif_text) {
 
 		float textureColor = texture(tex, vec3(shader_uv.x, shader_uv.y, shader_id)).x;
-		color = vec4(1.0, 1.0, 1.0, textureColor);
+		color = vec4(shader_color.x, shader_color.y, shader_color.z, textureColor);
 	}
 	else {
 		vec4 textureColor = texture(tex, vec3(shader_uv, shader_id));
+		textureColor.x *= shader_color.x;
+		textureColor.y *= shader_color.y;
+		textureColor.z *= shader_color.z;
+		textureColor.a *= shader_color.a;
+
 		if (unif_blending) {
 			if (shader_uv.x <= 0.25) {
 				textureColor.a *= shader_uv.x * 4;

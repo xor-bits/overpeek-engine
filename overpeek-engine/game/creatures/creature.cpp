@@ -1,4 +1,5 @@
 #include "creature.h"
+#include "../world/map.h"
 #include "../world/tile.h"
 #include "../world/region.h"
 #include "../../logic/aabb.h"
@@ -91,7 +92,12 @@ void Creature::update() {
 		float distanceToPlayer = abs(x - Game::getPlayer()->x) + abs(y - Game::getPlayer()->y);
 		if (distanceToPlayer < 0.8) {
 			if (Game::getPlayer()->inventory->addItem(m_id)) {
+				///REMOVE THIS CREATURE
+				#if !STORE_MAP_IN_RAM
 				Game::getRegion(getX(), getY())->removeCreature(m_regionIndex, true);
+				#else
+				Game::getMap()->removeCreature(m_regionIndex, true);
+				#endif				
 				audio::AudioManager::play(2);
 				return;
 			}
@@ -134,28 +140,43 @@ void Creature::hit() {
 	}
 
 	//Creature hitting
+#if !STORE_MAP_IN_RAM
 	Creature* creatureArray[MAX_CREATURES];
 	unsigned int amount;
 	Region* thisRegion = Game::getRegion(hitx, hity);
 	Game::findAllCreatures(hitx, hity, creatureArray, amount, 1.0);
-
+#else
+	Creature* creatureArray[M_MAP_MAX_CREATURES];
+	unsigned int amount;
+	Game::getMap()->findAllCreatures(hitx, hity, creatureArray, amount, 1.0);
+#endif
+	
 	for (int i = 0; i < amount; i++)
 	{
 		glm::vec2 directionVector = glm::vec2(creatureArray[i]->getX() - getX(), creatureArray[i]->getY() - getY());
 		directionVector = glm::normalize(directionVector);
-
+	
 		creatureArray[i]->acc_x = directionVector.x / 10.0 * Database::creatures[m_id].knockback;
 		creatureArray[i]->acc_y = directionVector.y / 10.0 * Database::creatures[m_id].knockback;
 		creatureArray[i]->heal(-Database::creatures[m_id].meleeDamage);
 	}
 
 	//Tile hitting
-	Tile* tmp = Game::getTile(hitx, hity, "from creature to hit object");
+#if !STORE_MAP_IN_RAM
+	Tile* tmp = Game::getTile(hitx, hity, "creature");
 	if (tmp) {
 		if (Database::objects[tmp->getObjectId()].destructable) {
 			tmp->hitObject(0.5f);
 		}
 	}
+#else
+	Map::MapTile* tmp = Game::getMap()->getTile(hitx, hity);
+	if (tmp) {
+		if (Database::objects[tmp->m_object].destructable) {
+			Game::getMap()->hit(hitx, hity, 0.5f);
+		}
+	}
+#endif
 
 	//Swing noise
 	audio::AudioManager::play(1);
@@ -168,10 +189,17 @@ void Creature::collide() {
 	{
 		for (int _y = -1; _y < 2; _y++)
 		{
+			#if !STORE_MAP_IN_RAM
 			Tile* tile = Game::getTile(floor(x) + _x, floor(y) + _y, std::string("from creature to collide ") + std::to_string(m_id));
 			if (tile == nullptr) continue;
-
 			if (Database::objects[tile->getObjectId()].wall) {
+			#else
+			Map::MapTile* tile = Game::getMap()->getTile(floor(x) + _x, floor(y) + _y);
+			if (tile == nullptr) continue;
+			if (Database::objects[tile->m_object].wall) {
+			#endif
+
+				//Start loop
 				int tilex = floor(x) + _x;
 				int tiley = floor(y) + _y;
 
@@ -185,7 +213,9 @@ void Creature::collide() {
 					x = tilex + 1 + (CREAURE_WIDTH / 2.0);
 
 					//Process new area if player
+					#if !STORE_MAP_IN_RAM
 					if (m_id == 0) Game::processNewArea();
+					#endif
 				}
 				//RIGHT COLLIDER
 				if (logic::AABB(
@@ -197,7 +227,9 @@ void Creature::collide() {
 					x = tilex - (CREAURE_WIDTH / 2.0);
 
 					//Process new area if player
+					#if !STORE_MAP_IN_RAM
 					if (m_id == 0) Game::processNewArea();
+					#endif
 				}
 				//TOP COLLIDER
 				if (logic::AABB(
@@ -209,7 +241,9 @@ void Creature::collide() {
 					y = tiley + 1 + (CREAURE_HEIGHT / 2.0);
 
 					//Process new area if player
+					#if !STORE_MAP_IN_RAM
 					if (m_id == 0) Game::processNewArea();
+					#endif
 				}
 				//BOTTOM COLLIDER
 				if (logic::AABB(
@@ -221,7 +255,9 @@ void Creature::collide() {
 					y = tiley - (CREAURE_HEIGHT / 2.0);
 
 					//Process new area if player
+					#if !STORE_MAP_IN_RAM
 					if (m_id == 0) Game::processNewArea();
+					#endif
 				}
 			}
 		}
@@ -262,6 +298,9 @@ void Creature::heal(float amount) {
 	m_health += amount;
 	if (m_health <= 0) {
 		Game::addCreature(getX(), getY(), Database::creatures[m_id].dropsAs, true);
+		///REDO THIS
+#if !STORE_MAP_IN_RAM
 		Game::getRegion(getX(), getY())->removeCreature(m_regionIndex, true);
+#endif
 	}
 }

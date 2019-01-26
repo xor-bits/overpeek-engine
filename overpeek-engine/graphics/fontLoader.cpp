@@ -37,10 +37,12 @@ namespace graphics {
 		m_UV = new Buffer(m_uv, TEXT_MAX_VBO, 2, sizeof(GLfloat), GL_STATIC_DRAW);
 		m_VBO = new Buffer(0, TEXT_MAX_VBO, 2, sizeof(GLfloat), GL_DYNAMIC_DRAW);
 		m_ID = new Buffer(0, TEXT_MAX_VBO, 2, sizeof(GLfloat), GL_DYNAMIC_DRAW);
+		m_COLOR = new Buffer(0, TEXT_MAX_VBO*2, 4, sizeof(GLfloat), GL_DYNAMIC_DRAW);
 
 		m_VAO->addBuffer(m_VBO, 0);
 		m_VAO->addBuffer(m_UV, 1);
 		m_VAO->addBuffer(m_ID, 2);
+		m_VAO->addBuffer(m_COLOR, 3);
 	}
 
 	bool GetPixelValue(unsigned char *pBuffer, int iPitch, int x, int y)
@@ -129,20 +131,21 @@ namespace graphics {
 
 		m_VBO->setBufferData(m_vertex, quadCount * TEXT_VERTEX_PER_QUAD, 2, sizeof(GLfloat));
 		m_ID->setBufferData(m_id, quadCount * TEXT_VERTEX_PER_QUAD, 2, sizeof(GLfloat));
+		m_COLOR->setBufferData(m_color, quadCount * TEXT_VERTEX_PER_QUAD * 2, 4, sizeof(GLfloat));
 
 		glDrawArrays(GL_TRIANGLES, 0, quadCount * 6);
 
 		quadCount = 0;
 	}
 	
-	void FontLoader::renderText(float _x, float _y, float _w, float _h, std::string _text, glm::vec3 _color, int _textAlignmentX, int _textAlignmentY)
+	void FontLoader::renderText(float _x, float _y, float _w, float _h, std::string _text, glm::vec3 _color, int _textOriginX, int _textOriginY)
 	{
 		GLfloat x = _x;
 		GLfloat y = _y;
 		std::string::const_iterator c;
 		
-		if (_textAlignmentX == TEXT_ALIGN_RIGHT) {} //Already
-		else if (_textAlignmentX == TEXT_ALIGN_LEFT) {
+		if (_textOriginX == TEXT_ORIGIN_LEFT) {} //Already
+		else if (_textOriginX == TEXT_ORIGIN_RIGHT) {
 			GLfloat textWidth = 0.0f;
 			for (c = _text.begin(); c != _text.end(); c++)
 			{
@@ -154,7 +157,7 @@ namespace graphics {
 			}
 			x -= textWidth;
 		}
-		else if (_textAlignmentX == TEXT_ALIGN_CENTER) {
+		else if (_textOriginX == TEXT_ORIGIN_CENTER) {
 			GLfloat textWidth = 0.0f;
 			for (c = _text.begin(); c != _text.end(); c++)
 			{
@@ -167,9 +170,9 @@ namespace graphics {
 			x -= textWidth/2.0;
 		}
 		
-		if (_textAlignmentY == TEXT_ALIGN_TOP) {} //Already
-		else if (_textAlignmentY == TEXT_ALIGN_BOTTOM) y += 1.0f * _h;
-		else if (_textAlignmentY == TEXT_ALIGN_CENTER) y += 0.25f * _h;
+		if (_textOriginY == TEXT_ORIGIN_BOTTOM) {} //Already
+		else if (_textOriginY == TEXT_ORIGIN_TOP) y += 1.0f * _h;
+		else if (_textOriginY == TEXT_ORIGIN_CENTER) y += 0.25f * _h;
 		
 		// Iterate through all characters
 		for (c = _text.begin(); c != _text.end(); c++)
@@ -214,6 +217,36 @@ namespace graphics {
 			m_id[(quadCount * TEXT_VERTEX_PER_QUAD) + 9] = m_characters[*c].textureID;
 			m_id[(quadCount * TEXT_VERTEX_PER_QUAD) + 10] = m_characters[*c].textureID;
 			m_id[(quadCount * TEXT_VERTEX_PER_QUAD) + 11] = m_characters[*c].textureID;
+
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 0] = _color.x;
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 1] = _color.y;
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 2] = _color.z;
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 3] = 1.0;
+
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 4] = _color.x;
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 5] = _color.y;
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 6] = _color.z;
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 7] = 1.0;
+
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 8] = _color.x;
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 9] = _color.y;
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 10] = _color.z;
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 11] = 1.0;
+
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 12] = _color.x;
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 13] = _color.y;
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 14] = _color.z;
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 15] = 1.0;
+
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 16] = _color.x;
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 17] = _color.y;
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 18] = _color.z;
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 19] = 1.0;
+
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 20] = _color.x;
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 21] = _color.y;
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 22] = _color.z;
+			m_color[(quadCount * TEXT_VERTEX_PER_QUAD * 2) + 23] = 1.0;
 
 			quadCount++;
 		

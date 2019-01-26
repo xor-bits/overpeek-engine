@@ -11,6 +11,7 @@
 #include "buffers/indexBuffer.h"
 #include "buffers/buffer.h"
 #include "buffers/vertexArray.h"
+#include "../tools/logger.h"
 
 #define MAX_QUADS_PER_FLUSH 64000
 #define VERTEX_PER_QUAD 4 * 2
@@ -20,8 +21,11 @@
 
 namespace graphics {
 
+	class Window;
 	class Renderer {
 	private:
+		Window *m_window;
+
 		VertexArray *m_VAO;
 		Buffer *m_VBO;
 		Buffer *m_UV;
@@ -35,11 +39,16 @@ namespace graphics {
 		GLfloat m_uv[MAX_VBO];
 		GLfloat m_id[MAX_VBO];
 		GLushort m_index[MAX_IBO];
-		GLubyte m_color[MAX_VBO * 2];
+		GLfloat m_color[MAX_VBO * 2];
 
 		GLuint m_framebuffer;
 		GLuint m_frametexture;
-		GLuint m_quad_vertexbuffer;
+		GLuint m_framebuffer2;
+		GLuint m_frametexture2;
+
+
+		VertexArray *m_ScreenVAO;
+		Buffer *m_ScreenVBO;
 
 		FontLoader *fontLoader;
 
@@ -48,15 +57,17 @@ namespace graphics {
 		bool textRender = false;
 
 	public:
-		Renderer(std::string fontpath);
-		Renderer();
+		Renderer(std::string fontpath, Window *window);
+		Renderer(Window *window);
 
 		void renderBox(float x, float y, float w, float h, float angle, int textureID, glm::vec4 color);
 		void renderBoxCentered(float x, float y, float w, float h, float angle, int textureID, glm::vec4 color);
 		void renderText(float x, float y, float w, float h, float angle, std::string text, glm::vec4 color, int xAlign, int yAlign);
 		
 		void flush(Shader *shader, int quadTexture);
-		GLuint renderToFramebuffer(Shader *postshader, Shader *shader, int quadTexture);
+		void renderToFramebuffer(Shader *shader, int quadTexture, int framebufferindex);
+		void flushFramebuffer(Shader *postshader, int framebufferindex);
+		void flushFramebufferToFramebuffer(Shader *postshader, int first, int second);
 		void clear();
 	};
 	

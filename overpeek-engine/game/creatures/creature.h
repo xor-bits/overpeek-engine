@@ -44,6 +44,7 @@ public:
 
 	inline int getId() { return m_id; }
 
+	#if !STORE_MAP_IN_RAM
 	inline float getListRegionX() {
 		if (x >= 0) return x / (float)REGION_SIZE + 0.5;
 		else return x / (float)REGION_SIZE - 0.5;
@@ -52,6 +53,7 @@ public:
 		if (y >= 0) return y / (float)REGION_SIZE + 0.5;
 		else return y / (float)REGION_SIZE - 0.5;
 	}
+	#endif
 
 	inline float getHealth() { return m_health; }
 	inline float getX() { return x - 0.5; }

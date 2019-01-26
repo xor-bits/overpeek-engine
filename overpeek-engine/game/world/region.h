@@ -1,11 +1,11 @@
 #pragma once
 
-#define MAX_CREATURES 256
-
 #include "tile.h"
 #include "../logic/game.h"
 #include "../../engine.h"
 #include "../creatures/creature.h"
+
+#if !STORE_MAP_IN_RAM
 
 class Region {
 private:
@@ -17,6 +17,7 @@ private:
 
 	int m_renderIdArray[REGION_SIZE][REGION_SIZE];
 	int m_renderIdObjectArray[REGION_SIZE][REGION_SIZE];
+	glm::vec3 m_renderColorObjectArray[REGION_SIZE][REGION_SIZE];
 
 	void createTiles();
 	void loadTiles(unsigned char *tileData, float *creatureData);
@@ -52,3 +53,5 @@ public:
 	inline Creature* getCreature(int i) { return m_creatures[i]; }
 
 };
+
+#endif

@@ -2,7 +2,9 @@
 
 #include "../creatures/player.h"
 #include "../world/region.h"
+#include "../world/map.h"
 #include "../logic/inventory.h"
+#include "gui.h"
 
 #include <windows.h>
 #include <math.h>
@@ -12,42 +14,49 @@ graphics::Window *Game::m_window;
 graphics::Shader *Game::m_shader;
 graphics::Shader *Game::m_postshader;
 graphics::Shader *Game::m_guishader;
-graphics::Renderer *Game::m_worldtilerenderer;
-graphics::Renderer *Game::m_worldobjectrenderer;
-graphics::Renderer *Game::m_creaturerenderer;
+graphics::Renderer *Game::m_worldrenderer;
 graphics::Renderer *Game::m_guirenderer;
 logic::GameLoop *Game::m_loop;
-glm::ivec2 Game::m_hover_tile;
+Gui *Game::m_gui;
 Inventory *m_inventory;
+Map *Game::m_map;
 
+FastNoise Game::m_biomenoise;
+FastNoise Game::m_mapnoise;
+FastNoise Game::m_plantnoise1;
+FastNoise Game::m_plantnoise2;
+
+#if !STORE_MAP_IN_RAM
 Region Game::m_region[RENDER_DST][RENDER_DST];
 bool Game::m_regionExist[RENDER_DST][RENDER_DST];
 std::vector<Region> Game::m_regionUnloadArray;
-Player *Game::m_player;
 
 float Game::lastRegionX = 0;
 float Game::lastRegionY = 0;
 int Game::seed = 0;
 
-bool Game::debugMode = false;
-bool Game::advancedDebugMode = false;
-bool Game::tilesChanged = true;
-
-int Game::hitCooldown = 513709;
 int Game::asyncLoadX = 0;
 int Game::asyncLoadY = 0;
 int Game::asyncSaveIndex = 0;
+#endif
 
-bool holdingI = false;
+Player *Game::m_player;
 
-bool paused = false;
+bool Game::debugMode = false;
+bool Game::advancedDebugMode = false;
+bool Game::tilesChanged = true;
+bool Game::justPaused = false;
+
+int Game::hitCooldown = 513709;
+
+bool Game::paused = false;
 
 
 std::string renderer;
 
 void Game::init() {
-	tools::Logger::setup();
 
+	tools::Logger::setup();
 	//Audio
 #if ENABLE_AUDIO
 	tools::Logger::info("Creating audio device");
@@ -85,20 +94,11 @@ void Game::init() {
 	loadGame();
 	renderer = std::string((char*)glGetString(GL_RENDERER));
 
+	tools::Logger::info("Running update and renderloops");
 	m_loop->start();
 }
 
 void Game::rapidUpdate() {
-
-}
-
-void Game::renderPauseScreen() {
-	float textScale = 0.1;
-
-	//m_guirenderer->renderBox(-m_window->getAspect(), -1.0, 2 * m_window->getAspect(), 2.0, 0, 8, glm::vec4(1.0, 1.0, 1.0, 1.0));
-
-	std::string text = "PAUSED";
-	m_guirenderer->renderText(0, -0.5, textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER);
 }
 
 void Game::renderInfoScreen() {
@@ -116,76 +116,78 @@ void Game::renderInfoScreen() {
 	if (!advancedDebugMode) return;
 	text = "Position X: " + std::to_string(m_player->getX()) + ", Y: " + std::to_string(m_player->getY());
 	m_guirenderer->renderText(x, -1.0 + (textScale * 2), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
-	text = "Tile X: " + std::to_string(getTile(m_player->getX(), m_player->getY(), "Info render")->getX()) + ", Y: " + std::to_string(getTile(m_player->getX(), m_player->getY(), "Info render")->getY());
+	text = "Tile: " + Database::tiles[m_map->getTile(m_player->getY(), m_player->getY())->m_tile].name;
 	m_guirenderer->renderText(x, -1.0 + (textScale * 3), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
-	text = "Region X: " + std::to_string(posToRegionPos(m_player->getX())) + ", Y: " + std::to_string(posToRegionPos(m_player->getY()));
+	text = "Object: " + Database::objects[m_map->getTile(m_player->getY(), m_player->getY())->m_object].name;
 	m_guirenderer->renderText(x, -1.0 + (textScale * 4), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
-	text = "Region pos X: " + std::to_string(getRegion(m_player->getX(), m_player->getY())->getX()) + ", Y: " + std::to_string(getRegion(m_player->getX(), m_player->getY())->getY());
-	m_guirenderer->renderText(x, -1.0 + (textScale * 5), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	//text = "Region pos X: " + std::to_string(getRegion(m_player->getX(), m_player->getY())->getX()) + ", Y: " + std::to_string(getRegion(m_player->getX(), m_player->getY())->getY());
+	//m_guirenderer->renderText(x, -1.0 + (textScale * 5), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 	text = "Renderer: " + renderer;
+	m_guirenderer->renderText(x, -1.0 + (textScale * 5), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	text = "Biome: " + getTileBiome(m_player->getX(), m_player->getY()).name;
 	m_guirenderer->renderText(x, -1.0 + (textScale * 6), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
-	text = "Biome: " + std::string(Database::getBiome(getTileBiome(m_player->getX(), m_player->getY(), BIOME_SCRAMBLE1), getTileBiome(m_player->getX(), m_player->getY(), BIOME_SCRAMBLE2)).name);
-	m_guirenderer->renderText(x, -1.0 + (textScale * 7), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
 }
 
 void Game::render() {
+	//return;
 	if (!m_window) return;
 	
 	//World tiles
-	m_worldtilerenderer->clear();
+	m_worldrenderer->clear();
+#if !STORE_MAP_IN_RAM
 	for (int x = 0; x < RENDER_DST; x++)
 	{
 		for (int y = 0; y < RENDER_DST; y++)
 		{
-			if (m_regionExist[x][y]) m_region[x][y].submitTilesToRenderer(m_worldtilerenderer, -m_player->x, -m_player->y);
+			if (m_regionExist[x][y]) m_region[x][y].submitTilesToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
+			if (m_regionExist[x][y]) m_region[x][y].submitObjectsToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
+			if (m_regionExist[x][y]) m_region[x][y].submitCreaturesToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
 		}
 	}
-
-	//World Objects
-	m_worldobjectrenderer->clear();
-	for (int x = 0; x < RENDER_DST; x++)
-	{
-		for (int y = 0; y < RENDER_DST; y++)
-		{
-			if (m_regionExist[x][y]) m_region[x][y].submitObjectsToRenderer(m_worldobjectrenderer, -m_player->x, -m_player->y);
-		}
-	}
-
-	//Creature
-	m_creaturerenderer->clear();
-	for (int x = 0; x < RENDER_DST; x++)
-	{
-		for (int y = 0; y < RENDER_DST; y++)
-		{
-			if (m_regionExist[x][y]) m_region[x][y].submitCreaturesToRenderer(m_creaturerenderer, -m_player->x, -m_player->y);
-		}
-	}
-	m_player->submitToRenderer(m_creaturerenderer, -m_player->x, -m_player->y);
+#else
+	m_map->submitToRenderer(m_worldrenderer);
+#endif
+	m_player->submitToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
+	m_inventory->render(m_worldrenderer);
 
 
 	//Gui
 	m_guirenderer->clear();
-	m_inventory->render(m_guirenderer); 
 	renderInfoScreen();
-	if (paused) renderPauseScreen();
+	m_gui->render(m_worldrenderer, m_guirenderer);
 	
 	//Flush
-	m_shader->enable();
-	m_shader->setUniform1i("unif_blending", 1);
-	m_worldtilerenderer->flush(m_shader, 0);
-
-	m_shader->setUniform1i("unif_blending", 0);
-	m_worldobjectrenderer->flush(m_shader, 0);
-
-	m_creaturerenderer->flush(m_shader, 0);
-	m_guirenderer->flush(m_shader, 0);
+	m_postshader->enable();
+	m_postshader->setUniform1i("unif_effect", 0);
+	m_postshader->setUniform1f("unif_width", m_window->getWidth());
+	m_postshader->setUniform1f("unif_height", m_window->getHeight());
+	if (!paused) {
+		m_worldrenderer->flush(m_shader, 0);
+	}
+	else if (justPaused) {
+		m_worldrenderer->renderToFramebuffer(m_shader, 0, 0);
+		m_postshader->enable();
+		for (int i = 0; i < 16; i++) {
+			m_postshader->setUniform1i("unif_effect", 1);
+			m_worldrenderer->flushFramebufferToFramebuffer(m_postshader, 0, 1);
+			m_worldrenderer->flushFramebufferToFramebuffer(m_postshader, 1, 0);
+			m_postshader->setUniform1i("unif_effect", 2);
+			m_worldrenderer->flushFramebufferToFramebuffer(m_postshader, 0, 1);
+			m_worldrenderer->flushFramebufferToFramebuffer(m_postshader, 1, 0);
+		}
+	}
+	else if (paused) {
+		m_postshader->enable();
+		m_postshader->setUniform1i("unif_effect", 0);
+		m_worldrenderer->flushFramebuffer(m_postshader, 0);
+	}
 	
-	//m_guirenderer->renderBox(-0.5, -0.5, 1.0, 1.0, 0, 0, glm::vec4(0.0, 0.0, 0.0, 0.0));
-	//m_guirenderer->clear();
+	m_guirenderer->flush(m_shader, 0);
 
-	// Render to our framebuffer
-	//m_worldrenderer->renderToFramebuffer(m_postshader, m_shader, 0);
+	//Other
+	justPaused = false;
 
+	//Window updates
 	m_window->update();
 	m_window->clear();
 	m_window->input();
@@ -203,23 +205,31 @@ void Game::update() {
 	if (!paused) {
 		//Player movement
 		float playerSpeed = 0.03;
-		if (m_window->getKey(GLFW_KEY_LEFT_SHIFT)) playerSpeed *= 2;
+		bool running = false;
+		bool moving = false;
+		if (m_window->getKey(GLFW_KEY_LEFT_SHIFT)) running = true;
+		if (m_window->getKey(GLFW_KEY_LEFT_SHIFT) && !m_gui->exhausted()) playerSpeed *= 2;
 		else if (m_window->getKey(GLFW_KEY_LEFT_CONTROL)) playerSpeed *= 0.2;
 		else if (m_window->getKey(GLFW_KEY_TAB)) playerSpeed *= 20;
-		if (m_window->getKey(GLFW_KEY_S)) { m_player->vel_y = playerSpeed; }
-		if (m_window->getKey(GLFW_KEY_D)) { m_player->vel_x = playerSpeed; }
-		if (m_window->getKey(GLFW_KEY_W)) { m_player->vel_y = -playerSpeed; }
-		if (m_window->getKey(GLFW_KEY_A)) { m_player->vel_x = -playerSpeed; }
+		if (m_window->getKey(GLFW_KEY_S)) { m_player->vel_y = playerSpeed; moving = true; }
+		if (m_window->getKey(GLFW_KEY_D)) { m_player->vel_x = playerSpeed; moving = true; }
+		if (m_window->getKey(GLFW_KEY_W)) { m_player->vel_y = -playerSpeed; moving = true; }
+		if (m_window->getKey(GLFW_KEY_A)) { m_player->vel_x = -playerSpeed; moving = true; }
+		if (moving && running) { m_gui->setStamina(m_gui->getStamina() - 0.02); }
+		m_gui->update();
 		m_player->update();
 		m_inventory->update();
 
 		//Load regions after camera/player moves
+#if !STORE_MAP_IN_RAM
 		processNewArea();
+#endif
 
 		//Player collision
 		m_player->collide();
 
 		//World updates
+		#if !STORE_MAP_IN_RAM
 		for (int x = 0; x < RENDER_DST; x++)
 		{
 			for (int y = 0; y < RENDER_DST; y++)
@@ -229,9 +239,12 @@ void Game::update() {
 				}
 			}
 		}
-
+		#else
+		m_map->update();
+		#endif
 	}
 
+	#if !STORE_MAP_IN_RAM
 	asyncLoadRegions();
 	asyncUnload();
 
@@ -247,22 +260,31 @@ void Game::update() {
 		}
 	}
 	if (tilesChanged) tilesChanged = false;
+	#endif
 
 }
 
+#if !STORE_MAP_IN_RAM
 void Game::asyncUnload() {
 	if (m_regionUnloadArray.size() > 0) {
 		asyncSaveIndex++;
 		if (asyncSaveIndex >= m_regionUnloadArray.size()) {
 			asyncSaveIndex = 0;
 		}
-
+		
+		//long long startTime = tools::Clock::getMicroseconds();
 		m_regionUnloadArray[asyncSaveIndex].saveTiles();
+		//tools::Logger::info(tools::Clock::getMicroseconds() - startTime);
 		m_regionUnloadArray.erase(m_regionUnloadArray.begin() + asyncSaveIndex);
 	}
 }
+#endif
 
 void Game::keyPress(int key, int action) {
+	if (key == GLFW_KEY_ESCAPE) { paused = !paused; justPaused = true; return; }
+	m_gui->keyPress(key, action);
+
+	if (paused) return;
 
 	//Player Hitting
 	if (key == GLFW_KEY_UP) { m_player->heading = HEADING_UP; m_player->hit(); return; }
@@ -270,7 +292,6 @@ void Game::keyPress(int key, int action) {
 	if (key == GLFW_KEY_LEFT) { m_player->heading = HEADING_LEFT; m_player->hit(); return; }
 	if (key == GLFW_KEY_RIGHT) { m_player->heading = HEADING_RIGHT; m_player->hit(); return; }
 	
-	if (key == GLFW_KEY_ESCAPE) { paused = !paused; return; }
 	if (key == GLFW_KEY_E) { m_player->setX(round(m_player->getX())); m_player->setY(round(m_player->getY())); return; }
 
 	//Inventory
@@ -297,6 +318,7 @@ void Game::keyPress(int key, int action) {
 
 	//Debug ceil creaures
 	if (key == GLFW_KEY_F2) {
+#if !STORE_MAP_IN_RAM
 		for (int x = 0; x < RENDER_DST; x++)
 		{
 			for (int y = 0; y < RENDER_DST; y++)
@@ -304,6 +326,9 @@ void Game::keyPress(int key, int action) {
 				if (m_regionExist[x][y])  m_region[x][y].debugCeilCreatures();
 			}
 		}
+#else
+		m_map->debugCeilCreatures();
+#endif
 	}
 	
 	//Reload game
@@ -312,13 +337,14 @@ void Game::keyPress(int key, int action) {
 		delete m_inventory;
 		delete m_player;
 
+#if !STORE_MAP_IN_RAM
 		lastRegionX = 0;
 		lastRegionY = 0;
+#endif
 		debugMode = false;
 		tilesChanged = true;
 
 		hitCooldown = 513709;
-		holdingI = false;
 
 		paused = false;
 		
@@ -334,7 +360,7 @@ void Game::keyPress(int key, int action) {
 	if (key == GLFW_KEY_F5) m_inventory->clear();
 	
 	//Add creature at player
-	if (key == GLFW_KEY_F6) addCreature(m_player->getX(), m_player->getY(), 1, false);
+	if (key == GLFW_KEY_F6) m_map->addCreature(m_player->getX(), m_player->getY(), 1, false);
 }
 
 void Game::buttonPress(int button, int action) {}
@@ -350,23 +376,31 @@ void Game::close() {
 }
 
 void Game::saveGame() {
-
 #if !DEBUG_DISABLE_SAVING
+	long long startTime1 = tools::Clock::getMicroseconds();
+
+	m_inventory->save();
 	float playerData[2] = { m_player->getX(), m_player->getY() };
+
+#if !STORE_MAP_IN_RAM
+	int worldData[1] = { seed };
 	for (int x = 0; x < RENDER_DST; x++) {
 		for (int y = 0; y < RENDER_DST; y++) {
 			if (m_regionExist[x][y]) m_region[x][y].saveTiles();
 		}
 	}
-	tools::Logger::info(seed);
-	int worldData[1] = { seed }; 
-
+	tools::BinaryIO::write<int>(getSaveLocation() + "world_data", worldData, 1);
+#else
+	long long startTime = tools::Clock::getMicroseconds();
+	m_map->save();
+	tools::Logger::info(std::string("World saved: ") + std::to_string(tools::Clock::getMicroseconds() - startTime));
+#endif 
 
 	tools::BinaryIO::write<float>(getSaveLocation() + "player_data", playerData, 2);
-	tools::BinaryIO::write<int>(getSaveLocation() + "world_data", worldData, 1);
+	
+	tools::Logger::info(std::string("Save completed in: ") + std::to_string(tools::Clock::getMicroseconds() - startTime1));
 #endif
 
-	tools::Logger::info("Save complete!");
 }
 
 void Game::loadGame() {
@@ -376,22 +410,36 @@ void Game::loadGame() {
 
 	//Load seed
 #if !DEBUG_DISABLE_SAVING
+
+#if !STORE_MAP_IN_RAM
 	void* seedptr = tools::BinaryIO::read<int>(getSaveLocation() + "world_data");
 	if (seedptr) seed = ((int*)seedptr)[0];
 	else seed = tools::Clock::getMicroseconds();
-#else
-	seed = tools::Clock::getMicroseconds();
-	seed = 0;
-#endif
-	logic::Noise::seed(seed);
 	tools::Random::seed(seed);
+	m_noise = FastNoise(seed);
+#else
+	m_noise = FastNoise(tools::Clock::getMicroseconds());
+#endif
 
+#else
+
+#if !STORE_MAP_IN_RAM
+	seed = tools::Clock::getMicroseconds();
+	tools::Random::seed(seed);
+	m_noise = FastNoise(seed);
 	tools::Logger::info(std::string("World seed: ") + std::to_string(seed)); // 2058261791
+#else
+	m_biomenoise = FastNoise(tools::Clock::getMicroseconds() + 0);
+	m_mapnoise = FastNoise(tools::Clock::getMicroseconds() + 1);
+	m_plantnoise1 = FastNoise(tools::Clock::getMicroseconds() + 2);
+	m_plantnoise2 = FastNoise(tools::Clock::getMicroseconds() + 3);
+#endif
 
-	m_worldtilerenderer = new graphics::Renderer();
-	m_worldobjectrenderer = new graphics::Renderer();
-	m_creaturerenderer = new graphics::Renderer();
-	m_guirenderer = new graphics::Renderer("arial.ttf");
+#endif
+	
+
+	m_worldrenderer = new graphics::Renderer(m_window);
+	m_guirenderer = new graphics::Renderer("arial.ttf", m_window);
 
 	tools::Logger::info("Loading textures");
 	graphics::TextureManager::loadTextureAtlas("recourses/atlas.png", GL_RGBA, 0);
@@ -402,7 +450,17 @@ void Game::loadGame() {
 
 	m_inventory = new Inventory(m_shader, m_window);
 
+	//Noise settings
+	m_mapnoise.SetFrequency(MAP_FREQ);
+	m_biomenoise.SetFrequency(MAP_BIOME_FREQ);
+	m_plantnoise1.SetFrequency(MAP_FREQ);
+
 	//Constructing objects
+#if STORE_MAP_IN_RAM
+	long long startTime = tools::Clock::getMicroseconds();
+	m_map = new Map(WORLD_NAME);
+	tools::Logger::info(std::string("World loaded: ") + std::to_string(tools::Clock::getMicroseconds() - startTime));
+#else
 	m_region[0][0];
 	for (int x = 0; x < RENDER_DST; x++)
 	{
@@ -411,7 +469,8 @@ void Game::loadGame() {
 			m_regionExist[x][y] = false;
 		}
 	}
-	float playerX = 0, playerY = 0;
+#endif
+	float playerX = M_MAP_SIZE / 2.0, playerY = M_MAP_SIZE / 2.0;
 
 #if !DEBUG_DISABLE_SAVING
 	float *playerData = (float*)tools::BinaryIO::read<float>(getSaveLocation() + "player_data");
@@ -419,45 +478,60 @@ void Game::loadGame() {
 #endif
 	m_player = new Player(playerX, playerY, m_inventory);
 
+	m_gui = new Gui(
+		Database::creatures[m_player->getId()].health, 
+		Database::creatures[m_player->getId()].stamina, 
+		Database::creatures[m_player->getId()].healthgain, 
+		Database::creatures[m_player->getId()].staminagain
+	);
 
 	m_shader->enable();
 	m_shader->SetUniformMat4("ml_matrix", glm::mat4(1.0f));
 	tools::Logger::info("Game ready!");
 }
 
-float Game::getTileBiome(float x, float y, float z) {
-	x += z * 3; y -= z;
-	float height = (logic::Noise::octaveNoise(x * 0.02 / 4.0, y * 0.02 / 4.0, 3) + 1.0) / 2.0;
-	return height;
+Database::Biome Game::getTileBiome(float x, float y) {
+	float height2 = (m_biomenoise.GetSimplex(x, y) + 1.0) / 2.0;
+	float height1 = (m_biomenoise.GetSimplex(x, y) + 1.0) / 2.0;
+	//float height1 = (logic::Noise::octaveNoise(x * MAP_BIOME_FREQ + 3789, y * MAP_BIOME_FREQ - 3132, MAP_BIOME_OCTA) + 1.0) / 2.0;
+	//float height2 = (logic::Noise::octaveNoise(x * MAP_BIOME_FREQ + 2798, y * MAP_BIOME_FREQ + 1203, MAP_BIOME_OCTA) + 1.0) / 2.0;
+	return Database::getBiome(height1, height2);
 }
 
-int getInfoFromNoiseIfLoop(Database::Biome biome, float x, float y, int index) {
+int Game::getInfoFromNoiseIfLoop(Database::Biome biome, float x, float y, int index) {
 	if (biome.heightMap[index].grassId != 0) {
-		float grassnoise = (logic::Noise::octaveNoise(x * biome.heightMap[index].grassNoiseFrequency, y * biome.heightMap[index].grassNoiseFrequency, 578.1) + 1.0) / 2.0;
-		if (grassnoise > biome.heightMap[index].grassRarity) return biome.heightMap[index].grassId;
+		m_plantnoise1.SetFrequency(biome.heightMap[index].grassNoiseFrequency);
+		float plantnoise1 = (m_plantnoise2.GetCellular(x, y) + 1.0) / 2.0;
+		//float plantnoise1 = (logic::Noise::octaveNoise(x * biome.heightMap[index].grassNoiseFrequency - 5426, y * biome.heightMap[index].grassNoiseFrequency - 6539, 4) + 1.0) / 2.0;
+		if (plantnoise1 > biome.heightMap[index].grassRarity) return biome.heightMap[index].grassId;
 	}
 	if (biome.heightMap[index].plantId != 0) {
-		float plantnoise = (logic::Noise::octaveNoise(14.2 + x * biome.heightMap[index].plantNoiseFrequency, 4.75 - y * biome.heightMap[index].plantNoiseFrequency, 34.24) + 1.0) / 2.0;
-		if (plantnoise > biome.heightMap[index].plantRarity) return biome.heightMap[index].plantId;
+		m_plantnoise2.SetFrequency(biome.heightMap[index].plantNoiseFrequency);
+		float plantnoise2 = (m_plantnoise2.GetCellular(x, y) + 1.0) / 2.0;
+		//float plantnoise2 = (logic::Noise::octaveNoise(x * biome.heightMap[index].plantNoiseFrequency + 3189, y * biome.heightMap[index].plantNoiseFrequency - 1344, 4) + 1.0) / 2.0;
+		if (plantnoise2 > biome.heightMap[index].plantRarity) return biome.heightMap[index].plantId;
 	}
 	return 0;
 }
 
 void Game::getInfoFromNoise(int &tileId, int &objId, float x, float y) {
-	Database::Biome biome = Database::getBiome(getTileBiome(x, y, BIOME_SCRAMBLE1), getTileBiome(x, y, BIOME_SCRAMBLE2));
-	
+	Database::Biome biome = getTileBiome(x, y);
+
+	//World gen settings
+	m_mapnoise.SetFrequency(MAP_FREQ);
+
 	if (biome.heightMap.size() == 1) {
 		tileId = biome.heightMap[0].id;
 		objId = getInfoFromNoiseIfLoop(biome, x, y, 0);
 	}
 	else {
-		x += 99999; y -= 555555;
-		x *= NOISE_SCALE; y *= NOISE_SCALE;
-
-		float height = (logic::Noise::octaveNoise(x, y, 3) + 1.0) / 2.0;
+		//float height1 = (logic::Noise::octaveNoise(x, y, MAP_OCTA) + 1.0) / 2.0;
+		float height1 = (m_mapnoise.GetSimplex(x, y) + 1.0) / 2.0;
+		//float height1 = (m_noise.GetNoise(x, y) + 1.0) / 2.0;
+		//float height1 = (m_noise.GetCellular(x, y) + 1.0) / 2.0;
 		for (int i = 0; i < biome.heightMap.size(); i++)
 		{
-			if (height <= biome.heightMap[i].height) {
+			if (height1 <= biome.heightMap[i].height) {
 				tileId = biome.heightMap[i].id;
 				objId = getInfoFromNoiseIfLoop(biome, x, y, i);
 				break;
@@ -492,9 +566,11 @@ void Game::getInfoFromNoise(int &tileId, int &objId, float x, float y) {
 ///
 
 
-
+#if !STORE_MAP_IN_RAM
 void Game::addRegionToUnloadArray(Region region) {
+#if !STORE_MAP_IN_RAM
 	m_regionUnloadArray.push_back(region);
+#endif
 }
 
 void Game::asyncLoadRegions() {
@@ -516,27 +592,39 @@ void Game::asyncLoadRegions() {
 	if (!m_regionExist[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY]) {
 		asyncLoadRegionSection(RENDER_DST_HALF - 1 - asyncLoadX, RENDER_DST_HALF - 1 - asyncLoadY, playerRegionX, playerRegionY);
 	}
+	else {
+		m_region[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY].tilesChanged();
+	}
 
 	//Load regions bottom right
 	if (!m_regionExist[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF + asyncLoadY]) {
 		asyncLoadRegionSection(RENDER_DST_HALF + asyncLoadX, RENDER_DST_HALF + asyncLoadY, playerRegionX, playerRegionY);
+	}
+	else {
+		m_region[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF + asyncLoadY].tilesChanged();
 	}
 
 	//Load regions top right
 	if (!m_regionExist[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY]) {
 		asyncLoadRegionSection(RENDER_DST_HALF + asyncLoadX, RENDER_DST_HALF - 1 - asyncLoadY, playerRegionX, playerRegionY);
 	}
+	else {
+		m_region[RENDER_DST_HALF + asyncLoadX][RENDER_DST_HALF - 1 - asyncLoadY].tilesChanged();
+	}
 
 	//Load regions bottom left
 	if (!m_regionExist[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF + asyncLoadY]) {
 		asyncLoadRegionSection(RENDER_DST_HALF - 1 - asyncLoadX, RENDER_DST_HALF + asyncLoadY, playerRegionX, playerRegionY);
+	}
+	else {
+		m_region[RENDER_DST_HALF - 1 - asyncLoadX][RENDER_DST_HALF + asyncLoadY].tilesChanged();
 	}
 }
 
 void Game::asyncLoadRegionSection(unsigned int x, unsigned int y, int playerRegionX, int playerRegionY) {
 	m_region[x][y] = Region(x + playerRegionX, y + playerRegionY);
 	m_regionExist[x][y] = true;
-	tilesChanged = true;
+	m_region[x][y].tilesChanged();
 }
 
 void Game::shiftRegions(int deltaX, int deltaY, int playerRegionX, int playerRegionY) {
@@ -741,7 +829,7 @@ void Game::findAllCreatures(float _x, float _y, Creature** _array, unsigned int&
 
 			for (int i = 0; i < MAX_CREATURES; i++)
 			{
-				Creature *creature = m_region[x][y].getCreature(i); 
+				Creature *creature = m_region[x][y].getCreature(i);
 				if (creature) {
 					if (creature->getX() >= _x - _radius && creature->getX() <= _x + _radius) {
 						if (creature->getY() >= _y - _radius && creature->getY() <= _y + _radius) {
@@ -753,10 +841,6 @@ void Game::findAllCreatures(float _x, float _y, Creature** _array, unsigned int&
 			}
 		}
 	}
-}
-
-Player *Game::getPlayer() {
-	return m_player;
 }
 
 bool Game::trySetTileObject(float x, float y, int id) {
@@ -775,6 +859,25 @@ bool Game::trySetTileObject(Tile *tile, int id) {
 	tile->setObjectId(id);
 	std::cout << "Set to " << id << std::endl;
 	return true;
+}
+
+#else
+
+void Game::addCreature(float x, float y, int id, bool item) {}
+
+#endif
+
+Player *Game::getPlayer() {
+	return m_player;
+}
+Gui *Game::getGui() {
+	return m_gui;
+}
+logic::GameLoop *Game::getLoop() {
+	return m_loop;
+}
+Map *Game::getMap() {
+	return m_map;
 }
 
 std::string Game::getSaveLocation() {

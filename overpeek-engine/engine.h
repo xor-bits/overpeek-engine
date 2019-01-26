@@ -6,6 +6,7 @@
 #include "logic/noise.h"
 #include "logic/gameloop.h"
 #include "logic/math.h"
+#include "logic/FastNoise.h"
 
 #include "tools/clock.h"
 #include "tools/random.h"
