@@ -37,12 +37,12 @@ void Gui::render(graphics::Renderer *renderer_blurred, graphics::Renderer *rende
 
 		renderer->renderBox(-Game::getWindow()->getAspect(), 0.005, GUI_FRAME_LOGGER_BAR_WIDTH * (GUI_FRAME_LOGGER_SIZE - 1), 0.01, 0.0, 24, glm::vec4(0.0, 1.0, 0.0, 1.0));
 		renderer->renderText(-Game::getWindow()->getAspect() + (GUI_FRAME_LOGGER_BAR_WIDTH * (GUI_FRAME_LOGGER_SIZE / 2.0 - 1)),
-			-0.02, 0.05, 0.05, 0.0, "frame micro-s: " + std::to_string(m_slowest_frame), glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_CENTER, TEXT_ORIGIN_TOP);
+			-0.02, 0.05, 0.05, 0.0, "frame micro-s: " + std::to_string(m_slowest_frame), glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_CENTER, TEXT_ORIGIN_BOTTOM);
 
 
 		renderer->renderBox(Game::getWindow()->getAspect() - GUI_FRAME_LOGGER_BAR_WIDTH * (GUI_FRAME_LOGGER_SIZE - 1), 0.005, GUI_FRAME_LOGGER_BAR_WIDTH * (GUI_FRAME_LOGGER_SIZE - 1), 0.01, 0.0, 24, glm::vec4(0.0, 1.0, 0.0, 1.0));
 		renderer->renderText(Game::getWindow()->getAspect() - (GUI_FRAME_LOGGER_BAR_WIDTH * (GUI_FRAME_LOGGER_SIZE / 2.0 - 1)),
-			-0.02, 0.05, 0.05, 0.0, "update micro-s: " + std::to_string(m_slowest_update), glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_CENTER, TEXT_ORIGIN_TOP);
+			-0.02, 0.05, 0.05, 0.0, "update micro-s: " + std::to_string(m_slowest_update), glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_CENTER, TEXT_ORIGIN_BOTTOM);
 		
 		for (int i = 0; i < GUI_FRAME_LOGGER_SIZE; i++) {
 			renderer->renderBox(Game::getWindow()->getAspect() - (GUI_FRAME_LOGGER_BAR_WIDTH * (i + 1)), 1.0 - m_frame_logger[i] / m_slowest_frame, GUI_FRAME_LOGGER_BAR_WIDTH, m_frame_logger[i] / m_slowest_frame, 0, 24, M_COLOR_BLACK);
