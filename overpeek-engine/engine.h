@@ -14,6 +14,7 @@
 #include "tools/random.h"
 #include "tools/binaryIO.h"
 #include "tools/logger.h"
+#include "tools/debug.h"
 
 #include "graphics/camera.h"
 #include "graphics/fontLoader.h"

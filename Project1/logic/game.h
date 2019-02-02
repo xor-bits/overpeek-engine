@@ -44,22 +44,22 @@ namespace graphics {class Window;class Shader;class Renderer;}
 
 class Game {
 private:
-	static graphics::Window *m_window;
-	static graphics::Shader *m_shader;
-	static graphics::Shader *m_postshader;
-	static graphics::Shader *m_guishader;
-	static graphics::Renderer *m_worldrenderer;
-	static graphics::Renderer *m_guirenderer;
-	static logic::GameLoop *m_loop;
-	static Gui *m_gui;
-	static Map *m_map;
+	static std::unique_ptr<graphics::Window> m_window;
+	static std::unique_ptr<graphics::Shader> m_shader;
+	static std::unique_ptr<graphics::Shader> m_postshader;
+	static std::unique_ptr<graphics::Shader> m_guishader;
+	static std::unique_ptr<graphics::Renderer> m_worldrenderer;
+	static std::unique_ptr<graphics::Renderer> m_guirenderer;
+	static std::unique_ptr<logic::GameLoop> m_loop;
+	static std::unique_ptr<Gui> m_gui;
+	static std::unique_ptr<Map> m_map;
+	static std::unique_ptr<Player> m_player;
 
 	static FastNoise m_biomenoise;
 	static FastNoise m_mapnoise;
 	static FastNoise m_plantnoise1;
 	static FastNoise m_plantnoise2;
 
-	static Player *m_player;
 
 #if !STORE_MAP_IN_RAM
 	static Region m_region[RENDER_DST][RENDER_DST];
@@ -123,16 +123,16 @@ public:
 	
 	static graphics::Shader *getShader();
 	static graphics::Window *getWindow();
+	static Player *getPlayer();
+	static Gui *getGui();
+	static logic::GameLoop *getLoop();
+	static Map *getMap();
 
 	static void getInfoFromNoise(int &tileId, int &objId, float x, float y);
 	static Database::Biome getTileBiome(float x, float y);
 
 	static void addCreature(float x, float y, int id, bool item);
 	
-	static Player *getPlayer();
-	static Gui *getGui();
-	static logic::GameLoop *getLoop();
-	static Map *getMap();
 
 	static std::string getSaveLocation();
 };

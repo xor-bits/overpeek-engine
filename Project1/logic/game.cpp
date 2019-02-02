@@ -10,16 +10,17 @@
 #include "gui.h"
 #include "database.h"
 
-graphics::Window *Game::m_window;
-graphics::Shader *Game::m_shader;
-graphics::Shader *Game::m_postshader;
-graphics::Shader *Game::m_guishader;
-graphics::Renderer *Game::m_worldrenderer;
-graphics::Renderer *Game::m_guirenderer;
-logic::GameLoop *Game::m_loop;
-Gui *Game::m_gui;
-Inventory *m_inventory;
-Map *Game::m_map;
+std::unique_ptr<graphics::Window> Game::m_window;
+std::unique_ptr<graphics::Shader> Game::m_shader;
+std::unique_ptr<graphics::Shader> Game::m_postshader;
+std::unique_ptr<graphics::Shader> Game::m_guishader;
+std::unique_ptr<graphics::Renderer> Game::m_worldrenderer;
+std::unique_ptr<graphics::Renderer> Game::m_guirenderer;
+std::unique_ptr<logic::GameLoop> Game::m_loop;
+std::unique_ptr<Gui> Game::m_gui;
+std::unique_ptr<Inventory> m_inventory;
+std::unique_ptr<Map> Game::m_map;
+std::unique_ptr<Player> Game::m_player;
 
 FastNoise Game::m_biomenoise;
 FastNoise Game::m_mapnoise;
@@ -39,8 +40,6 @@ int Game::asyncLoadX = 0;
 int Game::asyncLoadY = 0;
 int Game::asyncSaveIndex = 0;
 #endif
-
-Player *Game::m_player;
 
 bool Game::debugMode = false;
 bool Game::advancedDebugMode = false;
@@ -68,19 +67,19 @@ void Game::init() {
 
 	//Window
 	tools::Logger::info("Creating window");
-	m_window = new graphics::Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, M_WINDOW_DEFAULT_TITLE, false, M_DEFAULT_MULTISAMPLE);
+	m_window = std::unique_ptr<graphics::Window>(new graphics::Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, M_WINDOW_DEFAULT_TITLE, false, M_DEFAULT_MULTISAMPLE));
 	m_window->setSwapInterval(NULL);
 	m_window->setButtonCallback(buttonPress);
 	m_window->setKeyboardCallback(keyPress);
 	m_window->setScrollCallback(scroll);
 
 	//Create shader
-	tools::Logger::info("Creating shader");
-	tools::Logger::info("postprocess");
-	m_postshader = new graphics::Shader("shaders/postprocess.vert.glsl", "shaders/postprocess.frag.glsl");
-	tools::Logger::info("texture");
-	m_shader = new graphics::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl");
-	tools::Logger::info("Shaders created!");
+	tools::Logger::info("Creating all the shaders");
+	tools::Logger::info("Shader for postprocessing");
+	m_postshader = std::unique_ptr<graphics::Shader>(new graphics::Shader("shaders/postprocess.vert.glsl", "shaders/postprocess.frag.glsl"));
+	tools::Logger::info("Shader for textures");
+	m_shader = std::unique_ptr<graphics::Shader>(new graphics::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl"));
+	tools::Logger::info("All shaders created successfully!");
 
 	//Shader stuff
 	glm::mat4 orthographic = glm::ortho(-M_ASPECT * DEBUG_ZOOM, M_ASPECT * DEBUG_ZOOM, DEBUG_ZOOM, -DEBUG_ZOOM);
@@ -89,7 +88,7 @@ void Game::init() {
 	
 	//Gameloop
 	tools::Logger::info("Starting gameloop");
-	m_loop = new logic::GameLoop(render, update, rapidUpdate, 100, 10000);
+	m_loop = std::unique_ptr<logic::GameLoop>(new logic::GameLoop(render, update, rapidUpdate, 100, 10000));
 
 	loadGame();
 	renderer = std::string((char*)glGetString(GL_RENDERER));
@@ -145,16 +144,16 @@ void Game::render() {
 		}
 	}
 #else
-	m_map->submitToRenderer(m_worldrenderer);
+	m_map->submitToRenderer(m_worldrenderer.get());
 #endif
-	m_player->submitToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
-	m_inventory->render(m_worldrenderer);
+	m_player->submitToRenderer(m_worldrenderer.get(), -m_player->x, -m_player->y);
+	m_inventory->render(m_worldrenderer.get());
 
 
 	//Gui
 	m_guirenderer->clear();
 	renderInfoScreen();
-	m_gui->render(m_worldrenderer, m_guirenderer);
+	m_gui->render(m_worldrenderer.get(), m_guirenderer.get());
 	
 	//Flush
 	m_postshader->enable();
@@ -162,27 +161,27 @@ void Game::render() {
 	m_postshader->setUniform1f("unif_width", m_window->getWidth());
 	m_postshader->setUniform1f("unif_height", m_window->getHeight());
 	if (!paused) {
-		m_worldrenderer->flush(m_shader, 0);
+		m_worldrenderer->flush(m_shader.get(), 0);
 	}
 	else if (justPaused) {
-		m_worldrenderer->renderToFramebuffer(m_shader, 0, 0);
+		m_worldrenderer->renderToFramebuffer(m_shader.get() , 0, 0);
 		m_postshader->enable();
 		for (int i = 0; i < 16; i++) {
 			m_postshader->setUniform1i("unif_effect", 1);
-			m_worldrenderer->flushFramebufferToFramebuffer(m_postshader, 0, 1);
-			m_worldrenderer->flushFramebufferToFramebuffer(m_postshader, 1, 0);
+			m_worldrenderer->flushFramebufferToFramebuffer(m_postshader.get(), 0, 1);
+			m_worldrenderer->flushFramebufferToFramebuffer(m_postshader.get(), 1, 0);
 			m_postshader->setUniform1i("unif_effect", 2);
-			m_worldrenderer->flushFramebufferToFramebuffer(m_postshader, 0, 1);
-			m_worldrenderer->flushFramebufferToFramebuffer(m_postshader, 1, 0);
+			m_worldrenderer->flushFramebufferToFramebuffer(m_postshader.get(), 0, 1);
+			m_worldrenderer->flushFramebufferToFramebuffer(m_postshader.get(), 1, 0);
 		}
 	}
 	else if (paused) {
 		m_postshader->enable();
 		m_postshader->setUniform1i("unif_effect", 0);
-		m_worldrenderer->flushFramebuffer(m_postshader, 0);
+		m_worldrenderer->flushFramebuffer(m_postshader.get(), 0);
 	}
 	
-	m_guirenderer->flush(m_shader, 0);
+	m_guirenderer->flush(m_shader.get(), 0);
 
 	//Other
 	justPaused = false;
@@ -334,8 +333,6 @@ void Game::keyPress(int key, int action) {
 	//Reload game
 	if (key == GLFW_KEY_F3) {
 		close();
-		delete m_inventory;
-		delete m_player;
 
 #if !STORE_MAP_IN_RAM
 		lastRegionX = 0;
@@ -438,8 +435,8 @@ void Game::loadGame() {
 #endif
 	
 
-	m_worldrenderer = new graphics::Renderer(m_window);
-	m_guirenderer = new graphics::Renderer("recourses/arial.ttf", m_window);
+	m_worldrenderer = std::unique_ptr<graphics::Renderer>(new graphics::Renderer(m_window.get()));
+	m_guirenderer = std::unique_ptr<graphics::Renderer>(new graphics::Renderer("recourses/arial.ttf", m_window.get()));
 
 	tools::Logger::info("Loading textures");
 	graphics::TextureManager::loadTextureAtlas("recourses/atlas.png", GL_RGBA, 0);
@@ -448,7 +445,7 @@ void Game::loadGame() {
 	Database::init();
 	tools::Logger::info("Database loaded!");
 
-	m_inventory = new Inventory(m_shader, m_window);
+	m_inventory = std::unique_ptr<Inventory>(new Inventory(m_shader.get(), m_window.get()));
 
 	//Noise settings
 	m_mapnoise.SetFrequency(MAP_FREQ);
@@ -457,9 +454,7 @@ void Game::loadGame() {
 
 	//Constructing objects
 #if STORE_MAP_IN_RAM
-	long long startTime = tools::Clock::getMicroseconds();
-	m_map = new Map(WORLD_NAME);
-	tools::Logger::info(std::string("World loaded: ") + std::to_string(tools::Clock::getMicroseconds() - startTime));
+	m_map = std::unique_ptr<Map>(new Map(WORLD_NAME));
 #else
 	m_region[0][0];
 	for (int x = 0; x < RENDER_DST; x++)
@@ -476,14 +471,14 @@ void Game::loadGame() {
 	float *playerData = (float*)tools::BinaryIO::read<float>(getSaveLocation() + "player_data");
 	if (playerData) { playerX = playerData[0]; playerY = playerData[1]; }
 #endif
-	m_player = new Player(playerX, playerY, m_inventory);
+	m_player = std::unique_ptr<Player>(new Player(playerX, playerY, m_inventory.get()));
 
-	m_gui = new Gui(
+	m_gui = std::unique_ptr<Gui>(new Gui(
 		Database::creatures[m_player->getId()].health, 
 		Database::creatures[m_player->getId()].stamina, 
 		Database::creatures[m_player->getId()].healthgain, 
 		Database::creatures[m_player->getId()].staminagain
-	);
+	));
 
 	m_shader->enable();
 	m_shader->SetUniformMat4("ml_matrix", glm::mat4(1.0f));
@@ -868,24 +863,27 @@ void Game::addCreature(float x, float y, int id, bool item) {}
 #endif
 
 Player *Game::getPlayer() {
-	return m_player;
+	return m_player.get();
 }
+
 Gui *Game::getGui() {
-	return m_gui;
+	return m_gui.get();
 }
+
 logic::GameLoop *Game::getLoop() {
-	return m_loop;
+	return m_loop.get();
 }
+
 Map *Game::getMap() {
-	return m_map;
+	return m_map.get();
 }
 
 graphics::Shader *Game::getShader() {
-	return m_shader; 
+	return m_shader.get();
 }
 
 graphics::Window *Game::getWindow() {
-	return m_window; 
+	return m_window.get();
 }
 
 std::string Game::getSaveLocation() {

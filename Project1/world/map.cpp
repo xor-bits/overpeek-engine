@@ -7,8 +7,7 @@
 
 
 Map::Map(std::string name) {
-	m_name = name; 
-	reserveSpace();
+	m_name = name;
 	system(("mkdir \"" + Game::getSaveLocation() + "\\" + name + "\\").c_str());
 	for (int i = 0; i < M_MAP_MAX_CREATURES; i++) { m_creatures[i] = nullptr; }
 
@@ -17,46 +16,31 @@ Map::Map(std::string name) {
 	if (tileData) {
 		short int *objectData = (short int*)tools::BinaryIO::read<short>(Game::getSaveLocation() + "\\" + name + "\\" + "object_data");
 	
-		//char row[M_MAP_SIZE];
 		for (int x = 0; x < M_MAP_SIZE; x++)
 		{
 			for (int y = 0; y < M_MAP_SIZE; y++)
 			{
-				m_tiles[x][y] = MapTile(tileData[x + y * M_MAP_SIZE], objectData[x + y * M_MAP_SIZE], 10);
-				//row[y] = tileData[x + y * M_MAP_SIZE];
+				m_tiles[x][y] = std::unique_ptr<MapTile>(new MapTile(tileData[x + y * M_MAP_SIZE], objectData[x + y * M_MAP_SIZE], 10));
 			}
-			//tools::Logger::info(row);
 		}
 	}
 	else {
 #endif
+		tools::Debug::startTimer();
 		#pragma omp parallel for
 		for (int x = 0; x < M_MAP_SIZE; x++)
 		{
 			for (int y = 0; y < M_MAP_SIZE; y++)
 			{
 				int tile, object;
-				//tile = tools::Random::random(0, 5);
-				//object = 0;
 				Game::getInfoFromNoise(tile, object, x, y);
-				m_tiles[x][y] = MapTile(tile, object, 1.0);
+				m_tiles[x][y] = std::unique_ptr<MapTile>(new MapTile(tile, object, 1.0));
 			}
 		}
+		tools::Debug::printTimer("Microseconds passed while creating world: ");
 #if !DEBUG_DISABLE_SAVING
 	}
 #endif
-}
-
-void Map::reserveSpace() {
-	for (int x = 0; x < M_MAP_SIZE; x++)
-	{
-		std::vector<MapTile> tmp1;
-		for (int y = 0; y < M_MAP_SIZE; y++)
-		{
-			tmp1.push_back(MapTile(0, 0, 0));
-		}
-		m_tiles.push_back(tmp1);
-	}
 }
 
 void Map::save() {
@@ -67,8 +51,8 @@ void Map::save() {
 	{
 		for (int y = 0; y < M_MAP_SIZE; y++)
 		{
-			tiles.push_back(m_tiles[x][y].m_tile);
-			objects.push_back(m_tiles[x][y].m_object);
+			tiles.push_back(m_tiles[x][y]->m_tile);
+			objects.push_back(m_tiles[x][y]->m_object);
 		}
 	}
 
@@ -77,10 +61,10 @@ void Map::save() {
 }
 
 void Map::hit(unsigned int x, unsigned int y, short dmg) {
-	m_tiles[x][y].m_objectHealth -= dmg;
-	if (m_tiles[x][y].m_objectHealth <= 0) {
-		Game::addCreature(x, y, Database::items[Database::objects[m_tiles[x][y].m_object].dropsAs].id, true);
-		m_tiles[x][y].m_object = 0;
+	m_tiles[x][y]->m_objectHealth -= dmg;
+	if (m_tiles[x][y]->m_objectHealth <= 0) {
+		Game::addCreature(x, y, Database::items[Database::objects[m_tiles[x][y]->m_object].dropsAs].id, true);
+		m_tiles[x][y]->m_object = 0;
 	}
 	Game::tilesChanged = true;
 }
@@ -203,24 +187,21 @@ void Map::removeCreature(Creature *creature, bool _delete) {
 }
 
 void Map::update() {
-	int n = 0;
 	for (int i = 0; i < M_MAP_MAX_CREATURES; i++)
 	{
 		if (m_creatures[i]) {
-			n++;
 			m_creatures[i]->update();
 		}
 	}
-	tools::Logger::info(n);
 }
 
-Map::MapTile* Map::getTile(unsigned int x, unsigned int y) {
+Map::MapTile *Map::getTile(unsigned int x, unsigned int y) {
 	if (x >= M_MAP_SIZE) return nullptr;
 	else if (x < 0) return nullptr;
 	if (y >= M_MAP_SIZE) return nullptr;
 	else if (y < 0) return nullptr;
 
-	return &m_tiles.at(x).at(y);
+	return m_tiles[x][y].get();
 }
 
 void Map::findAllCreatures(float _x, float _y, Creature** _array, unsigned int& _amount, float _radius) {

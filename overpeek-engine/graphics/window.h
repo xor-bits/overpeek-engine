@@ -55,11 +55,11 @@ namespace graphics {
 
 		void setSwapInterval(unsigned int interval);
 
-		inline float getAspect() { return mAspect; }
-
 		inline bool getButton(int button) { return mButtons[button]; }
 		inline bool getKey(int key) { return mKeys[key]; }
 		inline glm::vec2 getMousePos() { return glm::vec2((mMouseX / mWidth * 2.0 * mAspect) - mAspect, mMouseY / mHeight * 2 - 1); }
+
+		inline float getAspect() { return mAspect; }
 		inline int getHeight() { return mHeight; }
 		inline int getWidth() { return mWidth; }
 	};

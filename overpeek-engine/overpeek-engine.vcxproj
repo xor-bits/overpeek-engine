@@ -193,6 +193,7 @@
     <ClCompile Include="logic\gameloop.cpp" />
     <ClCompile Include="logic\noise.cpp" />
     <ClCompile Include="tools\clock.cpp" />
+    <ClCompile Include="tools\debug.cpp" />
     <ClCompile Include="tools\random.cpp" />
     <ClCompile Include="tools\logger.cpp" />
   </ItemGroup>
@@ -218,6 +219,7 @@
     <ClInclude Include="tools\binaryIO.h" />
     <ClInclude Include="tools\clock.h" />
     <ClInclude Include="tools\filereader.h" />
+    <ClInclude Include="tools\debug.h" />
     <ClInclude Include="tools\logger.h" />
     <ClInclude Include="tools\random.h" />
   </ItemGroup>

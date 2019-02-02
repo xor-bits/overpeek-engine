@@ -18,14 +18,17 @@ class Map {
 				m_object = object;
 				m_objectHealth = hp;
 			}
+			MapTile() {
+				m_tile = 0;
+				m_object = 0;
+				m_objectHealth = 0;
+			}
 		};
 		Creature *m_creatures[M_MAP_MAX_CREATURES];
 
 	private:
-		std::vector<std::vector<MapTile>> m_tiles;
+		std::array<std::array<std::unique_ptr<MapTile>, M_MAP_SIZE>, M_MAP_SIZE>  m_tiles;
 		std::string m_name;
-
-		void reserveSpace();
 
 	public:
 		Map(std::string name);
@@ -42,7 +45,7 @@ class Map {
 		void removeCreature(int i, bool _delete);
 		void removeCreature(Creature *creature, bool _delete);
 
-		MapTile* getTile(unsigned int x, unsigned int y);
+		MapTile *getTile(unsigned int x, unsigned int y);
 
 		void findAllCreatures(float x, float y, Creature** array, unsigned int& amount, float radius);
 
