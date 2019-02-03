@@ -1,9 +1,7 @@
 #pragma once
 
 #include <vector>
-
-#define M_MAP_SIZE 2000
-#define M_MAP_MAX_CREATURES 2048
+#include "../settings.h"
 
 class Creature;
 class Map {
@@ -24,10 +22,10 @@ class Map {
 				m_objectHealth = 0;
 			}
 		};
-		Creature *m_creatures[M_MAP_MAX_CREATURES];
+		Creature *m_creatures[MAP_MAX_CREATURES];
 
 	private:
-		std::array<std::array<std::unique_ptr<MapTile>, M_MAP_SIZE>, M_MAP_SIZE>  m_tiles;
+		std::vector<std::vector<std::unique_ptr<MapTile>>>  m_tiles;
 		std::string m_name;
 
 	public:

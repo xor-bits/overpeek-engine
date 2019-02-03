@@ -9,55 +9,62 @@
 Map::Map(std::string name) {
 	m_name = name;
 	system(("mkdir \"" + Game::getSaveLocation() + "\\" + name + "\\").c_str());
-	for (int i = 0; i < M_MAP_MAX_CREATURES; i++) { m_creatures[i] = nullptr; }
+	for (int i = 0; i < MAP_MAX_CREATURES; i++) { m_creatures[i] = nullptr; }
 
+
+
+	tools::Debug::startTimer();
 #if !DEBUG_DISABLE_SAVING
 	short int *tileData = (short int*)tools::BinaryIO::read<short>(Game::getSaveLocation() + "\\" + name + "\\" + "tile_data");
 	if (tileData) {
 		short int *objectData = (short int*)tools::BinaryIO::read<short>(Game::getSaveLocation() + "\\" + name + "\\" + "object_data");
 	
-		for (int x = 0; x < M_MAP_SIZE; x++)
+		for (int x = 0; x < MAP_SIZE; x++)
 		{
-			for (int y = 0; y < M_MAP_SIZE; y++)
+			std::vector<std::unique_ptr<MapTile>> tmp;
+			for (int y = 0; y < MAP_SIZE; y++)
 			{
-				m_tiles[x][y] = std::unique_ptr<MapTile>(new MapTile(tileData[x + y * M_MAP_SIZE], objectData[x + y * M_MAP_SIZE], 10));
+				tmp.push_back(std::move(std::unique_ptr<MapTile>(new MapTile(tileData[x + y * MAP_SIZE], objectData[x + y * MAP_SIZE], 10))));
 			}
+			m_tiles.push_back(std::move(tmp));
 		}
 	}
 	else {
 #endif
 		tools::Debug::startTimer();
 		#pragma omp parallel for
-		for (int x = 0; x < M_MAP_SIZE; x++)
+		for (int x = 0; x < MAP_SIZE; x++)
 		{
-			for (int y = 0; y < M_MAP_SIZE; y++)
+			std::vector<std::unique_ptr<MapTile>> tmp;
+			for (int y = 0; y < MAP_SIZE; y++)
 			{
 				int tile, object;
 				Game::getInfoFromNoise(tile, object, x, y);
-				m_tiles[x][y] = std::unique_ptr<MapTile>(new MapTile(tile, object, 1.0));
+				tmp.push_back(std::move(std::unique_ptr<MapTile>(new MapTile(tile, object, 1.0))));
 			}
+			m_tiles.push_back(std::move(tmp));
 		}
-		tools::Debug::printTimer("Microseconds passed while creating world: ");
 #if !DEBUG_DISABLE_SAVING
 	}
 #endif
+	tools::Debug::printTimer("Microseconds passed while creating world: ");
 }
 
 void Map::save() {
 	std::vector<short> tiles;
 	std::vector<short> objects;
 
-	for (int x = 0; x < M_MAP_SIZE; x++)
+	for (int x = 0; x < MAP_SIZE; x++)
 	{
-		for (int y = 0; y < M_MAP_SIZE; y++)
+		for (int y = 0; y < MAP_SIZE; y++)
 		{
 			tiles.push_back(m_tiles[x][y]->m_tile);
 			objects.push_back(m_tiles[x][y]->m_object);
 		}
 	}
 
-	tools::BinaryIO::write<short int>(Game::getSaveLocation() + "\\" + m_name + "\\" + "tile_data", &tiles[0], M_MAP_SIZE * M_MAP_SIZE);
-	tools::BinaryIO::write<short int>(Game::getSaveLocation() + "\\" + m_name + "\\" + "object_data", &objects[0], M_MAP_SIZE * M_MAP_SIZE);
+	tools::BinaryIO::write<short int>(Game::getSaveLocation() + "\\" + m_name + "\\" + "tile_data", &tiles[0], MAP_SIZE * MAP_SIZE);
+	tools::BinaryIO::write<short int>(Game::getSaveLocation() + "\\" + m_name + "\\" + "object_data", &objects[0], MAP_SIZE * MAP_SIZE);
 }
 
 void Map::hit(unsigned int x, unsigned int y, short dmg) {
@@ -114,14 +121,14 @@ void Map::submitToRenderer(graphics::Renderer *renderer) {
 		}
 	}
 
-	for (int i = 0; i < M_MAP_MAX_CREATURES; i++)
+	for (int i = 0; i < MAP_MAX_CREATURES; i++)
 	{
 		if (m_creatures[i]) m_creatures[i]->submitToRenderer(renderer, -Game::getPlayer()->getX(), -Game::getPlayer()->getY());
 	}
 }
 
 void Map::debugCeilCreatures() {
-	for (int i = 0; i < M_MAP_MAX_CREATURES; i++)
+	for (int i = 0; i < MAP_MAX_CREATURES; i++)
 	{
 		if (m_creatures[i]) {
 			m_creatures[i]->setX(round(m_creatures[i]->getX()));
@@ -143,7 +150,7 @@ void Map::debugCeilCreatures() {
 }
 
 void Map::addCreature(float x, float y, int id, bool item) {
-	for (int i = 0; i < M_MAP_MAX_CREATURES; i++)
+	for (int i = 0; i < MAP_MAX_CREATURES; i++)
 	{
 		if (!m_creatures[i]) {
 			m_creatures[i] = new Creature(x, y, id, item);
@@ -154,7 +161,7 @@ void Map::addCreature(float x, float y, int id, bool item) {
 }
 
 void Map::addCreature(Creature *creature) {
-	for (int i = 0; i < M_MAP_MAX_CREATURES; i++)
+	for (int i = 0; i < MAP_MAX_CREATURES; i++)
 	{
 		if (!m_creatures[i]) {
 			m_creatures[i] = creature;
@@ -172,7 +179,7 @@ void Map::removeCreature(int i, bool _delete) {
 }
 
 void Map::removeCreature(Creature *creature, bool _delete) {
-	for (int i = 0; i < M_MAP_MAX_CREATURES; i++)
+	for (int i = 0; i < MAP_MAX_CREATURES; i++)
 	{
 		if (m_creatures[i] == creature) {
 			m_creatures[i] = nullptr;
@@ -187,7 +194,7 @@ void Map::removeCreature(Creature *creature, bool _delete) {
 }
 
 void Map::update() {
-	for (int i = 0; i < M_MAP_MAX_CREATURES; i++)
+	for (int i = 0; i < MAP_MAX_CREATURES; i++)
 	{
 		if (m_creatures[i]) {
 			m_creatures[i]->update();
@@ -196,9 +203,9 @@ void Map::update() {
 }
 
 Map::MapTile *Map::getTile(unsigned int x, unsigned int y) {
-	if (x >= M_MAP_SIZE) return nullptr;
+	if (x >= MAP_SIZE) return nullptr;
 	else if (x < 0) return nullptr;
-	if (y >= M_MAP_SIZE) return nullptr;
+	if (y >= MAP_SIZE) return nullptr;
 	else if (y < 0) return nullptr;
 
 	return m_tiles[x][y].get();
@@ -206,7 +213,7 @@ Map::MapTile *Map::getTile(unsigned int x, unsigned int y) {
 
 void Map::findAllCreatures(float _x, float _y, Creature** _array, unsigned int& _amount, float _radius) {
 	_amount = 0;
-	for (int i = 0; i < M_MAP_MAX_CREATURES; i++)
+	for (int i = 0; i < MAP_MAX_CREATURES; i++)
 	{
 		if (m_creatures[i]) {
 			if (!(m_creatures[i]->getX() >= _x - _radius)) continue;

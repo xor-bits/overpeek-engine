@@ -8,6 +8,7 @@
 #include "../logic/database.h"
 #include "../logic/game.h"
 #include "../logic/inventory.h"
+#include "../settings.h"
 #include "player.h"
 
 Creature::Creature(float _x, float _y, int _id, bool _item) {
@@ -150,7 +151,7 @@ void Creature::hit() {
 	Region* thisRegion = Game::getRegion(hitx, hity);
 	Game::findAllCreatures(hitx, hity, creatureArray, amount, 1.0);
 #else
-	Creature* creatureArray[M_MAP_MAX_CREATURES];
+	Creature* creatureArray[MAP_MAX_CREATURES];
 	unsigned int amount;
 	Game::getMap()->findAllCreatures(hitx, hity, creatureArray, amount, 1.0);
 #endif
@@ -177,13 +178,18 @@ void Creature::hit() {
 	Map::MapTile* tmp = Game::getMap()->getTile(hitx, hity);
 	if (tmp) {
 		if (Database::objects[tmp->m_object].destructable) {
-			Game::getMap()->hit(hitx, hity, 0.5f);
+			Game::getMap()->hit(hitx, hity, Database::creatures[m_id].meleeDamage);
 		}
 	}
 #endif
 
 	//Swing noise
 	audio::AudioManager::play(1);
+}
+
+bool AABB(glm::fvec2 aPos, glm::fvec2 aSize, glm::fvec2 bPos, glm::fvec2 bSize) {
+	return	bPos.x < aPos.x + aSize.x && aPos.x < bPos.x + bSize.x
+		&&  bPos.y < aPos.y + aSize.y && aPos.y < bPos.y + bSize.y;
 }
 
 void Creature::collide() {
@@ -204,65 +210,94 @@ void Creature::collide() {
 			#endif
 
 				//Start loop
-				int tilex = floor(x) + _x;
-				int tiley = floor(y) + _y;
+				int tilex = round(getX()) + _x;
+				int tiley = round(getY()) + _y;
 
-				////LEFT COLLIDER
-				//if (logic::AABB(
-				//	glm::vec2(x - CREAURE_WIDTH / 2.0, (y - CREAURE_HEIGHT / 2.0) + 0.3),
-				//	glm::vec2(CREAURE_WIDTH / 2.0, CREAURE_HEIGHT - 0.6),
-				//	glm::vec2(tilex, tiley),
-				//	glm::vec2(1, 1)
-				//)) {
-				//	x = tilex + 1 + (CREAURE_WIDTH / 2.0);
-				//
-				//	//Process new area if player
-				//	#if !STORE_MAP_IN_RAM
-				//	if (m_id == 0) Game::processNewArea();
-				//	#endif
-				//}
-				////RIGHT COLLIDER
-				//if (logic::AABB(
-				//	glm::vec2(x, (y - CREAURE_HEIGHT / 2.0) + 0.3),
-				//	glm::vec2(CREAURE_WIDTH / 2.0, CREAURE_HEIGHT - 0.6),
-				//	glm::vec2(tilex, tiley),
-				//	glm::vec2(1, 1)
-				//)) {
-				//	x = tilex - (CREAURE_WIDTH / 2.0);
-				//
-				//	//Process new area if player
-				//	#if !STORE_MAP_IN_RAM
-				//	if (m_id == 0) Game::processNewArea();
-				//	#endif
-				//}
-				////TOP COLLIDER
-				//if (logic::AABB(
-				//	glm::vec2((x - CREAURE_WIDTH / 2.0) + 0.3, y - CREAURE_HEIGHT / 2.0),
-				//	glm::vec2(CREAURE_WIDTH - 0.6, CREAURE_HEIGHT / 2.0),
-				//	glm::vec2(tilex, tiley),
-				//	glm::vec2(1, 1)
-				//)) {
-				//	y = tiley + 1 + (CREAURE_HEIGHT / 2.0);
-				//
-				//	//Process new area if player
-				//	#if !STORE_MAP_IN_RAM
-				//	if (m_id == 0) Game::processNewArea();
-				//	#endif
-				//}
-				////BOTTOM COLLIDER
-				//if (logic::AABB(
-				//	glm::vec2((x - CREAURE_WIDTH / 2.0) + 0.3, y),
-				//	glm::vec2(CREAURE_WIDTH - 0.6, CREAURE_HEIGHT / 2.0),
-				//	glm::vec2(tilex, tiley),
-				//	glm::vec2(1, 1)
-				//)) {
-				//	y = tiley - (CREAURE_HEIGHT / 2.0);
-				//
-				//	//Process new area if player
-				//	#if !STORE_MAP_IN_RAM
-				//	if (m_id == 0) Game::processNewArea();
-				//	#endif
-				//}
+				//LEFT COLLIDER
+				if (AABB(
+					glm::vec2(getX() - CREAURE_WIDTH / 2.0, (getY() - CREAURE_HEIGHT / 2.0) + 0.3),
+					glm::vec2(CREAURE_WIDTH / 2.0, CREAURE_HEIGHT - 0.6),
+					glm::vec2(tilex, tiley),
+					glm::vec2(1, 1)
+				)) {
+					if (!AABB(
+						glm::vec2(getX() + 1, (getY() - CREAURE_HEIGHT / 2.0) + 0.3),
+						glm::vec2(CREAURE_WIDTH / 2.0, CREAURE_HEIGHT - 0.6),
+						glm::vec2(tilex + 1, tiley),
+						glm::vec2(1, 1)
+					)) {
+						setX(tilex + 1 + (CREAURE_WIDTH / 2.0));
+					}
+				
+					//Process new area if player
+					#if !STORE_MAP_IN_RAM
+					if (m_id == 0) Game::processNewArea();
+					#endif
+				}
+				
+				//RIGHT COLLIDER
+				if (AABB(
+					glm::vec2(getX(), (getY() - CREAURE_HEIGHT / 2.0) + 0.3),
+					glm::vec2(CREAURE_WIDTH / 2.0, CREAURE_HEIGHT - 0.6),
+					glm::vec2(tilex, tiley),
+					glm::vec2(1, 1)
+				)) {
+					if (!AABB(
+						glm::vec2(getX() - (CREAURE_WIDTH / 2.0), (getY() - CREAURE_HEIGHT / 2.0) + 0.3),
+						glm::vec2(CREAURE_WIDTH / 2.0, CREAURE_HEIGHT - 0.6),
+						glm::vec2(tilex, tiley),
+						glm::vec2(1, 1)
+					)) {
+						setX(tilex - (CREAURE_WIDTH / 2.0));
+					}
+
+					//Process new area if player
+					#if !STORE_MAP_IN_RAM
+					if (m_id == 0) Game::processNewArea();
+					#endif
+				}
+				//TOP COLLIDER
+				if (AABB(
+					glm::vec2((getX() - CREAURE_WIDTH / 2.0) + 0.3, getY() - CREAURE_HEIGHT / 2.0),
+					glm::vec2(CREAURE_WIDTH - 0.6, CREAURE_HEIGHT / 2.0),
+					glm::vec2(tilex, tiley),
+					glm::vec2(1, 1)
+				)) {
+					if (!AABB(
+						glm::vec2((getX() - CREAURE_WIDTH / 2.0) + 0.3, getY() - (CREAURE_HEIGHT / 2.0)),
+						glm::vec2(CREAURE_WIDTH - 0.6, CREAURE_HEIGHT / 2.0),
+						glm::vec2(tilex, tiley),
+						glm::vec2(1, 1)
+					)) {
+						setY(tiley + 1 + (CREAURE_HEIGHT / 2.0));
+					}
+				
+					//Process new area if player
+					#if !STORE_MAP_IN_RAM
+					if (m_id == 0) Game::processNewArea();
+					#endif
+				}
+				//BOTTOM COLLIDER
+				if (AABB(
+					glm::vec2((getX() - CREAURE_WIDTH / 2.0) + 0.3, getY()),
+					glm::vec2(CREAURE_WIDTH - 0.6, CREAURE_HEIGHT / 2.0),
+					glm::vec2(tilex, tiley),
+					glm::vec2(1, 1)
+				)) {
+					if (AABB(
+						glm::vec2((getX() - CREAURE_WIDTH / 2.0) + 0.3, getY() - (CREAURE_HEIGHT / 2.0)),
+						glm::vec2(CREAURE_WIDTH - 0.6, CREAURE_HEIGHT / 2.0),
+						glm::vec2(tilex, tiley),
+						glm::vec2(1, 1)
+					)) {
+						setY(tiley - (CREAURE_HEIGHT / 2.0));
+					}
+				
+					//Process new area if player
+					#if !STORE_MAP_IN_RAM
+					if (m_id == 0) Game::processNewArea();
+					#endif
+				}
 			}
 		}
 	}

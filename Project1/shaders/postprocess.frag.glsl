@@ -7,7 +7,7 @@ in vec2 UV;
 uniform sampler2D renderedTexture;
 uniform int unif_effect;
 
-float kernel[] = { 0.035822,	0.05879,	0.086425,	0.113806,	0.13424,	0.141836,	0.13424,	0.113806,	0.086425,	0.05879,	0.035822 };
+float kernel[] = float[](0.035822,	0.05879,	0.086425,	0.113806,	0.13424,	0.141836,	0.13424,	0.113806,	0.086425,	0.05879,	0.035822);
 float pixelSizeX;
 float pixelSizeY;
 

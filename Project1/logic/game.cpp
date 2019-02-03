@@ -88,7 +88,7 @@ void Game::init() {
 	
 	//Gameloop
 	tools::Logger::info("Starting gameloop");
-	m_loop = std::unique_ptr<logic::GameLoop>(new logic::GameLoop(render, update, rapidUpdate, 100, 10000));
+	m_loop = std::unique_ptr<logic::GameLoop>(new logic::GameLoop(render, update, rapidUpdate, UPDATES_PER_SECOND, 10000));
 
 	loadGame();
 	renderer = std::string((char*)glGetString(GL_RENDERER));
@@ -415,7 +415,10 @@ void Game::loadGame() {
 	tools::Random::seed(seed);
 	m_noise = FastNoise(seed);
 #else
-	m_noise = FastNoise(tools::Clock::getMicroseconds());
+	m_biomenoise = FastNoise(tools::Clock::getMicroseconds() + 0);
+	m_mapnoise = FastNoise(tools::Clock::getMicroseconds() + 1);
+	m_plantnoise1 = FastNoise(tools::Clock::getMicroseconds() + 2);
+	m_plantnoise2 = FastNoise(tools::Clock::getMicroseconds() + 3);
 #endif
 
 #else
@@ -465,7 +468,7 @@ void Game::loadGame() {
 		}
 	}
 #endif
-	float playerX = M_MAP_SIZE / 2.0, playerY = M_MAP_SIZE / 2.0;
+	float playerX = MAP_SIZE / 2.0, playerY = MAP_SIZE / 2.0;
 
 #if !DEBUG_DISABLE_SAVING
 	float *playerData = (float*)tools::BinaryIO::read<float>(getSaveLocation() + "player_data");
