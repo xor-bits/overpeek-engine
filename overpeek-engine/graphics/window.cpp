@@ -24,7 +24,8 @@ namespace graphics {
 	void(*Window::mButtonCallback)(int, int);
 	void(*Window::m_scroll_callback)(double);
 
-	Window::Window(unsigned int width, unsigned int height, std::string title, bool fullscreen, unsigned int multisample) {
+	Window::Window(unsigned int width, unsigned int height, std::string title, bool fullscreen, unsigned int multisample)
+	{
 		mWidth = width; mHeight = height; mTitle = title; mAspect = width / (float)height;
 		m_fullscreen = fullscreen; m_multisample = multisample;
 
@@ -32,8 +33,6 @@ namespace graphics {
 		for (int i = 0; i < M_NUM_BUTTONS; i++) mButtons[i] = false;
 		for (int i = 0; i < M_NUM_KEYS; i++) mSingleKeys[i] = false;
 		for (int i = 0; i < M_NUM_BUTTONS; i++) mSingleButtons[i] = false;
-
-		tools::Logger::setup();
 
 		if (!mInit()) {
 			glfwTerminate();

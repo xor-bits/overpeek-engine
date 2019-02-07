@@ -15,6 +15,10 @@ namespace graphics {
 		~VertexArray();
 
 		void addBuffer(Buffer* buffer, GLuint index);
+
+		//Need to manually call glEnableVertexAttribArray and glVertexAttribPointer
+		void addBuffer(Buffer* buffer);
+		
 		void bind();
 		void unbind();
 	};

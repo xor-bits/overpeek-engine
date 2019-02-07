@@ -4,6 +4,7 @@
 #include "player.h"
 
 #include "../logic/game.h"
+#include "../logic/inventory.h"
 #include "../world/tile.h"
 #include "../world/region.h"
 #include "../world/map.h"
@@ -17,11 +18,11 @@ void Player::submitToRenderer(graphics::Renderer *renderer, float renderOffsetX,
 }
 
 void Player::update() {
-	Creature::update();
+	Creature::update(0);
 }
 
 void Player::collide() {
-	if (!Game::debugMode) Creature::collide();
+	Creature::collide();
 }
 
 void Player::hit() {
@@ -79,4 +80,21 @@ void Player::place() {
 	}
 #endif
 	audio::AudioManager::play(1);
+}
+
+void Player::save() {
+	inventory->save();
+	float playerData[2] = { getX(), getY() };
+	tools::BinaryIO::write<float>(Game::getSaveLocation() + "player.data", playerData, 2);
+}
+
+bool Player::load() {
+	inventory->init();
+
+	unsigned long data_size;
+	float *playerData = (float*)tools::BinaryIO::read<float>(Game::getSaveLocation() + "player.data", data_size);
+	if (!playerData) return false;
+
+	setX(playerData[0]);
+	setY(playerData[1]);
 }

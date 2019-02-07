@@ -16,6 +16,7 @@
 #include "buffers/indexBuffer.h"
 #include "buffers/buffer.h"
 #include "buffers/vertexArray.h"
+#include "quadRenderer.h"
 
 #define TEXT_ORIGIN_LEFT 0
 #define TEXT_ORIGIN_CENTER 1
@@ -30,43 +31,42 @@
 
 namespace graphics {
 
-	class FontLoader {
+	class Renderer;
+	class FontRenderer {
 	private:
 		GLuint texture;
 		struct Character {
 			GLuint textureID;		//Glyph texture id
 			glm::ivec2 size;	//Glyph size
 			glm::ivec2 bearing; //Offset from baseline to top left
-			GLuint advance;		//Offset to advance to next glyph
+			FT_Pos advance;		//Offset to advance to next glyph
 		};
-		std::map<GLchar, Character> m_characters;
-
-		VertexArray *m_VAO;
-		Buffer *m_VBO;
-		Buffer *m_UV;
-		Buffer *m_ID;
-		Buffer *m_COLOR;
-
-		GLuint quadCount;
-		GLfloat m_vertex[TEXT_MAX_VBO];
-		GLfloat m_uv[TEXT_MAX_VBO];
-		GLfloat m_id[TEXT_MAX_VBO];
-		GLfloat m_color[TEXT_MAX_VBO];
+		std::map<GLchar, Character*> m_characters;
+		bool initalized = false;
+		QuadRenderer *m_renderer;
 
 	private:
 
-		bool init(std::string fontPath);
+		bool init(std::string &fontPath);
 
 	public:
+		FontRenderer(std::string &fontPath, QuadRenderer *renderer);
 		//enum textOrigin
 		//{
 		//	textOriginLeft, textOriginRight, textOriginCenter, textOriginTop, textOriginBottom
 		//};
 
-		FontLoader(std::string fontPath);
+		//Maps buffer
+		void beginRendering();
+
+		//Unmaps buffer
+		void stopRendering();
+
+		//Submit text to render
+		void renderText(float x, float y, float w, float h, std::string &text, glm::vec3 color, int textOriginX, int textOriginY);
 		
-		void renderText(float x, float y, float w, float h, std::string text, glm::vec3 color, int textOriginX, int textOriginY);
-		void flush();
+		//Draws buffers and then clears them
+		void draw();
 	};
 
 }

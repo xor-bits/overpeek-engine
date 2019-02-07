@@ -4,17 +4,12 @@
 #include "../settings.h"
 #include <string>
 
-#define USER_PROFILE std::string(getenv("USERPROFILE"))
-#define SAVE_PATH std::string(USER_PROFILE + "\\AppData\\Roaming\\_overpeek-game\\")
-#define WORLD_NAME std::string("test")
-
 class Map;
 class Tile;
 class Region;
 class Player;
 class Creature;
 class Gui;
-class FastNoise;
 namespace logic {class GameLoop;}
 namespace graphics {class Window;class Shader;class Renderer;}
 
@@ -30,11 +25,6 @@ private:
 	static std::unique_ptr<Gui> m_gui;
 	static std::unique_ptr<Map> m_map;
 	static std::unique_ptr<Player> m_player;
-
-	static FastNoise m_biomenoise;
-	static FastNoise m_mapnoise;
-	static FastNoise m_plantnoise1;
-	static FastNoise m_plantnoise2;
 
 
 #if !STORE_MAP_IN_RAM
@@ -59,13 +49,9 @@ private:
 	static void asyncUnload();
 #endif
 
-	static int hitCooldown;
-
 	static bool justPaused;
 	
 	static void renderInfoScreen();
-
-	static int getInfoFromNoiseIfLoop(Database::Biome biome, float x, float y, int index);
 
 public:
 	static bool tilesChanged;
@@ -103,9 +89,6 @@ public:
 	static Gui *getGui();
 	static logic::GameLoop *getLoop();
 	static Map *getMap();
-
-	static void getInfoFromNoise(int &tileId, int &objId, float x, float y);
-	static Database::Biome getTileBiome(float x, float y);
 
 	static void addCreature(float x, float y, int id, bool item);
 	

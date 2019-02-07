@@ -174,7 +174,6 @@ void scroll(double x) {
 }
 
 int main() {
-	tools::Logger::setup();
 	m_window = new graphics::Window(720, 720, "Chaos", false, 0);
 	m_window->setKeyboardCallback(keyPress);
 	m_window->setButtonCallback(buttonPress);

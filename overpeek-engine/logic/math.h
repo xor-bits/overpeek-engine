@@ -2,9 +2,14 @@
 
 #include <string>
 #include <glm/glm.hpp>
+#include <algorithm>
 
 namespace logic {
 	
+	template<class T>
+	inline T clamp(T _val, T _min, T _max) {
+		return std::max(std::min(_val, _max), _min);
+	}
 	inline bool isInRange(int input, int min, int max) {
 		return (input >= min) && (input <= max);
 	}

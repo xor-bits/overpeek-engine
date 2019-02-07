@@ -16,10 +16,12 @@ public:
 	int selectedId;
 	float selectedSlot;
 	bool visible;
+	bool load();
 
 public:
 	Inventory(graphics::Shader *shader, graphics::Window *window);
 
+	void init();
 	void save();
 	void render(graphics::Renderer *m_renderer);
 	void update();

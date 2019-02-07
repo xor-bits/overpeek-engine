@@ -1,74 +1,84 @@
 #pragma once
 
-#include <GL/glew.h>
-#include <stddef.h>
-#include <vector>
-#include <glm/glm.hpp>
-#include <iostream>
-
-#include "shader.h"
-#include "fontLoader.h"
-#include "buffers/indexBuffer.h"
-#include "buffers/buffer.h"
-#include "buffers/vertexArray.h"
-#include "../tools/logger.h"
-
-#define MAX_QUADS_PER_FLUSH 64000
-#define VERTEX_PER_QUAD 4 * 2
-#define INDEX_PER_QUAD 6
-#define MAX_VBO MAX_QUADS_PER_FLUSH * VERTEX_PER_QUAD
-#define MAX_IBO MAX_QUADS_PER_FLUSH * INDEX_PER_QUAD
+#include "quadRenderer.h"
+#include "fontRenderer.h"
 
 namespace graphics {
 
-	class Window;
 	class Renderer {
 	private:
+		FontRenderer *m_fontRenderer;
+		QuadRenderer *m_fontquadRenderer;
+
+		QuadRenderer *m_quadRenderer;
+
 		Window *m_window;
 
-		VertexArray *m_VAO;
-		Buffer *m_VBO;
-		Buffer *m_UV;
-		Buffer *m_ID;
-		Buffer *m_COLOR;
 
-		IndexBuffer *m_IBO;
-
-		GLuint quadCount;
-		GLfloat m_vertex[MAX_VBO];
-		GLfloat m_uv[MAX_VBO];
-		GLfloat m_id[MAX_VBO];
-		GLushort m_index[MAX_IBO];
-		GLfloat m_color[MAX_VBO * 2];
-
-		GLuint m_framebuffer;
-		GLuint m_frametexture;
-		GLuint m_framebuffer2;
-		GLuint m_frametexture2;
-
-
-		VertexArray *m_ScreenVAO;
-		Buffer *m_ScreenVBO;
-
-		FontLoader *fontLoader;
-
-		void initText(std::string fontpath);
-
-		bool textRender = false;
+		bool m_quadMapped;
+		bool m_fontMapped;
 
 	public:
-		Renderer(std::string fontpath, Window *window);
-		Renderer(Window *window);
+		Renderer(std::string font, Window *window) {
+			m_window = window;
+			m_quadRenderer = new QuadRenderer(window);
+			m_fontquadRenderer = new QuadRenderer(window);
+			m_fontRenderer = new FontRenderer(font, m_fontquadRenderer);
+			m_quadMapped = false;
+			m_fontMapped = false;
+		}
 
-		void renderBox(float x, float y, float w, float h, float angle, int textureID, glm::vec4 color);
-		void renderBoxCentered(float x, float y, float w, float h, float angle, int textureID, glm::vec4 color);
-		void renderText(float x, float y, float w, float h, float angle, std::string text, glm::vec4 color, int xAlign, int yAlign);
-		
-		void flush(Shader *shader, int quadTexture);
-		void renderToFramebuffer(Shader *shader, int quadTexture, int framebufferindex);
-		void flushFramebuffer(Shader *postshader, int framebufferindex);
-		void flushFramebufferToFramebuffer(Shader *postshader, int first, int second);
-		void clear();
+		~Renderer() {
+			delete m_fontquadRenderer;
+			delete m_fontRenderer;
+			delete m_quadRenderer;
+		}
+
+		//Submit quad to renderer
+		void renderBox(glm::vec2 _pos, glm::vec2 _size, int _id, glm::vec4 _color) {
+			if (m_fontMapped) {
+				m_fontRenderer->stopRendering();
+				m_fontMapped = false;
+			}
+			if (!m_quadMapped) {
+				m_quadRenderer->beginRendering();
+				m_quadMapped = true;
+			}
+			m_quadRenderer->renderBox(_pos, _size, _id, _color);
+		}
+
+		//Submit text to renderer
+		void renderText(glm::vec2 pos, glm::vec2 size, std::string &text, glm::vec3 color, int textOriginX, int textOriginY) {
+			if (m_quadMapped) {
+				m_quadRenderer->stopRendering();
+				m_quadMapped = false;
+			}
+			if (!m_fontMapped) {
+				m_fontRenderer->beginRendering();
+				m_fontMapped = true;
+			}
+			m_fontRenderer->renderText(pos.x, pos.y, size.x, size.y, text, color, textOriginX, textOriginY);
+		}
+
+		//Draws all quads and text
+		//textbool is location of int (used as boolean) in shader that enables or disables text rendering
+		void draw(Shader *shader, std::string textbool, GLint texture) {
+			if (m_fontMapped) {
+				m_fontRenderer->stopRendering();
+				m_fontMapped = false;
+			}
+			if (m_quadMapped) {
+				m_quadRenderer->stopRendering();
+				m_quadMapped = false;
+			}
+
+			shader->enable();
+			shader->setUniform1f(textbool.c_str(), 0);
+			m_quadRenderer->draw(texture);
+			shader->setUniform1f(textbool.c_str(), 1);
+			m_fontRenderer->draw();
+		}
+
 	};
-	
+
 }

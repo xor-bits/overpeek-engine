@@ -9,6 +9,7 @@
 #include "logic/gameloop.h"
 #include "logic/math.h"
 #include "logic/FastNoise.h"
+#include "logic/FastNoiseSIMD/FastNoiseSIMD.h"
 
 #include "tools/clock.h"
 #include "tools/random.h"
@@ -17,7 +18,6 @@
 #include "tools/debug.h"
 
 #include "graphics/camera.h"
-#include "graphics/fontLoader.h"
 #include "graphics/shader.h"
 #include "graphics/renderer.h"
 #include "graphics/window.h"

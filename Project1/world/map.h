@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "../settings.h"
+#include "../logic/database.h"
 
 class Creature;
 class Map {
@@ -22,11 +23,33 @@ class Map {
 				m_objectHealth = 0;
 			}
 		};
-		Creature *m_creatures[MAP_MAX_CREATURES];
 
 	private:
+		struct CreatureSaveData
+		{
+			float x;
+			float y;
+			short id;
+			bool item;
+		};
+		std::vector<std::unique_ptr<Creature>> m_creatures;
 		std::vector<std::vector<std::unique_ptr<MapTile>>>  m_tiles;
 		std::string m_name;
+
+		float* m_mapnoise;
+		float* m_biomenoise1;
+		float* m_biomenoise2;
+		float* m_plantnoise1;
+		float* m_plantnoise2;
+
+		bool loadMap();
+		void createMapFast();
+
+		int getInfoFromNoiseIfLoop(Database::Biome *biome, float x, float y, int index);
+		void getInfoFromNoise(int &tileId, int &objId, float x, float y);
+		Database::Biome *getTileBiome(float x, float y);
+		
+		std::string saveLocation();
 
 	public:
 		Map(std::string name);
@@ -39,12 +62,11 @@ class Map {
 		void update();
 
 		void addCreature(float x, float y, int id, bool item);
-		void addCreature(Creature *creature);
-		void removeCreature(int i, bool _delete);
-		void removeCreature(Creature *creature, bool _delete);
+		void removeCreature(int index);
+		void removeCreature(Creature *creature);
 
 		MapTile *getTile(unsigned int x, unsigned int y);
 
-		void findAllCreatures(float x, float y, Creature** array, unsigned int& amount, float radius);
+		void findAllCreatures(float x, float y, std::vector<Creature*> &_array, float radius);
 
 };

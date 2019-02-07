@@ -1,10 +1,6 @@
 #pragma once
 
 //#include "../logic/game.h"
-
-#define CREAURE_WIDTH 0.8
-#define CREAURE_HEIGHT 0.8
-
 #define HEADING_UP 0
 #define HEADING_DOWN 2
 #define HEADING_LEFT 3
@@ -16,12 +12,12 @@ protected:
 	int m_counterToRemoveSwingAnimation = 0;
 	int m_id;
 	int m_swingDir;
-	int m_regionIndex;
 
 	int m_untilnexttarget;
 	int m_wait;
 	float m_curtarget_x;
 	float m_curtarget_y;
+	bool m_chasing;
 	float m_health;
 
 	void enemyAi();
@@ -37,9 +33,10 @@ public:
 	Creature();
 
 	virtual void submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY);
-	virtual void update();
+	virtual void update(int index);
 	virtual void collide(); //Collision check must happen after processing new area
 	virtual void hit();
+	bool canSee(float x, float y);
 
 	inline int getId() { return m_id; }
 
@@ -58,11 +55,10 @@ public:
 	inline float getX() { return x - 0.5f; }
 	inline float getY() { return y - 0.5f; }
 
-	inline int getRegionIndex() { return m_regionIndex; }
-	
 	inline void setX(float n) { x = n + 0.5f; }
 	inline void setY(float n) { y = n + 0.5f; }
-	inline void setRegionIndex(int i) { m_regionIndex = i; }
+	inline void addX(float n) { x += n; }
+	inline void addY(float n) { y += n; }
 	void heal(float amount);
 	void heal();
 };

@@ -17,4 +17,6 @@ public:
 	void collide(); //Collision check must happen after processing new area
 	void hit();
 	void place();
+	void save();
+	bool load();
 };

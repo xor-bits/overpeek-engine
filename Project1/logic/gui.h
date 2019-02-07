@@ -24,6 +24,7 @@ private:
 	float m_staminaGainRate;
 
 	int m_staminaRegenCooldown;
+	int m_healthRegenCooldown;
 
 	int m_selectedButton;
 
@@ -35,6 +36,8 @@ private:
 	float m_update_logger[GUI_UPDATE_LOGGER_SIZE];
 	float m_slowest_update;
 
+	void clampHPAndSTA();
+
 public:
 	Gui(float maxHealth, float maxStamina, float healthGainRate, float staminaGainRate);
 
@@ -42,9 +45,9 @@ public:
 	void update();
 	void keyPress(int key, int action);
 
-	inline void setHealth(float value) { m_playerHealth = value; }
+	inline void setHealth(float value) { m_playerHealth = value; m_healthRegenCooldown = 0; clampHPAndSTA(); }
 	inline float getHealth() { return m_playerHealth; }
-	inline void setStamina(float value) { m_playerStamina = value; m_staminaRegenCooldown = 0; }
+	inline void setStamina(float value) { m_playerStamina = value; m_staminaRegenCooldown = 0; clampHPAndSTA(); }
 	inline float getStamina() { return m_playerStamina; }
 
 	inline void setMaxHealth(float value) { m_maxHealth = value; }

@@ -18,27 +18,44 @@ namespace tools {
 		static void setup() {
 			if (m_initalized) return;
 			m_console = spdlog::stdout_color_mt("console");
-			info("Logger created.");
+			spdlog::set_pattern("%^[%l]: %v%$");
 			m_initalized = true;
+			info("Logger created.");
 		}
 
 		template <class T>
 		static void info(T output) {
+			setup();
 			m_console->info(output);
+		}
+
+		template <class T1, class T2>
+		static void info(T1 output1, T2 output2) {
+			setup();
+			m_console->info(std::to_string(output1) + ", " + std::to_string(output2));
+		}
+
+		template <class T1, class T2, class T3>
+		static void info(T1 output1, T2 output2, T3 output3) {
+			setup();
+			m_console->info(std::to_string(output1) + ", " + std::to_string(output2) + ", " + std::to_string(output3));
 		}
 
 		template <class T>
 		static void warning(T output) {
+			setup();
 			m_console->warn(output);
 		}
 
 		template <class T>
 		static void critical(T output) {
+			setup();
 			m_console->critical(output);
 		}
 
 		template <class T>
 		static void error(T output) {
+			setup();
 			m_console->error(output);
 			system("pause");
 			glfwTerminate();

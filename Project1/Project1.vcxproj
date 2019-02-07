@@ -84,7 +84,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)\bin\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\bin\$(ProjectName)\$(Configuration)\Intermediates</IntDir>
+    <IntDir>$(SolutionDir)\bin\$(ProjectName)\$(Configuration)\Intermediates\</IntDir>
     <IncludePath>$(SolutionDir)\Libraries\al\include;$(SolutionDir)\Libraries\opencv\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\spdlog\include;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\opencv\lib;$(SolutionDir)\Libraries\box2d\lib;$(SolutionDir)\Libraries\FreeType\lib;$(SolutionDir)\Libraries\GLFW\lib;$(SolutionDir)\Libraries\GLEW\lib;$(SolutionDir)\Libraries\al\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
@@ -141,6 +141,8 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <StackReserveSize>100000000</StackReserveSize>
+      <StackCommitSize>400000</StackCommitSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -293,6 +295,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="shaders\geometrytexture.frag.glsl" />
+    <None Include="shaders\geometrytexture.geom.glsl" />
+    <None Include="shaders\geometrytexture.vert.glsl" />
     <None Include="shaders\postprocess.frag.glsl" />
     <None Include="shaders\postprocess.vert.glsl" />
     <None Include="shaders\texture.frag.glsl" />
@@ -300,5 +306,12 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\zlib-vc140-static-64.1.2.11\build\native\zlib-vc140-static-64.targets" Condition="Exists('..\packages\zlib-vc140-static-64.1.2.11\build\native\zlib-vc140-static-64.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\zlib-vc140-static-64.1.2.11\build\native\zlib-vc140-static-64.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\zlib-vc140-static-64.1.2.11\build\native\zlib-vc140-static-64.targets'))" />
+  </Target>
 </Project>

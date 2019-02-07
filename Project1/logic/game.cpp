@@ -22,11 +22,6 @@ std::unique_ptr<Inventory> m_inventory;
 std::unique_ptr<Map> Game::m_map;
 std::unique_ptr<Player> Game::m_player;
 
-FastNoise Game::m_biomenoise;
-FastNoise Game::m_mapnoise;
-FastNoise Game::m_plantnoise1;
-FastNoise Game::m_plantnoise2;
-
 #if !STORE_MAP_IN_RAM
 Region Game::m_region[RENDER_DST][RENDER_DST];
 bool Game::m_regionExist[RENDER_DST][RENDER_DST];
@@ -45,24 +40,16 @@ bool Game::debugMode = false;
 bool Game::advancedDebugMode = false;
 bool Game::tilesChanged = true;
 bool Game::justPaused = false;
-
-int Game::hitCooldown = 513709;
-
 bool Game::paused = false;
 
 
 std::string renderer;
 
 void Game::init() {
-
-	tools::Logger::setup();
 	//Audio
 #if ENABLE_AUDIO
 	tools::Logger::info("Creating audio device");
 	audio::AudioManager::init();
-	audio::AudioManager::loadAudio("recourses/hit.wav", 0);
-	audio::AudioManager::loadAudio("recourses/swing.wav", 1);
-	audio::AudioManager::loadAudio("recourses/collect.wav", 2);
 #endif
 
 	//Window
@@ -107,24 +94,20 @@ void Game::renderInfoScreen() {
 	float x = -m_window->getAspect();
 
 	std::string text = "FPS: " + std::to_string(m_loop->getFPS());
-	m_guirenderer->renderText(x, -1.0 + (textScale * 0), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_guirenderer->renderText(x, -1.0 + (textScale * 0), textScale, textScale, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
 	text = "UPS: " + std::to_string(m_loop->getUPS());
-	m_guirenderer->renderText(x, -1.0 + (textScale * 1), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
-
-
+	m_guirenderer->renderText(x, -1.0 + (textScale * 1), textScale, textScale, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	
+	
 	if (!advancedDebugMode) return;
 	text = "Position X: " + std::to_string(m_player->getX()) + ", Y: " + std::to_string(m_player->getY());
-	m_guirenderer->renderText(x, -1.0 + (textScale * 2), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_guirenderer->renderText(x, -1.0 + (textScale * 2), textScale, textScale, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
 	text = "Tile: " + Database::tiles[m_map->getTile(m_player->getY(), m_player->getY())->m_tile].name;
-	m_guirenderer->renderText(x, -1.0 + (textScale * 3), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_guirenderer->renderText(x, -1.0 + (textScale * 3), textScale, textScale, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
 	text = "Object: " + Database::objects[m_map->getTile(m_player->getY(), m_player->getY())->m_object].name;
-	m_guirenderer->renderText(x, -1.0 + (textScale * 4), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
-	//text = "Region pos X: " + std::to_string(getRegion(m_player->getX(), m_player->getY())->getX()) + ", Y: " + std::to_string(getRegion(m_player->getX(), m_player->getY())->getY());
-	//m_guirenderer->renderText(x, -1.0 + (textScale * 5), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM);
+	m_guirenderer->renderText(x, -1.0 + (textScale * 4), textScale, textScale, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
 	text = "Renderer: " + renderer;
-	m_guirenderer->renderText(x, -1.0 + (textScale * 5), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
-	text = "Biome: " + getTileBiome(m_player->getX(), m_player->getY()).name;
-	m_guirenderer->renderText(x, -1.0 + (textScale * 6), textScale, textScale, 0, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_guirenderer->renderText(x, -1.0 + (textScale * 5), textScale, textScale, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
 }
 
 void Game::render() {
@@ -132,7 +115,6 @@ void Game::render() {
 	if (!m_window) return;
 	
 	//World tiles
-	m_worldrenderer->clear();
 #if !STORE_MAP_IN_RAM
 	for (int x = 0; x < RENDER_DST; x++)
 	{
@@ -146,42 +128,40 @@ void Game::render() {
 #else
 	m_map->submitToRenderer(m_worldrenderer.get());
 #endif
-	m_player->submitToRenderer(m_worldrenderer.get(), -m_player->x, -m_player->y);
-	m_inventory->render(m_worldrenderer.get());
-
-
-	//Gui
-	m_guirenderer->clear();
-	renderInfoScreen();
-	m_gui->render(m_worldrenderer.get(), m_guirenderer.get());
+	m_player->submitToRenderer(m_worldrenderer.get(), -m_player->getX(), -m_player->getY());
 	
+	//Gui
+	renderInfoScreen();
+	m_inventory->render(m_guirenderer.get());
+	m_gui->render(m_guirenderer.get(), m_guirenderer.get());
+
 	//Flush
 	m_postshader->enable();
 	m_postshader->setUniform1i("unif_effect", 0);
 	m_postshader->setUniform1f("unif_width", m_window->getWidth());
 	m_postshader->setUniform1f("unif_height", m_window->getHeight());
 	if (!paused) {
-		m_worldrenderer->flush(m_shader.get(), 0);
+		m_worldrenderer->draw(m_shader.get(), "unif_text", graphics::TextureManager::getTexture(0));
 	}
-	else if (justPaused) {
-		m_worldrenderer->renderToFramebuffer(m_shader.get() , 0, 0);
-		m_postshader->enable();
-		for (int i = 0; i < 16; i++) {
-			m_postshader->setUniform1i("unif_effect", 1);
-			m_worldrenderer->flushFramebufferToFramebuffer(m_postshader.get(), 0, 1);
-			m_worldrenderer->flushFramebufferToFramebuffer(m_postshader.get(), 1, 0);
-			m_postshader->setUniform1i("unif_effect", 2);
-			m_worldrenderer->flushFramebufferToFramebuffer(m_postshader.get(), 0, 1);
-			m_worldrenderer->flushFramebufferToFramebuffer(m_postshader.get(), 1, 0);
-		}
-	}
-	else if (paused) {
-		m_postshader->enable();
-		m_postshader->setUniform1i("unif_effect", 0);
-		m_worldrenderer->flushFramebuffer(m_postshader.get(), 0);
-	}
+	//else if (justPaused) {
+	//	m_worldrenderer->renderToFramebuffer(m_shader.get() , 0, 0);
+	//	m_postshader->enable();
+	//	for (int i = 0; i < 16; i++) {
+	//		m_postshader->setUniform1i("unif_effect", 1);
+	//		m_worldrenderer->drawFramebufferToFramebuffer(m_postshader.get(), 0, 1);
+	//		m_worldrenderer->drawFramebufferToFramebuffer(m_postshader.get(), 1, 0);
+	//		m_postshader->setUniform1i("unif_effect", 2);
+	//		m_worldrenderer->drawFramebufferToFramebuffer(m_postshader.get(), 0, 1);
+	//		m_worldrenderer->drawFramebufferToFramebuffer(m_postshader.get(), 1, 0);
+	//	}
+	//}
+	//else if (paused) {
+	//	m_postshader->enable();
+	//	m_postshader->setUniform1i("unif_effect", 0);
+	//	m_worldrenderer->drawFramebuffer(m_postshader.get(), 0);
+	//}
 	
-	m_guirenderer->flush(m_shader.get(), 0);
+	m_guirenderer->draw(m_shader.get(), "unif_text", graphics::TextureManager::getTexture(0));
 
 	//Other
 	justPaused = false;
@@ -214,7 +194,7 @@ void Game::update() {
 		if (m_window->getKey(GLFW_KEY_D)) { m_player->vel_x = playerSpeed; moving = true; }
 		if (m_window->getKey(GLFW_KEY_W)) { m_player->vel_y = -playerSpeed; moving = true; }
 		if (m_window->getKey(GLFW_KEY_A)) { m_player->vel_x = -playerSpeed; moving = true; }
-		if (moving && running) { m_gui->setStamina(m_gui->getStamina() - 0.02); }
+		if (moving && running) { m_gui->setStamina(m_gui->getStamina() - 0.01); }
 		m_gui->update();
 		m_player->update();
 		m_inventory->update();
@@ -286,11 +266,11 @@ void Game::keyPress(int key, int action) {
 	if (paused) return;
 
 	//Player Hitting
-	if (key == GLFW_KEY_UP) { m_player->heading = HEADING_UP; m_player->hit(); return; }
-	if (key == GLFW_KEY_DOWN) { m_player->heading = HEADING_DOWN; m_player->hit(); return; }
-	if (key == GLFW_KEY_LEFT) { m_player->heading = HEADING_LEFT; m_player->hit(); return; }
-	if (key == GLFW_KEY_RIGHT) { m_player->heading = HEADING_RIGHT; m_player->hit(); return; }
-	
+	if (key == GLFW_KEY_UP && !m_gui->exhausted()) { m_player->heading = HEADING_UP; m_player->hit(); m_gui->setStamina(m_gui->getStamina() - 0.2); return; }
+	if (key == GLFW_KEY_DOWN && !m_gui->exhausted()) { m_player->heading = HEADING_DOWN; m_player->hit(); m_gui->setStamina(m_gui->getStamina() - 0.2); return; }
+	if (key == GLFW_KEY_LEFT && !m_gui->exhausted()) { m_player->heading = HEADING_LEFT; m_player->hit(); m_gui->setStamina(m_gui->getStamina() - 0.2); return; }
+	if (key == GLFW_KEY_RIGHT && !m_gui->exhausted()) { m_player->heading = HEADING_RIGHT; m_player->hit(); m_gui->setStamina(m_gui->getStamina() - 0.2); return; }
+	if ((key == GLFW_KEY_UP || key == GLFW_KEY_DOWN || key == GLFW_KEY_LEFT || key == GLFW_KEY_RIGHT) && m_gui->exhausted()) { m_gui->setStamina(m_gui->getStamina() - 0.2); return; }
 	if (key == GLFW_KEY_E) { m_player->setX(round(m_player->getX())); m_player->setY(round(m_player->getY())); return; }
 
 	//Inventory
@@ -338,10 +318,7 @@ void Game::keyPress(int key, int action) {
 		lastRegionX = 0;
 		lastRegionY = 0;
 #endif
-		debugMode = false;
 		tilesChanged = true;
-
-		hitCooldown = 513709;
 
 		paused = false;
 		
@@ -374,10 +351,7 @@ void Game::close() {
 
 void Game::saveGame() {
 #if !DEBUG_DISABLE_SAVING
-	long long startTime1 = tools::Clock::getMicroseconds();
-
-	m_inventory->save();
-	float playerData[2] = { m_player->getX(), m_player->getY() };
+	m_player->save();
 
 #if !STORE_MAP_IN_RAM
 	int worldData[1] = { seed };
@@ -388,14 +362,8 @@ void Game::saveGame() {
 	}
 	tools::BinaryIO::write<int>(getSaveLocation() + "world_data", worldData, 1);
 #else
-	long long startTime = tools::Clock::getMicroseconds();
 	m_map->save();
-	tools::Logger::info(std::string("World saved: ") + std::to_string(tools::Clock::getMicroseconds() - startTime));
-#endif 
-
-	tools::BinaryIO::write<float>(getSaveLocation() + "player_data", playerData, 2);
-	
-	tools::Logger::info(std::string("Save completed in: ") + std::to_string(tools::Clock::getMicroseconds() - startTime1));
+#endif
 #endif
 
 }
@@ -403,7 +371,6 @@ void Game::saveGame() {
 void Game::loadGame() {
 	//Initializing
 	tools::Logger::info("Creating game...");
-	system(("mkdir \"" + SAVE_PATH + WORLD_NAME + "\\regions\"").c_str());
 
 	//Load seed
 #if !DEBUG_DISABLE_SAVING
@@ -415,10 +382,6 @@ void Game::loadGame() {
 	tools::Random::seed(seed);
 	m_noise = FastNoise(seed);
 #else
-	m_biomenoise = FastNoise(tools::Clock::getMicroseconds() + 0);
-	m_mapnoise = FastNoise(tools::Clock::getMicroseconds() + 1);
-	m_plantnoise1 = FastNoise(tools::Clock::getMicroseconds() + 2);
-	m_plantnoise2 = FastNoise(tools::Clock::getMicroseconds() + 3);
 #endif
 
 #else
@@ -428,32 +391,26 @@ void Game::loadGame() {
 	tools::Random::seed(seed);
 	m_noise = FastNoise(seed);
 	tools::Logger::info(std::string("World seed: ") + std::to_string(seed)); // 2058261791
-#else
-	m_biomenoise = FastNoise(tools::Clock::getMicroseconds() + 0);
-	m_mapnoise = FastNoise(tools::Clock::getMicroseconds() + 1);
-	m_plantnoise1 = FastNoise(tools::Clock::getMicroseconds() + 2);
-	m_plantnoise2 = FastNoise(tools::Clock::getMicroseconds() + 3);
 #endif
-
 #endif
 	
 
-	m_worldrenderer = std::unique_ptr<graphics::Renderer>(new graphics::Renderer(m_window.get()));
-	m_guirenderer = std::unique_ptr<graphics::Renderer>(new graphics::Renderer("recourses/arial.ttf", m_window.get()));
+	m_worldrenderer = std::unique_ptr<graphics::Renderer>(new graphics::Renderer("resources/arial.ttf", m_window.get()));
+	m_guirenderer = std::unique_ptr<graphics::Renderer>(new graphics::Renderer("resources/arial.ttf", m_window.get()));
 
-	tools::Logger::info("Loading textures");
-	graphics::TextureManager::loadTextureAtlas("recourses/atlas.png", GL_RGBA, 0);
-	tools::Logger::info("Textures loaded!");
+	tools::Logger::info("Loading resources");
+	graphics::TextureManager::loadTextureAtlas("resources/atlas.png", GL_RGBA, 0);
+	audio::AudioManager::loadAudio("resources/hit.wav", 0);
+	audio::AudioManager::loadAudio("resources/swing.wav", 1);
+	audio::AudioManager::loadAudio("resources/collect.wav", 2);
+	tools::Logger::info("Resources loaded!");
+
 	tools::Logger::info("Loading database");
 	Database::init();
 	tools::Logger::info("Database loaded!");
 
 	m_inventory = std::unique_ptr<Inventory>(new Inventory(m_shader.get(), m_window.get()));
 
-	//Noise settings
-	m_mapnoise.SetFrequency(MAP_FREQ);
-	m_biomenoise.SetFrequency(MAP_BIOME_FREQ);
-	m_plantnoise1.SetFrequency(MAP_FREQ);
 
 	//Constructing objects
 #if STORE_MAP_IN_RAM
@@ -471,10 +428,9 @@ void Game::loadGame() {
 	float playerX = MAP_SIZE / 2.0, playerY = MAP_SIZE / 2.0;
 
 #if !DEBUG_DISABLE_SAVING
-	float *playerData = (float*)tools::BinaryIO::read<float>(getSaveLocation() + "player_data");
-	if (playerData) { playerX = playerData[0]; playerY = playerData[1]; }
 #endif
 	m_player = std::unique_ptr<Player>(new Player(playerX, playerY, m_inventory.get()));
+	m_player->load();
 
 	m_gui = std::unique_ptr<Gui>(new Gui(
 		Database::creatures[m_player->getId()].health, 
@@ -484,58 +440,9 @@ void Game::loadGame() {
 	));
 
 	m_shader->enable();
-	m_shader->SetUniformMat4("ml_matrix", glm::mat4(1.0f));
+	glm::mat4 ml_matrix(1.0f);
+	m_shader->SetUniformMat4("ml_matrix", ml_matrix);
 	tools::Logger::info("Game ready!");
-}
-
-Database::Biome Game::getTileBiome(float x, float y) {
-	float height2 = (m_biomenoise.GetSimplex(x, y) + 1.0) / 2.0;
-	float height1 = (m_biomenoise.GetSimplex(x, y) + 1.0) / 2.0;
-	//float height1 = (logic::Noise::octaveNoise(x * MAP_BIOME_FREQ + 3789, y * MAP_BIOME_FREQ - 3132, MAP_BIOME_OCTA) + 1.0) / 2.0;
-	//float height2 = (logic::Noise::octaveNoise(x * MAP_BIOME_FREQ + 2798, y * MAP_BIOME_FREQ + 1203, MAP_BIOME_OCTA) + 1.0) / 2.0;
-	return Database::getBiome(height1, height2);
-}
-
-int Game::getInfoFromNoiseIfLoop(Database::Biome biome, float x, float y, int index) {
-	if (biome.heightMap[index].grassId != 0) {
-		m_plantnoise1.SetFrequency(biome.heightMap[index].grassNoiseFrequency);
-		float plantnoise1 = (m_plantnoise2.GetCellular(x, y) + 1.0) / 2.0;
-		//float plantnoise1 = (logic::Noise::octaveNoise(x * biome.heightMap[index].grassNoiseFrequency - 5426, y * biome.heightMap[index].grassNoiseFrequency - 6539, 4) + 1.0) / 2.0;
-		if (plantnoise1 > biome.heightMap[index].grassRarity) return biome.heightMap[index].grassId;
-	}
-	if (biome.heightMap[index].plantId != 0) {
-		m_plantnoise2.SetFrequency(biome.heightMap[index].plantNoiseFrequency);
-		float plantnoise2 = (m_plantnoise2.GetCellular(x, y) + 1.0) / 2.0;
-		//float plantnoise2 = (logic::Noise::octaveNoise(x * biome.heightMap[index].plantNoiseFrequency + 3189, y * biome.heightMap[index].plantNoiseFrequency - 1344, 4) + 1.0) / 2.0;
-		if (plantnoise2 > biome.heightMap[index].plantRarity) return biome.heightMap[index].plantId;
-	}
-	return 0;
-}
-
-void Game::getInfoFromNoise(int &tileId, int &objId, float x, float y) {
-	Database::Biome biome = getTileBiome(x, y);
-
-	//World gen settings
-	m_mapnoise.SetFrequency(MAP_FREQ);
-
-	if (biome.heightMap.size() == 1) {
-		tileId = biome.heightMap[0].id;
-		objId = getInfoFromNoiseIfLoop(biome, x, y, 0);
-	}
-	else {
-		//float height1 = (logic::Noise::octaveNoise(x, y, MAP_OCTA) + 1.0) / 2.0;
-		float height1 = (m_mapnoise.GetSimplex(x, y) + 1.0) / 2.0;
-		//float height1 = (m_noise.GetNoise(x, y) + 1.0) / 2.0;
-		//float height1 = (m_noise.GetCellular(x, y) + 1.0) / 2.0;
-		for (int i = 0; i < biome.heightMap.size(); i++)
-		{
-			if (height1 <= biome.heightMap[i].height) {
-				tileId = biome.heightMap[i].id;
-				objId = getInfoFromNoiseIfLoop(biome, x, y, i);
-				break;
-			}
-		}
-	}
 }
 
 
@@ -890,5 +797,5 @@ graphics::Window *Game::getWindow() {
 }
 
 std::string Game::getSaveLocation() {
-	return (SAVE_PATH + WORLD_NAME + "\\").c_str();
+	return SAVE_PATH + "\\" + WORLD_NAME + "\\";
 }

@@ -7,7 +7,7 @@ namespace graphics {
 		
 		glGenBuffers(1, &mID);
 		bind();
-		glBufferData(GL_ARRAY_BUFFER, componentSize * count, data, usage);
+		glBufferData(GL_ARRAY_BUFFER, count, data, usage);
 	}
 
 	Buffer::~Buffer() {
@@ -26,7 +26,16 @@ namespace graphics {
 		mComponentCount = componentCount;
 
 		bind();
-		glBufferSubData(GL_ARRAY_BUFFER, 0, componentSize * count, data);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, count, data);
 	}
 
+	void *Buffer::mapBuffer() {
+		bind();
+		return glMapBuffer(GL_ARRAY_BUFFER, GL_READ_WRITE);
+	}
+
+	void Buffer::unmapBuffer() {
+		bind();
+		glUnmapBuffer(GL_ARRAY_BUFFER);
+	}
 }

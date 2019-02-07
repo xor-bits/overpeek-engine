@@ -18,8 +18,6 @@ namespace graphics {
 	unsigned int TextureManager::mTextures[MAX_TEXTURES];
 
 	unsigned int TextureManager::loadTexture(std::string path, GLenum format, int id) {
-		tools::Logger::setup();
-		
 		int width, height, nrChannels;
 		GLubyte *tmpdata = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
 		if (!tmpdata) {
