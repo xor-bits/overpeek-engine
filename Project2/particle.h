@@ -126,9 +126,9 @@ class Particle {
 			float renderSize = 1;
 			double rx = (m_x + xo) * zoom;
 			double ry = (m_y + yo) * zoom;
-			if (m_charge == 1.0) renderer->renderBox(rx, ry, renderSize, renderSize, 0, 24, glm::vec4(1.0, 0.0, 0.0, 1.0));
-			else if (m_charge == 0.0) renderer->renderBox(rx, ry, renderSize, renderSize, 0, 24, glm::vec4(0.7, 0.7, 0.7, 1.0));
-			else renderer->renderBox(rx, ry, renderSize, renderSize, 0, 24, glm::vec4(0.0, 0.0, 1.0, 1.0));
+			if (m_charge == 1.0) renderer->renderBox(glm::vec2(rx, ry), glm::vec2(renderSize, renderSize), 24, glm::vec4(1.0, 0.0, 0.0, 1.0));
+			else if (m_charge == 0.0) renderer->renderBox(glm::vec2(rx, ry), glm::vec2(renderSize, renderSize), 24, glm::vec4(0.7, 0.7, 0.7, 1.0));
+			else renderer->renderBox(glm::vec2(rx, ry), glm::vec2(renderSize, renderSize), 24, glm::vec4(0.0, 0.0, 1.0, 1.0));
 		}
 
 		void applyForceX(double force) {

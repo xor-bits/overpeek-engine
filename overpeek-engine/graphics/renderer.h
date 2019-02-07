@@ -48,7 +48,7 @@ namespace graphics {
 		}
 
 		//Submit text to renderer
-		void renderText(glm::vec2 pos, glm::vec2 size, std::string &text, glm::vec3 color, int textOriginX, int textOriginY) {
+		void renderText(glm::vec2 pos, glm::vec2 size, std::string text, glm::vec3 color, int textOriginX, int textOriginY) {
 			if (m_quadMapped) {
 				m_quadRenderer->stopRendering();
 				m_quadMapped = false;

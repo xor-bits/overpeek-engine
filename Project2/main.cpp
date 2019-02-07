@@ -43,20 +43,19 @@ void step() {
 void render() {
 	m_window->clear();
 
-	m_renderer->clear();
 	for (int i = 0; i < PARTICLE_COUNT; i++)
 	{
 		m_particles[i]->render(m_renderer, zoom, xoff, yoff);
 	}
 
-	m_renderer->renderText(-100.0, -100.0, 10, 10, 0, logic::boolToString(m_strong ), glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
-	m_renderer->renderText(-100.0, -090.0, 10, 10, 0, logic::boolToString(m_electro), glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
-	m_renderer->renderText(-100.0, -080.0, 10, 10, 0, logic::boolToString(m_grav   ), glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
-	m_renderer->renderText(-100.0, -070.0, 10, 10, 0, std::to_string(zoom), glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
-	m_renderer->renderText(-100.0, -060.0, 10, 10, 0, std::to_string(speed), glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
-	m_renderer->renderText(-100.0, -050.0, 10, 10, 0, std::to_string(m_loop->getUMS()), glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_renderer->renderText(glm::vec2(-100.0, -100.0), glm::vec2(10, 10), logic::boolToString(m_strong ), glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_renderer->renderText(glm::vec2(-100.0, -090.0), glm::vec2(10, 10), logic::boolToString(m_electro), glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_renderer->renderText(glm::vec2(-100.0, -080.0), glm::vec2(10, 10), logic::boolToString(m_grav   ), glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_renderer->renderText(glm::vec2(-100.0, -070.0), glm::vec2(10, 10), std::to_string(zoom), glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_renderer->renderText(glm::vec2(-100.0, -060.0), glm::vec2(10, 10), std::to_string(speed), glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_renderer->renderText(glm::vec2(-100.0, -050.0), glm::vec2(10, 10), std::to_string(m_loop->getUMS()), glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
 
-	m_renderer->flush(m_shader, 0);
+	m_renderer->draw(m_shader, "unif_text", graphics::TextureManager::getTexture(0));
 
 	m_window->update();
 	m_window->input();
@@ -180,7 +179,8 @@ int main() {
 	m_window->setScrollCallback(scroll);
 	m_renderer = new graphics::Renderer("recourses/arial.ttf", m_window);
 	m_shader = new graphics::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl");
-	m_shader->enable(); m_shader->SetUniformMat4("pr_matrix", glm::ortho(-100.0, 100.0, 100.0, -100.0));
+	glm::mat4 pr = glm::ortho(-100.0, 100.0, 100.0, -100.0);
+	m_shader->enable(); m_shader->SetUniformMat4("pr_matrix", pr);
 
 	graphics::TextureManager::loadTextureAtlas("recourses/atlas.png", GL_RGBA, 0);
 
