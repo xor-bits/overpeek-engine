@@ -289,8 +289,9 @@ void Map::submitToRenderer(graphics::Renderer *renderer) {
 			Database::Object object = Database::objects[getTile(x + Game::getPlayer()->getX(), y + Game::getPlayer()->getY())->m_object];
 			float rx = (x - (Game::getPlayer()->getX() - floor(Game::getPlayer()->getX()))) * TILE_SIZE;
 			float ry = (y - (Game::getPlayer()->getY() - floor(Game::getPlayer()->getY()))) * TILE_SIZE;
-			renderer->renderBox(glm::vec2(rx, ry), glm::vec2(TILE_SIZE, TILE_SIZE), tile.texture, glm::vec4(1.0));
-			renderer->renderBox(glm::vec2(rx, ry), glm::vec2(TILE_SIZE, TILE_SIZE), getObjectTexture(x + Game::getPlayer()->getX(), y + Game::getPlayer()->getY()), glm::vec4(object.color, 1.0));
+			renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE, TILE_SIZE), tile.texture, glm::vec4(1.0));
+			renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE, TILE_SIZE), getObjectTexture(x + Game::getPlayer()->getX(), y + Game::getPlayer()->getY()), glm::vec4(object.color, 1.0));
+		
 		}
 	}
 

@@ -17,6 +17,7 @@ class Game {
 private:
 	static std::unique_ptr<graphics::Window> m_window;
 	static std::unique_ptr<graphics::Shader> m_shader;
+	static std::unique_ptr<graphics::Shader> m_pointshader;
 	static std::unique_ptr<graphics::Shader> m_postshader;
 	static std::unique_ptr<graphics::Shader> m_guishader;
 	static std::unique_ptr<graphics::Renderer> m_worldrenderer;

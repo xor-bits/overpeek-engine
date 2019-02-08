@@ -12,6 +12,7 @@
 
 std::unique_ptr<graphics::Window> Game::m_window;
 std::unique_ptr<graphics::Shader> Game::m_shader;
+std::unique_ptr<graphics::Shader> Game::m_pointshader;
 std::unique_ptr<graphics::Shader> Game::m_postshader;
 std::unique_ptr<graphics::Shader> Game::m_guishader;
 std::unique_ptr<graphics::Renderer> Game::m_worldrenderer;
@@ -65,7 +66,8 @@ void Game::init() {
 	tools::Logger::info("Shader for postprocessing");
 	m_postshader = std::unique_ptr<graphics::Shader>(new graphics::Shader("shaders/postprocess.vert.glsl", "shaders/postprocess.frag.glsl"));
 	tools::Logger::info("Shader for textures");
-	m_shader = std::unique_ptr<graphics::Shader>(new graphics::Shader("shaders/geometrytexture.vert.glsl", "shaders/geometrytexture.frag.glsl", "shaders/geometrytexture.geom.glsl"));
+	m_shader = std::unique_ptr<graphics::Shader>(new graphics::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl"));
+	m_pointshader = std::unique_ptr<graphics::Shader>(new graphics::Shader("shaders/geometrytexture.vert.glsl", "shaders/geometrytexture.frag.glsl", "shaders/geometrytexture.geom.glsl"));
 	tools::Logger::info("All shaders created successfully!");
 
 	//Shader stuff
@@ -144,10 +146,10 @@ void Game::render() {
 
 	//Flush
 	if (!paused) {
-		m_worldrenderer->draw(m_shader.get(), "unif_text", graphics::TextureManager::getTexture(0));
+		m_worldrenderer->draw(m_shader.get(), m_pointshader.get(), "unif_text", graphics::TextureManager::getTexture(0));
 	}
 	else if (justPaused) {
-		m_worldrenderer->drawToFramebuffer(m_shader.get(), "unif_text", graphics::TextureManager::getTexture(0), false);
+		m_worldrenderer->drawToFramebuffer(m_shader.get(), m_pointshader.get(), "unif_text", graphics::TextureManager::getTexture(0), false);
 		m_postshader->enable();
 		for (int i = 0; i < 16; i++) {
 			m_postshader->setUniform1i("unif_effect", 1);
@@ -164,7 +166,7 @@ void Game::render() {
 		m_worldrenderer->drawFramebuffer(m_postshader.get(), "unif_texture", false);
 	}
 	
-	m_guirenderer->draw(m_shader.get(), "unif_text", graphics::TextureManager::getTexture(0));
+	m_guirenderer->draw(m_shader.get(), m_pointshader.get(), "unif_text", graphics::TextureManager::getTexture(0));
 
 	//Other
 	justPaused = false;

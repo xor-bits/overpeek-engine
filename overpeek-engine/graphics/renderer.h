@@ -1,6 +1,7 @@
 #pragma once
 
 #include "quadRenderer.h"
+#include "pointRenderer.h"
 #include "fontRenderer.h"
 
 namespace graphics {
@@ -12,6 +13,9 @@ namespace graphics {
 
 		//Quad
 		QuadRenderer *m_quadRenderer;
+
+		//Point
+		PointRenderer *m_pointRenderer;
 
 		//Dependecies
 		Window *m_window;
@@ -27,14 +31,17 @@ namespace graphics {
 
 		bool m_quadMapped;
 		bool m_fontMapped;
+		bool m_pointMapped;
 
 	public:
 		Renderer(std::string font, Window *window) {
 			m_window = window;
 			m_fontRenderer = new FontRenderer(font, new QuadRenderer(window));
 			m_quadRenderer = new QuadRenderer(window);
+			m_pointRenderer = new PointRenderer(window);
 			m_quadMapped = false;
 			m_fontMapped = false;
+			m_pointMapped = false;
 
 			//Post processing
 
@@ -104,6 +111,7 @@ namespace graphics {
 		~Renderer() {
 			delete m_fontRenderer;
 			delete m_quadRenderer;
+			delete m_pointRenderer;
 		}
 
 		//Submit quad to renderer
@@ -112,6 +120,10 @@ namespace graphics {
 				m_fontRenderer->stopRendering();
 				m_fontMapped = false;
 			}
+			if (m_pointMapped) {
+				m_pointRenderer->stopRendering();
+				m_pointMapped = false;
+			}
 			if (!m_quadMapped) {
 				m_quadRenderer->beginRendering();
 				m_quadMapped = true;
@@ -119,11 +131,32 @@ namespace graphics {
 			m_quadRenderer->renderBox(_pos, _size, _id, _color);
 		}
 
+		//Submit point to renderer
+		void renderPoint(glm::vec2 pos, glm::vec2 size, int id, glm::vec4 color) {
+			if (m_quadMapped) {
+				m_quadRenderer->stopRendering();
+				m_quadMapped = false;
+			}
+			if (m_fontMapped) {
+				m_fontRenderer->stopRendering();
+				m_fontMapped = false;
+			}
+			if (!m_pointMapped) {
+				m_pointRenderer->beginRendering();
+				m_pointMapped = true;
+			}
+			m_pointRenderer->renderPoint(pos, size, id, color);
+		}
+
 		//Submit text to renderer
 		void renderText(glm::vec2 pos, glm::vec2 size, std::string text, glm::vec3 color, int textOriginX, int textOriginY) {
 			if (m_quadMapped) {
 				m_quadRenderer->stopRendering();
 				m_quadMapped = false;
+			}
+			if (m_pointMapped) {
+				m_pointRenderer->stopRendering();
+				m_pointMapped = false;
 			}
 			if (!m_fontMapped) {
 				m_fontRenderer->beginRendering();
@@ -134,7 +167,7 @@ namespace graphics {
 
 		//Draws all quads and text
 		//textbool is location of int (used as boolean) in shader that enables or disables text rendering
-		void draw(Shader *shader, std::string textbool, GLint texture) {
+		void draw(Shader *shader, Shader * pointshader, std::string textbool, GLint texture) {
 			if (m_fontMapped) {
 				m_fontRenderer->stopRendering();
 				m_fontMapped = false;
@@ -143,22 +176,32 @@ namespace graphics {
 				m_quadRenderer->stopRendering();
 				m_quadMapped = false;
 			}
+			if (m_pointMapped) {
+				m_pointRenderer->stopRendering();
+				m_pointMapped = false;
+			}
 
 			shader->enable();
 			shader->setUniform1f(textbool.c_str(), 0);
 			m_quadRenderer->draw(texture);
+			
+			pointshader->enable();
+			pointshader->setUniform1f(textbool.c_str(), 0);
+			m_pointRenderer->draw(texture);
+
+			shader->enable();
 			shader->setUniform1f(textbool.c_str(), 1);
 			m_fontRenderer->draw();
 		}
 
 		//Draws all quads and text to specified framebuffer at index
-		void drawToFramebuffer(Shader *shader, std::string textbool, GLint texture, bool first_framebuffer) {
+		void drawToFramebuffer(Shader *shader, Shader * pointshader, std::string textbool, GLint texture, bool first_framebuffer) {
 			if (first_framebuffer) glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer1);
 			else glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer2);
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			draw(shader, textbool, texture);
+			draw(shader, pointshader, textbool, texture);
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glViewport(0, 0, m_window->getWidth(), m_window->getHeight());

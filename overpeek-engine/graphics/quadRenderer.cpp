@@ -116,12 +116,9 @@ namespace graphics {
 		//Binding
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
+		m_VAO->bind();
 
-		//Actual rendering
-		//tools::Logger::info(debug);
-		//debug = 0;
 		if (m_indexcount > 0) {
-			m_VAO->bind();
 			glDrawElements(GL_TRIANGLES, m_indexcount, GL_UNSIGNED_SHORT, 0);
 			m_indexcount = 0;
 			m_buffer_current = 0;
