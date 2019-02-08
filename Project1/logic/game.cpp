@@ -65,12 +65,15 @@ void Game::init() {
 	tools::Logger::info("Shader for postprocessing");
 	m_postshader = std::unique_ptr<graphics::Shader>(new graphics::Shader("shaders/postprocess.vert.glsl", "shaders/postprocess.frag.glsl"));
 	tools::Logger::info("Shader for textures");
-	m_shader = std::unique_ptr<graphics::Shader>(new graphics::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl"));
+	m_shader = std::unique_ptr<graphics::Shader>(new graphics::Shader("shaders/geometrytexture.vert.glsl", "shaders/geometrytexture.frag.glsl", "shaders/geometrytexture.geom.glsl"));
 	tools::Logger::info("All shaders created successfully!");
 
 	//Shader stuff
+	m_postshader->enable();
+	m_postshader->setUniform1i("unif_effect", 0);
+	m_postshader->setUniform1f("unif_width", m_window->getWidth());
+	m_postshader->setUniform1f("unif_height", m_window->getHeight());
 	glm::mat4 orthographic = glm::ortho(-M_ASPECT * DEBUG_ZOOM, M_ASPECT * DEBUG_ZOOM, DEBUG_ZOOM, -DEBUG_ZOOM);
-	m_postshader->enable(); m_postshader->SetUniformMat4("pr_matrix", orthographic);
 	m_shader->enable(); m_shader->SetUniformMat4("pr_matrix", orthographic);
 	
 	//Gameloop
@@ -94,20 +97,20 @@ void Game::renderInfoScreen() {
 	float x = -m_window->getAspect();
 
 	std::string text = "FPS: " + std::to_string(m_loop->getFPS());
-	m_guirenderer->renderText(x, -1.0 + (textScale * 0), textScale, textScale, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 0)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
 	text = "UPS: " + std::to_string(m_loop->getUPS());
-	m_guirenderer->renderText(x, -1.0 + (textScale * 1), textScale, textScale, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 1)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
 	
 	
 	if (!advancedDebugMode) return;
 	text = "Position X: " + std::to_string(m_player->getX()) + ", Y: " + std::to_string(m_player->getY());
-	m_guirenderer->renderText(x, -1.0 + (textScale * 2), textScale, textScale, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 2)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
 	text = "Tile: " + Database::tiles[m_map->getTile(m_player->getY(), m_player->getY())->m_tile].name;
-	m_guirenderer->renderText(x, -1.0 + (textScale * 3), textScale, textScale, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 3)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
 	text = "Object: " + Database::objects[m_map->getTile(m_player->getY(), m_player->getY())->m_object].name;
-	m_guirenderer->renderText(x, -1.0 + (textScale * 4), textScale, textScale, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 4)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
 	text = "Renderer: " + renderer;
-	m_guirenderer->renderText(x, -1.0 + (textScale * 5), textScale, textScale, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 5)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
 }
 
 void Game::render() {
@@ -115,51 +118,51 @@ void Game::render() {
 	if (!m_window) return;
 	
 	//World tiles
+	if (!paused || justPaused) {
+
 #if !STORE_MAP_IN_RAM
-	for (int x = 0; x < RENDER_DST; x++)
-	{
-		for (int y = 0; y < RENDER_DST; y++)
+		for (int x = 0; x < RENDER_DST; x++)
 		{
-			if (m_regionExist[x][y]) m_region[x][y].submitTilesToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
-			if (m_regionExist[x][y]) m_region[x][y].submitObjectsToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
-			if (m_regionExist[x][y]) m_region[x][y].submitCreaturesToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
+			for (int y = 0; y < RENDER_DST; y++)
+			{
+				if (m_regionExist[x][y]) m_region[x][y].submitTilesToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
+				if (m_regionExist[x][y]) m_region[x][y].submitObjectsToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
+				if (m_regionExist[x][y]) m_region[x][y].submitCreaturesToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
+			}
 		}
-	}
 #else
-	m_map->submitToRenderer(m_worldrenderer.get());
+		m_map->submitToRenderer(m_worldrenderer.get());
 #endif
-	m_player->submitToRenderer(m_worldrenderer.get(), -m_player->getX(), -m_player->getY());
+		m_player->submitToRenderer(m_worldrenderer.get(), -m_player->getX(), -m_player->getY());
+		m_gui->renderBlur(m_worldrenderer.get());
+		m_inventory->render(m_worldrenderer.get());
+	}
 	
 	//Gui
 	renderInfoScreen();
-	m_inventory->render(m_guirenderer.get());
-	m_gui->render(m_guirenderer.get(), m_guirenderer.get());
+	m_gui->renderNoBlur(m_guirenderer.get());
 
 	//Flush
-	m_postshader->enable();
-	m_postshader->setUniform1i("unif_effect", 0);
-	m_postshader->setUniform1f("unif_width", m_window->getWidth());
-	m_postshader->setUniform1f("unif_height", m_window->getHeight());
 	if (!paused) {
 		m_worldrenderer->draw(m_shader.get(), "unif_text", graphics::TextureManager::getTexture(0));
 	}
-	//else if (justPaused) {
-	//	m_worldrenderer->renderToFramebuffer(m_shader.get() , 0, 0);
-	//	m_postshader->enable();
-	//	for (int i = 0; i < 16; i++) {
-	//		m_postshader->setUniform1i("unif_effect", 1);
-	//		m_worldrenderer->drawFramebufferToFramebuffer(m_postshader.get(), 0, 1);
-	//		m_worldrenderer->drawFramebufferToFramebuffer(m_postshader.get(), 1, 0);
-	//		m_postshader->setUniform1i("unif_effect", 2);
-	//		m_worldrenderer->drawFramebufferToFramebuffer(m_postshader.get(), 0, 1);
-	//		m_worldrenderer->drawFramebufferToFramebuffer(m_postshader.get(), 1, 0);
-	//	}
-	//}
-	//else if (paused) {
-	//	m_postshader->enable();
-	//	m_postshader->setUniform1i("unif_effect", 0);
-	//	m_worldrenderer->drawFramebuffer(m_postshader.get(), 0);
-	//}
+	else if (justPaused) {
+		m_worldrenderer->drawToFramebuffer(m_shader.get(), "unif_text", graphics::TextureManager::getTexture(0), false);
+		m_postshader->enable();
+		for (int i = 0; i < 16; i++) {
+			m_postshader->setUniform1i("unif_effect", 1);
+			m_worldrenderer->drawFramebufferToFramebuffer(m_postshader.get(), "unif_texture", true);
+			m_postshader->setUniform1i("unif_effect", 2);
+			m_worldrenderer->drawFramebufferToFramebuffer(m_postshader.get(), "unif_texture", false);
+		}
+		m_postshader->setUniform1i("unif_effect", 0);
+		m_worldrenderer->drawFramebuffer(m_postshader.get(), "unif_texture", false);
+	}
+	else if (paused) {
+		m_postshader->enable();
+		m_postshader->setUniform1i("unif_effect", 0);
+		m_worldrenderer->drawFramebuffer(m_postshader.get(), "unif_texture", false);
+	}
 	
 	m_guirenderer->draw(m_shader.get(), "unif_text", graphics::TextureManager::getTexture(0));
 

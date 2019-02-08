@@ -9,6 +9,9 @@
 #define M_NUM_KEYS		2048
 #define M_NUM_BUTTONS	1024
 
+
+///TODO: MAKE WINDOW RESIZEABLE
+
 namespace graphics {
 
 

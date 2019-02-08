@@ -185,6 +185,7 @@
     <ClCompile Include="graphics\buffers\buffer.cpp" />
     <ClCompile Include="graphics\camera.cpp" />
     <ClCompile Include="graphics\fontRenderer.cpp" />
+    <ClCompile Include="graphics\pointRenderer.cpp" />
     <ClCompile Include="graphics\textureManager.cpp" />
     <ClCompile Include="graphics\shader.cpp" />
     <ClCompile Include="graphics\quadRenderer.cpp" />
@@ -213,6 +214,7 @@
     <ClInclude Include="graphics\buffers\buffer.h" />
     <ClInclude Include="graphics\camera.h" />
     <ClInclude Include="graphics\fontRenderer.h" />
+    <ClInclude Include="graphics\pointRenderer.h" />
     <ClInclude Include="graphics\renderer.h" />
     <ClInclude Include="graphics\textureManager.h" />
     <ClInclude Include="graphics\shader.h" />

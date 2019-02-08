@@ -12,13 +12,6 @@
 #include "buffers/vertexArray.h"
 #include "../tools/logger.h"
 
-#define MAX_QUADS_PER_FLUSH (600000)
-#define VERTEX_PER_QUAD		(4)
-#define DATA_PER_VERTEX		(sizeof(TriangleVertexData) / sizeof(GLfloat))
-#define INDEX_PER_QUAD		(6)
-#define MAX_VBO				(MAX_QUADS_PER_FLUSH * VERTEX_PER_QUAD * DATA_PER_VERTEX)
-#define MAX_IBO				(MAX_QUADS_PER_FLUSH * INDEX_PER_QUAD)
-
 namespace graphics {
 
 	class Window;
@@ -40,15 +33,9 @@ namespace graphics {
 		GLuint m_indexcount;
 
 		TriangleVertexData* m_buffer;
+		GLuint m_buffer_current;
 
-		GLuint m_framebuffer;
-		GLuint m_frametexture;
-		GLuint m_framebuffer2;
-		GLuint m_frametexture2;
-
-
-		VertexArray *m_ScreenVAO;
-		Buffer *m_ScreenVBO;
+		//int debug = 0;
 
 	public:
 		
@@ -66,11 +53,6 @@ namespace graphics {
 		
 		//Draws buffers and then clears them
 		void draw(GLint texture);
-
-
-		void renderToFramebuffer(Shader *shader, int quadTexture, int framebufferindex);
-		void drawFramebuffer(Shader *postshader, int framebufferindex);
-		void drawFramebufferToFramebuffer(Shader *postshader, int first, int second);
 	};
 	
 }

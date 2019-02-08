@@ -2,6 +2,13 @@
 
 #include "textureManager.h"
 
+#define MAX_POINTS_PER_FLUSH (60000)
+#define VERTEX_PER_POINT	(1)
+#define DATA_PER_VERTEX		(sizeof(TriangleVertexData) / sizeof(GLfloat))
+#define INDEX_PER_QUAD		(6)
+#define MAX_VBO				(MAX_POINTS_PER_FLUSH * VERTEX_PER_POINT * DATA_PER_VERTEX)
+#define MAX_IBO				(MAX_POINTS_PER_FLUSH * INDEX_PER_QUAD)
+
 namespace graphics {
 
 	PointRenderer::PointRenderer(Window *window)

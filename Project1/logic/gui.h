@@ -41,7 +41,8 @@ private:
 public:
 	Gui(float maxHealth, float maxStamina, float healthGainRate, float staminaGainRate);
 
-	void render(graphics::Renderer *renderer_blurred, graphics::Renderer *renderer);
+	void renderBlur(graphics::Renderer *renderer_blurred);
+	void renderNoBlur(graphics::Renderer *renderer);
 	void update();
 	void keyPress(int key, int action);
 

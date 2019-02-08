@@ -23,7 +23,7 @@ Gui::Gui(float maxHealth, float maxStamina, float healthGainRate, float staminaG
 	}
 }
 
-void Gui::render(graphics::Renderer *renderer_blurred, graphics::Renderer *renderer) {
+void Gui::renderBlur(graphics::Renderer *renderer) {
 	glm::vec2 pos = glm::vec2(Game::getWindow()->getAspect() - 0.6, -0.9);
 	glm::vec2 size = glm::vec2(0.5, 0.05);
 	renderer->renderBox(pos, size, 24, M_COLOR_BLACK);
@@ -36,8 +36,10 @@ void Gui::render(graphics::Renderer *renderer_blurred, graphics::Renderer *rende
 	renderer->renderBox(pos, size, 24, M_COLOR_BLACK);
 	pos = glm::vec2(Game::getWindow()->getAspect() - 0.595, -0.835);
 	size = glm::vec2(0.49 * (m_playerStamina / m_maxStamina), 0.04);
-	renderer->renderBox(pos, size, 24, M_COLOR_STAMINA_BAR);
-	
+	renderer->renderBox(pos, size, 24, M_COLOR_STAMINA_BAR);	
+}
+
+void Gui::renderNoBlur(graphics::Renderer *renderer) {
 	if (Game::advancedDebugMode) {
 		m_currentFrame++;
 		if (m_currentFrame >= GUI_FRAME_LOGGER_SIZE) m_currentFrame = 0;
@@ -48,25 +50,24 @@ void Gui::render(graphics::Renderer *renderer_blurred, graphics::Renderer *rende
 		glm::vec2 size = glm::vec2(GUI_FRAME_LOGGER_BAR_WIDTH * (GUI_FRAME_LOGGER_SIZE - 1), 0.01);
 		std::string text = "frame micro-s: " + std::to_string((int)m_slowest_frame);
 		renderer->renderBox(pos, size, 24, glm::vec4(0.0, 1.0, 0.0, 1.0));
-		renderer->renderText(-Game::getWindow()->getAspect() + (GUI_FRAME_LOGGER_BAR_WIDTH * (GUI_FRAME_LOGGER_SIZE / 2.0 - 1)),
-			-0.02, 0.05, 0.05, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_CENTER, TEXT_ORIGIN_BOTTOM);
-		
-		
+		renderer->renderText(glm::vec2(-Game::getWindow()->getAspect() + (GUI_FRAME_LOGGER_BAR_WIDTH * (GUI_FRAME_LOGGER_SIZE / 2.0 - 1)), -0.02),
+			glm::vec2(0.05, 0.05), text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_CENTER, TEXT_ORIGIN_BOTTOM);
+
+
 		text = "update micro-s: " + std::to_string((int)m_slowest_update);
 		renderer->renderBox(glm::vec2(Game::getWindow()->getAspect() - GUI_FRAME_LOGGER_BAR_WIDTH * (GUI_FRAME_LOGGER_SIZE - 1), 0.005), glm::vec2(GUI_FRAME_LOGGER_BAR_WIDTH * (GUI_FRAME_LOGGER_SIZE - 1), 0.01), 24, glm::vec4(0.0, 1.0, 0.0, 1.0));
-		renderer->renderText(Game::getWindow()->getAspect() - (GUI_FRAME_LOGGER_BAR_WIDTH * (GUI_FRAME_LOGGER_SIZE / 2.0 - 1)),
-			-0.02, 0.05, 0.05, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_CENTER, TEXT_ORIGIN_BOTTOM);
-		
-		//for (int i = 0; i < GUI_FRAME_LOGGER_SIZE; i++) {
-		//	pos = glm::vec2(Game::getWindow()->getAspect() - (GUI_FRAME_LOGGER_BAR_WIDTH * (i + 1)), 1.0 - m_frame_logger[i] / m_slowest_frame);
-		//	size = glm::vec2(GUI_FRAME_LOGGER_BAR_WIDTH, m_frame_logger[i] / m_slowest_frame);
-		//	renderer->renderBox(pos, size, 24, M_COLOR_BLACK);
-		//}
-		//for (int i = 0; i < GUI_FRAME_LOGGER_SIZE; i++) {
-		//	pos = glm::vec2(-Game::getWindow()->getAspect() + (GUI_FRAME_LOGGER_BAR_WIDTH * i), 1.0 - m_frame_logger[i] / m_slowest_frame);
-		//	size = glm::vec2(GUI_FRAME_LOGGER_BAR_WIDTH, m_frame_logger[i] / m_slowest_frame);
-		//	renderer->renderBox(pos, size, 24, M_COLOR_BLACK);
-		//}
+		renderer->renderText(glm::vec2(Game::getWindow()->getAspect() - (GUI_FRAME_LOGGER_BAR_WIDTH * (GUI_FRAME_LOGGER_SIZE / 2.0 - 1)), -0.02), glm::vec2(0.05, 0.05), text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_CENTER, TEXT_ORIGIN_BOTTOM);
+
+		for (int i = 0; i < GUI_FRAME_LOGGER_SIZE; i++) {
+			pos = glm::vec2(Game::getWindow()->getAspect() - (GUI_FRAME_LOGGER_BAR_WIDTH * (i + 1)), 1.0 - m_frame_logger[i] / m_slowest_frame);
+			size = glm::vec2(GUI_FRAME_LOGGER_BAR_WIDTH, m_frame_logger[i] / m_slowest_frame);
+			renderer->renderBox(pos, size, 24, M_COLOR_BLACK);
+		}
+		for (int i = 0; i < GUI_FRAME_LOGGER_SIZE; i++) {
+			pos = glm::vec2(-Game::getWindow()->getAspect() + (GUI_FRAME_LOGGER_BAR_WIDTH * i), 1.0 - m_frame_logger[i] / m_slowest_frame);
+			size = glm::vec2(GUI_FRAME_LOGGER_BAR_WIDTH, m_frame_logger[i] / m_slowest_frame);
+			renderer->renderBox(pos, size, 24, M_COLOR_BLACK);
+		}
 	}
 
 	if (Game::paused) {
@@ -77,28 +78,27 @@ void Gui::render(graphics::Renderer *renderer_blurred, graphics::Renderer *rende
 		float textScale = 0.1;
 
 		std::string text = "PAUSED";
-		renderer->renderText(0.003, -0.003 - 0.75, textScale, textScale, text, glm::vec4(0.0, 0.0, 0.0, 1.0), TEXT_ORIGIN_CENTER, TEXT_ORIGIN_CENTER);
-		renderer->renderText(-0.003, 0.003 - 0.75, textScale, textScale, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_CENTER, TEXT_ORIGIN_CENTER);
+		renderer->renderText(glm::vec2(0.003, -0.003 - 0.75), glm::vec2(textScale, textScale), text, glm::vec4(0.0, 0.0, 0.0, 1.0), TEXT_ORIGIN_CENTER, TEXT_ORIGIN_CENTER);
+		renderer->renderText(glm::vec2(-0.003, 0.003 - 0.75), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_CENTER, TEXT_ORIGIN_CENTER);
 
-		//
 		if (m_selectedButton == 0) {
-			//renderer->renderBoxCentered(0.0, -0.25, 0.8, 0.1, 0.0, 24, glm::vec4(0.3, 0.3, 0.3, 1.0));
-			//renderer->renderBoxCentered(0.0, -0.175, 0.8, 0.1, 0.0, 24, glm::vec4(0.3, 0.3, 0.3, 0.5));
+			renderer->renderBox(glm::vec2(0.0 - 0.4, -0.50 - 0.05), glm::vec2(0.8, 0.1), 24, glm::vec4(0.3, 0.3, 0.3, 1.0));
+			renderer->renderBox(glm::vec2(0.0 - 0.4, -0.35 - 0.05), glm::vec2(0.8, 0.1), 24, glm::vec4(0.3, 0.3, 0.3, 0.5));
 		}
 		else {
-			//renderer->renderBoxCentered(0.0, -0.25, 0.8, 0.1, 0.0, 24, glm::vec4(0.3, 0.3, 0.3, 0.5));
-			//renderer->renderBoxCentered(0.0, -0.175, 0.8, 0.1, 0.0, 24, glm::vec4(0.3, 0.3, 0.3, 1.0));
+			renderer->renderBox(glm::vec2(0.0 - 0.4, -0.50 - 0.05), glm::vec2(0.8, 0.1), 24, glm::vec4(0.3, 0.3, 0.3, 0.5));
+			renderer->renderBox(glm::vec2(0.0 - 0.4, -0.35 - 0.05), glm::vec2(0.8, 0.1), 24, glm::vec4(0.3, 0.3, 0.3, 1.0));
 		}
 
 		textScale = 0.05;
 		text = "RESUME";
-		renderer->renderText(0.003, -0.003 - 0.5, textScale, textScale, text, glm::vec4(0.0, 0.0, 0.0, 1.0), TEXT_ORIGIN_CENTER, TEXT_ORIGIN_CENTER);
-		renderer->renderText(-0.003, 0.003 - 0.5, textScale, textScale, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_CENTER, TEXT_ORIGIN_CENTER);
+		renderer->renderText(glm::vec2(0.003, -0.003 - 0.5), glm::vec2(textScale, textScale), text, glm::vec4(0.0, 0.0, 0.0, 1.0), TEXT_ORIGIN_CENTER, TEXT_ORIGIN_CENTER);
+		renderer->renderText(glm::vec2(-0.003, 0.003 - 0.5), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_CENTER, TEXT_ORIGIN_CENTER);
 
 		textScale = 0.05;
 		text = "SAVE AND EXIT";
-		renderer->renderText(0.003, -0.003 - 0.35, textScale, textScale, text, glm::vec4(0.0, 0.0, 0.0, 1.0), TEXT_ORIGIN_CENTER, TEXT_ORIGIN_CENTER);
-		renderer->renderText(-0.003, 0.003 - 0.35, textScale, textScale, text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_CENTER, TEXT_ORIGIN_CENTER);
+		renderer->renderText(glm::vec2(0.003, -0.003 - 0.35), glm::vec2(textScale, textScale), text, glm::vec4(0.0, 0.0, 0.0, 1.0), TEXT_ORIGIN_CENTER, TEXT_ORIGIN_CENTER);
+		renderer->renderText(glm::vec2(-0.003, 0.003 - 0.35), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_CENTER, TEXT_ORIGIN_CENTER);
 	}
 }
 

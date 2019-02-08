@@ -7,13 +7,23 @@ namespace graphics {
 
 	class Renderer {
 	private:
+		//Font
 		FontRenderer *m_fontRenderer;
-		QuadRenderer *m_fontquadRenderer;
 
+		//Quad
 		QuadRenderer *m_quadRenderer;
 
+		//Dependecies
 		Window *m_window;
 
+
+		//Framebuffers
+		GLuint m_framebuffer1;
+		GLuint m_frametexture1;
+		GLuint m_framebuffer2;
+		GLuint m_frametexture2;
+		VertexArray *m_ScreenVAO;
+		Buffer *m_ScreenVBO;
 
 		bool m_quadMapped;
 		bool m_fontMapped;
@@ -21,15 +31,77 @@ namespace graphics {
 	public:
 		Renderer(std::string font, Window *window) {
 			m_window = window;
+			m_fontRenderer = new FontRenderer(font, new QuadRenderer(window));
 			m_quadRenderer = new QuadRenderer(window);
-			m_fontquadRenderer = new QuadRenderer(window);
-			m_fontRenderer = new FontRenderer(font, m_fontquadRenderer);
 			m_quadMapped = false;
 			m_fontMapped = false;
+
+			//Post processing
+
+			// The fullscreen quad's VBO
+			GLfloat g_quad_vertex_buffer_data[] = {
+				-1.0f, -1.0f,
+				 1.0f, -1.0f,
+				 1.0f,  1.0f,
+				-1.0f, -1.0f,
+				 1.0f,  1.0f,
+				-1.0f,  1.0f
+			};
+
+			m_ScreenVAO = new VertexArray();
+			m_ScreenVBO = new Buffer(g_quad_vertex_buffer_data, 12, 2, sizeof(GLfloat), GL_STATIC_DRAW);
+			m_ScreenVAO->addBuffer(m_ScreenVBO, 0);
+			m_ScreenVAO->unbind();
+
+			//Render buffer object
+			unsigned int rbo;
+			glGenRenderbuffers(1, &rbo);
+			glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_window->getWidth(), m_window->getHeight());
+
+			//First framebuffer and frametexture
+			//buffer
+			glGenFramebuffers(1, &m_framebuffer1);
+			glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer1);
+
+			//texture
+			glGenTextures(1, &m_frametexture1);
+			glBindTexture(GL_TEXTURE_2D, m_frametexture1);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_window->getWidth(), m_window->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_frametexture1, 0);
+
+			//attach
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
+			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) tools::Logger::error("Framebuffer is not complete!");
+
+			//Second framebuffer and frametexture
+			//buffer
+			glGenFramebuffers(1, &m_framebuffer2);
+			glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer2);
+
+			//texture
+			glGenTextures(1, &m_frametexture2);
+			glBindTexture(GL_TEXTURE_2D, m_frametexture2);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_window->getWidth(), m_window->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_frametexture2, 0);
+
+			//attach
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
+			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) tools::Logger::error("Framebuffer is not complete!");
+
+			//Unbinding
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
 		~Renderer() {
-			delete m_fontquadRenderer;
 			delete m_fontRenderer;
 			delete m_quadRenderer;
 		}
@@ -77,6 +149,49 @@ namespace graphics {
 			m_quadRenderer->draw(texture);
 			shader->setUniform1f(textbool.c_str(), 1);
 			m_fontRenderer->draw();
+		}
+
+		//Draws all quads and text to specified framebuffer at index
+		void drawToFramebuffer(Shader *shader, std::string textbool, GLint texture, bool first_framebuffer) {
+			if (first_framebuffer) glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer1);
+			else glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer2);
+
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			draw(shader, textbool, texture);
+
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glViewport(0, 0, m_window->getWidth(), m_window->getHeight());
+		}
+		
+		//Draws (first or second) framebuffer to screen
+		void drawFramebuffer(Shader *postshader, std::string texture_sampler, bool first_framebuffer) {
+			//Render quad to whole screen
+			glClear(GL_COLOR_BUFFER_BIT);
+			glDisable(GL_DEPTH_TEST);
+
+			postshader->enable();
+			postshader->setUniform1i(texture_sampler.c_str(), 0);
+			glActiveTexture(GL_TEXTURE0);
+
+			if (first_framebuffer) glBindTexture(GL_TEXTURE_2D, m_frametexture1);
+			else glBindTexture(GL_TEXTURE_2D, m_frametexture2);
+
+
+			m_ScreenVAO->bind();
+			m_ScreenVBO->bind();
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+			glEnable(GL_DEPTH_TEST);
+		}
+		
+		//Draws framebuffer to another framebuffer
+		void drawFramebufferToFramebuffer(Shader *postshader, std::string texture_sampler, bool first_framebuffer) {
+			if (first_framebuffer) glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer1);
+			else glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer2);
+
+			drawFramebuffer(postshader, texture_sampler, !first_framebuffer);
+
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
 	};
