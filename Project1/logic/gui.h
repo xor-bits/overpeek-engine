@@ -10,7 +10,7 @@
 #define GUI_UPDATE_LOGGER_SIZE 200
 #define GUI_FRAME_LOGGER_BAR_WIDTH 0.005
 
-namespace graphics { class Window; class Shader; class Renderer; }
+namespace oe { class Window; class Shader; class Renderer; }
 class Gui {
 
 private:
@@ -41,8 +41,8 @@ private:
 public:
 	Gui(float maxHealth, float maxStamina, float healthGainRate, float staminaGainRate);
 
-	void renderBlur(graphics::Renderer *renderer_blurred);
-	void renderNoBlur(graphics::Renderer *renderer);
+	void renderBlur(oe::Renderer *renderer_blurred);
+	void renderNoBlur(oe::Renderer *renderer);
 	void update();
 	void keyPress(int key, int action);
 

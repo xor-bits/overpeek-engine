@@ -57,7 +57,7 @@ class Map {
 		void save();
 		void hit(unsigned int x, unsigned int y, short dmg);
 		int getObjectTexture(unsigned int x, unsigned int y);
-		void submitToRenderer(graphics::Renderer *renderer);
+		void submitToRenderer(oe::Renderer *renderer);
 		void debugCeilCreatures();
 		void update();
 

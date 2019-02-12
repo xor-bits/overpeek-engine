@@ -8,8 +8,8 @@
 
 Map::Map(std::string name) {
 	m_name = name;
-	tools::Debug::printTimer("World loading started");
-	tools::Debug::startTimer();
+	oe::Debug::printTimer("World loading started");
+	oe::Debug::startTimer();
 
 	std::string strcommand("mkdir \"" + saveLocation() + "\"" + " >nul 2>&1");
 	system(strcommand.c_str());
@@ -23,36 +23,36 @@ Map::Map(std::string name) {
 	createMapFast();
 #endif
 	//save();
-	tools::Debug::printTimer("Microseconds passed while creating world: ");
+	oe::Debug::printTimer("Microseconds passed while creating world: ");
 }
 
 bool Map::loadMap() {
-	tools::Logger::info("Starting to load the map");
-	tools::Debug::startTimer();
+	oe::Logger::info("Starting to load the map");
+	oe::Debug::startTimer();
 
 
 	//Load and check tile data
 	unsigned long tile_data_size;
-	Byte *tile_data = (Byte*)tools::BinaryIO::read<Byte>(saveLocation() + "tile.data", tile_data_size);
+	Byte *tile_data = (Byte*)oe::BinaryIO::read<Byte>(saveLocation() + "tile.data", tile_data_size);
 	if (!tile_data) {
 		free(tile_data);
 		return false;
 	}
 
 	//Print time took to check the data
-	tools::Debug::printTimer("Microseconds took to check data: ");
-	tools::Debug::startTimer();
+	oe::Debug::printTimer("Microseconds took to check data: ");
+	oe::Debug::startTimer();
 
 	//Uncompress tiledata
 	unsigned long uncompressedSize = MAP_SIZE * MAP_SIZE * 3 * sizeof(short);
 	Byte* uncompressedTiles = new Byte[uncompressedSize];
 	int state = uncompress(uncompressedTiles, &uncompressedSize, tile_data, tile_data_size);
-	if (state != Z_OK) tools::Logger::error("Error uncompressing save file! " + std::to_string(state));
+	if (state != Z_OK) oe::Logger::error("Error uncompressing save file! " + std::to_string(state));
 	short int *tileData = (short int*)uncompressedTiles;
 
 	//Print time took to uncompress the data
-	tools::Debug::printTimer("Microseconds took to uncompress data: ");
-	tools::Debug::startTimer();
+	oe::Debug::printTimer("Microseconds took to uncompress data: ");
+	oe::Debug::startTimer();
 	
 	//Load tiles
 #pragma omp parallel for
@@ -70,13 +70,13 @@ bool Map::loadMap() {
 	}
 
 	//Print time took to load tiles
-	tools::Debug::printTimer("Microseconds took to uncompress data: ");
-	tools::Debug::startTimer();
+	oe::Debug::printTimer("Microseconds took to uncompress data: ");
+	oe::Debug::startTimer();
 
 
 	//Load creatures
 	unsigned long creature_data_size;
-	CreatureSaveData *creature_data = (CreatureSaveData*)tools::BinaryIO::read<CreatureSaveData>(saveLocation() + "creature.data", creature_data_size);
+	CreatureSaveData *creature_data = (CreatureSaveData*)oe::BinaryIO::read<CreatureSaveData>(saveLocation() + "creature.data", creature_data_size);
 	for (int i = 0; i < creature_data_size; i++)
 	{
 		addCreature(
@@ -92,12 +92,12 @@ bool Map::loadMap() {
 	free(creature_data);
 
 
-	tools::Logger::info("Map loaded successfully!");
+	oe::Logger::info("Map loaded successfully!");
 }
 
 void Map::save() {
-	tools::Logger::info("Starting to save the map");
-	tools::Debug::startTimer();
+	oe::Logger::info("Starting to save the map");
+	oe::Debug::startTimer();
 
 
 	//Tile collection
@@ -119,8 +119,8 @@ void Map::save() {
 
 
 	//Print data collection time
-	tools::Debug::printTimer("Microseconds to collect the data: ");
-	tools::Debug::startTimer();
+	oe::Debug::printTimer("Microseconds to collect the data: ");
+	oe::Debug::startTimer();
 
 
 	//Compress tile data
@@ -129,51 +129,51 @@ void Map::save() {
 	Byte* compressedTiles = new Byte[compressedSize];
 	Byte* tiledata = (Byte*)(tiles);
 	int state = compress(compressedTiles, &compressedSize, tiledata, sourceLen);
-	if (state != Z_OK) tools::Logger::error("Error compressing save file!");
+	if (state != Z_OK) oe::Logger::error("Error compressing save file!");
 
 
 	//Print compression time
-	tools::Debug::printTimer("Microseconds to compress the data: ");
-	tools::Debug::startTimer();
+	oe::Debug::printTimer("Microseconds to compress the data: ");
+	oe::Debug::startTimer();
 
-	tools::BinaryIO::write<Byte>(saveLocation() + "tile.data", compressedTiles, compressedSize);
-	tools::BinaryIO::write<CreatureSaveData>(saveLocation() + "creature.data", creatures, m_creatures.size());
+	oe::BinaryIO::write<Byte>(saveLocation() + "tile.data", compressedTiles, compressedSize);
+	oe::BinaryIO::write<CreatureSaveData>(saveLocation() + "creature.data", creatures, m_creatures.size());
 
 	//Print saving time
-	tools::Debug::printTimer("Microseconds to save the data: ");
-	tools::Logger::info("Map saved successfully!");
+	oe::Debug::printTimer("Microseconds to save the data: ");
+	oe::Logger::info("Map saved successfully!");
 
 	//Cleanup
 	delete tiles;
 }
 
 void Map::createMapFast() {
-	FastNoiseSIMD* noise = FastNoiseSIMD::NewFastNoiseSIMD(tools::Clock::getMicroseconds() + 0);
+	FastNoiseSIMD* noise = FastNoiseSIMD::NewFastNoiseSIMD(oe::Clock::getMicroseconds() + 0);
 	noise->SetFractalOctaves(MAP_BIOME_OCTA);
 	noise->SetFrequency(MAP_BIOME_FREQ);
 	m_biomenoise1 = noise->GetSimplexFractalSet(0, 0, 0, MAP_SIZE, MAP_SIZE, 1, 1.0f);
 
-	noise = FastNoiseSIMD::NewFastNoiseSIMD(tools::Clock::getMicroseconds() + 1);
+	noise = FastNoiseSIMD::NewFastNoiseSIMD(oe::Clock::getMicroseconds() + 1);
 	noise->SetFractalOctaves(MAP_BIOME_OCTA);
 	noise->SetFrequency(MAP_BIOME_FREQ);
 	m_biomenoise2 = noise->GetSimplexFractalSet(0, 0, 0, MAP_SIZE, MAP_SIZE, 1, 1.0f);
 	
-	noise = FastNoiseSIMD::NewFastNoiseSIMD(tools::Clock::getMicroseconds() + 2);
+	noise = FastNoiseSIMD::NewFastNoiseSIMD(oe::Clock::getMicroseconds() + 2);
 	noise->SetFractalOctaves(MAP_OCTA);
 	noise->SetFrequency(MAP_FREQ);
 	m_mapnoise =	noise->GetSimplexFractalSet(0, 0, 0, MAP_SIZE, MAP_SIZE, 1, 1.0f);
 	
-	noise = FastNoiseSIMD::NewFastNoiseSIMD(tools::Clock::getMicroseconds() + 3);
+	noise = FastNoiseSIMD::NewFastNoiseSIMD(oe::Clock::getMicroseconds() + 3);
 	noise->SetFractalOctaves(MAP_PLANT1_OCTA);
 	noise->SetFrequency(MAP_PLANT1_FREQ);
 	m_plantnoise1 = noise->GetSimplexFractalSet(0, 0, 0, MAP_SIZE, MAP_SIZE, 1, 1.0f);
 	
-	noise = FastNoiseSIMD::NewFastNoiseSIMD(tools::Clock::getMicroseconds() + 4);
+	noise = FastNoiseSIMD::NewFastNoiseSIMD(oe::Clock::getMicroseconds() + 4);
 	noise->SetFractalOctaves(MAP_PLANT2_OCTA);
 	noise->SetFrequency(MAP_PLANT2_FREQ);
 	m_plantnoise2 = noise->GetSimplexFractalSet(0, 0, 0, MAP_SIZE, MAP_SIZE, 1, 1.0f);
 
-	tools::Logger::info("Noisemaps generated");
+	oe::Logger::info("Noisemaps generated");
 
 #pragma omp parallel for
 	for (int x = 0; x < MAP_SIZE; x++)
@@ -188,14 +188,14 @@ void Map::createMapFast() {
 		}
 		m_tiles.push_back(std::move(tmp));
 	}
-	tools::Logger::info("Map generated");
+	oe::Logger::info("Map generated");
 
 	noise->FreeNoiseSet(m_biomenoise1);
 	noise->FreeNoiseSet(m_biomenoise2);
 	noise->FreeNoiseSet(m_mapnoise);
 	noise->FreeNoiseSet(m_plantnoise1);
 	noise->FreeNoiseSet(m_plantnoise2);
-	tools::Logger::info("Noisemap memory freed");
+	oe::Logger::info("Noisemap memory freed");
 }
 
 Database::Biome *Map::getTileBiome(float x, float y) {
@@ -217,7 +217,7 @@ int Map::getInfoFromNoiseIfLoop(Database::Biome *biome, float x, float y, int in
 
 void Map::getInfoFromNoise(int &tileId, int &objId, float x, float y) {
 	Database::Biome *biome = getTileBiome(x, y);
-	if (!biome) tools::Logger::error("Biome was nullptr");
+	if (!biome) oe::Logger::error("Biome was nullptr");
 
 	if (biome->heightMap.size() == 1) {
 		tileId = biome->heightMap[0].id;
@@ -279,7 +279,7 @@ int Map::getObjectTexture(unsigned int x, unsigned int y) {
 	return Database::objects[thistile->m_object].texture;
 }
 
-void Map::submitToRenderer(graphics::Renderer *renderer) {
+void Map::submitToRenderer(oe::Renderer *renderer) {
 	//Map rendering
 	for (int x = -RENDER_HORIZONTAL; x < RENDER_HORIZONTAL; x++)
 	{
@@ -325,9 +325,9 @@ void Map::debugCeilCreatures() {
 }
 
 void Map::addCreature(float x, float y, int id, bool item) {
-	tools::Logger::info(x, y);
+	oe::Logger::info(x, y);
 	m_creatures.push_back(std::unique_ptr<Creature>(new Creature(x, y, id, item)));
-	tools::Logger::info(m_creatures[m_creatures.size()-1]->getX(), m_creatures[m_creatures.size() - 1]->getY());
+	oe::Logger::info(m_creatures[m_creatures.size()-1]->getX(), m_creatures[m_creatures.size() - 1]->getY());
 }
 
 void Map::removeCreature(int i) {
@@ -347,7 +347,7 @@ void Map::removeCreature(Creature *creature) {
 	char buff[100];
 	snprintf(buff, sizeof(buff), "%p", (void*)creature);
 	std::string buffAsStdStr = buff;
-	tools::Logger::critical("Couldn't find creature: " + buffAsStdStr + "!");
+	oe::Logger::critical("Couldn't find creature: " + buffAsStdStr + "!");
 }
 
 void Map::update() {
@@ -358,8 +358,8 @@ void Map::update() {
 }
 
 Map::MapTile *Map::getTile(unsigned int x, unsigned int y) {
-	x = logic::clamp(x, unsigned int(0), unsigned int(MAP_SIZE - 1));
-	y = logic::clamp(y, unsigned int(0), unsigned int(MAP_SIZE - 1));
+	x = oe::clamp(x, unsigned int(0), unsigned int(MAP_SIZE - 1));
+	y = oe::clamp(y, unsigned int(0), unsigned int(MAP_SIZE - 1));
 
 	return m_tiles[x][y].get();
 }
@@ -367,8 +367,8 @@ Map::MapTile *Map::getTile(unsigned int x, unsigned int y) {
 void Map::findAllCreatures(float _x, float _y, std::vector<Creature*> &_array, float _radius) {
 	for (int i = 0; i < m_creatures.size(); i++)
 	{
-		if (!logic::isInRange(m_creatures[i]->getX(), _x - _radius, _x + _radius)) continue;
-		if (!logic::isInRange(m_creatures[i]->getY(), _y - _radius, _y + _radius)) continue;
+		if (!oe::isInRange(m_creatures[i]->getX(), _x - _radius, _x + _radius)) continue;
+		if (!oe::isInRange(m_creatures[i]->getY(), _y - _radius, _y + _radius)) continue;
 		_array.push_back(m_creatures[i].get());
 	}
 }

@@ -10,19 +10,19 @@ class Region;
 class Player;
 class Creature;
 class Gui;
-namespace logic {class GameLoop;}
-namespace graphics {class Window;class Shader;class Renderer;}
+namespace oe {class GameLoop;}
+namespace oe {class Window;class Shader;class Renderer;}
 
 class Game {
 private:
-	static std::unique_ptr<graphics::Window> m_window;
-	static std::unique_ptr<graphics::Shader> m_shader;
-	static std::unique_ptr<graphics::Shader> m_pointshader;
-	static std::unique_ptr<graphics::Shader> m_postshader;
-	static std::unique_ptr<graphics::Shader> m_guishader;
-	static std::unique_ptr<graphics::Renderer> m_worldrenderer;
-	static std::unique_ptr<graphics::Renderer> m_guirenderer;
-	static std::unique_ptr<logic::GameLoop> m_loop;
+	static std::unique_ptr<oe::Window> m_window;
+	static std::unique_ptr<oe::Shader> m_shader;
+	static std::unique_ptr<oe::Shader> m_pointshader;
+	static std::unique_ptr<oe::Shader> m_postshader;
+	static std::unique_ptr<oe::Shader> m_guishader;
+	static std::unique_ptr<oe::Renderer> m_worldrenderer;
+	static std::unique_ptr<oe::Renderer> m_guirenderer;
+	static std::unique_ptr<oe::GameLoop> m_loop;
 	static std::unique_ptr<Gui> m_gui;
 	static std::unique_ptr<Map> m_map;
 	static std::unique_ptr<Player> m_player;
@@ -84,11 +84,12 @@ public:
 	static void buttonPress(int button, int action);
 	static void scroll(double y);
 	
-	static graphics::Shader *getShader();
-	static graphics::Window *getWindow();
+	static oe::Shader *getShader();
+	static oe::Window *getWindow();
+	static oe::GameLoop *getLoop();
+
 	static Player *getPlayer();
 	static Gui *getGui();
-	static logic::GameLoop *getLoop();
 	static Map *getMap();
 
 	static void addCreature(float x, float y, int id, bool item);

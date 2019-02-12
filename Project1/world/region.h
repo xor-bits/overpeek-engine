@@ -34,9 +34,9 @@ public:
 	void update();
 	void tilesChanged();
 	void deleteRegion();
-	void submitTilesToRenderer(graphics::Renderer *renderer, float offx, float offy);
-	void submitObjectsToRenderer(graphics::Renderer *renderer, float offx, float offy);
-	void submitCreaturesToRenderer(graphics::Renderer *renderer, float offx, float offy);
+	void submitTilesToRenderer(oe::Renderer *renderer, float offx, float offy);
+	void submitObjectsToRenderer(oe::Renderer *renderer, float offx, float offy);
+	void submitCreaturesToRenderer(oe::Renderer *renderer, float offx, float offy);
 	void debugCeilCreatures();
 
 	void addCreature(float x, float y, int id, bool item);

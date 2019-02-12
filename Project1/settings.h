@@ -1,5 +1,9 @@
 #pragma once
 
+#define BUILD_VERSION			"0.1.0.1"
+
+
+
 #define UPDATES_PER_SECOND		100
 
 
@@ -13,7 +17,7 @@
 #define M_WINDOW_HEIGHT			720
 #define M_ASPECT				(float)M_WINDOW_WIDTH / (float)M_WINDOW_HEIGHT
 #define M_DEFAULT_MULTISAMPLE	2
-#define M_WINDOW_DEFAULT_TITLE	"Unnamed Pre-Alpha 0.0.0.0"
+#define M_WINDOW_DEFAULT_TITLE	std::string("Unnamed Pre-Alpha v") + BUILD_VERSION
 
 #if !STORE_MAP_IN_RAM
 #define RENDER_DST				3 * 2

@@ -5,11 +5,11 @@
 
 #define INVENTORY_SCALE 0.2
 
-namespace graphics { class Window; class Shader; class Renderer; }
+namespace oe { class Window; class Shader; class Renderer; }
 class Inventory {
 private:
-	graphics::Shader *m_shader;
-	graphics::Window *m_window;
+	oe::Shader *m_shader;
+	oe::Window *m_window;
 	int m_itemIds[INVENTORY_WIDTH][INVENTORY_HEIGHT + 1];
 
 public:
@@ -19,11 +19,11 @@ public:
 	bool load();
 
 public:
-	Inventory(graphics::Shader *shader, graphics::Window *window);
+	Inventory(oe::Shader *shader, oe::Window *window);
 
 	void init();
 	void save();
-	void render(graphics::Renderer *m_renderer);
+	void render(oe::Renderer *m_renderer);
 	void update();
 	void clear();
 	void removeSelected();

@@ -13,7 +13,7 @@ Player::Player(float x, float y, Inventory *inv) : Creature(x, y, 0, false) {
 	inventory = inv;
 }
 
-void Player::submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY) {
+void Player::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY) {
 	Creature::submitToRenderer(renderer, renderOffsetX, renderOffsetY);
 }
 
@@ -79,20 +79,20 @@ void Player::place() {
 		//Game::trySetTileObject(tmp, 4);
 	}
 #endif
-	audio::AudioManager::play(1);
+	oe::AudioManager::play(1);
 }
 
 void Player::save() {
 	inventory->save();
 	float playerData[2] = { getX(), getY() };
-	tools::BinaryIO::write<float>(Game::getSaveLocation() + "player.data", playerData, 2);
+	oe::BinaryIO::write<float>(Game::getSaveLocation() + "player.data", playerData, 2);
 }
 
 bool Player::load() {
 	inventory->init();
 
 	unsigned long data_size;
-	float *playerData = (float*)tools::BinaryIO::read<float>(Game::getSaveLocation() + "player.data", data_size);
+	float *playerData = (float*)oe::BinaryIO::read<float>(Game::getSaveLocation() + "player.data", data_size);
 	if (!playerData) return false;
 
 	setX(playerData[0]);

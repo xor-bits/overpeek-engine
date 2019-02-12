@@ -5,6 +5,12 @@
 
 namespace oe {
 
+	enum textOrigin
+	{
+		topLeft, topCenter, topRight, centerLeft, center, centerRight, bottomLeft, bottomCenter, bottomRight
+	};
+
+
 	class FontRenderer;
 	class QuadRenderer;
 	class PointRenderer;
@@ -52,7 +58,7 @@ namespace oe {
 		void renderPoint(glm::vec2 pos, glm::vec2 size, int id, glm::vec4 color);
 
 		//Submit text to renderer
-		void renderText(glm::vec2 pos, glm::vec2 size, std::string text, glm::vec3 color, int textOriginX, int textOriginY);
+		void renderText(glm::vec2 pos, glm::vec2 size, std::string text, glm::vec3 color, int _textOrigin);
 
 		//Draws all quads and text
 		//textbool is location of int (used as boolean) in shader that enables or disables text rendering

@@ -10,14 +10,14 @@
 #include "gui.h"
 #include "database.h"
 
-std::unique_ptr<graphics::Window> Game::m_window;
-std::unique_ptr<graphics::Shader> Game::m_shader;
-std::unique_ptr<graphics::Shader> Game::m_pointshader;
-std::unique_ptr<graphics::Shader> Game::m_postshader;
-std::unique_ptr<graphics::Shader> Game::m_guishader;
-std::unique_ptr<graphics::Renderer> Game::m_worldrenderer;
-std::unique_ptr<graphics::Renderer> Game::m_guirenderer;
-std::unique_ptr<logic::GameLoop> Game::m_loop;
+std::unique_ptr<oe::Window> Game::m_window;
+std::unique_ptr<oe::Shader> Game::m_shader;
+std::unique_ptr<oe::Shader> Game::m_pointshader;
+std::unique_ptr<oe::Shader> Game::m_postshader;
+std::unique_ptr<oe::Shader> Game::m_guishader;
+std::unique_ptr<oe::Renderer> Game::m_worldrenderer;
+std::unique_ptr<oe::Renderer> Game::m_guirenderer;
+std::unique_ptr<oe::GameLoop> Game::m_loop;
 std::unique_ptr<Gui> Game::m_gui;
 std::unique_ptr<Inventory> m_inventory;
 std::unique_ptr<Map> Game::m_map;
@@ -49,26 +49,26 @@ std::string renderer;
 void Game::init() {
 	//Audio
 #if ENABLE_AUDIO
-	tools::Logger::info("Creating audio device");
-	audio::AudioManager::init();
+	oe::Logger::info("Creating audio device");
+	oe::AudioManager::init();
 #endif
 
 	//Window
-	tools::Logger::info("Creating window");
-	m_window = std::unique_ptr<graphics::Window>(new graphics::Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, M_WINDOW_DEFAULT_TITLE, false, M_DEFAULT_MULTISAMPLE));
+	oe::Logger::info("Creating window");
+	m_window = std::unique_ptr<oe::Window>(new oe::Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, M_WINDOW_DEFAULT_TITLE, false, M_DEFAULT_MULTISAMPLE));
 	m_window->setSwapInterval(NULL);
 	m_window->setButtonCallback(buttonPress);
 	m_window->setKeyboardCallback(keyPress);
 	m_window->setScrollCallback(scroll);
 
 	//Create shader
-	tools::Logger::info("Creating all the shaders");
-	tools::Logger::info("Shader for postprocessing");
-	m_postshader = std::unique_ptr<graphics::Shader>(new graphics::Shader("shaders/postprocess.vert.glsl", "shaders/postprocess.frag.glsl"));
-	tools::Logger::info("Shader for textures");
-	m_shader = std::unique_ptr<graphics::Shader>(new graphics::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl"));
-	m_pointshader = std::unique_ptr<graphics::Shader>(new graphics::Shader("shaders/geometrytexture.vert.glsl", "shaders/geometrytexture.frag.glsl", "shaders/geometrytexture.geom.glsl"));
-	tools::Logger::info("All shaders created successfully!");
+	oe::Logger::info("Creating all the shaders");
+	oe::Logger::info("Shader for postprocessing");
+	m_postshader = std::unique_ptr<oe::Shader>(new oe::Shader("shaders/postprocess.vert.glsl", "shaders/postprocess.frag.glsl"));
+	oe::Logger::info("Shader for textures");
+	m_shader = std::unique_ptr<oe::Shader>(new oe::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl"));
+	m_pointshader = std::unique_ptr<oe::Shader>(new oe::Shader("shaders/geometrytexture.vert.glsl", "shaders/geometrytexture.frag.glsl", "shaders/geometrytexture.geom.glsl"));
+	oe::Logger::info("All shaders created successfully!");
 
 	//Shader stuff
 	m_postshader->enable();
@@ -79,13 +79,13 @@ void Game::init() {
 	m_shader->enable(); m_shader->SetUniformMat4("pr_matrix", orthographic);
 	
 	//Gameloop
-	tools::Logger::info("Starting gameloop");
-	m_loop = std::unique_ptr<logic::GameLoop>(new logic::GameLoop(render, update, rapidUpdate, UPDATES_PER_SECOND, 10000));
+	oe::Logger::info("Starting gameloop");
+	m_loop = std::unique_ptr<oe::GameLoop>(new oe::GameLoop(render, update, rapidUpdate, UPDATES_PER_SECOND, 10000));
 
 	loadGame();
 	renderer = std::string((char*)glGetString(GL_RENDERER));
 
-	tools::Logger::info("Running update and renderloops");
+	oe::Logger::info("Running update and renderloops");
 	m_loop->start();
 }
 
@@ -99,20 +99,20 @@ void Game::renderInfoScreen() {
 	float x = -m_window->getAspect();
 
 	std::string text = "FPS: " + std::to_string(m_loop->getFPS());
-	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 0)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 0)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
 	text = "UPS: " + std::to_string(m_loop->getUPS());
-	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 1)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 1)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
 	
 	
 	if (!advancedDebugMode) return;
 	text = "Position X: " + std::to_string(m_player->getX()) + ", Y: " + std::to_string(m_player->getY());
-	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 2)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 2)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
 	text = "Tile: " + Database::tiles[m_map->getTile(m_player->getY(), m_player->getY())->m_tile].name;
-	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 3)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 3)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
 	text = "Object: " + Database::objects[m_map->getTile(m_player->getY(), m_player->getY())->m_object].name;
-	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 4)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 4)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
 	text = "Renderer: " + renderer;
-	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 5)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
+	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 5)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
 }
 
 void Game::render() {
@@ -120,53 +120,56 @@ void Game::render() {
 	if (!m_window) return;
 	
 	//World tiles
-	if (!paused || justPaused) {
+//	if (!paused || justPaused) {
+//
+//#if !STORE_MAP_IN_RAM
+//		for (int x = 0; x < RENDER_DST; x++)
+//		{
+//			for (int y = 0; y < RENDER_DST; y++)
+//			{
+//				if (m_regionExist[x][y]) m_region[x][y].submitTilesToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
+//				if (m_regionExist[x][y]) m_region[x][y].submitObjectsToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
+//				if (m_regionExist[x][y]) m_region[x][y].submitCreaturesToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
+//			}
+//		}
+//#else
+//		//m_map->submitToRenderer(m_worldrenderer.get());
+//#endif
+//		m_player->submitToRenderer(m_worldrenderer.get(), -m_player->getX(), -m_player->getY());
+//		m_gui->renderBlur(m_worldrenderer.get());
+//		m_inventory->render(m_worldrenderer.get());
+//	}
+//	
+//	//Gui
+//	renderInfoScreen();
+//	m_gui->renderNoBlur(m_guirenderer.get());
+//
+//	//Flush
+//	if (!paused) {
+//		m_worldrenderer->draw(m_shader.get(), m_pointshader.get(), "unif_text", oe::TextureManager::getTexture(0));
+//	}
+//	else if (justPaused) {
+//		m_worldrenderer->drawToFramebuffer(m_shader.get(), m_pointshader.get(), "unif_text", oe::TextureManager::getTexture(0), false);
+//		m_postshader->enable();
+//		for (int i = 0; i < 16; i++) {
+//			m_postshader->setUniform1i("unif_effect", 1);
+//			m_worldrenderer->drawFramebufferToFramebuffer(m_postshader.get(), "unif_texture", true);
+//			m_postshader->setUniform1i("unif_effect", 2);
+//			m_worldrenderer->drawFramebufferToFramebuffer(m_postshader.get(), "unif_texture", false);
+//		}
+//		m_postshader->setUniform1i("unif_effect", 0);
+//		m_worldrenderer->drawFramebuffer(m_postshader.get(), "unif_texture", false);
+//	}
+//	else if (paused) {
+//		m_postshader->enable();
+//		m_postshader->setUniform1i("unif_effect", 0);
+//		m_worldrenderer->drawFramebuffer(m_postshader.get(), "unif_texture", false);
+//	}
+//	
+//	m_guirenderer->draw(m_shader.get(), m_pointshader.get(), "unif_text", oe::TextureManager::getTexture(0));
 
-#if !STORE_MAP_IN_RAM
-		for (int x = 0; x < RENDER_DST; x++)
-		{
-			for (int y = 0; y < RENDER_DST; y++)
-			{
-				if (m_regionExist[x][y]) m_region[x][y].submitTilesToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
-				if (m_regionExist[x][y]) m_region[x][y].submitObjectsToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
-				if (m_regionExist[x][y]) m_region[x][y].submitCreaturesToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
-			}
-		}
-#else
-		m_map->submitToRenderer(m_worldrenderer.get());
-#endif
-		m_player->submitToRenderer(m_worldrenderer.get(), -m_player->getX(), -m_player->getY());
-		m_gui->renderBlur(m_worldrenderer.get());
-		m_inventory->render(m_worldrenderer.get());
-	}
-	
-	//Gui
-	renderInfoScreen();
-	m_gui->renderNoBlur(m_guirenderer.get());
-
-	//Flush
-	if (!paused) {
-		m_worldrenderer->draw(m_shader.get(), m_pointshader.get(), "unif_text", graphics::TextureManager::getTexture(0));
-	}
-	else if (justPaused) {
-		m_worldrenderer->drawToFramebuffer(m_shader.get(), m_pointshader.get(), "unif_text", graphics::TextureManager::getTexture(0), false);
-		m_postshader->enable();
-		for (int i = 0; i < 16; i++) {
-			m_postshader->setUniform1i("unif_effect", 1);
-			m_worldrenderer->drawFramebufferToFramebuffer(m_postshader.get(), "unif_texture", true);
-			m_postshader->setUniform1i("unif_effect", 2);
-			m_worldrenderer->drawFramebufferToFramebuffer(m_postshader.get(), "unif_texture", false);
-		}
-		m_postshader->setUniform1i("unif_effect", 0);
-		m_worldrenderer->drawFramebuffer(m_postshader.get(), "unif_texture", false);
-	}
-	else if (paused) {
-		m_postshader->enable();
-		m_postshader->setUniform1i("unif_effect", 0);
-		m_worldrenderer->drawFramebuffer(m_postshader.get(), "unif_texture", false);
-	}
-	
-	m_guirenderer->draw(m_shader.get(), m_pointshader.get(), "unif_text", graphics::TextureManager::getTexture(0));
+	m_worldrenderer->renderPoint(glm::vec2(0.5, 0.5), glm::vec2(0.1, 0.1), 0, glm::vec4(1.0)); 
+	m_worldrenderer->draw(m_shader.get(), m_pointshader.get(), "unif_text", oe::TextureManager::getTexture(0));
 
 	//Other
 	justPaused = false;
@@ -175,11 +178,6 @@ void Game::render() {
 	m_window->update();
 	m_window->clear();
 	m_window->input();
-}
-
-double clamp(double x, double upper, double lower)
-{
-	return std::min(upper, std::max(x, lower));
 }
 
 void Game::update() {
@@ -256,9 +254,9 @@ void Game::asyncUnload() {
 			asyncSaveIndex = 0;
 		}
 		
-		//long long startTime = tools::Clock::getMicroseconds();
+		//long long startTime = oe::Clock::getMicroseconds();
 		m_regionUnloadArray[asyncSaveIndex].saveTiles();
-		//tools::Logger::info(tools::Clock::getMicroseconds() - startTime);
+		//oe::Logger::info(oe::Clock::getMicroseconds() - startTime);
 		m_regionUnloadArray.erase(m_regionUnloadArray.begin() + asyncSaveIndex);
 	}
 }
@@ -333,7 +331,7 @@ void Game::keyPress(int key, int action) {
 	}
 
 	//Get FPS
-	if (key == GLFW_KEY_F4) tools::Logger::info(std::string("Fps: ") + std::to_string(m_loop->getFPS()));
+	if (key == GLFW_KEY_F4) oe::Logger::info(std::string("Fps: ") + std::to_string(m_loop->getFPS()));
 	
 	//Clear inventoy
 	if (key == GLFW_KEY_F5) m_inventory->clear();
@@ -365,7 +363,7 @@ void Game::saveGame() {
 			if (m_regionExist[x][y]) m_region[x][y].saveTiles();
 		}
 	}
-	tools::BinaryIO::write<int>(getSaveLocation() + "world_data", worldData, 1);
+	oe::BinaryIO::write<int>(getSaveLocation() + "world_data", worldData, 1);
 #else
 	m_map->save();
 #endif
@@ -375,16 +373,16 @@ void Game::saveGame() {
 
 void Game::loadGame() {
 	//Initializing
-	tools::Logger::info("Creating game...");
+	oe::Logger::info("Creating game...");
 
 	//Load seed
 #if !DEBUG_DISABLE_SAVING
 
 #if !STORE_MAP_IN_RAM
-	void* seedptr = tools::BinaryIO::read<int>(getSaveLocation() + "world_data");
+	void* seedptr = oe::BinaryIO::read<int>(getSaveLocation() + "world_data");
 	if (seedptr) seed = ((int*)seedptr)[0];
-	else seed = tools::Clock::getMicroseconds();
-	tools::Random::seed(seed);
+	else seed = oe::Clock::getMicroseconds();
+	oe::Random::seed(seed);
 	m_noise = FastNoise(seed);
 #else
 #endif
@@ -392,27 +390,27 @@ void Game::loadGame() {
 #else
 
 #if !STORE_MAP_IN_RAM
-	seed = tools::Clock::getMicroseconds();
-	tools::Random::seed(seed);
+	seed = oe::Clock::getMicroseconds();
+	oe::Random::seed(seed);
 	m_noise = FastNoise(seed);
-	tools::Logger::info(std::string("World seed: ") + std::to_string(seed)); // 2058261791
+	oe::Logger::info(std::string("World seed: ") + std::to_string(seed)); // 2058261791
 #endif
 #endif
 	
 
-	m_worldrenderer = std::unique_ptr<graphics::Renderer>(new graphics::Renderer("resources/arial.ttf", m_window.get()));
-	m_guirenderer = std::unique_ptr<graphics::Renderer>(new graphics::Renderer("resources/arial.ttf", m_window.get()));
+	m_worldrenderer = std::unique_ptr<oe::Renderer>(new oe::Renderer("resources/arial.ttf", m_window.get()));
+	m_guirenderer = std::unique_ptr<oe::Renderer>(new oe::Renderer("resources/arial.ttf", m_window.get()));
 
-	tools::Logger::info("Loading resources");
-	graphics::TextureManager::loadTextureAtlas("resources/atlas.png", GL_RGBA, 0);
-	audio::AudioManager::loadAudio("resources/hit.wav", 0);
-	audio::AudioManager::loadAudio("resources/swing.wav", 1);
-	audio::AudioManager::loadAudio("resources/collect.wav", 2);
-	tools::Logger::info("Resources loaded!");
+	oe::Logger::info("Loading resources");
+	oe::TextureManager::loadTextureAtlas("resources/atlas.png", GL_RGBA, 0);
+	oe::AudioManager::loadAudio("resources/hit.wav", 0);
+	oe::AudioManager::loadAudio("resources/swing.wav", 1);
+	oe::AudioManager::loadAudio("resources/collect.wav", 2);
+	oe::Logger::info("Resources loaded!");
 
-	tools::Logger::info("Loading database");
+	oe::Logger::info("Loading database");
 	Database::init();
-	tools::Logger::info("Database loaded!");
+	oe::Logger::info("Database loaded!");
 
 	m_inventory = std::unique_ptr<Inventory>(new Inventory(m_shader.get(), m_window.get()));
 
@@ -447,15 +445,15 @@ void Game::loadGame() {
 	m_shader->enable();
 	glm::mat4 ml_matrix(1.0f);
 	m_shader->SetUniformMat4("ml_matrix", ml_matrix);
-	tools::Logger::info("Game ready!");
+	oe::Logger::info("Game ready!");
 }
 
 
 
 
 
-//long long startTime = tools::Clock::getMicroseconds();
-//tools::Logger::info(tools::Clock::getMicroseconds() - startTime);
+//long long startTime = oe::Clock::getMicroseconds();
+//oe::Logger::info(oe::Clock::getMicroseconds() - startTime);
 ///	 _____   _____   _____   _____   _____   _____   _____   _____   _____   _____   _____   _____   _____   _______   _   _     _	 _____ 
 ///	/  _  \ /  _  \ /  _  \ /  _  \ /  _  \ /  _  \ /  _  \ /  _  \ /  _  \ /  _  \ /  _  \ /  _  \ /  _  \ |  ___  \ | | | |   | |	/  _  \
 ///	| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |___| | | | |  \  | |	| | |_|
@@ -578,11 +576,11 @@ void Game::shiftRegions(int deltaX, int deltaY, int playerRegionX, int playerReg
 
 void Game::shiftRegionLoop(int x, int y, int deltaX, int deltaY, int playerRegionX, int playerRegionY) {
 #if !DEBUG_DISABLE_SAVING
-	if (!logic::isInRange(x - deltaX, 0, RENDER_DST - 1) || !logic::isInRange(y - deltaY, 0, RENDER_DST - 1)) {
+	if (!oe::isInRange(x - deltaX, 0, RENDER_DST - 1) || !oe::isInRange(y - deltaY, 0, RENDER_DST - 1)) {
 		addRegionToUnloadArray(m_region[x][y]);
 	}
 #endif
-	if (logic::isInRange(x + deltaX, 0, RENDER_DST - 1) && logic::isInRange(y + deltaY, 0, RENDER_DST - 1)) {
+	if (oe::isInRange(x + deltaX, 0, RENDER_DST - 1) && oe::isInRange(y + deltaY, 0, RENDER_DST - 1)) {
 		m_region[x][y] = m_region[x + deltaX][y + deltaY];
 		m_regionExist[x][y] = m_regionExist[x + deltaX][y + deltaY];
 	}
@@ -639,12 +637,12 @@ Region* Game::getRegion(float x, float y) {
 	int finalRegionY = selectedRegionY - playerRegionY + RENDER_DST / 2.0;
 
 
-	if (!logic::isInRange(finalRegionX, 0, RENDER_DST - 1) || !logic::isInRange(finalRegionY, 0, RENDER_DST - 1)) return nullptr;
+	if (!oe::isInRange(finalRegionX, 0, RENDER_DST - 1) || !oe::isInRange(finalRegionY, 0, RENDER_DST - 1)) return nullptr;
 
 	int finalX = x - m_region[finalRegionX][finalRegionY].getX();
 	int finalY = y - m_region[finalRegionX][finalRegionY].getY();
 
-	if (!logic::isInRange(finalX, 0, REGION_SIZE - 1) || !logic::isInRange(finalY, 0, REGION_SIZE - 1)) return nullptr;
+	if (!oe::isInRange(finalX, 0, REGION_SIZE - 1) || !oe::isInRange(finalY, 0, REGION_SIZE - 1)) return nullptr;
 	if (!m_regionExist[finalRegionX][finalRegionY]) return nullptr;
 
 	return &m_region[finalRegionX][finalRegionY];
@@ -659,16 +657,16 @@ Tile* Game::getTile(float x, float y, std::string debugText) {
 	int finalX = x - regionAt->getX();
 	int finalY = y - regionAt->getY();
 
-	if (!logic::isInRange(finalX, 0, REGION_SIZE - 1) || !logic::isInRange(finalY, 0, REGION_SIZE - 1)) {
+	if (!oe::isInRange(finalX, 0, REGION_SIZE - 1) || !oe::isInRange(finalY, 0, REGION_SIZE - 1)) {
 #if !SHOW_DEBUG_MESSAGES
 		return nullptr;
 #endif
 
-		if (debugMode) tools::Logger::warning("Finals out of range!");
-		if (debugMode) tools::Logger::warning(debugText);
-		if (debugMode) tools::Logger::warning(std::to_string(x) + std::string(", ") + std::to_string(y));
-		if (debugMode) tools::Logger::warning(std::to_string(regionAt->getX()) + std::string(", ") + std::to_string(regionAt->getY()));
-		if (debugMode) tools::Logger::warning(std::to_string(finalX) + std::string(", ") + std::to_string(finalY));
+		if (debugMode) oe::Logger::warning("Finals out of range!");
+		if (debugMode) oe::Logger::warning(debugText);
+		if (debugMode) oe::Logger::warning(std::to_string(x) + std::string(", ") + std::to_string(y));
+		if (debugMode) oe::Logger::warning(std::to_string(regionAt->getX()) + std::string(", ") + std::to_string(regionAt->getY()));
+		if (debugMode) oe::Logger::warning(std::to_string(finalX) + std::string(", ") + std::to_string(finalY));
 
 		return nullptr;
 	}
@@ -679,7 +677,7 @@ Tile* Game::getTile(float x, float y, std::string debugText) {
 		return nullptr;
 #endif
 
-		if (debugMode) tools::Logger::error(std::string("region returned nullptr instead of tile"));
+		if (debugMode) oe::Logger::error(std::string("region returned nullptr instead of tile"));
 
 		return nullptr;
 	}
@@ -688,7 +686,7 @@ Tile* Game::getTile(float x, float y, std::string debugText) {
 		return nullptr;
 #endif
 
-		if (debugMode) tools::Logger::error(std::string("getTile error at ") + std::to_string(finalX) + std::string(", ") + std::to_string(finalY));
+		if (debugMode) oe::Logger::error(std::string("getTile error at ") + std::to_string(finalX) + std::string(", ") + std::to_string(finalY));
 
 		return nullptr;
 	}
@@ -710,17 +708,17 @@ Tile* Game::getTile(float x, float y, std::string debugText) {
 		int finalRegionX = selectedRegionX - playerRegionX + offsetRegionX;
 		int finalRegionY = selectedRegionY - playerRegionY + offsetRegionY;
 
-		tools::Logger::info("Ending results not as expected");
-		tools::Logger::info(std::string("selectedRegion ") + std::to_string(selectedRegionX) + std::string(", ") + std::to_string(selectedRegionY));
-		tools::Logger::info(std::string("playerRegion ") + std::to_string(playerRegionX) + std::string(", ") + std::to_string(playerRegionY));
-		tools::Logger::info(std::string("offsetRegion ") + std::to_string(offsetRegionX) + std::string(", ") + std::to_string(offsetRegionY));
-		tools::Logger::info(std::string("finalRegion ") + std::to_string(finalRegionX) + std::string(", ") + std::to_string(finalRegionY));
-		tools::Logger::info(std::string("playerPos ") + std::to_string(round(m_player->getX())) + std::string(", ") + std::to_string(round(m_player->getY())));
-		tools::Logger::info(std::string("cursorPos ") + std::to_string(x) + std::string(", ") + std::to_string(y));
+		oe::Logger::info("Ending results not as expected");
+		oe::Logger::info(std::string("selectedRegion ") + std::to_string(selectedRegionX) + std::string(", ") + std::to_string(selectedRegionY));
+		oe::Logger::info(std::string("playerRegion ") + std::to_string(playerRegionX) + std::string(", ") + std::to_string(playerRegionY));
+		oe::Logger::info(std::string("offsetRegion ") + std::to_string(offsetRegionX) + std::string(", ") + std::to_string(offsetRegionY));
+		oe::Logger::info(std::string("finalRegion ") + std::to_string(finalRegionX) + std::string(", ") + std::to_string(finalRegionY));
+		oe::Logger::info(std::string("playerPos ") + std::to_string(round(m_player->getX())) + std::string(", ") + std::to_string(round(m_player->getY())));
+		oe::Logger::info(std::string("cursorPos ") + std::to_string(x) + std::string(", ") + std::to_string(y));
 
-		tools::Logger::info(std::string("FinalXY ") + std::to_string(finalX) + std::string(", ") + std::to_string(finalY));
-		tools::Logger::info(std::string("tile getXY ") + std::to_string(tile->getX()) + std::string(", ") + std::to_string(tile->getY()));
-		tools::Logger::info(std::string("debug text: ") + debugText);
+		oe::Logger::info(std::string("FinalXY ") + std::to_string(finalX) + std::string(", ") + std::to_string(finalY));
+		oe::Logger::info(std::string("tile getXY ") + std::to_string(tile->getX()) + std::string(", ") + std::to_string(tile->getY()));
+		oe::Logger::info(std::string("debug text: ") + debugText);
 
 		return nullptr;
 	}
@@ -785,7 +783,7 @@ Gui *Game::getGui() {
 	return m_gui.get();
 }
 
-logic::GameLoop *Game::getLoop() {
+oe::GameLoop *Game::getLoop() {
 	return m_loop.get();
 }
 
@@ -793,11 +791,11 @@ Map *Game::getMap() {
 	return m_map.get();
 }
 
-graphics::Shader *Game::getShader() {
+oe::Shader *Game::getShader() {
 	return m_shader.get();
 }
 
-graphics::Window *Game::getWindow() {
+oe::Window *Game::getWindow() {
 	return m_window.get();
 }
 

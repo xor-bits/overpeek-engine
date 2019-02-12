@@ -12,7 +12,7 @@ public:
 	Player() {}
 	Player(float x, float y, Inventory *inv);
 
-	void submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY);
+	void submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY);
 	void update();
 	void collide(); //Collision check must happen after processing new area
 	void hit();

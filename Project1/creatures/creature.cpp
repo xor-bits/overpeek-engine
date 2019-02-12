@@ -37,7 +37,7 @@ Creature::Creature() {
 	m_chasing = false;
 }
 
-void Creature::submitToRenderer(graphics::Renderer *renderer, float renderOffsetX, float renderOffsetY) {
+void Creature::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY) {
 	if (!m_item) {
 		int heading_texture;
 		switch (heading)
@@ -60,7 +60,7 @@ void Creature::submitToRenderer(graphics::Renderer *renderer, float renderOffset
 		glm::vec2 pos = glm::vec2((getX() + renderOffsetX - 0.5f) * TILE_SIZE, (getY() + renderOffsetY - 0.5f) * TILE_SIZE);
 		glm::vec2 size = glm::vec2(TILE_SIZE, TILE_SIZE);
 		renderer->renderBox(pos, size, heading_texture, glm::vec4(1.0, 1.0, 1.0, 1.0));
-		//renderer->renderPoint(glm::vec2((getX() + renderOffsetX) * TILE_SIZE, (getY() + renderOffsetY) * TILE_SIZE), glm::vec4(1.0), heading_texture);
+		//renderer->renderPoint(glm::vec2((getX() + renderOffsetX) * TILE_SIZE, (getY() + renderOffsetY) * TILE_SIZE), glm::vec4(0.01), heading_texture, glm::vec4(1.0, 1.0, 1.0, 1.0));
 
 		float swingX, swingY;
 		int swingTexture;
@@ -123,7 +123,7 @@ void Creature::update(int index) {
 				#else
 				Game::getMap()->removeCreature(index);
 				#endif				
-				audio::AudioManager::play(2);
+				oe::AudioManager::play(2);
 				return;
 			}
 		}
@@ -204,7 +204,7 @@ void Creature::hit() {
 #endif
 
 	//Swing noise
-	audio::AudioManager::play(1);
+	oe::AudioManager::play(1);
 }
 
 void Creature::heal() {
@@ -360,7 +360,7 @@ bool Creature::canSee(float _x, float _y) {
 					glm::vec2(x + floor(getX()), y + floor(getY())), 
 					glm::vec2(x + floor(getX()), y + floor(getY()) + 1.0)
 				)) {
-					//tools::Logger::info("0");
+					//oe::Logger::info("0");
 					return false;
 				}
 				if (lineLine(
@@ -369,7 +369,7 @@ bool Creature::canSee(float _x, float _y) {
 					glm::vec2(x + floor(getX()), y + floor(getY())),
 					glm::vec2(x + floor(getX()) + 1.0, y + floor(getY()))
 				)) {
-					//tools::Logger::info("1");
+					//oe::Logger::info("1");
 					return false;
 				}
 				if (lineLine(
@@ -378,7 +378,7 @@ bool Creature::canSee(float _x, float _y) {
 					glm::vec2(x + floor(getX()) + 1.0, y + floor(getY()) + 1.0),
 					glm::vec2(x + floor(getX()), y + floor(getY()) + 1.0)
 				)) {
-					//tools::Logger::info("2");
+					//oe::Logger::info("2");
 					return false;
 				}
 				if (lineLine(
@@ -387,7 +387,7 @@ bool Creature::canSee(float _x, float _y) {
 					glm::vec2(x + floor(getX()) + 1.0, y + floor(getY()) + 1.0),
 					glm::vec2(x + floor(getX()) + 1.0, y + floor(getY()))
 				)) {
-					//tools::Logger::info("3");
+					//oe::Logger::info("3");
 					return false;
 				}
 			}
@@ -416,13 +416,13 @@ void Creature::enemyAi() {
 		}
 		else {
 			m_chasing = false;
-			float direction = tools::Random::random(0, glm::two_pi<float>());
+			float direction = oe::Random::random(0, glm::two_pi<float>());
 			m_curtarget_x = cos(direction) / 100.0;
 			m_curtarget_y = sin(direction) / 100.0;
 		}
 	}
 	if (m_wait < 0) {
-		m_untilnexttarget = tools::Random::random(10, 500);
+		m_untilnexttarget = oe::Random::random(10, 500);
 		m_wait = 1000;
 
 		if (canSee(Game::getPlayer()->getX(), Game::getPlayer()->getY())) {

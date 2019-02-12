@@ -6,6 +6,7 @@
 #include "buffers/buffer.h"
 #include "buffers/vertexArray.h"
 #include "quadRenderer.h"
+#include "renderer.h"
 
 #include <vector>
 #include <iostream>
@@ -104,15 +105,15 @@ namespace oe {
 		m_renderer->draw(texture);
 	}
 	
-	void FontRenderer::renderText(float _x, float _y, float _w, float _h, std::string &_text, glm::vec3 _color, int _textOriginX, int _textOriginY)
+	void FontRenderer::renderText(float _x, float _y, float _w, float _h, std::string &_text, glm::vec3 _color, int _textOrigin)
 	{
 		if (!initalized) return;
 		GLfloat x = _x;
 		GLfloat y = _y;
 		std::string::const_iterator c;
 		
-		if (_textOriginX == TEXT_ORIGIN_LEFT) {} //Already
-		else if (_textOriginX == TEXT_ORIGIN_RIGHT) {
+		if (_textOrigin == topLeft || _textOrigin == centerLeft || _textOrigin == bottomLeft) {} //Already
+		else if (_textOrigin == topRight || _textOrigin == centerRight || _textOrigin == bottomRight) {
 			GLfloat textWidth = 0.0f;
 			for (c = _text.begin(); c != _text.end(); c++)
 			{
@@ -124,7 +125,7 @@ namespace oe {
 			}
 			x -= textWidth;
 		}
-		else if (_textOriginX == TEXT_ORIGIN_CENTER) {
+		else { //Center
 			GLfloat textWidth = 0.0f;
 			for (c = _text.begin(); c != _text.end(); c++)
 			{
@@ -137,9 +138,9 @@ namespace oe {
 			x -= textWidth/2.0;
 		}
 		
-		if (_textOriginY == TEXT_ORIGIN_BOTTOM) {} //Already
-		else if (_textOriginY == TEXT_ORIGIN_TOP) y += 1.0f * _h;
-		else if (_textOriginY == TEXT_ORIGIN_CENTER) y += 0.25f * _h;
+		if (_textOrigin == bottomLeft || _textOrigin == bottomCenter || _textOrigin == bottomRight) {} //Already
+		else if (_textOrigin == topLeft || _textOrigin == topCenter || _textOrigin == topRight) y += 1.0f * _h;
+		else if (_textOrigin == centerLeft || _textOrigin == center || _textOrigin == centerRight) y += 0.25f * _h;
 		
 		// Iterate through all characters
 		for (c = _text.begin(); c != _text.end(); c++)

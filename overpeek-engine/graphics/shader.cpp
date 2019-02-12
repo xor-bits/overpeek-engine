@@ -9,12 +9,12 @@ namespace oe {
 
 	GLuint Shader::loadShader(GLenum shadertype, const char *path) {
 		//Load and compile
-		oe::Logger::info("Reading shader...");
+		oe::Logger::info(std::string("Reading shader from ") + path);
 		std::string shaderStr = oe::readFile(path);
 		const char *shaderChar = shaderStr.c_str();
 		//std::cout << shaderChar << std::endl;
 
-		oe::Logger::info("Compiling shader...");
+		oe::Logger::info("Compiling");
 		GLuint shader;
 		shader = glCreateShader(shadertype);
 		glShaderSource(shader, 1, &shaderChar, NULL);

@@ -4,7 +4,7 @@
 #include "database.h"
 #include "game.h"
 
-Inventory::Inventory(graphics::Shader *shader, graphics::Window *window) {
+Inventory::Inventory(oe::Shader *shader, oe::Window *window) {
 	m_shader = shader; m_window = window;
 
 	init();
@@ -25,7 +25,7 @@ void Inventory::init() {
 bool Inventory::load() {
 #if !DEBUG_DISABLE_SAVING
 	unsigned long inventory_data_size;
-	short *data = (short*)tools::BinaryIO::read<short>(Game::getSaveLocation() + "inventory_data", inventory_data_size);
+	short *data = (short*)oe::BinaryIO::read<short>(Game::getSaveLocation() + "inventory_data", inventory_data_size);
 	if (!data) return false;
 	for (int x = 0; x < INVENTORY_WIDTH; x++)
 	{
@@ -48,10 +48,10 @@ void Inventory::save() {
 			data[x + INVENTORY_WIDTH * y] = m_itemIds[x][y];
 		}
 	}
-	tools::BinaryIO::write<short>(Game::getSaveLocation() + "inventory.data", data, INVENTORY_WIDTH * (INVENTORY_HEIGHT + 1));
+	oe::BinaryIO::write<short>(Game::getSaveLocation() + "inventory.data", data, INVENTORY_WIDTH * (INVENTORY_HEIGHT + 1));
 }
 
-void Inventory::render(graphics::Renderer *m_renderer) {
+void Inventory::render(oe::Renderer *m_renderer) {
 	//if (selectedSlot <= -1) selectedSlot = 4;
 	//if (selectedSlot >= 5) selectedSlot = 0;
 	//
@@ -114,7 +114,7 @@ bool Inventory::addItem(int id) {
 		{
 			if (m_itemIds[x][y] == 0) {
 				m_itemIds[x][y] = id;
-				//tools::Logger::info(id);
+				//oe::Logger::info(id);
 				return true;
 			}
 		}

@@ -8,9 +8,9 @@ Region::Region(int x, int y) {
 	for (int i = 0; i < MAX_CREATURES; i++) m_creatures[i] = nullptr;
 
 #if !DEBUG_DISABLE_SAVING
-	void* tileData = tools::BinaryIO::read<unsigned int>(getSaveLocation());
+	void* tileData = oe::BinaryIO::read<unsigned int>(getSaveLocation());
 	if (tileData != nullptr) {
-		loadTiles((unsigned char*)tileData, (float*)tools::BinaryIO::read<float>(getSaveLocation() + " c"));
+		loadTiles((unsigned char*)tileData, (float*)oe::BinaryIO::read<float>(getSaveLocation() + " c"));
 	}
 	else {
 		createTiles();
@@ -130,8 +130,8 @@ void Region::saveTiles() {
 
 	dataCreature[0] = amountOfCreatures;
 	
-	tools::BinaryIO::write<unsigned int>(getSaveLocation(), data, sizeof(data) / sizeof(unsigned char));
-	tools::BinaryIO::write<float>(getSaveLocation() + " c", dataCreature, amountOfCreatures * 4 + 1);
+	oe::BinaryIO::write<unsigned int>(getSaveLocation(), data, sizeof(data) / sizeof(unsigned char));
+	oe::BinaryIO::write<float>(getSaveLocation() + " c", dataCreature, amountOfCreatures * 4 + 1);
 }
 
 void Region::update() {
@@ -165,7 +165,7 @@ void Region::update() {
 	}
 }
 
-void Region::submitTilesToRenderer(graphics::Renderer *renderer, float offx, float offy) {
+void Region::submitTilesToRenderer(oe::Renderer *renderer, float offx, float offy) {
 	float rx = (m_x - RENDER_DST / 2.0) * (float)TILE_SIZE * REGION_SIZE + offx * TILE_SIZE;
 	float ry = (m_y - RENDER_DST / 2.0) * (float)TILE_SIZE * REGION_SIZE + offy * TILE_SIZE;
 	for (int x = 0; x < REGION_SIZE; x++)
@@ -179,7 +179,7 @@ void Region::submitTilesToRenderer(graphics::Renderer *renderer, float offx, flo
 	}
 }
 
-void Region::submitObjectsToRenderer(graphics::Renderer *renderer, float offx, float offy) {
+void Region::submitObjectsToRenderer(oe::Renderer *renderer, float offx, float offy) {
 	float rx = (m_x - RENDER_DST / 2.0) * (float)TILE_SIZE * REGION_SIZE + offx * TILE_SIZE;
 	float ry = (m_y - RENDER_DST / 2.0) * (float)TILE_SIZE * REGION_SIZE + offy * TILE_SIZE;
 	for (int x = 0; x < REGION_SIZE; x++)
@@ -198,7 +198,7 @@ void Region::submitObjectsToRenderer(graphics::Renderer *renderer, float offx, f
 	renderer->renderBox(rx, ry + REGION_SIZE * TILE_SIZE - TILE_SIZE / 10.0, REGION_SIZE * TILE_SIZE, TILE_SIZE / 10.0, 0, 23, glm::vec4(1.0, 1.0, 1.0, 1.0));
 }
 
-void Region::submitCreaturesToRenderer(graphics::Renderer *renderer, float offx, float offy) {
+void Region::submitCreaturesToRenderer(oe::Renderer *renderer, float offx, float offy) {
 	for (int i = 0; i < MAX_CREATURES; i++)
 	{
 		if (m_creatures[i]) m_creatures[i]->submitToRenderer(renderer, offx, offy);
@@ -229,7 +229,7 @@ void Region::debugCeilCreatures() {
 
 Tile* Region::getTile(unsigned int x, unsigned int y) {
 	if (x > REGION_SIZE || x < 0 || y > REGION_SIZE || y < 0) {
-		tools::Logger::warning(std::string("Coordinates were out of range when getting tile form region!"));
+		oe::Logger::warning(std::string("Coordinates were out of range when getting tile form region!"));
 		return nullptr;
 	}
 	else {
@@ -277,7 +277,7 @@ void Region::removeCreature(Creature *creature, bool _delete) {
 	char buff[100];
 	snprintf(buff, sizeof(buff), "%p", (void*)creature);
 	std::string buffAsStdStr = buff;
-	tools::Logger::critical("Couldn't find creature: " + buffAsStdStr + "!");
+	oe::Logger::critical("Couldn't find creature: " + buffAsStdStr + "!");
 }
 
 #endif
