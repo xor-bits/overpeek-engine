@@ -1,16 +1,16 @@
 #pragma once
 
-#include "shader.h"
-#include "buffers/indexBuffer.h"
-#include "buffers/buffer.h"
-#include "buffers/vertexArray.h"
-#include "../tools/logger.h"
-#include "window.h"
-
+#include <GL/glew.h>
+#include <glm/glm.hpp>
 
 ///TODO: make use of geometry shader program
 
-namespace graphics {
+namespace oe {
+
+	class VertexArray;
+	class Buffer;
+	class IndexBuffer;
+	class Window;
 
 	class PointRenderer {
 	private:

@@ -4,7 +4,7 @@
 #include <vector>
 #include "buffer.h"
 
-namespace graphics {
+namespace oe {
 
 	class VertexArray {
 	private:

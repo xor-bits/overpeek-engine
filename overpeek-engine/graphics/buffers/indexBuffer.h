@@ -2,7 +2,7 @@
 
 #include <GL/glew.h>
 
-namespace graphics {
+namespace oe {
 
 	class IndexBuffer {
 	private:

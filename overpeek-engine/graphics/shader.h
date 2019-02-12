@@ -4,7 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/gtc/type_ptr.hpp>
 
-namespace graphics {
+namespace oe {
 
 	class Shader {
 	private:

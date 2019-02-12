@@ -2,20 +2,25 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
+#include <fstream>
+
+#include <iostream>
+#include <omp.h>
+
 #include "audio/audioManager.h"
 
-#include "logic/gameloop.h"
-#include "logic/noise.h"
-#include "logic/gameloop.h"
-#include "logic/math.h"
-#include "logic/FastNoise.h"
-#include "logic/FastNoiseSIMD/FastNoiseSIMD.h"
+#include "math/noise.h"
+#include "math/math.h"
+#include "math/FastNoise.h"
+#include "math/FastNoiseSIMD/FastNoiseSIMD.h"
 
-#include "tools/clock.h"
-#include "tools/random.h"
-#include "tools/binaryIO.h"
-#include "tools/logger.h"
-#include "tools/debug.h"
+#include "utility/clock.h"
+#include "utility/random.h"
+#include "utility/binaryIO.h"
+#include "utility/logger.h"
+#include "utility/debug.h"
+#include "utility/gameloop.h"
+#include "utility/filereader.h"
 
 #include "graphics/camera.h"
 #include "graphics/shader.h"

@@ -4,19 +4,9 @@
 #include FT_FREETYPE_H
 
 #include <string>
-#include <iostream>
 #include <map>
 #include <GL/glew.h>
-
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-#include "shader.h"
-#include "buffers/indexBuffer.h"
-#include "buffers/buffer.h"
-#include "buffers/vertexArray.h"
-#include "quadRenderer.h"
 
 #define TEXT_ORIGIN_LEFT 0
 #define TEXT_ORIGIN_CENTER 1
@@ -29,9 +19,10 @@
 #define TEXT_VERTEX_PER_QUAD 6 * 2
 #define TEXT_MAX_VBO TEXT_MAX_QUADS_PER_FLUSH * TEXT_VERTEX_PER_QUAD
 
-namespace graphics {
+namespace oe {
 
 	class Renderer;
+	class QuadRenderer;
 	class FontRenderer {
 	private:
 		GLuint texture;

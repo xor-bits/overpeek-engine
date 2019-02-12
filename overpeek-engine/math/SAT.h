@@ -2,8 +2,8 @@
 //#include "../engine.h"
 #include <glm/glm.hpp>
 
-//using namespace graphics;
-namespace logic {
+//using namespace oe;
+namespace oe {
 
 	bool AABB(glm::fvec2 aPos, glm::fvec2 aSize, glm::fvec2 bPos, glm::fvec2 bSize) {
 		return	bPos.x < aPos.x + aSize.x && aPos.x < bPos.x + bSize.x

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace logic {
+namespace oe {
 
 	class GameLoop {
 	private:

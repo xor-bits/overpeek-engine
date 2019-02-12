@@ -55,7 +55,7 @@ void render() {
 	m_renderer->renderText(glm::vec2(-100.0, -060.0), glm::vec2(10, 10), std::to_string(speed), glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
 	m_renderer->renderText(glm::vec2(-100.0, -050.0), glm::vec2(10, 10), std::to_string(m_loop->getUMS()), glm::vec4(1.0, 1.0, 1.0, 1.0), TEXT_ORIGIN_LEFT, TEXT_ORIGIN_TOP);
 
-	m_renderer->draw(m_shader, "unif_text", graphics::TextureManager::getTexture(0));
+	m_renderer->draw(m_shader, m_shader, "unif_text", graphics::TextureManager::getTexture(0));
 
 	m_window->update();
 	m_window->input();

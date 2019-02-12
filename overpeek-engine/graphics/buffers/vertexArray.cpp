@@ -1,6 +1,6 @@
 #include "vertexArray.h"
 
-namespace graphics {
+namespace oe {
 
 	VertexArray::VertexArray() {
 		glGenVertexArrays(1, &mID);

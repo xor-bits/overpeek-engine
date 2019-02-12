@@ -7,7 +7,7 @@
 
 #include <string>
 
-namespace tools {
+namespace oe {
 
 	class Random {
 	public:

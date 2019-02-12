@@ -1,10 +1,10 @@
 #include "textureManager.h"
-#include "../tools/logger.h"
+
+#include "window.h"
+#include "../utility/logger.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-
-#include <time.h>
 
 #define USING_OPENCV 0
 #if USING_OPENCV
@@ -13,15 +13,15 @@
 #include <opencv2/opencv.hpp>
 #endif
 
-namespace graphics {
+namespace oe {
 
 	unsigned int TextureManager::mTextures[MAX_TEXTURES];
 
-	unsigned int TextureManager::loadTexture(std::string path, GLenum format, int id) {
+	unsigned int TextureManager::loadTexture(std::string path, unsigned int format, int id) {
 		int width, height, nrChannels;
 		GLubyte *tmpdata = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
 		if (!tmpdata) {
-			tools::Logger::error(std::string("Image couldn't be loaded at path (") + path + std::string(")"));
+			oe::Logger::error(std::string("Image couldn't be loaded at path (") + path + std::string(")"));
 			system("pause");
 			exit(-1);
 		}
@@ -43,14 +43,14 @@ namespace graphics {
 		return texture;
 	}
 
-	unsigned int TextureManager::loadTextureAtlas(std::string path, GLenum format, int id) {
+	unsigned int TextureManager::loadTextureAtlas(std::string path, unsigned int format, int id) {
 
 		const int dataSize = 4 * 16 * 16 * 256;
 
 		int width, height, nrChannels;
 		GLubyte *tmpdata = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
 		if (!tmpdata) {
-			tools::Logger::error(std::string("Image couldn't be loaded at path (") + path + std::string(")"));
+			oe::Logger::error(std::string("Image couldn't be loaded at path (") + path + std::string(")"));
 			system("pause");
 			exit(-1);
 		}
@@ -94,7 +94,7 @@ namespace graphics {
 		return mTextures[id];
 	}
 
-	void TextureManager::saveTexture(std::string path, GLubyte *data, int width, int height, bool preview) {
+	void TextureManager::saveTexture(std::string path, unsigned char *data, int width, int height, bool preview) {
 #if USING_OPENCV
 		cv::Mat image(height, width, CV_8UC3, data);
 		cv::cvtColor(image, image, CV_RGB2BGR);

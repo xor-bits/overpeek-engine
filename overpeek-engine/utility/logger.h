@@ -8,7 +8,7 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 
-namespace tools {
+namespace oe {
 	class Logger {
 	private:
 		static std::shared_ptr<spdlog::logger> m_console;

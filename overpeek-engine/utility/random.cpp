@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <ctime>
 
-namespace tools {
+namespace oe {
 
 	void Random::seed() {
 		srand(static_cast<float>(time(0)));

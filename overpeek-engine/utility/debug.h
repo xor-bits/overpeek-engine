@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace tools {
+namespace oe {
 
 	class Debug {
 	private:

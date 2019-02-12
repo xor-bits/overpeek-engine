@@ -1,13 +1,20 @@
 #include "pointRenderer.h"
 
 #include "textureManager.h"
+#include "buffers/vertexArray.h"
+
+
+#include <stddef.h>
+#include <vector>
+#include <iostream>
+
 
 #define MAX_POINTS_PER_FLUSH (60000)
 #define VERTEX_PER_POINT	(1)
 #define DATA_PER_VERTEX		(sizeof(PointVertexData) / sizeof(GLfloat))
 #define MAX_VBO				(MAX_POINTS_PER_FLUSH * VERTEX_PER_POINT * DATA_PER_VERTEX)
 
-namespace graphics {
+namespace oe {
 
 	PointRenderer::PointRenderer(Window *window)
 		: m_window(window)

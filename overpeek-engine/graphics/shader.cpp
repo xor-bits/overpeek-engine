@@ -1,27 +1,29 @@
 #include "shader.h"
-#include "window.h"
-#include "../tools/filereader.h"
-#include "../tools/logger.h"
 
-namespace graphics {
+
+#include "window.h"
+#include "../utility/logger.h"
+#include "../utility/filereader.h"
+
+namespace oe {
 
 	GLuint Shader::loadShader(GLenum shadertype, const char *path) {
 		//Load and compile
-		tools::Logger::info("Reading shader...");
-		std::string shaderStr = tools::readFile(path);
+		oe::Logger::info("Reading shader...");
+		std::string shaderStr = oe::readFile(path);
 		const char *shaderChar = shaderStr.c_str();
 		//std::cout << shaderChar << std::endl;
 
-		tools::Logger::info("Compiling shader...");
+		oe::Logger::info("Compiling shader...");
 		GLuint shader;
 		shader = glCreateShader(shadertype);
 		glShaderSource(shader, 1, &shaderChar, NULL);
 		glCompileShader(shader);
 
 		//Get errors
-		tools::Logger::info("Checking shader compilation errors...");
+		oe::Logger::info("Checking shader compilation errors...");
 		shaderLog("Shader compilation failed!", shader, GL_COMPILE_STATUS);
-		tools::Logger::info("Shader compiled");
+		oe::Logger::info("Shader compiled");
 		return shader;
 	}
 
@@ -36,7 +38,7 @@ namespace graphics {
 			char* infoLog = new char[infoLogLength];
 			glGetShaderInfoLog(shader, 512, nullptr, infoLog);
 
-			tools::Logger::critical(text);
+			oe::Logger::critical(text);
 			std::cout << infoLog << std::endl;
 			delete infoLog;
 			glfwTerminate();
@@ -56,7 +58,7 @@ namespace graphics {
 			char* infoLog = new char[infoLogLength];
 			glGetProgramInfoLog(program, 512, nullptr, infoLog);
 
-			tools::Logger::critical(text);
+			oe::Logger::critical(text);
 			std::cout << infoLog << std::endl;
 			delete infoLog;
 			glfwTerminate();
@@ -74,14 +76,14 @@ namespace graphics {
 		GLuint fragmentShader = loadShader(GL_FRAGMENT_SHADER, fragmentPath);
 
 		//Shader program
-		tools::Logger::info("Linking shaders");
+		oe::Logger::info("Linking shaders");
 		mShaderProgram = glCreateProgram();
 		glAttachShader(mShaderProgram, vertexShader);
 		glAttachShader(mShaderProgram, fragmentShader);
 		glLinkProgram(mShaderProgram);
 
 		//Get shader program linking error
-		tools::Logger::info("Checking shader program linking errors...");
+		oe::Logger::info("Checking shader program linking errors...");
 		programLog("Shader program linking failed!", mShaderProgram, GL_LINK_STATUS);
 
 		//Free up data
@@ -101,7 +103,7 @@ namespace graphics {
 		GLuint geometryShader = loadShader(GL_GEOMETRY_SHADER, geometryPath);
 
 		//Shader program
-		tools::Logger::info("Linking shaders");
+		oe::Logger::info("Linking shaders");
 		mShaderProgram = glCreateProgram();
 		glAttachShader(mShaderProgram, vertexShader);
 		glAttachShader(mShaderProgram, fragmentShader);
@@ -109,7 +111,7 @@ namespace graphics {
 		glLinkProgram(mShaderProgram);
 
 		//Get shader program linking error
-		tools::Logger::info("Checking shader program linking errors...");
+		oe::Logger::info("Checking shader program linking errors...");
 		programLog("Shader program linking failed!", mShaderProgram, GL_LINK_STATUS);
 
 		//Free up data

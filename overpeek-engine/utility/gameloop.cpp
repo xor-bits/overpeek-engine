@@ -1,23 +1,20 @@
 #include "gameloop.h"
 
-#include "../engine.h"
-#include "../tools/clock.h"
-#include <iostream>
-#include <omp.h>
+#include "../utility/clock.h"
 
-namespace logic {
+namespace oe {
 
 	GameLoop::GameLoop(void(*callbackRender)(), void(*callbackUpdate)(), void(*callbackRapid)(), unsigned int upsCap, unsigned int fpsCap) {
 		m_upsCap = 1000000 / upsCap;
 		m_fpsCap = 1000000 / fpsCap;
 		m_frame_lastTime = 0.0;
-		m_frame_startTime = tools::Clock::getMicroseconds();
+		m_frame_startTime = oe::Clock::getMicroseconds();
 		m_counter = 0.0;
 		mCallbackRender = callbackRender;
 		mCallbackUpdate = callbackUpdate;
 		mCallbackRapid = callbackRapid;
 
-		m_update_start = tools::Clock::getMicroseconds();
+		m_update_start = oe::Clock::getMicroseconds();
 		m_update_previous = m_update_start;
 		m_update_lag = 0;
 	}
@@ -39,10 +36,10 @@ namespace logic {
 	}
 
 	void GameLoop::loop() {
-		long long time = tools::Clock::getMicroseconds() - m_frame_startTime;
+		long long time = oe::Clock::getMicroseconds() - m_frame_startTime;
 		long long fpsdeltaTime = time - m_frame_lastTime;
 
-		long long current = tools::Clock::getMicroseconds();
+		long long current = oe::Clock::getMicroseconds();
 		long long elapsed = current - m_update_previous;
 		m_update_previous = current;
 		m_update_lag += elapsed;
@@ -51,9 +48,9 @@ namespace logic {
 			m_update_lag -= m_upsCap;
 
 			m_updates++;
-			long long timeupdate = tools::Clock::getMicroseconds();
+			long long timeupdate = oe::Clock::getMicroseconds();
 			mCallbackUpdate();
-			m_microsec_update = tools::Clock::getMicroseconds() - timeupdate;
+			m_microsec_update = oe::Clock::getMicroseconds() - timeupdate;
 		}
 
 		if (fpsdeltaTime >= m_fpsCap) {
@@ -61,9 +58,9 @@ namespace logic {
 		}
 
 		m_frames++;
-		long long timeframe = tools::Clock::getMicroseconds();
+		long long timeframe = oe::Clock::getMicroseconds();
 		mCallbackRender();
-		m_microsec_frame = tools::Clock::getMicroseconds() - timeframe;
+		m_microsec_frame = oe::Clock::getMicroseconds() - timeframe;
 
 		if (time - m_counter > 1000000) {
 			m_counter += 1000000;

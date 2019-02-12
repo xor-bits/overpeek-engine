@@ -4,7 +4,7 @@
 #include <string>
 
 #include "stb_image.h"
-#include "../tools/logger.h"
+#include "../utility/logger.h"
 
 #define M_NUM_KEYS		2048
 #define M_NUM_BUTTONS	1024
@@ -12,7 +12,7 @@
 
 ///TODO: MAKE WINDOW RESIZEABLE
 
-namespace graphics {
+namespace oe {
 
 
 	bool Window::mKeys[M_NUM_KEYS];
@@ -50,7 +50,7 @@ namespace graphics {
 
 	bool Window::mInit() {
 		if (!glfwInit()) {
-			tools::Logger::error("Failed to initialize GLFW!");
+			oe::Logger::error("Failed to initialize GLFW!");
 			return false;
 		}
 		if (m_multisample != 0) glfwWindowHint(GLFW_SAMPLES, m_multisample);
@@ -61,19 +61,19 @@ namespace graphics {
 		else
 			mWindow = glfwCreateWindow(mWidth, mHeight, mTitle.c_str(), NULL, NULL);
 		if (!mWindow) {
-			tools::Logger::error("Failed to create window!");
+			oe::Logger::error("Failed to create window!");
 			return false;
 		}
 		glfwMakeContextCurrent(mWindow);
 
 		if (glewInit() != GLEW_OK) {
-			tools::Logger::error("Failed to initalize GLEW!");
+			oe::Logger::error("Failed to initalize GLEW!");
 			return false;
 		}
 
-		tools::Logger::info("Window created");
-		tools::Logger::info("OpenGL Renderer: " + std::string((char*)glGetString(GL_RENDERER)));
-		tools::Logger::info("OpenGL Version: " + std::string((char*)glGetString(GL_VERSION)));
+		oe::Logger::info("Window created");
+		oe::Logger::info("OpenGL Renderer: " + std::string((char*)glGetString(GL_RENDERER)));
+		oe::Logger::info("OpenGL Version: " + std::string((char*)glGetString(GL_VERSION)));
 
 
 		int width, height, nrChannels;
@@ -166,7 +166,7 @@ namespace graphics {
 				errorText = "Unknown error!";
 				break;
 			}
-			tools::Logger::error(std::string("OpenGL ") + std::to_string(err) + std::string(": ") + errorText);
+			oe::Logger::error(std::string("OpenGL ") + std::to_string(err) + std::string(": ") + errorText);
 			glfwTerminate();
 			system("pause");
 			exit(EXIT_FAILURE);

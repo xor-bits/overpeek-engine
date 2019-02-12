@@ -7,7 +7,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-namespace graphics {
+namespace oe {
 
 	class Window {
 	private:

@@ -1,6 +1,6 @@
 #include "indexBuffer.h"
 
-namespace graphics {
+namespace oe {
 
 	IndexBuffer::IndexBuffer(GLushort *data, GLsizei count, GLenum usage) {
 		mCount = count;

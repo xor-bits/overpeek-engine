@@ -1,13 +1,16 @@
 #include "audioManager.h"
 
-#include "../engine.h"
+#include "../utility/logger.h"
 
 #include <fstream>
+#include <string>
+#include <al.h>
+#include <alc.h>
 
 
-namespace audio {
+namespace oe {
 
-	ALuint AudioManager::sources[MAX_SOURCES];
+	unsigned int AudioManager::sources[8];
 
 	bool isBigEndian()
 	{
@@ -34,7 +37,7 @@ namespace audio {
 		in.read(buffer, 4);
 		if (strncmp(buffer, "RIFF", 4) != 0)
 		{
-			tools::Logger::error("Audio not valid!");
+			oe::Logger::error("oe not valid!");
 			return nullptr;
 		}
 		in.read(buffer, 4);
@@ -59,11 +62,11 @@ namespace audio {
 	}
 
 	void AudioManager::init() {
-		tools::Logger::info("Creating audio device");
+		oe::Logger::info("Creating oe device");
 		ALCdevice* device = alcOpenDevice(NULL);
 		if (device == NULL)
 		{
-			tools::Logger::error("Cannot open sound card!");
+			oe::Logger::error("Cannot open sound card!");
 			glfwTerminate();
 			system("pause");
 			exit(EXIT_FAILURE);
@@ -71,13 +74,13 @@ namespace audio {
 		ALCcontext* context = alcCreateContext(device, NULL);
 		if (context == NULL)
 		{
-			tools::Logger::error("Cannot open audio context!");
+			oe::Logger::error("Cannot open oe context!");
 			glfwTerminate();
 			system("pause");
 			exit(EXIT_FAILURE);
 		}
 		alcMakeContextCurrent(context);
-		tools::Logger::info("Audio device done!");
+		oe::Logger::info("oe device done!");
 	}
 
 	void AudioManager::loadAudio(std::string filepath, int id) {
@@ -100,8 +103,8 @@ namespace audio {
 	}
 
 	void AudioManager::play(int id) {
-#if ENABLE_AUDIO
-		tools::Logger::info("Sound");
+#if ENABLE_oe
+		oe::Logger::info("Sound");
 		alSourcePlay(sources[id]);
 #endif
 	}

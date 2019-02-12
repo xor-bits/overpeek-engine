@@ -3,7 +3,7 @@
 
 using namespace std::chrono;
 
-namespace tools {
+namespace oe {
 
 	long long Clock::getMicroseconds() {
 		auto now = system_clock::now();

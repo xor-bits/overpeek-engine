@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <random>
 
-namespace logic {
+namespace oe {
 	class Noise {
 	private:
 		static int p[512];

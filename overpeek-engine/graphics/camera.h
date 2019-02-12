@@ -4,7 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "window.h"
 
-namespace graphics {
+namespace oe {
 
 	class Camera {
 	private:

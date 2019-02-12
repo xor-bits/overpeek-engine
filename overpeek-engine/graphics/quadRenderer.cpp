@@ -1,5 +1,15 @@
 #include "quadRenderer.h"
+
 #include "textureManager.h"
+#include "buffers/vertexArray.h"
+#include "buffers/indexBuffer.h"
+#include "../utility/logger.h"
+
+
+#include <stddef.h>
+#include <vector>
+#include <iostream>
+
 
 
 #define MAX_QUADS_PER_FLUSH (60000)
@@ -9,10 +19,10 @@
 #define MAX_VBO				(MAX_QUADS_PER_FLUSH * VERTEX_PER_QUAD * DATA_PER_VERTEX)
 #define MAX_IBO				(MAX_QUADS_PER_FLUSH * INDEX_PER_QUAD)
 
-namespace graphics {
+namespace oe {
 
 	QuadRenderer::QuadRenderer(Window *window) {
-		tools::Logger::info("Creating renderer");
+		oe::Logger::info("Creating renderer");
 		m_indexcount = 0;
 		m_buffer_current = 0;
 		m_window = window;

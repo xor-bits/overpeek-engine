@@ -1,8 +1,10 @@
 #include "buffer.h"
 
-namespace graphics {
+#include <GL/glew.h>
 
-	Buffer::Buffer(const GLvoid *data, GLsizei count, GLuint componentCount, GLsizei componentSize, GLenum usage) {
+namespace oe {
+
+	Buffer::Buffer(const void *data, int count, unsigned int componentCount, int componentSize, unsigned int usage) {
 		mComponentCount = componentCount;
 		
 		glGenBuffers(1, &mID);
@@ -22,7 +24,7 @@ namespace graphics {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	void Buffer::setBufferData(const GLvoid *data, GLsizei count, GLuint componentCount, GLsizei componentSize) {
+	void Buffer::setBufferData(const void *data, unsigned int count, unsigned int componentCount, int componentSize) {
 		mComponentCount = componentCount;
 
 		bind();

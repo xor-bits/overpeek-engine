@@ -1,6 +1,6 @@
 #include "noise.h"
 
-namespace logic {
+namespace oe {
 	int Noise::p[512];
 	double Noise::Fade(double t) {
 		return t * t * t * (t * (t * 6 - 15) + 10);

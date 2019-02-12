@@ -6,13 +6,13 @@
 #include <string>
 #include "logger.h"
 
-namespace tools {
+namespace oe {
 
 	class BinaryIO {
 	public:
 		template<typename T> static void write(std::string name, void* data, size_t dataSize) {
 			FILE *pFile = fopen(name.c_str(), "wb");
-			if (pFile == NULL) { tools::Logger::error("Failed to write file: \"" + name + "\""); system("pause");  exit(1); }
+			if (pFile == NULL) { oe::Logger::error("Failed to write file: \"" + name + "\""); system("pause");  exit(1); }
 			fwrite(data, sizeof(T), dataSize, pFile);
 			fclose(pFile);
 		}

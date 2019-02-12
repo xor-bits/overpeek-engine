@@ -1,16 +1,12 @@
 #pragma once
 
 #include <string>
-#include <al.h>
-#include <alc.h>
 
-#define MAX_SOURCES 8
-
-namespace audio {
+namespace oe {
 
 	class AudioManager {
 	private:
-		static ALuint sources[MAX_SOURCES];
+		static unsigned int sources[8];
 
 	public:
 		static void init();

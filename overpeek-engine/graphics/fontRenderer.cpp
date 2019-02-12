@@ -1,12 +1,18 @@
 #include "fontRenderer.h"
-#include "../engine.h"
 
+#include "../utility/logger.h"
+#include "shader.h"
+#include "buffers/indexBuffer.h"
+#include "buffers/buffer.h"
+#include "buffers/vertexArray.h"
+#include "quadRenderer.h"
 
 #include <vector>
+#include <iostream>
 
 #define FONT_RESOLUTION 48.0
 
-namespace graphics {
+namespace oe {
 	
 	FontRenderer::FontRenderer(std::string &fontPath, QuadRenderer *renderer) {
 		init(fontPath);
@@ -18,7 +24,7 @@ namespace graphics {
 	bool FontRenderer::init(std::string &fontPath) {
 		FT_Library ft;
 		if (FT_Init_FreeType(&ft)) {
-			tools::Logger::error("Failed to initialize Freetype!");
+			oe::Logger::error("Failed to initialize Freetype!");
 			glfwTerminate();
 			system("pause");
 			exit(EXIT_FAILURE);
@@ -26,7 +32,7 @@ namespace graphics {
 		
 		FT_Face face;
 		if (FT_New_Face(ft, fontPath.c_str(), 0, &face)) {
-			tools::Logger::error("Failed to load font!");
+			oe::Logger::error("Failed to load font!");
 			glfwTerminate();
 			system("pause");
 			exit(EXIT_FAILURE);
@@ -43,7 +49,7 @@ namespace graphics {
 		for (GLubyte c = 0; c < 128; c++) {
 			//Load glyph
 			if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
-				tools::Logger::error(std::string("Failed to load glyph for: \"") + (char)c + "\"");
+				oe::Logger::error(std::string("Failed to load glyph for: \"") + (char)c + "\"");
 				continue;
 			}
 

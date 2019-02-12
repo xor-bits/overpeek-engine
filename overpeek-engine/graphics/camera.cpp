@@ -1,6 +1,6 @@
 #include "camera.h"
 
-namespace graphics {
+namespace oe {
 
 	Camera::Camera(glm::vec3 pos, GLfloat pitch, GLfloat yaw, GLuint fov, GLfloat aspect) {
 		mPos = pos; mPitch = pitch; mYaw = yaw; mFov = fov; mAspect = aspect;

@@ -1,13 +1,11 @@
 #pragma once
 
-#include <GL/glew.h>
-
-namespace graphics {
+namespace oe {
 
 	class Buffer {
 	private:
-		GLuint mID;
-		GLuint mComponentCount;
+		unsigned int mID;
+		unsigned int mComponentCount;
 
 	public:
 		/*
@@ -16,17 +14,17 @@ namespace graphics {
 		- "componentSize" is the size of one object in bytes
 		- "usage" is either GL_STATIC_DRAW or GL_DYNAMIC_DRAW
 		*/
-		Buffer(const GLvoid *data, GLsizei count, GLuint componentCount, GLsizei componentSize, GLenum usage);
+		Buffer(const void *data, int count, unsigned int componentCount, int componentSize, unsigned int usage);
 		~Buffer();
 
 		void bind();
 		void unbind();
 
-		void setBufferData(const GLvoid *data, GLsizei count, GLuint componentCount, GLsizei componentSize);
+		void setBufferData(const void *data, unsigned int count, unsigned int componentCount, int componentSize);
 		void *mapBuffer();
 		void unmapBuffer();
 
-		inline GLuint getComponentCount() { return mComponentCount; }
+		inline unsigned int getComponentCount() { return mComponentCount; }
 	};
 
 }

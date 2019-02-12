@@ -1,20 +1,15 @@
 #pragma once
 
 #include <GL/glew.h>
-#include <stddef.h>
-#include <vector>
 #include <glm/glm.hpp>
-#include <iostream>
 
-#include "shader.h"
-#include "buffers/indexBuffer.h"
-#include "buffers/buffer.h"
-#include "buffers/vertexArray.h"
-#include "../tools/logger.h"
-
-namespace graphics {
+namespace oe {
 
 	class Window;
+	class VertexArray;
+	class Buffer;
+	class IndexBuffer;
+
 	class QuadRenderer {
 	private:
 		struct TriangleVertexData
