@@ -237,10 +237,11 @@ void Map::getInfoFromNoise(int &tileId, int &objId, float x, float y) {
 }
 
 void Map::hit(unsigned int x, unsigned int y, short dmg) {
-	m_tiles[x][y]->m_objectHealth -= dmg;
-	if (m_tiles[x][y]->m_objectHealth <= 0) {
-		addCreature(x + 0.5f, y + 0.5f, Database::objects[m_tiles[x][y]->m_object].dropsAs, true);
-		m_tiles[x][y]->m_object = 0;
+	MapTile *tile = getTile(x, y);
+	tile->m_objectHealth -= dmg;
+	if (tile->m_objectHealth <= 0) {
+		addCreature(x + 0.5f, y + 0.5f, Database::objects[tile->m_object].dropsAs, true);
+		tile->m_object = 0;
 	}
 	Game::tilesChanged = true;
 }
@@ -291,6 +292,8 @@ void Map::submitToRenderer(oe::Renderer *renderer, float offX, float offY) {
 			float rx = (float(x) + floor(Game::getPlayer()->getX()) + offX) * TILE_SIZE;
 			float ry = (float(y) + floor(Game::getPlayer()->getY()) + offY) * TILE_SIZE;
 			renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE, TILE_SIZE), db_tile.texture, glm::vec4(1.0));
+
+			if (db_object.id != 0)
 			renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE, TILE_SIZE), getObjectTexture(x + Game::getPlayer()->getX(), y + Game::getPlayer()->getY()), glm::vec4(db_object.color, 1.0));
 		
 		}

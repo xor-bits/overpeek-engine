@@ -34,6 +34,7 @@ Creature::Creature(float _x, float _y, int _id, bool _item) {
 
 	resetHealth();
 	resetStamina();
+	oe::Logger(Database::items[m_id].name);
 }
 
 Creature::Creature() {
@@ -119,23 +120,24 @@ void Creature::clampHPAndSTA() {
 }
 
 void Creature::update(int index) {
-	if (m_staminaRegenCooldown > 200) m_stamina += m_staminaGainRate;
-	else m_staminaRegenCooldown++;
-
-	if (m_healthRegenCooldown > 200) m_health += m_healthGainRate;
-	else m_healthRegenCooldown++;
-	clampHPAndSTA();
-	if (m_health <= 0) {
-		//Drops
-		Game::getMap()->addCreature(getX(), getY(), Database::creatures[m_id].dropsAs, true);
-		
-		//Remobe this
-		Game::getMap()->removeCreature(this);
-		return;
-	}
 
 
 	if (!m_item) {
+		if (m_staminaRegenCooldown > 200) m_stamina += m_staminaGainRate;
+		else m_staminaRegenCooldown++;
+
+		if (m_healthRegenCooldown > 200) m_health += m_healthGainRate;
+		else m_healthRegenCooldown++;
+		clampHPAndSTA();
+		if (m_health <= 0) {
+			//Drops
+			Game::getMap()->addCreature(getX(), getY(), Database::creatures[m_id].dropsAs, true);
+
+			//Remobe this
+			Game::getMap()->removeCreature(this);
+			return;
+		}
+
 		if (m_id == 1) enemyAi();
 
 		if (m_swingDir != 0) {
@@ -208,7 +210,7 @@ void Creature::hit() {
 	std::vector<Creature*> creatureArray;
 	Game::getMap()->findAllCreatures(hitx, hity, creatureArray, 1.0);
 #endif
-	
+
 	for (int i = 0; i < creatureArray.size(); i++)
 	{
 		glm::vec2 directionVector = glm::vec2(creatureArray[i]->getX() - getX(), creatureArray[i]->getY() - getY());

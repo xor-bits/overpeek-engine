@@ -8,6 +8,9 @@ Gui::Gui(float maxHealth, float maxStamina, float healthGainRate, float staminaG
 	for (int i = 0; i < GUI_FRAME_LOGGER_SIZE; i++) {
 		m_frame_logger[i] = 0;
 	}
+
+	m_currentUpdate = 0;
+	m_currentFrame = 0;
 }
 
 void Gui::renderBlur(oe::Renderer *renderer) {
@@ -54,9 +57,9 @@ void Gui::renderNoBlur(oe::Renderer *renderer) {
 			size = glm::vec2(GUI_FRAME_LOGGER_BAR_WIDTH, m_frame_logger[i] / m_slowest_frame);
 			renderer->renderBox(pos, size, 24, M_COLOR_BLACK);
 		}
-		for (int i = 0; i < GUI_FRAME_LOGGER_SIZE; i++) {
-			pos = glm::vec2(-Game::getWindow()->getAspect() + (GUI_FRAME_LOGGER_BAR_WIDTH * i), 1.0 - m_frame_logger[i] / m_slowest_frame);
-			size = glm::vec2(GUI_FRAME_LOGGER_BAR_WIDTH, m_frame_logger[i] / m_slowest_frame);
+		for (int i = 0; i < GUI_UPDATE_LOGGER_SIZE; i++) {
+			pos = glm::vec2(-Game::getWindow()->getAspect() + (GUI_FRAME_LOGGER_BAR_WIDTH * i), 1.0 - m_update_logger[i] / m_slowest_update);
+			size = glm::vec2(GUI_FRAME_LOGGER_BAR_WIDTH, m_update_logger[i] / m_slowest_update);
 			renderer->renderBox(pos, size, 24, M_COLOR_BLACK);
 		}
 	}

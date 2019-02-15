@@ -30,6 +30,14 @@ public:
 		unsigned int texture = 0;
 
 		unsigned int placedAs;
+
+		Item() {}
+		Item(std::string _name, unsigned int _id, unsigned int _texture, unsigned int _placedAs) {
+			name = _name;
+			id = _id;
+			texture = _texture;
+			placedAs = _placedAs;
+		}
 	} items[COUNT_ITEMS];
 
 	static struct Tile
@@ -37,6 +45,13 @@ public:
 		std::string name = "null";
 		unsigned int id = 0;
 		unsigned int texture = 0;
+
+		Tile() {}
+		Tile(std::string _name, unsigned int _id, unsigned int _texture) {
+			name = _name;
+			id = _id;
+			texture = _texture;
+		}
 	} tiles[COUNT_TILES];
 
 	static struct Object
@@ -284,21 +299,21 @@ public:
 
 	static void init() {
 
-		//Items
-		items[0] = { "Empty", 0, 0, 0 };
-		items[1] = { "Stone", 1, 17, 5 };
-		items[2] = { "Plant fiber", 2, 18, 0 };
-		items[3] = { "Log", 3, 16, 4 };
+		//Items			//Name			//Id	//Texture	//Placed as
+		items[0] = Item("Empty",		0,		9,			0);
+		items[1] = Item("Stone",		1,		17,			5);
+		items[2] = Item("Plant fiber",	2,		18,			0);
+		items[3] = Item("Log",			3,		16,			4);
 
-		//Tiles
-		tiles[0] = { "Soil", 0, 0 };
-		tiles[1] = { "Water", 1, 1 };
-		tiles[2] = { "Sand", 2, 2 };
-		tiles[3] = { "Grassy soil", 3, 4 };
-		tiles[4] = { "Gravel", 4, 8 };
+		//Tiles			//Name			//Id	//Texture
+		tiles[0] = Tile("Soil",			0,		0);
+		tiles[1] = Tile("Water",		1,		1);
+		tiles[2] = Tile("Sand",			2,		2);
+		tiles[3] = Tile("Grassy soil",	3,		4);
+		tiles[4] = Tile("Gravel",		4,		8);
 
 		//Objects			//Name			//id	//Texture	//Wall	//Multitexture	//Smooth	//Destroyable	//Color							//Health	//Drop as		
-		objects[0] = Object("Air",			0,		9,			false,	false,			false,		false,			glm::vec3(1.0f),				0,			0);
+		objects[0] = Object("Air",			0,		0,			false,	false,			false,		false,			glm::vec3(1.0f),				0,			0);
 		objects[1] = Object("Grass",		1,		5,			false,	false,			false,		true,			glm::vec3(1.0f),				1,			2);
 		objects[2] = Object("Spruce",		2,		6,			false,	false,			false,		true,			glm::vec3(1.0f),				5,			3);
 		objects[3] = Object("Birch",		3,		7,			false,	false,			false,		true,			glm::vec3(1.0f),				5,			3);

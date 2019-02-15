@@ -13,12 +13,13 @@
 
 
 #define DEBUG_ZOOM				1.0f
+#define DEBUG_MODE				true
 #define ENABLE_AUDIO			false
 #define SHOW_DEBUG_MESSAGES		false
-#define DEBUG_DISABLE_SAVING	false
+#define DEBUG_DISABLE_SAVING	true
 #define STORE_MAP_IN_RAM		true
 
-#define M_WINDOW_HEIGHT			420 //720
+#define M_WINDOW_HEIGHT			720
 #define M_WINDOW_WIDTH			(M_WINDOW_HEIGHT * 16 / 9) //1280
 #define M_ASPECT				(float)M_WINDOW_WIDTH / (float)M_WINDOW_HEIGHT
 #define M_ASPECT_FIXED			false
@@ -44,7 +45,7 @@
 
 
 
-#define MAP_SIZE 1000
+#define MAP_SIZE 500
 #define MAP_MAX_CREATURES 2048
 
 #define APP_DATA std::string(getenv("APPDATA"))

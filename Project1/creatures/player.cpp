@@ -18,6 +18,7 @@ void Player::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float
 }
 
 void Player::update() {
+	m_stamina += 1000000;
 	Creature::update(0);
 }
 
