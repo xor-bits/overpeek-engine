@@ -14,6 +14,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atomic Simulation", "Projec
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test Game", "Test Game\Test Game.vcxproj", "{F3BBAF82-24CF-4049-96F3-26772A5FC82B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mandelbrot", "Mandelbrot\Mandelbrot.vcxproj", "{5FB83F85-1834-4CDD-81B7-219A190E5E92}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -54,6 +56,14 @@ Global
 		{F3BBAF82-24CF-4049-96F3-26772A5FC82B}.Release|x64.Build.0 = Release|x64
 		{F3BBAF82-24CF-4049-96F3-26772A5FC82B}.Release|x86.ActiveCfg = Release|Win32
 		{F3BBAF82-24CF-4049-96F3-26772A5FC82B}.Release|x86.Build.0 = Release|Win32
+		{5FB83F85-1834-4CDD-81B7-219A190E5E92}.Debug|x64.ActiveCfg = Debug|x64
+		{5FB83F85-1834-4CDD-81B7-219A190E5E92}.Debug|x64.Build.0 = Debug|x64
+		{5FB83F85-1834-4CDD-81B7-219A190E5E92}.Debug|x86.ActiveCfg = Debug|Win32
+		{5FB83F85-1834-4CDD-81B7-219A190E5E92}.Debug|x86.Build.0 = Debug|Win32
+		{5FB83F85-1834-4CDD-81B7-219A190E5E92}.Release|x64.ActiveCfg = Release|x64
+		{5FB83F85-1834-4CDD-81B7-219A190E5E92}.Release|x64.Build.0 = Release|x64
+		{5FB83F85-1834-4CDD-81B7-219A190E5E92}.Release|x86.ActiveCfg = Release|Win32
+		{5FB83F85-1834-4CDD-81B7-219A190E5E92}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

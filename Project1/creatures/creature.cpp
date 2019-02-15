@@ -18,11 +18,22 @@ Creature::Creature(float _x, float _y, int _id, bool _item) {
 	vel_x = 0; vel_y = 0;
 	acc_x = 0; acc_y = 0;
 	m_swingDir = 0;
-	m_health = Database::creatures[m_id].health;
 
 	m_untilnexttarget = 500;
 	m_wait = 0;
 	m_chasing = false;
+
+	//HS
+	m_maxHealth = Database::creatures[m_id].health;
+	m_maxStamina = Database::creatures[m_id].stamina;
+	m_healthGainRate = Database::creatures[m_id].healthgain;
+	m_staminaGainRate = Database::creatures[m_id].staminagain;
+
+	m_staminaRegenCooldown = 0;
+	m_healthRegenCooldown = 0;
+
+	resetHealth();
+	resetStamina();
 }
 
 Creature::Creature() {
@@ -30,7 +41,6 @@ Creature::Creature() {
 	vel_x = 0; vel_y = 0;
 	acc_x = 0; acc_y = 0;
 	m_swingDir = 0;
-	m_health = 0;
 
 	m_untilnexttarget = 0;
 	m_wait = 0;
@@ -59,8 +69,8 @@ void Creature::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, flo
 		}
 		glm::vec2 pos = glm::vec2((getX() + renderOffsetX - 0.5f) * TILE_SIZE, (getY() + renderOffsetY - 0.5f) * TILE_SIZE);
 		glm::vec2 size = glm::vec2(TILE_SIZE, TILE_SIZE);
-		renderer->renderBox(pos, size, heading_texture, glm::vec4(1.0, 1.0, 1.0, 1.0));
-		//renderer->renderPoint(glm::vec2((getX() + renderOffsetX) * TILE_SIZE, (getY() + renderOffsetY) * TILE_SIZE), glm::vec4(0.01), heading_texture, glm::vec4(1.0, 1.0, 1.0, 1.0));
+		//renderer->renderBox(pos, size, heading_texture, glm::vec4(1.0, 1.0, 1.0, 1.0));
+		renderer->renderPoint(pos, size, heading_texture, glm::vec4(1.0));
 
 		float swingX, swingY;
 		int swingTexture;
@@ -88,20 +98,43 @@ void Creature::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, flo
 		if (m_swingDir != 0) {
 			glm::vec2 pos = glm::vec2(swingX, swingY);
 			glm::vec2 size = glm::vec2(TILE_SIZE, TILE_SIZE);
-			renderer->renderBox(pos, size, swingTexture, glm::vec4(1.0, 1.0, 1.0, 1.0));
-			//renderer->renderPoint(glm::vec2(swingX, swingY), glm::vec4(1.0), swingTexture);
+			//renderer->renderBox(pos, size, swingTexture, glm::vec4(1.0, 1.0, 1.0, 1.0));
+			renderer->renderPoint(pos, size, swingTexture, glm::vec4(1.0));
 		}
 	}
 	else {
 		glm::vec2 pos = glm::vec2((getX() + renderOffsetX - 0.5f) * TILE_SIZE, (getY() + renderOffsetY - 0.5f) * TILE_SIZE);
 		glm::vec2 size = glm::vec2(TILE_SIZE, TILE_SIZE);
-		renderer->renderBox(pos, size, Database::items[m_id].texture, glm::vec4(1.0, 1.0, 1.0, 1.0));
-		//renderer->renderPoint(glm::vec2((getX() + renderOffsetX) * TILE_SIZE, (getY() + renderOffsetY - 0.5f) * TILE_SIZE), glm::vec4(1.0), Database::items[m_id].texture);
+		//renderer->renderBox(pos, size, Database::items[m_id].texture, glm::vec4(1.0, 1.0, 1.0, 1.0));
+		renderer->renderPoint(pos, size, Database::items[m_id].texture, glm::vec4(1.0));
 	}
 
 }
 
+void Creature::clampHPAndSTA() {
+	if (m_health > m_maxHealth) m_health = m_maxHealth;
+	if (m_health < 0) m_health = 0;
+	if (m_stamina > m_maxStamina) m_stamina = m_maxStamina;
+	if (m_stamina < 0) m_stamina = 0;
+}
+
 void Creature::update(int index) {
+	if (m_staminaRegenCooldown > 200) m_stamina += m_staminaGainRate;
+	else m_staminaRegenCooldown++;
+
+	if (m_healthRegenCooldown > 200) m_health += m_healthGainRate;
+	else m_healthRegenCooldown++;
+	clampHPAndSTA();
+	if (m_health <= 0) {
+		//Drops
+		Game::getMap()->addCreature(getX(), getY(), Database::creatures[m_id].dropsAs, true);
+		
+		//Remobe this
+		Game::getMap()->removeCreature(this);
+		return;
+	}
+
+
 	if (!m_item) {
 		if (m_id == 1) enemyAi();
 
@@ -183,7 +216,7 @@ void Creature::hit() {
 	
 		creatureArray[i]->acc_x = directionVector.x / 10.0 * Database::creatures[m_id].knockback;
 		creatureArray[i]->acc_y = directionVector.y / 10.0 * Database::creatures[m_id].knockback;
-		creatureArray[i]->heal(-Database::creatures[m_id].meleeDamage);
+		creatureArray[i]->setHealth(creatureArray[i]->getHealth() - Database::creatures[m_id].meleeDamage);
 	}
 
 	//Tile hitting
@@ -205,26 +238,6 @@ void Creature::hit() {
 
 	//Swing noise
 	oe::AudioManager::play(1);
-}
-
-void Creature::heal() {
-	if (m_item) return;
-
-	m_health = Database::creatures[m_id].health;
-}
-
-void Creature::heal(float amount) {
-	if (m_item) return;
-
-	m_health += amount;
-	if (m_health <= 0) {
-		Game::getMap()->addCreature(getX(), getY(), Database::creatures[m_id].dropsAs, true);
-#if !STORE_MAP_IN_RAM
-		Game::getRegion(getX(), getY())->removeCreature(m_regionIndex, true);
-#else
-		Game::getMap()->removeCreature(this);
-#endif
-	}
 }
 
 bool AABB(glm::fvec2 aPos, glm::fvec2 aSize, glm::fvec2 bPos, glm::fvec2 bSize) {

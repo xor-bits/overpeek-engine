@@ -15,6 +15,12 @@ namespace oe {
 		static bool m_initalized;
 
 	public:
+
+		template <class T>
+		Logger(T output) {
+			info(output);
+		}
+
 		static void setup() {
 			if (m_initalized) return;
 			m_console = spdlog::stdout_color_mt("console");

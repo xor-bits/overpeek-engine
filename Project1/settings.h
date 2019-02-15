@@ -1,6 +1,11 @@
 #pragma once
 
-#define BUILD_VERSION			"0.1.0.1"
+
+#define VERSION_MAJOR			0
+#define VERSION_MINOR			2
+#define VERSION_BUG_FIX			0
+#define VERSION_BUILD			0
+#define VERSION_CSTR			"0.2.0.0"
 
 
 
@@ -8,16 +13,17 @@
 
 
 #define DEBUG_ZOOM				1.0f
-#define ENABLE_AUDIO			true
+#define ENABLE_AUDIO			false
 #define SHOW_DEBUG_MESSAGES		false
-#define DEBUG_DISABLE_SAVING	true
+#define DEBUG_DISABLE_SAVING	false
 #define STORE_MAP_IN_RAM		true
 
-#define M_WINDOW_WIDTH			1280
-#define M_WINDOW_HEIGHT			720
+#define M_WINDOW_HEIGHT			420 //720
+#define M_WINDOW_WIDTH			(M_WINDOW_HEIGHT * 16 / 9) //1280
 #define M_ASPECT				(float)M_WINDOW_WIDTH / (float)M_WINDOW_HEIGHT
+#define M_ASPECT_FIXED			false
 #define M_DEFAULT_MULTISAMPLE	2
-#define M_WINDOW_DEFAULT_TITLE	std::string("Unnamed Pre-Alpha v") + BUILD_VERSION
+#define M_WINDOW_DEFAULT_TITLE	std::string("Unnamed Pre-Alpha v") + VERSION_CSTR
 
 #if !STORE_MAP_IN_RAM
 #define RENDER_DST				3 * 2
@@ -38,7 +44,7 @@
 
 
 
-#define MAP_SIZE 100
+#define MAP_SIZE 1000
 #define MAP_MAX_CREATURES 2048
 
 #define APP_DATA std::string(getenv("APPDATA"))

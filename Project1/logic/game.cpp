@@ -55,7 +55,7 @@ void Game::init() {
 
 	//Window
 	oe::Logger::info("Creating window");
-	m_window = std::unique_ptr<oe::Window>(new oe::Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, M_WINDOW_DEFAULT_TITLE, false, M_DEFAULT_MULTISAMPLE));
+	m_window = std::unique_ptr<oe::Window>(new oe::Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, M_WINDOW_DEFAULT_TITLE, false, M_DEFAULT_MULTISAMPLE, !M_ASPECT_FIXED));
 	m_window->setSwapInterval(NULL);
 	m_window->setButtonCallback(buttonPress);
 	m_window->setKeyboardCallback(keyPress);
@@ -77,6 +77,7 @@ void Game::init() {
 	m_postshader->setUniform1f("unif_height", m_window->getHeight());
 	glm::mat4 orthographic = glm::ortho(-M_ASPECT * DEBUG_ZOOM, M_ASPECT * DEBUG_ZOOM, DEBUG_ZOOM, -DEBUG_ZOOM);
 	m_shader->enable(); m_shader->SetUniformMat4("pr_matrix", orthographic);
+	m_pointshader->enable(); m_pointshader->SetUniformMat4("pr_matrix", orthographic);
 	
 	//Gameloop
 	oe::Logger::info("Starting gameloop");
@@ -120,56 +121,53 @@ void Game::render() {
 	if (!m_window) return;
 	
 	//World tiles
-//	if (!paused || justPaused) {
-//
-//#if !STORE_MAP_IN_RAM
-//		for (int x = 0; x < RENDER_DST; x++)
-//		{
-//			for (int y = 0; y < RENDER_DST; y++)
-//			{
-//				if (m_regionExist[x][y]) m_region[x][y].submitTilesToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
-//				if (m_regionExist[x][y]) m_region[x][y].submitObjectsToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
-//				if (m_regionExist[x][y]) m_region[x][y].submitCreaturesToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
-//			}
-//		}
-//#else
-//		//m_map->submitToRenderer(m_worldrenderer.get());
-//#endif
-//		m_player->submitToRenderer(m_worldrenderer.get(), -m_player->getX(), -m_player->getY());
-//		m_gui->renderBlur(m_worldrenderer.get());
-//		m_inventory->render(m_worldrenderer.get());
-//	}
-//	
-//	//Gui
-//	renderInfoScreen();
-//	m_gui->renderNoBlur(m_guirenderer.get());
-//
-//	//Flush
-//	if (!paused) {
-//		m_worldrenderer->draw(m_shader.get(), m_pointshader.get(), "unif_text", oe::TextureManager::getTexture(0));
-//	}
-//	else if (justPaused) {
-//		m_worldrenderer->drawToFramebuffer(m_shader.get(), m_pointshader.get(), "unif_text", oe::TextureManager::getTexture(0), false);
-//		m_postshader->enable();
-//		for (int i = 0; i < 16; i++) {
-//			m_postshader->setUniform1i("unif_effect", 1);
-//			m_worldrenderer->drawFramebufferToFramebuffer(m_postshader.get(), "unif_texture", true);
-//			m_postshader->setUniform1i("unif_effect", 2);
-//			m_worldrenderer->drawFramebufferToFramebuffer(m_postshader.get(), "unif_texture", false);
-//		}
-//		m_postshader->setUniform1i("unif_effect", 0);
-//		m_worldrenderer->drawFramebuffer(m_postshader.get(), "unif_texture", false);
-//	}
-//	else if (paused) {
-//		m_postshader->enable();
-//		m_postshader->setUniform1i("unif_effect", 0);
-//		m_worldrenderer->drawFramebuffer(m_postshader.get(), "unif_texture", false);
-//	}
-//	
-//	m_guirenderer->draw(m_shader.get(), m_pointshader.get(), "unif_text", oe::TextureManager::getTexture(0));
+	if (!paused || justPaused) {
 
-	m_worldrenderer->renderPoint(glm::vec2(0.5, 0.5), glm::vec2(0.1, 0.1), 0, glm::vec4(1.0)); 
-	m_worldrenderer->draw(m_shader.get(), m_pointshader.get(), "unif_text", oe::TextureManager::getTexture(0));
+#if !STORE_MAP_IN_RAM
+		for (int x = 0; x < RENDER_DST; x++)
+		{
+			for (int y = 0; y < RENDER_DST; y++)
+			{
+				if (m_regionExist[x][y]) m_region[x][y].submitTilesToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
+				if (m_regionExist[x][y]) m_region[x][y].submitObjectsToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
+				if (m_regionExist[x][y]) m_region[x][y].submitCreaturesToRenderer(m_worldrenderer, -m_player->x, -m_player->y);
+			}
+		}
+#else
+		m_map->submitToRenderer(m_worldrenderer.get(), -m_player->getX(), -m_player->getY());
+#endif
+		m_player->submitToRenderer(m_worldrenderer.get(), -m_player->getX(), -m_player->getY());
+		m_gui->renderBlur(m_worldrenderer.get());
+		m_inventory->render(m_worldrenderer.get());
+	}
+	
+	//Gui
+	renderInfoScreen();
+	m_gui->renderNoBlur(m_guirenderer.get());
+
+	//Flush
+	if (!paused) {
+		m_worldrenderer->draw(m_shader.get(), m_pointshader.get(), "unif_text", oe::TextureManager::getTexture(0));
+	}
+	else if (justPaused) {
+		m_worldrenderer->drawToFramebuffer(m_shader.get(), m_pointshader.get(), "unif_text", oe::TextureManager::getTexture(0), false);
+		m_postshader->enable();
+		for (int i = 0; i < 1; i++) {
+			m_postshader->setUniform1i("unif_effect", 1);
+			m_worldrenderer->drawFramebufferToFramebuffer(m_postshader.get(), "unif_texture", true);
+			m_postshader->setUniform1i("unif_effect", 2);
+			m_worldrenderer->drawFramebufferToFramebuffer(m_postshader.get(), "unif_texture", false);
+		}
+		m_postshader->setUniform1i("unif_effect", 0);
+		m_worldrenderer->drawFramebuffer(m_postshader.get(), "unif_texture", false);
+	}
+	else if (paused) {
+		m_postshader->enable();
+		m_postshader->setUniform1i("unif_effect", 0);
+		m_worldrenderer->drawFramebuffer(m_postshader.get(), "unif_texture", false);
+	}
+	
+	m_guirenderer->draw(m_shader.get(), m_pointshader.get(), "unif_text", oe::TextureManager::getTexture(0));
 
 	//Other
 	justPaused = false;
@@ -190,14 +188,14 @@ void Game::update() {
 		bool running = false;
 		bool moving = false;
 		if (m_window->getKey(GLFW_KEY_LEFT_SHIFT)) running = true;
-		if (m_window->getKey(GLFW_KEY_LEFT_SHIFT) && !m_gui->exhausted()) playerSpeed *= 2;
+		if (m_window->getKey(GLFW_KEY_LEFT_SHIFT) && !m_player->exhausted()) playerSpeed *= 2;
 		else if (m_window->getKey(GLFW_KEY_LEFT_CONTROL)) playerSpeed *= 0.2;
 		else if (m_window->getKey(GLFW_KEY_TAB)) playerSpeed *= 20;
 		if (m_window->getKey(GLFW_KEY_S)) { m_player->vel_y = playerSpeed; moving = true; }
 		if (m_window->getKey(GLFW_KEY_D)) { m_player->vel_x = playerSpeed; moving = true; }
 		if (m_window->getKey(GLFW_KEY_W)) { m_player->vel_y = -playerSpeed; moving = true; }
 		if (m_window->getKey(GLFW_KEY_A)) { m_player->vel_x = -playerSpeed; moving = true; }
-		if (moving && running) { m_gui->setStamina(m_gui->getStamina() - 0.01); }
+		if (moving && running) { m_player->setStamina(m_player->getStamina() - 0.01); }
 		m_gui->update();
 		m_player->update();
 		m_inventory->update();
@@ -266,14 +264,18 @@ void Game::keyPress(int key, int action) {
 	if (key == GLFW_KEY_ESCAPE) { paused = !paused; justPaused = true; return; }
 	m_gui->keyPress(key, action);
 
+	//Postshader
+	if (key == GLFW_KEY_F7) { oe::Logger("post 0"); m_postshader->enable(); m_postshader->setUniform1i("unif_lens", 0); justPaused = true; return; }
+	if (key == GLFW_KEY_F8) { oe::Logger("post 1"); m_postshader->enable(); m_postshader->setUniform1i("unif_lens", 1); justPaused = true; return; }
+
 	if (paused) return;
 
 	//Player Hitting
-	if (key == GLFW_KEY_UP && !m_gui->exhausted()) { m_player->heading = HEADING_UP; m_player->hit(); m_gui->setStamina(m_gui->getStamina() - 0.2); return; }
-	if (key == GLFW_KEY_DOWN && !m_gui->exhausted()) { m_player->heading = HEADING_DOWN; m_player->hit(); m_gui->setStamina(m_gui->getStamina() - 0.2); return; }
-	if (key == GLFW_KEY_LEFT && !m_gui->exhausted()) { m_player->heading = HEADING_LEFT; m_player->hit(); m_gui->setStamina(m_gui->getStamina() - 0.2); return; }
-	if (key == GLFW_KEY_RIGHT && !m_gui->exhausted()) { m_player->heading = HEADING_RIGHT; m_player->hit(); m_gui->setStamina(m_gui->getStamina() - 0.2); return; }
-	if ((key == GLFW_KEY_UP || key == GLFW_KEY_DOWN || key == GLFW_KEY_LEFT || key == GLFW_KEY_RIGHT) && m_gui->exhausted()) { m_gui->setStamina(m_gui->getStamina() - 0.2); return; }
+	if (key == GLFW_KEY_UP && !m_player->exhausted()) { m_player->heading = HEADING_UP; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
+	if (key == GLFW_KEY_DOWN && !m_player->exhausted()) { m_player->heading = HEADING_DOWN; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
+	if (key == GLFW_KEY_LEFT && !m_player->exhausted()) { m_player->heading = HEADING_LEFT; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
+	if (key == GLFW_KEY_RIGHT && !m_player->exhausted()) { m_player->heading = HEADING_RIGHT; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
+	if ((key == GLFW_KEY_UP || key == GLFW_KEY_DOWN || key == GLFW_KEY_LEFT || key == GLFW_KEY_RIGHT) && m_player->exhausted()) { m_player->setStamina(m_player->getStamina() - 0.2); return; }
 	if (key == GLFW_KEY_E) { m_player->setX(round(m_player->getX())); m_player->setY(round(m_player->getY())); return; }
 
 	//Inventory
@@ -331,13 +333,13 @@ void Game::keyPress(int key, int action) {
 	}
 
 	//Get FPS
-	if (key == GLFW_KEY_F4) oe::Logger::info(std::string("Fps: ") + std::to_string(m_loop->getFPS()));
+	if (key == GLFW_KEY_F4) { oe::Logger::info(std::string("Fps: ") + std::to_string(m_loop->getFPS())); return; }
 	
 	//Clear inventoy
-	if (key == GLFW_KEY_F5) m_inventory->clear();
+	if (key == GLFW_KEY_F5) { m_inventory->clear(); return; }
 	
 	//Add creature at player
-	if (key == GLFW_KEY_F6) m_map->addCreature(m_player->getX(), m_player->getY(), 1, false);
+	if (key == GLFW_KEY_F6) { m_map->addCreature(m_player->getX(), m_player->getY(), 1, false); return; }
 }
 
 void Game::buttonPress(int button, int action) {}

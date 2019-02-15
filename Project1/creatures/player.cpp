@@ -26,7 +26,12 @@ void Player::collide() {
 }
 
 void Player::hit() {
-	Creature::hit();
+	if (Database::items[inventory->selectedId].placedAs != 0) {
+		place();
+	}
+	else {
+		Creature::hit();
+	}
 }
 
 void Player::place() {
@@ -74,12 +79,12 @@ void Player::place() {
 	}
 
 	if (tmp) {
-		///REDO TILE SET ASKING
-		tmp->m_object = 4;
-		//Game::trySetTileObject(tmp, 4);
+		if (!Game::getMap()->trySetObject(tmp, Database::items[inventory->selectedId].placedAs)) {
+			inventory->removeSelected();
+			oe::AudioManager::play(1);
+		}
 	}
 #endif
-	oe::AudioManager::play(1);
 }
 
 void Player::save() {

@@ -63,6 +63,12 @@
     <ClCompile Include="utility\gameloop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="graphics\renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utility\filereader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="math\FastNoiseSIMD\FastNoiseSIMD.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -85,12 +91,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="math\FastNoise.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="graphics\renderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="utility\filereader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -155,16 +155,16 @@
     <ClInclude Include="utility\gameloop.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="math\FastNoiseSIMD\FastNoiseSIMD.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="math\FastNoiseSIMD\FastNoiseSIMD_internal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="math\FastNoise.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="math\math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="math\FastNoiseSIMD\FastNoiseSIMD.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="math\FastNoiseSIMD\FastNoiseSIMD_internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

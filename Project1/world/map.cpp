@@ -8,7 +8,7 @@
 
 Map::Map(std::string name) {
 	m_name = name;
-	oe::Debug::printTimer("World loading started");
+	oe::Logger::info("World loading started");
 	oe::Debug::startTimer();
 
 	std::string strcommand("mkdir \"" + saveLocation() + "\"" + " >nul 2>&1");
@@ -279,18 +279,19 @@ int Map::getObjectTexture(unsigned int x, unsigned int y) {
 	return Database::objects[thistile->m_object].texture;
 }
 
-void Map::submitToRenderer(oe::Renderer *renderer) {
+void Map::submitToRenderer(oe::Renderer *renderer, float offX, float offY) {
 	//Map rendering
 	for (int x = -RENDER_HORIZONTAL; x < RENDER_HORIZONTAL; x++)
 	{
 		for (int y = -RENDER_VERTICAL; y < RENDER_VERTICAL; y++)
 		{
-			Database::Tile tile = Database::tiles[getTile(x + Game::getPlayer()->getX(), y + Game::getPlayer()->getY())->m_tile];
-			Database::Object object = Database::objects[getTile(x + Game::getPlayer()->getX(), y + Game::getPlayer()->getY())->m_object];
-			float rx = (x - (Game::getPlayer()->getX() - floor(Game::getPlayer()->getX()))) * TILE_SIZE;
-			float ry = (y - (Game::getPlayer()->getY() - floor(Game::getPlayer()->getY()))) * TILE_SIZE;
-			renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE, TILE_SIZE), tile.texture, glm::vec4(1.0));
-			renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE, TILE_SIZE), getObjectTexture(x + Game::getPlayer()->getX(), y + Game::getPlayer()->getY()), glm::vec4(object.color, 1.0));
+			MapTile *tile = getTile(x + Game::getPlayer()->getX(), y + Game::getPlayer()->getY());
+			Database::Tile db_tile = Database::tiles[tile->m_tile];
+			Database::Object db_object = Database::objects[tile->m_object];
+			float rx = (float(x) + floor(Game::getPlayer()->getX()) + offX) * TILE_SIZE;
+			float ry = (float(y) + floor(Game::getPlayer()->getY()) + offY) * TILE_SIZE;
+			renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE, TILE_SIZE), db_tile.texture, glm::vec4(1.0));
+			renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE, TILE_SIZE), getObjectTexture(x + Game::getPlayer()->getX(), y + Game::getPlayer()->getY()), glm::vec4(db_object.color, 1.0));
 		
 		}
 	}
@@ -325,9 +326,7 @@ void Map::debugCeilCreatures() {
 }
 
 void Map::addCreature(float x, float y, int id, bool item) {
-	oe::Logger::info(x, y);
 	m_creatures.push_back(std::unique_ptr<Creature>(new Creature(x, y, id, item)));
-	oe::Logger::info(m_creatures[m_creatures.size()-1]->getX(), m_creatures[m_creatures.size() - 1]->getY());
 }
 
 void Map::removeCreature(int i) {
@@ -362,6 +361,23 @@ Map::MapTile *Map::getTile(unsigned int x, unsigned int y) {
 	y = oe::clamp(y, unsigned int(0), unsigned int(MAP_SIZE - 1));
 
 	return m_tiles[x][y].get();
+}
+
+int Map::trySetObject(unsigned int x, unsigned int y, short id) {
+	MapTile* tile = getTile(x, y);
+	if (tile->m_object != 0) return -1;
+	if (tile->m_tile == 1) return -2;
+
+	tile->m_object = id;
+	return 0;
+}
+
+int Map::trySetObject(MapTile *tile, short id) {
+	if (tile->m_object != 0) return -1;
+	if (tile->m_tile == 1) return -2;
+
+	tile->m_object = id;
+	return 0;
 }
 
 void Map::findAllCreatures(float _x, float _y, std::vector<Creature*> &_array, float _radius) {

@@ -10,7 +10,6 @@
 #define COUNT_CREATURES 3
 #define COUNT_BIOMES	6
 
-
 #define MAP_FREQ		0.05f
 #define MAP_BIOME_FREQ	MAP_FREQ / 4.0f
 #define MAP_PLANT1_FREQ	0.1f
@@ -287,9 +286,9 @@ public:
 
 		//Items
 		items[0] = { "Empty", 0, 0, 0 };
-		items[1] = { "Stone", 1, 17, 0 };
+		items[1] = { "Stone", 1, 17, 5 };
 		items[2] = { "Plant fiber", 2, 18, 0 };
-		items[3] = { "Log", 3, 16, 0 };
+		items[3] = { "Log", 3, 16, 4 };
 
 		//Tiles
 		tiles[0] = { "Soil", 0, 0 };

@@ -52,39 +52,83 @@ void Inventory::save() {
 }
 
 void Inventory::render(oe::Renderer *m_renderer) {
-	//if (selectedSlot <= -1) selectedSlot = 4;
-	//if (selectedSlot >= 5) selectedSlot = 0;
-	//
-	//selectedId = m_itemIds[int(selectedSlot)][0];
-	//
-	////m_renderer->renderText(-1, 0, 0.2, 0.2, "213 3180 ajwpin", glm::vec3(1.0f, 1.0f, 1.0f), TEXT_ALIGN_BOTTOM, TEXT_ALIGN_RIGHT);
-	//for (int x = 0; x < INVENTORY_WIDTH; x++)
-	//{
-	//	if (x == int(selectedSlot)) {
-	//		m_renderer->renderBox((x - ((INVENTORY_WIDTH+0.2) / 2.0)) * INVENTORY_SCALE, -1.0, INVENTORY_SCALE*1.2, INVENTORY_SCALE*1.2, 0, 80, glm::vec4(1.0, 1.0, 1.0, 1.0));
-	//		if (m_itemIds[x][0] != 0) m_renderer->renderBox((x - ((INVENTORY_WIDTH + 0.2) / 2.0)) * INVENTORY_SCALE, -1.0, INVENTORY_SCALE*1.2, INVENTORY_SCALE*1.2, 0, Database::items[m_itemIds[x][0]].texture, glm::vec4(1.0, 1.0, 1.0, 1.0));
-	//	} else if (x > int(selectedSlot)) {
-	//		m_renderer->renderBox((x - ((INVENTORY_WIDTH + 0.2) / 2.0) + 0.2) * INVENTORY_SCALE, -1.0, INVENTORY_SCALE, INVENTORY_SCALE, 0, 80, glm::vec4(1.0, 1.0, 1.0, 1.0));
-	//		if (m_itemIds[x][0] != 0) {
-	//			m_renderer->renderBox((x - ((INVENTORY_WIDTH + 0.2) / 2.0) + 0.2) * INVENTORY_SCALE, -1.0, INVENTORY_SCALE, INVENTORY_SCALE, 0, Database::items[m_itemIds[x][0]].texture, glm::vec4(1.0, 1.0, 1.0, 1.0));
-	//		}
-	//	}
-	//	else {
-	//		m_renderer->renderBox((x - ((INVENTORY_WIDTH + 0.2) / 2.0)) * INVENTORY_SCALE, -1.0, INVENTORY_SCALE, INVENTORY_SCALE, 0, 80, glm::vec4(1.0, 1.0, 1.0, 1.0));
-	//		if (m_itemIds[x][0] != 0) m_renderer->renderBox((x - ((INVENTORY_WIDTH + 0.2) / 2.0)) * INVENTORY_SCALE, -1.0, INVENTORY_SCALE, INVENTORY_SCALE, 0, Database::items[m_itemIds[x][0]].texture, glm::vec4(1.0, 1.0, 1.0, 1.0));
-	//	}
-	//}
-	//
-	//if (visible) {
-	//	for (int y = 0; y < INVENTORY_HEIGHT; y++)
-	//	{
-	//		for (int x = 0; x < INVENTORY_WIDTH; x++)
-	//		{
-	//			m_renderer->renderBox((x - (INVENTORY_WIDTH / 2.0)) * INVENTORY_SCALE, (y - (INVENTORY_HEIGHT / 2.0)) * INVENTORY_SCALE, INVENTORY_SCALE, INVENTORY_SCALE, 0, 80, glm::vec4(1.0, 1.0, 1.0, 1.0));
-	//			if (m_itemIds[x][y+1] != 0) m_renderer->renderBox((x - ((INVENTORY_WIDTH + 0.2) / 2.0)) * INVENTORY_SCALE, (y - (INVENTORY_HEIGHT / 2.0)) * INVENTORY_SCALE, INVENTORY_SCALE, INVENTORY_SCALE, 0, Database::items[m_itemIds[x][y + 1]].texture, glm::vec4(1.0, 1.0, 1.0, 1.0));
-	//		}
-	//	}
-	//}
+#if 1
+	if (selectedSlot <= -1) selectedSlot = 4;
+	if (selectedSlot >= 5) selectedSlot = 0;
+	
+	selectedId = m_itemIds[int(selectedSlot)][0];
+	
+	for (int x = 0; x < INVENTORY_WIDTH; x++)
+	{
+		if (x == int(selectedSlot)) {
+			//Selected slot
+			m_renderer->renderPoint(
+				glm::vec2((x - ((INVENTORY_WIDTH+0.2) / 2.0)) * INVENTORY_SCALE, -1.0), 
+				glm::vec2(INVENTORY_SCALE*1.2, INVENTORY_SCALE*1.2), 
+				80, 
+				glm::vec4(1.0, 1.0, 1.0, 1.0)
+			);
+			
+			//Selected item
+			if (m_itemIds[x][0] != 0) {
+				m_renderer->renderPoint(
+					glm::vec2((x - ((INVENTORY_WIDTH + 0.2) / 2.0)) * INVENTORY_SCALE, -1.0),
+					glm::vec2(INVENTORY_SCALE*1.2, INVENTORY_SCALE*1.2),
+					Database::items[m_itemIds[x][0]].texture,
+					glm::vec4(1.0, 1.0, 1.0, 1.0)
+				);
+			}
+		} else if (x > int(selectedSlot)) {
+			//Slot
+			m_renderer->renderPoint(
+				glm::vec2((x - ((INVENTORY_WIDTH + 0.2) / 2.0) + 0.2) * INVENTORY_SCALE, -1.0), 
+				glm::vec2(INVENTORY_SCALE, INVENTORY_SCALE), 
+				80, 
+				glm::vec4(1.0, 1.0, 1.0, 1.0)
+			);
+			
+			//Item
+			if (m_itemIds[x][0] != 0) {
+				m_renderer->renderPoint(
+					glm::vec2((x - ((INVENTORY_WIDTH + 0.2) / 2.0) + 0.2) * INVENTORY_SCALE, -1.0), 
+					glm::vec2(INVENTORY_SCALE, INVENTORY_SCALE), 
+					Database::items[m_itemIds[x][0]].texture, 
+					glm::vec4(1.0, 1.0, 1.0, 1.0)
+				);
+			}
+		}
+		else {
+			//Slot
+			m_renderer->renderPoint(
+				glm::vec2((x - ((INVENTORY_WIDTH + 0.2) / 2.0)) * INVENTORY_SCALE, -1.0),
+				glm::vec2(INVENTORY_SCALE, INVENTORY_SCALE),
+				80,
+				glm::vec4(1.0, 1.0, 1.0, 1.0)
+			);
+
+			//Item
+			if (m_itemIds[x][0] != 0) {
+				m_renderer->renderPoint(
+					glm::vec2((x - ((INVENTORY_WIDTH + 0.2) / 2.0)) * INVENTORY_SCALE, -1.0), 
+					glm::vec2(INVENTORY_SCALE, INVENTORY_SCALE), 
+					Database::items[m_itemIds[x][0]].texture, 
+					glm::vec4(1.0, 1.0, 1.0, 1.0)
+				);
+			}
+		}
+	}
+	
+	if (visible) {
+		for (int y = 0; y < INVENTORY_HEIGHT; y++)
+		{
+			for (int x = 0; x < INVENTORY_WIDTH; x++)
+			{
+				m_renderer->renderPoint(glm::vec2((x - (INVENTORY_WIDTH / 2.0)) * INVENTORY_SCALE, (y - (INVENTORY_HEIGHT / 2.0)) * INVENTORY_SCALE), glm::vec2(INVENTORY_SCALE, INVENTORY_SCALE), 80, glm::vec4(1.0, 1.0, 1.0, 1.0));
+				if (m_itemIds[x][y+1] != 0) m_renderer->renderPoint(glm::vec2((x - ((INVENTORY_WIDTH + 0.2) / 2.0)) * INVENTORY_SCALE, (y - (INVENTORY_HEIGHT / 2.0)) * INVENTORY_SCALE), glm::vec2(INVENTORY_SCALE, INVENTORY_SCALE), Database::items[m_itemIds[x][y + 1]].texture, glm::vec4(1.0, 1.0, 1.0, 1.0));
+			}
+		}
+	}
+#endif
 }
 
 void Inventory::update() {
@@ -102,9 +146,7 @@ void Inventory::clear() {
 }
 
 void Inventory::removeSelected() {
-	if (!this) return;
-
-	m_itemIds[int(selectedId)][0] = 0;
+	m_itemIds[int(selectedSlot)][0] = 0;
 }
 
 bool Inventory::addItem(int id) {

@@ -2,22 +2,9 @@
 
 #include "gui.h"
 #include "game.h"
+#include "../creatures/player.h"
 
 Gui::Gui(float maxHealth, float maxStamina, float healthGainRate, float staminaGainRate) {
-	m_maxHealth = maxHealth;
-	m_maxStamina = maxStamina;
-	m_healthGainRate = healthGainRate;
-	m_staminaGainRate = staminaGainRate;
-
-	m_currentFrame = 0;
-	m_currentUpdate = 0;
-	m_staminaRegenCooldown = 0;
-	m_healthRegenCooldown = 0;
-	m_selectedButton = 0;
-
-	resetHealth();
-	resetStamina();
-
 	for (int i = 0; i < GUI_FRAME_LOGGER_SIZE; i++) {
 		m_frame_logger[i] = 0;
 	}
@@ -26,17 +13,21 @@ Gui::Gui(float maxHealth, float maxStamina, float healthGainRate, float staminaG
 void Gui::renderBlur(oe::Renderer *renderer) {
 	glm::vec2 pos = glm::vec2(Game::getWindow()->getAspect() - 0.6, -0.9);
 	glm::vec2 size = glm::vec2(0.5, 0.05);
-	renderer->renderBox(pos, size, 24, M_COLOR_BLACK);
+	renderer->renderPoint(pos, size, 24, M_COLOR_BLACK);
+	//->renderBox(pos, size, 24, M_COLOR_BLACK);
 	pos = glm::vec2(Game::getWindow()->getAspect() - 0.595, -0.895);
-	size = glm::vec2(0.49 * (m_playerHealth / m_maxHealth), 0.04);
-	renderer->renderBox(pos, size, 24, M_COLOR_HEALTH_BAR);
+	size = glm::vec2(0.49 * (Game::getPlayer()->getHealth() / Game::getPlayer()->getMaxHealth()), 0.04);
+	renderer->renderPoint(pos, size, 24, M_COLOR_HEALTH_BAR);
+	//renderer->renderBox(pos, size, 24, M_COLOR_HEALTH_BAR);
 
 	pos = glm::vec2(Game::getWindow()->getAspect() - 0.6, -0.84);
 	size = glm::vec2(0.5, 0.05);
-	renderer->renderBox(pos, size, 24, M_COLOR_BLACK);
+	renderer->renderPoint(pos, size, 24, M_COLOR_BLACK);
+	//renderer->renderBox(pos, size, 24, M_COLOR_BLACK);
 	pos = glm::vec2(Game::getWindow()->getAspect() - 0.595, -0.835);
-	size = glm::vec2(0.49 * (m_playerStamina / m_maxStamina), 0.04);
-	renderer->renderBox(pos, size, 24, M_COLOR_STAMINA_BAR);	
+	size = glm::vec2(0.49 * (Game::getPlayer()->getStamina() / Game::getPlayer()->getMaxStamina()), 0.04);
+	renderer->renderPoint(pos, size, 24, M_COLOR_STAMINA_BAR);
+	//renderer->renderBox(pos, size, 24, M_COLOR_STAMINA_BAR);
 }
 
 void Gui::renderNoBlur(oe::Renderer *renderer) {
@@ -102,22 +93,7 @@ void Gui::renderNoBlur(oe::Renderer *renderer) {
 	}
 }
 
-void Gui::clampHPAndSTA() {
-
-	if (m_playerHealth > m_maxHealth) m_playerHealth = m_maxHealth;
-	if (m_playerHealth < 0) m_playerHealth = 0;
-	if (m_playerStamina > m_maxStamina) m_playerStamina = m_maxStamina;
-	if (m_playerStamina < 0) m_playerStamina = 0;
-}
-
 void Gui::update() {
-	if (m_staminaRegenCooldown > 200) m_playerStamina += m_staminaGainRate;
-	else m_staminaRegenCooldown++;
-
-	if (m_healthRegenCooldown > 200) m_playerHealth += m_healthGainRate;
-	else m_healthRegenCooldown++;
-	clampHPAndSTA();
-
 	if (Game::advancedDebugMode) {
 		m_currentUpdate++;
 		if (m_currentUpdate >= GUI_UPDATE_LOGGER_SIZE) m_currentUpdate = 0;

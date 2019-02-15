@@ -27,7 +27,7 @@ namespace oe {
 	void(*Window::mButtonCallback)(int, int);
 	void(*Window::m_scroll_callback)(double);
 
-	Window::Window(unsigned int width, unsigned int height, std::string title, bool fullscreen, unsigned int multisample)
+	Window::Window(unsigned int width, unsigned int height, std::string title, bool fullscreen, unsigned int multisample, bool resizeable)
 	{
 		mWidth = width; mHeight = height; mTitle = title; mAspect = width / (float)height;
 		m_fullscreen = fullscreen; m_multisample = multisample;
@@ -37,7 +37,7 @@ namespace oe {
 		for (int i = 0; i < M_NUM_KEYS; i++) mSingleKeys[i] = false;
 		for (int i = 0; i < M_NUM_BUTTONS; i++) mSingleButtons[i] = false;
 
-		if (!mInit()) {
+		if (!mInit(resizeable)) {
 			glfwTerminate();
 			system("pause");
 			exit(EXIT_FAILURE);
@@ -48,13 +48,13 @@ namespace oe {
 		glfwTerminate();
 	}
 
-	bool Window::mInit() {
+	bool Window::mInit(bool resizeable) {
 		if (!glfwInit()) {
 			oe::Logger::error("Failed to initialize GLFW!");
 			return false;
 		}
 		if (m_multisample != 0) glfwWindowHint(GLFW_SAMPLES, m_multisample);
-		glfwWindowHint(GLFW_RESIZABLE, 0);
+		glfwWindowHint(GLFW_RESIZABLE, resizeable);
 
 		if (m_fullscreen)
 			mWindow = glfwCreateWindow(mWidth, mHeight, mTitle.c_str(), glfwGetPrimaryMonitor(), NULL);
@@ -81,6 +81,7 @@ namespace oe {
 		GLFWimage icon; icon.height = height; icon.width = width; icon.pixels = data;
 		glfwSetWindowIcon(mWindow, 1, &icon);
 
+		glfwSetFramebufferSizeCallback(mWindow, glfwSetWindowAspectRatio);
 		glfwSetCursorPosCallback(mWindow, cursor_position_callback);
 		glfwSetMouseButtonCallback(mWindow, mouse_button_callback);
 		glfwSetKeyCallback(mWindow, key_callback);
@@ -107,6 +108,13 @@ namespace oe {
 
 	void Window::setSwapInterval(unsigned int interval) {
 		glfwSwapInterval(interval);
+	}
+
+	void Window::framebuffer_size_callback(GLFWwindow *window, int numer, int denom) {
+		int height, width;
+		glfwGetFramebufferSize(window, &width, &height);
+		glViewport(0, 0, width, height);
+		oe::Logger::info("resized");
 	}
 
 	void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)

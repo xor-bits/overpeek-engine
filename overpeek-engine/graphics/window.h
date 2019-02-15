@@ -30,17 +30,18 @@ namespace oe {
 		static void(*m_scroll_callback)(double);
 
 		//Functions
-		bool mInit();
+		bool mInit(bool resizeable);
 		static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 		static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 		static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 		static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+		static void framebuffer_size_callback(GLFWwindow *window, int numer, int denom);
 	public:
 		//Variables
 
 		
 		//Functions
-		Window(unsigned int width, unsigned int height, std::string title, bool fullscreen, unsigned int multisample);
+		Window(unsigned int width, unsigned int height, std::string title, bool fullscreen, unsigned int multisample, bool resizeable);
 		~Window();
 
 		static void checkErrors();

@@ -57,7 +57,7 @@ class Map {
 		void save();
 		void hit(unsigned int x, unsigned int y, short dmg);
 		int getObjectTexture(unsigned int x, unsigned int y);
-		void submitToRenderer(oe::Renderer *renderer);
+		void submitToRenderer(oe::Renderer *renderer, float offX, float offY);
 		void debugCeilCreatures();
 		void update();
 
@@ -66,6 +66,8 @@ class Map {
 		void removeCreature(Creature *creature);
 
 		MapTile *getTile(unsigned int x, unsigned int y);
+		int trySetObject(unsigned int x, unsigned int y, short id);
+		int trySetObject(MapTile *tile, short id);
 
 		void findAllCreatures(float x, float y, std::vector<Creature*> &_array, float radius);
 
