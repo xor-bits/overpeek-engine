@@ -56,15 +56,16 @@ bool Map::loadMap() {
 	
 	//Load tiles
 #pragma omp parallel for
-	for (int y = 0; y < MAP_SIZE; y++)
+	for (int x = 0; x < MAP_SIZE; x++)
 	{
 		std::vector<std::unique_ptr<MapTile>> tmp;
-		for (int x = 0; x < MAP_SIZE; x++)
+		for (int y = 0; y < MAP_SIZE; y++)
 		{
 			tmp.push_back(std::move(std::unique_ptr<MapTile>(new MapTile(
 				tileData[(x + y * MAP_SIZE) * 3 + 0], 
 				tileData[(x + y * MAP_SIZE) * 3 + 1],
-				tileData[(x + y * MAP_SIZE) * 3 + 2]))));
+				tileData[(x + y * MAP_SIZE) * 3 + 2]
+			))));
 		}
 		m_tiles.push_back(std::move(tmp));
 	}
@@ -77,6 +78,7 @@ bool Map::loadMap() {
 	//Load creatures
 	unsigned long creature_data_size;
 	CreatureSaveData *creature_data = (CreatureSaveData*)oe::BinaryIO::read<CreatureSaveData>(saveLocation() + "creature.data", creature_data_size);
+	creature_data_size /= sizeof(CreatureSaveData);
 	for (int i = 0; i < creature_data_size; i++)
 	{
 		addCreature(

@@ -6,6 +6,7 @@
 #define HEADING_LEFT 3
 #define HEADING_RIGHT 1
 
+class Pathfinder;
 class Creature {
 protected:
 	//Variables
@@ -32,9 +33,17 @@ protected:
 	int m_staminaRegenCooldown;
 	int m_healthRegenCooldown;
 
+	Pathfinder *m_path = nullptr;
+	std::vector<glm::vec2> *m_retrace;
+	unsigned int m_retrace_checkpoint;
+	glm::ivec2 last_target_pos;
+	int m_result;
+	int m_stuck_timer;
+
 	//Private functions
 	void enemyAi();
 	void clampHPAndSTA();
+	void followTarget();
 
 public:
 	bool m_item;

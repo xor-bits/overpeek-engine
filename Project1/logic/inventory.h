@@ -11,6 +11,7 @@ private:
 	oe::Shader *m_shader;
 	oe::Window *m_window;
 	int m_itemIds[INVENTORY_WIDTH][INVENTORY_HEIGHT + 1];
+	int m_itemCounts[INVENTORY_WIDTH][INVENTORY_HEIGHT + 1];
 
 public:
 	int selectedId;
@@ -26,7 +27,7 @@ public:
 	void render(oe::Renderer *m_renderer);
 	void update();
 	void clear();
-	void removeSelected();
-	bool addItem(int id);
+	void removeSelected(int n);
+	bool addItem(int id, int n);
 
 };

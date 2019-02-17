@@ -339,7 +339,7 @@ void Game::keyPress(int key, int action) {
 	if (key == GLFW_KEY_F5) { m_inventory->clear(); return; }
 	
 	//Add creature at player
-	if (key == GLFW_KEY_F6) { m_map->addCreature(m_player->getX(), m_player->getY(), 1, false); return; }
+	if (key == GLFW_KEY_F6) { m_map->addCreature(m_player->getX(), m_player->getY() + 5, 1, false); return; }
 }
 
 void Game::buttonPress(int button, int action) {}

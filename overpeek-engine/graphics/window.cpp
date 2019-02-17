@@ -1,7 +1,10 @@
 #include "window.h"
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include <GL/GLU.h>
 #include <Windows.h>
 #include <string>
+#include <iostream>
 
 #include "stb_image.h"
 #include "../utility/logger.h"

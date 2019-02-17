@@ -1,8 +1,6 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include "window.h"
 
 namespace oe {
 
@@ -11,19 +9,19 @@ namespace oe {
 		glm::mat4 mProjectionMatrix;
 		glm::mat4 mViewMatrix;
 		glm::vec3 mPos;
-		GLfloat mPitch;
-		GLfloat mYaw;
-		GLuint mFov;
-		GLfloat mAspect;
+		float mPitch;
+		float mYaw;
+		unsigned int mFov;
+		float mAspect;
 
 	public:
-		Camera(glm::vec3 pos, GLfloat pitch, GLfloat yaw, GLuint fov, GLfloat aspect);
+		Camera(glm::vec3 pos, float pitch, float yaw, unsigned int fov, float aspect);
 
 		void updateCamera();
 
 		void setPosition(glm::vec3 pos) { mPos = pos; updateCamera(); }
-		void setRotation(GLfloat yaw, GLfloat pitch) { mPitch = pitch; mYaw = yaw; updateCamera(); }
-		void setProjection(GLuint fov, GLfloat aspect);
+		void setRotation(float yaw, float pitch) { mPitch = pitch; mYaw = yaw; updateCamera(); }
+		void setProjection(unsigned int fov, float aspect);
 		
 		inline glm::mat4 getViewMatrix() { return mViewMatrix; }
 		inline glm::mat4 getProjectionMatrix() { return mProjectionMatrix; }

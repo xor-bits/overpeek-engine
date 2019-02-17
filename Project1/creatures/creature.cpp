@@ -8,6 +8,7 @@
 #include "../logic/database.h"
 #include "../logic/game.h"
 #include "../logic/inventory.h"
+#include "../logic/aStar.h"
 #include "../settings.h"
 #include "player.h"
 
@@ -34,7 +35,6 @@ Creature::Creature(float _x, float _y, int _id, bool _item) {
 
 	resetHealth();
 	resetStamina();
-	oe::Logger(Database::items[m_id].name);
 }
 
 Creature::Creature() {
@@ -110,6 +110,8 @@ void Creature::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, flo
 		renderer->renderPoint(pos, size, Database::items[m_id].texture, glm::vec4(1.0));
 	}
 
+	if (m_path && m_result != 0) m_path->debugRender(renderer, renderOffsetX, renderOffsetY);
+
 }
 
 void Creature::clampHPAndSTA() {
@@ -151,7 +153,7 @@ void Creature::update(int index) {
 	else {
 		float distanceToPlayer = abs(getX() - Game::getPlayer()->getX()) + abs(getY() - Game::getPlayer()->getY());
 		if (distanceToPlayer < 0.8) {
-			if (Game::getPlayer()->inventory->addItem(m_id)) {
+			if (Game::getPlayer()->inventory->addItem(m_id, 1)) {
 				///REMOVE THIS CREATURE
 				#if !STORE_MAP_IN_RAM
 				Game::getRegion(getX(), getY())->removeCreature(m_regionIndex, true);
@@ -332,8 +334,9 @@ void Creature::collide() {
 					#endif
 				}
 
-				if (top != bottom) addY(y_to_move);
-				if (left != right) addX(x_to_move);
+				if (top != bottom) { addY(y_to_move); vel_y = 0; }
+				if (left != right) { addX(x_to_move); vel_x = 0;
+				}
 			}
 		}
 	}
@@ -355,6 +358,7 @@ bool lineLine(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec2 d)
 }
 
 bool Creature::canSee(float _x, float _y) {
+	if (Game::advancedDebugMode) return false;
 	//LineABXY from this enemy to x,y
 
 	//for all tiles
@@ -412,44 +416,112 @@ bool Creature::canSee(float _x, float _y) {
 	return true;
 }
 
+int sign(float n) {
+	if (n > 0) return 1;
+	return -1;
+}
+
 void Creature::enemyAi() {
 	m_untilnexttarget--;
 	m_wait--;
 
+	//oe::Logger::info(m_untilnexttarget, m_wait);
 	if (m_chasing) {
 		glm::vec2 dirToPlayer = glm::normalize(glm::vec2(Game::getPlayer()->getX() - getX(), Game::getPlayer()->getY() - getY()));
-		m_curtarget_x = dirToPlayer.x / 50.0;
-		m_curtarget_y = dirToPlayer.y / 50.0;
+		vel_x = dirToPlayer.x / 50.0;
+		vel_y = dirToPlayer.y / 50.0;
 	}
 	if (m_untilnexttarget < 0) {
-		m_wait = 100;
-		m_untilnexttarget = 200;
+		m_wait = 500;
+		m_untilnexttarget = 2000;
 
-		//Check if can see player
+
 		if (canSee(Game::getPlayer()->getX(), Game::getPlayer()->getY())) {
 			m_chasing = true;
+			return;
 		}
-		else {
-			m_chasing = false;
-			float direction = oe::Random::random(0, glm::two_pi<float>());
-			m_curtarget_x = cos(direction) / 100.0;
-			m_curtarget_y = sin(direction) / 100.0;
-		}
+		else m_chasing = false;
+
+
+		m_curtarget_x = oe::Random::random(-16, 16);
+		m_curtarget_y = oe::Random::random(-16, 16);
+
+		m_path = new Pathfinder(getX(), getY(), getX() + m_curtarget_x, getY() + m_curtarget_y, 10);
+		m_result = 0;
 	}
 	if (m_wait < 0) {
-		m_untilnexttarget = oe::Random::random(10, 500);
-		m_wait = 1000;
+		m_untilnexttarget = oe::Random::random(50, 200);
+		m_wait = 4000;
+
 
 		if (canSee(Game::getPlayer()->getX(), Game::getPlayer()->getY())) {
 			m_chasing = true;
+			return;
 		}
-		else {
-			m_chasing = false;
-			m_curtarget_x = 0;
-			m_curtarget_y = 0;
+		else m_chasing = false;
+
+
+		m_result = 0;
+		m_chasing = false;
+		delete m_path;
+		m_path = nullptr;
+	}
+
+	if (m_path && !m_chasing) followTarget();
+}
+
+void Creature::followTarget() {
+	if (m_result == 0) {
+		m_result = m_path->runNSteps(1);
+		//oe::Logger::critical(m_result);
+		m_wait = 2000;
+		m_untilnexttarget = 10000;
+		if (m_result != 0) {
+			m_retrace = m_path->retrace();
+			m_retrace_checkpoint = 0;
 		}
 	}
 
-	x += m_curtarget_x;
-	y += m_curtarget_y;
+	if (m_result != 0) {
+
+		if (m_retrace->size() <= 0) {
+			delete m_path;
+			m_path = nullptr;
+			return;
+		}
+
+		//oe::Logger::info((abs(vel_x) + abs(vel_y)));
+		if (abs(vel_x) + abs(vel_y) < 0.03) {
+			m_stuck_timer++;
+
+			if (m_stuck_timer > 100) {
+				m_stuck_timer = 0;
+				m_untilnexttarget = oe::Random::random(50, 200);
+				m_wait = 4000;
+				delete m_path;
+				m_path = nullptr;
+				return;
+			}
+		}
+
+		int arr = m_retrace->size() - 1 - m_retrace_checkpoint;
+		float mov_x = (m_retrace->at(arr).x - getX() + 0.5);
+		float mov_y = (m_retrace->at(arr).y - getY() + 0.5);
+
+		if (mov_x < 0.2 && mov_x > -0.2 && mov_y < 0.2 && mov_y > -0.2) {
+			m_retrace_checkpoint++;
+			if (m_retrace_checkpoint >= m_retrace->size()) {
+				m_untilnexttarget = oe::Random::random(50, 200);
+				m_wait = 4000;
+				vel_x = 0;
+				vel_y = 0;
+				delete m_path;
+				m_path = nullptr;
+				return;
+			}
+		}
+
+		vel_x = sign(mov_x) / 35.0f;
+		vel_y = sign(mov_y) / 35.0f;
+	}
 }

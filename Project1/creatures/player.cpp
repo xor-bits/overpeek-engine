@@ -23,7 +23,7 @@ void Player::update() {
 }
 
 void Player::collide() {
-	Creature::collide();
+	if (!Game::advancedDebugMode) Creature::collide();
 }
 
 void Player::hit() {
@@ -31,7 +31,7 @@ void Player::hit() {
 		place();
 	}
 	else {
-		Creature::hit();
+		for (int i = 0; i < 20; i++) Creature::hit();
 	}
 }
 
@@ -81,7 +81,7 @@ void Player::place() {
 
 	if (tmp) {
 		if (!Game::getMap()->trySetObject(tmp, Database::items[inventory->selectedId].placedAs)) {
-			inventory->removeSelected();
+			inventory->removeSelected(1);
 			oe::AudioManager::play(1);
 		}
 	}

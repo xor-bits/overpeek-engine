@@ -1,8 +1,10 @@
 #include "camera.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 namespace oe {
 
-	Camera::Camera(glm::vec3 pos, GLfloat pitch, GLfloat yaw, GLuint fov, GLfloat aspect) {
+	Camera::Camera(glm::vec3 pos, float pitch, float yaw, unsigned int fov, float aspect) {
 		mPos = pos; mPitch = pitch; mYaw = yaw; mFov = fov; mAspect = aspect;
 
 		setProjection(mFov, mAspect);
@@ -19,7 +21,7 @@ namespace oe {
 		mViewMatrix = rotation * translation;
 	}
 
-	void Camera::setProjection(GLuint fov, GLfloat aspect) {
+	void Camera::setProjection(unsigned int fov, float aspect) {
 		mFov = fov; mAspect = aspect;
 		mProjectionMatrix = glm::perspective(glm::radians(static_cast<float>(mFov)), mAspect, 0.1f, 100.0f);
 	}

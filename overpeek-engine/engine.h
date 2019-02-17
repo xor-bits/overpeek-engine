@@ -6,6 +6,9 @@
 
 #include <iostream>
 #include <omp.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "audio/audioManager.h"
 

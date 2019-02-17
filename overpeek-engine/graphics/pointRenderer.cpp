@@ -40,6 +40,9 @@ namespace oe {
 	}
 
 	void PointRenderer::renderPoint(glm::vec2 pos, glm::vec2 size, int id, glm::vec4 color) {
+
+		//if (pointcount > MAX_POINTS_PER_FLUSH) return;
+
 		m_buffer[m_buffer_current].position = pos;
 		m_buffer[m_buffer_current].size = size;
 		m_buffer[m_buffer_current].texture = id;

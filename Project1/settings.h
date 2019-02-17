@@ -13,10 +13,10 @@
 
 
 #define DEBUG_ZOOM				1.0f
-#define DEBUG_MODE				true
-#define ENABLE_AUDIO			false
+#define DEBUG_MODE				false
+#define ENABLE_AUDIO			true
 #define SHOW_DEBUG_MESSAGES		false
-#define DEBUG_DISABLE_SAVING	true
+#define DEBUG_DISABLE_SAVING	false
 #define STORE_MAP_IN_RAM		true
 
 #define M_WINDOW_HEIGHT			720

@@ -29,13 +29,16 @@ public:
 		unsigned int id = 0;
 		unsigned int texture = 0;
 
+		unsigned int stack_size = 0;
+
 		unsigned int placedAs;
 
 		Item() {}
-		Item(std::string _name, unsigned int _id, unsigned int _texture, unsigned int _placedAs) {
+		Item(std::string _name, unsigned int _id, unsigned int _texture, unsigned int _stack, unsigned int _placedAs) {
 			name = _name;
 			id = _id;
 			texture = _texture;
+			stack_size = _stack;
 			placedAs = _placedAs;
 		}
 	} items[COUNT_ITEMS];
@@ -299,11 +302,11 @@ public:
 
 	static void init() {
 
-		//Items			//Name			//Id	//Texture	//Placed as
-		items[0] = Item("Empty",		0,		9,			0);
-		items[1] = Item("Stone",		1,		17,			5);
-		items[2] = Item("Plant fiber",	2,		18,			0);
-		items[3] = Item("Log",			3,		16,			4);
+		//Items			//Name			//Id	//Texture	//Stack size	//Placed as
+		items[0] = Item("Empty",		0,		9,			99,				0);
+		items[1] = Item("Stone",		1,		17,			99,				5);
+		items[2] = Item("Plant fiber",	2,		18,			99,				0);
+		items[3] = Item("Log",			3,		16,			99,				4);
 
 		//Tiles			//Name			//Id	//Texture
 		tiles[0] = Tile("Soil",			0,		0);

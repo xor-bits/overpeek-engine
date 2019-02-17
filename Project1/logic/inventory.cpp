@@ -17,6 +17,7 @@ void Inventory::init() {
 			for (int y = 0; y < INVENTORY_HEIGHT + 1; y++)
 			{
 				m_itemIds[x][y] = 0;
+				m_itemCounts[x][y] = 0;
 			}
 		}
 	}
@@ -145,18 +146,26 @@ void Inventory::clear() {
 	}
 }
 
-void Inventory::removeSelected() {
-	m_itemIds[int(selectedSlot)][0] = 0;
+void Inventory::removeSelected(int n) {
+	m_itemCounts[int(selectedSlot)][0] -= n;
+
+	oe::Logger::info(m_itemCounts[int(selectedSlot)][0]);
+
+	if (m_itemCounts[int(selectedSlot)][0] <= 0) m_itemIds[int(selectedSlot)][0] = 0;
 }
 
-bool Inventory::addItem(int id) {
+bool Inventory::addItem(int id, int n) {
 	for (int y = 0; y < INVENTORY_HEIGHT + 1; y++)
 	{
 		for (int x = 0; x < INVENTORY_WIDTH; x++)
 		{
-			if (m_itemIds[x][y] == 0) {
+			if (m_itemIds[x][y] == 0 || m_itemIds[x][y] == id) {
 				m_itemIds[x][y] = id;
-				//oe::Logger::info(id);
+				m_itemCounts[x][y] += n;
+				if (m_itemCounts[x][y] + n >= Database::items[id].stack_size) {
+					m_itemCounts[x][y] = Database::items[id].stack_size;
+					n -= Database::items[id].stack_size - m_itemCounts[x][y];
+				}
 				return true;
 			}
 		}

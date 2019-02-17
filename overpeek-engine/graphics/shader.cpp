@@ -1,5 +1,6 @@
 #include "shader.h"
 
+#include <iostream>
 
 #include "window.h"
 #include "../utility/logger.h"
