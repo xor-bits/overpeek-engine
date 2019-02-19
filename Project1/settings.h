@@ -3,9 +3,9 @@
 
 #define VERSION_MAJOR			0
 #define VERSION_MINOR			2
-#define VERSION_BUG_FIX			0
-#define VERSION_BUILD			0
-#define VERSION_CSTR			"0.2.0.0"
+#define VERSION_BUG_FIX			1
+#define VERSION_BUILD			1
+#define VERSION_CSTR			"0.2.1.1"
 
 
 
