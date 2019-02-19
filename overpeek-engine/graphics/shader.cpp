@@ -1,6 +1,7 @@
 #include "shader.h"
 
 #include <iostream>
+#include <GL/glew.h>
 
 #include "window.h"
 #include "../utility/logger.h"
@@ -8,7 +9,7 @@
 
 namespace oe {
 
-	GLuint Shader::loadShader(GLenum shadertype, const char *path) {
+	unsigned int Shader::loadShader(unsigned int shadertype, const char *path) {
 		//Load and compile
 		oe::Logger::info(std::string("Reading shader from ") + path);
 		std::string shaderStr = oe::readFile(path);
@@ -28,7 +29,7 @@ namespace oe {
 		return shader;
 	}
 
-	void Shader::shaderLog(const char* text, GLuint shader, GLenum type) {
+	void Shader::shaderLog(const char* text, unsigned int shader, unsigned int type) {
 		int success = false;
 		char infoLog[512];
 		glGetShaderiv(shader, type, &success);
@@ -42,13 +43,13 @@ namespace oe {
 			oe::Logger::critical(text);
 			std::cout << infoLog << std::endl;
 			delete infoLog;
-			glfwTerminate();
+			Window::terminate();
 			system("pause");
 			exit(EXIT_FAILURE);
 		}
 	}
 
-	void Shader::programLog(const char* text, GLuint program, GLenum type) {
+	void Shader::programLog(const char* text, unsigned int program, unsigned int type) {
 		int success;
 		char infoLog[512];
 		glGetProgramiv(program, type, &success);
@@ -62,7 +63,7 @@ namespace oe {
 			oe::Logger::critical(text);
 			std::cout << infoLog << std::endl;
 			delete infoLog;
-			glfwTerminate();
+			Window::terminate();
 			system("pause");
 			exit(EXIT_FAILURE);
 		}
@@ -121,4 +122,23 @@ namespace oe {
 		glDeleteShader(geometryShader);
 	}
 
+
+	void Shader::enable() { glUseProgram(mShaderProgram); }
+	void Shader::disable() { glUseProgram(0); }
+	
+	int Shader::getUniformLocation(const char *name) { return glGetUniformLocation(mShaderProgram, name); }
+	
+	void Shader::setUniform1f(const char *name, float value) { glUniform1f(getUniformLocation(name), value); }
+	void Shader::setUniform2f(const char *name, glm::fvec2 &value) { glUniform2f(getUniformLocation(name), value.x, value.y); }
+	void Shader::setUniform3f(const char *name, glm::fvec3 &value) { glUniform3f(getUniformLocation(name), value.x, value.y, value.z); }
+	void Shader::setUniform4f(const char *name, glm::fvec4 &value) { glUniform4f(getUniformLocation(name), value.x, value.y, value.z, value.w); }
+	void Shader::setUniform1i(const char *name, int value) { glUniform1i(getUniformLocation(name), value); }
+	void Shader::setUniform2i(const char *name, glm::ivec2 &value) { glUniform2i(getUniformLocation(name), value.x, value.y); }
+	void Shader::setUniform3i(const char *name, glm::ivec3 &value) { glUniform3i(getUniformLocation(name), value.x, value.y, value.z); }
+	void Shader::setUniform4i(const char *name, glm::ivec4 &value) { glUniform4i(getUniformLocation(name), value.x, value.y, value.z, value.w); }
+	void Shader::setUniform1d(const char *name, double value) { glUniform1d(getUniformLocation(name), value); }
+	void Shader::setUniform2d(const char *name, glm::dvec2 &value) { glUniform2d(getUniformLocation(name), value.x, value.y); }
+	void Shader::setUniform3d(const char *name, glm::dvec3 &value) { glUniform3d(getUniformLocation(name), value.x, value.y, value.z); }
+	void Shader::setUniform4d(const char *name, glm::dvec4 &value) { glUniform4d(getUniformLocation(name), value.x, value.y, value.z, value.w); }
+	void Shader::SetUniformMat4(const char *name, glm::mat4 &value) { glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(value)); }
 }

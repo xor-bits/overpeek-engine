@@ -1,13 +1,15 @@
 #include "indexBuffer.h"
 
+#include <GL/glew.h>
+
 namespace oe {
 
-	IndexBuffer::IndexBuffer(GLushort *data, GLsizei count, GLenum usage) {
+	IndexBuffer::IndexBuffer(unsigned short int *data, int count, unsigned int usage) {
 		mCount = count;
 
 		glGenBuffers(1, &mID);
 		bind();
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * count, data, usage);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short int) * count, data, usage);
 	}
 
 	IndexBuffer::~IndexBuffer() {
@@ -22,11 +24,11 @@ namespace oe {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 
-	void IndexBuffer::setBufferData(const GLvoid *data, GLsizei count) {
+	void IndexBuffer::setBufferData(const void *data, int count) {
 		mCount = count;
 
 		bind();
-		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(GLushort) * count, data);
+		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned short int) * count, data);
 	}
 
 }

@@ -1,9 +1,7 @@
 #pragma once
 
-#include <gl/glew.h>
-#include <GLFW/glfw3.h>
-#include <string>
-#include <ostream>
+#include "../graphics/window.h"
+
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
@@ -15,7 +13,6 @@ namespace oe {
 		static bool m_initalized;
 
 	public:
-
 		template <class T>
 		Logger(T output) {
 			info(output);
@@ -35,14 +32,14 @@ namespace oe {
 			m_console->info(output);
 		}
 
-		template <class T1, class T2>
-		static void info(T1 output1, T2 output2) {
+		template <class T, class T2>
+		static void info(T output1, T2 output2) {
 			setup();
 			m_console->info(std::to_string(output1) + ", " + std::to_string(output2));
 		}
 
-		template <class T1, class T2, class T3>
-		static void info(T1 output1, T2 output2, T3 output3) {
+		template <class T, class T2, class T3>
+		static void info(T output1, T2 output2, T3 output3) {
 			setup();
 			m_console->info(std::to_string(output1) + ", " + std::to_string(output2) + ", " + std::to_string(output3));
 		}
@@ -63,9 +60,7 @@ namespace oe {
 		static void error(T output) {
 			setup();
 			m_console->error(output);
-			system("pause");
-			glfwTerminate();
-			exit(-1);
+			Window::terminate();
 		}
 
 	};

@@ -1,5 +1,9 @@
 #include "vertexArray.h"
 
+#include <GL/glew.h>
+
+#include "buffer.h"
+
 namespace oe {
 
 	VertexArray::VertexArray() {
@@ -21,7 +25,7 @@ namespace oe {
 		mBuffers.push_back(buffer);
 	}
 
-	void VertexArray::addBuffer(Buffer* buffer, GLuint index) {
+	void VertexArray::addBuffer(Buffer* buffer, unsigned int index) {
 		bind();
 		buffer->bind();
 

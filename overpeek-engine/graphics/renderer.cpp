@@ -4,13 +4,16 @@
 #include "quadRenderer.h"
 #include "pointRenderer.h"
 #include "buffers/vertexArray.h"
+#include "buffers/buffer.h"
 #include "window.h"
 #include "../utility/logger.h"
 #include "shader.h"
 
+#include <GL/glew.h>
+
 namespace oe {
 
-	Renderer::Renderer(std::string font, Window *window) {
+	Renderer::Renderer(const char *font, Window *window) {
 		m_window = window;
 		m_fontRenderer = new FontRenderer(font, new QuadRenderer(window));
 		m_quadRenderer = new QuadRenderer(window);
@@ -125,7 +128,7 @@ namespace oe {
 	}
 
 	//Submit text to renderer
-	void Renderer::renderText(glm::vec2 pos, glm::vec2 size, std::string text, glm::vec3 color, int _textOrigin) {
+	void Renderer::renderText(glm::vec2 pos, glm::vec2 size, const char *text, glm::vec3 color, int _textOrigin) {
 		if (m_quadMapped) {
 			m_quadRenderer->stopRendering();
 			m_quadMapped = false;
@@ -143,7 +146,7 @@ namespace oe {
 
 	//Draws all quads and text
 	//textbool is location of int (used as boolean) in shader that enables or disables text rendering
-	void Renderer::draw(Shader *shader, Shader * pointshader, std::string textbool, GLint texture) {
+	void Renderer::draw(Shader *shader, Shader * pointshader, const char *textbool, GLint texture) {
 		if (m_fontMapped) {
 			m_fontRenderer->stopRendering();
 			m_fontMapped = false;
@@ -158,20 +161,20 @@ namespace oe {
 		}
 
 		shader->enable();
-		shader->setUniform1f(textbool.c_str(), 0);
+		shader->setUniform1f(textbool, 0);
 		m_quadRenderer->draw(texture);
 
 		pointshader->enable();
-		pointshader->setUniform1f(textbool.c_str(), 0);
+		pointshader->setUniform1f(textbool, 0);
 		m_pointRenderer->draw(texture);
 
 		shader->enable();
-		shader->setUniform1f(textbool.c_str(), 1);
+		//shader->setUniform1f(textbool, 1);
 		m_fontRenderer->draw();
 	}
 
 	//Draws all quads and text to specified framebuffer at index
-	void Renderer::drawToFramebuffer(Shader *shader, Shader *pointshader, std::string textbool, GLint texture, bool first_framebuffer) {
+	void Renderer::drawToFramebuffer(Shader *shader, Shader *pointshader, const char *textbool, GLint texture, bool first_framebuffer) {
 		if (first_framebuffer) glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer1);
 		else glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer2);
 
@@ -184,13 +187,13 @@ namespace oe {
 	}
 
 	//Draws (first or second) framebuffer to screen
-	void Renderer::drawFramebuffer(Shader *postshader, std::string texture_sampler, bool first_framebuffer) {
+	void Renderer::drawFramebuffer(Shader *postshader, const char *texture_sampler, bool first_framebuffer) {
 		//Render quad to whole screen
 		glClear(GL_COLOR_BUFFER_BIT);
 		glDisable(GL_DEPTH_TEST);
 
 		postshader->enable();
-		postshader->setUniform1i(texture_sampler.c_str(), 0);
+		postshader->setUniform1i(texture_sampler, 0);
 		glActiveTexture(GL_TEXTURE0);
 
 		if (first_framebuffer) glBindTexture(GL_TEXTURE_2D, m_frametexture1);
@@ -204,7 +207,7 @@ namespace oe {
 	}
 
 	//Draws framebuffer to another framebuffer
-	void Renderer::drawFramebufferToFramebuffer(Shader *postshader, std::string texture_sampler, bool first_framebuffer) {
+	void Renderer::drawFramebufferToFramebuffer(Shader *postshader, const char *texture_sampler, bool first_framebuffer) {
 		if (first_framebuffer) glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer1);
 		else glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer2);
 

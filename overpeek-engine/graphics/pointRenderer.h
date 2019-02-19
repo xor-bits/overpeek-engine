@@ -1,6 +1,5 @@
 #pragma once
 
-#include <GL/glew.h>
 #include <glm/glm.hpp>
 
 ///TODO: make use of geometry shader program
@@ -18,18 +17,18 @@ namespace oe {
 		{
 			glm::vec2 position;
 			glm::vec2 size;
-			GLfloat texture;
+			float texture;
 			glm::vec4 color;
 		};
 
 		VertexArray *m_vao;
 		Buffer *m_vbo;
-		GLuint pointcount;
+		int pointcount;
 
 		Window *m_window;
 
 		PointVertexData* m_buffer;
-		GLuint m_buffer_current;
+		int m_buffer_current;
 	
 	public:
 

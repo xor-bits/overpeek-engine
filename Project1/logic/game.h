@@ -51,8 +51,6 @@ private:
 #endif
 
 	static bool justPaused;
-	
-	static void renderInfoScreen();
 
 public:
 	static bool tilesChanged;

@@ -89,7 +89,7 @@ namespace oe {
 		glfwSetMouseButtonCallback(mWindow, mouse_button_callback);
 		glfwSetKeyCallback(mWindow, key_callback);
 		glfwSetScrollCallback(mWindow, scroll_callback);
-		//glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		//glfwSetInputMode(mWindow, OE_CURSOR, OE_CURSOR_DISABLED);
 
 		if (m_multisample != 0) glEnable(GL_MULTISAMPLE);
 
@@ -211,6 +211,16 @@ namespace oe {
 
 	void Window::setScrollCallback(void(*callback)(double)) {
 		m_scroll_callback = callback;
+	}
+
+	void Window::terminate() {
+		glfwTerminate();
+		system("pause");
+		exit(1);
+	}
+
+	std::string Window::getRenderer() {
+		return std::string((char*)glGetString(GL_RENDERER));
 	}
 
 }

@@ -78,6 +78,13 @@ void Inventory::render(oe::Renderer *m_renderer) {
 					Database::items[m_itemIds[x][0]].texture,
 					glm::vec4(1.0, 1.0, 1.0, 1.0)
 				);
+				m_renderer->renderText(
+					glm::vec2((x - ((INVENTORY_WIDTH + 0.2) / 2.0) + 0.9) * INVENTORY_SCALE, -1.0 + INVENTORY_SCALE),
+					glm::vec2(INVENTORY_SCALE*1.2*0.4, INVENTORY_SCALE*1.2*0.4),
+					std::to_string(m_itemCounts[x][0]).c_str(),
+					glm::vec4(1.0, 1.0, 1.0, 1.0),
+					oe::center
+				);
 			}
 		} else if (x > int(selectedSlot)) {
 			//Slot

@@ -45,6 +45,7 @@ namespace oe {
 		void input();
 		void update();
 		void clear();
+		static void terminate();
 
 		void setButtonCallback(void(*callback)(int, int));
 		void setKeyboardCallback(void(*callback)(int, int));
@@ -59,6 +60,8 @@ namespace oe {
 		inline float getAspect() { return mAspect; }
 		inline int getHeight() { return mHeight; }
 		inline int getWidth() { return mWidth; }
+
+		std::string getRenderer();
 	};
 
 }

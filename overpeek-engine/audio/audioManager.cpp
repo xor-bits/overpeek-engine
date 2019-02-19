@@ -1,6 +1,7 @@
 #include "audioManager.h"
 
 #include "../utility/logger.h"
+#include "../graphics/window.h"
 
 #include <fstream>
 #include <string>
@@ -67,17 +68,13 @@ namespace oe {
 		if (device == NULL)
 		{
 			oe::Logger::error("Cannot open sound card!");
-			glfwTerminate();
-			system("pause");
-			exit(EXIT_FAILURE);
+			Window::terminate();
 		}
 		ALCcontext* context = alcCreateContext(device, NULL);
 		if (context == NULL)
 		{
 			oe::Logger::error("Cannot open oe context!");
-			glfwTerminate();
-			system("pause");
-			exit(EXIT_FAILURE);
+			Window::terminate();
 		}
 		alcMakeContextCurrent(context);
 		oe::Logger::info("oe device done!");
@@ -103,9 +100,7 @@ namespace oe {
 	}
 
 	void AudioManager::play(int id) {
-#if ENABLE_oe
 		oe::Logger::info("Sound");
 		alSourcePlay(sources[id]);
-#endif
 	}
 }

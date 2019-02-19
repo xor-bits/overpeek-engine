@@ -73,28 +73,28 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)\bin\$(ProjectName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\bin\$(ProjectName)\$(Configuration)\Intermediates</IntDir>
-    <IncludePath>$(SolutionDir)\Libraries\al\include;$(SolutionDir)\Libraries\opencv\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\spdlog\include;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\stb-master;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Libraries\al\include;$(SolutionDir)\Libraries\opencv\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\spdlog\include;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\stb-master;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\opencv\lib;$(SolutionDir)\Libraries\box2d\lib;$(SolutionDir)\Libraries\FreeType\lib;$(SolutionDir)\Libraries\GLFW\lib;$(SolutionDir)\Libraries\GLEW\lib;$(LibraryPath)</LibraryPath>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)\bin\$(ProjectName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\bin\$(ProjectName)\$(Configuration)\Intermediates</IntDir>
-    <IncludePath>$(SolutionDir)\Libraries\al\include;$(SolutionDir)\Libraries\opencv\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\spdlog\include;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Libraries\al\include;$(SolutionDir)\Libraries\opencv\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\spdlog\include;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\glm;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\opencv\lib;$(SolutionDir)\Libraries\box2d\lib;$(SolutionDir)\Libraries\FreeType\lib;$(SolutionDir)\Libraries\GLFW\lib;$(SolutionDir)\Libraries\GLEW\lib;$(LibraryPath)</LibraryPath>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)\bin\$(ProjectName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\bin\$(ProjectName)\$(Configuration)\Intermediates</IntDir>
-    <IncludePath>$(SolutionDir)\Libraries\al\include;$(SolutionDir)\Libraries\opencv\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\spdlog\include;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\al\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Libraries\al\include;$(SolutionDir)\Libraries\opencv\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\spdlog\include;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\glm;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\al\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\opencv\lib;$(SolutionDir)\Libraries\box2d\lib;$(SolutionDir)\Libraries\FreeType\lib;$(SolutionDir)\Libraries\GLFW\lib;$(SolutionDir)\Libraries\GLEW\lib;$(SolutionDir)\Libraries\al\lib;$(LibraryPath)</LibraryPath>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)\bin\$(ProjectName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\bin\$(ProjectName)\$(Configuration)\Intermediates</IntDir>
-    <IncludePath>$(SolutionDir)\Libraries\al\include;$(SolutionDir)\Libraries\opencv\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\spdlog\include;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\al\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Libraries\al\include;$(SolutionDir)\Libraries\opencv\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\spdlog\include;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\glm;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\al\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\opencv\lib;$(SolutionDir)\Libraries\box2d\lib;$(SolutionDir)\Libraries\FreeType\lib;$(SolutionDir)\Libraries\GLFW\lib;$(SolutionDir)\Libraries\GLEW\lib;$(SolutionDir)\Libraries\al\lib;$(LibraryPath)</LibraryPath>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
@@ -183,7 +183,6 @@
     <ClCompile Include="graphics\buffers\indexBuffer.cpp" />
     <ClCompile Include="graphics\buffers\vertexArray.cpp" />
     <ClCompile Include="graphics\buffers\buffer.cpp" />
-    <ClCompile Include="graphics\camera.cpp" />
     <ClCompile Include="graphics\fontRenderer.cpp" />
     <ClCompile Include="graphics\pointRenderer.cpp" />
     <ClCompile Include="graphics\renderer.cpp" />
@@ -212,7 +211,6 @@
     <ClInclude Include="graphics\buffers\indexBuffer.h" />
     <ClInclude Include="graphics\buffers\vertexArray.h" />
     <ClInclude Include="graphics\buffers\buffer.h" />
-    <ClInclude Include="graphics\camera.h" />
     <ClInclude Include="graphics\fontRenderer.h" />
     <ClInclude Include="graphics\pointRenderer.h" />
     <ClInclude Include="graphics\renderer.h" />

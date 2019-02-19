@@ -84,36 +84,13 @@ void Game::init() {
 	m_loop = std::unique_ptr<oe::GameLoop>(new oe::GameLoop(render, update, rapidUpdate, UPDATES_PER_SECOND, 10000));
 
 	loadGame();
-	renderer = std::string((char*)glGetString(GL_RENDERER));
+	renderer = m_window->getRenderer();
 
 	oe::Logger::info("Running update and renderloops");
 	m_loop->start();
 }
 
 void Game::rapidUpdate() {
-}
-
-void Game::renderInfoScreen() {
-	if (!debugMode) return;
-
-	float textScale = 0.05;
-	float x = -m_window->getAspect();
-
-	std::string text = "FPS: " + std::to_string(m_loop->getFPS());
-	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 0)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
-	text = "UPS: " + std::to_string(m_loop->getUPS());
-	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 1)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
-	
-	
-	if (!advancedDebugMode) return;
-	text = "Position X: " + std::to_string(m_player->getX()) + ", Y: " + std::to_string(m_player->getY());
-	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 2)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
-	text = "Tile: " + Database::tiles[m_map->getTile(m_player->getY(), m_player->getY())->m_tile].name;
-	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 3)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
-	text = "Object: " + Database::objects[m_map->getTile(m_player->getY(), m_player->getY())->m_object].name;
-	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 4)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
-	text = "Renderer: " + renderer;
-	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 5)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
 }
 
 void Game::render() {
@@ -142,7 +119,6 @@ void Game::render() {
 	}
 	
 	//Gui
-	renderInfoScreen();
 	m_gui->renderNoBlur(m_guirenderer.get());
 
 	//Flush
@@ -187,14 +163,14 @@ void Game::update() {
 		float playerSpeed = 0.03;
 		bool running = false;
 		bool moving = false;
-		if (m_window->getKey(GLFW_KEY_LEFT_SHIFT)) running = true;
-		if (m_window->getKey(GLFW_KEY_LEFT_SHIFT) && !m_player->exhausted()) playerSpeed *= 2;
-		else if (m_window->getKey(GLFW_KEY_LEFT_CONTROL)) playerSpeed *= 0.2;
-		else if (m_window->getKey(GLFW_KEY_TAB)) playerSpeed *= 20;
-		if (m_window->getKey(GLFW_KEY_S)) { m_player->vel_y = playerSpeed; moving = true; }
-		if (m_window->getKey(GLFW_KEY_D)) { m_player->vel_x = playerSpeed; moving = true; }
-		if (m_window->getKey(GLFW_KEY_W)) { m_player->vel_y = -playerSpeed; moving = true; }
-		if (m_window->getKey(GLFW_KEY_A)) { m_player->vel_x = -playerSpeed; moving = true; }
+		if (m_window->getKey(OE_KEY_LEFT_SHIFT)) running = true;
+		if (m_window->getKey(OE_KEY_LEFT_SHIFT) && !m_player->exhausted()) playerSpeed *= 2;
+		else if (m_window->getKey(OE_KEY_LEFT_CONTROL)) playerSpeed *= 0.2;
+		else if (m_window->getKey(OE_KEY_TAB)) playerSpeed *= 20;
+		if (m_window->getKey(OE_KEY_S)) { m_player->vel_y = playerSpeed; moving = true; }
+		if (m_window->getKey(OE_KEY_D)) { m_player->vel_x = playerSpeed; moving = true; }
+		if (m_window->getKey(OE_KEY_W)) { m_player->vel_y = -playerSpeed; moving = true; }
+		if (m_window->getKey(OE_KEY_A)) { m_player->vel_x = -playerSpeed; moving = true; }
 		if (moving && running) { m_player->setStamina(m_player->getStamina() - 0.01); }
 		m_gui->update();
 		m_player->update();
@@ -261,39 +237,39 @@ void Game::asyncUnload() {
 #endif
 
 void Game::keyPress(int key, int action) {
-	if (key == GLFW_KEY_ESCAPE) { paused = !paused; justPaused = true; return; }
+	if (key == OE_KEY_ESCAPE) { paused = !paused; justPaused = true; return; }
 	m_gui->keyPress(key, action);
 
 	//Postshader
-	if (key == GLFW_KEY_F7) { oe::Logger("post 0"); m_postshader->enable(); m_postshader->setUniform1i("unif_lens", 0); justPaused = true; return; }
-	if (key == GLFW_KEY_F8) { oe::Logger("post 1"); m_postshader->enable(); m_postshader->setUniform1i("unif_lens", 1); justPaused = true; return; }
+	if (key == OE_KEY_F7) { oe::Logger("post 0"); m_postshader->enable(); m_postshader->setUniform1i("unif_lens", 0); justPaused = true; return; }
+	if (key == OE_KEY_F8) { oe::Logger("post 1"); m_postshader->enable(); m_postshader->setUniform1i("unif_lens", 1); justPaused = true; return; }
 
 	if (paused) return;
 
 	//Player Hitting
-	if (key == GLFW_KEY_UP && !m_player->exhausted()) { m_player->heading = HEADING_UP; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
-	if (key == GLFW_KEY_DOWN && !m_player->exhausted()) { m_player->heading = HEADING_DOWN; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
-	if (key == GLFW_KEY_LEFT && !m_player->exhausted()) { m_player->heading = HEADING_LEFT; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
-	if (key == GLFW_KEY_RIGHT && !m_player->exhausted()) { m_player->heading = HEADING_RIGHT; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
-	if ((key == GLFW_KEY_UP || key == GLFW_KEY_DOWN || key == GLFW_KEY_LEFT || key == GLFW_KEY_RIGHT) && m_player->exhausted()) { m_player->setStamina(m_player->getStamina() - 0.2); return; }
-	if (key == GLFW_KEY_E) { m_player->setX(round(m_player->getX())); m_player->setY(round(m_player->getY())); return; }
+	if (key == OE_KEY_UP && !m_player->exhausted()) { m_player->heading = HEADING_UP; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
+	if (key == OE_KEY_DOWN && !m_player->exhausted()) { m_player->heading = HEADING_DOWN; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
+	if (key == OE_KEY_LEFT && !m_player->exhausted()) { m_player->heading = HEADING_LEFT; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
+	if (key == OE_KEY_RIGHT && !m_player->exhausted()) { m_player->heading = HEADING_RIGHT; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
+	if ((key == OE_KEY_UP || key == OE_KEY_DOWN || key == OE_KEY_LEFT || key == OE_KEY_RIGHT) && m_player->exhausted()) { m_player->setStamina(m_player->getStamina() - 0.2); return; }
+	if (key == OE_KEY_E) { m_player->setX(round(m_player->getX())); m_player->setY(round(m_player->getY())); return; }
 
 	//Inventory
-	if (key == GLFW_KEY_R) { m_inventory->visible = !m_inventory->visible; return; }
-	if (key == GLFW_KEY_ESCAPE) { m_inventory->visible = false; return; }
+	if (key == OE_KEY_R) { m_inventory->visible = !m_inventory->visible; return; }
+	if (key == OE_KEY_ESCAPE) { m_inventory->visible = false; return; }
 
 	//Inventory slot selecting
-	if (key == GLFW_KEY_1) { m_inventory->selectedSlot = 0; return; }
-	else if (key == GLFW_KEY_2) { m_inventory->selectedSlot = 1; return; }
-	else if (key == GLFW_KEY_3) { m_inventory->selectedSlot = 2; return; }
-	else if (key == GLFW_KEY_4) { m_inventory->selectedSlot = 3; return; }
-	else if (key == GLFW_KEY_5) { m_inventory->selectedSlot = 4; return; }
+	if (key == OE_KEY_1) { m_inventory->selectedSlot = 0; return; }
+	else if (key == OE_KEY_2) { m_inventory->selectedSlot = 1; return; }
+	else if (key == OE_KEY_3) { m_inventory->selectedSlot = 2; return; }
+	else if (key == OE_KEY_4) { m_inventory->selectedSlot = 3; return; }
+	else if (key == OE_KEY_5) { m_inventory->selectedSlot = 4; return; }
 
 	//Debug commands
 	//Activate debug and advanced debug modes
-	if (key == GLFW_KEY_F1) {
+	if (key == OE_KEY_F1) {
 		debugMode = !debugMode; 
-		if (m_window->getKey(GLFW_KEY_LEFT_SHIFT)) {
+		if (m_window->getKey(OE_KEY_LEFT_SHIFT)) {
 			advancedDebugMode = debugMode;
 		}
 		else advancedDebugMode = false;
@@ -301,7 +277,7 @@ void Game::keyPress(int key, int action) {
 	}
 
 	//Debug ceil creaures
-	if (key == GLFW_KEY_F2) {
+	if (key == OE_KEY_F2) {
 #if !STORE_MAP_IN_RAM
 		for (int x = 0; x < RENDER_DST; x++)
 		{
@@ -316,7 +292,7 @@ void Game::keyPress(int key, int action) {
 	}
 	
 	//Reload game
-	if (key == GLFW_KEY_F3) {
+	if (key == OE_KEY_F3) {
 		close();
 
 #if !STORE_MAP_IN_RAM
@@ -333,13 +309,13 @@ void Game::keyPress(int key, int action) {
 	}
 
 	//Get FPS
-	if (key == GLFW_KEY_F4) { oe::Logger::info(std::string("Fps: ") + std::to_string(m_loop->getFPS())); return; }
+	if (key == OE_KEY_F4) { oe::Logger::info(std::string("Fps: ") + std::to_string(m_loop->getFPS())); return; }
 	
 	//Clear inventoy
-	if (key == GLFW_KEY_F5) { m_inventory->clear(); return; }
+	if (key == OE_KEY_F5) { m_inventory->clear(); return; }
 	
 	//Add creature at player
-	if (key == GLFW_KEY_F6) { m_map->addCreature(m_player->getX(), m_player->getY() + 5, 1, false); return; }
+	if (key == OE_KEY_F6) { m_map->addCreature(m_player->getX(), m_player->getY() + 5, 1, false); return; }
 }
 
 void Game::buttonPress(int button, int action) {}
@@ -404,7 +380,7 @@ void Game::loadGame() {
 	m_guirenderer = std::unique_ptr<oe::Renderer>(new oe::Renderer("resources/arial.ttf", m_window.get()));
 
 	oe::Logger::info("Loading resources");
-	oe::TextureManager::loadTextureAtlas("resources/atlas.png", GL_RGBA, 0);
+	oe::TextureManager::loadTextureAtlas("resources/atlas.png", 0);
 	oe::AudioManager::loadAudio("resources/hit.wav", 0);
 	oe::AudioManager::loadAudio("resources/swing.wav", 1);
 	oe::AudioManager::loadAudio("resources/collect.wav", 2);
