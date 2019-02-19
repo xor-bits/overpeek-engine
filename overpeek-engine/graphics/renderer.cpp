@@ -146,7 +146,7 @@ namespace oe {
 
 	//Draws all quads and text
 	//textbool is location of int (used as boolean) in shader that enables or disables text rendering
-	void Renderer::draw(Shader *shader, Shader * pointshader, const char *textbool, GLint texture) {
+	void Renderer::draw(Shader *shader, Shader *pointshader, int texture) {
 		if (m_fontMapped) {
 			m_fontRenderer->stopRendering();
 			m_fontMapped = false;
@@ -160,27 +160,22 @@ namespace oe {
 			m_pointMapped = false;
 		}
 
-		shader->enable();
-		shader->setUniform1f(textbool, 0);
-		m_quadRenderer->draw(texture);
-
 		pointshader->enable();
-		pointshader->setUniform1f(textbool, 0);
 		m_pointRenderer->draw(texture);
 
 		shader->enable();
-		//shader->setUniform1f(textbool, 1);
+		m_quadRenderer->draw(texture);
 		m_fontRenderer->draw();
 	}
 
 	//Draws all quads and text to specified framebuffer at index
-	void Renderer::drawToFramebuffer(Shader *shader, Shader *pointshader, const char *textbool, GLint texture, bool first_framebuffer) {
+	void Renderer::drawToFramebuffer(Shader *shader, Shader *pointshader, int texture, bool first_framebuffer) {
 		if (first_framebuffer) glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer1);
 		else glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer2);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		draw(shader, pointshader, textbool, texture);
+		draw(shader, pointshader, texture);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, m_window->getWidth(), m_window->getHeight());

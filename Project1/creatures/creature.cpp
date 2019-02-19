@@ -179,7 +179,7 @@ void Creature::update(int index) {
 	collide();
 }
 
-void Creature::hit() {
+void Creature::hit(float damagemult) {
 	if (m_item) return;
 	float hitx = getX(), hity = getY();
 	switch (heading)
@@ -220,7 +220,7 @@ void Creature::hit() {
 	
 		creatureArray[i]->acc_x = directionVector.x / 10.0 * Database::creatures[m_id].knockback;
 		creatureArray[i]->acc_y = directionVector.y / 10.0 * Database::creatures[m_id].knockback;
-		creatureArray[i]->setHealth(creatureArray[i]->getHealth() - Database::creatures[m_id].meleeDamage);
+		creatureArray[i]->setHealth(creatureArray[i]->getHealth() - Database::creatures[m_id].meleeDamage * damagemult);
 	}
 
 	//Tile hitting
@@ -235,7 +235,7 @@ void Creature::hit() {
 	Map::MapTile* tmp = Game::getMap()->getTile((unsigned int)hitx, (unsigned int)hity);
 	if (tmp) {
 		if (Database::objects[tmp->m_object].destructable) {
-			Game::getMap()->hit((unsigned int)hitx, (unsigned int)hity, Database::creatures[m_id].meleeDamage);
+			Game::getMap()->hit((unsigned int)hitx, (unsigned int)hity, Database::creatures[m_id].meleeDamage * damagemult);
 		}
 	}
 #endif

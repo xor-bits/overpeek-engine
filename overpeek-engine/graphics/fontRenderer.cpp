@@ -79,8 +79,6 @@ namespace oe {
 			FT_BitmapGlyph bitmap;
 			bitmap = (FT_BitmapGlyph)glyph;
 			
-			oe::Logger::info(glyph->advance.x);
-			oe::Logger::info(g->advance.x);
 			//Now store character for later use
 			Character *character = new Character {
 				//c,
@@ -102,7 +100,7 @@ namespace oe {
 				{
 					int pixel = x + y * maxWidth + c * maxWidth * maxHeight;
 					
-					char byte = 0;
+					GLubyte byte = 0;
 					if ((x - xdiff) >= 0 && (x - xdiff) < g->bitmap.width) {
 						if ((y - ydiff) >= 0 && (y - ydiff) < g->bitmap.rows) {
 							byte = g->bitmap.buffer[(x - xdiff) + (y - ydiff)* g->bitmap.width];
@@ -111,7 +109,7 @@ namespace oe {
 					data[pixel * 4 + 0] = byte;
 					data[pixel * 4 + 1] = byte;
 					data[pixel * 4 + 2] = byte;
-					data[pixel * 4 + 3] = bitmap->bitmap.buffer[x + y * bitmap->bitmap.width];
+					data[pixel * 4 + 3] = (GLubyte)bitmap->bitmap.buffer[x + y * bitmap->bitmap.width];
 				}
 			}
 		}
@@ -129,6 +127,7 @@ namespace oe {
 
 		FT_Done_Face(face);
 		FT_Done_FreeType(ft);
+		return false;
 	}
 
 	void FontRenderer::beginRendering() {
@@ -157,6 +156,7 @@ namespace oe {
 			float textWidth = 0.0f;
 			for (c = text.begin(); c != text.end(); c++)
 			{
+				if (*c < 32 || *c > 126) continue;
 				if (*c == ' ') {
 					textWidth += _w / 2.0;
 					continue;
@@ -169,6 +169,7 @@ namespace oe {
 			float textWidth = 0.0f;
 			for (c = text.begin(); c != text.end(); c++)
 			{
+				if (*c < 32 || *c > 126) continue;
 				if (*c == ' ') {
 					textWidth += _w / 2.0;
 					continue;
@@ -185,6 +186,7 @@ namespace oe {
 		// Iterate through all characters
 		for (c = text.begin(); c != text.end(); c++)
 		{
+			if (*c < 32 || *c > 126) continue;
 			if (*c == ' ') {
 				x += _w / 2.0;
 				continue;

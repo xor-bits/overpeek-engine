@@ -29,6 +29,7 @@ namespace oe {
 	void(*Window::mKeyCallback)(int, int);
 	void(*Window::mButtonCallback)(int, int);
 	void(*Window::m_scroll_callback)(double);
+	void(*Window::m_resize_callback)(int, int);
 
 	Window::Window(unsigned int width, unsigned int height, std::string title, bool fullscreen, unsigned int multisample, bool resizeable)
 	{
@@ -84,7 +85,7 @@ namespace oe {
 		GLFWimage icon; icon.height = height; icon.width = width; icon.pixels = data;
 		glfwSetWindowIcon(mWindow, 1, &icon);
 
-		glfwSetFramebufferSizeCallback(mWindow, glfwSetWindowAspectRatio);
+		glfwSetFramebufferSizeCallback(mWindow, framebuffer_size_callback);
 		glfwSetCursorPosCallback(mWindow, cursor_position_callback);
 		glfwSetMouseButtonCallback(mWindow, mouse_button_callback);
 		glfwSetKeyCallback(mWindow, key_callback);
@@ -100,9 +101,9 @@ namespace oe {
 		glDepthFunc(GL_LEQUAL);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
-		//glEnable(GL_CULL_FACE);
-		//glCullFace(GL_BACK);
-		//glFrontFace(GL_CCW);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glFrontFace(GL_CCW);
 
 		glfwSwapInterval(0);
 
@@ -117,7 +118,7 @@ namespace oe {
 		int height, width;
 		glfwGetFramebufferSize(window, &width, &height);
 		glViewport(0, 0, width, height);
-		oe::Logger::info("resized");
+		if (m_resize_callback) m_resize_callback(width, height);
 	}
 
 	void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -211,6 +212,10 @@ namespace oe {
 
 	void Window::setScrollCallback(void(*callback)(double)) {
 		m_scroll_callback = callback;
+	}
+
+	void Window::setResizeCallback(void(*callback)(int, int)) {
+		m_resize_callback = callback;
 	}
 
 	void Window::terminate() {

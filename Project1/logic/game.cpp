@@ -40,8 +40,8 @@ int Game::asyncSaveIndex = 0;
 bool Game::debugMode = false;
 bool Game::advancedDebugMode = false;
 bool Game::tilesChanged = true;
-bool Game::justPaused = false;
-bool Game::paused = false;
+bool Game::justPaused = true;
+bool Game::paused = true;
 
 
 std::string renderer;
@@ -60,6 +60,7 @@ void Game::init() {
 	m_window->setButtonCallback(buttonPress);
 	m_window->setKeyboardCallback(keyPress);
 	m_window->setScrollCallback(scroll);
+	m_window->setResizeCallback(resize);
 
 	//Create shader
 	oe::Logger::info("Creating all the shaders");
@@ -71,13 +72,7 @@ void Game::init() {
 	oe::Logger::info("All shaders created successfully!");
 
 	//Shader stuff
-	m_postshader->enable();
-	m_postshader->setUniform1i("unif_effect", 0);
-	m_postshader->setUniform1f("unif_width", m_window->getWidth());
-	m_postshader->setUniform1f("unif_height", m_window->getHeight());
-	glm::mat4 orthographic = glm::ortho(-M_ASPECT * DEBUG_ZOOM, M_ASPECT * DEBUG_ZOOM, DEBUG_ZOOM, -DEBUG_ZOOM);
-	m_shader->enable(); m_shader->SetUniformMat4("pr_matrix", orthographic);
-	m_pointshader->enable(); m_pointshader->SetUniformMat4("pr_matrix", orthographic);
+	resize(m_window->getWidth(), m_window->getHeight());
 	
 	//Gameloop
 	oe::Logger::info("Starting gameloop");
@@ -123,12 +118,12 @@ void Game::render() {
 
 	//Flush
 	if (!paused) {
-		m_worldrenderer->draw(m_shader.get(), m_pointshader.get(), "unif_text", oe::TextureManager::getTexture(0));
+		m_worldrenderer->draw(m_shader.get(), m_pointshader.get(), oe::TextureManager::getTexture(0));
 	}
 	else if (justPaused) {
-		m_worldrenderer->drawToFramebuffer(m_shader.get(), m_pointshader.get(), "unif_text", oe::TextureManager::getTexture(0), false);
+		m_worldrenderer->drawToFramebuffer(m_shader.get(), m_pointshader.get(), oe::TextureManager::getTexture(0), false);
 		m_postshader->enable();
-		for (int i = 0; i < 1; i++) {
+		for (int i = 0; i < 16; i++) {
 			m_postshader->setUniform1i("unif_effect", 1);
 			m_worldrenderer->drawFramebufferToFramebuffer(m_postshader.get(), "unif_texture", true);
 			m_postshader->setUniform1i("unif_effect", 2);
@@ -143,7 +138,7 @@ void Game::render() {
 		m_worldrenderer->drawFramebuffer(m_postshader.get(), "unif_texture", false);
 	}
 	
-	m_guirenderer->draw(m_shader.get(), m_pointshader.get(), "unif_text", oe::TextureManager::getTexture(0));
+	m_guirenderer->draw(m_shader.get(), m_pointshader.get(), oe::TextureManager::getTexture(0));
 
 	//Other
 	justPaused = false;
@@ -324,6 +319,18 @@ void Game::scroll(double y) {
 	//Inventory slot scrolling
 	if (y < 0) m_inventory->selectedSlot++;
 	if (y > 0) m_inventory->selectedSlot--;
+}
+
+void Game::resize(int width, int height) {
+	float aspect = float(width) / float(height);
+	m_postshader->enable();
+	m_postshader->setUniform1i("unif_effect", 0);
+	oe::Logger::info("New width: " + std::to_string(width));
+	oe::Logger::info("New height: " + std::to_string(height));
+	oe::Logger::info("New aspect ratio: " + std::to_string(aspect));
+	glm::mat4 orthographic = glm::ortho(-aspect * DEBUG_ZOOM, aspect * DEBUG_ZOOM, DEBUG_ZOOM, -DEBUG_ZOOM);
+	m_shader->enable(); m_shader->SetUniformMat4("pr_matrix", orthographic);
+	m_pointshader->enable(); m_pointshader->SetUniformMat4("pr_matrix", orthographic);
 }
 
 void Game::close() {

@@ -31,7 +31,9 @@ void Player::hit() {
 		place();
 	}
 	else {
-		for (int i = 0; i < 20; i++) Creature::hit();
+		float dmgmltp = 1.0;
+		if (Game::advancedDebugMode) dmgmltp = 100.0;
+		Creature::hit(dmgmltp);
 	}
 }
 

@@ -55,10 +55,10 @@ public:
 	Creature(float x, float y, int id, bool item);
 	Creature();
 
-	virtual void submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY);
-	virtual void update(int index);
-	virtual void collide(); //Collision check must happen after processing new area
-	virtual void hit();
+	void submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY);
+	void update(int index);
+	void collide();
+	void hit(float damagemult);
 	bool canSee(float x, float y);
 
 	inline int getId() { return m_id; }

@@ -78,6 +78,7 @@ public:
 	static void findAllCreatures(float x, float y, Creature** array, unsigned int& amount, float radius);
 #endif
 
+	static void resize(int width, int height);
 	static void keyPress(int key, int action);
 	static void buttonPress(int button, int action);
 	static void scroll(double y);

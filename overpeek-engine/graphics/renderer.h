@@ -61,10 +61,10 @@ namespace oe {
 
 		//Draws all quads and text
 		//textbool is location of int (used as boolean) in shader that enables or disables text rendering
-		void draw(Shader *shader, Shader * pointshader, const char *textbool, int texture);
+		void draw(Shader *shader, Shader * pointshader, int texture);
 
 		//Draws all quads and text to specified framebuffer at index
-		void drawToFramebuffer(Shader *shader, Shader * pointshader, const char *textbool, int texture, bool first_framebuffer);
+		void drawToFramebuffer(Shader *shader, Shader * pointshader, int texture, bool first_framebuffer);
 		
 		//Draws (first or second) framebuffer to screen
 		void drawFramebuffer(Shader *postshader, const char *texture_sampler, bool first_framebuffer);

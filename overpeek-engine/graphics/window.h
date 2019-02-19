@@ -24,6 +24,7 @@ namespace oe {
 		static void (*mKeyCallback)(int, int);
 		static void (*mButtonCallback)(int, int);
 		static void(*m_scroll_callback)(double);
+		static void(*m_resize_callback)(int, int);
 
 		//Functions
 		bool mInit(bool resizeable);
@@ -50,6 +51,7 @@ namespace oe {
 		void setButtonCallback(void(*callback)(int, int));
 		void setKeyboardCallback(void(*callback)(int, int));
 		void setScrollCallback(void(*callback)(double));
+		void setResizeCallback(void(*callback)(int, int));
 
 		void setSwapInterval(unsigned int interval);
 
