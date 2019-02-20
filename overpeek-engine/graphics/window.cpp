@@ -30,6 +30,7 @@ namespace oe {
 	void(*Window::mButtonCallback)(int, int);
 	void(*Window::m_scroll_callback)(double);
 	void(*Window::m_resize_callback)(int, int);
+	void(*Window::m_charmods_callback)(unsigned int, int);
 
 	Window::Window(unsigned int width, unsigned int height, std::string title, bool fullscreen, unsigned int multisample, bool resizeable)
 	{
@@ -85,6 +86,7 @@ namespace oe {
 		GLFWimage icon; icon.height = height; icon.width = width; icon.pixels = data;
 		glfwSetWindowIcon(mWindow, 1, &icon);
 
+		glfwSetCharModsCallback(mWindow, charmods_callback);
 		glfwSetFramebufferSizeCallback(mWindow, framebuffer_size_callback);
 		glfwSetCursorPosCallback(mWindow, cursor_position_callback);
 		glfwSetMouseButtonCallback(mWindow, mouse_button_callback);
@@ -148,6 +150,10 @@ namespace oe {
 	void Window::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 	{
 		mMouseX = xpos; mMouseY = ypos;
+	}
+
+	void Window::charmods_callback(GLFWwindow* window, unsigned int codepoint, int mods) {
+		if (m_charmods_callback) m_charmods_callback(codepoint, mods);
 	}
 
 	void Window::checkErrors() {
@@ -216,6 +222,10 @@ namespace oe {
 
 	void Window::setResizeCallback(void(*callback)(int, int)) {
 		m_resize_callback = callback;
+	}
+
+	void Window::setCharmodCallback(void(*callback)(unsigned int, int)) {
+		m_charmods_callback = callback;
 	}
 
 	void Window::terminate() {

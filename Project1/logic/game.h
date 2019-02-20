@@ -82,6 +82,7 @@ public:
 	static void keyPress(int key, int action);
 	static void buttonPress(int button, int action);
 	static void scroll(double y);
+	static void charmod(unsigned int codepoint, int mods);
 	
 	static oe::Shader *getShader();
 	static oe::Window *getWindow();

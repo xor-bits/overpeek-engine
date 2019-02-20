@@ -36,7 +36,7 @@ void Gui::renderBlur(oe::Renderer *renderer) {
 }
 
 void Gui::renderNoBlur(oe::Renderer *renderer) {
-	float textScale = 0.05;
+	float textScale = 0.1;
 	float x = -Game::getWindow()->getAspect();
 	if (Game::debugMode) {
 		//Debug mode text
@@ -88,7 +88,7 @@ void Gui::renderNoBlur(oe::Renderer *renderer) {
 		if (m_selectedButton > BUTTONS - 1) m_selectedButton = 0;
 		if (m_selectedButton < 0) m_selectedButton = BUTTONS - 1;
 
-		float textScale = 0.1;
+		float textScale = 0.2;
 
 		std::string text = "PAUSED";
 		renderer->renderText(glm::vec2(0.003, -0.003 - 0.75), glm::vec2(textScale, textScale), text.c_str(), glm::vec4(1.0), oe::center);
@@ -112,9 +112,25 @@ void Gui::renderNoBlur(oe::Renderer *renderer) {
 		text = "SAVE AND EXIT";
 		renderer->renderText(glm::vec2(0.0, -0.20), glm::vec2(textScale, textScale), text.c_str(), glm::vec4(1.0), oe::center);
 	}
+
+	if (m_chat_opened || m_chat_opened_timer > 0) {
+		if (m_chat_opened) renderer->renderPoint(glm::vec2(-Game::getWindow()->getAspect(), 1.0 - textScale), glm::vec2(Game::getWindow()->getAspect() * 2, textScale), 20, glm::vec4(0.0, 0.0, 0.0, 0.2));
+		for (int i = 0; i < m_text_lines.size(); i++)
+		{
+			renderer->renderText(glm::vec2(-Game::getWindow()->getAspect(), 1.0 - ((i + 1.5) * textScale * 1.2)), glm::vec2(textScale, textScale), m_text_lines[m_text_lines.size() - 1 - i].c_str(), glm::vec4(1.0), oe::bottomLeft);
+		}
+		renderer->renderText(glm::vec2(-Game::getWindow()->getAspect(), 1.0), glm::vec2(textScale, textScale), m_current_line.c_str(), glm::vec4(1.0), oe::bottomLeft);
+	}
+}
+
+void Gui::addChatLine(std::string text) {
+	m_chat_opened_timer = 500;
+	m_text_lines.push_back(text);
+	if (m_text_lines.size() > MAX_TEXT_LINES) m_text_lines.erase(m_text_lines.begin());
 }
 
 void Gui::update() {
+	m_chat_opened_timer--;
 	if (Game::advancedDebugMode) {
 		m_currentUpdate++;
 		if (m_currentUpdate >= GUI_UPDATE_LOGGER_SIZE) m_currentUpdate = 0;
@@ -124,18 +140,119 @@ void Gui::update() {
 }
 
 void Gui::keyPress(int key, int action) {
-	if (key == OE_KEY_DOWN) { m_selectedButton++; return; }
-	if (key == OE_KEY_UP) { m_selectedButton--; return; }
-	if (key == OE_KEY_ENTER | OE_KEY_SPACE) {
-		if (m_selectedButton == 0) {
-			Game::paused = false;
+	if (Game::paused) {
+		if (key == OE_KEY_DOWN) { m_selectedButton++; return; }
+		if (key == OE_KEY_UP) { m_selectedButton--; return; }
+		if (key == OE_KEY_ENTER || key == OE_KEY_SPACE) {
+			if (m_selectedButton == 0) {
+				Game::paused = false;
+				return;
+			}
+			if (m_selectedButton == 1) {
+				oe::Logger::critical("TODO: Open settings!");
+				return;
+			}
+			if (m_selectedButton == 2) {
+				Game::getLoop()->stop();
+				return;
+			}
+			return;
 		}
-		if (m_selectedButton == 1) {
-			oe::Logger::critical("TODO: Open settings!");
-		}
-		if (m_selectedButton == 1) {
-			Game::getLoop()->stop();
-		}
+	}
+	if (key == OE_KEY_T) {
+		if (m_chat_opened) return;
+
+		m_chat_opened = true;
+		m_chat_just_opened = true;
+		//oe::Logger::info("Opened chat");
 		return;
+	}
+	if (key == OE_KEY_ESCAPE && m_chat_opened) {
+		m_chat_opened = false;
+		m_chat_opened_timer = 500;
+		//oe::Logger::info("Closed chat");
+		return;
+	}
+	if (key == OE_KEY_ENTER && m_chat_opened) {
+		m_chat_opened = false;
+		m_chat_opened_timer = 500;
+
+		//Check if command is typed
+		if (m_current_line[0] == '/') {
+			int space = m_current_line.find(' ');
+			std::string command = m_current_line.substr(1, space - 1);
+			std::string arguments = m_current_line.substr(space + 1);
+			std::vector<std::string> argumentVec;
+
+			//std::cout << "Command: \"" << command << "\"" << std::endl;
+			//std::cout << "Arguments: \"" << arguments << "\"" << std::endl;
+
+			//COMMANDS
+			//TP COMMAND
+			if (command == "tp") {
+				if (space == -1) {
+					oe::Logger::warning("No command arguments given");
+					addChatLine("No command arguments given");
+					addChatLine("Type \"/help\" to see list of commands and their uses");
+					goto notcommand;
+				}
+				std::string leftArguments = arguments;
+				int nextArg = 0;
+				while (nextArg != -1) {
+					nextArg = leftArguments.find(' ');
+					std::string thisargument = leftArguments.substr(0, nextArg);
+					leftArguments = leftArguments.substr(nextArg + 1);
+					argumentVec.push_back(thisargument);
+					//std::cout << "\"" << thisargument << "\"" << std::endl;
+				}
+
+				if (argumentVec.size() < 2) {
+					oe::Logger::warning("Too few arguments");
+					addChatLine("Too few arguments");
+					goto notcommand;
+				}
+
+				//Use arguments
+				float posX = stof(argumentVec[0]);
+				float posY = stof(argumentVec[1]);
+
+				Game::getPlayer()->setX(posX);
+				Game::getPlayer()->setY(posY);
+
+				oe::Logger::info("Player ran command: " + m_current_line);
+			}
+
+			//HELP COMMAND
+			if (command == "help") {
+				addChatLine("--List of commands--");
+				addChatLine("/tp [x] [y]");
+			}
+		}
+		else {
+			notcommand:
+			addChatLine("Player: " + m_current_line);
+			oe::Logger::info("Player", m_current_line.c_str());
+		}
+
+		m_current_line = "";
+		return;
+	}
+	if (key == OE_KEY_BACKSPACE) {
+		if (m_current_line.length() > 0) m_current_line.erase(m_current_line.end() - 1);
+		//oe::Logger::info("Erased last character");
+		return;
+	}
+}
+
+void Gui::typing(unsigned int codepoint, int mods) {
+	///TODO: IMPROVE
+	if (m_chat_opened) {
+		if (m_chat_just_opened) {
+			m_chat_just_opened = false;
+			return;
+		}
+		else {
+			m_current_line += (char)codepoint;
+		}
 	}
 }

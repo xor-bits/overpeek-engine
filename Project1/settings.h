@@ -19,7 +19,7 @@
 #define DEBUG_DISABLE_SAVING	false
 #define STORE_MAP_IN_RAM		true
 
-#define M_WINDOW_HEIGHT			720
+#define M_WINDOW_HEIGHT			400
 #define M_WINDOW_WIDTH			(M_WINDOW_HEIGHT * 16 / 9) //1280
 #define M_ASPECT				(float)M_WINDOW_WIDTH / (float)M_WINDOW_HEIGHT
 #define M_ASPECT_FIXED			false

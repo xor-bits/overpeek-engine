@@ -9,8 +9,12 @@
 #ifndef PCH_H
 #define PCH_H
 
+#include <omp.h>
 #include <iostream>
+#include <GL/glew.h>
 #include "../overpeek-engine/engine.h"
+#define NTL_NO_MIN_MAX
+#include "../Number Theory Library/include/NTL/RR.h"
 //#include <boost/multiprecision/mpfr.hpp>
 
 #endif //PCH_H

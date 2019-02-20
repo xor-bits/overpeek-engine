@@ -45,6 +45,25 @@ namespace oe {
 		}
 
 		template <class T>
+		static void info(const char *output1, T output2) {
+			setup();
+			m_console->info(std::string(output1) + ": " + std::to_string(output2));
+		}
+
+		template <class T, class T2>
+		static void info(const char *output1, T output2, T2 output3) {
+			setup();
+			m_console->info(std::string(output1) + ": " + std::to_string(output2) + ", " + std::to_string(output2));
+		}
+
+		static void info(const char *output1, const char *output2) {
+			setup();
+			m_console->info(std::string(output1) + ": " + std::string(output2));
+		}
+
+
+
+		template <class T>
 		static void warning(T output) {
 			setup();
 			m_console->warn(output);

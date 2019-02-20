@@ -332,20 +332,20 @@ public:
 		tiles[0] = Tile("Soil",			0,		0);
 		tiles[1] = Tile("Water",		1,		1);
 		tiles[2] = Tile("Sand",			2,		2);
-		tiles[3] = Tile("Grassy soil",	3,		4);
-		tiles[4] = Tile("Gravel",		4,		8);
+		tiles[3] = Tile("Grassy soil",	3,		3);
+		tiles[4] = Tile("Gravel",		4,		7);
 
 		//Objects			//Name			//id	//Texture	//Wall		//Multitexture	//Smooth	//Destroyable	//Color							//Health	//Drop as		
 		objects[0] = Object("Air",			0,		0,			false,		false,			false,		false,			glm::vec3(1.0f),				0,			0);
-		objects[1] = Object("Grass",		1,		5,			false,		false,			false,		true,			glm::vec3(1.0f),				1,			2);
-		objects[2] = Object("Spruce",		2,		6,			false,		false,			false,		true,			glm::vec3(1.0f),				5,			3);
-		objects[3] = Object("Birch",		3,		7,			false,		false,			false,		true,			glm::vec3(1.0f),				5,			3);
+		objects[1] = Object("Grass",		1,		4,			false,		false,			false,		true,			glm::vec3(1.0f),				1,			2);
+		objects[2] = Object("Spruce",		2,		5,			false,		false,			false,		true,			glm::vec3(1.0f),				5,			3);
+		objects[3] = Object("Birch",		3,		6,			false,		false,			false,		true,			glm::vec3(1.0f),				5,			3);
 		objects[4] = Object("Wood wall",	4,		0,			true,		true,			true,		true,			glm::vec3(0.58f, 0.43f, 0.2f),	10,			3);
 		objects[5] = Object("Stone wall",	5,		0,			true,		true,			false,		true,			glm::vec3(0.5f, 0.5f, 0.5f),	15,			1);
 		
 		//Creatures				//Name		//Id	//Friendly		//Ghost		//Knockback		//Melee		//Hp	//Regen		//Stamina	//Staminaregen	//Drops as	//Color			//Textures >>>>	//Up	//Down	//Left	//Right
-		creatures[0] = Creature("Player",	0,		true,			false,		1.0f,			1.0f,		5.0f,	0.005f,		5.0f,		0.005f,			0,			glm::vec3(1.0f),				3,		19,		35,		51);
-		creatures[1] = Creature("Whatever",	1,		false,			false,		1.0f,			1.0f,		5.0f,	0.0f,		5.0f,		5.0f,			2,			glm::vec3(1.0f),				3,		19,		35,		51);
+		creatures[0] = Creature("Player",	0,		true,			false,		1.0f,			1.0f,		5.0f,	0.005f,		5.0f,		0.005f,			0,			glm::vec3(1.0f),				8,		9,		10,		11);
+		creatures[1] = Creature("Whatever",	1,		false,			false,		1.0f,			1.0f,		5.0f,	0.0f,		5.0f,		5.0f,			2,			glm::vec3(1.0f),				8,		9,		10,		11);
 		creatures[2] = Creature("Item",		2,		false,			false,		0.0f,			0.0f,		1.0f,	0.0f,		0.0f,		0.0f,			0,			glm::vec3(1.0f),				0,		0,		0,		0);
 
 		//Biomes

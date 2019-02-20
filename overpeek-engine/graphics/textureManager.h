@@ -16,7 +16,8 @@ namespace oe {
 		static unsigned int loadTexture(std::string path, int id);
 		
 		//Format must be RGBA
-		static unsigned int loadTextureAtlas(std::string path, int id);
+		//16x16 array of r*r sized textures
+		static unsigned int loadTextureAtlas(std::string path, int id, unsigned int r);
 		
 		static unsigned int getTexture(int id);
 		

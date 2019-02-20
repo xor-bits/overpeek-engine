@@ -1,37 +1,43 @@
 #include "pch.h"
 #include <iomanip>
 
-#define TEXEL_WIDTH	600
+#define JULIA_SET
+#define TEXEL_WIDTH	100
 #define TEXEL_COUNT	TEXEL_WIDTH * TEXEL_WIDTH * 3
 GLubyte texels[TEXEL_COUNT];
 unsigned int texture;
 
+unsigned int iteration_count = 64;
+NTL::RR scale = NTL::RR(1.0);//9.08663e-16);
+NTL::RR xo = NTL::RR(0.0);//1.6873200000000003);
+NTL::RR yo = NTL::RR(0.0);
 
 void render(); void update();
 oe::Window *m_window = new oe::Window(600, 600, "Mandelbrot", false, 0, false);
 oe::Shader *m_shader = new oe::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl");
 oe::Renderer *m_renderer = new oe::Renderer("resources/arial.ttf", m_window);
-oe::GameLoop *m_loop = new oe::GameLoop(render, update, nullptr, 60, 1);
+oe::GameLoop *m_loop = new oe::GameLoop(render, update, nullptr, 5, 1);
 
-int mandelbrot(long double x, long double y, int maximum) {
+
+
+
+int mandelbrot(NTL::RR &x, NTL::RR &y, int maximum) {
 	int iteration = 0;
 
-	long double zx = x;
-	long double zy = y;
-	long double xtemp;
+	NTL::RR zx = x;
+	NTL::RR zy = y;
+	NTL::RR xtemp;
 
-	while (zx*zx + zy * zy <= long double(4.0) && iteration <= maximum) {
-		//JULIA SET
-		//xtemp = zx*zx - zy*zy;
-		//zy = 2*zx*zy + COMPLEX_IMAGINARY; 
-		//zx = xtemp - COMPLEX_REAL;
-		//JULIA SET
-
-		//MANDELBROT SET
+	while (zx*zx + zy * zy <= NTL::RR(4.0) && iteration <= maximum) {
+#ifdef JULIA_SET
+		xtemp = zx * zx - zy * zy;
+		zy = 2 * zx*zy + 0.156;
+		zx = xtemp - 0.8;
+#else
 		xtemp = zx * zx - zy * zy;
 		zy = 2 * zx*zy + y;
 		zx = xtemp + x;
-		//MANDELBROT SET
+#endif // JULIA_SET
 
 		if (zx == y && zy == y) {
 			return -1;
@@ -61,14 +67,67 @@ glm::vec3 getColor2(int n, float maximum) {
 		int i = n % 16;
 		float val = (sin((n / 16.0 * glm::pi<float>())) + 1.0) / 2.0;
 		//float val2 = cos((n / 16.0 * M_PI) + M_PI / 2);
-		return glm::vec3(val, 0.0, val);
+		return glm::vec3(0.0, val, val);
 	}
 	else return glm::vec3(0);
 }
 
+void draw() {
+	int count = 0;
+#pragma omp parallel for
+	for (int x = 0; x < TEXEL_WIDTH; x++)
+	{
+		NTL::RR x_t;
+		x_t = x;
+		x_t /= TEXEL_WIDTH;
+		x_t *= 4.0;
+		x_t -= 2.0;
+		x_t *= scale;
+		x_t -= xo;
+		for (int y = 0; y < TEXEL_WIDTH; y++)
+		{
+			/*
+			Zoom: 9.08663e-16
+			Offset real: -1.68732
+			Offset imaginary: 0
+			Iterations: 138
+			*/
+
+			NTL::RR y_t;
+			y_t = y;
+			y_t /= TEXEL_WIDTH;
+			y_t *= 4.0;
+			y_t -= 2.0;
+			y_t *= scale;
+			y_t -= yo;
+
+			//boost::multiprecision::mpfr_float x_t = float(x) / float(TEXEL_WIDTH) * 4.0f - 3.0f;
+			//boost::multiprecision::mpfr_float x_t = float(x) / float(TEXEL_WIDTH) * 4.0f - 3.0f;
+
+			//long double y_t = (long double(y) / long double(TEXEL_WIDTH) * long double(4.0) - long double(2.0)) * scale - long double(0.00000);
+			//
+			int iter = mandelbrot(x_t, y_t, iteration_count);
+
+			glm::vec3 c = getColor2(iter, iteration_count);
+
+			texels[(x + y * TEXEL_WIDTH) * 3 + 0] = c.x * 255;
+			texels[(x + y * TEXEL_WIDTH) * 3 + 1] = c.y * 255;
+			texels[(x + y * TEXEL_WIDTH) * 3 + 2] = c.z * 255;
+		}
+	}
+
+	glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
+	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, TEXEL_WIDTH, TEXEL_WIDTH, 1, GL_RGB, GL_UNSIGNED_BYTE, texels);
+}
+
 void render() {
+	if (m_window->close()) m_loop->stop();
+
+
+	oe::Logger::info("Draw");
+	draw();
 	m_renderer->renderBox(glm::vec2(-1.0f), glm::vec2(2.0f), 0, glm::vec4(1.0f));
-	m_renderer->draw(m_shader, m_shader, "unif_text", texture);
+	m_renderer->draw(m_shader, m_shader, texture);
 
 	m_window->update();
 	m_window->input();
@@ -76,38 +135,24 @@ void render() {
 }
 
 void update() {
+	if (m_window->getKey(OE_KEY_A)) xo += scale;
+	if (m_window->getKey(OE_KEY_D)) xo -= scale;
+	if (m_window->getKey(OE_KEY_W)) yo += scale;
+	if (m_window->getKey(OE_KEY_S)) yo -= scale;
+
+	if (m_window->getKey(OE_KEY_E)) scale *= 0.75;
+	if (m_window->getKey(OE_KEY_Q)) scale *= 1.5;
+
+	if (m_window->getKey(OE_KEY_R)) iteration_count += 2;
+	if (m_window->getKey(OE_KEY_F)) iteration_count -= 2;
+	oe::Logger::info("Input");
 }
 
 int main()
 {
-	long double scale = long double(9.08663e-16);
-	for (int x = 0; x < TEXEL_WIDTH; x++)
-	{
-		long double x_t = long double(long double(x) / long double(TEXEL_WIDTH) * long double(4.0) - long double(2.0)) * long double(scale) - long double(1.68732);
-		std::cout << std::setprecision(128) << long double(long double(x) / long double(TEXEL_WIDTH) * long double(4.0) - long double(2.0) - (long double(1.68732) / long double(scale))) * long double(scale) << std::endl;
-		for (int y = 0; y < TEXEL_WIDTH; y++)
-		{
-			/*	
-			Zoom: 9.08663e-16
-			Offset real: -1.68732
-			Offset imaginary: 0
-			Iterations: 138
-			*/
-
-
-			//boost::multiprecision::mpfr_float x_t = float(x) / float(TEXEL_WIDTH) * 4.0f - 3.0f;
-			//boost::multiprecision::mpfr_float x_t = float(x) / float(TEXEL_WIDTH) * 4.0f - 3.0f;
-
-			long double y_t = (long double(y) / long double(TEXEL_WIDTH) * long double(4.0) - long double(2.0)) * scale - long double(0.00000);
-
-			int iter = mandelbrot(x_t, y_t, 128);
-			glm::vec3 c = getColor2(iter, 128);
-
-			texels[(x + y * TEXEL_WIDTH) * 3 + 0] = c.x * 255;
-			texels[(x + y * TEXEL_WIDTH) * 3 + 1] = c.y * 255;
-			texels[(x + y * TEXEL_WIDTH) * 3 + 2] = c.z * 255;
-		}
-	}
+	m_window->setSwapInterval(72);
+	NTL::RR::SetPrecision(2048);
+	NTL::RR::SetOutputPrecision(2048);
 
 
 	glGenTextures(1, &texture);
@@ -119,7 +164,8 @@ int main()
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGB8, TEXEL_WIDTH, TEXEL_WIDTH, 1);
-	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, TEXEL_WIDTH, TEXEL_WIDTH, 1, GL_RGB, GL_UNSIGNED_BYTE, texels);
+
+	update();
 
 
 	m_shader->enable();

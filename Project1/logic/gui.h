@@ -10,6 +10,8 @@
 #define GUI_UPDATE_LOGGER_SIZE 200
 #define GUI_FRAME_LOGGER_BAR_WIDTH 0.005
 
+#define MAX_TEXT_LINES	10
+
 namespace oe { class Window; class Shader; class Renderer; }
 class Gui {
 
@@ -24,6 +26,13 @@ private:
 	float m_update_logger[GUI_UPDATE_LOGGER_SIZE];
 	float m_slowest_update;
 
+	int m_chat_opened_timer;
+	bool m_chat_opened;
+	bool m_chat_just_opened;
+	std::vector<std::string> m_last_inputs;
+	std::vector<std::string> m_text_lines;
+	std::string m_current_line;
+
 public:
 	Gui(float maxHealth, float maxStamina, float healthGainRate, float staminaGainRate);
 
@@ -31,4 +40,10 @@ public:
 	void renderNoBlur(oe::Renderer *renderer);
 	void update();
 	void keyPress(int key, int action);
+
+	void addChatLine(std::string text);
+
+	void typing(unsigned int codepoint, int mods);
+
+	bool chatOpened() { return m_chat_opened; }
 };
