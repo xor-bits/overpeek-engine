@@ -8,8 +8,8 @@ namespace oe {
 	class Window {
 	private:
 		//Variables
-		unsigned int mWidth, mHeight;
-		float mAspect;
+		static int mWidth, mHeight;
+		static float mAspect;
 		std::string mTitle;
 		GLFWwindow *mWindow;
 		bool m_fullscreen;

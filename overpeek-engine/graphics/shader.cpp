@@ -11,21 +11,21 @@ namespace oe {
 
 	unsigned int Shader::loadShader(unsigned int shadertype, const char *path) {
 		//Load and compile
-		oe::Logger::info(std::string("Reading shader from ") + path);
+		oe::Logger::out(oe::info, "Reading shader from ", path);
 		std::string shaderStr = oe::readFile(path);
 		const char *shaderChar = shaderStr.c_str();
 		//std::cout << shaderChar << std::endl;
 
-		oe::Logger::info("Compiling");
+		oe::Logger::out(oe::info, "Compiling");
 		GLuint shader;
 		shader = glCreateShader(shadertype);
 		glShaderSource(shader, 1, &shaderChar, NULL);
 		glCompileShader(shader);
 
 		//Get errors
-		oe::Logger::info("Checking shader compilation errors...");
+		oe::Logger::out(oe::info, "Checking shader compilation errors...");
 		shaderLog("Shader compilation failed!", shader, GL_COMPILE_STATUS);
-		oe::Logger::info("Shader compiled");
+		oe::Logger::out(oe::info, "Shader compiled");
 		return shader;
 	}
 
@@ -40,7 +40,7 @@ namespace oe {
 			char* infoLog = new char[infoLogLength];
 			glGetShaderInfoLog(shader, 512, nullptr, infoLog);
 
-			oe::Logger::critical(text);
+			oe::Logger::out(oe::critical, text);
 			std::cout << infoLog << std::endl;
 			delete infoLog;
 			Window::terminate();
@@ -60,7 +60,7 @@ namespace oe {
 			char* infoLog = new char[infoLogLength];
 			glGetProgramInfoLog(program, 512, nullptr, infoLog);
 
-			oe::Logger::critical(text);
+			oe::Logger::out(oe::critical, text);
 			std::cout << infoLog << std::endl;
 			delete infoLog;
 			Window::terminate();
@@ -78,14 +78,14 @@ namespace oe {
 		GLuint fragmentShader = loadShader(GL_FRAGMENT_SHADER, fragmentPath);
 
 		//Shader program
-		oe::Logger::info("Linking shaders");
+		oe::Logger::out(oe::info, "Linking shaders");
 		mShaderProgram = glCreateProgram();
 		glAttachShader(mShaderProgram, vertexShader);
 		glAttachShader(mShaderProgram, fragmentShader);
 		glLinkProgram(mShaderProgram);
 
 		//Get shader program linking error
-		oe::Logger::info("Checking shader program linking errors...");
+		oe::Logger::out(oe::info, "Checking shader program linking errors...");
 		programLog("Shader program linking failed!", mShaderProgram, GL_LINK_STATUS);
 
 		//Free up data
@@ -105,7 +105,7 @@ namespace oe {
 		GLuint geometryShader = loadShader(GL_GEOMETRY_SHADER, geometryPath);
 
 		//Shader program
-		oe::Logger::info("Linking shaders");
+		oe::Logger::out(oe::info, "Linking shaders");
 		mShaderProgram = glCreateProgram();
 		glAttachShader(mShaderProgram, vertexShader);
 		glAttachShader(mShaderProgram, fragmentShader);
@@ -113,7 +113,7 @@ namespace oe {
 		glLinkProgram(mShaderProgram);
 
 		//Get shader program linking error
-		oe::Logger::info("Checking shader program linking errors...");
+		oe::Logger::out(oe::info, "Checking shader program linking errors...");
 		programLog("Shader program linking failed!", mShaderProgram, GL_LINK_STATUS);
 
 		//Free up data

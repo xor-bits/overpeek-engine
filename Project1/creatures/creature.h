@@ -59,6 +59,7 @@ public:
 	void update(int index);
 	void collide();
 	void hit(float damagemult);
+	void die();
 	bool canSee(float x, float y);
 
 	inline int getId() { return m_id; }

@@ -2,10 +2,9 @@
 
 
 #define VERSION_MAJOR			0
-#define VERSION_MINOR			2
-#define VERSION_BUG_FIX			1
-#define VERSION_BUILD			1
-#define VERSION_CSTR			"0.2.1.1"
+#define VERSION_MINOR			3
+#define VERSION_BUG_FIX			0
+#define VERSION_CSTR			"0.3.0"
 
 
 
@@ -19,12 +18,13 @@
 #define DEBUG_DISABLE_SAVING	false
 #define STORE_MAP_IN_RAM		true
 
-#define M_WINDOW_HEIGHT			400
+#define M_WINDOW_HEIGHT			720
 #define M_WINDOW_WIDTH			(M_WINDOW_HEIGHT * 16 / 9) //1280
 #define M_ASPECT				(float)M_WINDOW_WIDTH / (float)M_WINDOW_HEIGHT
 #define M_ASPECT_FIXED			false
 #define M_DEFAULT_MULTISAMPLE	2
-#define M_WINDOW_DEFAULT_TITLE	std::string("Unnamed Pre-Alpha v") + VERSION_CSTR
+#define M_GAME_NAME				std::string("Unnamed Game")
+#define M_WINDOW_DEFAULT_TITLE	M_GAME_NAME + std::string(" Pre-Alpha v") + VERSION_CSTR
 
 #if !STORE_MAP_IN_RAM
 #define RENDER_DST				3 * 2

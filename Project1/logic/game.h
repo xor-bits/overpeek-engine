@@ -76,6 +76,7 @@ public:
 	static bool trySetTileObject(float x, float y, int id);
 	static bool trySetTileObject(Tile *tile, int id);
 	static void findAllCreatures(float x, float y, Creature** array, unsigned int& amount, float radius);
+	static void addCreature(float x, float y, int id, bool item);
 #endif
 
 	static void resize(int width, int height);
@@ -92,8 +93,7 @@ public:
 	static Gui *getGui();
 	static Map *getMap();
 
-	static void addCreature(float x, float y, int id, bool item);
-	
-
 	static std::string getSaveLocation();
+
+	inline static float renderScale() { return 720.0f / m_window->getHeight(); }
 };

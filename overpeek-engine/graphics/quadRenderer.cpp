@@ -24,7 +24,7 @@
 namespace oe {
 
 	QuadRenderer::QuadRenderer(Window *window) {
-		oe::Logger::info("Creating renderer");
+		oe::Logger::out(oe::info, "Creating renderer");
 		m_indexcount = 0;
 		m_buffer_current = 0;
 		m_window = window;

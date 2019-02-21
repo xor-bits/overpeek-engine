@@ -28,13 +28,13 @@ namespace oe {
 	bool FontRenderer::init(const char *fontPath) {
 		FT_Library ft;
 		if (FT_Init_FreeType(&ft)) {
-			oe::Logger::error("Failed to initialize Freetype!");
+			oe::Logger::out(oe::error, "Failed to initialize Freetype!");
 			Window::terminate();
 		}
 		
 		FT_Face face;
 		if (FT_New_Face(ft, fontPath, 0, &face)) {
-			oe::Logger::error("Failed to load font!");
+			oe::Logger::out(oe::error, "Failed to load font!");
 			Window::terminate();
 		}
 		
@@ -50,7 +50,7 @@ namespace oe {
 		for (GLubyte c = 32; c < 127; c++) {
 			//Load glyph
 			if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
-				oe::Logger::error(std::string("Failed to load glyph for: \"") + (char)c + "\"");
+				oe::Logger::out(oe::error, "Failed to load glyph for: \"", (char*)c, "\"");
 				continue;
 			}
 
@@ -66,15 +66,15 @@ namespace oe {
 
 			FT_Glyph glyph; 
 			if (FT_Get_Glyph(g, &glyph)) {
-				oe::Logger::error("Glyph load fail");
+				oe::Logger::out(oe::error, "Glyph load fail");
 			}
 			if (FT_Glyph_StrokeBorder(&glyph, stroker, 0, 1)) {
-				oe::Logger::error("Stroke border fail");
+				oe::Logger::out(oe::error, "Stroke border fail");
 			}
 
 			glyph->format = FT_GLYPH_FORMAT_BITMAP;
 			if (FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, 0, 1)) {
-				oe::Logger::error("Glyph to bitmap fail");
+				oe::Logger::out(oe::error, "Glyph to bitmap fail");
 			}
 			FT_BitmapGlyph bitmap;
 			bitmap = (FT_BitmapGlyph)glyph;

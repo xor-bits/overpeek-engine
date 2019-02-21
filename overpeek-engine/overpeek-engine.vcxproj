@@ -80,8 +80,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)\bin\$(ProjectName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\bin\$(ProjectName)\$(Configuration)\Intermediates</IntDir>
-    <IncludePath>$(SolutionDir)\Libraries\al\include;$(SolutionDir)\Libraries\opencv\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\spdlog\include;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\glm;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\Libraries\opencv\lib;$(SolutionDir)\Libraries\box2d\lib;$(SolutionDir)\Libraries\FreeType\lib;$(SolutionDir)\Libraries\GLFW\lib;$(SolutionDir)\Libraries\GLEW\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -94,8 +94,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)\bin\$(ProjectName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\bin\$(ProjectName)\$(Configuration)\Intermediates</IntDir>
-    <IncludePath>$(SolutionDir)\Libraries\al\include;$(SolutionDir)\Libraries\opencv\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\spdlog\include;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\glm;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\al\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\Libraries\opencv\lib;$(SolutionDir)\Libraries\box2d\lib;$(SolutionDir)\Libraries\FreeType\lib;$(SolutionDir)\Libraries\GLFW\lib;$(SolutionDir)\Libraries\GLEW\lib;$(SolutionDir)\Libraries\al\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\Libraries\al\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\Libraries\al\lib;$(LibraryPath)</LibraryPath>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -115,6 +115,12 @@
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
+    <Lib>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -133,6 +139,12 @@
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
+    <Lib>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -148,6 +160,7 @@
       <OpenMPSupport>true</OpenMPSupport>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\zlib\include;$(SolutionDir)\Libraries\al\include;$(SolutionDir)\Libraries\opencv\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\spdlog\include;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\glm;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -155,6 +168,13 @@
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <Lib>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Libraries\zlib\lib;$(SolutionDir)\Libraries\opencv\lib;$(SolutionDir)\Libraries\box2d\lib;$(SolutionDir)\Libraries\FreeType\lib;$(SolutionDir)\Libraries\GLFW\lib;$(SolutionDir)\Libraries\GLEW\lib;</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -170,6 +190,7 @@
       <OpenMPSupport>true</OpenMPSupport>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\zlib\include;$(SolutionDir)\Libraries\al\include;$(SolutionDir)\Libraries\opencv\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\spdlog\include;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\glm;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -177,6 +198,13 @@
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <Lib>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Libraries\zlib\lib;$(SolutionDir)\Libraries\opencv\lib;$(SolutionDir)\Libraries\box2d\lib;$(SolutionDir)\Libraries\FreeType\lib;$(SolutionDir)\Libraries\GLFW\lib;$(SolutionDir)\Libraries\GLEW\lib;</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="audio\audioManager.cpp" />

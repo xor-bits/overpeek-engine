@@ -76,7 +76,7 @@ Pathfinder::Pathfinder(unsigned int startnode_x, unsigned int startnode_y, unsig
 	}
 
 	if (!p_startnode || !p_endnode) {
-		oe::Logger::error("Startnode or endnode lost");
+		oe::Logger::out(oe::error, "Startnode or endnode lost");
 	}
 
 	//Sets

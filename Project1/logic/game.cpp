@@ -49,12 +49,12 @@ std::string renderer;
 void Game::init() {
 	//Audio
 #if ENABLE_AUDIO
-	oe::Logger::info("Creating audio device");
+	oe::Logger::out(oe::info, "Creating audio device");
 	oe::AudioManager::init();
 #endif
 
 	//Window
-	oe::Logger::info("Creating window");
+	oe::Logger::out(oe::info, "Creating window");
 	m_window = std::unique_ptr<oe::Window>(new oe::Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, M_WINDOW_DEFAULT_TITLE, false, M_DEFAULT_MULTISAMPLE, !M_ASPECT_FIXED));
 	m_window->setSwapInterval(NULL);
 	m_window->setButtonCallback(buttonPress);
@@ -62,27 +62,28 @@ void Game::init() {
 	m_window->setScrollCallback(scroll);
 	m_window->setResizeCallback(resize);
 	m_window->setCharmodCallback(charmod);
+	m_window->setSwapInterval(2);
 
 	//Create shader
-	oe::Logger::info("Creating all the shaders");
-	oe::Logger::info("Shader for postprocessing");
+	oe::Logger::out(oe::info, "Creating all the shaders");
+	oe::Logger::out(oe::info, "Shader for postprocessing");
 	m_postshader = std::unique_ptr<oe::Shader>(new oe::Shader("shaders/postprocess.vert.glsl", "shaders/postprocess.frag.glsl"));
-	oe::Logger::info("Shader for textures");
+	oe::Logger::out(oe::info, "Shader for textures");
 	m_shader = std::unique_ptr<oe::Shader>(new oe::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl"));
 	m_pointshader = std::unique_ptr<oe::Shader>(new oe::Shader("shaders/geometrytexture.vert.glsl", "shaders/geometrytexture.frag.glsl", "shaders/geometrytexture.geom.glsl"));
-	oe::Logger::info("All shaders created successfully!");
+	oe::Logger::out(oe::info, "All shaders created successfully!");
 
 	//Shader stuff
 	resize(m_window->getWidth(), m_window->getHeight());
 	
 	//Gameloop
-	oe::Logger::info("Starting gameloop");
+	oe::Logger::out(oe::info, "Starting gameloop");
 	m_loop = std::unique_ptr<oe::GameLoop>(new oe::GameLoop(render, update, rapidUpdate, UPDATES_PER_SECOND, 10000));
 
 	loadGame();
 	renderer = m_window->getRenderer();
 
-	oe::Logger::info("Running update and renderloops");
+	oe::Logger::out(oe::info, "Running update and renderloops");
 	m_loop->start();
 }
 
@@ -236,87 +237,86 @@ void Game::asyncUnload() {
 #endif
 
 void Game::keyPress(int key, int action) {
-	if (!m_gui->chatOpened()) {
-		if (key == OE_KEY_ESCAPE) { paused = !paused; justPaused = true; return; }
-	
-		//Postshader
-		if (key == OE_KEY_F7) { oe::Logger("post 0"); m_postshader->enable(); m_postshader->setUniform1i("unif_lens", 0); justPaused = true; return; }
-		if (key == OE_KEY_F8) { oe::Logger("post 1"); m_postshader->enable(); m_postshader->setUniform1i("unif_lens", 1); justPaused = true; return; }
-	
-		if (paused) return;
-	
-		//Player Hitting
-		if (key == OE_KEY_UP && !m_player->exhausted()) { m_player->heading = HEADING_UP; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
-		if (key == OE_KEY_DOWN && !m_player->exhausted()) { m_player->heading = HEADING_DOWN; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
-		if (key == OE_KEY_LEFT && !m_player->exhausted()) { m_player->heading = HEADING_LEFT; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
-		if (key == OE_KEY_RIGHT && !m_player->exhausted()) { m_player->heading = HEADING_RIGHT; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
-		if ((key == OE_KEY_UP || key == OE_KEY_DOWN || key == OE_KEY_LEFT || key == OE_KEY_RIGHT) && m_player->exhausted()) { m_player->setStamina(m_player->getStamina() - 0.2); return; }
-		if (key == OE_KEY_E) { m_player->setX(round(m_player->getX())); m_player->setY(round(m_player->getY())); return; }
-	
-		//Inventory
-		if (key == OE_KEY_R) { m_inventory->visible = !m_inventory->visible; return; }
-		if (key == OE_KEY_ESCAPE) { m_inventory->visible = false; return; }
-	
-		//Inventory slot selecting
-		if (key == OE_KEY_1) { m_inventory->selectedSlot = 0; return; }
-		else if (key == OE_KEY_2) { m_inventory->selectedSlot = 1; return; }
-		else if (key == OE_KEY_3) { m_inventory->selectedSlot = 2; return; }
-		else if (key == OE_KEY_4) { m_inventory->selectedSlot = 3; return; }
-		else if (key == OE_KEY_5) { m_inventory->selectedSlot = 4; return; }
-	
-		//Debug commands
-		//Activate debug and advanced debug modes
-		if (key == OE_KEY_F1) {
-			debugMode = !debugMode; 
-			if (m_window->getKey(OE_KEY_LEFT_SHIFT)) {
-				advancedDebugMode = debugMode;
-			}
-			else advancedDebugMode = false;
-			return; 
-		}
-	
-		//Debug ceil creaures
-		if (key == OE_KEY_F2) {
-	#if !STORE_MAP_IN_RAM
-			for (int x = 0; x < RENDER_DST; x++)
-			{
-				for (int y = 0; y < RENDER_DST; y++)
-				{
-					if (m_regionExist[x][y])  m_region[x][y].debugCeilCreatures();
-				}
-			}
-	#else
-			m_map->debugCeilCreatures();
-	#endif
-		}
-		
-		//Reload game
-		if (key == OE_KEY_F3) {
-			close();
-	
-	#if !STORE_MAP_IN_RAM
-			lastRegionX = 0;
-			lastRegionY = 0;
-	#endif
-			tilesChanged = true;
-	
-			paused = false;
-			
-			loadGame();
-	
-			return;
-		}
-	
-		//Get FPS
-		if (key == OE_KEY_F4) { oe::Logger::info(std::string("Fps: ") + std::to_string(m_loop->getFPS())); return; }
-		
-		//Clear inventoy
-		if (key == OE_KEY_F5) { m_inventory->clear(); return; }
-		
-		//Add creature at player
-		if (key == OE_KEY_F6) { m_map->addCreature(m_player->getX(), m_player->getY() + 5, 1, false); return; }
-	}
 	m_gui->keyPress(key, action);
+	if (key == OE_KEY_ESCAPE) { paused = !paused; justPaused = true; return; }
+
+	if (m_gui->chatOpened()) return;
+	//Postshader
+	if (key == OE_KEY_F7) { m_postshader->enable(); m_postshader->setUniform1i("unif_lens", 0); justPaused = true; return; }
+	if (key == OE_KEY_F8) { m_postshader->enable(); m_postshader->setUniform1i("unif_lens", 1); justPaused = true; return; }
+
+	if (paused) return;
+
+	//Player Hitting
+	if (key == OE_KEY_UP && !m_player->exhausted()) { m_player->heading = HEADING_UP; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
+	if (key == OE_KEY_DOWN && !m_player->exhausted()) { m_player->heading = HEADING_DOWN; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
+	if (key == OE_KEY_LEFT && !m_player->exhausted()) { m_player->heading = HEADING_LEFT; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
+	if (key == OE_KEY_RIGHT && !m_player->exhausted()) { m_player->heading = HEADING_RIGHT; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
+	if ((key == OE_KEY_UP || key == OE_KEY_DOWN || key == OE_KEY_LEFT || key == OE_KEY_RIGHT) && m_player->exhausted()) { m_player->setStamina(m_player->getStamina() - 0.2); return; }
+	if (key == OE_KEY_E) { m_player->setX(round(m_player->getX())); m_player->setY(round(m_player->getY())); return; }
+
+	//Inventory
+	if (key == OE_KEY_R) { m_inventory->visible = !m_inventory->visible; return; }
+	if (key == OE_KEY_ESCAPE) { m_inventory->visible = false; return; }
+
+	//Inventory slot selecting
+	if (key == OE_KEY_1) { m_inventory->selectedSlot = 0; return; }
+	else if (key == OE_KEY_2) { m_inventory->selectedSlot = 1; return; }
+	else if (key == OE_KEY_3) { m_inventory->selectedSlot = 2; return; }
+	else if (key == OE_KEY_4) { m_inventory->selectedSlot = 3; return; }
+	else if (key == OE_KEY_5) { m_inventory->selectedSlot = 4; return; }
+
+	//Debug commands
+	//Activate debug and advanced debug modes
+	if (key == OE_KEY_F1) {
+		debugMode = !debugMode; 
+		if (m_window->getKey(OE_KEY_LEFT_SHIFT)) {
+			advancedDebugMode = debugMode;
+		}
+		else advancedDebugMode = false;
+		return; 
+	}
+
+	//Debug ceil creaures
+	if (key == OE_KEY_F2) {
+#if !STORE_MAP_IN_RAM
+		for (int x = 0; x < RENDER_DST; x++)
+		{
+			for (int y = 0; y < RENDER_DST; y++)
+			{
+				if (m_regionExist[x][y])  m_region[x][y].debugCeilCreatures();
+			}
+		}
+#else
+		m_map->debugCeilCreatures();
+#endif
+	}
+	
+	//Reload game
+	if (key == OE_KEY_F3) {
+		close();
+
+#if !STORE_MAP_IN_RAM
+		lastRegionX = 0;
+		lastRegionY = 0;
+#endif
+		tilesChanged = true;
+
+		paused = false;
+		
+		loadGame();
+
+		return;
+	}
+
+	//Get FPS
+	if (key == OE_KEY_F4) { oe::Logger::out(oe::info, "Fps: ", m_loop->getFPS()); return; }
+	
+	//Clear inventoy
+	if (key == OE_KEY_F5) { m_inventory->clear(); return; }
+	
+	//Add creature at player
+	if (key == OE_KEY_F6) { m_map->addCreature(m_player->getX(), m_player->getY() + 5, 1, false); return; }
 }
 
 void Game::buttonPress(int button, int action) {}
@@ -331,9 +331,9 @@ void Game::resize(int width, int height) {
 	float aspect = float(width) / float(height);
 	m_postshader->enable();
 	m_postshader->setUniform1i("unif_effect", 0);
-	oe::Logger::info("New width: " + std::to_string(width));
-	oe::Logger::info("New height: " + std::to_string(height));
-	oe::Logger::info("New aspect ratio: " + std::to_string(aspect));
+	oe::Logger::out(oe::info, "New width: ", width);
+	oe::Logger::out(oe::info, "New height: ", height);
+	oe::Logger::out(oe::info, "New aspect ratio: ", aspect);
 	glm::mat4 orthographic = glm::ortho(-aspect * DEBUG_ZOOM, aspect * DEBUG_ZOOM, DEBUG_ZOOM, -DEBUG_ZOOM);
 	m_shader->enable(); m_shader->SetUniformMat4("pr_matrix", orthographic);
 	m_pointshader->enable(); m_pointshader->SetUniformMat4("pr_matrix", orthographic);
@@ -368,7 +368,7 @@ void Game::saveGame() {
 
 void Game::loadGame() {
 	//Initializing
-	oe::Logger::info("Creating game...");
+	oe::Logger::out(oe::info, "Creating game...");
 
 	//Load seed
 #if !DEBUG_DISABLE_SAVING
@@ -396,16 +396,16 @@ void Game::loadGame() {
 	m_worldrenderer = std::unique_ptr<oe::Renderer>(new oe::Renderer("resources/arial.ttf", m_window.get()));
 	m_guirenderer = std::unique_ptr<oe::Renderer>(new oe::Renderer("resources/arial.ttf", m_window.get()));
 
-	oe::Logger::info("Loading resources");
+	oe::Logger::out(oe::info, "Loading resources");
 	oe::TextureManager::loadTextureAtlas("resources/atlas.png", 0, 16);
 	oe::AudioManager::loadAudio("resources/hit.wav", 0);
 	oe::AudioManager::loadAudio("resources/swing.wav", 1);
 	oe::AudioManager::loadAudio("resources/collect.wav", 2);
-	oe::Logger::info("Resources loaded!");
+	oe::Logger::out(oe::info, "Resources loaded!");
 
-	oe::Logger::info("Loading database");
+	oe::Logger::out(oe::info, "Loading database");
 	Database::init();
-	oe::Logger::info("Database loaded!");
+	oe::Logger::out(oe::info, "Database loaded!");
 
 	m_inventory = std::unique_ptr<Inventory>(new Inventory(m_shader.get(), m_window.get()));
 
@@ -440,7 +440,7 @@ void Game::loadGame() {
 	m_shader->enable();
 	glm::mat4 ml_matrix(1.0f);
 	m_shader->SetUniformMat4("ml_matrix", ml_matrix);
-	oe::Logger::info("Game ready!");
+	oe::Logger::out(oe::info, "Game ready!");
 }
 
 
@@ -765,8 +765,6 @@ bool Game::trySetTileObject(Tile *tile, int id) {
 }
 
 #else
-
-void Game::addCreature(float x, float y, int id, bool item) {}
 
 #endif
 

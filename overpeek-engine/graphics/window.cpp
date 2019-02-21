@@ -17,6 +17,8 @@
 
 namespace oe {
 
+	float Window::mAspect;
+	int Window::mWidth, Window::mHeight;
 
 	bool Window::mKeys[M_NUM_KEYS];
 	bool Window::mButtons[M_NUM_BUTTONS];
@@ -55,7 +57,7 @@ namespace oe {
 
 	bool Window::mInit(bool resizeable) {
 		if (!glfwInit()) {
-			oe::Logger::error("Failed to initialize GLFW!");
+			oe::Logger::out(oe::error, "Failed to initialize GLFW!");
 			return false;
 		}
 		if (m_multisample != 0) glfwWindowHint(GLFW_SAMPLES, m_multisample);
@@ -66,19 +68,19 @@ namespace oe {
 		else
 			mWindow = glfwCreateWindow(mWidth, mHeight, mTitle.c_str(), NULL, NULL);
 		if (!mWindow) {
-			oe::Logger::error("Failed to create window!");
+			oe::Logger::out(oe::error, "Failed to create window!");
 			return false;
 		}
 		glfwMakeContextCurrent(mWindow);
 
 		if (glewInit() != GLEW_OK) {
-			oe::Logger::error("Failed to initalize GLEW!");
+			oe::Logger::out(oe::error, "Failed to initalize GLEW!");
 			return false;
 		}
 
-		oe::Logger::info("Window created");
-		oe::Logger::info("OpenGL Renderer: " + std::string((char*)glGetString(GL_RENDERER)));
-		oe::Logger::info("OpenGL Version: " + std::string((char*)glGetString(GL_VERSION)));
+		oe::Logger::out(oe::info, "Window created");
+		oe::Logger::out(oe::info, "OpenGL Renderer: ", (char*)glGetString(GL_RENDERER));
+		oe::Logger::out(oe::info, "OpenGL Version: ", (char*)glGetString(GL_VERSION));
 
 
 		int width, height, nrChannels;
@@ -117,10 +119,12 @@ namespace oe {
 	}
 
 	void Window::framebuffer_size_callback(GLFWwindow *window, int numer, int denom) {
-		int height, width;
-		glfwGetFramebufferSize(window, &width, &height);
-		glViewport(0, 0, width, height);
-		if (m_resize_callback) m_resize_callback(width, height);
+		glfwGetFramebufferSize(window, &mWidth, &mHeight);
+		mAspect = mWidth / (float)mHeight;
+
+		glViewport(0, 0, mWidth, mHeight);
+
+		if (m_resize_callback) m_resize_callback(mWidth, mHeight);
 	}
 
 	void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -184,7 +188,7 @@ namespace oe {
 				errorText = "Unknown error!";
 				break;
 			}
-			oe::Logger::error(std::string("OpenGL ") + std::to_string(err) + std::string(": ") + errorText);
+			oe::Logger::out(oe::error, ("OpenGL " + std::to_string(err) + std::string(": ") + errorText).c_str());
 			glfwTerminate();
 			system("pause");
 			exit(EXIT_FAILURE);

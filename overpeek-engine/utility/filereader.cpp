@@ -16,7 +16,7 @@ namespace oe {
 	{
 		FILE* file = fopen(filepath, "rt");
 		if (!file) {
-			oe::Logger::error(std::string("Couldn't open file ") + filepath);
+			oe::Logger::out(oe::error, "Couldn't open file ", filepath);
 		}
 		fseek(file, 0, SEEK_END);
 		unsigned long length = ftell(file);

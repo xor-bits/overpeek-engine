@@ -21,7 +21,7 @@ namespace oe {
 		int width, height, nrChannels;
 		GLubyte *tmpdata = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
 		if (!tmpdata) {
-			oe::Logger::error(std::string("Image couldn't be loaded at path (") + path + std::string(")"));
+			oe::Logger::out(oe::error, "Image couldn't be loaded at path (", path.c_str(), ")");
 			system("pause");
 			exit(-1);
 		}
@@ -50,7 +50,7 @@ namespace oe {
 		int width, height, nrChannels;
 		GLubyte *tmpdata = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
 		if (!tmpdata) {
-			oe::Logger::error(std::string("Image couldn't be loaded at path (") + path + std::string(")"));
+			oe::Logger::out(oe::error, "Image couldn't be loaded at path (", path.c_str(), ")");
 			system("pause");
 			exit(-1);
 		}
@@ -88,7 +88,7 @@ namespace oe {
 
 		GLint max_layers;
 		glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &max_layers);
-		oe::Logger::info("Max OpenGL layers", max_layers);
+		oe::Logger::out(oe::info, "Max OpenGL layers", max_layers);
 		
 		mTextures[id] = texture;
 		return texture;

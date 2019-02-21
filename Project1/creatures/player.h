@@ -5,12 +5,22 @@
 
 class Inventory;
 class Player : public Creature {
+private:
+	unsigned int m_spawn_location_x;
+	unsigned int m_spawn_location_y;
+
+	int m_death_x;
+	int m_death_y;
+
 public:
 	Inventory *inventory;
-
+	
 public:
 	Player() {}
 	Player(float x, float y, Inventory *inv);
+	void die();
+	void setSpawnPoint(unsigned int x, unsigned int y);
+	void getSpawnPoint(int &x, int &y);
 
 	void submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY);
 	void update();

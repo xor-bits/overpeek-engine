@@ -61,7 +61,8 @@ class Map {
 		void debugCeilCreatures();
 		void update();
 
-		void addCreature(float x, float y, int id, bool item);
+		Creature *addCreature(float x, float y, int id, bool item);
+		Creature *itemDrop(float x, float y, int id);
 		void removeCreature(int index);
 		void removeCreature(Creature *creature);
 

@@ -8,7 +8,7 @@
 
 Map::Map(std::string name) {
 	m_name = name;
-	oe::Logger::info("World loading started");
+	oe::Logger::out(oe::info, "World loading started");
 	oe::Debug::startTimer();
 
 	std::string strcommand("mkdir \"" + saveLocation() + "\"" + " >nul 2>&1");
@@ -27,7 +27,7 @@ Map::Map(std::string name) {
 }
 
 bool Map::loadMap() {
-	oe::Logger::info("Starting to load the map");
+	oe::Logger::out(oe::info, "Starting to load the map");
 	oe::Debug::startTimer();
 
 
@@ -47,7 +47,7 @@ bool Map::loadMap() {
 	unsigned long uncompressedSize = MAP_SIZE * MAP_SIZE * 3 * sizeof(short);
 	Byte* uncompressedTiles = new Byte[uncompressedSize];
 	int state = uncompress(uncompressedTiles, &uncompressedSize, tile_data, tile_data_size);
-	if (state != Z_OK) oe::Logger::error("Error uncompressing save file! " + std::to_string(state));
+	if (state != Z_OK) oe::Logger::out(oe::error, "Error uncompressing save file! ", state);
 	short int *tileData = (short int*)uncompressedTiles;
 
 	//Print time took to uncompress the data
@@ -94,11 +94,11 @@ bool Map::loadMap() {
 	free(creature_data);
 
 
-	oe::Logger::info("Map loaded successfully!");
+	oe::Logger::out(oe::info, "Map loaded successfully!");
 }
 
 void Map::save() {
-	oe::Logger::info("Starting to save the map");
+	oe::Logger::out(oe::info, "Starting to save the map");
 	oe::Debug::startTimer();
 
 
@@ -131,7 +131,7 @@ void Map::save() {
 	Byte* compressedTiles = new Byte[compressedSize];
 	Byte* tiledata = (Byte*)(tiles);
 	int state = compress(compressedTiles, &compressedSize, tiledata, sourceLen);
-	if (state != Z_OK) oe::Logger::error("Error compressing save file!");
+	if (state != Z_OK) oe::Logger::out(oe::error, "Error compressing save file!");
 
 
 	//Print compression time
@@ -143,7 +143,7 @@ void Map::save() {
 
 	//Print saving time
 	oe::Debug::printTimer("Microseconds to save the data: ");
-	oe::Logger::info("Map saved successfully!");
+	oe::Logger::out(oe::info, "Map saved successfully!");
 
 	//Cleanup
 	delete tiles;
@@ -175,7 +175,7 @@ void Map::createMapFast() {
 	noise->SetFrequency(MAP_PLANT2_FREQ);
 	m_plantnoise2 = noise->GetSimplexFractalSet(0, 0, 0, MAP_SIZE, MAP_SIZE, 1, 1.0f);
 
-	oe::Logger::info("Noisemaps generated");
+	oe::Logger::out(oe::info, "Noisemaps generated");
 
 #pragma omp parallel for
 	for (int x = 0; x < MAP_SIZE; x++)
@@ -190,14 +190,14 @@ void Map::createMapFast() {
 		}
 		m_tiles.push_back(std::move(tmp));
 	}
-	oe::Logger::info("Map generated");
+	oe::Logger::out(oe::info, "Map generated");
 
 	noise->FreeNoiseSet(m_biomenoise1);
 	noise->FreeNoiseSet(m_biomenoise2);
 	noise->FreeNoiseSet(m_mapnoise);
 	noise->FreeNoiseSet(m_plantnoise1);
 	noise->FreeNoiseSet(m_plantnoise2);
-	oe::Logger::info("Noisemap memory freed");
+	oe::Logger::out(oe::info, "Noisemap memory freed");
 }
 
 Database::Biome *Map::getTileBiome(float x, float y) {
@@ -219,7 +219,7 @@ int Map::getInfoFromNoiseIfLoop(Database::Biome *biome, float x, float y, int in
 
 void Map::getInfoFromNoise(int &tileId, int &objId, float x, float y) {
 	Database::Biome *biome = getTileBiome(x, y);
-	if (!biome) oe::Logger::error("Biome was nullptr");
+	if (!biome) oe::Logger::out(oe::error, "Biome was nullptr");
 
 	if (biome->heightMap.size() == 1) {
 		tileId = biome->heightMap[0].id;
@@ -291,12 +291,12 @@ void Map::submitToRenderer(oe::Renderer *renderer, float offX, float offY) {
 			MapTile *tile = getTile(x + Game::getPlayer()->getX(), y + Game::getPlayer()->getY());
 			Database::Tile db_tile = Database::tiles[tile->m_tile];
 			Database::Object db_object = Database::objects[tile->m_object];
-			float rx = (float(x) + floor(Game::getPlayer()->getX()) + offX) * TILE_SIZE;
-			float ry = (float(y) + floor(Game::getPlayer()->getY()) + offY) * TILE_SIZE;
-			renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE, TILE_SIZE), db_tile.texture, glm::vec4(1.0));
+			float rx = (float(x) + floor(Game::getPlayer()->getX()) + offX) * TILE_SIZE * Game::renderScale();
+			float ry = (float(y) + floor(Game::getPlayer()->getY()) + offY) * TILE_SIZE * Game::renderScale();
+			renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE * Game::renderScale(), TILE_SIZE * Game::renderScale()), db_tile.texture, glm::vec4(1.0));
 
 			if (db_object.id != 0)
-			renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE, TILE_SIZE), getObjectTexture(x + Game::getPlayer()->getX(), y + Game::getPlayer()->getY()), glm::vec4(db_object.color, 1.0));
+			renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE * Game::renderScale(), TILE_SIZE * Game::renderScale()), getObjectTexture(x + Game::getPlayer()->getX(), y + Game::getPlayer()->getY()), glm::vec4(db_object.color, 1.0));
 		
 		}
 	}
@@ -330,8 +330,17 @@ void Map::debugCeilCreatures() {
 	}
 }
 
-void Map::addCreature(float x, float y, int id, bool item) {
-	m_creatures.push_back(std::unique_ptr<Creature>(new Creature(x, y, id, item)));
+Creature *Map::addCreature(float x, float y, int id, bool item) {
+	std::unique_ptr<Creature> tmp(new Creature(x, y, id, item));
+	m_creatures.push_back(std::move(tmp));
+	return m_creatures[m_creatures.size() - 1].get();
+}
+
+Creature *Map::itemDrop(float x, float y, int id) {
+	Creature *newItem = addCreature(x, y, id, true);
+	newItem->vel_x = oe::Random::random(-0.2, 0.2);
+	newItem->vel_y = oe::Random::random(-0.2, 0.2);
+	return newItem;
 }
 
 void Map::removeCreature(int i) {
@@ -351,7 +360,7 @@ void Map::removeCreature(Creature *creature) {
 	char buff[100];
 	snprintf(buff, sizeof(buff), "%p", (void*)creature);
 	std::string buffAsStdStr = buff;
-	oe::Logger::critical("Couldn't find creature: " + buffAsStdStr + "!");
+	oe::Logger::out(oe::critical, "Couldn't find creature: ", buffAsStdStr.c_str(), "!");
 }
 
 void Map::update() {
