@@ -1,6 +1,5 @@
 #pragma once
 
-#include <string>
 #include <glm/glm.hpp>
 
 namespace oe {
@@ -47,7 +46,7 @@ namespace oe {
 		bool m_pointMapped;
 
 	public:
-		Renderer(std::string font, Window *window);
+		Renderer(const char *font, Window *window);
 
 		~Renderer();
 
@@ -58,20 +57,20 @@ namespace oe {
 		void renderPoint(glm::vec2 pos, glm::vec2 size, int id, glm::vec4 color);
 
 		//Submit text to renderer
-		void renderText(glm::vec2 pos, glm::vec2 size, std::string text, glm::vec3 color, int _textOrigin);
+		void renderText(glm::vec2 pos, glm::vec2 size, const char *text, glm::vec3 color, int _textOrigin);
 
 		//Draws all quads and text
 		//textbool is location of int (used as boolean) in shader that enables or disables text rendering
-		void draw(Shader *shader, Shader * pointshader, std::string textbool, int texture);
+		void draw(Shader *shader, Shader * pointshader, int texture);
 
 		//Draws all quads and text to specified framebuffer at index
-		void drawToFramebuffer(Shader *shader, Shader * pointshader, std::string textbool, int texture, bool first_framebuffer);
+		void drawToFramebuffer(Shader *shader, Shader * pointshader, int texture, bool first_framebuffer);
 		
 		//Draws (first or second) framebuffer to screen
-		void drawFramebuffer(Shader *postshader, std::string texture_sampler, bool first_framebuffer);
+		void drawFramebuffer(Shader *postshader, const char *texture_sampler, bool first_framebuffer);
 		
 		//Draws framebuffer to another framebuffer
-		void drawFramebufferToFramebuffer(Shader *postshader, std::string texture_sampler, bool first_framebuffer);
+		void drawFramebufferToFramebuffer(Shader *postshader, const char *texture_sampler, bool first_framebuffer);
 
 	};
 

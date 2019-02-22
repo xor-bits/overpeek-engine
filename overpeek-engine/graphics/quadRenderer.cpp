@@ -2,10 +2,12 @@
 
 #include "textureManager.h"
 #include "buffers/vertexArray.h"
+#include "buffers/buffer.h"
 #include "buffers/indexBuffer.h"
 #include "../utility/logger.h"
 
 
+#include <GL/glew.h>
 #include <stddef.h>
 #include <vector>
 #include <iostream>
@@ -22,7 +24,7 @@
 namespace oe {
 
 	QuadRenderer::QuadRenderer(Window *window) {
-		oe::Logger::info("Creating renderer");
+		oe::Logger::out(oe::info, "Creating renderer");
 		m_indexcount = 0;
 		m_buffer_current = 0;
 		m_window = window;

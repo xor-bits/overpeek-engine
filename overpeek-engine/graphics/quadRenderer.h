@@ -1,6 +1,5 @@
 #pragma once
 
-#include <GL/glew.h>
 #include <glm/glm.hpp>
 
 namespace oe {
@@ -16,7 +15,7 @@ namespace oe {
 		{
 			glm::vec2 position;
 			glm::vec2 uv;
-			GLfloat texture;
+			float texture;
 			glm::vec4 color;
 		};
 
@@ -25,10 +24,10 @@ namespace oe {
 		VertexArray *m_VAO;
 		Buffer *m_VBO;
 		IndexBuffer *m_IBO;
-		GLuint m_indexcount;
+		unsigned int m_indexcount;
 
 		TriangleVertexData* m_buffer;
-		GLuint m_buffer_current;
+		unsigned int m_buffer_current;
 
 		//int debug = 0;
 
@@ -47,7 +46,7 @@ namespace oe {
 		void renderBox(glm::vec2 _pos, glm::vec2 _size, int _id, glm::vec4 _color);
 		
 		//Draws buffers and then clears them
-		void draw(GLint texture);
+		void draw(int texture);
 	};
 	
 }

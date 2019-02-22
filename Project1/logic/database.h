@@ -274,6 +274,26 @@ public:
 		float stamina = 0.0f;
 		float staminagain = 0.0f;
 		unsigned int dropsAs;
+
+		Creature() {}
+		Creature(std::string _name, unsigned int _id, bool _friendly, bool _ghost, float _kb, float _melee, float _hp, float _hpg, float _st, float _stg, unsigned int _dropsAs, glm::vec3 _color, unsigned int _texture_heading_up, unsigned int _texture_heading_down, unsigned int _texture_heading_left, unsigned int _texture_heading_right) {
+			name = _name;
+			id = _id;
+			friendly = _friendly;
+			ghost = _ghost;
+			knockback = _kb;
+			meleeDamage = _melee;
+			health = _hp;
+			healthgain = _hpg;
+			stamina = _st;
+			staminagain = _stg;
+			dropsAs = _dropsAs;
+			color = _color;
+			texture_heading_up = _texture_heading_up;
+			texture_heading_down = _texture_heading_down;
+			texture_heading_left = _texture_heading_left;
+			texture_heading_right = _texture_heading_right;
+		}
 	} creatures[COUNT_CREATURES];
 
 	static struct BiomeTileHeight 
@@ -312,20 +332,21 @@ public:
 		tiles[0] = Tile("Soil",			0,		0);
 		tiles[1] = Tile("Water",		1,		1);
 		tiles[2] = Tile("Sand",			2,		2);
-		tiles[3] = Tile("Grassy soil",	3,		4);
-		tiles[4] = Tile("Gravel",		4,		8);
+		tiles[3] = Tile("Grassy soil",	3,		3);
+		tiles[4] = Tile("Gravel",		4,		7);
 
-		//Objects			//Name			//id	//Texture	//Wall	//Multitexture	//Smooth	//Destroyable	//Color							//Health	//Drop as		
-		objects[0] = Object("Air",			0,		0,			false,	false,			false,		false,			glm::vec3(1.0f),				0,			0);
-		objects[1] = Object("Grass",		1,		5,			false,	false,			false,		true,			glm::vec3(1.0f),				1,			2);
-		objects[2] = Object("Spruce",		2,		6,			false,	false,			false,		true,			glm::vec3(1.0f),				5,			3);
-		objects[3] = Object("Birch",		3,		7,			false,	false,			false,		true,			glm::vec3(1.0f),				5,			3);
-		objects[4] = Object("Wood wall",	4,		0,			true,	true,			true,		true,			glm::vec3(0.58f, 0.43f, 0.2f),	10,			3);
-		objects[5] = Object("Stone wall",	5,		0,			true,	true,			false,		true,			glm::vec3(0.5f, 0.5f, 0.5f),	15,			1);
+		//Objects			//Name			//id	//Texture	//Wall		//Multitexture	//Smooth	//Destroyable	//Color							//Health	//Drop as		
+		objects[0] = Object("Air",			0,		0,			false,		false,			false,		false,			glm::vec3(1.0f),				0,			0);
+		objects[1] = Object("Grass",		1,		4,			false,		false,			false,		true,			glm::vec3(1.0f),				1,			2);
+		objects[2] = Object("Spruce",		2,		5,			false,		false,			false,		true,			glm::vec3(1.0f),				5,			3);
+		objects[3] = Object("Birch",		3,		6,			false,		false,			false,		true,			glm::vec3(1.0f),				5,			3);
+		objects[4] = Object("Wood wall",	4,		0,			true,		true,			true,		true,			glm::vec3(0.58f, 0.43f, 0.2f),	10,			3);
+		objects[5] = Object("Stone wall",	5,		0,			true,		true,			false,		true,			glm::vec3(0.5f, 0.5f, 0.5f),	15,			1);
 		
-		//Creatures
-		creatures[0] = { "Player", 0, 3, 19, 35, 51, true, false, glm::vec3(0.0f, 0.0f, 1.0f), 1.0f, 1.0f, 5.0f, 0.005f, 5.0f, 0.005f, 0 };
-		creatures[1] = { "Enemy", 1, 3, 19, 35, 51, false, false, glm::vec3(1.0f, 0.0f, 0.0f), 1.0f, 1.0f, 5.0f, 0.0f, 5.0f, 5.0f, 2 };
+		//Creatures				//Name		//Id	//Friendly		//Ghost		//Knockback		//Melee		//Hp	//Regen		//Stamina	//Staminaregen	//Drops as	//Color			//Textures >>>>	//Up	//Down	//Left	//Right
+		creatures[0] = Creature("Player",	0,		true,			false,		1.0f,			1.0f,		5.0f,	0.005f,		5.0f,		0.005f,			0,			glm::vec3(1.0f),				8,		9,		10,		11);
+		creatures[1] = Creature("Whatever",	1,		false,			false,		1.0f,			1.0f,		5.0f,	0.0f,		5.0f,		5.0f,			2,			glm::vec3(1.0f),				8,		9,		10,		11);
+		creatures[2] = Creature("Item",		2,		false,			false,		0.0f,			0.0f,		1.0f,	0.0f,		0.0f,		0.0f,			0,			glm::vec3(1.0f),				0,		0,		0,		0);
 
 		//Biomes
 

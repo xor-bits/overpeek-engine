@@ -20,6 +20,8 @@
 
 namespace oe {
 
+	float Window::mAspect;
+	int Window::mWidth, Window::mHeight;
 
 	bool Window::mKeys[M_NUM_KEYS];
 	bool Window::mButtons[M_NUM_BUTTONS];
@@ -32,6 +34,8 @@ namespace oe {
 	void(*Window::mKeyCallback)(int, int);
 	void(*Window::mButtonCallback)(int, int);
 	void(*Window::m_scroll_callback)(double);
+	void(*Window::m_resize_callback)(int, int);
+	void(*Window::m_charmods_callback)(unsigned int, int);
 
 	Window::Window(unsigned int width, unsigned int height, const char *title, bool fullscreen, unsigned int multisample, bool resizeable)
 	{
@@ -56,7 +60,7 @@ namespace oe {
 
 	bool Window::mInit(bool resizeable) {
 		if (!glfwInit()) {
-			oe::Logger::error("Failed to initialize GLFW!");
+			oe::Logger::out(oe::error, "Failed to initialize GLFW!");
 			return false;
 		}
 		if (m_multisample != 0) glfwWindowHint(GLFW_SAMPLES, m_multisample);
@@ -67,19 +71,19 @@ namespace oe {
 		else
 			mWindow = glfwCreateWindow(mWidth, mHeight, mTitle, NULL, NULL);
 		if (!mWindow) {
-			oe::Logger::error("Failed to create window!");
+			oe::Logger::out(oe::error, "Failed to create window!");
 			return false;
 		}
 		glfwMakeContextCurrent(mWindow);
 
 		if (glewInit() != GLEW_OK) {
-			oe::Logger::error("Failed to initalize GLEW!");
+			oe::Logger::out(oe::error, "Failed to initalize GLEW!");
 			return false;
 		}
 
-		oe::Logger::info("Window created");
-		oe::Logger::info("OpenGL Renderer: " + std::string((char*)glGetString(GL_RENDERER)));
-		oe::Logger::info("OpenGL Version: " + std::string((char*)glGetString(GL_VERSION)));
+		oe::Logger::out(oe::info, "Window created");
+		oe::Logger::out(oe::info, "OpenGL Renderer: ", (char*)glGetString(GL_RENDERER));
+		oe::Logger::out(oe::info, "OpenGL Version: ", (char*)glGetString(GL_VERSION));
 
 
 		int width, height, nrChannels;
@@ -87,12 +91,13 @@ namespace oe {
 		GLFWimage icon; icon.height = height; icon.width = width; icon.pixels = data;
 		glfwSetWindowIcon(mWindow, 1, &icon);
 
-		glfwSetFramebufferSizeCallback(mWindow, glfwSetWindowAspectRatio);
+		glfwSetCharModsCallback(mWindow, charmods_callback);
+		glfwSetFramebufferSizeCallback(mWindow, framebuffer_size_callback);
 		glfwSetCursorPosCallback(mWindow, cursor_position_callback);
 		glfwSetMouseButtonCallback(mWindow, mouse_button_callback);
 		glfwSetKeyCallback(mWindow, key_callback);
 		glfwSetScrollCallback(mWindow, scroll_callback);
-		//glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		//glfwSetInputMode(mWindow, OE_CURSOR, OE_CURSOR_DISABLED);
 
 		if (m_multisample != 0) glEnable(GL_MULTISAMPLE);
 
@@ -103,9 +108,9 @@ namespace oe {
 		glDepthFunc(GL_LEQUAL);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
-		//glEnable(GL_CULL_FACE);
-		//glCullFace(GL_BACK);
-		//glFrontFace(GL_CCW);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glFrontFace(GL_CCW);
 
 		glfwSwapInterval(0);
 
@@ -117,10 +122,12 @@ namespace oe {
 	}
 
 	void Window::framebuffer_size_callback(GLFWwindow *window, int numer, int denom) {
-		int height, width;
-		glfwGetFramebufferSize(window, &width, &height);
-		glViewport(0, 0, width, height);
-		oe::Logger::info("resized");
+		glfwGetFramebufferSize(window, &mWidth, &mHeight);
+		mAspect = mWidth / (float)mHeight;
+
+		glViewport(0, 0, mWidth, mHeight);
+
+		if (m_resize_callback) m_resize_callback(mWidth, mHeight);
 	}
 
 	void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -152,6 +159,10 @@ namespace oe {
 		mMouseX = xpos; mMouseY = ypos;
 	}
 
+	void Window::charmods_callback(GLFWwindow* window, unsigned int codepoint, int mods) {
+		if (m_charmods_callback) m_charmods_callback(codepoint, mods);
+	}
+
 	void Window::checkErrors() {
 		GLenum err = glGetError();
 		if (err != 0) {
@@ -180,7 +191,7 @@ namespace oe {
 				errorText = "Unknown error!";
 				break;
 			}
-			oe::Logger::error(std::string("OpenGL ") + std::to_string(err) + std::string(": ") + errorText);
+			oe::Logger::out(oe::error, ("OpenGL " + std::to_string(err) + std::string(": ") + errorText).c_str());
 			glfwTerminate();
 			system("pause");
 			exit(EXIT_FAILURE);
@@ -214,6 +225,24 @@ namespace oe {
 
 	void Window::setScrollCallback(void(*callback)(double)) {
 		m_scroll_callback = callback;
+	}
+
+	void Window::setResizeCallback(void(*callback)(int, int)) {
+		m_resize_callback = callback;
+	}
+
+	void Window::setCharmodCallback(void(*callback)(unsigned int, int)) {
+		m_charmods_callback = callback;
+	}
+
+	void Window::terminate() {
+		glfwTerminate();
+		system("pause");
+		exit(1);
+	}
+
+	std::string Window::getRenderer() {
+		return std::string((char*)glGetString(GL_RENDERER));
 	}
 
 }

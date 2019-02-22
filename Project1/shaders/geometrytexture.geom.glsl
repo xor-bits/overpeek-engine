@@ -23,17 +23,17 @@ void main() {
 	shader_color = _shader_color[0];
 	gl_Position = pr_matrix * gl_in[0].gl_Position;
 	EmitVertex();
+
+	shader_uv = vec2(1.0, 1.0);
+	shader_id = _shader_id[0];
+	shader_color = _shader_color[0];
+	gl_Position = pr_matrix * (gl_in[0].gl_Position + vec4(w, h, 0.0, 0.0));
+	EmitVertex();
     
 	shader_uv = vec2(1.0, 0.0);
 	shader_id = _shader_id[0];
 	shader_color = _shader_color[0];
 	gl_Position = pr_matrix * (gl_in[0].gl_Position + vec4(w, 0.0, 0.0, 0.0));
-	EmitVertex();
-    
-	shader_uv = vec2(1.0, 1.0);
-	shader_id = _shader_id[0];
-	shader_color = _shader_color[0];
-	gl_Position = pr_matrix * (gl_in[0].gl_Position + vec4(w, h, 0.0, 0.0));
 	EmitVertex();
 	EndPrimitive();
     
@@ -43,17 +43,17 @@ void main() {
 	shader_color = _shader_color[0];
 	gl_Position = pr_matrix * gl_in[0].gl_Position;
 	EmitVertex();
+
+	shader_uv = vec2(0.0, 1.0);
+	shader_id = _shader_id[0];
+	shader_color = _shader_color[0];
+	gl_Position = pr_matrix * (gl_in[0].gl_Position + vec4(0.0, h, 0.0, 0.0));
+	EmitVertex();
     
 	shader_uv = vec2(1.0, 1.0);
 	shader_id = _shader_id[0];
 	shader_color = _shader_color[0];
 	gl_Position = pr_matrix * (gl_in[0].gl_Position + vec4(w, h, 0.0, 0.0));
-	EmitVertex();
-    
-	shader_uv = vec2(0.0, 1.0);
-	shader_id = _shader_id[0];
-	shader_color = _shader_color[0];
-	gl_Position = pr_matrix * (gl_in[0].gl_Position + vec4(0.0, h, 0.0, 0.0));
 	EmitVertex();
 	EndPrimitive();
 

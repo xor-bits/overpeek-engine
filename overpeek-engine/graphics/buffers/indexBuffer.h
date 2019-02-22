@@ -1,24 +1,22 @@
 #pragma once
 
-#include <GL/glew.h>
-
 namespace oe {
 
 	class IndexBuffer {
 	private:
-		GLuint mID;
-		GLuint mCount;
+		unsigned int mID;
+		unsigned int mCount;
 
 	public:
-		IndexBuffer(GLushort *data, GLsizei count, GLenum usage);
+		IndexBuffer(unsigned short int *data, int count, unsigned int usage);
 		~IndexBuffer();
 
 		void bind();
 		void unbind();
 
-		void setBufferData(const GLvoid *data, GLsizei count);
+		void setBufferData(const void *data, int count);
 
-		inline GLuint getCount() { return mCount; }
+		inline unsigned int getCount() { return mCount; }
 	};
 
 }

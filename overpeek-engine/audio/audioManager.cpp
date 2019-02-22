@@ -1,6 +1,7 @@
 #include "audioManager.h"
 
 #include "../utility/logger.h"
+#include "../graphics/window.h"
 
 #include <fstream>
 #include <string>
@@ -37,7 +38,7 @@ namespace oe {
 		in.read(buffer, 4);
 		if (strncmp(buffer, "RIFF", 4) != 0)
 		{
-			oe::Logger::error("oe not valid!");
+			oe::Logger::out(oe::error, "oe not valid!");
 			return nullptr;
 		}
 		in.read(buffer, 4);
@@ -62,25 +63,21 @@ namespace oe {
 	}
 
 	void AudioManager::init() {
-		oe::Logger::info("Creating oe device");
+		oe::Logger::out(oe::info, "Creating oe device");
 		ALCdevice* device = alcOpenDevice(NULL);
 		if (device == NULL)
 		{
-			oe::Logger::error("Cannot open sound card!");
-			glfwTerminate();
-			system("pause");
-			exit(EXIT_FAILURE);
+			oe::Logger::out(oe::error, "Cannot open sound card!");
+			Window::terminate();
 		}
 		ALCcontext* context = alcCreateContext(device, NULL);
 		if (context == NULL)
 		{
-			oe::Logger::error("Cannot open oe context!");
-			glfwTerminate();
-			system("pause");
-			exit(EXIT_FAILURE);
+			oe::Logger::out(oe::error, "Cannot open oe context!");
+			Window::terminate();
 		}
 		alcMakeContextCurrent(context);
-		oe::Logger::info("oe device done!");
+		oe::Logger::out(oe::info, "oe device done!");
 	}
 
 	void AudioManager::loadAudio(std::string filepath, int id) {
@@ -103,9 +100,7 @@ namespace oe {
 	}
 
 	void AudioManager::play(int id) {
-#if ENABLE_oe
-		oe::Logger::info("Sound");
+		//oe::Logger::info("Sound");
 		alSourcePlay(sources[id]);
-#endif
 	}
 }

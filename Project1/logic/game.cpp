@@ -40,8 +40,8 @@ int Game::asyncSaveIndex = 0;
 bool Game::debugMode = false;
 bool Game::advancedDebugMode = false;
 bool Game::tilesChanged = true;
-bool Game::justPaused = false;
-bool Game::paused = false;
+bool Game::justPaused = true;
+bool Game::paused = true;
 
 
 std::string renderer;
@@ -49,71 +49,45 @@ std::string renderer;
 void Game::init() {
 	//Audio
 #if ENABLE_AUDIO
-	oe::Logger::info("Creating audio device");
+	oe::Logger::out(oe::info, "Creating audio device");
 	oe::AudioManager::init();
 #endif
 
 	//Window
-	oe::Logger::info("Creating window");
+	oe::Logger::out(oe::info, "Creating window");
 	m_window = std::unique_ptr<oe::Window>(new oe::Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, M_WINDOW_DEFAULT_TITLE, false, M_DEFAULT_MULTISAMPLE, !M_ASPECT_FIXED));
 	m_window->setSwapInterval(NULL);
 	m_window->setButtonCallback(buttonPress);
 	m_window->setKeyboardCallback(keyPress);
 	m_window->setScrollCallback(scroll);
+	m_window->setResizeCallback(resize);
+	m_window->setCharmodCallback(charmod);
+	m_window->setSwapInterval(2);
 
 	//Create shader
-	oe::Logger::info("Creating all the shaders");
-	oe::Logger::info("Shader for postprocessing");
+	oe::Logger::out(oe::info, "Creating all the shaders");
+	oe::Logger::out(oe::info, "Shader for postprocessing");
 	m_postshader = std::unique_ptr<oe::Shader>(new oe::Shader("shaders/postprocess.vert.glsl", "shaders/postprocess.frag.glsl"));
-	oe::Logger::info("Shader for textures");
+	oe::Logger::out(oe::info, "Shader for textures");
 	m_shader = std::unique_ptr<oe::Shader>(new oe::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl"));
 	m_pointshader = std::unique_ptr<oe::Shader>(new oe::Shader("shaders/geometrytexture.vert.glsl", "shaders/geometrytexture.frag.glsl", "shaders/geometrytexture.geom.glsl"));
-	oe::Logger::info("All shaders created successfully!");
+	oe::Logger::out(oe::info, "All shaders created successfully!");
 
 	//Shader stuff
-	m_postshader->enable();
-	m_postshader->setUniform1i("unif_effect", 0);
-	m_postshader->setUniform1f("unif_width", m_window->getWidth());
-	m_postshader->setUniform1f("unif_height", m_window->getHeight());
-	glm::mat4 orthographic = glm::ortho(-M_ASPECT * DEBUG_ZOOM, M_ASPECT * DEBUG_ZOOM, DEBUG_ZOOM, -DEBUG_ZOOM);
-	m_shader->enable(); m_shader->SetUniformMat4("pr_matrix", orthographic);
-	m_pointshader->enable(); m_pointshader->SetUniformMat4("pr_matrix", orthographic);
+	resize(m_window->getWidth(), m_window->getHeight());
 	
 	//Gameloop
-	oe::Logger::info("Starting gameloop");
+	oe::Logger::out(oe::info, "Starting gameloop");
 	m_loop = std::unique_ptr<oe::GameLoop>(new oe::GameLoop(render, update, rapidUpdate, UPDATES_PER_SECOND, 10000));
 
 	loadGame();
-	renderer = std::string((char*)glGetString(GL_RENDERER));
+	renderer = m_window->getRenderer();
 
-	oe::Logger::info("Running update and renderloops");
+	oe::Logger::out(oe::info, "Running update and renderloops");
 	m_loop->start();
 }
 
 void Game::rapidUpdate() {
-}
-
-void Game::renderInfoScreen() {
-	if (!debugMode) return;
-
-	float textScale = 0.05;
-	float x = -m_window->getAspect();
-
-	std::string text = "FPS: " + std::to_string(m_loop->getFPS());
-	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 0)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
-	text = "UPS: " + std::to_string(m_loop->getUPS());
-	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 1)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
-	
-	
-	if (!advancedDebugMode) return;
-	text = "Position X: " + std::to_string(m_player->getX()) + ", Y: " + std::to_string(m_player->getY());
-	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 2)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
-	text = "Tile: " + Database::tiles[m_map->getTile(m_player->getY(), m_player->getY())->m_tile].name;
-	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 3)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
-	text = "Object: " + Database::objects[m_map->getTile(m_player->getY(), m_player->getY())->m_object].name;
-	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 4)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
-	text = "Renderer: " + renderer;
-	m_guirenderer->renderText(glm::vec2(x, -1.0 + (textScale * 5)), glm::vec2(textScale, textScale), text, glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
 }
 
 void Game::render() {
@@ -142,17 +116,16 @@ void Game::render() {
 	}
 	
 	//Gui
-	renderInfoScreen();
 	m_gui->renderNoBlur(m_guirenderer.get());
 
 	//Flush
 	if (!paused) {
-		m_worldrenderer->draw(m_shader.get(), m_pointshader.get(), "unif_text", oe::TextureManager::getTexture(0));
+		m_worldrenderer->draw(m_shader.get(), m_pointshader.get(), oe::TextureManager::getTexture(0));
 	}
 	else if (justPaused) {
-		m_worldrenderer->drawToFramebuffer(m_shader.get(), m_pointshader.get(), "unif_text", oe::TextureManager::getTexture(0), false);
+		m_worldrenderer->drawToFramebuffer(m_shader.get(), m_pointshader.get(), oe::TextureManager::getTexture(0), false);
 		m_postshader->enable();
-		for (int i = 0; i < 1; i++) {
+		for (int i = 0; i < 16; i++) {
 			m_postshader->setUniform1i("unif_effect", 1);
 			m_worldrenderer->drawFramebufferToFramebuffer(m_postshader.get(), "unif_texture", true);
 			m_postshader->setUniform1i("unif_effect", 2);
@@ -167,7 +140,7 @@ void Game::render() {
 		m_worldrenderer->drawFramebuffer(m_postshader.get(), "unif_texture", false);
 	}
 	
-	m_guirenderer->draw(m_shader.get(), m_pointshader.get(), "unif_text", oe::TextureManager::getTexture(0));
+	m_guirenderer->draw(m_shader.get(), m_pointshader.get(), oe::TextureManager::getTexture(0));
 
 	//Other
 	justPaused = false;
@@ -183,19 +156,22 @@ void Game::update() {
 
 	if (m_window->close()) m_loop->stop();
 	if (!paused) {
-		//Player movement
-		float playerSpeed = 0.03;
-		bool running = false;
-		bool moving = false;
-		if (m_window->getKey(GLFW_KEY_LEFT_SHIFT)) running = true;
-		if (m_window->getKey(GLFW_KEY_LEFT_SHIFT) && !m_player->exhausted()) playerSpeed *= 2;
-		else if (m_window->getKey(GLFW_KEY_LEFT_CONTROL)) playerSpeed *= 0.2;
-		else if (m_window->getKey(GLFW_KEY_TAB)) playerSpeed *= 20;
-		if (m_window->getKey(GLFW_KEY_S)) { m_player->vel_y = playerSpeed; moving = true; }
-		if (m_window->getKey(GLFW_KEY_D)) { m_player->vel_x = playerSpeed; moving = true; }
-		if (m_window->getKey(GLFW_KEY_W)) { m_player->vel_y = -playerSpeed; moving = true; }
-		if (m_window->getKey(GLFW_KEY_A)) { m_player->vel_x = -playerSpeed; moving = true; }
-		if (moving && running) { m_player->setStamina(m_player->getStamina() - 0.01); }
+		if (!m_gui->chatOpened()) {
+			//Player movement
+			float playerSpeed = 0.03;
+			bool running = false;
+			bool moving = false;
+			if (m_window->getKey(OE_KEY_LEFT_SHIFT)) running = true;
+			if (m_window->getKey(OE_KEY_LEFT_SHIFT) && !m_player->exhausted()) playerSpeed *= 2;
+			else if (m_window->getKey(OE_KEY_LEFT_CONTROL)) playerSpeed *= 0.2;
+			else if (m_window->getKey(OE_KEY_TAB)) playerSpeed *= 20;
+			if (m_window->getKey(OE_KEY_S)) { m_player->vel_y = playerSpeed; moving = true; }
+			if (m_window->getKey(OE_KEY_D)) { m_player->vel_x = playerSpeed; moving = true; }
+			if (m_window->getKey(OE_KEY_W)) { m_player->vel_y = -playerSpeed; moving = true; }
+			if (m_window->getKey(OE_KEY_A)) { m_player->vel_x = -playerSpeed; moving = true; }
+			if (moving && running) { m_player->setStamina(m_player->getStamina() - 0.01); }
+		}
+
 		m_gui->update();
 		m_player->update();
 		m_inventory->update();
@@ -261,39 +237,40 @@ void Game::asyncUnload() {
 #endif
 
 void Game::keyPress(int key, int action) {
-	if (key == GLFW_KEY_ESCAPE) { paused = !paused; justPaused = true; return; }
 	m_gui->keyPress(key, action);
+	if (key == OE_KEY_ESCAPE) { paused = !paused; justPaused = true; return; }
 
+	if (m_gui->chatOpened()) return;
 	//Postshader
-	if (key == GLFW_KEY_F7) { oe::Logger("post 0"); m_postshader->enable(); m_postshader->setUniform1i("unif_lens", 0); justPaused = true; return; }
-	if (key == GLFW_KEY_F8) { oe::Logger("post 1"); m_postshader->enable(); m_postshader->setUniform1i("unif_lens", 1); justPaused = true; return; }
+	if (key == OE_KEY_F7) { m_postshader->enable(); m_postshader->setUniform1i("unif_lens", 0); justPaused = true; return; }
+	if (key == OE_KEY_F8) { m_postshader->enable(); m_postshader->setUniform1i("unif_lens", 1); justPaused = true; return; }
 
 	if (paused) return;
 
 	//Player Hitting
-	if (key == GLFW_KEY_UP && !m_player->exhausted()) { m_player->heading = HEADING_UP; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
-	if (key == GLFW_KEY_DOWN && !m_player->exhausted()) { m_player->heading = HEADING_DOWN; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
-	if (key == GLFW_KEY_LEFT && !m_player->exhausted()) { m_player->heading = HEADING_LEFT; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
-	if (key == GLFW_KEY_RIGHT && !m_player->exhausted()) { m_player->heading = HEADING_RIGHT; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
-	if ((key == GLFW_KEY_UP || key == GLFW_KEY_DOWN || key == GLFW_KEY_LEFT || key == GLFW_KEY_RIGHT) && m_player->exhausted()) { m_player->setStamina(m_player->getStamina() - 0.2); return; }
-	if (key == GLFW_KEY_E) { m_player->setX(round(m_player->getX())); m_player->setY(round(m_player->getY())); return; }
+	if (key == OE_KEY_UP && !m_player->exhausted()) { m_player->heading = HEADING_UP; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
+	if (key == OE_KEY_DOWN && !m_player->exhausted()) { m_player->heading = HEADING_DOWN; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
+	if (key == OE_KEY_LEFT && !m_player->exhausted()) { m_player->heading = HEADING_LEFT; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
+	if (key == OE_KEY_RIGHT && !m_player->exhausted()) { m_player->heading = HEADING_RIGHT; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
+	if ((key == OE_KEY_UP || key == OE_KEY_DOWN || key == OE_KEY_LEFT || key == OE_KEY_RIGHT) && m_player->exhausted()) { m_player->setStamina(m_player->getStamina() - 0.2); return; }
+	if (key == OE_KEY_E) { m_player->setX(round(m_player->getX())); m_player->setY(round(m_player->getY())); return; }
 
 	//Inventory
-	if (key == GLFW_KEY_R) { m_inventory->visible = !m_inventory->visible; return; }
-	if (key == GLFW_KEY_ESCAPE) { m_inventory->visible = false; return; }
+	if (key == OE_KEY_R) { m_inventory->visible = !m_inventory->visible; return; }
+	if (key == OE_KEY_ESCAPE) { m_inventory->visible = false; return; }
 
 	//Inventory slot selecting
-	if (key == GLFW_KEY_1) { m_inventory->selectedSlot = 0; return; }
-	else if (key == GLFW_KEY_2) { m_inventory->selectedSlot = 1; return; }
-	else if (key == GLFW_KEY_3) { m_inventory->selectedSlot = 2; return; }
-	else if (key == GLFW_KEY_4) { m_inventory->selectedSlot = 3; return; }
-	else if (key == GLFW_KEY_5) { m_inventory->selectedSlot = 4; return; }
+	if (key == OE_KEY_1) { m_inventory->selectedSlot = 0; return; }
+	else if (key == OE_KEY_2) { m_inventory->selectedSlot = 1; return; }
+	else if (key == OE_KEY_3) { m_inventory->selectedSlot = 2; return; }
+	else if (key == OE_KEY_4) { m_inventory->selectedSlot = 3; return; }
+	else if (key == OE_KEY_5) { m_inventory->selectedSlot = 4; return; }
 
 	//Debug commands
 	//Activate debug and advanced debug modes
-	if (key == GLFW_KEY_F1) {
+	if (key == OE_KEY_F1) {
 		debugMode = !debugMode; 
-		if (m_window->getKey(GLFW_KEY_LEFT_SHIFT)) {
+		if (m_window->getKey(OE_KEY_LEFT_SHIFT)) {
 			advancedDebugMode = debugMode;
 		}
 		else advancedDebugMode = false;
@@ -301,7 +278,7 @@ void Game::keyPress(int key, int action) {
 	}
 
 	//Debug ceil creaures
-	if (key == GLFW_KEY_F2) {
+	if (key == OE_KEY_F2) {
 #if !STORE_MAP_IN_RAM
 		for (int x = 0; x < RENDER_DST; x++)
 		{
@@ -316,7 +293,7 @@ void Game::keyPress(int key, int action) {
 	}
 	
 	//Reload game
-	if (key == GLFW_KEY_F3) {
+	if (key == OE_KEY_F3) {
 		close();
 
 #if !STORE_MAP_IN_RAM
@@ -333,13 +310,13 @@ void Game::keyPress(int key, int action) {
 	}
 
 	//Get FPS
-	if (key == GLFW_KEY_F4) { oe::Logger::info(std::string("Fps: ") + std::to_string(m_loop->getFPS())); return; }
+	if (key == OE_KEY_F4) { oe::Logger::out(oe::info, "Fps: ", m_loop->getFPS()); return; }
 	
 	//Clear inventoy
-	if (key == GLFW_KEY_F5) { m_inventory->clear(); return; }
+	if (key == OE_KEY_F5) { m_inventory->clear(); return; }
 	
 	//Add creature at player
-	if (key == GLFW_KEY_F6) { m_map->addCreature(m_player->getX(), m_player->getY() + 5, 1, false); return; }
+	if (key == OE_KEY_F6) { m_map->addCreature(m_player->getX(), m_player->getY() + 5, 1, false); return; }
 }
 
 void Game::buttonPress(int button, int action) {}
@@ -348,6 +325,22 @@ void Game::scroll(double y) {
 	//Inventory slot scrolling
 	if (y < 0) m_inventory->selectedSlot++;
 	if (y > 0) m_inventory->selectedSlot--;
+}
+
+void Game::resize(int width, int height) {
+	float aspect = float(width) / float(height);
+	m_postshader->enable();
+	m_postshader->setUniform1i("unif_effect", 0);
+	oe::Logger::out(oe::info, "New width: ", width);
+	oe::Logger::out(oe::info, "New height: ", height);
+	oe::Logger::out(oe::info, "New aspect ratio: ", aspect);
+	glm::mat4 orthographic = glm::ortho(-aspect * DEBUG_ZOOM, aspect * DEBUG_ZOOM, DEBUG_ZOOM, -DEBUG_ZOOM);
+	m_shader->enable(); m_shader->SetUniformMat4("pr_matrix", orthographic);
+	m_pointshader->enable(); m_pointshader->SetUniformMat4("pr_matrix", orthographic);
+}
+
+void Game::charmod(unsigned int codepoint, int mods) {
+	m_gui->typing(codepoint, mods);
 }
 
 void Game::close() {
@@ -375,7 +368,7 @@ void Game::saveGame() {
 
 void Game::loadGame() {
 	//Initializing
-	oe::Logger::info("Creating game...");
+	oe::Logger::out(oe::info, "Creating game...");
 
 	//Load seed
 #if !DEBUG_DISABLE_SAVING
@@ -403,16 +396,16 @@ void Game::loadGame() {
 	m_worldrenderer = std::unique_ptr<oe::Renderer>(new oe::Renderer("resources/arial.ttf", m_window.get()));
 	m_guirenderer = std::unique_ptr<oe::Renderer>(new oe::Renderer("resources/arial.ttf", m_window.get()));
 
-	oe::Logger::info("Loading resources");
-	oe::TextureManager::loadTextureAtlas("resources/atlas.png", GL_RGBA, 0);
+	oe::Logger::out(oe::info, "Loading resources");
+	oe::TextureManager::loadTextureAtlas("resources/atlas.png", 0, 16);
 	oe::AudioManager::loadAudio("resources/hit.wav", 0);
 	oe::AudioManager::loadAudio("resources/swing.wav", 1);
 	oe::AudioManager::loadAudio("resources/collect.wav", 2);
-	oe::Logger::info("Resources loaded!");
+	oe::Logger::out(oe::info, "Resources loaded!");
 
-	oe::Logger::info("Loading database");
+	oe::Logger::out(oe::info, "Loading database");
 	Database::init();
-	oe::Logger::info("Database loaded!");
+	oe::Logger::out(oe::info, "Database loaded!");
 
 	m_inventory = std::unique_ptr<Inventory>(new Inventory(m_shader.get(), m_window.get()));
 
@@ -447,7 +440,7 @@ void Game::loadGame() {
 	m_shader->enable();
 	glm::mat4 ml_matrix(1.0f);
 	m_shader->SetUniformMat4("ml_matrix", ml_matrix);
-	oe::Logger::info("Game ready!");
+	oe::Logger::out(oe::info, "Game ready!");
 }
 
 
@@ -772,8 +765,6 @@ bool Game::trySetTileObject(Tile *tile, int id) {
 }
 
 #else
-
-void Game::addCreature(float x, float y, int id, bool item) {}
 
 #endif
 

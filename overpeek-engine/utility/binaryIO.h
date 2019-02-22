@@ -12,7 +12,7 @@ namespace oe {
 	public:
 		template<typename T> static void write(std::string name, void* data, size_t dataSize) {
 			FILE *pFile = fopen(name.c_str(), "wb");
-			if (pFile == NULL) { oe::Logger::error("Failed to write file: \"" + name + "\""); system("pause");  exit(1); }
+			if (pFile == NULL) { oe::Logger::out(oe::error, "Failed to write file: \"", name.c_str(), "\""); }
 			fwrite(data, sizeof(T), dataSize, pFile);
 			fclose(pFile);
 		}

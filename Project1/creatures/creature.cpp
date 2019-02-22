@@ -48,6 +48,14 @@ Creature::Creature() {
 	m_chasing = false;
 }
 
+void Creature::die() {
+	//Drops
+	Game::getMap()->addCreature(getX(), getY(), Database::creatures[m_id].dropsAs, true);
+
+	//Remobe this
+	Game::getMap()->removeCreature(this);
+}
+
 void Creature::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY) {
 	if (!m_item) {
 		int heading_texture;
@@ -68,8 +76,8 @@ void Creature::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, flo
 		default:
 			break;
 		}
-		glm::vec2 pos = glm::vec2((getX() + renderOffsetX - 0.5f) * TILE_SIZE, (getY() + renderOffsetY - 0.5f) * TILE_SIZE);
-		glm::vec2 size = glm::vec2(TILE_SIZE, TILE_SIZE);
+		glm::vec2 pos = glm::vec2((getX() + renderOffsetX - 0.5f) * TILE_SIZE, (getY() + renderOffsetY - 0.5f) * TILE_SIZE) * Game::renderScale();
+		glm::vec2 size = glm::vec2(TILE_SIZE, TILE_SIZE) * Game::renderScale();
 		//renderer->renderBox(pos, size, heading_texture, glm::vec4(1.0, 1.0, 1.0, 1.0));
 		renderer->renderPoint(pos, size, heading_texture, glm::vec4(1.0));
 
@@ -97,15 +105,15 @@ void Creature::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, flo
 			break;
 		}
 		if (m_swingDir != 0) {
-			glm::vec2 pos = glm::vec2(swingX, swingY);
-			glm::vec2 size = glm::vec2(TILE_SIZE, TILE_SIZE);
+			glm::vec2 pos = glm::vec2(swingX, swingY) * Game::renderScale();
+			glm::vec2 size = glm::vec2(TILE_SIZE, TILE_SIZE) * Game::renderScale();
 			//renderer->renderBox(pos, size, swingTexture, glm::vec4(1.0, 1.0, 1.0, 1.0));
 			renderer->renderPoint(pos, size, swingTexture, glm::vec4(1.0));
 		}
 	}
 	else {
-		glm::vec2 pos = glm::vec2((getX() + renderOffsetX - 0.5f) * TILE_SIZE, (getY() + renderOffsetY - 0.5f) * TILE_SIZE);
-		glm::vec2 size = glm::vec2(TILE_SIZE, TILE_SIZE);
+		glm::vec2 pos = glm::vec2((getX() + renderOffsetX - 0.5f) * TILE_SIZE, (getY() + renderOffsetY - 0.5f) * TILE_SIZE) * Game::renderScale();
+		glm::vec2 size = glm::vec2(TILE_SIZE, TILE_SIZE) * Game::renderScale();
 		//renderer->renderBox(pos, size, Database::items[m_id].texture, glm::vec4(1.0, 1.0, 1.0, 1.0));
 		renderer->renderPoint(pos, size, Database::items[m_id].texture, glm::vec4(1.0));
 	}
@@ -130,14 +138,13 @@ void Creature::update(int index) {
 
 		if (m_healthRegenCooldown > 200) m_health += m_healthGainRate;
 		else m_healthRegenCooldown++;
-		clampHPAndSTA();
-		if (m_health <= 0) {
-			//Drops
-			Game::getMap()->addCreature(getX(), getY(), Database::creatures[m_id].dropsAs, true);
 
-			//Remobe this
-			Game::getMap()->removeCreature(this);
-			return;
+		if (!m_id == 0) { //!Player
+			clampHPAndSTA();
+			if (m_health <= 0) {
+				die();
+				return;
+			}
 		}
 
 		if (m_id == 1) enemyAi();
@@ -154,6 +161,7 @@ void Creature::update(int index) {
 		float distanceToPlayer = abs(getX() - Game::getPlayer()->getX()) + abs(getY() - Game::getPlayer()->getY());
 		if (distanceToPlayer < 0.8) {
 			if (Game::getPlayer()->inventory->addItem(m_id, 1)) {
+				oe::Debug::startTimer();
 				///REMOVE THIS CREATURE
 				#if !STORE_MAP_IN_RAM
 				Game::getRegion(getX(), getY())->removeCreature(m_regionIndex, true);
@@ -161,6 +169,7 @@ void Creature::update(int index) {
 				Game::getMap()->removeCreature(index);
 				#endif				
 				oe::AudioManager::play(2);
+				oe::Debug::printTimer("Item collected: ");
 				return;
 			}
 		}
@@ -179,7 +188,7 @@ void Creature::update(int index) {
 	collide();
 }
 
-void Creature::hit() {
+void Creature::hit(float damagemult) {
 	if (m_item) return;
 	float hitx = getX(), hity = getY();
 	switch (heading)
@@ -220,7 +229,7 @@ void Creature::hit() {
 	
 		creatureArray[i]->acc_x = directionVector.x / 10.0 * Database::creatures[m_id].knockback;
 		creatureArray[i]->acc_y = directionVector.y / 10.0 * Database::creatures[m_id].knockback;
-		creatureArray[i]->setHealth(creatureArray[i]->getHealth() - Database::creatures[m_id].meleeDamage);
+		creatureArray[i]->setHealth(creatureArray[i]->getHealth() - Database::creatures[m_id].meleeDamage * damagemult);
 	}
 
 	//Tile hitting
@@ -235,7 +244,7 @@ void Creature::hit() {
 	Map::MapTile* tmp = Game::getMap()->getTile((unsigned int)hitx, (unsigned int)hity);
 	if (tmp) {
 		if (Database::objects[tmp->m_object].destructable) {
-			Game::getMap()->hit((unsigned int)hitx, (unsigned int)hity, Database::creatures[m_id].meleeDamage);
+			Game::getMap()->hit((unsigned int)hitx, (unsigned int)hity, Database::creatures[m_id].meleeDamage * damagemult);
 		}
 	}
 #endif
@@ -428,8 +437,10 @@ void Creature::enemyAi() {
 	//oe::Logger::info(m_untilnexttarget, m_wait);
 	if (m_chasing) {
 		glm::vec2 dirToPlayer = glm::normalize(glm::vec2(Game::getPlayer()->getX() - getX(), Game::getPlayer()->getY() - getY()));
-		vel_x = dirToPlayer.x / 50.0;
-		vel_y = dirToPlayer.y / 50.0;
+		if (dirToPlayer.x > 0.01 && dirToPlayer.y > 0.01) {
+			vel_x = dirToPlayer.x / 50.0;
+			vel_y = dirToPlayer.y / 50.0;
+		}
 	}
 	if (m_untilnexttarget < 0) {
 		m_wait = 500;
@@ -473,7 +484,6 @@ void Creature::enemyAi() {
 void Creature::followTarget() {
 	if (m_result == 0) {
 		m_result = m_path->runNSteps(1);
-		//oe::Logger::critical(m_result);
 		m_wait = 2000;
 		m_untilnexttarget = 10000;
 		if (m_result != 0) {

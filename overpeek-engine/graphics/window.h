@@ -21,6 +21,8 @@ namespace oe {
 		static void (*mKeyCallback)(int, int);
 		static void (*mButtonCallback)(int, int);
 		static void(*m_scroll_callback)(double);
+		static void(*m_resize_callback)(int, int);
+		static void(*m_charmods_callback)(unsigned int, int);
 
 		//Functions
 		bool mInit(bool resizeable);
@@ -29,6 +31,8 @@ namespace oe {
 		static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 		static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 		static void framebuffer_size_callback(GLFWwindow *window, int numer, int denom);
+		static void charmods_callback(GLFWwindow* window, unsigned int codepoint, int mods);
+		
 	public:
 		//Variables
 
@@ -42,10 +46,13 @@ namespace oe {
 		void input();
 		void update();
 		void clear();
+		static void terminate();
 
 		void setButtonCallback(void(*callback)(int, int));
 		void setKeyboardCallback(void(*callback)(int, int));
 		void setScrollCallback(void(*callback)(double));
+		void setResizeCallback(void(*callback)(int, int));
+		void setCharmodCallback(void(*callback)(unsigned int, int));
 
 		void setSwapInterval(unsigned int interval);
 
@@ -56,6 +63,8 @@ namespace oe {
 		inline float getAspect() { return mAspect; }
 		inline int getHeight() { return mHeight; }
 		inline int getWidth() { return mWidth; }
+
+		std::string getRenderer();
 	};
 
 }

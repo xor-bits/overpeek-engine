@@ -2,8 +2,11 @@
 
 #include "textureManager.h"
 #include "buffers/vertexArray.h"
+#include "buffers/buffer.h"
+#include "../utility/logger.h"
 
 
+#include <GL/glew.h>
 #include <stddef.h>
 #include <vector>
 #include <iostream>

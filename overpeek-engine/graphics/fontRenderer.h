@@ -6,6 +6,10 @@
 #define TEXT_VERTEX_PER_QUAD 6 * 2
 #define TEXT_MAX_VBO TEXT_MAX_QUADS_PER_FLUSH * TEXT_VERTEX_PER_QUAD
 
+#define FONT_RESOLUTION 48.0
+#define FONT_BORDER		128
+#define TEXTURE_SCALAR	1.2
+
 namespace oe {
 
 	class Renderer;
