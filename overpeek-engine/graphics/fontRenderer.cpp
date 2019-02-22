@@ -1,5 +1,11 @@
 #include "fontRenderer.h"
 
+#include <vector>
+#include <iostream>
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 #include "../utility/logger.h"
 #include "shader.h"
 #include "buffers/indexBuffer.h"
@@ -7,9 +13,6 @@
 #include "buffers/vertexArray.h"
 #include "quadRenderer.h"
 #include "renderer.h"
-
-#include <vector>
-#include <iostream>
 
 #define FONT_RESOLUTION 48.0
 

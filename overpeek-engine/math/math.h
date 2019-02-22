@@ -37,6 +37,23 @@ namespace oe {
 	inline bool isInRange(int input, int min, int max) {
 		return (input >= min) && (input <= max);
 	}
+
+	template<class T>
+	struct color {
+		T r;
+		T g;
+		T b;
+		T a;
+
+		color(T _r, T _g, T _b, T _a) {
+			r = _r; g = _g; b = _b; a = _a;
+		}
+
+		color operator+ (color a, color b) {
+
+		}
+	};
+
 	//glm::vec2 rotatePoint(float cx, float cy, float angle, glm::vec2 p)
 	//{
 	//	float s = sin(angle);

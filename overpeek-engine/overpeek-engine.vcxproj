@@ -183,7 +183,6 @@
     <ClCompile Include="graphics\buffers\indexBuffer.cpp" />
     <ClCompile Include="graphics\buffers\vertexArray.cpp" />
     <ClCompile Include="graphics\buffers\buffer.cpp" />
-    <ClCompile Include="graphics\camera.cpp" />
     <ClCompile Include="graphics\fontRenderer.cpp" />
     <ClCompile Include="graphics\pointRenderer.cpp" />
     <ClCompile Include="graphics\renderer.cpp" />
@@ -212,7 +211,6 @@
     <ClInclude Include="graphics\buffers\indexBuffer.h" />
     <ClInclude Include="graphics\buffers\vertexArray.h" />
     <ClInclude Include="graphics\buffers\buffer.h" />
-    <ClInclude Include="graphics\camera.h" />
     <ClInclude Include="graphics\fontRenderer.h" />
     <ClInclude Include="graphics\pointRenderer.h" />
     <ClInclude Include="graphics\renderer.h" />

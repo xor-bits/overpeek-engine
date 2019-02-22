@@ -1,8 +1,5 @@
 #pragma once
 
-#include <string>
-#include <glm/glm.hpp>
-
 struct GLFWwindow;
 namespace oe {
 	class Window {
@@ -10,7 +7,7 @@ namespace oe {
 		//Variables
 		unsigned int mWidth, mHeight;
 		float mAspect;
-		std::string mTitle;
+		const char *mTitle;
 		GLFWwindow *mWindow;
 		bool m_fullscreen;
 		unsigned int m_multisample;
@@ -37,7 +34,7 @@ namespace oe {
 
 		
 		//Functions
-		Window(unsigned int width, unsigned int height, std::string title, bool fullscreen, unsigned int multisample, bool resizeable);
+		Window(unsigned int width, unsigned int height, const char *title, bool fullscreen, unsigned int multisample, bool resizeable);
 		~Window();
 
 		static void checkErrors();
@@ -54,7 +51,7 @@ namespace oe {
 
 		inline bool getButton(int button) { return mButtons[button]; }
 		inline bool getKey(int key) { return mKeys[key]; }
-		inline glm::vec2 getMousePos() { return glm::vec2((mMouseX / mWidth * 2.0 * mAspect) - mAspect, mMouseY / mHeight * 2 - 1); }
+		inline void getMousePos(double &x, double &y) { x = (mMouseX / mWidth * 2.0 * mAspect) - mAspect; y = mMouseY / mHeight * 2 - 1; }
 
 		inline float getAspect() { return mAspect; }
 		inline int getHeight() { return mHeight; }

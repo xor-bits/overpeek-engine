@@ -1,12 +1,6 @@
 #pragma once
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
-
-#include <string>
 #include <map>
-#include <GL/glew.h>
-#include <glm/glm.hpp>
 
 #define TEXT_MAX_QUADS_PER_FLUSH 64000
 #define TEXT_VERTEX_PER_QUAD 6 * 2
@@ -19,23 +13,25 @@ namespace oe {
 
 	class FontRenderer {
 	private:
-		GLuint texture;
+		unsigned int texture;
 		struct Character {
-			GLuint textureID;		//Glyph texture id
-			glm::ivec2 size;	//Glyph size
-			glm::ivec2 bearing; //Offset from baseline to top left
-			FT_Pos advance;		//Offset to advance to next glyph
+			unsigned int textureID;		//Glyph texture id
+			int size_x;				//Glyph size
+			int size_y;
+			int bearing_x;			//Offset from baseline to top left
+			int bearing_x;
+			signed long advance;	//Offset to advance to next glyph
 		};
-		std::map<GLchar, Character*> m_characters;
+		std::map<char, Character*> m_characters;
 		bool initalized = false;
 		QuadRenderer *m_renderer;
 
 	private:
 
-		bool init(std::string &fontPath);
+		bool init(const char *fontPath);
 
 	public:
-		FontRenderer(std::string &fontPath, QuadRenderer *renderer);
+		FontRenderer(const char *fontPath, QuadRenderer *renderer);
 
 		//Maps buffer
 		void beginRendering();
@@ -45,7 +41,7 @@ namespace oe {
 
 		//Submit text to render
 		//_textOrigin = enum textOrigin
-		void renderText(float x, float y, float w, float h, std::string &text, glm::vec3 color, int _textOrigin);
+		void renderText(float x, float y, float w, float h, const char *text, glm::vec3 color, int _textOrigin);
 		
 		//Draws buffers and then clears them
 		void draw();

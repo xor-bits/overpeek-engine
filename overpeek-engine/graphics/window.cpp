@@ -1,12 +1,15 @@
 #include "window.h"
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <GL/GLU.h>
+
 #include <Windows.h>
 #include <string>
 #include <iostream>
 
-#include "stb_image.h"
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <GL/GLU.h>
+#include <glm/glm.hpp>
+#include <stb_image.h>
+
 #include "../utility/logger.h"
 
 #define M_NUM_KEYS		2048
@@ -30,7 +33,7 @@ namespace oe {
 	void(*Window::mButtonCallback)(int, int);
 	void(*Window::m_scroll_callback)(double);
 
-	Window::Window(unsigned int width, unsigned int height, std::string title, bool fullscreen, unsigned int multisample, bool resizeable)
+	Window::Window(unsigned int width, unsigned int height, const char *title, bool fullscreen, unsigned int multisample, bool resizeable)
 	{
 		mWidth = width; mHeight = height; mTitle = title; mAspect = width / (float)height;
 		m_fullscreen = fullscreen; m_multisample = multisample;
@@ -60,9 +63,9 @@ namespace oe {
 		glfwWindowHint(GLFW_RESIZABLE, resizeable);
 
 		if (m_fullscreen)
-			mWindow = glfwCreateWindow(mWidth, mHeight, mTitle.c_str(), glfwGetPrimaryMonitor(), NULL);
+			mWindow = glfwCreateWindow(mWidth, mHeight, mTitle, glfwGetPrimaryMonitor(), NULL);
 		else
-			mWindow = glfwCreateWindow(mWidth, mHeight, mTitle.c_str(), NULL, NULL);
+			mWindow = glfwCreateWindow(mWidth, mHeight, mTitle, NULL, NULL);
 		if (!mWindow) {
 			oe::Logger::error("Failed to create window!");
 			return false;
