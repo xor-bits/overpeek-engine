@@ -32,6 +32,23 @@ void Player::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float
 			glm::vec4(1.0f)
 		);
 	}
+
+	double mx, my;
+	Game::getWindow()->getMousePos(mx, my);
+	mx /= TILE_SIZE;
+	my /= TILE_SIZE;
+
+
+	if (Database::items[inventory->selectedId].placedAs != 0) {
+		int x_dst = abs((int)getX() - floor(getX() + mx));
+		int y_dst = abs((int)getY() - floor(getY() + my));
+		if (x_dst == 0) y_dst++;
+		if (y_dst == 0) x_dst++;
+		if (x_dst + y_dst < m_hitdist) {
+			Game::getMap()->renderGhostObject(renderer, getX() + mx, getY() + my, Database::items[inventory->selectedId].placedAs, -getX(), -getY());
+		}
+	}
+
 }
 
 void Player::die() {
@@ -59,6 +76,28 @@ void Player::getSpawnPoint(int &x, int &y) {
 }
 
 void Player::update() {
+#if USE_MOUSE
+	double mx, my;
+	Game::getWindow()->getMousePos(mx, my);
+
+	//Heading
+	float angle = atan2(mx, my) + glm::pi<float>() / 4;
+	if (angle > 0 && angle < glm::pi<float>() / 2) {
+		heading = HEADING_DOWN;
+	} 
+	else if (angle > glm::pi<float>() / 2 && angle < glm::pi<float>()) {
+		heading = HEADING_RIGHT;
+	}
+	else if (angle > glm::pi<float>() / -2 && angle < 0) {
+		heading = HEADING_LEFT;
+	}
+	else {
+		heading = HEADING_UP;
+	}
+	if (Game::advancedDebugMode) m_hitdist = 100;
+	else m_hitdist = 5.0;
+#endif
+
 	if (m_death_x != -1) {
 
 		float dstToDeathX = abs(getX() - m_death_x);
@@ -75,7 +114,7 @@ void Player::update() {
 		return;
 	}
 
-	m_stamina += 1000000;
+	if (Game::advancedDebugMode)m_stamina += 1000000;
 	Creature::update(0);
 }
 
@@ -84,15 +123,63 @@ void Player::collide() {
 }
 
 void Player::hit() {
-	//setHealth(getHealth() - 0.1);
 	if (Database::items[inventory->selectedId].placedAs != 0) {
 		place();
 	}
 	else {
+		setStamina(getStamina() - 0.2);
+		if (exhausted()) return;
 		float dmgmltp = 1.0;
 		if (Game::advancedDebugMode) dmgmltp = 100.0;
 		Creature::hit(dmgmltp);
 	}
+}
+
+void Player::mouseHit(int button, int action) {
+#if USE_MOUSE
+
+	if (action != OE_PRESS) return;
+
+	double mx, my;
+	Game::getWindow()->getMousePos(mx, my);
+	mx /= TILE_SIZE;
+	my /= TILE_SIZE;
+
+	int x_dst = abs((int)getX() - floor(getX() + mx));
+	int y_dst = abs((int)getY() - floor(getY() + my));
+	if (x_dst == 0) y_dst++;
+	if (y_dst == 0) x_dst++;
+
+	if (x_dst + y_dst < m_hitdist) {
+		//PLACE
+		if (Database::items[inventory->selectedId].placedAs != 0) {
+			if (button == OE_MOUSE_BUTTON_RIGHT) {
+				if (!Game::getMap()->trySetObject(Game::getMap()->getTile(getX() + mx, getY() + my), Database::items[inventory->selectedId].placedAs)) {
+					if (!Game::advancedDebugMode) inventory->removeSelected(1);
+					oe::AudioManager::play(1);
+				}
+			}
+		}
+
+		//BREAK
+		if (button == OE_MOUSE_BUTTON_LEFT) {
+			setStamina(getStamina() - 0.2);
+			if (exhausted()) return;
+
+			float dmgmltp = 1.0;
+			if (Game::advancedDebugMode) dmgmltp = 100.0;
+			Creature::hit(dmgmltp);
+
+			Map::MapTile* tmp = Game::getMap()->getTile(getX() + mx, getY() + my);
+			if (tmp) {
+				if (Database::objects[tmp->m_object].destructable) {
+					Game::getMap()->hit(getX() + mx, getY() + my, Database::creatures[m_id].meleeDamage * dmgmltp);
+				}
+			}
+		}
+	}
+
+#endif
 }
 
 void Player::place() {

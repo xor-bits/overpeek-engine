@@ -209,3 +209,19 @@
 #define OE_JOYSTICK_15            14
 #define OE_JOYSTICK_16            15
 #define OE_JOYSTICK_LAST          OE_JOYSTICK_16
+
+#define OE_RELEASE                0
+/*! @brief The key or mouse button was pressed.
+ *
+ *  The key or mouse button was pressed.
+ *
+ *  @ingroup input
+ */
+#define OE_PRESS                  1
+ /*! @brief The key was held down until it repeated.
+  *
+  *  The key was held down until it repeated.
+  *
+  *  @ingroup input
+  */
+#define OE_REPEAT                 2

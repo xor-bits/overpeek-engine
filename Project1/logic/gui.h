@@ -40,6 +40,11 @@ private:
 
 	void selectInputHistory();
 
+	bool argToPos(float &x, float &y, std::string x_string, std::string y_string);
+	bool argToDouble(float &n, std::string arg);
+
+	void tooFewArguments();
+
 public:
 	Gui(float maxHealth, float maxStamina, float healthGainRate, float staminaGainRate);
 

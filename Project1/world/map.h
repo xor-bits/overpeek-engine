@@ -58,6 +58,7 @@ class Map {
 		void hit(unsigned int x, unsigned int y, short dmg);
 		int getObjectTexture(unsigned int x, unsigned int y);
 		void submitToRenderer(oe::Renderer *renderer, float offX, float offY);
+		void renderGhostObject(oe::Renderer *renderer, float x, float y, int id, float offX, float offY);
 		void debugCeilCreatures();
 		void update();
 

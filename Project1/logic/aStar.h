@@ -53,6 +53,7 @@ private:
 
 public:
 	bool path_found;
+	bool failed;
 
 	//Beginds A* algorithm from startnode on map to find path to endnode on map, but doesn't run any steps
 	//grid_scale is scalar of the node map to search from, if map edges are startnode and endnode grid_scale is 1, else gridscale is distance from startnode to endnode plus grid_scale

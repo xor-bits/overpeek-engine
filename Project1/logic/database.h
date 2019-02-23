@@ -340,8 +340,8 @@ public:
 		objects[1] = Object("Grass",		1,		4,			false,		false,			false,		true,			glm::vec3(1.0f),				1,			2);
 		objects[2] = Object("Spruce",		2,		5,			false,		false,			false,		true,			glm::vec3(1.0f),				5,			3);
 		objects[3] = Object("Birch",		3,		6,			false,		false,			false,		true,			glm::vec3(1.0f),				5,			3);
-		objects[4] = Object("Wood wall",	4,		0,			true,		true,			true,		true,			glm::vec3(0.58f, 0.43f, 0.2f),	10,			3);
-		objects[5] = Object("Stone wall",	5,		0,			true,		true,			false,		true,			glm::vec3(0.5f, 0.5f, 0.5f),	15,			1);
+		objects[4] = Object("Wood wall",	4,		207,		true,		true,			true,		true,			glm::vec3(0.58f, 0.43f, 0.2f),	10,			3);
+		objects[5] = Object("Stone wall",	5,		255,		true,		true,			false,		true,			glm::vec3(0.5f, 0.5f, 0.5f),	15,			1);
 		
 		//Creatures				//Name		//Id	//Friendly		//Ghost		//Knockback		//Melee		//Hp	//Regen		//Stamina	//Staminaregen	//Drops as	//Color			//Textures >>>>	//Up	//Down	//Left	//Right
 		creatures[0] = Creature("Player",	0,		true,			false,		1.0f,			1.0f,		5.0f,	0.005f,		5.0f,		0.005f,			0,			glm::vec3(1.0f),				8,		9,		10,		11);

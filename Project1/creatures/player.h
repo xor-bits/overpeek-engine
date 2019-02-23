@@ -12,6 +12,8 @@ private:
 	int m_death_x;
 	int m_death_y;
 
+	float m_hitdist = 5.0;
+
 public:
 	Inventory *inventory;
 	
@@ -26,6 +28,7 @@ public:
 	void update();
 	void collide();
 	void hit();
+	void mouseHit(int button, int action);
 	void place();
 	void save();
 	bool load();

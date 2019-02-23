@@ -127,8 +127,8 @@ void Gui::renderNoBlur(oe::Renderer *renderer) {
 
 	if (m_chat_opened || m_chat_opened_timer > 0) {
 		if (m_chat_opened) {
-			renderer->renderPoint(glm::vec2(-Game::getWindow()->getAspect(), 1.0 - textScale), glm::vec2(Game::getWindow()->getAspect() * 2, textScale), 20, glm::vec4(0.0, 0.0, 0.0, 0.2));
-			renderer->renderText(glm::vec2(-Game::getWindow()->getAspect(), 1.0), glm::vec2(textScale, textScale), m_current_line.c_str(), oe::bottomLeft);
+			renderer->renderPoint(glm::vec2(-Game::getWindow()->getAspect(), 1.0 - textScale - 0.05 * Game::renderScale()), glm::vec2(Game::getWindow()->getAspect() * 2, textScale + 0.05 * Game::renderScale()), 20, glm::vec4(0.0, 0.0, 0.0, 0.2));
+			renderer->renderText(glm::vec2(-Game::getWindow()->getAspect(), 1.0 - 0.05 * Game::renderScale()), glm::vec2(textScale, textScale), m_current_line.c_str(), oe::bottomLeft);
 		}
 
 		for (int i = 0; i < m_text_lines.size(); i++)
@@ -277,25 +277,39 @@ void Gui::userInput() {
 
 		//COMMANDS
 		if (command == "clear") {
+			//Easter egg :DD
+			tooFewArguments();
+			addChatLine("Haha, just kidding ya :D");
+
+			//Execute the command
 			m_text_lines.clear();
 		}
 		//TP COMMAND
 		else if (command == "tp") {
 			if (argumentVec.size() < 2) {
-				addChatLine("Too few arguments");
-				addChatLine("Type \"/help\" to see list of commands and their uses");
+				tooFewArguments();
 			}
-			else {
-				//Use arguments
-				float posX = stof(argumentVec[0]);
-				float posY = stof(argumentVec[1]);
 
-				Game::getPlayer()->setX(posX);
-				Game::getPlayer()->setY(posY);
+			//Use arguments
+			float posX = Game::getPlayer()->getX();
+			float posY = Game::getPlayer()->getY();
 
-				addChatLine("Teleported player to " + std::to_string(posX) + ", " + std::to_string(posY));
-				oe::Logger::out(oe::info, "Teleported player to ", posX, ", ", posY);
+			//Position arguments
+			if (argumentVec.size() >= 2) {
+
+				if (argToPos(posX, posY, argumentVec[0], argumentVec[1])) {
+					addChatLine("Invalid <x y> arguments!");
+					return;
+				}
+
 			}
+
+			//Execute the command
+			Game::getPlayer()->setX(posX);
+			Game::getPlayer()->setY(posY);
+
+			addChatLine("Teleported player to " + std::to_string(posX) + ", " + std::to_string(posY));
+			oe::Logger::out(oe::info, "Teleported player to ", posX, ", ", posY);
 		}
 		//RESPAWN COMMAND
 		else if (command == "respawn") {
@@ -305,58 +319,83 @@ void Gui::userInput() {
 		//SPAWN COMMAND
 		else if (command == "spawn") {
 			if (argumentVec.size() < 1) {
-				addChatLine("Too few arguments");
-				addChatLine("Type \"/help\" to see list of commands and their uses");
+				tooFewArguments();
+				return;
+			}
+
+			float id;
+			float n = 1;
+			float item = false;
+
+			float posX = Game::getPlayer()->getX();
+			float posY = Game::getPlayer()->getY();
+
+
+			//Id argument
+			if (argumentVec.size() >= 1) {
+
+				if (argToDouble(id, argumentVec[0])) {
+					addChatLine("Invalid [id] argument!");
+					return;
+				}
+
+			}
+
+			//Position arguments
+			if (argumentVec.size() >= 3) {
+
+				if (argToPos(posX, posY, argumentVec[1], argumentVec[2])) {
+					addChatLine("Invalid <x y> arguments!");
+					return;
+				}
+
+			}
+
+			//Position arguments
+			if (argumentVec.size() >= 4) {
+					
+				if (argToDouble(n, argumentVec[3])) {
+					addChatLine("Invalid <n> argument!");
+					return;
+				}
+
+			}
+
+			//Position arguments
+			if (argumentVec.size() >= 5) {
+
+				if (argToDouble(item, argumentVec[4])) {
+					addChatLine("Invalid <item> argument!");
+					return;
+				}
+
+			}
+
+			//Execute the command
+			for (int i = 0; i < (int)n; i++) Creature *tmp = Game::getMap()->addCreature(posX, posY, (int)id, item);
+			if (item) {
+				addChatLine(std::to_string((int)n) + " " + Database::items[(int)id].name + "(s) spawned at " + std::to_string((int)posX) + ", " + std::to_string((int)posY));
 			}
 			else {
-				int id = stof(argumentVec[0]);
-				int n = 0;
-				int item = true;
-
-				float posX = Game::getPlayer()->getX();
-				float posY = Game::getPlayer()->getY();
-				if (argumentVec.size() >= 2) {
-					if (argumentVec[1] != "x") {
-						posX = stof(argumentVec[1]);
-					}
-					if (argumentVec.size() >= 3) {
-						if (argumentVec[2] != "y") {
-							posY = stof(argumentVec[2]);
-						}
-						if (argumentVec.size() >= 4) {
-							n = stof(argumentVec[3]);
-
-							if (argumentVec.size() >= 5) {
-								item = stof(argumentVec[4]);
-							}
-						}
-					}
-				}
-
-				for (int i = 0; i < n; i++)
-				{
-					Creature *tmp = Game::getMap()->addCreature(posX, posY, id, item);
-				}
-				
-				if (item) {
-					addChatLine(std::to_string(n) + " " + Database::items[id].name + "(s) spawned");
-				}
-				else {
-					addChatLine(std::to_string(n) + " " + Database::creatures[id].name + "(s) spawned");
-				}
+				addChatLine(std::to_string((int)n) + " " + Database::creatures[(int)id].name + "(s) spawned " + std::to_string((int)posX) + ", " + std::to_string((int)posY));
 			}
 		}
 		//SETSPAWN COMMAND
 		else if (command == "setspawn") {
 			float posX = Game::getPlayer()->getX();
 			float posY = Game::getPlayer()->getY();
-			if (argumentVec.size() >= 1) {
-				posX = stof(argumentVec[0]);
-				if (argumentVec.size() >= 2) {
-					posY = stof(argumentVec[1]);
+
+			//Position arguments
+			if (argumentVec.size() >= 2) {
+
+				if (argToPos(posX, posY, argumentVec[0], argumentVec[1])) {
+					addChatLine("Invalid <x y> arguments!");
+					return;
 				}
+
 			}
 
+			//Execute the command
 			Game::getPlayer()->setSpawnPoint(posX, posY);
 		}
 		//HELP COMMAND
@@ -365,8 +404,8 @@ void Gui::userInput() {
 			addChatLine("/clear -- clears chat");
 			addChatLine("/tp [x] [y] -- teleports to [x] [y]");
 			addChatLine("/respawn -- kills the player");
-			addChatLine("/spawn [id] <x> <y> <n> <item> -- spawns creature");
-			addChatLine("/setspawn <x> <y> -- sets spawnpoint");
+			addChatLine("/spawn [id] <x y> <n> <item> -- spawns creature");
+			addChatLine("/setspawn <x y> -- sets spawnpoint");
 		}
 		//COMMAND NOT FOUND
 		else {
@@ -378,4 +417,48 @@ void Gui::userInput() {
 		addChatLine("Player: " + m_current_line);
 		oe::Logger::out(oe::info, "Player", m_current_line.c_str());
 	}
+}
+
+bool Gui::argToDouble(float &n, std::string string) {
+	n = 0;
+
+	try
+	{
+		n += stof(string);
+	}
+	catch (const std::exception&)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool Gui::argToPos(float &x, float &y, std::string x_string, std::string y_string) {
+	x = 0;
+	y = 0;
+
+	if (x_string[0] == '*') {
+		x = Game::getPlayer()->getX();
+		x_string.erase(x_string.begin(), x_string.begin() + 1);
+	}
+	if (y_string[0] == '*') {
+		y = Game::getPlayer()->getY();
+		y_string.erase(y_string.begin(), y_string.begin() + 1);
+	}
+
+	try
+	{
+		if(x_string.length() != 0) x += stof(x_string);
+		if (y_string.length() != 0) y += stof(y_string);
+	}
+	catch (const std::exception&)
+	{
+		return true;
+	}
+	return false;
+}
+
+void Gui::tooFewArguments() {
+	addChatLine("Too few arguments");
+	addChatLine("Type \"/help\" to see list of commands and their uses");
 }

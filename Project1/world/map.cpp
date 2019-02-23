@@ -298,7 +298,7 @@ void Map::submitToRenderer(oe::Renderer *renderer, float offX, float offY) {
 			renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE * Game::renderScale(), TILE_SIZE * Game::renderScale()), db_tile.texture, glm::vec4(1.0));
 
 			if (db_object.id != 0)
-			renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE * Game::renderScale(), TILE_SIZE * Game::renderScale()), getObjectTexture(x + Game::getPlayer()->getX(), y + Game::getPlayer()->getY()), glm::vec4(db_object.color, 1.0));
+				renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE * Game::renderScale(), TILE_SIZE * Game::renderScale()), getObjectTexture(x + Game::getPlayer()->getX(), y + Game::getPlayer()->getY()), glm::vec4(db_object.color, 1.0));
 		
 		}
 	}
@@ -308,6 +308,23 @@ void Map::submitToRenderer(oe::Renderer *renderer, float offX, float offY) {
 	{
 		m_creatures[i]->submitToRenderer(renderer, -Game::getPlayer()->getX(), -Game::getPlayer()->getY());
 	}
+}
+
+void Map::renderGhostObject(oe::Renderer *renderer, float x, float y, int id, float offX, float offY) {
+	x = floor(x);
+	y = floor(y);
+	//x += 0.5;
+	//y += 0.5;
+
+
+	Database::Object db_object = Database::objects[id];
+	float rx = (float(x) + offX) * TILE_SIZE * Game::renderScale();
+	float ry = (float(y) + offY) * TILE_SIZE * Game::renderScale();
+
+	//if (rx > 0) rx += 1 * TILE_SIZE * Game::renderScale();
+	//if (ry > 0) ry += 1 * TILE_SIZE * Game::renderScale();
+	if (db_object.id != 0)
+		renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE * Game::renderScale(), TILE_SIZE * Game::renderScale()), db_object.texture, glm::vec4(db_object.color, 0.5));
 }
 
 void Map::debugCeilCreatures() {
@@ -385,6 +402,7 @@ int Map::trySetObject(unsigned int x, unsigned int y, short id) {
 	if (tile->m_tile == 1) return -2;
 
 	tile->m_object = id;
+	tile->m_objectHealth = Database::objects[id].health;
 	return 0;
 }
 
@@ -393,6 +411,7 @@ int Map::trySetObject(MapTile *tile, short id) {
 	if (tile->m_tile == 1) return -2;
 
 	tile->m_object = id;
+	tile->m_objectHealth = Database::objects[id].health;
 	return 0;
 }
 

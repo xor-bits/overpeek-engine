@@ -252,12 +252,11 @@ void Game::keyPress(int key, int action) {
 	if (paused) return;
 
 	//Player Hitting
-	if (key == OE_KEY_UP && !m_player->exhausted()) { m_player->heading = HEADING_UP; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
-	if (key == OE_KEY_DOWN && !m_player->exhausted()) { m_player->heading = HEADING_DOWN; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
-	if (key == OE_KEY_LEFT && !m_player->exhausted()) { m_player->heading = HEADING_LEFT; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
-	if (key == OE_KEY_RIGHT && !m_player->exhausted()) { m_player->heading = HEADING_RIGHT; m_player->hit(); m_player->setStamina(m_player->getStamina() - 0.2); return; }
-	if ((key == OE_KEY_UP || key == OE_KEY_DOWN || key == OE_KEY_LEFT || key == OE_KEY_RIGHT) && m_player->exhausted()) { m_player->setStamina(m_player->getStamina() - 0.2); return; }
-	if (key == OE_KEY_E) { m_player->setX(round(m_player->getX())); m_player->setY(round(m_player->getY())); return; }
+	if (key == OE_KEY_UP) { m_player->heading = HEADING_UP; m_player->hit();return; }
+	if (key == OE_KEY_DOWN) { m_player->heading = HEADING_DOWN; m_player->hit(); return; }
+	if (key == OE_KEY_LEFT) { m_player->heading = HEADING_LEFT; m_player->hit(); return; }
+	if (key == OE_KEY_RIGHT) { m_player->heading = HEADING_RIGHT; m_player->hit(); return; }
+	if (key == OE_KEY_E) { m_player->setX(round(m_player->getX() + 0.5) - 0.5); m_player->setY(round(m_player->getY() + 0.5) - 0.5); return; }
 
 	//Inventory
 	if (key == OE_KEY_R) { m_inventory->visible = !m_inventory->visible; return; }
@@ -323,7 +322,11 @@ void Game::keyPress(int key, int action) {
 	if (key == OE_KEY_F6) { m_map->addCreature(m_player->getX(), m_player->getY() + 5, 1, false); return; }
 }
 
-void Game::buttonPress(int button, int action) {}
+void Game::buttonPress(int button, int action) {
+#if USE_MOUSE
+	m_player->mouseHit(button, action);
+#endif
+}
 
 void Game::scroll(double y) {
 	//Inventory slot scrolling

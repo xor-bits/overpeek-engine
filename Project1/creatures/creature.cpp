@@ -141,6 +141,7 @@ void Creature::update(int index) {
 		else m_healthRegenCooldown++;
 
 		if (!m_id == 0) { //!Player
+			collide();
 			clampHPAndSTA();
 			if (m_health <= 0) {
 				die();
@@ -159,6 +160,7 @@ void Creature::update(int index) {
 		}
 	}
 	else {
+		collide();
 		float distanceToPlayer = abs(getX() - Game::getPlayer()->getX()) + abs(getY() - Game::getPlayer()->getY());
 		if (distanceToPlayer < 0.8) {
 			if (Game::getPlayer()->inventory->addItem(m_id, 1)) {
@@ -186,7 +188,6 @@ void Creature::update(int index) {
 	vel_y *= 0.90;
 	acc_x = 0;
 	acc_y = 0;
-	collide();
 }
 
 void Creature::hit(float damagemult) {
@@ -244,12 +245,12 @@ void Creature::hit(float damagemult) {
 		}
 	}
 #else
-	Map::MapTile* tmp = Game::getMap()->getTile((unsigned int)hitx, (unsigned int)hity);
-	if (tmp) {
-		if (Database::objects[tmp->m_object].destructable) {
-			Game::getMap()->hit((unsigned int)hitx, (unsigned int)hity, Database::creatures[m_id].meleeDamage * damagemult);
-		}
-	}
+	//Map::MapTile* tmp = Game::getMap()->getTile((unsigned int)hitx, (unsigned int)hity);
+	//if (tmp) {
+	//	if (Database::objects[tmp->m_object].destructable) {
+	//		Game::getMap()->hit((unsigned int)hitx, (unsigned int)hity, Database::creatures[m_id].meleeDamage * damagemult);
+	//	}
+	//}
 #endif
 
 	//Swing noise
@@ -490,6 +491,10 @@ void Creature::enemyAi() {
 		m_curtarget_y = oe::Random::random(-16, 16);
 
 		m_path = new Pathfinder(getX(), getY(), getX() + m_curtarget_x, getY() + m_curtarget_y, 10);
+		if (m_path->failed) {
+			delete m_path;
+			m_path = nullptr;
+		}
 		m_result = 0;
 	}
 	if (m_wait < 0) {

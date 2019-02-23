@@ -8,6 +8,8 @@
 
 
 
+#define USE_MOUSE				true
+
 #define UPDATES_PER_SECOND		100
 
 #define DEBUG_ZOOM				1.0f
