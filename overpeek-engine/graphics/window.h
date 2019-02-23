@@ -1,12 +1,14 @@
 #pragma once
 
+#include <string>
+
 struct GLFWwindow;
 namespace oe {
 	class Window {
 	private:
 		//Variables
-		unsigned int mWidth, mHeight;
-		float mAspect;
+		static int mWidth, mHeight;
+		static float mAspect;
 		const char *mTitle;
 		GLFWwindow *mWindow;
 		bool m_fullscreen;
@@ -65,6 +67,7 @@ namespace oe {
 		inline int getWidth() { return mWidth; }
 
 		std::string getRenderer();
+		std::string getVendor();
 	};
 
 }

@@ -16,6 +16,8 @@ protected:
 
 	int m_untilnexttarget;
 	int m_wait;
+	int m_hit_cooldown;
+	int m_check_player_cooldown;
 	float m_curtarget_x;
 	float m_curtarget_y;
 	bool m_chasing;

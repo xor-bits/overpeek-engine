@@ -10,10 +10,9 @@
 
 #define UPDATES_PER_SECOND		100
 
-
 #define DEBUG_ZOOM				1.0f
 #define DEBUG_MODE				false
-#define ENABLE_AUDIO			true
+#define ENABLE_AUDIO			false
 #define SHOW_DEBUG_MESSAGES		false
 #define DEBUG_DISABLE_SAVING	false
 #define STORE_MAP_IN_RAM		true

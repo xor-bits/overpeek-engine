@@ -17,8 +17,11 @@
 
 #include "math/noise.h"
 #include "math/math.h"
-#include "math/FastNoise.h"
-#include "math/FastNoiseSIMD/FastNoiseSIMD.h"
+
+#include "../FastNoiseSIMD/FastNoise.h"
+#include "../FastNoiseSIMD/FastNoiseSIMD/FastNoiseSIMD.h"
+//#include "math/FastNoise.h"
+//#include "math/FastNoiseSIMD/FastNoiseSIMD.h"
 
 #include "utility/clock.h"
 #include "utility/random.h"

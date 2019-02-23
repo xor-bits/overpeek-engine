@@ -245,4 +245,8 @@ namespace oe {
 		return std::string((char*)glGetString(GL_RENDERER));
 	}
 
+	std::string Window::getVendor() {
+		return std::string((char*)glGetString(GL_VENDOR));
+	}
+
 }

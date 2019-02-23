@@ -100,16 +100,16 @@ namespace oe {
 		switch (type)
 		{
 		case info:
-			console->info(output + std::to_string(output2) + ", " + std::to_string(output2));
+			console->info(output + std::to_string(output2) + ", " + std::to_string(output3));
 			break;
 		case warning:
-			console->warn(output + std::to_string(output2) + ", " + std::to_string(output2));
+			console->warn(output + std::to_string(output2) + ", " + std::to_string(output3));
 			break;
 		case critical:
-			console->critical(output + std::to_string(output2) + ", " + std::to_string(output2));
+			console->critical(output + std::to_string(output2) + ", " + std::to_string(output3));
 			break;
 		case error:
-			console->error(output + std::to_string(output2) + ", " + std::to_string(output2));
+			console->error(output + std::to_string(output2) + ", " + std::to_string(output3));
 			Window::terminate();
 			break;
 

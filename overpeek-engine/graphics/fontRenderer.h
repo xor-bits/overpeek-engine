@@ -1,14 +1,14 @@
 #pragma once
 
 #include <map>
+#include <glm/glm.hpp>
 
 #define TEXT_MAX_QUADS_PER_FLUSH 64000
 #define TEXT_VERTEX_PER_QUAD 6 * 2
 #define TEXT_MAX_VBO TEXT_MAX_QUADS_PER_FLUSH * TEXT_VERTEX_PER_QUAD
 
-#define FONT_RESOLUTION 48.0
-#define FONT_BORDER		128
-#define TEXTURE_SCALAR	1.2
+#define FONT_RESOLUTION 128.0
+#define FONT_BACKGROUND	8
 
 namespace oe {
 
@@ -17,13 +17,13 @@ namespace oe {
 
 	class FontRenderer {
 	private:
+		static glm::vec4 colors[9];
+
 		unsigned int texture;
 		struct Character {
 			unsigned int textureID;		//Glyph texture id
-			int size_x;				//Glyph size
-			int size_y;
-			int bearing_x;			//Offset from baseline to top left
-			int bearing_x;
+			glm::ivec2 size;				//Glyph size
+			glm::ivec2 bearing;			//Offset from baseline to top left
 			signed long advance;	//Offset to advance to next glyph
 		};
 		std::map<char, Character*> m_characters;
@@ -45,7 +45,7 @@ namespace oe {
 
 		//Submit text to render
 		//_textOrigin = enum textOrigin
-		void renderText(float x, float y, float w, float h, const char *text, glm::vec3 color, int _textOrigin);
+		void renderText(float x, float y, float w, float h, const char *text, int _textOrigin);
 		
 		//Draws buffers and then clears them
 		void draw();

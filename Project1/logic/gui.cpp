@@ -32,59 +32,67 @@ void Gui::renderBlur(oe::Renderer *renderer) {
 	pos = glm::vec2(Game::getWindow()->getAspect() - 0.595 * Game::renderScale(), -1.0 + 0.165 * Game::renderScale());
 	size = glm::vec2(0.49 * (Game::getPlayer()->getStamina() / Game::getPlayer()->getMaxStamina()), 0.04) * Game::renderScale();
 	renderer->renderPoint(pos, size, 20, M_COLOR_STAMINA_BAR);
-}
 
-void Gui::renderNoBlur(oe::Renderer *renderer) {
-	float textScale = 0.1 * Game::renderScale();
+	float textScale = 0.08 * Game::renderScale();
 	float x = -Game::getWindow()->getAspect();
 	if (Game::debugMode) {
 		//Debug mode text
-		std::string text = "FPS: " + std::to_string(Game::getLoop()->getFPS());
-		renderer->renderText(glm::vec2(x, -1.0 + (textScale * 0)), glm::vec2(textScale, textScale), text.c_str(), glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
-		text = "UPS: " + std::to_string(Game::getLoop()->getUPS());
-		renderer->renderText(glm::vec2(x, -1.0 + (textScale * 1)), glm::vec2(textScale, textScale), text.c_str(), glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
+		std::string text = "UPS: " + std::to_string(Game::getLoop()->getUPS());
+		renderer->renderText(glm::vec2(x, -1.0 + (textScale * 1)), glm::vec2(textScale, textScale), text.c_str(), oe::topLeft);
 	}
-	
-
 	if (Game::advancedDebugMode) {
 		//Advanced debug mode text
 		std::string text = "Position X: " + std::to_string(Game::getPlayer()->getX()) + ", Y: " + std::to_string(Game::getPlayer()->getY());
-		renderer->renderText(glm::vec2(x, -1.0 + (textScale * 2)), glm::vec2(textScale, textScale), text.c_str(), glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
+		renderer->renderText(glm::vec2(x, -1.0 + (textScale * 2)), glm::vec2(textScale, textScale), text.c_str(), oe::topLeft);
 		text = "Renderer: " + Game::getWindow()->getRenderer();
-		renderer->renderText(glm::vec2(x, -1.0 + (textScale * 3)), glm::vec2(textScale, textScale), text.c_str(), glm::vec4(1.0, 1.0, 1.0, 1.0), oe::topLeft);
+		renderer->renderText(glm::vec2(x, -1.0 + (textScale * 3)), glm::vec2(textScale, textScale), text.c_str(), oe::topLeft);
+		text = "Vendor: " + Game::getWindow()->getVendor();
+		renderer->renderText(glm::vec2(x, -1.0 + (textScale * 4)), glm::vec2(textScale, textScale), text.c_str(), oe::topLeft);
 
 		m_currentFrame++;
 		if (m_currentFrame >= GUI_FRAME_LOGGER_SIZE) m_currentFrame = 0;
 		m_frame_logger[m_currentFrame] = Game::getLoop()->getFMS();
 		if (m_frame_logger[m_currentFrame] > m_slowest_frame) m_slowest_frame = m_frame_logger[m_currentFrame];
 
-		glm::vec2 pos = glm::vec2(-Game::getWindow()->getAspect(), 0.005);
+		glm::vec2 pos = glm::vec2(-Game::getWindow()->getAspect(), 2.0 / 3.0);
 		glm::vec2 size = glm::vec2(GUI_FRAME_LOGGER_BAR_WIDTH * (GUI_FRAME_LOGGER_SIZE - 1), 0.005) * Game::renderScale();
-		glm::vec2 textPos = glm::vec2(-Game::getWindow()->getAspect(), 0.0);
+		glm::vec2 textPos = glm::vec2(-Game::getWindow()->getAspect(), 2.0 / 3.0 - 0.02 * Game::renderScale());
 		glm::vec2 textSize = glm::vec2(textScale * 0.8);
 		renderer->renderPoint(pos, size, 20, glm::vec4(1.0, 0.0, 0.0, 1.0));
 		if (m_selected_logger) {
 			//Top bar
-			text = "frame micro-s: " + std::to_string((int)m_slowest_frame);
-			renderer->renderText(textPos, textSize, text.c_str(), glm::vec4(1.0, 1.0, 1.0, 1.0), oe::bottomLeft);
+			text = "frame: " + std::to_string((int)m_slowest_frame);
+			renderer->renderText(textPos, textSize, text.c_str(), oe::bottomLeft);
 
 			//Actual logger
 			for (int i = 0; i < GUI_FRAME_LOGGER_SIZE; i++) {
-				pos = glm::vec2(-Game::getWindow()->getAspect() + (GUI_FRAME_LOGGER_BAR_WIDTH * Game::renderScale() * i), 1.0 - m_frame_logger[i] / m_slowest_frame);
-				size = glm::vec2(GUI_FRAME_LOGGER_BAR_WIDTH * Game::renderScale(), m_frame_logger[i] / m_slowest_frame);
+				float bar_height = (m_frame_logger[i] / m_slowest_frame) / 3.0;
+				pos = glm::vec2(-Game::getWindow()->getAspect() + (GUI_FRAME_LOGGER_BAR_WIDTH * Game::renderScale() * i), 1.0 - bar_height);
+				size = glm::vec2(GUI_FRAME_LOGGER_BAR_WIDTH * Game::renderScale(), bar_height);
 				renderer->renderPoint(pos, size, 20, M_COLOR_BLACK);
 			}
 		}
 		else {
-			text = "update micro-s: " + std::to_string((int)m_slowest_update);
-			renderer->renderText(textPos, textSize, text.c_str(), glm::vec4(1.0, 1.0, 1.0, 1.0), oe::bottomLeft);
+			text = "update: " + std::to_string((int)m_slowest_update);
+			renderer->renderText(textPos, textSize, text.c_str(), oe::bottomLeft);
 
 			for (int i = 0; i < GUI_FRAME_LOGGER_SIZE; i++) {
-				pos = glm::vec2(-Game::getWindow()->getAspect() + (GUI_FRAME_LOGGER_BAR_WIDTH * Game::renderScale() * i), 1.0 - m_update_logger[i] / m_slowest_update);
-				size = glm::vec2(GUI_FRAME_LOGGER_BAR_WIDTH * Game::renderScale(), m_update_logger[i] / m_slowest_update);
+				float bar_height = (m_update_logger[i] / m_slowest_update) / 3.0;
+				pos = glm::vec2(-Game::getWindow()->getAspect() + (GUI_FRAME_LOGGER_BAR_WIDTH * Game::renderScale() * i), 1.0 - bar_height);
+				size = glm::vec2(GUI_FRAME_LOGGER_BAR_WIDTH * Game::renderScale(), bar_height);
 				renderer->renderPoint(pos, size, 20, M_COLOR_BLACK);
 			}
 		}
+	}
+}
+
+void Gui::renderNoBlur(oe::Renderer *renderer) {
+	float textScale = 0.08 * Game::renderScale();
+	float x = -Game::getWindow()->getAspect();
+	if (Game::debugMode) {
+		//Debug mode text
+		std::string text = "FPS: " + std::to_string(Game::getLoop()->getFPS());
+		renderer->renderText(glm::vec2(x, -1.0 + (textScale * 0)), glm::vec2(textScale, textScale), text.c_str(), oe::topLeft);
 	}
 
 	if (Game::paused) {
@@ -92,10 +100,10 @@ void Gui::renderNoBlur(oe::Renderer *renderer) {
 		if (m_selectedButton > BUTTONS - 1) m_selectedButton = 0;
 		if (m_selectedButton < 0) m_selectedButton = BUTTONS - 1;
 
-		float textScale = 0.2 * Game::renderScale();
+		float textScale = 0.1 * Game::renderScale();
 
 		std::string text = "PAUSED";
-		renderer->renderText(glm::vec2(0.003, -0.003 - 0.75), glm::vec2(textScale, textScale), text.c_str(), glm::vec4(1.0), oe::center);
+		renderer->renderText(glm::vec2(0.003, -0.003 - 0.75), glm::vec2(textScale, textScale), text.c_str(), oe::center);
 
 		for (int i = 0; i < 3; i++)
 		{
@@ -106,26 +114,26 @@ void Gui::renderNoBlur(oe::Renderer *renderer) {
 
 		textScale = 0.05;
 		text = "RESUME";
-		renderer->renderText(glm::vec2(0.0, -0.5), glm::vec2(textScale, textScale), text.c_str(), glm::vec4(1.0), oe::center);
+		renderer->renderText(glm::vec2(0.0, -0.5), glm::vec2(textScale, textScale), text.c_str(), oe::center);
 
 		textScale = 0.05;
 		text = "SETTINGS";
-		renderer->renderText(glm::vec2(0.0, -0.35), glm::vec2(textScale, textScale), text.c_str(), glm::vec4(1.0), oe::center);
+		renderer->renderText(glm::vec2(0.0, -0.35), glm::vec2(textScale, textScale), text.c_str(), oe::center);
 
 		textScale = 0.05;
 		text = "SAVE AND EXIT";
-		renderer->renderText(glm::vec2(0.0, -0.20), glm::vec2(textScale, textScale), text.c_str(), glm::vec4(1.0), oe::center);
+		renderer->renderText(glm::vec2(0.0, -0.20), glm::vec2(textScale, textScale), text.c_str(), oe::center);
 	}
 
 	if (m_chat_opened || m_chat_opened_timer > 0) {
 		if (m_chat_opened) {
 			renderer->renderPoint(glm::vec2(-Game::getWindow()->getAspect(), 1.0 - textScale), glm::vec2(Game::getWindow()->getAspect() * 2, textScale), 20, glm::vec4(0.0, 0.0, 0.0, 0.2));
-			renderer->renderText(glm::vec2(-Game::getWindow()->getAspect(), 1.0), glm::vec2(textScale, textScale), m_current_line.c_str(), glm::vec4(1.0), oe::bottomLeft);
+			renderer->renderText(glm::vec2(-Game::getWindow()->getAspect(), 1.0), glm::vec2(textScale, textScale), m_current_line.c_str(), oe::bottomLeft);
 		}
 
 		for (int i = 0; i < m_text_lines.size(); i++)
 		{
-			renderer->renderText(glm::vec2(-Game::getWindow()->getAspect(), 1.0 - ((i + 1.5) * textScale * 1.2)), glm::vec2(textScale, textScale), m_text_lines[m_text_lines.size() - 1 - i].c_str(), glm::vec4(1.0), oe::bottomLeft);
+			renderer->renderText(glm::vec2(-Game::getWindow()->getAspect(), 1.0 - ((i + 1.5) * textScale * 1.2)), glm::vec2(textScale, textScale), m_text_lines[m_text_lines.size() - 1 - i].c_str(), oe::bottomLeft);
 		}
 	}
 }
@@ -153,7 +161,6 @@ void Gui::update() {
 }
 
 void Gui::keyPress(int key, int action) {
-	oe::Logger::out(oe::info, "Key pressed");
 	if (Game::paused) {
 		//Pause menu navigation
 		if (key == OE_KEY_DOWN) { m_selectedButton++; return; }
@@ -269,8 +276,11 @@ void Gui::userInput() {
 		}
 
 		//COMMANDS
+		if (command == "clear") {
+			m_text_lines.clear();
+		}
 		//TP COMMAND
-		if (command == "tp") {
+		else if (command == "tp") {
 			if (argumentVec.size() < 2) {
 				addChatLine("Too few arguments");
 				addChatLine("Type \"/help\" to see list of commands and their uses");
@@ -300,18 +310,40 @@ void Gui::userInput() {
 			}
 			else {
 				int id = stof(argumentVec[0]);
+				int n = 0;
+				int item = true;
 
 				float posX = Game::getPlayer()->getX();
 				float posY = Game::getPlayer()->getY();
 				if (argumentVec.size() >= 2) {
-					posX = stof(argumentVec[1]);
+					if (argumentVec[1] != "x") {
+						posX = stof(argumentVec[1]);
+					}
 					if (argumentVec.size() >= 3) {
-						posY = stof(argumentVec[2]);
+						if (argumentVec[2] != "y") {
+							posY = stof(argumentVec[2]);
+						}
+						if (argumentVec.size() >= 4) {
+							n = stof(argumentVec[3]);
+
+							if (argumentVec.size() >= 5) {
+								item = stof(argumentVec[4]);
+							}
+						}
 					}
 				}
 
-				Creature *tmp = Game::getMap()->addCreature(posX, posY, id, false);
-				addChatLine(Database::creatures[id].name + " spawned at " + std::to_string(tmp->getX()) + ", " + std::to_string(tmp->getY()));
+				for (int i = 0; i < n; i++)
+				{
+					Creature *tmp = Game::getMap()->addCreature(posX, posY, id, item);
+				}
+				
+				if (item) {
+					addChatLine(std::to_string(n) + " " + Database::items[id].name + "(s) spawned");
+				}
+				else {
+					addChatLine(std::to_string(n) + " " + Database::creatures[id].name + "(s) spawned");
+				}
 			}
 		}
 		//SETSPAWN COMMAND
@@ -330,9 +362,10 @@ void Gui::userInput() {
 		//HELP COMMAND
 		else if (command == "help") {
 			addChatLine("--List of commands--");
+			addChatLine("/clear -- clears chat");
 			addChatLine("/tp [x] [y] -- teleports to [x] [y]");
 			addChatLine("/respawn -- kills the player");
-			addChatLine("/spawn [id] <x> <y> -- spawns creature");
+			addChatLine("/spawn [id] <x> <y> <n> <item> -- spawns creature");
 			addChatLine("/setspawn <x> <y> -- sets spawnpoint");
 		}
 		//COMMAND NOT FOUND

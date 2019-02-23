@@ -57,7 +57,7 @@ namespace oe {
 		void renderPoint(glm::vec2 pos, glm::vec2 size, int id, glm::vec4 color);
 
 		//Submit text to renderer
-		void renderText(glm::vec2 pos, glm::vec2 size, const char *text, glm::vec3 color, int _textOrigin);
+		void renderText(glm::vec2 pos, glm::vec2 size, const char *text, int _textOrigin);
 
 		//Draws all quads and text
 		//textbool is location of int (used as boolean) in shader that enables or disables text rendering

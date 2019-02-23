@@ -128,7 +128,7 @@ namespace oe {
 	}
 
 	//Submit text to renderer
-	void Renderer::renderText(glm::vec2 pos, glm::vec2 size, const char *text, glm::vec3 color, int _textOrigin) {
+	void Renderer::renderText(glm::vec2 pos, glm::vec2 size, const char *text, int _textOrigin) {
 		if (m_quadMapped) {
 			m_quadRenderer->stopRendering();
 			m_quadMapped = false;
@@ -141,7 +141,7 @@ namespace oe {
 			m_fontRenderer->beginRendering();
 			m_fontMapped = true;
 		}
-		m_fontRenderer->renderText(pos.x, pos.y, size.x, size.y, text, color, _textOrigin);
+		m_fontRenderer->renderText(pos.x, pos.y, size.x, size.y, text, _textOrigin);
 	}
 
 	//Draws all quads and text

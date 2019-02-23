@@ -78,15 +78,17 @@ bool Map::loadMap() {
 	//Load creatures
 	unsigned long creature_data_size;
 	CreatureSaveData *creature_data = (CreatureSaveData*)oe::BinaryIO::read<CreatureSaveData>(saveLocation() + "creature.data", creature_data_size);
-	creature_data_size /= sizeof(CreatureSaveData);
-	for (int i = 0; i < creature_data_size; i++)
-	{
-		addCreature(
-			((CreatureSaveData*)creature_data)[i].x,
-			((CreatureSaveData*)creature_data)[i].y,
-			((CreatureSaveData*)creature_data)[i].id,
-			((CreatureSaveData*)creature_data)[i].item
-		);
+	if (creature_data) {
+		creature_data_size /= sizeof(CreatureSaveData);
+		for (int i = 0; i < creature_data_size; i++)
+		{
+			addCreature(
+				((CreatureSaveData*)creature_data)[i].x,
+				((CreatureSaveData*)creature_data)[i].y,
+				((CreatureSaveData*)creature_data)[i].id,
+				((CreatureSaveData*)creature_data)[i].item
+			);
+		}
 	}
 
 	//Cleanup
@@ -395,6 +397,7 @@ int Map::trySetObject(MapTile *tile, short id) {
 }
 
 void Map::findAllCreatures(float _x, float _y, std::vector<Creature*> &_array, float _radius) {
+	_array.push_back(Game::getPlayer());
 	for (int i = 0; i < m_creatures.size(); i++)
 	{
 		if (!oe::isInRange(m_creatures[i]->getX(), _x - _radius, _x + _radius)) continue;

@@ -134,7 +134,6 @@ void Inventory::renderOneSlot(oe::Renderer *m_renderer, float x, float y, float 
 		glm::vec2(x, y),
 		glm::vec2(1.0 / 3.0) * scale,
 		std::to_string(itemcount).c_str(),
-		glm::vec4(1.0),
 		oe::topLeft
 	);
 }

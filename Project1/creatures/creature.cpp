@@ -22,6 +22,7 @@ Creature::Creature(float _x, float _y, int _id, bool _item) {
 
 	m_untilnexttarget = 500;
 	m_wait = 0;
+	m_hit_cooldown = 0;
 	m_chasing = false;
 
 	//HS
@@ -161,7 +162,7 @@ void Creature::update(int index) {
 		float distanceToPlayer = abs(getX() - Game::getPlayer()->getX()) + abs(getY() - Game::getPlayer()->getY());
 		if (distanceToPlayer < 0.8) {
 			if (Game::getPlayer()->inventory->addItem(m_id, 1)) {
-				oe::Debug::startTimer();
+				//oe::Debug::startTimer();
 				///REMOVE THIS CREATURE
 				#if !STORE_MAP_IN_RAM
 				Game::getRegion(getX(), getY())->removeCreature(m_regionIndex, true);
@@ -169,7 +170,7 @@ void Creature::update(int index) {
 				Game::getMap()->removeCreature(index);
 				#endif				
 				oe::AudioManager::play(2);
-				oe::Debug::printTimer("Item collected: ");
+				//oe::Debug::printTimer("Item collected: ");
 				return;
 			}
 		}
@@ -224,6 +225,8 @@ void Creature::hit(float damagemult) {
 
 	for (int i = 0; i < creatureArray.size(); i++)
 	{
+		if (creatureArray[i] == this) continue;
+
 		glm::vec2 directionVector = glm::vec2(creatureArray[i]->getX() - getX(), creatureArray[i]->getY() - getY());
 		directionVector = glm::normalize(directionVector);
 	
@@ -388,7 +391,7 @@ bool Creature::canSee(float _x, float _y) {
 					glm::vec2(x + floor(getX()), y + floor(getY())), 
 					glm::vec2(x + floor(getX()), y + floor(getY()) + 1.0)
 				)) {
-					//oe::Logger::info("0");
+					//oe::Logger::out(oe::info, "0");
 					return false;
 				}
 				if (lineLine(
@@ -397,7 +400,7 @@ bool Creature::canSee(float _x, float _y) {
 					glm::vec2(x + floor(getX()), y + floor(getY())),
 					glm::vec2(x + floor(getX()) + 1.0, y + floor(getY()))
 				)) {
-					//oe::Logger::info("1");
+					//oe::Logger::out(oe::info, "1");
 					return false;
 				}
 				if (lineLine(
@@ -406,7 +409,7 @@ bool Creature::canSee(float _x, float _y) {
 					glm::vec2(x + floor(getX()) + 1.0, y + floor(getY()) + 1.0),
 					glm::vec2(x + floor(getX()), y + floor(getY()) + 1.0)
 				)) {
-					//oe::Logger::info("2");
+					//oe::Logger::out(oe::info, "2");
 					return false;
 				}
 				if (lineLine(
@@ -415,7 +418,7 @@ bool Creature::canSee(float _x, float _y) {
 					glm::vec2(x + floor(getX()) + 1.0, y + floor(getY()) + 1.0),
 					glm::vec2(x + floor(getX()) + 1.0, y + floor(getY()))
 				)) {
-					//oe::Logger::info("3");
+					//oe::Logger::out(oe::info, "3");
 					return false;
 				}
 			}
@@ -433,25 +436,54 @@ int sign(float n) {
 void Creature::enemyAi() {
 	m_untilnexttarget--;
 	m_wait--;
+	m_check_player_cooldown--;
 
-	//oe::Logger::info(m_untilnexttarget, m_wait);
-	if (m_chasing) {
-		glm::vec2 dirToPlayer = glm::normalize(glm::vec2(Game::getPlayer()->getX() - getX(), Game::getPlayer()->getY() - getY()));
-		if (dirToPlayer.x > 0.01 && dirToPlayer.y > 0.01) {
-			vel_x = dirToPlayer.x / 50.0;
-			vel_y = dirToPlayer.y / 50.0;
-		}
-	}
-	if (m_untilnexttarget < 0) {
-		m_wait = 500;
-		m_untilnexttarget = 2000;
-
+	if (m_check_player_cooldown <= 0) {
+		m_check_player_cooldown = oe::Random::random(0, 100);
 
 		if (canSee(Game::getPlayer()->getX(), Game::getPlayer()->getY())) {
 			m_chasing = true;
 			return;
 		}
 		else m_chasing = false;
+	}
+	if (m_chasing) {
+		glm::vec2 dstToPlayer = glm::vec2(Game::getPlayer()->getX() - getX(), Game::getPlayer()->getY() - getY());
+		glm::vec2 dirToPlayer = glm::normalize(dstToPlayer);
+		if (abs(dstToPlayer.x) > 1.2 || abs(dstToPlayer.y) > 1.2) {
+			vel_x = dirToPlayer.x / 50.0;
+			vel_y = dirToPlayer.y / 50.0;
+		}
+		else {
+			m_hit_cooldown++;
+			if (m_hit_cooldown > 50) {
+				m_hit_cooldown = 0;
+				hit(1);
+			}
+		}
+
+
+		//Heads towards player
+		if (abs(dstToPlayer.x) > abs(dstToPlayer.y)) {
+			if (dstToPlayer.x < 0) {
+				heading = HEADING_LEFT;
+			}
+			else {
+				heading = HEADING_RIGHT;
+			}
+		}
+		else {
+			if (dstToPlayer.y < 0) {
+				heading = HEADING_UP;
+			}
+			else {
+				heading = HEADING_DOWN;
+			}
+		}
+	}
+	if (m_untilnexttarget < 0) {
+		m_wait = 500;
+		m_untilnexttarget = 2000;
 
 
 		m_curtarget_x = oe::Random::random(-16, 16);
@@ -463,13 +495,6 @@ void Creature::enemyAi() {
 	if (m_wait < 0) {
 		m_untilnexttarget = oe::Random::random(50, 200);
 		m_wait = 4000;
-
-
-		if (canSee(Game::getPlayer()->getX(), Game::getPlayer()->getY())) {
-			m_chasing = true;
-			return;
-		}
-		else m_chasing = false;
 
 
 		m_result = 0;

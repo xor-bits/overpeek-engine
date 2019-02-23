@@ -55,14 +55,14 @@ void Game::init() {
 
 	//Window
 	oe::Logger::out(oe::info, "Creating window");
-	m_window = std::unique_ptr<oe::Window>(new oe::Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, M_WINDOW_DEFAULT_TITLE, false, M_DEFAULT_MULTISAMPLE, !M_ASPECT_FIXED));
+	m_window = std::unique_ptr<oe::Window>(new oe::Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, (M_WINDOW_DEFAULT_TITLE).c_str(), false, M_DEFAULT_MULTISAMPLE, !M_ASPECT_FIXED));
 	m_window->setSwapInterval(NULL);
 	m_window->setButtonCallback(buttonPress);
 	m_window->setKeyboardCallback(keyPress);
 	m_window->setScrollCallback(scroll);
 	m_window->setResizeCallback(resize);
 	m_window->setCharmodCallback(charmod);
-	m_window->setSwapInterval(2);
+	m_window->setSwapInterval(0);
 
 	//Create shader
 	oe::Logger::out(oe::info, "Creating all the shaders");
@@ -75,9 +75,9 @@ void Game::init() {
 
 	//Shader stuff
 	resize(m_window->getWidth(), m_window->getHeight());
+
 	
 	//Gameloop
-	oe::Logger::out(oe::info, "Starting gameloop");
 	m_loop = std::unique_ptr<oe::GameLoop>(new oe::GameLoop(render, update, rapidUpdate, UPDATES_PER_SECOND, 10000));
 
 	loadGame();
@@ -152,6 +152,10 @@ void Game::render() {
 }
 
 void Game::update() {
+	//double mx, my;
+	//m_window->getMousePos(mx, my);
+	//oe::Logger::out(oe::info, "mouse: ", mx, my);
+
 	if (!m_window) return;
 
 	if (m_window->close()) m_loop->stop();

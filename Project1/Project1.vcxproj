@@ -125,11 +125,10 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>"pch.h"</PrecompiledHeaderFile>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)overpeek-engine</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)overpeek-engine;$(SolutionDir)Libraries\glm;$(SolutionDir)Libraries\zlib\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
+      <AdditionalDependencies>zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -141,11 +140,10 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>"pch.h"</PrecompiledHeaderFile>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)overpeek-engine</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)overpeek-engine;$(SolutionDir)Libraries\glm;$(SolutionDir)Libraries\zlib\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
+      <AdditionalDependencies>zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>100000000</StackReserveSize>
       <StackCommitSize>400000</StackCommitSize>
     </Link>

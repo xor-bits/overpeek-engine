@@ -5,6 +5,8 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include <freetype/ftstroke.h>
+#include <GL/glew.h>
 
 #include "../utility/logger.h"
 #include "shader.h"
@@ -12,16 +14,29 @@
 #include "renderer.h"
 #include "quadRenderer.h"
 #include "window.h"
-
-#define FONT_RESOLUTION 48.0
+#include "../math/math.h"
 
 namespace oe {
+
+	glm::vec4 FontRenderer::colors[9];
 	
 	FontRenderer::FontRenderer(const char *fontPath, QuadRenderer *renderer) {
 		init(fontPath);
 		initalized = true;
 
 		m_renderer = renderer;
+
+
+		//Colors
+		colors[0] = glm::vec4(1.0);
+		colors[1] = glm::vec4(0.5, 0.5, 0.5, 1.0);
+		colors[2] = glm::vec4(0.0, 0.0, 0.0, 1.0);
+		colors[3] = glm::vec4(1.0, 0.0, 0.0, 1.0);
+		colors[4] = glm::vec4(0.0, 1.0, 0.0, 1.0);
+		colors[5] = glm::vec4(0.0, 0.0, 1.0, 1.0);
+		colors[6] = glm::vec4(0.0, 1.0, 1.0, 1.0);
+		colors[7] = glm::vec4(1.0, 0.5, 0.0, 1.0);
+		colors[8] = glm::vec4(1.0, 1.0, 0.0, 1.0);
 	}
 
 	bool FontRenderer::init(const char *fontPath) {
@@ -36,16 +51,16 @@ namespace oe {
 			oe::Logger::out(oe::error, "Failed to load font!");
 			Window::terminate();
 		}
-		
+	
 
-		GLubyte *data = new GLubyte[128 * (int)FONT_RESOLUTION * TEXTURE_SCALAR * (int)FONT_RESOLUTION * TEXTURE_SCALAR * 4];
+		GLubyte *data = new GLubyte[128 * pow(FONT_RESOLUTION + FONT_BACKGROUND, 2) * 4];
 		for (int c = 0; c < 128 * FONT_RESOLUTION * FONT_RESOLUTION; c++) {
 			data[c] = 0;
 		}
-		GLuint maxWidth = FONT_RESOLUTION * TEXTURE_SCALAR, maxHeight = FONT_RESOLUTION * TEXTURE_SCALAR;
+		GLuint maxWidth = FONT_RESOLUTION + FONT_BACKGROUND, maxHeight = FONT_RESOLUTION + FONT_BACKGROUND;
 		
 		FT_Set_Pixel_Sizes(face, 0, FONT_RESOLUTION);
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
+		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
 		for (GLubyte c = 32; c < 127; c++) {
 			//Load glyph
 			if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
@@ -56,59 +71,41 @@ namespace oe {
 			auto g = face->glyph;
 
 			if (!g->bitmap.buffer) continue;
-
-			g->format = FT_GLYPH_FORMAT_OUTLINE;
-			// Set up a stroker.
-			FT_Stroker stroker;
-			FT_Stroker_New(ft, &stroker);
-			FT_Stroker_Set(stroker, FONT_BORDER, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
-
-			FT_Glyph glyph; 
-			if (FT_Get_Glyph(g, &glyph)) {
-				oe::Logger::out(oe::error, "Glyph load fail");
-			}
-			if (FT_Glyph_StrokeBorder(&glyph, stroker, 0, 1)) {
-				oe::Logger::out(oe::error, "Stroke border fail");
-			}
-
-			glyph->format = FT_GLYPH_FORMAT_BITMAP;
-			if (FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, 0, 1)) {
-				oe::Logger::out(oe::error, "Glyph to bitmap fail");
-			}
-			FT_BitmapGlyph bitmap;
-			bitmap = (FT_BitmapGlyph)glyph;
 			
 			//Now store character for later use
 			Character *character = new Character {
-				//c,
-				//glm::ivec2(g->bitmap.width, g->bitmap.rows),
-				//glm::ivec2(g->bitmap_left,  g->bitmap_top),
-				//g->advance.x
 				c,
-				glm::ivec2(bitmap->bitmap.width, bitmap->bitmap.rows),
-				glm::ivec2(bitmap->left,  bitmap->top),
-				(glyph->advance.x / 1024) + 128
+				glm::ivec2(g->bitmap.width, g->bitmap.rows),
+				glm::ivec2(g->bitmap_left,  g->bitmap_top),
+				g->advance.x
 			};
 			m_characters.insert(std::pair<GLchar, Character*>(c, character));
 
-			int xdiff = (float(bitmap->bitmap.width - g->bitmap.width) / 2.0 + 0.5);
-			int ydiff = (float(bitmap->bitmap.rows - g->bitmap.rows) / 2.0 + 0.5);
-			for (int x = 0; x < bitmap->bitmap.width; x++)
+			//BLACK BACKGROUND
+			for (int y = 0; y < g->bitmap.rows; y++)
 			{
-				for (int y = 0; y < bitmap->bitmap.rows; y++)
+				for (int x = 0; x < g->bitmap.width; x++)
 				{
-					int pixel = x + y * maxWidth + c * maxWidth * maxHeight;
+					int pixel = (x + FONT_BACKGROUND) + (y + FONT_BACKGROUND) * maxWidth + c * maxWidth * maxHeight;
 					
 					GLubyte byte = 0;
-					if ((x - xdiff) >= 0 && (x - xdiff) < g->bitmap.width) {
-						if ((y - ydiff) >= 0 && (y - ydiff) < g->bitmap.rows) {
-							byte = g->bitmap.buffer[(x - xdiff) + (y - ydiff)* g->bitmap.width];
-						}
-					}
 					data[pixel * 4 + 0] = byte;
 					data[pixel * 4 + 1] = byte;
 					data[pixel * 4 + 2] = byte;
-					data[pixel * 4 + 3] = (GLubyte)bitmap->bitmap.buffer[x + y * bitmap->bitmap.width];
+					data[pixel * 4 + 3] = g->bitmap.buffer[x + y * g->bitmap.width];
+				}
+			}
+			//WHITE FRONT FONT
+			for (int y = 0; y < g->bitmap.rows; y++)
+			{
+				for (int x = 0; x < g->bitmap.width; x++)
+				{
+					int pixel = x + y * maxWidth + c * maxWidth * maxHeight;
+
+					data[pixel * 4 + 0] = g->bitmap.buffer[x + y * g->bitmap.width];
+					data[pixel * 4 + 1] = g->bitmap.buffer[x + y * g->bitmap.width];
+					data[pixel * 4 + 2] = g->bitmap.buffer[x + y * g->bitmap.width];
+					data[pixel * 4 + 3] = oe::clamp(data[pixel * 4 + 3] + g->bitmap.buffer[x + y * g->bitmap.width], 0, 255);
 				}
 			}
 		}
@@ -142,20 +139,31 @@ namespace oe {
 		m_renderer->draw(texture);
 	}
 	
-	void FontRenderer::renderText(float _x, float _y, float _w, float _h, const char *_text, glm::vec3 _color, int _textOrigin)
+	void FontRenderer::renderText(float _x, float _y, float _w, float _h, const char *_text, int _textOrigin)
 	{
 		std::string text = _text;
 		if (!initalized) return;
 		float x = _x;
 		float y = _y;
 		std::string::const_iterator c;
+
+		glm::vec4 cur_color = glm::vec4(1.0);
+		bool next_is_color = false;
 		
 		if (_textOrigin == topLeft || _textOrigin == centerLeft || _textOrigin == bottomLeft) {} //Already
 		else if (_textOrigin == topRight || _textOrigin == centerRight || _textOrigin == bottomRight) {
 			float textWidth = 0.0f;
 			for (c = text.begin(); c != text.end(); c++)
 			{
-				if (*c < 32 || *c > 126) continue;
+				if (*c < 32 || *c > 126 || next_is_color) {
+					next_is_color = false;
+					continue;
+				}
+				if (*c == '$') {
+					next_is_color = true;
+					continue;
+				}
+
 				if (*c == ' ') {
 					textWidth += _w / 2.0;
 					continue;
@@ -168,7 +176,15 @@ namespace oe {
 			float textWidth = 0.0f;
 			for (c = text.begin(); c != text.end(); c++)
 			{
-				if (*c < 32 || *c > 126) continue;
+				if (*c < 32 || *c > 126 || next_is_color) {
+					next_is_color = false;
+					continue;
+				}
+				if (*c == '$') {
+					next_is_color = true;
+					continue;
+				}
+
 				if (*c == ' ') {
 					textWidth += _w / 2.0;
 					continue;
@@ -186,6 +202,22 @@ namespace oe {
 		for (c = text.begin(); c != text.end(); c++)
 		{
 			if (*c < 32 || *c > 126) continue;
+			if (next_is_color) {
+				char color_index[] = { *c, NULL };
+				int index = (int)atof(color_index);
+
+				if (oe::isInRange(index, 0, 8)) {
+					cur_color = colors[index];
+				}
+				
+				next_is_color = false;
+				continue;
+			}
+			if (*c == '$') {
+				next_is_color = true;
+				continue;
+			}
+
 			if (*c == ' ') {
 				x += _w / 2.0;
 				continue;
@@ -195,7 +227,7 @@ namespace oe {
 			float w = m_characters[*c]->size.x / FONT_RESOLUTION * _w;
 			float h = m_characters[*c]->size.y / FONT_RESOLUTION * _h;
 
-			m_renderer->renderBox(glm::vec2(xpos, ypos), glm::vec2(_w, _h), m_characters[*c]->textureID, glm::vec4(_color, 1.0));
+			m_renderer->renderBox(glm::vec2(xpos, ypos), glm::vec2(_w, _h), m_characters[*c]->textureID, cur_color);
 		
 			// Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
 			x += (m_characters[*c]->advance >> 6) / FONT_RESOLUTION * _w; // Bitshift by 6 to get value in pixels (2^6 = 64)
