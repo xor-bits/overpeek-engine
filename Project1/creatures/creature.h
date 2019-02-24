@@ -21,6 +21,7 @@ protected:
 	float m_curtarget_x;
 	float m_curtarget_y;
 	bool m_chasing;
+	bool m_bumping;
 
 	//Health and stamina
 	float m_health;
@@ -47,6 +48,8 @@ protected:
 	void clampHPAndSTA();
 	void followTarget();
 
+	void setHeading(float x, float y);
+
 public:
 	bool m_item;
 	float x, y;
@@ -60,7 +63,7 @@ public:
 	void submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY);
 	void update(int index);
 	void collide();
-	void hit(float damagemult);
+	void hit(float damageadd, float kbadd);
 	void die();
 	bool canSee(float x, float y);
 

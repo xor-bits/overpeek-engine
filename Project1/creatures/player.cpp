@@ -107,6 +107,8 @@ void Player::update() {
 			m_death_x = -1;
 		}
 	}
+	if (Game::advancedDebugMode) m_stamina += 1000000;
+	if (Game::advancedDebugMode) m_health += 1000000;
 
 	clampHPAndSTA();
 	if (m_health <= 0) {
@@ -114,7 +116,6 @@ void Player::update() {
 		return;
 	}
 
-	if (Game::advancedDebugMode)m_stamina += 1000000;
 	Creature::update(0);
 }
 
@@ -129,9 +130,11 @@ void Player::hit() {
 	else {
 		setStamina(getStamina() - 0.2);
 		if (exhausted()) return;
-		float dmgmltp = 1.0;
-		if (Game::advancedDebugMode) dmgmltp = 100.0;
-		Creature::hit(dmgmltp);
+
+		float dmgadd = Database::items[inventory->selectedId].melee_damage;
+		float kbadd = Database::items[inventory->selectedId].melee_kb;
+		if (Game::advancedDebugMode) dmgadd *= 100.0;
+		Creature::hit(dmgadd, kbadd);
 	}
 }
 
@@ -166,17 +169,24 @@ void Player::mouseHit(int button, int action) {
 			setStamina(getStamina() - 0.2);
 			if (exhausted()) return;
 
-			float dmgmltp = 1.0;
-			if (Game::advancedDebugMode) dmgmltp = 100.0;
-			Creature::hit(dmgmltp);
+			float break_speed = Database::items[inventory->selectedId].break_speed;
+			if (Game::advancedDebugMode) break_speed = 100.0;
 
 			Map::MapTile* tmp = Game::getMap()->getTile(getX() + mx, getY() + my);
 			if (tmp) {
 				if (Database::objects[tmp->m_object].destructable) {
-					Game::getMap()->hit(getX() + mx, getY() + my, Database::creatures[m_id].meleeDamage * dmgmltp);
+					Game::getMap()->hit(getX() + mx, getY() + my, 1 + break_speed);
 				}
 			}
 		}
+	}
+	if (button == OE_MOUSE_BUTTON_LEFT) {
+		setStamina(getStamina() - 0.2);
+		if (exhausted()) return;
+		float dmgadd = Database::items[inventory->selectedId].melee_damage;
+		float kbadd = Database::items[inventory->selectedId].melee_kb;
+		if (Game::advancedDebugMode) dmgadd *= 100.0;
+		Creature::hit(dmgadd, kbadd);
 	}
 
 #endif

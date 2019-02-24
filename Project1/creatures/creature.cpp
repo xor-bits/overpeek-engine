@@ -184,13 +184,13 @@ void Creature::update(int index) {
 	x += vel_x;
 	y += vel_y;
 	
-	vel_x *= 0.90;
-	vel_y *= 0.90;
+	vel_x *= 0.70;
+	vel_y *= 0.70;
 	acc_x = 0;
 	acc_y = 0;
 }
 
-void Creature::hit(float damagemult) {
+void Creature::hit(float damageadd, float kbadd) {
 	if (m_item) return;
 	float hitx = getX(), hity = getY();
 	switch (heading)
@@ -231,9 +231,9 @@ void Creature::hit(float damagemult) {
 		glm::vec2 directionVector = glm::vec2(creatureArray[i]->getX() - getX(), creatureArray[i]->getY() - getY());
 		directionVector = glm::normalize(directionVector);
 	
-		creatureArray[i]->acc_x = directionVector.x / 10.0 * Database::creatures[m_id].knockback;
-		creatureArray[i]->acc_y = directionVector.y / 10.0 * Database::creatures[m_id].knockback;
-		creatureArray[i]->setHealth(creatureArray[i]->getHealth() - Database::creatures[m_id].meleeDamage * damagemult);
+		creatureArray[i]->acc_x += directionVector.x / 10.0 * (Database::creatures[m_id].knockback + kbadd);
+		creatureArray[i]->acc_y += directionVector.y / 10.0 * (Database::creatures[m_id].knockback + kbadd);
+		creatureArray[i]->setHealth(creatureArray[i]->getHealth() - Database::creatures[m_id].meleeDamage - damageadd);
 	}
 
 	//Tile hitting
@@ -263,6 +263,7 @@ bool AABB(glm::fvec2 aPos, glm::fvec2 aSize, glm::fvec2 bPos, glm::fvec2 bSize) 
 }
 
 void Creature::collide() {
+	m_bumping = false;
 	if (!m_item && Database::creatures[m_id].ghost) return;
 
 	for (int _x = -1; _x < 2; _x++)
@@ -347,9 +348,8 @@ void Creature::collide() {
 					#endif
 				}
 
-				if (top != bottom) { addY(y_to_move); vel_y = 0; }
-				if (left != right) { addX(x_to_move); vel_x = 0;
-				}
+				if (top != bottom) { addY(y_to_move); vel_y = 0; m_bumping = true; }
+				if (left != right) { addX(x_to_move); vel_x = 0; m_bumping = true; }
 			}
 		}
 	}
@@ -444,6 +444,8 @@ void Creature::enemyAi() {
 
 		if (canSee(Game::getPlayer()->getX(), Game::getPlayer()->getY())) {
 			m_chasing = true;
+			delete m_path;
+			m_path = nullptr;
 			return;
 		}
 		else m_chasing = false;
@@ -452,35 +454,18 @@ void Creature::enemyAi() {
 		glm::vec2 dstToPlayer = glm::vec2(Game::getPlayer()->getX() - getX(), Game::getPlayer()->getY() - getY());
 		glm::vec2 dirToPlayer = glm::normalize(dstToPlayer);
 		if (abs(dstToPlayer.x) > 1.2 || abs(dstToPlayer.y) > 1.2) {
-			vel_x = dirToPlayer.x / 50.0;
-			vel_y = dirToPlayer.y / 50.0;
+			acc_x += dirToPlayer.x * 0.007 * Database::creatures[m_id].walkSpeed;
+			acc_y += dirToPlayer.y * 0.007 * Database::creatures[m_id].walkSpeed;
+			setHeading(acc_x, acc_y);
 		}
 		else {
 			m_hit_cooldown++;
 			if (m_hit_cooldown > 50) {
 				m_hit_cooldown = 0;
-				hit(1);
+				hit(0, 0);
 			}
 		}
-
-
-		//Heads towards player
-		if (abs(dstToPlayer.x) > abs(dstToPlayer.y)) {
-			if (dstToPlayer.x < 0) {
-				heading = HEADING_LEFT;
-			}
-			else {
-				heading = HEADING_RIGHT;
-			}
-		}
-		else {
-			if (dstToPlayer.y < 0) {
-				heading = HEADING_UP;
-			}
-			else {
-				heading = HEADING_DOWN;
-			}
-		}
+		setHeading(dstToPlayer.x, dstToPlayer.y);
 	}
 	if (m_untilnexttarget < 0) {
 		m_wait = 500;
@@ -511,6 +496,26 @@ void Creature::enemyAi() {
 	if (m_path && !m_chasing) followTarget();
 }
 
+void Creature::setHeading(float x, float y) {
+	//Heads towards where its going
+	if (abs(x) > abs(y)) {
+		if (x < 0) {
+			heading = HEADING_LEFT;
+		}
+		else {
+			heading = HEADING_RIGHT;
+		}
+	}
+	else {
+		if (y < 0) {
+			heading = HEADING_UP;
+		}
+		else {
+			heading = HEADING_DOWN;
+		}
+	}
+}
+
 void Creature::followTarget() {
 	if (m_result == 0) {
 		m_result = m_path->runNSteps(1);
@@ -530,8 +535,7 @@ void Creature::followTarget() {
 			return;
 		}
 
-		//oe::Logger::info((abs(vel_x) + abs(vel_y)));
-		if (abs(vel_x) + abs(vel_y) < 0.03) {
+		if (m_bumping) {
 			m_stuck_timer++;
 
 			if (m_stuck_timer > 100) {
@@ -561,7 +565,8 @@ void Creature::followTarget() {
 			}
 		}
 
-		vel_x = sign(mov_x) / 35.0f;
-		vel_y = sign(mov_y) / 35.0f;
+		if (abs(mov_x) > 0.2) acc_x += sign(mov_x) * 0.007 * Database::creatures[m_id].walkSpeed;
+		if (abs(mov_y) > 0.2) acc_y += sign(mov_y) * 0.007 * Database::creatures[m_id].walkSpeed;
+		setHeading(acc_x, acc_y);
 	}
 }

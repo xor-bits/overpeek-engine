@@ -162,17 +162,17 @@ void Game::update() {
 	if (!paused) {
 		if (!m_gui->chatOpened()) {
 			//Player movement
-			float playerSpeed = 0.03;
+			float playerSpeed = 0.007 * Database::creatures[0].walkSpeed;
 			bool running = false;
 			bool moving = false;
 			if (m_window->getKey(OE_KEY_LEFT_SHIFT)) running = true;
 			if (m_window->getKey(OE_KEY_LEFT_SHIFT) && !m_player->exhausted()) playerSpeed *= 2;
 			else if (m_window->getKey(OE_KEY_LEFT_CONTROL)) playerSpeed *= 0.2;
 			else if (m_window->getKey(OE_KEY_TAB)) playerSpeed *= 20;
-			if (m_window->getKey(OE_KEY_S)) { m_player->vel_y = playerSpeed; moving = true; }
-			if (m_window->getKey(OE_KEY_D)) { m_player->vel_x = playerSpeed; moving = true; }
-			if (m_window->getKey(OE_KEY_W)) { m_player->vel_y = -playerSpeed; moving = true; }
-			if (m_window->getKey(OE_KEY_A)) { m_player->vel_x = -playerSpeed; moving = true; }
+			if (m_window->getKey(OE_KEY_S)) { m_player->acc_y = playerSpeed; moving = true; }
+			if (m_window->getKey(OE_KEY_D)) { m_player->acc_x = playerSpeed; moving = true; }
+			if (m_window->getKey(OE_KEY_W)) { m_player->acc_y = -playerSpeed; moving = true; }
+			if (m_window->getKey(OE_KEY_A)) { m_player->acc_x = -playerSpeed; moving = true; }
 			if (moving && running) { m_player->setStamina(m_player->getStamina() - 0.01); }
 		}
 

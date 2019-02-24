@@ -148,6 +148,7 @@ void Inventory::clear() {
 		for (int x = 0; x < INVENTORY_WIDTH; x++)
 		{
 			m_itemIds[x][y] = 0;
+			m_itemCounts[x][y] = 0;
 		}
 	}
 }
@@ -165,12 +166,13 @@ bool Inventory::addItem(int id, int n) {
 	{
 		for (int x = 0; x < INVENTORY_WIDTH; x++)
 		{
+			oe::Logger::out(oe::info, "inv ", n);
 			if (m_itemIds[x][y] == 0 || m_itemIds[x][y] == id) {
 				m_itemIds[x][y] = id;
 				m_itemCounts[x][y] += n;
 				if (m_itemCounts[x][y] + n >= Database::items[id].stack_size) {
 					m_itemCounts[x][y] = Database::items[id].stack_size;
-					n -= Database::items[id].stack_size - m_itemCounts[x][y];
+					n -= Database::items[id].stack_size + 1 - m_itemCounts[x][y];
 					if (n <= 0) return true;
 				}
 				else return true;

@@ -308,13 +308,13 @@ void Gui::userInput() {
 			Game::getPlayer()->setX(posX);
 			Game::getPlayer()->setY(posY);
 
-			addChatLine("Teleported player to " + std::to_string(posX) + ", " + std::to_string(posY));
 			oe::Logger::out(oe::info, "Teleported player to ", posX, ", ", posY);
+			addChatLine("Teleported player to " + std::to_string(posX) + ", " + std::to_string(posY));
 		}
 		//RESPAWN COMMAND
 		else if (command == "respawn") {
-			addChatLine("The player went crazy and decided to commit not alive");
 			Game::getPlayer()->die();
+			addChatLine("The player went crazy and decided to commit not alive");
 		}
 		//SPAWN COMMAND
 		else if (command == "spawn") {
@@ -325,7 +325,7 @@ void Gui::userInput() {
 
 			float id;
 			float n = 1;
-			float item = false;
+			bool item = false;
 
 			float posX = Game::getPlayer()->getX();
 			float posY = Game::getPlayer()->getY();
@@ -353,32 +353,49 @@ void Gui::userInput() {
 
 			//Position arguments
 			if (argumentVec.size() >= 4) {
+
+				if (argumentVec[3] == "true") {
+					item = true;
+				}
+				else if (argumentVec[3] == "false") {
+					item = false;
+				}
+				else {
+					addChatLine("Invalid <item> argument!");
+					return;
+				}
+			}
+
+			//Position arguments
+			if (argumentVec.size() >= 5) {
 					
-				if (argToDouble(n, argumentVec[3])) {
+				if (argToDouble(n, argumentVec[4])) {
 					addChatLine("Invalid <n> argument!");
 					return;
 				}
 
 			}
 
-			//Position arguments
-			if (argumentVec.size() >= 5) {
-
-				if (argToDouble(item, argumentVec[4])) {
-					addChatLine("Invalid <item> argument!");
-					return;
+			//Check errors
+			if (!item) {
+				if (id >= COUNT_CREATURES) {
+					addChatLine(std::to_string(id) + " isnt valid a creature");
 				}
-
+			}
+			else {
+				if (id >= COUNT_ITEMS) {
+					addChatLine(std::to_string(id) + " isnt valid a item");
+				}
 			}
 
 			//Execute the command
-			for (int i = 0; i < (int)n; i++) Creature *tmp = Game::getMap()->addCreature(posX, posY, (int)id, item);
 			if (item) {
 				addChatLine(std::to_string((int)n) + " " + Database::items[(int)id].name + "(s) spawned at " + std::to_string((int)posX) + ", " + std::to_string((int)posY));
 			}
 			else {
 				addChatLine(std::to_string((int)n) + " " + Database::creatures[(int)id].name + "(s) spawned " + std::to_string((int)posX) + ", " + std::to_string((int)posY));
 			}
+			for (int i = 0; i < (int)n; i++) Creature *tmp = Game::getMap()->addCreature(posX, posY, (int)id, item);
 		}
 		//SETSPAWN COMMAND
 		else if (command == "setspawn") {
@@ -404,7 +421,7 @@ void Gui::userInput() {
 			addChatLine("/clear -- clears chat");
 			addChatLine("/tp [x] [y] -- teleports to [x] [y]");
 			addChatLine("/respawn -- kills the player");
-			addChatLine("/spawn [id] <x y> <n> <item> -- spawns creature");
+			addChatLine("/spawn [id] <x y> <item> <n> -- spawns creature");
 			addChatLine("/setspawn <x y> -- sets spawnpoint");
 		}
 		//COMMAND NOT FOUND

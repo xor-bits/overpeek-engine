@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-#define COUNT_ITEMS		4
+#define COUNT_ITEMS		6
 #define COUNT_TILES		5
 #define COUNT_OBJECTS	6
 #define COUNT_CREATURES 3
@@ -31,14 +31,21 @@ public:
 
 		unsigned int stack_size = 0;
 
+		float melee_damage = 0;
+		float melee_kb = 0;
+		float break_speed = 0;
+
 		unsigned int placedAs;
 
 		Item() {}
-		Item(std::string _name, unsigned int _id, unsigned int _texture, unsigned int _stack, unsigned int _placedAs) {
+		Item(std::string _name, unsigned int _id, unsigned int _texture, unsigned int _stack, float _melee_damage, float _melee_kb, float _break_speed, unsigned int _placedAs) {
 			name = _name;
 			id = _id;
 			texture = _texture;
 			stack_size = _stack;
+			melee_damage = _melee_damage;
+			melee_kb = _melee_kb;
+			break_speed = _break_speed;
 			placedAs = _placedAs;
 		}
 	} items[COUNT_ITEMS];
@@ -275,9 +282,12 @@ public:
 		float staminagain = 0.0f;
 		unsigned int dropsAs;
 
+		float walkSpeed = 0.0f;
+
 		Creature() {}
-		Creature(std::string _name, unsigned int _id, bool _friendly, bool _ghost, float _kb, float _melee, float _hp, float _hpg, float _st, float _stg, unsigned int _dropsAs, glm::vec3 _color, unsigned int _texture_heading_up, unsigned int _texture_heading_down, unsigned int _texture_heading_left, unsigned int _texture_heading_right) {
+		Creature(std::string _name, unsigned int _id, float _walkSpeed, bool _friendly, bool _ghost, float _kb, float _melee, float _hp, float _hpg, float _st, float _stg, unsigned int _dropsAs, glm::vec3 _color, unsigned int _texture_heading_up, unsigned int _texture_heading_down, unsigned int _texture_heading_left, unsigned int _texture_heading_right) {
 			name = _name;
+			walkSpeed = _walkSpeed;
 			id = _id;
 			friendly = _friendly;
 			ghost = _ghost;
@@ -322,11 +332,13 @@ public:
 
 	static void init() {
 
-		//Items			//Name			//Id	//Texture	//Stack size	//Placed as
-		items[0] = Item("Empty",		0,		9,			99,				0);
-		items[1] = Item("Stone",		1,		17,			99,				5);
-		items[2] = Item("Plant fiber",	2,		18,			99,				0);
-		items[3] = Item("Log",			3,		16,			99,				4);
+		//Items			//Name			//Id	//Texture	//Stack size	//Melee		//Knock		//Break		//Placed as
+		items[0] = Item("Empty",		0,		9,			99,				0.0,		0.0,		0.0,		0);
+		items[1] = Item("Stone",		1,		17,			99,				0.0,		0.0,		0.0,		5);
+		items[2] = Item("Plant fiber",	2,		18,			99,				0.0,		0.0,		0.0,		0);
+		items[3] = Item("Log",			3,		16,			99,				0.0,		0.0,		0.0,		4);
+		items[4] = Item("Sword",		4,		22,			1,				4.0,		4.0,		0.0,		0);
+		items[5] = Item("Pickaxe",		5,		23,			1,				2.0,		4.0,		4.0,		0);
 
 		//Tiles			//Name			//Id	//Texture
 		tiles[0] = Tile("Soil",			0,		0);
@@ -343,10 +355,10 @@ public:
 		objects[4] = Object("Wood wall",	4,		207,		true,		true,			true,		true,			glm::vec3(0.58f, 0.43f, 0.2f),	10,			3);
 		objects[5] = Object("Stone wall",	5,		255,		true,		true,			false,		true,			glm::vec3(0.5f, 0.5f, 0.5f),	15,			1);
 		
-		//Creatures				//Name		//Id	//Friendly		//Ghost		//Knockback		//Melee		//Hp	//Regen		//Stamina	//Staminaregen	//Drops as	//Color			//Textures >>>>	//Up	//Down	//Left	//Right
-		creatures[0] = Creature("Player",	0,		true,			false,		1.0f,			1.0f,		5.0f,	0.005f,		5.0f,		0.005f,			0,			glm::vec3(1.0f),				8,		9,		10,		11);
-		creatures[1] = Creature("Whatever",	1,		false,			false,		1.0f,			1.0f,		5.0f,	0.0f,		5.0f,		5.0f,			2,			glm::vec3(1.0f),				8,		9,		10,		11);
-		creatures[2] = Creature("Item",		2,		false,			false,		0.0f,			0.0f,		1.0f,	0.0f,		0.0f,		0.0f,			0,			glm::vec3(1.0f),				0,		0,		0,		0);
+		//Creatures				//Name		//Id	//Walkspeed	//Friendly		//Ghost		//Knockback		//Melee		//Hp	//Regen		//Stamina	//Staminaregen	//Drops as	//Color			//Textures >>>>	//Up	//Down	//Left	//Right
+		creatures[0] = Creature("Player",	0,		1.0,		true,			false,		0.3f,			1.0f,		20.0f,	0.005f,		5.0f,		0.005f,			0,			glm::vec3(1.0f),				8,		9,		10,		11);
+		creatures[1] = Creature("Whatever",	1,		1.0,		false,			false,		0.3f,			4.0f,		20.0f,	0.0f,		5.0f,		5.0f,			2,			glm::vec3(1.0f),				8,		9,		10,		11);
+		creatures[2] = Creature("Item",		2,		1.0,		false,			false,		0.0f,			0.0f,		1.0f,	0.0f,		0.0f,		0.0f,			0,			glm::vec3(1.0f),				0,		0,		0,		0);
 
 		//Biomes
 
