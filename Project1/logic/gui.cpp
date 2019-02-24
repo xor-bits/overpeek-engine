@@ -378,13 +378,13 @@ void Gui::userInput() {
 
 			//Check errors
 			if (!item) {
-				if (id >= COUNT_CREATURES) {
-					addChatLine(std::to_string(id) + " isnt valid a creature");
+				if (id >= Database::creatures.size()) {
+					addChatLine(std::to_string(id) + " isnt a valid creature");
 				}
 			}
 			else {
-				if (id >= COUNT_ITEMS) {
-					addChatLine(std::to_string(id) + " isnt valid a item");
+				if (id >= Database::items.size()) {
+					addChatLine(std::to_string(id) + " isnt a valid item");
 				}
 			}
 
@@ -415,6 +415,49 @@ void Gui::userInput() {
 			//Execute the command
 			Game::getPlayer()->setSpawnPoint(posX, posY);
 		}
+		//OBJECT COMMAND
+		else if (command == "object") {
+			if (argumentVec.size() < 1) {
+				tooFewArguments();
+				return;
+			}
+
+			float id;
+
+			float posX = Game::getPlayer()->getX();
+			float posY = Game::getPlayer()->getY();
+
+
+			//Id argument
+			if (argumentVec.size() >= 1) {
+
+				if (argToDouble(id, argumentVec[0])) {
+					addChatLine("Invalid [id] argument!");
+					return;
+				}
+
+			}
+
+			//Position arguments
+			if (argumentVec.size() >= 3) {
+
+				if (argToPos(posX, posY, argumentVec[1], argumentVec[2])) {
+					addChatLine("Invalid <x y> arguments!");
+					return;
+				}
+
+			}
+
+			//Check errors
+			if (id >= Database::objects.size()) {
+				addChatLine(std::to_string(id) + " isnt a valid object");
+			}
+
+			//Execute the command
+			addChatLine(Database::objects[(int)id].name + " placed at " + std::to_string((int)posX) + ", " + std::to_string((int)posY));
+			Game::getMap()->getTile(posX, posY)->m_object = id;
+			Game::getMap()->getTile(posX, posY)->m_objectHealth = Database::objects[id].health;
+		}
 		//HELP COMMAND
 		else if (command == "help") {
 			addChatLine("--List of commands--");
@@ -423,6 +466,7 @@ void Gui::userInput() {
 			addChatLine("/respawn -- kills the player");
 			addChatLine("/spawn [id] <x y> <item> <n> -- spawns creature");
 			addChatLine("/setspawn <x y> -- sets spawnpoint");
+			addChatLine("/object [id] <x y> -- places object");
 		}
 		//COMMAND NOT FOUND
 		else {

@@ -131,15 +131,24 @@ void Creature::clampHPAndSTA() {
 }
 
 void Creature::update(int index) {
+	if (Game::getMap()->getTile(getX(), getY())->m_object == 7) {
+		m_bumping = true;
+		acc_y += 0.007;
+	}
 
 
 	if (!m_item) {
+
 		if (m_staminaRegenCooldown > 200) m_stamina += m_staminaGainRate;
 		else m_staminaRegenCooldown++;
 
 		if (m_healthRegenCooldown > 200) m_health += m_healthGainRate;
 		else m_healthRegenCooldown++;
 
+
+
+		if (m_id == 1) enemyAi();
+		
 		if (!m_id == 0) { //!Player
 			collide();
 			clampHPAndSTA();
@@ -148,8 +157,6 @@ void Creature::update(int index) {
 				return;
 			}
 		}
-
-		if (m_id == 1) enemyAi();
 
 		if (m_swingDir != 0) {
 			m_counterToRemoveSwingAnimation++;

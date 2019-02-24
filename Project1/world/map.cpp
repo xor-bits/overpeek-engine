@@ -387,6 +387,31 @@ void Map::update() {
 	{
 		m_creatures[i]->update(i);
 	}
+
+	for (int x = -MAP_WORK_DST; x < MAP_WORK_DST; x++)
+	{
+		for (int y = -MAP_WORK_DST; y < MAP_WORK_DST; y++)
+		{
+			if (!oe::isInRange(Game::getPlayer()->getX() + x, 0, MAP_SIZE - 1)) continue;
+			if (!oe::isInRange(Game::getPlayer()->getY() + y, 0, MAP_SIZE - 1)) continue;
+
+			//Spawners
+			if (getTile(Game::getPlayer()->getX() + x, Game::getPlayer()->getY() + y)->m_object == 6) {
+				float chance = oe::Random::random(0.0f, 100.0f);
+				if (Game::advancedDebugMode) chance *= 2;
+				if (chance > 99.5f) {
+					std::vector<Creature*> arr;
+					findAllCreatures(Game::getPlayer()->getX() + x, Game::getPlayer()->getY() + y, arr, MAP_WORK_DST);
+
+					if (arr.size() > 32) continue;
+
+					float _x = Game::getPlayer()->getX() + x + oe::Random::random(-2.0f, 2.0f);
+					float _y = Game::getPlayer()->getY() + y + oe::Random::random(-2.0f, 2.0f);
+					addCreature(_x, _y, 1, false);
+				}
+			}
+		}
+	}
 }
 
 Map::MapTile *Map::getTile(unsigned int x, unsigned int y) {
@@ -399,7 +424,7 @@ Map::MapTile *Map::getTile(unsigned int x, unsigned int y) {
 int Map::trySetObject(unsigned int x, unsigned int y, short id) {
 	MapTile* tile = getTile(x, y);
 	if (tile->m_object != 0) return -1;
-	if (tile->m_tile == 1) return -2;
+	//if (tile->m_tile == 1) return -2;
 
 	tile->m_object = id;
 	tile->m_objectHealth = Database::objects[id].health;
@@ -408,7 +433,7 @@ int Map::trySetObject(unsigned int x, unsigned int y, short id) {
 
 int Map::trySetObject(MapTile *tile, short id) {
 	if (tile->m_object != 0) return -1;
-	if (tile->m_tile == 1) return -2;
+	//if (tile->m_tile == 1) return -2;
 
 	tile->m_object = id;
 	tile->m_objectHealth = Database::objects[id].health;

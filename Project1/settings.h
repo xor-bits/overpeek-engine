@@ -46,7 +46,7 @@
 
 
 
-#define MAP_SIZE 500
+#define MAP_SIZE 1000
 #define MAP_MAX_CREATURES 2048
 
 #define APP_DATA std::string(getenv("APPDATA"))

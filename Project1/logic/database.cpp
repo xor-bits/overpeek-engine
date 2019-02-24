@@ -2,8 +2,8 @@
 
 #include "database.h"
 
-Database::Item Database::items[COUNT_ITEMS];
-Database::Tile Database::tiles[COUNT_TILES];
-Database::Object Database::objects[COUNT_OBJECTS];
-Database::Creature Database::creatures[COUNT_CREATURES];
-Database::Biome Database::biomes[COUNT_BIOMES];
+std::vector<Database::Item> Database::items;
+std::vector<Database::Biome> Database::biomes;
+std::vector<Database::Creature> Database::creatures;
+std::vector<Database::Object> Database::objects;
+std::vector<Database::Tile> Database::tiles;

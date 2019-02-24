@@ -154,14 +154,22 @@ void Player::mouseHit(int button, int action) {
 	if (y_dst == 0) x_dst++;
 
 	if (x_dst + y_dst < m_hitdist) {
+		Map::MapTile *tile = Game::getMap()->getTile(getX() + mx, getY() + my);
 		//PLACE
 		if (Database::items[inventory->selectedId].placedAs != 0) {
 			if (button == OE_MOUSE_BUTTON_RIGHT) {
-				if (!Game::getMap()->trySetObject(Game::getMap()->getTile(getX() + mx, getY() + my), Database::items[inventory->selectedId].placedAs)) {
+				if (!Game::getMap()->trySetObject(tile, Database::items[inventory->selectedId].placedAs)) {
 					if (!Game::advancedDebugMode) inventory->removeSelected(1);
 					oe::AudioManager::play(1);
 				}
 			}
+		}
+
+		//INTERACT
+		if (button == OE_MOUSE_BUTTON_RIGHT) {
+			//if (tile->m_object != 0) {
+			//	Game::getGui()->addChatLine("Interact " + Database::objects[tile->m_object].name);
+			//}W
 		}
 
 		//BREAK
@@ -172,9 +180,8 @@ void Player::mouseHit(int button, int action) {
 			float break_speed = Database::items[inventory->selectedId].break_speed;
 			if (Game::advancedDebugMode) break_speed = 100.0;
 
-			Map::MapTile* tmp = Game::getMap()->getTile(getX() + mx, getY() + my);
-			if (tmp) {
-				if (Database::objects[tmp->m_object].destructable) {
+			if (tile) {
+				if (Database::objects[tile->m_object].destructable) {
 					Game::getMap()->hit(getX() + mx, getY() + my, 1 + break_speed);
 				}
 			}

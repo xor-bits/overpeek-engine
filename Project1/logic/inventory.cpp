@@ -166,7 +166,7 @@ bool Inventory::addItem(int id, int n) {
 	{
 		for (int x = 0; x < INVENTORY_WIDTH; x++)
 		{
-			oe::Logger::out(oe::info, "inv ", n);
+			//oe::Logger::out(oe::info, "inv ", n);
 			if (m_itemIds[x][y] == 0 || m_itemIds[x][y] == id) {
 				m_itemIds[x][y] = id;
 				m_itemCounts[x][y] += n;
