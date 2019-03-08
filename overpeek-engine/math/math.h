@@ -29,7 +29,7 @@ namespace oe {
 		return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
 	}
 
-	inline std::string const boolToString(bool b)
+	inline std::string boolToString(bool b)
 	{
 		return b ? "true" : "false";
 	}

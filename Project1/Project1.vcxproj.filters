@@ -51,6 +51,9 @@
     <ClCompile Include="logic\aStar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="logic\mainmenu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -92,6 +95,9 @@
     <ClInclude Include="logic\aStar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="logic\mainmenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="overpeek-engine.rc">
@@ -106,5 +112,7 @@
     <None Include="shaders\geometrytexture.frag.glsl" />
     <None Include="shaders\geometrytexture.geom.glsl" />
     <None Include="shaders\geometrytexture.vert.glsl" />
+    <None Include="shaders\texture-single.frag.glsl" />
+    <None Include="shaders\texture-single.vert.glsl" />
   </ItemGroup>
 </Project>

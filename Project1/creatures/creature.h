@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../settings.h"
 //#include "../oe/game.h"
 #define HEADING_UP 0
 #define HEADING_DOWN 2
@@ -14,10 +15,10 @@ protected:
 	int m_id;
 	int m_swingDir;
 
-	int m_untilnexttarget;
-	int m_wait;
-	int m_hit_cooldown;
-	int m_check_player_cooldown;
+	float m_untilnexttarget;
+	float m_wait;
+	float m_hit_cooldown;
+	float m_check_player_cooldown;
 	float m_curtarget_x;
 	float m_curtarget_y;
 	bool m_chasing;
@@ -44,15 +45,16 @@ protected:
 	int m_stuck_timer;
 
 	//Private functions
-	void enemyAi();
+	void enemyAi(float divider);
 	void clampHPAndSTA();
-	void followTarget();
+	void followTarget(float divider);
 
 	void setHeading(float x, float y);
 
 public:
 	bool m_item;
 	float x, y;
+	float old_x, old_y;
 	float vel_x, vel_y;
 	float acc_x, acc_y;
 	uint8_t heading : 2;
@@ -60,9 +62,9 @@ public:
 	Creature(float x, float y, int id, bool item);
 	Creature();
 
-	void submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY);
-	void update(int index);
-	void collide();
+	void submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY, float corrector);
+	void update(int index, float divider);
+	void collide(float divider);
 	void hit(float damageadd, float kbadd);
 	void die();
 	bool canSee(float x, float y);
@@ -76,7 +78,10 @@ public:
 	inline void setY(float n) { y = n + 0.5f; }
 	inline void addX(float n) { x += n; }
 	inline void addY(float n) { y += n; }
+
 	
+	inline float getVelX() { return (x - old_x) * UPDATES_PER_SECOND; }
+	inline float getVelY() { return (y - old_y) * UPDATES_PER_SECOND; }
 
 	inline float getHealth() { return m_health; }
 	inline float getStamina() { return m_stamina; }

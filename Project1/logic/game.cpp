@@ -9,6 +9,7 @@
 #include "../logic/inventory.h"
 #include "gui.h"
 #include "database.h"
+#include "mainmenu.h"
 
 std::unique_ptr<oe::Window> Game::m_window;
 std::unique_ptr<oe::Shader> Game::m_shader;
@@ -37,21 +38,17 @@ int Game::asyncLoadY = 0;
 int Game::asyncSaveIndex = 0;
 #endif
 
-bool Game::debugMode = false;
+bool Game::debugMode = true;
 bool Game::advancedDebugMode = false;
 bool Game::tilesChanged = true;
 bool Game::justPaused = true;
-bool Game::paused = true;
+bool Game::paused = false;
+bool Game::mainMenu = false;
 
 
 std::string renderer;
 
 void Game::init() {
-	//Audio
-#if ENABLE_AUDIO
-	oe::Logger::out(oe::info, "Creating audio device");
-	oe::AudioManager::init();
-#endif
 
 	//Window
 	oe::Logger::out(oe::info, "Creating window");
@@ -63,34 +60,84 @@ void Game::init() {
 	m_window->setResizeCallback(resize);
 	m_window->setCharmodCallback(charmod);
 	m_window->setSwapInterval(0);
+	m_window->setClearColor(1.0, 1.0, 1.0, 1.0);
+	renderer = m_window->getRenderer();
+
+	//Loading screen (barely noticeable lol)
+	oe::Shader *tmpshader = new oe::Shader("res/shader/texture-single.vert.glsl", "res/shader/texture-single.frag.glsl");
+	glm::mat4 ortho = glm::ortho(-m_window->getAspect(), m_window->getAspect(), 1.0f, -1.0f);
+	tmpshader->enable(); tmpshader->SetUniformMat4("pr_matrix", ortho);
+	oe::Logger::out(oe::info, "Drawing splash screen");
+	m_guirenderer = std::unique_ptr<oe::Renderer>(new oe::Renderer("res/font/arial.ttf", m_window.get()));
+	oe::TextureManager::loadTexture("res/texture/splash.png", 3);
+	m_window->clear();
+	m_guirenderer->renderBox(glm::vec2(-0.5), glm::vec2(1.0), 0, glm::vec4(1.0));
+	m_guirenderer->draw(tmpshader, tmpshader, oe::TextureManager::getTexture(3), false);
+	m_window->update();
+	delete tmpshader;
+
+	//Audio
+#if ENABLE_AUDIO
+	oe::Logger::out(oe::info, "Creating audio device");
+	oe::AudioManager::init();
+#endif
 
 	//Create shader
 	oe::Logger::out(oe::info, "Creating all the shaders");
 	oe::Logger::out(oe::info, "Shader for postprocessing");
-	m_postshader = std::unique_ptr<oe::Shader>(new oe::Shader("shaders/postprocess.vert.glsl", "shaders/postprocess.frag.glsl"));
+	m_postshader = std::unique_ptr<oe::Shader>(new oe::Shader("res/shader/postprocess.vert.glsl", "res/shader/postprocess.frag.glsl"));
 	oe::Logger::out(oe::info, "Shader for textures");
-	m_shader = std::unique_ptr<oe::Shader>(new oe::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl"));
-	m_pointshader = std::unique_ptr<oe::Shader>(new oe::Shader("shaders/geometrytexture.vert.glsl", "shaders/geometrytexture.frag.glsl", "shaders/geometrytexture.geom.glsl"));
+	m_shader = std::unique_ptr<oe::Shader>(new oe::Shader("res/shader/texture.vert.glsl", "res/shader/texture.frag.glsl"));
+	m_pointshader = std::unique_ptr<oe::Shader>(new oe::Shader("res/shader/geometrytexture.vert.glsl", "res/shader/geometrytexture.frag.glsl", "res/shader/geometrytexture.geom.glsl"));
 	oe::Logger::out(oe::info, "All shaders created successfully!");
 
 	//Shader stuff
 	resize(m_window->getWidth(), m_window->getHeight());
 
-	
 	//Gameloop
-	m_loop = std::unique_ptr<oe::GameLoop>(new oe::GameLoop(render, update, rapidUpdate, UPDATES_PER_SECOND, 10000));
+	m_loop = std::unique_ptr<oe::GameLoop>(new oe::GameLoop(render, update, UPDATES_PER_SECOND, m_window.get()));
+	m_worldrenderer = std::unique_ptr<oe::Renderer>(new oe::Renderer("res/font/arial.ttf", m_window.get()));
+	m_guirenderer = std::unique_ptr<oe::Renderer>(new oe::Renderer("res/font/arial.ttf", m_window.get()));
 
-	loadGame();
-	renderer = m_window->getRenderer();
+	//Resources
+	oe::Logger::out(oe::info, "Loading resources");
+	oe::TextureManager::loadTextureAtlas("res/texture/atlas.png", 0, 16);
+	oe::AudioManager::loadAudio("res/audio/hit.wav", 0);
+	oe::AudioManager::loadAudio("res/audio/swing.wav", 1);
+	oe::AudioManager::loadAudio("res/audio/collect.wav", 2);
 
-	oe::Logger::out(oe::info, "Running update and renderloops");
+	oe::Logger::out(oe::info, "Loading database");
+	Database::init();
+
+	//Constructing objects
+	float playerX = MAP_SIZE / 2.0, playerY = MAP_SIZE / 2.0;
+	m_inventory = std::unique_ptr<Inventory>(new Inventory(m_shader.get(), m_window.get()));
+	m_player = std::unique_ptr<Player>(new Player(playerX, playerY, m_inventory.get()));
+	m_map = std::unique_ptr<Map>(new Map());
+
+	m_gui = std::unique_ptr<Gui>(new Gui(
+		Database::creatures[m_player->getId()].health,
+		Database::creatures[m_player->getId()].stamina,
+		Database::creatures[m_player->getId()].healthgain,
+		Database::creatures[m_player->getId()].staminagain
+	));
+
+	//Main menu
+	mainMenu = true;
+	MainMenu::init(m_guirenderer.get(), m_shader.get(), m_pointshader.get(), m_postshader.get());
+
+	//Loading world
+	loadWorld(WORLD_NAME, true);
+
+	//Ready
+	oe::Logger::out(oe::info, "Game ready! Running update and renderloops");
 	m_loop->start();
 }
 
 void Game::rapidUpdate() {
 }
 
-void Game::render() {
+void Game::render(float corrector) {
 	//return;
 	if (!m_window) return;
 	
@@ -108,9 +155,10 @@ void Game::render() {
 			}
 		}
 #else
-		m_map->submitToRenderer(m_worldrenderer.get(), -m_player->getX(), -m_player->getY());
+		m_map->submitToRenderer(m_worldrenderer.get(), -m_player->getX() - m_player->getVelX() * corrector / UPDATES_PER_SECOND, -m_player->getY() - m_player->getVelY() * corrector / UPDATES_PER_SECOND, corrector);
 #endif
-		m_player->submitToRenderer(m_worldrenderer.get(), -m_player->getX(), -m_player->getY());
+
+		m_player->submitToRenderer(m_worldrenderer.get(), -m_player->getX() - m_player->getVelX() * corrector / UPDATES_PER_SECOND, -m_player->getY() - m_player->getVelY() * corrector / UPDATES_PER_SECOND, corrector);
 		m_gui->renderBlur(m_worldrenderer.get());
 		m_inventory->render(m_worldrenderer.get());
 	}
@@ -120,10 +168,10 @@ void Game::render() {
 
 	//Flush
 	if (!paused) {
-		m_worldrenderer->draw(m_shader.get(), m_pointshader.get(), oe::TextureManager::getTexture(0));
+		m_worldrenderer->draw(m_shader.get(), m_pointshader.get(), oe::TextureManager::getTexture(0), true);
 	}
 	else if (justPaused) {
-		m_worldrenderer->drawToFramebuffer(m_shader.get(), m_pointshader.get(), oe::TextureManager::getTexture(0), false);
+		m_worldrenderer->drawToFramebuffer(m_shader.get(), m_pointshader.get(), oe::TextureManager::getTexture(0), true, false);
 		m_postshader->enable();
 		for (int i = 0; i < 16; i++) {
 			m_postshader->setUniform1i("unif_effect", 1);
@@ -140,15 +188,10 @@ void Game::render() {
 		m_worldrenderer->drawFramebuffer(m_postshader.get(), "unif_texture", false);
 	}
 	
-	m_guirenderer->draw(m_shader.get(), m_pointshader.get(), oe::TextureManager::getTexture(0));
+	m_guirenderer->draw(m_shader.get(), m_pointshader.get(), oe::TextureManager::getTexture(0), true);
 
 	//Other
 	justPaused = false;
-
-	//Window updates
-	m_window->update();
-	m_window->clear();
-	m_window->input();
 }
 
 void Game::update() {
@@ -160,9 +203,10 @@ void Game::update() {
 
 	if (m_window->close()) m_loop->stop();
 	if (!paused) {
+		//Player movement
 		if (!m_gui->chatOpened()) {
-			//Player movement
-			float playerSpeed = 0.007 * Database::creatures[0].walkSpeed;
+			float playerSpeed = Database::creatures[0].walkSpeed;
+
 			bool running = false;
 			bool moving = false;
 			if (m_window->getKey(OE_KEY_LEFT_SHIFT)) running = true;
@@ -173,20 +217,18 @@ void Game::update() {
 			if (m_window->getKey(OE_KEY_D)) { m_player->acc_x = playerSpeed; moving = true; }
 			if (m_window->getKey(OE_KEY_W)) { m_player->acc_y = -playerSpeed; moving = true; }
 			if (m_window->getKey(OE_KEY_A)) { m_player->acc_x = -playerSpeed; moving = true; }
-			if (moving && running) { m_player->setStamina(m_player->getStamina() - 0.01); }
+			if (moving && running) { m_player->setStamina(m_player->getStamina() - 1 / UPDATES_PER_SECOND); }
 		}
+		m_player->update(UPDATES_PER_SECOND);
+		m_player->collide(UPDATES_PER_SECOND);
 
 		m_gui->update();
-		m_player->update();
 		m_inventory->update();
 
 		//Load regions after camera/player moves
 #if !STORE_MAP_IN_RAM
 		processNewArea();
 #endif
-
-		//Player collision
-		m_player->collide();
 
 		//World updates
 		#if !STORE_MAP_IN_RAM
@@ -200,7 +242,7 @@ void Game::update() {
 			}
 		}
 		#else
-		m_map->update();
+		m_map->update(UPDATES_PER_SECOND);
 		#endif
 	}
 
@@ -241,37 +283,40 @@ void Game::asyncUnload() {
 #endif
 
 void Game::keyPress(int key, int action) {
+	if (mainMenu) MainMenu::key(key, action);
+
+
 	m_gui->keyPress(key, action);
-	if (key == OE_KEY_ESCAPE) { paused = !paused; justPaused = true; return; }
+	if (action == OE_PRESS && key == OE_KEY_ESCAPE) { paused = !paused; justPaused = true; return; }
 
 	if (m_gui->chatOpened()) return;
 	//Postshader
-	if (key == OE_KEY_F7) { m_postshader->enable(); m_postshader->setUniform1i("unif_lens", 0); justPaused = true; return; }
-	if (key == OE_KEY_F8) { m_postshader->enable(); m_postshader->setUniform1i("unif_lens", 1); justPaused = true; return; }
+	if (action == OE_PRESS && key == OE_KEY_F7) { m_postshader->enable(); m_postshader->setUniform1i("unif_lens", 0); justPaused = true; return; }
+	if (action == OE_PRESS && key == OE_KEY_F8) { m_postshader->enable(); m_postshader->setUniform1i("unif_lens", 1); justPaused = true; return; }
 
 	if (paused) return;
 
 	//Player Hitting
-	if (key == OE_KEY_UP) { m_player->heading = HEADING_UP; m_player->hit();return; }
-	if (key == OE_KEY_DOWN) { m_player->heading = HEADING_DOWN; m_player->hit(); return; }
-	if (key == OE_KEY_LEFT) { m_player->heading = HEADING_LEFT; m_player->hit(); return; }
-	if (key == OE_KEY_RIGHT) { m_player->heading = HEADING_RIGHT; m_player->hit(); return; }
-	if (key == OE_KEY_E) { m_player->setX(round(m_player->getX() + 0.5) - 0.5); m_player->setY(round(m_player->getY() + 0.5) - 0.5); return; }
+	if (action == OE_PRESS && key == OE_KEY_UP) { m_player->heading = HEADING_UP; m_player->hit();return; }
+	if (action == OE_PRESS && key == OE_KEY_DOWN) { m_player->heading = HEADING_DOWN; m_player->hit(); return; }
+	if (action == OE_PRESS && key == OE_KEY_LEFT) { m_player->heading = HEADING_LEFT; m_player->hit(); return; }
+	if (action == OE_PRESS && key == OE_KEY_RIGHT) { m_player->heading = HEADING_RIGHT; m_player->hit(); return; }
+	if (action == OE_PRESS && key == OE_KEY_E) { m_player->setX(round(m_player->getX() + 0.5) - 0.5); m_player->setY(round(m_player->getY() + 0.5) - 0.5); return; }
 
 	//Inventory
-	if (key == OE_KEY_R) { m_inventory->visible = !m_inventory->visible; return; }
-	if (key == OE_KEY_ESCAPE) { m_inventory->visible = false; return; }
+	if (action == OE_PRESS && key == OE_KEY_R) { m_inventory->visible = !m_inventory->visible; return; }
+	if (action == OE_PRESS && key == OE_KEY_ESCAPE) { m_inventory->visible = false; return; }
 
 	//Inventory slot selecting
-	if (key == OE_KEY_1) { m_inventory->selectedSlot = 0; return; }
-	else if (key == OE_KEY_2) { m_inventory->selectedSlot = 1; return; }
-	else if (key == OE_KEY_3) { m_inventory->selectedSlot = 2; return; }
-	else if (key == OE_KEY_4) { m_inventory->selectedSlot = 3; return; }
-	else if (key == OE_KEY_5) { m_inventory->selectedSlot = 4; return; }
+	if (action == OE_PRESS && key == OE_KEY_1) { m_inventory->selectedSlot = 0; return; }
+	else if (action == OE_PRESS && key == OE_KEY_2) { m_inventory->selectedSlot = 1; return; }
+	else if (action == OE_PRESS && key == OE_KEY_3) { m_inventory->selectedSlot = 2; return; }
+	else if (action == OE_PRESS && key == OE_KEY_4) { m_inventory->selectedSlot = 3; return; }
+	else if (action == OE_PRESS && key == OE_KEY_5) { m_inventory->selectedSlot = 4; return; }
 
 	//Debug commands
 	//Activate debug and advanced debug modes
-	if (key == OE_KEY_F1) {
+	if (action == OE_PRESS && key == OE_KEY_F1) {
 		debugMode = !debugMode; 
 		if (m_window->getKey(OE_KEY_LEFT_SHIFT)) {
 			advancedDebugMode = debugMode;
@@ -281,7 +326,7 @@ void Game::keyPress(int key, int action) {
 	}
 
 	//Debug ceil creaures
-	if (key == OE_KEY_F2) {
+	if (action == OE_PRESS && key == OE_KEY_F2) {
 #if !STORE_MAP_IN_RAM
 		for (int x = 0; x < RENDER_DST; x++)
 		{
@@ -294,36 +339,21 @@ void Game::keyPress(int key, int action) {
 		m_map->debugCeilCreatures();
 #endif
 	}
-	
-	//Reload game
-	if (key == OE_KEY_F3) {
-		close();
-
-#if !STORE_MAP_IN_RAM
-		lastRegionX = 0;
-		lastRegionY = 0;
-#endif
-		tilesChanged = true;
-
-		paused = false;
-		
-		loadGame();
-
-		return;
-	}
 
 	//Get FPS
-	if (key == OE_KEY_F4) { oe::Logger::out(oe::info, "Fps: ", m_loop->getFPS()); return; }
+	if (action == OE_PRESS && key == OE_KEY_F3) { oe::Logger::out(oe::info, "Fps: ", m_loop->getFPS()); return; }
 	
 	//Clear inventoy
-	if (key == OE_KEY_F5) { m_inventory->clear(); return; }
+	if (action == OE_PRESS && key == OE_KEY_F4) { m_inventory->clear(); return; }
 	
 	//Add creature at player
-	if (key == OE_KEY_F6) { m_map->addCreature(m_player->getX(), m_player->getY() + 5, 1, false); return; }
+	if (action == OE_PRESS && key == OE_KEY_F5) { m_map->addCreature(m_player->getX(), m_player->getY() + 5, 1, false); return; }
 }
 
 void Game::buttonPress(int button, int action) {
 #if USE_MOUSE
+	if (mainMenu) MainMenu::button(button, action);
+
 	m_player->mouseHit(button, action);
 #endif
 }
@@ -338,9 +368,6 @@ void Game::resize(int width, int height) {
 	float aspect = float(width) / float(height);
 	m_postshader->enable();
 	m_postshader->setUniform1i("unif_effect", 0);
-	oe::Logger::out(oe::info, "New width: ", width);
-	oe::Logger::out(oe::info, "New height: ", height);
-	oe::Logger::out(oe::info, "New aspect ratio: ", aspect);
 	glm::mat4 orthographic = glm::ortho(-aspect * DEBUG_ZOOM, aspect * DEBUG_ZOOM, DEBUG_ZOOM, -DEBUG_ZOOM);
 	m_shader->enable(); m_shader->SetUniformMat4("pr_matrix", orthographic);
 	m_pointshader->enable(); m_pointshader->SetUniformMat4("pr_matrix", orthographic);
@@ -351,103 +378,33 @@ void Game::charmod(unsigned int codepoint, int mods) {
 }
 
 void Game::close() {
-	saveGame();
+	saveWorld();
 }
 
-void Game::saveGame() {
-#if !DEBUG_DISABLE_SAVING
-	m_player->save();
+//Saves loaded world
+void Game::loadWorld(const char* name, bool create) {
+	if (!m_map->load(name)) {
+		oe::Logger::out(oe::info, "Couldn't load world");
 
-#if !STORE_MAP_IN_RAM
-	int worldData[1] = { seed };
-	for (int x = 0; x < RENDER_DST; x++) {
-		for (int y = 0; y < RENDER_DST; y++) {
-			if (m_regionExist[x][y]) m_region[x][y].saveTiles();
+		if (create) {
+			m_map->create(name);
 		}
 	}
-	oe::BinaryIO::write<int>(getSaveLocation() + "world_data", worldData, 1);
-#else
+	else {
+		m_player->load();
+	}
+}
+
+//Loads world
+void Game::saveWorld() {
+	//Create save location
+	std::string strcommand("mkdir \"" + m_map->saveLocation(getSaveLocation()) + "\"" + " >nul 2>&1");
+	system(strcommand.c_str());
+
+#if !DEBUG_DISABLE_SAVING
 	m_map->save();
+	m_player->save();
 #endif
-#endif
-
-}
-
-void Game::loadGame() {
-	//Initializing
-	oe::Logger::out(oe::info, "Creating game...");
-
-	//Load seed
-#if !DEBUG_DISABLE_SAVING
-
-#if !STORE_MAP_IN_RAM
-	void* seedptr = oe::BinaryIO::read<int>(getSaveLocation() + "world_data");
-	if (seedptr) seed = ((int*)seedptr)[0];
-	else seed = oe::Clock::getMicroseconds();
-	oe::Random::seed(seed);
-	m_noise = FastNoise(seed);
-#else
-#endif
-
-#else
-
-#if !STORE_MAP_IN_RAM
-	seed = oe::Clock::getMicroseconds();
-	oe::Random::seed(seed);
-	m_noise = FastNoise(seed);
-	oe::Logger::info(std::string("World seed: ") + std::to_string(seed)); // 2058261791
-#endif
-#endif
-	
-
-	m_worldrenderer = std::unique_ptr<oe::Renderer>(new oe::Renderer("resources/arial.ttf", m_window.get()));
-	m_guirenderer = std::unique_ptr<oe::Renderer>(new oe::Renderer("resources/arial.ttf", m_window.get()));
-
-	oe::Logger::out(oe::info, "Loading resources");
-	oe::TextureManager::loadTextureAtlas("resources/atlas.png", 0, 16);
-	oe::AudioManager::loadAudio("resources/hit.wav", 0);
-	oe::AudioManager::loadAudio("resources/swing.wav", 1);
-	oe::AudioManager::loadAudio("resources/collect.wav", 2);
-	oe::Logger::out(oe::info, "Resources loaded!");
-
-	oe::Logger::out(oe::info, "Loading database");
-	Database::init();
-	oe::Logger::out(oe::info, "Database loaded!");
-
-	m_inventory = std::unique_ptr<Inventory>(new Inventory(m_shader.get(), m_window.get()));
-
-
-	//Constructing objects
-#if STORE_MAP_IN_RAM
-	m_map = std::unique_ptr<Map>(new Map(WORLD_NAME));
-#else
-	m_region[0][0];
-	for (int x = 0; x < RENDER_DST; x++)
-	{
-		for (int y = 0; y < RENDER_DST; y++)
-		{
-			m_regionExist[x][y] = false;
-		}
-	}
-#endif
-	float playerX = MAP_SIZE / 2.0, playerY = MAP_SIZE / 2.0;
-
-#if !DEBUG_DISABLE_SAVING
-#endif
-	m_player = std::unique_ptr<Player>(new Player(playerX, playerY, m_inventory.get()));
-	m_player->load();
-
-	m_gui = std::unique_ptr<Gui>(new Gui(
-		Database::creatures[m_player->getId()].health, 
-		Database::creatures[m_player->getId()].stamina, 
-		Database::creatures[m_player->getId()].healthgain, 
-		Database::creatures[m_player->getId()].staminagain
-	));
-
-	m_shader->enable();
-	glm::mat4 ml_matrix(1.0f);
-	m_shader->SetUniformMat4("ml_matrix", ml_matrix);
-	oe::Logger::out(oe::info, "Game ready!");
 }
 
 
@@ -800,5 +757,5 @@ oe::Window *Game::getWindow() {
 }
 
 std::string Game::getSaveLocation() {
-	return SAVE_PATH + "\\" + WORLD_NAME + "\\";
+	return SAVE_PATH + "\\";
 }

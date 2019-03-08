@@ -12,13 +12,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Unnamed game", "Project1\Pr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atomic Simulation", "Project2\Project2.vcxproj", "{95B195E7-628C-4390-9B4E-AA72A24E15DE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test Game", "Test Game\Test Game.vcxproj", "{F3BBAF82-24CF-4049-96F3-26772A5FC82B}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mandelbrot", "Mandelbrot\Mandelbrot.vcxproj", "{5FB83F85-1834-4CDD-81B7-219A190E5E92}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Number Theory Library", "Number Theory Library\Number Theory Library.vcxproj", "{5F18B0D1-C4B0-45A3-B9E1-45EE63B3509C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FastNoiseSIMD", "FastNoiseSIMD\FastNoiseSIMD.vcxproj", "{466ECFCC-531C-4CA1-B91B-F02E45DC1000}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "overpeek-engine testing", "overpeek-engine testing\overpeek-engine testing.vcxproj", "{567960ED-D1F9-4D3F-A72D-57EA04AFA733}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,14 +52,6 @@ Global
 		{95B195E7-628C-4390-9B4E-AA72A24E15DE}.Release|x64.Build.0 = Release|x64
 		{95B195E7-628C-4390-9B4E-AA72A24E15DE}.Release|x86.ActiveCfg = Release|Win32
 		{95B195E7-628C-4390-9B4E-AA72A24E15DE}.Release|x86.Build.0 = Release|Win32
-		{F3BBAF82-24CF-4049-96F3-26772A5FC82B}.Debug|x64.ActiveCfg = Debug|x64
-		{F3BBAF82-24CF-4049-96F3-26772A5FC82B}.Debug|x64.Build.0 = Debug|x64
-		{F3BBAF82-24CF-4049-96F3-26772A5FC82B}.Debug|x86.ActiveCfg = Debug|Win32
-		{F3BBAF82-24CF-4049-96F3-26772A5FC82B}.Debug|x86.Build.0 = Debug|Win32
-		{F3BBAF82-24CF-4049-96F3-26772A5FC82B}.Release|x64.ActiveCfg = Release|x64
-		{F3BBAF82-24CF-4049-96F3-26772A5FC82B}.Release|x64.Build.0 = Release|x64
-		{F3BBAF82-24CF-4049-96F3-26772A5FC82B}.Release|x86.ActiveCfg = Release|Win32
-		{F3BBAF82-24CF-4049-96F3-26772A5FC82B}.Release|x86.Build.0 = Release|Win32
 		{5FB83F85-1834-4CDD-81B7-219A190E5E92}.Debug|x64.ActiveCfg = Debug|x64
 		{5FB83F85-1834-4CDD-81B7-219A190E5E92}.Debug|x64.Build.0 = Debug|x64
 		{5FB83F85-1834-4CDD-81B7-219A190E5E92}.Debug|x86.ActiveCfg = Debug|Win32
@@ -84,6 +76,14 @@ Global
 		{466ECFCC-531C-4CA1-B91B-F02E45DC1000}.Release|x64.Build.0 = Release|x64
 		{466ECFCC-531C-4CA1-B91B-F02E45DC1000}.Release|x86.ActiveCfg = Release|Win32
 		{466ECFCC-531C-4CA1-B91B-F02E45DC1000}.Release|x86.Build.0 = Release|Win32
+		{567960ED-D1F9-4D3F-A72D-57EA04AFA733}.Debug|x64.ActiveCfg = Debug|x64
+		{567960ED-D1F9-4D3F-A72D-57EA04AFA733}.Debug|x64.Build.0 = Debug|x64
+		{567960ED-D1F9-4D3F-A72D-57EA04AFA733}.Debug|x86.ActiveCfg = Debug|Win32
+		{567960ED-D1F9-4D3F-A72D-57EA04AFA733}.Debug|x86.Build.0 = Debug|Win32
+		{567960ED-D1F9-4D3F-A72D-57EA04AFA733}.Release|x64.ActiveCfg = Release|x64
+		{567960ED-D1F9-4D3F-A72D-57EA04AFA733}.Release|x64.Build.0 = Release|x64
+		{567960ED-D1F9-4D3F-A72D-57EA04AFA733}.Release|x86.ActiveCfg = Release|Win32
+		{567960ED-D1F9-4D3F-A72D-57EA04AFA733}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

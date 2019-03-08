@@ -10,11 +10,11 @@
 
 #define USE_MOUSE				true
 
-#define UPDATES_PER_SECOND		100
+#define UPDATES_PER_SECOND		30
 
 #define DEBUG_ZOOM				1.0f
 #define DEBUG_MODE				false
-#define ENABLE_AUDIO			false
+#define ENABLE_AUDIO			true
 #define SHOW_DEBUG_MESSAGES		false
 #define DEBUG_DISABLE_SAVING	false
 #define STORE_MAP_IN_RAM		true
@@ -51,4 +51,4 @@
 
 #define APP_DATA std::string(getenv("APPDATA"))
 #define SAVE_PATH std::string(APP_DATA + "\\OverpeekEngine")
-#define WORLD_NAME std::string("test")
+#define WORLD_NAME "test"

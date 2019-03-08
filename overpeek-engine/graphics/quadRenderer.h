@@ -46,7 +46,7 @@ namespace oe {
 		void renderBox(glm::vec2 _pos, glm::vec2 _size, int _id, glm::vec4 _color);
 		
 		//Draws buffers and then clears them
-		void draw(int texture);
+		void draw(int texture, int textureType);
 	};
 	
 }

@@ -3,6 +3,7 @@
 #include "fontRenderer.h"
 #include "quadRenderer.h"
 #include "pointRenderer.h"
+#include "lineRenderer.h"
 #include "buffers/vertexArray.h"
 #include "buffers/buffer.h"
 #include "window.h"
@@ -18,9 +19,11 @@ namespace oe {
 		m_fontRenderer = new FontRenderer(font, new QuadRenderer(window));
 		m_quadRenderer = new QuadRenderer(window);
 		m_pointRenderer = new PointRenderer(window);
+		m_lineRenderer = new LineRenderer(window);
 		m_quadMapped = false;
 		m_fontMapped = false;
 		m_pointMapped = false;
+		m_lineMapped = false;
 
 		//Post processing
 
@@ -93,6 +96,27 @@ namespace oe {
 		delete m_pointRenderer;
 	}
 
+	//Submit line to renderer
+	void Renderer::renderLine(glm::vec2 _pos1, glm::vec2 _pos2, int _id, glm::vec4 _color) {
+		if (m_fontMapped) {
+			m_fontRenderer->stopRendering();
+			m_fontMapped = false;
+		}
+		if (m_pointMapped) {
+			m_pointRenderer->stopRendering();
+			m_pointMapped = false;
+		}
+		if (m_quadMapped) {
+			m_quadRenderer->stopRendering();
+			m_quadMapped = false;
+		}
+		if (!m_lineMapped) {
+			m_lineRenderer->beginRendering();
+			m_lineMapped = true;
+		}
+		m_lineRenderer->renderBox(_pos1, _pos2, _id, _color);
+	}
+
 	//Submit quad to renderer
 	void Renderer::renderBox(glm::vec2 _pos, glm::vec2 _size, int _id, glm::vec4 _color) {
 		if (m_fontMapped) {
@@ -102,6 +126,10 @@ namespace oe {
 		if (m_pointMapped) {
 			m_pointRenderer->stopRendering();
 			m_pointMapped = false;
+		}
+		if (m_lineMapped) {
+			m_lineRenderer->stopRendering();
+			m_lineMapped = false;
 		}
 		if (!m_quadMapped) {
 			m_quadRenderer->beginRendering();
@@ -120,6 +148,10 @@ namespace oe {
 			m_fontRenderer->stopRendering();
 			m_fontMapped = false;
 		}
+		if (m_lineMapped) {
+			m_lineRenderer->stopRendering();
+			m_lineMapped = false;
+		}
 		if (!m_pointMapped) {
 			m_pointRenderer->beginRendering();
 			m_pointMapped = true;
@@ -137,6 +169,10 @@ namespace oe {
 			m_pointRenderer->stopRendering();
 			m_pointMapped = false;
 		}
+		if (m_lineMapped) {
+			m_lineRenderer->stopRendering();
+			m_lineMapped = false;
+		}
 		if (!m_fontMapped) {
 			m_fontRenderer->beginRendering();
 			m_fontMapped = true;
@@ -146,7 +182,7 @@ namespace oe {
 
 	//Draws all quads and text
 	//textbool is location of int (used as boolean) in shader that enables or disables text rendering
-	void Renderer::draw(Shader *shader, Shader *pointshader, int texture) {
+	void Renderer::draw(Shader *shader, Shader *pointshader, int texture, bool textureArray) {
 		if (m_fontMapped) {
 			m_fontRenderer->stopRendering();
 			m_fontMapped = false;
@@ -159,23 +195,33 @@ namespace oe {
 			m_pointRenderer->stopRendering();
 			m_pointMapped = false;
 		}
+		if (m_lineMapped) {
+			m_lineRenderer->stopRendering();
+			m_lineMapped = false;
+		}
+
+		int textureType = GL_TEXTURE_2D;
+		if (textureArray) textureType = GL_TEXTURE_2D_ARRAY;
 
 		pointshader->enable();
-		m_pointRenderer->draw(texture);
+		m_pointRenderer->draw(texture, textureType);
 
 		shader->enable();
-		m_quadRenderer->draw(texture);
+		m_quadRenderer->draw(texture, textureType);
 		m_fontRenderer->draw();
+		m_lineRenderer->draw(texture, textureType);
 	}
 
 	//Draws all quads and text to specified framebuffer at index
-	void Renderer::drawToFramebuffer(Shader *shader, Shader *pointshader, int texture, bool first_framebuffer) {
+	void Renderer::drawToFramebuffer(Shader *shader, Shader *pointshader, int texture, bool textureArray, bool first_framebuffer) {
 		if (first_framebuffer) glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer1);
 		else glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer2);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		draw(shader, pointshader, texture);
+		int textureType = GL_TEXTURE_2D;
+		if (textureArray) textureType = GL_TEXTURE_2D_ARRAY;
+		draw(shader, pointshader, texture, textureArray);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, m_window->getWidth(), m_window->getHeight());

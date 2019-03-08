@@ -57,13 +57,12 @@ public:
 	static bool debugMode;
 	static bool advancedDebugMode;
 	static bool paused;
+	static bool mainMenu;
 
 	static void init();
-	static void render();
+	static void render(float corrector);
 	static void update();
 	static void close();
-	static void saveGame();
-	static void loadGame();
 	static void rapidUpdate();
 
 #if !STORE_MAP_IN_RAM
@@ -88,6 +87,13 @@ public:
 	static oe::Shader *getShader();
 	static oe::Window *getWindow();
 	static oe::GameLoop *getLoop();
+
+	//Loads world from path to active world
+	//create is false when you dont want to generate new world when load fails
+	static void loadWorld(const char* name, bool create);
+	
+	//Saves active world
+	static void saveWorld();
 
 	static Player *getPlayer();
 	static Gui *getGui();

@@ -57,7 +57,7 @@ void Creature::die() {
 	Game::getMap()->removeCreature(this);
 }
 
-void Creature::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY) {
+void Creature::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY, float corrector) {
 	if (!m_item) {
 		int heading_texture;
 		switch (heading)
@@ -77,7 +77,7 @@ void Creature::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, flo
 		default:
 			break;
 		}
-		glm::vec2 pos = glm::vec2((getX() + renderOffsetX - 0.5f) * TILE_SIZE, (getY() + renderOffsetY - 0.5f) * TILE_SIZE) * Game::renderScale();
+		glm::vec2 pos = glm::vec2((getX() + getVelX() * corrector / UPDATES_PER_SECOND + renderOffsetX - 0.5f) * TILE_SIZE, (getY() + getVelY() * corrector / UPDATES_PER_SECOND + renderOffsetY - 0.5f) * TILE_SIZE) * Game::renderScale();
 		glm::vec2 size = glm::vec2(TILE_SIZE, TILE_SIZE) * Game::renderScale();
 		//renderer->renderBox(pos, size, heading_texture, glm::vec4(1.0, 1.0, 1.0, 1.0));
 		renderer->renderPoint(pos, size, heading_texture, glm::vec4(1.0));
@@ -88,19 +88,19 @@ void Creature::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, flo
 		{
 		case 1:
 			swingTexture = 13;
-			swingX = (getX() + renderOffsetX - 0.5) * TILE_SIZE; swingY = (getY() + renderOffsetY - 1.0) * TILE_SIZE;
+			swingX = (getX() + getVelX() * corrector / UPDATES_PER_SECOND + renderOffsetX - 0.5) * TILE_SIZE; swingY = (getY() + getVelY() * corrector / UPDATES_PER_SECOND + renderOffsetY - 1.0) * TILE_SIZE;
 			break;
 		case 2:
 			swingTexture = 12;
-			swingX = (getX() + renderOffsetX - 0.0) * TILE_SIZE; swingY = (getY() + renderOffsetY - 0.5) * TILE_SIZE;
+			swingX = (getX() + getVelX() * corrector / UPDATES_PER_SECOND + renderOffsetX - 0.0) * TILE_SIZE; swingY = (getY() + getVelY() * corrector / UPDATES_PER_SECOND + renderOffsetY - 0.5) * TILE_SIZE;
 			break;
 		case 3:
 			swingTexture = 15;
-			swingX = (getX() + renderOffsetX - 0.5) * TILE_SIZE; swingY = (getY() + renderOffsetY - 0.0) * TILE_SIZE;
+			swingX = (getX() + getVelX() * corrector / UPDATES_PER_SECOND + renderOffsetX - 0.5) * TILE_SIZE; swingY = (getY() + getVelY() * corrector / UPDATES_PER_SECOND + renderOffsetY - 0.0) * TILE_SIZE;
 			break;
 		case 4:
 			swingTexture = 14;
-			swingX = (getX() + renderOffsetX - 1.0) * TILE_SIZE; swingY = (getY() + renderOffsetY - 0.5) * TILE_SIZE;
+			swingX = (getX() + getVelX() * corrector / UPDATES_PER_SECOND + renderOffsetX - 1.0) * TILE_SIZE; swingY = (getY() + getVelY() * corrector / UPDATES_PER_SECOND + renderOffsetY - 0.5) * TILE_SIZE;
 			break;
 		default:
 			break;
@@ -113,7 +113,7 @@ void Creature::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, flo
 		}
 	}
 	else {
-		glm::vec2 pos = glm::vec2((getX() + renderOffsetX - 0.5f) * TILE_SIZE, (getY() + renderOffsetY - 0.5f) * TILE_SIZE) * Game::renderScale();
+		glm::vec2 pos = glm::vec2((getX() + getVelX() * corrector / UPDATES_PER_SECOND + renderOffsetX - 0.5f) * TILE_SIZE, (getY() + getVelY() * corrector / UPDATES_PER_SECOND + renderOffsetY - 0.5f) * TILE_SIZE) * Game::renderScale();
 		glm::vec2 size = glm::vec2(TILE_SIZE, TILE_SIZE) * Game::renderScale();
 		//renderer->renderBox(pos, size, Database::items[m_id].texture, glm::vec4(1.0, 1.0, 1.0, 1.0));
 		renderer->renderPoint(pos, size, Database::items[m_id].texture, glm::vec4(1.0));
@@ -130,10 +130,10 @@ void Creature::clampHPAndSTA() {
 	if (m_stamina < 0) m_stamina = 0;
 }
 
-void Creature::update(int index) {
+void Creature::update(int index, float divider) {
 	if (Game::getMap()->getTile(getX(), getY())->m_object == 7) {
 		m_bumping = true;
-		acc_y += 0.007;
+		acc_y += 1;
 	}
 
 
@@ -147,10 +147,10 @@ void Creature::update(int index) {
 
 
 
-		if (m_id == 1) enemyAi();
+		if (m_id == 1) enemyAi(divider);
 		
 		if (!m_id == 0) { //!Player
-			collide();
+			collide(divider);
 			clampHPAndSTA();
 			if (m_health <= 0) {
 				die();
@@ -167,7 +167,7 @@ void Creature::update(int index) {
 		}
 	}
 	else {
-		collide();
+		collide(divider);
 		float distanceToPlayer = abs(getX() - Game::getPlayer()->getX()) + abs(getY() - Game::getPlayer()->getY());
 		if (distanceToPlayer < 0.8) {
 			if (Game::getPlayer()->inventory->addItem(m_id, 1)) {
@@ -185,14 +185,15 @@ void Creature::update(int index) {
 		}
 	}
 
-
 	vel_x += acc_x;
 	vel_y += acc_y;
-	x += vel_x;
-	y += vel_y;
-	
-	vel_x *= 0.70;
-	vel_y *= 0.70;
+	//DELAY IF l_
+	old_x = x;
+	old_y = y;
+	x += vel_x / divider;
+	y += vel_y / divider;
+	vel_x *= 1.0f - 1.0f / (divider / 10.0);
+	vel_y *= 1.0f - 1.0f / (divider / 10.0);
 	acc_x = 0;
 	acc_y = 0;
 }
@@ -269,7 +270,7 @@ bool AABB(glm::fvec2 aPos, glm::fvec2 aSize, glm::fvec2 bPos, glm::fvec2 bSize) 
 		&&  bPos.y < aPos.y + aSize.y && aPos.y < bPos.y + bSize.y;
 }
 
-void Creature::collide() {
+void Creature::collide(float divider) {
 	m_bumping = false;
 	if (!m_item && Database::creatures[m_id].ghost) return;
 
@@ -355,8 +356,8 @@ void Creature::collide() {
 					#endif
 				}
 
-				if (top != bottom) { addY(y_to_move); vel_y = 0; m_bumping = true; }
-				if (left != right) { addX(x_to_move); vel_x = 0; m_bumping = true; }
+				if (top != bottom) { addY(y_to_move); vel_y = 0; m_bumping = true; } //oe::Logger::out(oe::info, "bump");}
+				if (left != right) { addX(x_to_move); vel_x = 0; m_bumping = true; } //oe::Logger::out(oe::info, "bump");}
 			}
 		}
 	}
@@ -441,13 +442,13 @@ int sign(float n) {
 	return -1;
 }
 
-void Creature::enemyAi() {
-	m_untilnexttarget--;
-	m_wait--;
-	m_check_player_cooldown--;
+void Creature::enemyAi(float divider) {
+	m_untilnexttarget -= 1.0 / divider;
+	m_wait -= 1.0 / divider;
+	m_check_player_cooldown -= 1.0 / divider;
 
 	if (m_check_player_cooldown <= 0) {
-		m_check_player_cooldown = oe::Random::random(0, 100);
+		m_check_player_cooldown = oe::Random::random(0, 1);
 
 		if (canSee(Game::getPlayer()->getX(), Game::getPlayer()->getY())) {
 			m_chasing = true;
@@ -461,13 +462,13 @@ void Creature::enemyAi() {
 		glm::vec2 dstToPlayer = glm::vec2(Game::getPlayer()->getX() - getX(), Game::getPlayer()->getY() - getY());
 		glm::vec2 dirToPlayer = glm::normalize(dstToPlayer);
 		if (abs(dstToPlayer.x) > 1.2 || abs(dstToPlayer.y) > 1.2) {
-			acc_x += dirToPlayer.x * 0.007 * Database::creatures[m_id].walkSpeed;
-			acc_y += dirToPlayer.y * 0.007 * Database::creatures[m_id].walkSpeed;
+			acc_x += dirToPlayer.x * Database::creatures[m_id].walkSpeed;
+			acc_y += dirToPlayer.y * Database::creatures[m_id].walkSpeed;
 			setHeading(acc_x, acc_y);
 		}
 		else {
-			m_hit_cooldown++;
-			if (m_hit_cooldown > 50) {
+			m_hit_cooldown += 1.0 / divider;
+			if (m_hit_cooldown > 0.5) {
 				m_hit_cooldown = 0;
 				hit(0, 0);
 			}
@@ -475,8 +476,8 @@ void Creature::enemyAi() {
 		setHeading(dstToPlayer.x, dstToPlayer.y);
 	}
 	if (m_untilnexttarget < 0) {
-		m_wait = 500;
-		m_untilnexttarget = 2000;
+		m_wait = 5.0;
+		m_untilnexttarget = 20.0;
 
 
 		m_curtarget_x = oe::Random::random(-16, 16);
@@ -490,8 +491,8 @@ void Creature::enemyAi() {
 		m_result = 0;
 	}
 	if (m_wait < 0) {
-		m_untilnexttarget = oe::Random::random(50, 200);
-		m_wait = 4000;
+		m_untilnexttarget = oe::Random::random(0.5, 2);
+		m_wait = 40;
 
 
 		m_result = 0;
@@ -500,7 +501,7 @@ void Creature::enemyAi() {
 		m_path = nullptr;
 	}
 
-	if (m_path && !m_chasing) followTarget();
+	if (m_path && !m_chasing) followTarget(divider);
 }
 
 void Creature::setHeading(float x, float y) {
@@ -523,11 +524,11 @@ void Creature::setHeading(float x, float y) {
 	}
 }
 
-void Creature::followTarget() {
+void Creature::followTarget(float divider) {
 	if (m_result == 0) {
-		m_result = m_path->runNSteps(1);
-		m_wait = 2000;
-		m_untilnexttarget = 10000;
+		m_result = m_path->runNSteps(200.0 / divider);
+		m_wait = 20;
+		m_untilnexttarget = 100;
 		if (m_result != 0) {
 			m_retrace = m_path->retrace();
 			m_retrace_checkpoint = 0;
@@ -543,12 +544,12 @@ void Creature::followTarget() {
 		}
 
 		if (m_bumping) {
-			m_stuck_timer++;
+			m_stuck_timer += 1.0 / divider;
 
-			if (m_stuck_timer > 100) {
+			if (m_stuck_timer > 1) {
 				m_stuck_timer = 0;
-				m_untilnexttarget = oe::Random::random(50, 200);
-				m_wait = 4000;
+				m_untilnexttarget = oe::Random::random(0.5, 2);
+				m_wait = 40;
 				delete m_path;
 				m_path = nullptr;
 				return;
@@ -562,7 +563,7 @@ void Creature::followTarget() {
 		if (mov_x < 0.2 && mov_x > -0.2 && mov_y < 0.2 && mov_y > -0.2) {
 			m_retrace_checkpoint++;
 			if (m_retrace_checkpoint >= m_retrace->size()) {
-				m_untilnexttarget = oe::Random::random(50, 200);
+				m_untilnexttarget = oe::Random::random(0.5, 2);
 				m_wait = 4000;
 				vel_x = 0;
 				vel_y = 0;
@@ -572,8 +573,8 @@ void Creature::followTarget() {
 			}
 		}
 
-		if (abs(mov_x) > 0.2) acc_x += sign(mov_x) * 0.007 * Database::creatures[m_id].walkSpeed;
-		if (abs(mov_y) > 0.2) acc_y += sign(mov_y) * 0.007 * Database::creatures[m_id].walkSpeed;
+		if (abs(mov_x) > 0.2) acc_x += sign(mov_x) * Database::creatures[m_id].walkSpeed;
+		if (abs(mov_y) > 0.2) acc_y += sign(mov_y) * Database::creatures[m_id].walkSpeed;
 		setHeading(acc_x, acc_y);
 	}
 }

@@ -55,14 +55,14 @@ namespace oe {
 		pointcount++;
 	}
 
-	void PointRenderer::draw(int pointtexture) {
+	void PointRenderer::draw(int pointtexture, int textureType) {
 		glEnable(GL_DEPTH_TEST);
 
 		if (!m_window) return;
 
 		//Flush quads
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, pointtexture);
+		glBindTexture(textureType, pointtexture);
 		m_vao->bind();
 
 		//Actual drawing

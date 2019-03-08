@@ -18,6 +18,31 @@ namespace oe {
 		out(info, "Logger created.");
 	}
 
+	void Logger::out(int type, std::string output) {
+		setup();
+		spdlog::logger *console = (spdlog::logger*)m_console;
+
+		switch (type)
+		{
+		case info:
+			console->info(output);
+			break;
+		case warning:
+			console->warn(output);
+			break;
+		case critical:
+			console->critical(output);
+			break;
+		case error:
+			console->error(output);
+			Window::terminate();
+			break;
+
+		default:
+			break;
+		}
+	}
+
 	void Logger::out(int type, const char *output) {
 		setup();
 		spdlog::logger *console = (spdlog::logger*)m_console;
@@ -185,6 +210,31 @@ namespace oe {
 			break;
 		case error:
 			console->error(std::string(output) + std::to_string(output2) + output3 + std::to_string(output4));
+			Window::terminate();
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	void Logger::out(int type, const char *output, double output2, const char *output3, double output4, const char *output5, double output6) {
+		setup();
+		spdlog::logger *console = (spdlog::logger*)m_console;
+
+		switch (type)
+		{
+		case info:
+			console->info(std::string(output) + std::to_string(output2) + output3 + std::to_string(output4) + output5 + std::to_string(output6));
+			break;
+		case warning:
+			console->warn(std::string(output) + std::to_string(output2) + output3 + std::to_string(output4) + output5 + std::to_string(output6));
+			break;
+		case critical:
+			console->critical(std::string(output) + std::to_string(output2) + output3 + std::to_string(output4) + output5 + std::to_string(output6));
+			break;
+		case error:
+			console->error(std::string(output) + std::to_string(output2) + output3 + std::to_string(output4) + output5 + std::to_string(output6));
 			Window::terminate();
 			break;
 

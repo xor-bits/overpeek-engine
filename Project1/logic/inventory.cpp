@@ -5,6 +5,7 @@
 #include "game.h"
 #include "../world/map.h"
 #include "../creatures/player.h"
+#include "../world/map.h"
 
 Inventory::Inventory(oe::Shader *shader, oe::Window *window) {
 	m_shader = shader; m_window = window;
@@ -13,14 +14,12 @@ Inventory::Inventory(oe::Shader *shader, oe::Window *window) {
 }
 
 void Inventory::init() {
-	if (!load()) {
-		for (int x = 0; x < INVENTORY_WIDTH; x++)
+	for (int x = 0; x < INVENTORY_WIDTH; x++)
+	{
+		for (int y = 0; y < INVENTORY_HEIGHT + 1; y++)
 		{
-			for (int y = 0; y < INVENTORY_HEIGHT + 1; y++)
-			{
-				m_itemIds[x][y] = 0;
-				m_itemCounts[x][y] = 0;
-			}
+			m_itemIds[x][y] = 0;
+			m_itemCounts[x][y] = 0;
 		}
 	}
 }
@@ -28,7 +27,7 @@ void Inventory::init() {
 bool Inventory::load() {
 #if !DEBUG_DISABLE_SAVING
 	unsigned long inventory_data_size;
-	short *data = (short*)oe::BinaryIO::read<short>(Game::getSaveLocation() + "inventory.data", inventory_data_size);
+	short *data = (short*)oe::BinaryIO::read<short>(Game::getMap()->saveLocation(Game::getSaveLocation()) + "inventory.data", inventory_data_size);
 	if (!data) return false;
 	for (int x = 0; x < INVENTORY_WIDTH; x++)
 	{
@@ -53,7 +52,7 @@ void Inventory::save() {
 			data[(x + INVENTORY_WIDTH * y) * 2 + 1] = m_itemCounts[x][y];
 		}
 	}
-	oe::BinaryIO::write<short>(Game::getSaveLocation() + "inventory.data", data, (INVENTORY_WIDTH * (INVENTORY_HEIGHT + 1)) * 2);
+	oe::BinaryIO::write<short>(Game::getMap()->saveLocation(Game::getSaveLocation()) + "inventory.data", data, (INVENTORY_WIDTH * (INVENTORY_HEIGHT + 1)) * 2);
 }
 
 void Inventory::render(oe::Renderer *m_renderer) {

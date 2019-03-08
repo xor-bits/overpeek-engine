@@ -136,7 +136,7 @@ namespace oe {
 
 	void FontRenderer::draw() {
 		//Flush text
-		m_renderer->draw(texture);
+		m_renderer->draw(texture, GL_TEXTURE_2D_ARRAY);
 	}
 	
 	void FontRenderer::renderText(float _x, float _y, float _w, float _h, const char *_text, int _textOrigin)

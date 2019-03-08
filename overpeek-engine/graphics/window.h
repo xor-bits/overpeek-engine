@@ -58,6 +58,8 @@ namespace oe {
 
 		void setSwapInterval(unsigned int interval);
 
+		void setClearColor(float r, float g, float b, float a);
+
 		inline bool getButton(int button) { return mButtons[button]; }
 		inline bool getKey(int key) { return mKeys[key]; }
 		inline void getMousePos(double &x, double &y) { x = (mMouseX / mWidth * 2.0 * mAspect) - mAspect; y = mMouseY / mHeight * 2 - 1; }

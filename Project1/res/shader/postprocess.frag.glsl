@@ -8,8 +8,7 @@ in vec2 UV;
 
 uniform sampler2D unif_texture;
 uniform int unif_effect;
-
-uniform int unif_lens;
+uniform float unif_t;
 
 float gauss_kernel[] = float[](0.035822f, 0.05879f, 0.086425f, 0.113806f, 0.13424f, 0.141836f, 0.13424f, 0.113806f, 0.086425f, 0.05879f, 0.035822f);
 
@@ -21,6 +20,10 @@ float edge_kernel[] = float[](
 
 float pixelSizeX;
 float pixelSizeY;
+
+float rand(vec2 co) {
+	return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+}
 
 void main()
 {
@@ -64,6 +67,10 @@ void main()
 		color.x = color.y = color.z = (color.x + color.y + color.z) / 3;
 		// = color.x;
 		//color.z = color.x;
+	}
+	else if (unif_effect == 5) {
+		//color = texture(unif_texture, UV) * (sin(50 * (UV.x) + unif_t) + 1.0) / 2.0 * (sin(50 * (UV.y) + unif_t) + 1.0) / 2.0;
+		//color.a = 1.0;
 	}
 	else {
 		//Normal

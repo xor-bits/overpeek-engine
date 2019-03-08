@@ -45,7 +45,7 @@ namespace oe {
 		void renderPoint(glm::vec2 pos, glm::vec2 size, int id, glm::vec4 color);
 
 		//Draws buffers and then clears them
-		void draw(int pointtexture);
+		void draw(int pointtexture, int textureType);
 	
 	};
 

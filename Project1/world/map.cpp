@@ -6,78 +6,55 @@
 #include "../creatures/player.h"
 
 
-Map::Map(std::string name) {
-	m_name = name;
-	oe::Logger::out(oe::info, "World loading started");
-	oe::Debug::startTimer();
-
-	std::string strcommand("mkdir \"" + saveLocation() + "\"" + " >nul 2>&1");
-	system(strcommand.c_str());
-
-#if !DEBUG_DISABLE_SAVING
-	//Generate map
-	if (!loadMap()) {
-		createMapFast();
-	}
-#else
-	createMapFast();
-#endif
-	//save();
-	oe::Debug::printTimer("Microseconds passed while creating world: ");
+Map::Map() { 
+	m_tiles = std::vector<std::vector<MapTile*>>(MAP_SIZE, std::vector<MapTile*>(MAP_SIZE)); 
 }
 
-bool Map::loadMap() {
-	oe::Logger::out(oe::info, "Starting to load the map");
-	oe::Debug::startTimer();
+std::string Map::saveLocation(std::string path) {
+	return path + m_name + "\\";
+}
 
+bool Map::load(std::string name) {
+	oe::Logger::out(oe::info, "Loading world...  ");
+	m_name = name;
 
 	//Load and check tile data
 	unsigned long tile_data_size;
-	Byte *tile_data = (Byte*)oe::BinaryIO::read<Byte>(saveLocation() + "tile.data", tile_data_size);
+	Byte *tile_data = (Byte*)oe::BinaryIO::read<Byte>(saveLocation(Game::getSaveLocation()) + "tile.data", tile_data_size);
 	if (!tile_data) {
 		free(tile_data);
 		return false;
 	}
 
-	//Print time took to check the data
-	oe::Debug::printTimer("Microseconds took to check data: ");
-	oe::Debug::startTimer();
 
 	//Uncompress tiledata
 	unsigned long uncompressedSize = MAP_SIZE * MAP_SIZE * 3 * sizeof(short);
 	Byte* uncompressedTiles = new Byte[uncompressedSize];
 	int state = uncompress(uncompressedTiles, &uncompressedSize, tile_data, tile_data_size);
-	if (state != Z_OK) oe::Logger::out(oe::error, "Error uncompressing save file! ", state);
+	if (state != Z_OK) {
+		oe::Logger::out(oe::error, "Error uncompressing save file! ", state);
+	}
 	short int *tileData = (short int*)uncompressedTiles;
 
-	//Print time took to uncompress the data
-	oe::Debug::printTimer("Microseconds took to uncompress data: ");
-	oe::Debug::startTimer();
-	
 	//Load tiles
+	unload();
 #pragma omp parallel for
 	for (int x = 0; x < MAP_SIZE; x++)
 	{
-		std::vector<std::unique_ptr<MapTile>> tmp;
 		for (int y = 0; y < MAP_SIZE; y++)
 		{
-			tmp.push_back(std::move(std::unique_ptr<MapTile>(new MapTile(
-				tileData[(x + y * MAP_SIZE) * 3 + 0], 
+			m_tiles[x][y] = new MapTile(
+				tileData[(x + y * MAP_SIZE) * 3 + 0],
 				tileData[(x + y * MAP_SIZE) * 3 + 1],
 				tileData[(x + y * MAP_SIZE) * 3 + 2]
-			))));
+			);
 		}
-		m_tiles.push_back(std::move(tmp));
 	}
-
-	//Print time took to load tiles
-	oe::Debug::printTimer("Microseconds took to uncompress data: ");
-	oe::Debug::startTimer();
 
 
 	//Load creatures
 	unsigned long creature_data_size;
-	CreatureSaveData *creature_data = (CreatureSaveData*)oe::BinaryIO::read<CreatureSaveData>(saveLocation() + "creature.data", creature_data_size);
+	CreatureSaveData *creature_data = (CreatureSaveData*)oe::BinaryIO::read<CreatureSaveData>(saveLocation(Game::getSaveLocation()) + "creature.data", creature_data_size);
 	if (creature_data) {
 		creature_data_size /= sizeof(CreatureSaveData);
 		for (int i = 0; i < creature_data_size; i++)
@@ -95,14 +72,32 @@ bool Map::loadMap() {
 	free(tileData);
 	free(creature_data);
 
-
-	oe::Logger::out(oe::info, "Map loaded successfully!");
+	return true;
 }
 
-void Map::save() {
-	oe::Logger::out(oe::info, "Starting to save the map");
-	oe::Debug::startTimer();
+bool Map::unload() {
+	try
+	{
+		for (int x = 0; x < MAP_SIZE; x++)
+		{
+			for (int y = 0; y < MAP_SIZE; y++)
+			{
+				delete m_tiles[x][y];
+			}
+		}
+		for (int i = 0; i < m_creatures.size(); i++) {
+			m_creatures[i].release();
+		}
+		m_creatures.erase(m_creatures.begin(), m_creatures.end());
+	}
+	catch (const std::exception&)
+	{
+		oe::Logger::out(oe::warning, "Couln't unload map");
+	}
+}
 
+bool Map::save() {
+	oe::Logger::out(oe::info, "Saving map...  ");
 
 	//Tile collection
 	short *tiles = new short[MAP_SIZE * MAP_SIZE * 3];
@@ -121,12 +116,6 @@ void Map::save() {
 		creatures[i] = { m_creatures[i]->getX(), m_creatures[i]->getY(), (short)m_creatures[i]->getId(), m_creatures[i]->m_item };
 	}
 
-
-	//Print data collection time
-	oe::Debug::printTimer("Microseconds to collect the data: ");
-	oe::Debug::startTimer();
-
-
 	//Compress tile data
 	unsigned long sourceLen = (MAP_SIZE * MAP_SIZE * 3 * sizeof(short));
 	unsigned long compressedSize = compressBound(sourceLen);
@@ -135,23 +124,19 @@ void Map::save() {
 	int state = compress(compressedTiles, &compressedSize, tiledata, sourceLen);
 	if (state != Z_OK) oe::Logger::out(oe::error, "Error compressing save file!");
 
-
-	//Print compression time
-	oe::Debug::printTimer("Microseconds to compress the data: ");
-	oe::Debug::startTimer();
-
-	oe::BinaryIO::write<Byte>(saveLocation() + "tile.data", compressedTiles, compressedSize);
-	oe::BinaryIO::write<CreatureSaveData>(saveLocation() + "creature.data", creatures, m_creatures.size());
-
-	//Print saving time
-	oe::Debug::printTimer("Microseconds to save the data: ");
-	oe::Logger::out(oe::info, "Map saved successfully!");
+	//Writing
+	oe::BinaryIO::write<Byte>(saveLocation(Game::getSaveLocation()) + "tile.data", compressedTiles, compressedSize);
+	oe::BinaryIO::write<CreatureSaveData>(saveLocation(Game::getSaveLocation()) + "creature.data", creatures, m_creatures.size());
 
 	//Cleanup
 	delete tiles;
 }
 
-void Map::createMapFast() {
+bool Map::create(std::string name) {
+	oe::Logger::out(oe::info, "Generating map...  ");
+	m_name = name;
+
+	//Get noisemaps
 	FastNoiseSIMD* noise = FastNoiseSIMD::NewFastNoiseSIMD(oe::Clock::getMicroseconds() + 0);
 	noise->SetFractalOctaves(MAP_BIOME_OCTA);
 	noise->SetFrequency(MAP_BIOME_FREQ);
@@ -177,29 +162,29 @@ void Map::createMapFast() {
 	noise->SetFrequency(MAP_PLANT2_FREQ);
 	m_plantnoise2 = noise->GetSimplexFractalSet(0, 0, 0, MAP_SIZE, MAP_SIZE, 1, 1.0f);
 
-	oe::Logger::out(oe::info, "Noisemaps generated");
-
+	
+	//Create world based on noisemaps
 #pragma omp parallel for
 	for (int x = 0; x < MAP_SIZE; x++)
 	{
-		std::vector<std::unique_ptr<MapTile>> tmp;
 		for (int y = 0; y < MAP_SIZE; y++)
 		{
 			int tile, object;
 			getInfoFromNoise(tile, object, x, y);
 			short health = Database::objects[object].health;
-			tmp.push_back(std::move(std::unique_ptr<MapTile>(new MapTile(tile, object, health))));
+			m_tiles[x][y] = new MapTile(tile, object, health);
 		}
-		m_tiles.push_back(std::move(tmp));
 	}
-	oe::Logger::out(oe::info, "Map generated");
 
+	//Cleanup
 	noise->FreeNoiseSet(m_biomenoise1);
 	noise->FreeNoiseSet(m_biomenoise2);
 	noise->FreeNoiseSet(m_mapnoise);
 	noise->FreeNoiseSet(m_plantnoise1);
 	noise->FreeNoiseSet(m_plantnoise2);
-	oe::Logger::out(oe::info, "Noisemap memory freed");
+
+	//Print status
+	std::cout << "SUCCESS" << std::endl;
 }
 
 Database::Biome *Map::getTileBiome(float x, float y) {
@@ -221,7 +206,7 @@ int Map::getInfoFromNoiseIfLoop(Database::Biome *biome, float x, float y, int in
 
 void Map::getInfoFromNoise(int &tileId, int &objId, float x, float y) {
 	Database::Biome *biome = getTileBiome(x, y);
-	if (!biome) oe::Logger::out(oe::error, "Biome was nullptr");
+	if (!biome) oe::Logger::out(oe::error, "Biome was null pointer");
 
 	if (biome->heightMap.size() == 1) {
 		tileId = biome->heightMap[0].id;
@@ -248,10 +233,6 @@ void Map::hit(unsigned int x, unsigned int y, short dmg) {
 		tile->m_object = 0;
 	}
 	Game::tilesChanged = true;
-}
-
-std::string Map::saveLocation() {
-	return Game::getSaveLocation() + m_name + "\\";
 }
 
 int Map::getObjectTexture(unsigned int x, unsigned int y) {
@@ -284,21 +265,29 @@ int Map::getObjectTexture(unsigned int x, unsigned int y) {
 	return Database::objects[thistile->m_object].texture;
 }
 
-void Map::submitToRenderer(oe::Renderer *renderer, float offX, float offY) {
+void Map::submitToRenderer(oe::Renderer *renderer, float offX, float offY, float corrector) {
 	//Map rendering
+	glm::fvec2 player_prediction = glm::fvec2(Game::getPlayer()->getX() + Game::getPlayer()->getVelX() * corrector / UPDATES_PER_SECOND, Game::getPlayer()->getY() + Game::getPlayer()->getVelY() * corrector / UPDATES_PER_SECOND);
 	for (int x = -RENDER_HORIZONTAL; x < RENDER_HORIZONTAL; x++)
 	{
 		for (int y = -RENDER_VERTICAL; y < RENDER_VERTICAL; y++)
 		{
-			MapTile *tile = getTile(x + Game::getPlayer()->getX(), y + Game::getPlayer()->getY());
+			int tile_x = x + player_prediction.x;
+			int tile_y = y + player_prediction.y;
+
+			MapTile *tile = getTile(tile_x, tile_y);
 			Database::Tile db_tile = Database::tiles[tile->m_tile];
 			Database::Object db_object = Database::objects[tile->m_object];
-			float rx = (float(x) + floor(Game::getPlayer()->getX()) + offX) * TILE_SIZE * Game::renderScale();
-			float ry = (float(y) + floor(Game::getPlayer()->getY()) + offY) * TILE_SIZE * Game::renderScale();
-			renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE * Game::renderScale(), TILE_SIZE * Game::renderScale()), db_tile.texture, glm::vec4(1.0));
+			float rx = (tile_x + offX) * TILE_SIZE * Game::renderScale();
+			float ry = (tile_y + offY) * TILE_SIZE * Game::renderScale();
+			//oe::Logger::out(oe::info, "Tile at: ", offX, offY);
+			//oe::Logger::out(oe::info, "Tile: ", tile_x, tile_y);
+			renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE, TILE_SIZE) * Game::renderScale(), db_tile.texture, glm::vec4(1.0));
 
-			if (db_object.id != 0)
-				renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE * Game::renderScale(), TILE_SIZE * Game::renderScale()), getObjectTexture(x + Game::getPlayer()->getX(), y + Game::getPlayer()->getY()), glm::vec4(db_object.color, 1.0));
+			if (db_object.id != 0) {
+				int objTexture = getObjectTexture(tile_x, tile_y);
+				renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE, TILE_SIZE) * Game::renderScale(), objTexture, glm::vec4(db_object.color, 1.0));
+			}
 		
 		}
 	}
@@ -306,11 +295,11 @@ void Map::submitToRenderer(oe::Renderer *renderer, float offX, float offY) {
 	//Creature rendering
 	for (int i = 0; i < m_creatures.size(); i++)
 	{
-		m_creatures[i]->submitToRenderer(renderer, -Game::getPlayer()->getX(), -Game::getPlayer()->getY());
+		m_creatures[i]->submitToRenderer(renderer, -Game::getPlayer()->getX() - Game::getPlayer()->getVelX() * corrector / UPDATES_PER_SECOND, -Game::getPlayer()->getY() - Game::getPlayer()->getVelY() * corrector / UPDATES_PER_SECOND, corrector);
 	}
 }
 
-void Map::renderGhostObject(oe::Renderer *renderer, float x, float y, int id, float offX, float offY) {
+void Map::renderGhostObject(oe::Renderer *renderer, float x, float y, int id, float offX, float offY, float corrector) {
 	x = floor(x);
 	y = floor(y);
 	//x += 0.5;
@@ -318,13 +307,13 @@ void Map::renderGhostObject(oe::Renderer *renderer, float x, float y, int id, fl
 
 
 	Database::Object db_object = Database::objects[id];
-	float rx = (float(x) + offX) * TILE_SIZE * Game::renderScale();
-	float ry = (float(y) + offY) * TILE_SIZE * Game::renderScale();
+	float rx = (x + offX) * TILE_SIZE * Game::renderScale();
+	float ry = (y + offY) * TILE_SIZE * Game::renderScale();
 
 	//if (rx > 0) rx += 1 * TILE_SIZE * Game::renderScale();
 	//if (ry > 0) ry += 1 * TILE_SIZE * Game::renderScale();
 	if (db_object.id != 0)
-		renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE * Game::renderScale(), TILE_SIZE * Game::renderScale()), db_object.texture, glm::vec4(db_object.color, 0.5));
+		renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE, TILE_SIZE) * Game::renderScale(), db_object.texture, glm::vec4(db_object.color, 0.5));
 }
 
 void Map::debugCeilCreatures() {
@@ -382,10 +371,10 @@ void Map::removeCreature(Creature *creature) {
 	oe::Logger::out(oe::critical, "Couldn't find creature: ", buffAsStdStr.c_str(), "!");
 }
 
-void Map::update() {
+void Map::update(float divider) {
 	for (int i = 0; i < m_creatures.size(); i++)
 	{
-		m_creatures[i]->update(i);
+		m_creatures[i]->update(i, divider);
 	}
 
 	for (int x = -MAP_WORK_DST; x < MAP_WORK_DST; x++)
@@ -418,7 +407,7 @@ Map::MapTile *Map::getTile(unsigned int x, unsigned int y) {
 	x = oe::clamp(x, unsigned int(0), unsigned int(MAP_SIZE - 1));
 	y = oe::clamp(y, unsigned int(0), unsigned int(MAP_SIZE - 1));
 
-	return m_tiles[x][y].get();
+	return m_tiles[x][y];
 }
 
 int Map::trySetObject(unsigned int x, unsigned int y, short id) {

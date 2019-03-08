@@ -17,13 +17,13 @@ Player::Player(float x, float y, Inventory *inv) : Creature(x, y, 0, false) {
 	m_death_y = -1;
 }
 
-void Player::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY) {
-	Creature::submitToRenderer(renderer, renderOffsetX, renderOffsetY);
+void Player::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY, float corrector) {
+	Creature::submitToRenderer(renderer, renderOffsetX, renderOffsetY, corrector);
 
 	if (m_death_x != -1) {
 
-		float renderDeathX = oe::clamp((m_death_x - getX()) * TILE_SIZE, -Game::getWindow()->getAspect(), Game::getWindow()->getAspect() - 0.1f);
-		float renderDeathY = oe::clamp((m_death_y - getY()) * TILE_SIZE, -1.0f, 1.0f - 0.1f);
+		float renderDeathX = oe::clamp((m_death_x - (getX() + vel_x * corrector/ UPDATES_PER_SECOND)) * TILE_SIZE, -Game::getWindow()->getAspect(), Game::getWindow()->getAspect() - 0.1f);
+		float renderDeathY = oe::clamp((m_death_y - (getY() + vel_y * corrector/ UPDATES_PER_SECOND)) * TILE_SIZE, -1.0f, 1.0f - 0.1f);
 
 		renderer->renderPoint(
 			glm::vec2(renderDeathX, renderDeathY),
@@ -45,7 +45,7 @@ void Player::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float
 		if (x_dst == 0) y_dst++;
 		if (y_dst == 0) x_dst++;
 		if (x_dst + y_dst < m_hitdist) {
-			Game::getMap()->renderGhostObject(renderer, getX() + mx, getY() + my, Database::items[inventory->selectedId].placedAs, -getX(), -getY());
+			Game::getMap()->renderGhostObject(renderer, getX() + vel_x * corrector / UPDATES_PER_SECOND + mx, getY() + vel_y * corrector / UPDATES_PER_SECOND + my, Database::items[inventory->selectedId].placedAs, -getX() - vel_x * corrector, -getY() - vel_y * corrector, corrector);
 		}
 	}
 
@@ -75,7 +75,7 @@ void Player::getSpawnPoint(int &x, int &y) {
 	y = m_spawn_location_y;
 }
 
-void Player::update() {
+void Player::update(float divider) {
 #if USE_MOUSE
 	double mx, my;
 	Game::getWindow()->getMousePos(mx, my);
@@ -116,11 +116,11 @@ void Player::update() {
 		return;
 	}
 
-	Creature::update(0);
+	Creature::update(0, divider);
 }
 
-void Player::collide() {
-	if (!Game::advancedDebugMode) Creature::collide();
+void Player::collide(float divider) {
+	Creature::collide(divider);
 }
 
 void Player::hit() {
@@ -255,14 +255,14 @@ void Player::place() {
 void Player::save() {
 	inventory->save();
 	float playerData[4] = { getX(), getY(), (float)m_spawn_location_x, (float)m_spawn_location_y };
-	oe::BinaryIO::write<float>(Game::getSaveLocation() + "player.data", playerData, 4);
+	oe::BinaryIO::write<float>(Game::getMap()->saveLocation(Game::getSaveLocation()) + "player.data", playerData, 4);
 }
 
 bool Player::load() {
-	inventory->init();
+	inventory->load();
 
 	unsigned long data_size;
-	float *playerData = (float*)oe::BinaryIO::read<float>(Game::getSaveLocation() + "player.data", data_size);
+	float *playerData = (float*)oe::BinaryIO::read<float>(Game::getMap()->saveLocation(Game::getSaveLocation()) + "player.data", data_size);
 	if (!playerData) {
 		setSpawnPoint(getX(), getY());
 		return false;

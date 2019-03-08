@@ -108,6 +108,7 @@
       <PrecompiledHeaderFile>"pch.h"</PrecompiledHeaderFile>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)overpeek-engine;$(SolutionDir)Libraries\glm;$(SolutionDir)Libraries\zlib\include</AdditionalIncludeDirectories>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -160,6 +161,7 @@
       <PrecompiledHeaderFile>"pch.h"</PrecompiledHeaderFile>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)overpeek-engine;$(SolutionDir)Libraries\glm;$(SolutionDir)Libraries\zlib\include</AdditionalIncludeDirectories>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -235,6 +237,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"../pch.h"</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="logic\mainmenu.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"../pch.h"</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"../pch.h"</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="main.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
@@ -290,6 +296,7 @@
     <ClInclude Include="logic\game.h" />
     <ClInclude Include="logic\gui.h" />
     <ClInclude Include="logic\inventory.h" />
+    <ClInclude Include="logic\mainmenu.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="settings.h" />
@@ -311,6 +318,8 @@
     <None Include="shaders\geometrytexture.vert.glsl" />
     <None Include="shaders\postprocess.frag.glsl" />
     <None Include="shaders\postprocess.vert.glsl" />
+    <None Include="shaders\texture-single.frag.glsl" />
+    <None Include="shaders\texture-single.vert.glsl" />
     <None Include="shaders\texture.frag.glsl" />
     <None Include="shaders\texture.vert.glsl" />
   </ItemGroup>

@@ -122,12 +122,12 @@ namespace oe {
 		m_indexcount += INDEX_PER_QUAD;
 	}
 
-	void QuadRenderer::draw(GLint texture) {
+	void QuadRenderer::draw(int texture, int textureType) {
 		glEnable(GL_DEPTH_TEST);
 
 		//Binding
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
+		glBindTexture(textureType, texture);
 		m_VAO->bind();
 
 		if (m_indexcount > 0) {

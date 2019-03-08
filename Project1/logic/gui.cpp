@@ -163,9 +163,9 @@ void Gui::update() {
 void Gui::keyPress(int key, int action) {
 	if (Game::paused) {
 		//Pause menu navigation
-		if (key == OE_KEY_DOWN) { m_selectedButton++; return; }
-		if (key == OE_KEY_UP) { m_selectedButton--; return; }
-		if (key == OE_KEY_ENTER || key == OE_KEY_SPACE) {
+		if (action == OE_PRESS && key == OE_KEY_DOWN) { m_selectedButton++; return; }
+		if (action == OE_PRESS && key == OE_KEY_UP) { m_selectedButton--; return; }
+		if (action == OE_PRESS && key == OE_KEY_ENTER || key == OE_KEY_SPACE) {
 			if (m_selectedButton == 0) {
 				Game::paused = false;
 				return;
@@ -182,7 +182,7 @@ void Gui::keyPress(int key, int action) {
 		}
 	}
 	else {
-		if (key == OE_KEY_T) {
+		if (action == OE_PRESS && key == OE_KEY_T) {
 			//Only opens chat
 			if (m_chat_opened) return;
 
@@ -190,13 +190,13 @@ void Gui::keyPress(int key, int action) {
 			m_chat_just_opened = true;
 			return;
 		}
-		if (key == OE_KEY_ESCAPE && m_chat_opened) {
+		if (action == OE_PRESS && key == OE_KEY_ESCAPE && m_chat_opened) {
 			//Only closes chat if its opened
 			m_chat_opened = false;
 			m_chat_opened_timer = 500;
 			return;
 		}
-		if (key == OE_KEY_ENTER && m_chat_opened) {
+		if (action == OE_PRESS && key == OE_KEY_ENTER && m_chat_opened) {
 			//Only closes chat if its opened
 			m_chat_opened = false;
 			m_chat_opened_timer = 500;
@@ -207,18 +207,18 @@ void Gui::keyPress(int key, int action) {
 			m_current_input_history = -1;
 			return;
 		}
-		if (key == OE_KEY_BACKSPACE && m_chat_opened) {
+		if (action == OE_PRESS && key == OE_KEY_BACKSPACE && m_chat_opened) {
 			//Removes last character of current text input
 			//if chat is currently opened
 			if (m_current_line.length() > 0) m_current_line.erase(m_current_line.end() - 1);
 			return;
 		}
-		if (key == OE_KEY_UP && m_chat_opened) {
+		if (action == OE_PRESS && key == OE_KEY_UP && m_chat_opened) {
 			if (m_current_input_history == -1) m_current_line_reserved = m_current_line;
 			m_current_input_history++;
 			selectInputHistory();
 		}
-		if (key == OE_KEY_DOWN && m_chat_opened) {
+		if (action == OE_PRESS && key == OE_KEY_DOWN && m_chat_opened) {
 			m_current_input_history--;
 			selectInputHistory();
 		}
@@ -322,7 +322,6 @@ void Gui::userInput() {
 				tooFewArguments();
 				return;
 			}
-
 			float id;
 			float n = 1;
 			bool item = false;
@@ -458,6 +457,39 @@ void Gui::userInput() {
 			Game::getMap()->getTile(posX, posY)->m_object = id;
 			Game::getMap()->getTile(posX, posY)->m_objectHealth = Database::objects[id].health;
 		}
+		//SAVE COMMAND
+		else if (command == "save") {
+			Game::saveWorld();
+		}
+		//LOAD COMMAND
+		else if (command == "load") {
+			std::string name = Game::getMap()->getName();
+			//Id argument
+			if (argumentVec.size() >= 1) {
+				name = argumentVec[0].c_str();
+			}
+
+			oe::Logger::out(oe::info, name);
+			Game::loadWorld(name.c_str(), false);
+		}
+		//UPDATEWARP COMMAND
+		else if (command == "warp") {
+			float updates = 0;
+			//Id argument
+			if (argumentVec.size() >= 1) {
+				if (argToDouble(updates, argumentVec[0])) {
+					addChatLine("Invalid [updates] argument!");
+				}
+			}
+
+			updates = unsigned int(updates);
+
+			addChatLine("Warping " + std::to_string(updates) + " updates");
+			for (int i = 0; i < updates; i++)
+			{
+				Game::update();
+			}
+		}
 		//HELP COMMAND
 		else if (command == "help") {
 			addChatLine("--List of commands--");
@@ -467,6 +499,9 @@ void Gui::userInput() {
 			addChatLine("/spawn [id] <x y> <item> <n> -- spawns creature");
 			addChatLine("/setspawn <x y> -- sets spawnpoint");
 			addChatLine("/object [id] <x y> -- places object");
+			addChatLine("/save -- saves the world");
+			addChatLine("/load <name> -- load world");
+			addChatLine("/warp [updates] -- warps forward in time");
 		}
 		//COMMAND NOT FOUND
 		else {

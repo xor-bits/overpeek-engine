@@ -1,14 +1,14 @@
 #pragma once
 
+#include "../graphics/window.h"
+
 namespace oe {
 
 	class GameLoop {
 	private:
-		void(*mCallbackRender)();
+		void(*mCallbackRender)(float);
 		void(*mCallbackUpdate)();
-		void(*mCallbackRapid)();
 		long long m_upsCap;
-		long long m_fpsCap;
 		bool mShouldRun = true;
 
 		int m_fps, m_ups;
@@ -26,10 +26,19 @@ namespace oe {
 		short int m_microsec_frame;
 		short int m_microsec_update;
 
+		Window *m_window;
+
 		void loop();
 
 	public:
-		GameLoop(void(*callbackRender)(), void(*callbackUpdate)(), void(*callbackRapid)(), unsigned int upsCap, unsigned int fpsCap);
+		//Render loop:
+		//render loop has argument "corrector" that is fixes moving object stuttering by applying ("corrector" times that object's velocity).
+		//For example if ball is moving 5 units to left every second (second being update) you propably want to smooth those frames between
+		//so render ball at (ball_location + ball_velocity * corrector / ups).
+		//
+		//Update loop:
+		//Example of calculating position "loaction = velocity / ups"
+		GameLoop(void(*callbackRender)(float), void(*callbackUpdate)(), unsigned int updates_per_second, Window *window);
 
 		void start();
 		void stop();
@@ -39,6 +48,9 @@ namespace oe {
 
 		inline short int getFMS() { return m_microsec_frame; }
 		inline short int getUMS() { return m_microsec_update; }
+
+		int fastFPS() { if (getFMS() != 0) { return 1000000 / getFMS(); } else return 1; }
+		int fastUPS() { if (getUMS() != 0) { return 1000000 / getUMS(); } else return 1; }
 	};
 
 }
