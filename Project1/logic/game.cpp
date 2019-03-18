@@ -61,6 +61,7 @@ void Game::init() {
 	m_window->setCharmodCallback(charmod);
 	m_window->setSwapInterval(0);
 	m_window->setClearColor(1.0, 1.0, 1.0, 1.0);
+	m_window->setIcon("res/texture/icon.png");
 	renderer = m_window->getRenderer();
 
 	//Loading screen (barely noticeable lol)

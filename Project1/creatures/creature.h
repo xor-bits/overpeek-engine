@@ -34,8 +34,8 @@ protected:
 	float m_healthGainRate;
 	float m_staminaGainRate;
 
-	int m_staminaRegenCooldown;
-	int m_healthRegenCooldown;
+	float m_staminaRegenCooldown;
+	float m_healthRegenCooldown;
 
 	Pathfinder *m_path = nullptr;
 	std::vector<glm::vec2> *m_retrace;

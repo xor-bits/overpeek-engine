@@ -115,4 +115,9 @@
     <None Include="shaders\texture-single.frag.glsl" />
     <None Include="shaders\texture-single.vert.glsl" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

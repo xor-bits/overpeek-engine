@@ -36,11 +36,14 @@ class Map {
 		std::vector<std::vector<MapTile*>>  m_tiles;
 		std::string m_name;
 
-		float* m_mapnoise;
-		float* m_biomenoise1;
-		float* m_biomenoise2;
-		float* m_plantnoise1;
-		float* m_plantnoise2;
+		struct noisemap
+		{
+			float* m_mapnoise;
+			float* m_biomenoise1;
+			float* m_biomenoise2;
+			float* m_plantnoise1;
+			float* m_plantnoise2;
+		} m_noisemaps[4];
 
 		int getInfoFromNoiseIfLoop(Database::Biome *biome, float x, float y, int index);
 		void getInfoFromNoise(int &tileId, int &objId, float x, float y);
@@ -63,8 +66,8 @@ class Map {
 
 		std::string saveLocation(std::string path);
 
-		void hit(unsigned int x, unsigned int y, short dmg);
-		int getObjectTexture(unsigned int x, unsigned int y);
+		void hit(int x, int y, short dmg);
+		int getObjectTexture(int x, int y);
 		void submitToRenderer(oe::Renderer *renderer, float offX, float offY, float corrector);
 		void renderGhostObject(oe::Renderer *renderer, float x, float y, int id, float offX, float offY, float corrector);
 		void debugCeilCreatures();
@@ -77,8 +80,8 @@ class Map {
 		void removeCreature(int index);
 		void removeCreature(Creature *creature);
 
-		MapTile *getTile(unsigned int x, unsigned int y);
-		int trySetObject(unsigned int x, unsigned int y, short id);
+		MapTile *getTile(int x, int y);
+		int trySetObject(int x, int y, short id);
 		int trySetObject(MapTile *tile, short id);
 
 		void findAllCreatures(float x, float y, std::vector<Creature*> &_array, float radius);

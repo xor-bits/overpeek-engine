@@ -132,12 +132,6 @@ namespace oe {
 		oe::Logger::out(oe::info, "OpenGL Renderer: ", (char*)glGetString(GL_RENDERER));
 		oe::Logger::out(oe::info, "OpenGL Version: ", (char*)glGetString(GL_VERSION));
 
-
-		int width, height, nrChannels;
-		GLubyte *data = stbi_load("recourses/icon.png", &width, &height, &nrChannels, 0);
-		GLFWimage icon; icon.height = height; icon.width = width; icon.pixels = data;
-		glfwSetWindowIcon(mWindow, 1, &icon);
-
 		glfwSetCharModsCallback(mWindow, charmods_callback);
 		glfwSetFramebufferSizeCallback(mWindow, framebuffer_size_callback);
 		glfwSetCursorPosCallback(mWindow, cursor_position_callback);
@@ -164,6 +158,13 @@ namespace oe {
 		glfwSwapInterval(0);
 
 		return true;
+	}
+
+	void Window::setIcon(const char *path) {
+		int width, height, nrChannels;
+		GLubyte *data = stbi_load(path, &width, &height, &nrChannels, 0);
+		GLFWimage icon; icon.height = height; icon.width = width; icon.pixels = data;
+		glfwSetWindowIcon(mWindow, 1, &icon);
 	}
 
 	void Window::setClearColor(float r, float g, float b, float a) {

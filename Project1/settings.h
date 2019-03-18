@@ -12,7 +12,7 @@
 
 #define UPDATES_PER_SECOND		30
 
-#define DEBUG_ZOOM				1.0f
+#define DEBUG_ZOOM				2.0f
 #define DEBUG_MODE				false
 #define ENABLE_AUDIO			true
 #define SHOW_DEBUG_MESSAGES		false
@@ -34,7 +34,7 @@
 #define REGION_SIZE				8
 #define REGOIN_SIZE_HALF		REGION_SIZE / 2.0
 #else
-#define RENDER_VERTICAL			16
+#define RENDER_VERTICAL			16 * 2
 #define MAP_WORK_DST			32
 #define RENDER_HORIZONTAL		RENDER_VERTICAL * Game::getWindow()->getAspect()
 #endif
@@ -46,7 +46,7 @@
 
 
 
-#define MAP_SIZE 1000
+#define MAP_SIZE 250 * 4
 #define MAP_MAX_CREATURES 2048
 
 #define APP_DATA std::string(getenv("APPDATA"))

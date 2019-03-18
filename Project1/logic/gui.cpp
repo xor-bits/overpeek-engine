@@ -479,12 +479,19 @@ void Gui::userInput() {
 			if (argumentVec.size() >= 1) {
 				if (argToDouble(updates, argumentVec[0])) {
 					addChatLine("Invalid [updates] argument!");
+					return;
 				}
+			}
+
+			if (updates < 0) {
+				addChatLine("Cannot warp <0 updates");
+				return;
 			}
 
 			updates = unsigned int(updates);
 
-			addChatLine("Warping " + std::to_string(updates) + " updates");
+			addChatLine("Warping " + std::to_string((int)updates) + " updates");
+
 			for (int i = 0; i < updates; i++)
 			{
 				Game::update();
@@ -492,16 +499,39 @@ void Gui::userInput() {
 		}
 		//HELP COMMAND
 		else if (command == "help") {
-			addChatLine("--List of commands--");
-			addChatLine("/clear -- clears chat");
-			addChatLine("/tp [x] [y] -- teleports to [x] [y]");
-			addChatLine("/respawn -- kills the player");
-			addChatLine("/spawn [id] <x y> <item> <n> -- spawns creature");
-			addChatLine("/setspawn <x y> -- sets spawnpoint");
-			addChatLine("/object [id] <x y> -- places object");
-			addChatLine("/save -- saves the world");
-			addChatLine("/load <name> -- load world");
-			addChatLine("/warp [updates] -- warps forward in time");
+			float page = 0;
+
+			if (argumentVec.size() >= 1) {
+				if (argToDouble(page, argumentVec[0])) {
+					addChatLine("Invalid <0-2> argument!");
+					return;
+				}
+				page = (int)page;
+			}
+
+			addChatLine("-- List of commands [" + std::to_string((int)page) + "] --");
+
+			if (page == 0) {
+				addChatLine("/help <0-2>                  -- list of commands");
+				addChatLine("/clear                       -- clears chat");
+				addChatLine("/tp [x] [y]                  -- teleports to [x] [y]");
+				addChatLine("/respawn                     -- kills the player");
+				addChatLine("/spawn [id] <x y> <item> <n> -- spawns creature");
+			}
+			else if (page == 1) {
+				addChatLine("/setspawn <x y>              -- sets spawnpoint");
+				addChatLine("/object [id] <x y>           -- places object");
+				addChatLine("/save                        -- saves the world");
+				addChatLine("/load <name>                 -- load world");
+				addChatLine("/warp [updates]              -- update warping");
+			}
+			else if (page == 2) {
+				addChatLine("empty                        -- template for new commands");
+				addChatLine("empty                        -- template for new commands");
+				addChatLine("empty                        -- template for new commands");
+				addChatLine("empty                        -- template for new commands");
+				addChatLine("empty                        -- template for new commands");
+			}
 		}
 		//COMMAND NOT FOUND
 		else {

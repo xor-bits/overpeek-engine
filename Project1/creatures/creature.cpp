@@ -139,11 +139,11 @@ void Creature::update(int index, float divider) {
 
 	if (!m_item) {
 
-		if (m_staminaRegenCooldown > 200) m_stamina += m_staminaGainRate;
-		else m_staminaRegenCooldown++;
+		if (m_staminaRegenCooldown > 2.0f) m_stamina += m_staminaGainRate;
+		else m_staminaRegenCooldown += 1.0 / divider;
 
-		if (m_healthRegenCooldown > 200) m_health += m_healthGainRate;
-		else m_healthRegenCooldown++;
+		if (m_healthRegenCooldown > 2.0f) m_health += m_healthGainRate;
+		else m_healthRegenCooldown += 1.0 / divider;
 
 
 
@@ -159,7 +159,7 @@ void Creature::update(int index, float divider) {
 		}
 
 		if (m_swingDir != 0) {
-			m_counterToRemoveSwingAnimation++;
+			m_counterToRemoveSwingAnimation += 1.0 / divider;
 		}
 		if (m_counterToRemoveSwingAnimation > 10) {
 			m_counterToRemoveSwingAnimation = 0;

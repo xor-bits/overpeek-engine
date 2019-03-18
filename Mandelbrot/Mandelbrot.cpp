@@ -12,11 +12,11 @@ NTL::RR scale = NTL::RR(1.0);//9.08663e-16);
 NTL::RR xo = NTL::RR(0.0);//1.6873200000000003);
 NTL::RR yo = NTL::RR(0.0);
 
-void render(); void update();
+void render(float corrector); void update();
 oe::Window *m_window = new oe::Window(600, 600, "Mandelbrot", false, 0, false);
 oe::Shader *m_shader = new oe::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl");
 oe::Renderer *m_renderer = new oe::Renderer("resources/arial.ttf", m_window);
-oe::GameLoop *m_loop = new oe::GameLoop(render, update, nullptr, 5, 1);
+oe::GameLoop *m_loop = new oe::GameLoop(render, update, 5, m_window);
 
 
 
@@ -65,9 +65,14 @@ int mandelbrot(NTL::RR &x, NTL::RR &y, int maximum) {
 glm::vec3 getColor2(int n, float maximum) {
 	if (n > 0) {
 		int i = n % 16;
-		float val = (sin((n / 16.0 * glm::pi<float>())) + 1.0) / 2.0;
+		//float val = (sin((n / 16.0 * glm::pi<float>())) + 1.0) / 2.0;
 		//float val2 = cos((n / 16.0 * M_PI) + M_PI / 2);
-		return glm::vec3(0.0, val, val);
+
+		float r = oe::Random::hash(n / (double)maximum);
+		float g = 0.0;
+		float b = 0.0;
+
+		return glm::vec3(r, g, b);
 	}
 	else return glm::vec3(0);
 }
@@ -120,18 +125,18 @@ void draw() {
 	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, TEXEL_WIDTH, TEXEL_WIDTH, 1, GL_RGB, GL_UNSIGNED_BYTE, texels);
 }
 
-void render() {
+void render(float corrector) {
 	if (m_window->close()) m_loop->stop();
 
 
-	oe::Logger::info("Draw");
+	//oe::Logger::info("Draw");
 	draw();
 	m_renderer->renderBox(glm::vec2(-1.0f), glm::vec2(2.0f), 0, glm::vec4(1.0f));
-	m_renderer->draw(m_shader, m_shader, texture);
+	m_renderer->draw(m_shader, m_shader, texture, true);
 
-	m_window->update();
-	m_window->input();
-	m_window->clear();
+	//m_window->update();
+	//m_window->input();
+	//m_window->clear();
 }
 
 void update() {
@@ -145,7 +150,7 @@ void update() {
 
 	if (m_window->getKey(OE_KEY_R)) iteration_count += 2;
 	if (m_window->getKey(OE_KEY_F)) iteration_count -= 2;
-	oe::Logger::info("Input");
+	//oe::Logger::info("Input");
 }
 
 int main()
