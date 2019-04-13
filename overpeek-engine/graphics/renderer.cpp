@@ -1,9 +1,5 @@
 #include "renderer.h"
 
-#include "fontRenderer.h"
-#include "quadRenderer.h"
-#include "pointRenderer.h"
-#include "lineRenderer.h"
 #include "buffers/vertexArray.h"
 #include "buffers/buffer.h"
 #include "window.h"
@@ -16,14 +12,10 @@ namespace oe {
 
 	Renderer::Renderer(const char *font, Window *window) {
 		m_window = window;
-		m_fontRenderer = new FontRenderer(font, new QuadRenderer(window));
-		m_quadRenderer = new QuadRenderer(window);
-		m_pointRenderer = new PointRenderer(window);
-		m_lineRenderer = new LineRenderer(window);
-		m_quadMapped = false;
-		m_fontMapped = false;
-		m_pointMapped = false;
-		m_lineMapped = false;
+		quadRenderer = new QuadRenderer(window);
+		fontRenderer = new FontRenderer(font, new QuadRenderer(window));
+		pointRenderer = new PointRenderer(window);
+		lineRenderer = new LineRenderer(window);
 
 		//Post processing
 
@@ -91,125 +83,25 @@ namespace oe {
 	}
 
 	Renderer::~Renderer() {
-		delete m_fontRenderer;
-		delete m_quadRenderer;
-		delete m_pointRenderer;
-	}
-
-	//Submit line to renderer
-	void Renderer::renderLine(glm::vec2 _pos1, glm::vec2 _pos2, int _id, glm::vec4 _color) {
-		if (m_fontMapped) {
-			m_fontRenderer->stopRendering();
-			m_fontMapped = false;
-		}
-		if (m_pointMapped) {
-			m_pointRenderer->stopRendering();
-			m_pointMapped = false;
-		}
-		if (m_quadMapped) {
-			m_quadRenderer->stopRendering();
-			m_quadMapped = false;
-		}
-		if (!m_lineMapped) {
-			m_lineRenderer->beginRendering();
-			m_lineMapped = true;
-		}
-		m_lineRenderer->renderBox(_pos1, _pos2, _id, _color);
-	}
-
-	//Submit quad to renderer
-	void Renderer::renderBox(glm::vec2 _pos, glm::vec2 _size, int _id, glm::vec4 _color) {
-		if (m_fontMapped) {
-			m_fontRenderer->stopRendering();
-			m_fontMapped = false;
-		}
-		if (m_pointMapped) {
-			m_pointRenderer->stopRendering();
-			m_pointMapped = false;
-		}
-		if (m_lineMapped) {
-			m_lineRenderer->stopRendering();
-			m_lineMapped = false;
-		}
-		if (!m_quadMapped) {
-			m_quadRenderer->beginRendering();
-			m_quadMapped = true;
-		}
-		m_quadRenderer->renderBox(_pos, _size, _id, _color);
-	}
-
-	//Submit point to renderer
-	void Renderer::renderPoint(glm::vec2 pos, glm::vec2 size, int id, glm::vec4 color) {
-		if (m_quadMapped) {
-			m_quadRenderer->stopRendering();
-			m_quadMapped = false;
-		}
-		if (m_fontMapped) {
-			m_fontRenderer->stopRendering();
-			m_fontMapped = false;
-		}
-		if (m_lineMapped) {
-			m_lineRenderer->stopRendering();
-			m_lineMapped = false;
-		}
-		if (!m_pointMapped) {
-			m_pointRenderer->beginRendering();
-			m_pointMapped = true;
-		}
-		m_pointRenderer->renderPoint(pos, size, id, color);
-	}
-
-	//Submit text to renderer
-	void Renderer::renderText(glm::vec2 pos, glm::vec2 size, const char *text, int _textOrigin) {
-		if (m_quadMapped) {
-			m_quadRenderer->stopRendering();
-			m_quadMapped = false;
-		}
-		if (m_pointMapped) {
-			m_pointRenderer->stopRendering();
-			m_pointMapped = false;
-		}
-		if (m_lineMapped) {
-			m_lineRenderer->stopRendering();
-			m_lineMapped = false;
-		}
-		if (!m_fontMapped) {
-			m_fontRenderer->beginRendering();
-			m_fontMapped = true;
-		}
-		m_fontRenderer->renderText(pos.x, pos.y, size.x, size.y, text, _textOrigin);
+		delete fontRenderer;
+		delete quadRenderer;
+		delete pointRenderer;
 	}
 
 	//Draws all quads and text
 	//textbool is location of int (used as boolean) in shader that enables or disables text rendering
 	void Renderer::draw(Shader *shader, Shader *pointshader, int texture, bool textureArray) {
-		if (m_fontMapped) {
-			m_fontRenderer->stopRendering();
-			m_fontMapped = false;
-		}
-		if (m_quadMapped) {
-			m_quadRenderer->stopRendering();
-			m_quadMapped = false;
-		}
-		if (m_pointMapped) {
-			m_pointRenderer->stopRendering();
-			m_pointMapped = false;
-		}
-		if (m_lineMapped) {
-			m_lineRenderer->stopRendering();
-			m_lineMapped = false;
-		}
 
 		int textureType = GL_TEXTURE_2D;
 		if (textureArray) textureType = GL_TEXTURE_2D_ARRAY;
 
 		pointshader->enable();
-		m_pointRenderer->draw(texture, textureType);
+		pointRenderer->draw(texture, textureType);
 
 		shader->enable();
-		m_quadRenderer->draw(texture, textureType);
-		m_fontRenderer->draw();
-		m_lineRenderer->draw(texture, textureType);
+		quadRenderer->draw(texture, textureType);
+		fontRenderer->draw();
+		lineRenderer->draw(texture, textureType);
 	}
 
 	//Draws all quads and text to specified framebuffer at index

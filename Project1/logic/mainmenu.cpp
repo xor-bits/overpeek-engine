@@ -33,7 +33,7 @@ void MainMenu::init(oe::Renderer *renderer, oe::Shader *shader, oe::Shader *poin
 		float r = oe::Random::random(0.0, 1.0);
 		float g = oe::Random::random(0.0, 1.0);
 		float b = oe::Random::random(0.0, 1.0);
-		m_objcol[i] = glm::vec4(r, g, b, 1.0);
+		m_objcol[i] = glm::vec4(r, g, b, 1.0f);
 	}
 
 	m_loop->start();
@@ -48,10 +48,15 @@ void MainMenu::deinit() {
 void MainMenu::render(float corrector) {
 	for (int i = 0; i < 1000; i++)
 	{
-		glm::vec2 pos(m_objpos[i] + m_objvel[i] * corrector / 30.0f);
-		m_renderer->renderPoint(pos, glm::vec2(0.02), 20, m_objcol[i]);
+		glm::vec3 pos(m_objpos[i] + m_objvel[i] * corrector / 30.0f, 0.0f);
+		glm::vec2 size = glm::vec2(0.02);
+
+		m_renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), 20, m_objcol[i]));
+		m_renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y + size.y, pos.z), glm::vec2(0.0f, 1.0f), 20, m_objcol[i]));
+		m_renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y + size.y, pos.z), glm::vec2(1.0f, 1.0f), 20, m_objcol[i]));
+		m_renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y, pos.z), glm::vec2(1.0f, 0.0f), 20, m_objcol[i]));
 	}
-	m_renderer->renderText(glm::vec2(0.0, -1.0 + 0.2 * Game::renderScale()), glm::vec2(0.2), "$7MAIN MENU", oe::center);
+	m_renderer->fontRenderer->renderText(glm::vec3(0.0, -1.0 + 0.2 * Game::renderScale(), 0.0f), glm::vec2(0.2), "$7MAIN MENU", oe::center);
 
 	m_renderer->drawToFramebuffer(m_shader, m_point_shader, oe::TextureManager::getTexture(0), true, true);
 	//for (int i = 0; i < 8; i++) {

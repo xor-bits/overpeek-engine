@@ -25,12 +25,14 @@ void Player::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float
 		float renderDeathX = oe::clamp((m_death_x - (getX() + vel_x * corrector/ UPDATES_PER_SECOND)) * TILE_SIZE, -Game::getWindow()->getAspect(), Game::getWindow()->getAspect() - 0.1f);
 		float renderDeathY = oe::clamp((m_death_y - (getY() + vel_y * corrector/ UPDATES_PER_SECOND)) * TILE_SIZE, -1.0f, 1.0f - 0.1f);
 
-		renderer->renderPoint(
-			glm::vec2(renderDeathX, renderDeathY),
-			glm::vec2(TILE_SIZE * Game::renderScale()),
-			21,
-			glm::vec4(1.0f)
-		);
+		glm::vec3 pos = glm::vec3(renderDeathX, renderDeathY, 0.0f);
+		glm::vec2 size = glm::vec2(TILE_SIZE) * Game::renderScale();
+		unsigned int deathmarker = 21;
+
+		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), deathmarker, OE_COLOR_WHITE));
+		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y + size.y, pos.z), glm::vec2(0.0f, 1.0f), deathmarker, OE_COLOR_WHITE));
+		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y + size.y, pos.z), glm::vec2(1.0f, 1.0f), deathmarker, OE_COLOR_WHITE));
+		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y, pos.z), glm::vec2(1.0f, 0.0f), deathmarker, OE_COLOR_WHITE));
 	}
 
 	double mx, my;
@@ -45,13 +47,23 @@ void Player::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float
 		if (x_dst == 0) y_dst++;
 		if (y_dst == 0) x_dst++;
 		if (x_dst + y_dst < m_hitdist) {
-			Game::getMap()->renderGhostObject(renderer, getX() + vel_x * corrector / UPDATES_PER_SECOND + mx, getY() + vel_y * corrector / UPDATES_PER_SECOND + my, Database::items[inventory->selectedId].placedAs, -getX() - vel_x * corrector, -getY() - vel_y * corrector, corrector);
+			Game::getMap()->renderGhostObject(
+				renderer, 
+				getX() + vel_x * corrector / UPDATES_PER_SECOND + mx, 
+				getY() + vel_y * corrector / UPDATES_PER_SECOND + my, 
+				Database::items[inventory->selectedId].placedAs, 
+				-getX() - vel_x * corrector / UPDATES_PER_SECOND,
+				-getY() - vel_y * corrector / UPDATES_PER_SECOND,
+				corrector
+			);
 		}
 	}
 
 }
 
 void Player::die() {
+	if (m_god) return;
+
 	inventory->dropAll();
 	Game::getGui()->addChatLine("Player died at " + std::to_string(getX()) + ", " + std::to_string(getY()));
 
@@ -107,8 +119,8 @@ void Player::update(float divider) {
 			m_death_x = -1;
 		}
 	}
-	if (Game::advancedDebugMode) m_stamina += 1000000;
-	if (Game::advancedDebugMode) m_health += 1000000;
+	if (Game::advancedDebugMode || m_god) m_stamina += 1000000;
+	if (Game::advancedDebugMode || m_god) m_health += 1000000;
 
 	clampHPAndSTA();
 	if (m_health <= 0) {
@@ -120,7 +132,7 @@ void Player::update(float divider) {
 }
 
 void Player::collide(float divider) {
-	Creature::collide(divider);
+	if (!m_no_clip) Creature::collide(divider);
 }
 
 void Player::hit() {

@@ -14,7 +14,7 @@
 
 #define MAX_POINTS_PER_FLUSH (60000)
 #define VERTEX_PER_POINT	(1)
-#define DATA_PER_VERTEX		(sizeof(PointVertexData) / sizeof(GLfloat))
+#define DATA_PER_VERTEX		(sizeof(VertexData) / sizeof(GLfloat))
 #define MAX_VBO				(MAX_POINTS_PER_FLUSH * VERTEX_PER_POINT * DATA_PER_VERTEX)
 
 namespace oe {
@@ -24,6 +24,7 @@ namespace oe {
 	{
 		m_buffer_current = 0;
 		pointcount = 0;
+		m_buffer_mapped = false;
 		m_window = window;
 
 		if (!m_window) return;
@@ -33,29 +34,27 @@ namespace oe {
 
 		m_vao->addBuffer(m_vbo);
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(PointVertexData), (void*)(0 * sizeof(GLfloat)));
+		glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(VertexData), (void*)(0 * sizeof(GLfloat)));
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, false, sizeof(PointVertexData), (void*)(3 * sizeof(GLfloat)));
+		glVertexAttribPointer(1, 2, GL_FLOAT, false, sizeof(VertexData), (void*)(3 * sizeof(GLfloat)));
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 1, GL_FLOAT, false, sizeof(PointVertexData), (void*)(5 * sizeof(GLfloat)));
+		glVertexAttribPointer(2, 1, GL_FLOAT, false, sizeof(VertexData), (void*)(5 * sizeof(GLfloat)));
 		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 4, GL_FLOAT, false, sizeof(PointVertexData), (void*)(6 * sizeof(GLfloat)));
+		glVertexAttribPointer(3, 4, GL_FLOAT, false, sizeof(VertexData), (void*)(6 * sizeof(GLfloat)));
 	}
 
-	void PointRenderer::renderPoint(glm::vec2 pos, glm::vec2 size, int id, glm::vec4 color) {
+	void PointRenderer::submitVertex(VertexData data) {
+		if (!m_buffer_mapped) beginRendering();
 
-		//if (pointcount > MAX_POINTS_PER_FLUSH) return;
-
-		m_buffer[m_buffer_current].position = pos;
-		m_buffer[m_buffer_current].size = size;
-		m_buffer[m_buffer_current].texture = id;
-		m_buffer[m_buffer_current].color = color;
+		m_buffer[m_buffer_current] = data;
 		m_buffer_current++;
 
 		pointcount++;
 	}
 
 	void PointRenderer::draw(int pointtexture, int textureType) {
+		stopRendering();
+
 		glEnable(GL_DEPTH_TEST);
 
 		if (!m_window) return;
@@ -76,11 +75,13 @@ namespace oe {
 	}
 
 	void PointRenderer::beginRendering() {
-		m_buffer = (PointVertexData*)m_vbo->mapBuffer();
+		m_buffer = (VertexData*)m_vbo->mapBuffer();
+		m_buffer_mapped = true;
 	}
 
 	void PointRenderer::stopRendering() {
-		m_vbo->unmapBuffer();
+		if (m_buffer_mapped) m_vbo->unmapBuffer();
+		m_buffer_mapped = false;
 	}
 
 }

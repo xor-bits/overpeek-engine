@@ -151,9 +151,21 @@ bool Pathfinder::runUnitlEnd() {
 
 void Pathfinder::debugRender(oe::Renderer *renderer, float offx, float offy) {
 	Node *curNode = p_curnode;
+	bool first = true;
 	while (curNode != p_startnode) {
-		renderer->renderPoint(glm::vec2((curNode->x + offx) * TILE_SIZE, (curNode->y + offy) * TILE_SIZE), glm::vec2(TILE_SIZE), 20, glm::vec4(1.0, 0.5, 0.0, 0.2));
+		glm::vec3 pos = glm::vec3((curNode->x + offx) * TILE_SIZE, (curNode->y + offy) * TILE_SIZE, 0.0f);
+
+		if (first) {
+			renderer->lineRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), 20, glm::vec4(1.0, 0.5, 0.0, 0.2)));
+		}
+		else {
+			renderer->lineRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), 20, glm::vec4(1.0, 0.5, 0.0, 0.2)));
+			renderer->lineRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), 20, glm::vec4(1.0, 0.5, 0.0, 0.2)));
+		}
+
 		curNode = curNode->parent;
+
+		first = false;
 	}
 }
 

@@ -14,6 +14,9 @@ private:
 
 	float m_hitdist = 5.0;
 
+	bool m_no_clip = false;
+	bool m_god = false;
+
 public:
 	Inventory *inventory;
 	
@@ -32,4 +35,9 @@ public:
 	void place();
 	void save();
 	bool load();
+
+	inline void setGodmode(bool mode) { m_god = mode; }
+	inline void setClipmode(bool mode) { m_no_clip = mode; }
+	inline bool getGodmode() { return m_god; }
+	inline bool getClipmode() { return m_no_clip; }
 };

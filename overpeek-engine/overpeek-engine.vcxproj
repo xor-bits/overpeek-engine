@@ -29,28 +29,28 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -92,10 +92,8 @@
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)\bin\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\bin\$(ProjectName)\$(Configuration)\Intermediates</IntDir>
-    <IncludePath>$(IncludePath)</IncludePath>
-    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)bin\$(ProjectName)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin\$(ProjectName)\$(Configuration)\Intermediates\</IntDir>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -195,7 +193,8 @@
       <OpenMPSupport>true</OpenMPSupport>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <AdditionalIncludeDirectories>D:\VulkanSDK\1.1.101.0\Include;$(SolutionDir)Libraries\zlib\include;$(SolutionDir)\Libraries\al\include;$(SolutionDir)\Libraries\opencv\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\spdlog\include;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\glm</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\zlib\include;$(SolutionDir)\Libraries\al\include;$(SolutionDir)\Libraries\opencv\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\spdlog\include;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\glm</AdditionalIncludeDirectories>
+      <FloatingPointModel>Strict</FloatingPointModel>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -207,8 +206,8 @@
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>
     <Lib>
-      <AdditionalDependencies>vulkan-1.lib;opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>D:\VulkanSDK\1.1.101.0\Lib;$(SolutionDir)Libraries\zlib\lib;$(SolutionDir)\Libraries\opencv\lib;$(SolutionDir)\Libraries\box2d\lib;$(SolutionDir)\Libraries\FreeType\lib;$(SolutionDir)\Libraries\GLFW\lib;$(SolutionDir)\Libraries\GLEW\lib;$(SolutionDir)\Libraries\al\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Libraries\zlib\lib;$(SolutionDir)\Libraries\box2d\lib;$(SolutionDir)\Libraries\FreeType\lib;$(SolutionDir)\Libraries\GLFW\lib;$(SolutionDir)\Libraries\GLEW\lib;$(SolutionDir)\Libraries\al\lib</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -244,6 +243,7 @@
     <ClInclude Include="graphics\textureManager.h" />
     <ClInclude Include="graphics\shader.h" />
     <ClInclude Include="graphics\quadRenderer.h" />
+    <ClInclude Include="graphics\vertexData.h" />
     <ClInclude Include="graphics\window.h" />
     <ClInclude Include="math\math.h" />
     <ClInclude Include="utility\binaryIO.h" />

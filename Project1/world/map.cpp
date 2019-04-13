@@ -308,12 +308,24 @@ void Map::submitToRenderer(oe::Renderer *renderer, float offX, float offY, float
 			float ry = (tile_y + offY) * TILE_SIZE * Game::renderScale();
 			
 			//Renter tile
-			renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE) * Game::renderScale(), db_tile.texture, glm::vec4(1.0));
+			glm::vec3 pos = glm::vec3(rx, ry, 0.0f);
+			glm::vec2 size = glm::vec2(TILE_SIZE) * Game::renderScale();
+
+			renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), db_tile.texture, OE_COLOR_WHITE));
+			renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y + size.y, pos.z), glm::vec2(0.0f, 1.0f), db_tile.texture, OE_COLOR_WHITE));
+			renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y + size.y, pos.z), glm::vec2(1.0f, 1.0f), db_tile.texture, OE_COLOR_WHITE));
+			renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y, pos.z), glm::vec2(1.0f, 0.0f), db_tile.texture, OE_COLOR_WHITE));
 
 			//Render object on tile
 			if (db_object.id != 0) {
 				int objTexture = getObjectTexture(tile_x, tile_y);
-				renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE, TILE_SIZE) * Game::renderScale(), objTexture, glm::vec4(db_object.color, 1.0));
+				glm::vec3 pos = glm::vec3(rx, ry, 0.0f);
+				glm::vec2 size = glm::vec2(TILE_SIZE) * Game::renderScale();
+
+				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), objTexture, glm::vec4(db_object.color, 1.0f)));
+				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y + size.y, pos.z), glm::vec2(0.0f, 1.0f), objTexture, glm::vec4(db_object.color, 1.0f)));
+				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y + size.y, pos.z), glm::vec2(1.0f, 1.0f), objTexture, glm::vec4(db_object.color, 1.0f)));
+				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y, pos.z), glm::vec2(1.0f, 0.0f), objTexture, glm::vec4(db_object.color, 1.0f)));
 			}
 		
 		}
@@ -339,8 +351,15 @@ void Map::renderGhostObject(oe::Renderer *renderer, float x, float y, int id, fl
 
 	//if (rx > 0) rx += 1 * TILE_SIZE * Game::renderScale();
 	//if (ry > 0) ry += 1 * TILE_SIZE * Game::renderScale();
-	if (db_object.id != 0)
-		renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE, TILE_SIZE) * Game::renderScale(), db_object.texture, glm::vec4(db_object.color, 0.5));
+	if (db_object.id != 0) {
+		glm::vec3 pos = glm::vec3(rx, ry, 0.0f);
+		glm::vec2 size = glm::vec2(TILE_SIZE, TILE_SIZE) * Game::renderScale();
+
+		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), db_object.texture, glm::vec4(db_object.color, 0.5f)));
+		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y + size.y, pos.z), glm::vec2(0.0f, 1.0f), db_object.texture, glm::vec4(db_object.color, 0.5f)));
+		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y + size.y, pos.z), glm::vec2(1.0f, 1.0f), db_object.texture, glm::vec4(db_object.color, 0.5f)));
+		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y, pos.z), glm::vec2(1.0f, 0.0f), db_object.texture, glm::vec4(db_object.color, 0.5f)));
+	}
 }
 
 void Map::debugCeilCreatures() {

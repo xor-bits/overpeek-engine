@@ -367,9 +367,9 @@ public:
 		objects.push_back(Object(	"Mover",		7,		26,			false,		false,			false,		true,			glm::vec3(1.0f),				5,			0));
 		
 		//Creatures						//Name		//Id	//Walkspeed	//Friendly		//Ghost		//Knockback		//Melee		//Hp	//Regen		//Stamina	//Staminaregen	//Drops as	//Color			//Textures >>>>	//Up	//Down	//Left	//Right
-		creatures.push_back(Creature(	"Player",	0,		1.0,		true,			false,		0.3f,			1.0f,		20.0f,	0.005f,		5.0f,		0.005f,			0,			glm::vec3(1.0f),				8,		9,		10,		11));
-		creatures.push_back(Creature(	"Whatever",	1,		1.0,		false,			false,		0.3f,			4.0f,		20.0f,	0.0f,		5.0f,		5.0f,			2,			glm::vec3(1.0f),				8,		9,		10,		11));
-		creatures.push_back(Creature(	"Item",		2,		1.0,		false,			false,		0.0f,			0.0f,		1.0f,	0.0f,		0.0f,		0.0f,			0,			glm::vec3(1.0f),				0,		0,		0,		0));
+		creatures.push_back(Creature(	"Player",	0,		50.0,		true,			false,		0.3f,			1.0f,		20.0f,	0.005f,		5.0f,		0.005f,			0,			glm::vec3(1.0f),				8,		9,		10,		11));
+		creatures.push_back(Creature(	"Whatever",	1,		50.0,		false,			false,		0.3f,			4.0f,		20.0f,	0.0f,		5.0f,		5.0f,			2,			glm::vec3(1.0f),				8,		9,		10,		11));
+		creatures.push_back(Creature(	"Item",		2,		50.0,		false,			false,		0.0f,			0.0f,		1.0f,	0.0f,		0.0f,		0.0f,			0,			glm::vec3(1.0f),				0,		0,		0,		0));
 
 		//Biomes
 

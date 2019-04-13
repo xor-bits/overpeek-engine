@@ -45,7 +45,7 @@ namespace oe {
 
 		//Submit text to render
 		//_textOrigin = enum textOrigin
-		void renderText(float x, float y, float w, float h, const char *text, int _textOrigin);
+		void renderText(glm::vec3 pos, glm::vec2 scale, const char *text, int _textOrigin);
 		
 		//Draws buffers and then clears them
 		void draw();

@@ -64,15 +64,21 @@ void Game::init() {
 	m_window->setIcon("res/texture/icon.png");
 	renderer = m_window->getRenderer();
 
+
 	//Loading screen (barely noticeable lol)
 	oe::Shader *tmpshader = new oe::Shader("res/shader/texture-single.vert.glsl", "res/shader/texture-single.frag.glsl");
 	glm::mat4 ortho = glm::ortho(-m_window->getAspect(), m_window->getAspect(), 1.0f, -1.0f);
 	tmpshader->enable(); tmpshader->SetUniformMat4("pr_matrix", ortho);
-	oe::Logger::out(oe::info, "Drawing splash screen");
 	m_guirenderer = std::unique_ptr<oe::Renderer>(new oe::Renderer("res/font/arial.ttf", m_window.get()));
 	oe::TextureManager::loadTexture("res/texture/splash.png", 3);
 	m_window->clear();
-	m_guirenderer->renderBox(glm::vec2(-0.5), glm::vec2(1.0), 0, glm::vec4(1.0));
+	glm::vec3 pos = glm::vec3(-0.5f, -0.5f, 0.0f);
+	glm::vec2 size = glm::vec2(1.0);
+	m_guirenderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), 0, OE_COLOR_WHITE));
+	m_guirenderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y + size.y, pos.z), glm::vec2(0.0f, 1.0f), 0, OE_COLOR_WHITE));
+	m_guirenderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y + size.y, pos.z), glm::vec2(1.0f, 1.0f), 0, OE_COLOR_WHITE));
+	m_guirenderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y, pos.z), glm::vec2(1.0f, 0.0f), 0, OE_COLOR_WHITE));
+
 	m_guirenderer->draw(tmpshader, tmpshader, oe::TextureManager::getTexture(3), false);
 	m_window->update();
 	delete tmpshader;
@@ -206,7 +212,7 @@ void Game::update() {
 	if (!paused) {
 		//Player movement
 		if (!m_gui->chatOpened()) {
-			float playerSpeed = Database::creatures[0].walkSpeed;
+			float playerSpeed = Database::creatures[0].walkSpeed / UPDATES_PER_SECOND;
 
 			bool running = false;
 			bool moving = false;
@@ -320,6 +326,7 @@ void Game::keyPress(int key, int action) {
 	if (action == OE_PRESS && key == OE_KEY_F1) {
 		debugMode = !debugMode; 
 		if (m_window->getKey(OE_KEY_LEFT_SHIFT)) {
+			debugMode = true;
 			advancedDebugMode = debugMode;
 		}
 		else advancedDebugMode = false;

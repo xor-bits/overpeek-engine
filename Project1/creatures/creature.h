@@ -11,7 +11,7 @@ class Pathfinder;
 class Creature {
 protected:
 	//Variables
-	int m_counterToRemoveSwingAnimation = 0;
+	float m_counterToRemoveSwingAnimation = 0;
 	int m_id;
 	int m_swingDir;
 

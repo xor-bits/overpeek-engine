@@ -59,7 +59,7 @@ void Creature::die() {
 
 void Creature::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY, float corrector) {
 	if (!m_item) {
-		int heading_texture;
+		int heading_texture = 0;
 		switch (heading)
 		{
 		case HEADING_UP:
@@ -77,13 +77,16 @@ void Creature::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, flo
 		default:
 			break;
 		}
-		glm::vec2 pos = glm::vec2((getX() + getVelX() * corrector / UPDATES_PER_SECOND + renderOffsetX - 0.5f) * TILE_SIZE, (getY() + getVelY() * corrector / UPDATES_PER_SECOND + renderOffsetY - 0.5f) * TILE_SIZE) * Game::renderScale();
+		glm::vec3 pos = glm::vec3((getX() + getVelX() * corrector / UPDATES_PER_SECOND + renderOffsetX - 0.5f) * TILE_SIZE, (getY() + getVelY() * corrector / UPDATES_PER_SECOND + renderOffsetY - 0.5f) * TILE_SIZE, 0.0f) * Game::renderScale();
 		glm::vec2 size = glm::vec2(TILE_SIZE, TILE_SIZE) * Game::renderScale();
-		//renderer->renderBox(pos, size, heading_texture, glm::vec4(1.0, 1.0, 1.0, 1.0));
-		renderer->renderPoint(pos, size, heading_texture, glm::vec4(1.0));
 
-		float swingX, swingY;
-		int swingTexture;
+		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), heading_texture, OE_COLOR_WHITE));
+		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y + size.y, pos.z), glm::vec2(0.0f, 1.0f), heading_texture, OE_COLOR_WHITE));
+		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y + size.y, pos.z), glm::vec2(1.0f, 1.0f), heading_texture, OE_COLOR_WHITE));
+		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y, pos.z), glm::vec2(1.0f, 0.0f), heading_texture, OE_COLOR_WHITE));
+
+		float swingX = 0.0f, swingY = 0.0f;
+		int swingTexture = 13;
 		switch (m_swingDir)
 		{
 		case 1:
@@ -106,17 +109,23 @@ void Creature::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, flo
 			break;
 		}
 		if (m_swingDir != 0) {
-			glm::vec2 pos = glm::vec2(swingX, swingY) * Game::renderScale();
+			glm::vec3 pos = glm::vec3(swingX, swingY, 0.0f) * Game::renderScale();
 			glm::vec2 size = glm::vec2(TILE_SIZE, TILE_SIZE) * Game::renderScale();
-			//renderer->renderBox(pos, size, swingTexture, glm::vec4(1.0, 1.0, 1.0, 1.0));
-			renderer->renderPoint(pos, size, swingTexture, glm::vec4(1.0));
+
+			renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), swingTexture, OE_COLOR_WHITE));
+			renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y + size.y, pos.z), glm::vec2(0.0f, 1.0f), swingTexture, OE_COLOR_WHITE));
+			renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y + size.y, pos.z), glm::vec2(1.0f, 1.0f), swingTexture, OE_COLOR_WHITE));
+			renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y, pos.z), glm::vec2(1.0f, 0.0f), swingTexture, OE_COLOR_WHITE));
 		}
 	}
 	else {
-		glm::vec2 pos = glm::vec2((getX() + getVelX() * corrector / UPDATES_PER_SECOND + renderOffsetX - 0.5f) * TILE_SIZE, (getY() + getVelY() * corrector / UPDATES_PER_SECOND + renderOffsetY - 0.5f) * TILE_SIZE) * Game::renderScale();
+		glm::vec3 pos = glm::vec3((getX() + getVelX() * corrector / UPDATES_PER_SECOND + renderOffsetX - 0.5f) * TILE_SIZE, (getY() + getVelY() * corrector / UPDATES_PER_SECOND + renderOffsetY - 0.5f) * TILE_SIZE, 0.0f) * Game::renderScale();
 		glm::vec2 size = glm::vec2(TILE_SIZE, TILE_SIZE) * Game::renderScale();
-		//renderer->renderBox(pos, size, Database::items[m_id].texture, glm::vec4(1.0, 1.0, 1.0, 1.0));
-		renderer->renderPoint(pos, size, Database::items[m_id].texture, glm::vec4(1.0));
+
+		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), Database::items[m_id].texture, OE_COLOR_WHITE));
+		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y + size.y, pos.z), glm::vec2(0.0f, 1.0f), Database::items[m_id].texture, OE_COLOR_WHITE));
+		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y + size.y, pos.z), glm::vec2(1.0f, 1.0f), Database::items[m_id].texture, OE_COLOR_WHITE));
+		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y, pos.z), glm::vec2(1.0f, 0.0f), Database::items[m_id].texture, OE_COLOR_WHITE));
 	}
 
 	if (m_path && m_result != 0) m_path->debugRender(renderer, renderOffsetX, renderOffsetY);
@@ -159,9 +168,12 @@ void Creature::update(int index, float divider) {
 		}
 
 		if (m_swingDir != 0) {
-			m_counterToRemoveSwingAnimation += 1.0 / divider;
+			float addition = 1.0f / divider;
+			oe::Logger::out(oe::info, "Swing counter timer: ", m_counterToRemoveSwingAnimation);
+			m_counterToRemoveSwingAnimation += addition;
+			oe::Logger::out(oe::info, "Swing counter timer: ", m_counterToRemoveSwingAnimation, ", t: ", addition);
 		}
-		if (m_counterToRemoveSwingAnimation > 10) {
+		if (m_counterToRemoveSwingAnimation > 0.10) {
 			m_counterToRemoveSwingAnimation = 0;
 			m_swingDir = 0;
 		}
@@ -239,8 +251,8 @@ void Creature::hit(float damageadd, float kbadd) {
 		glm::vec2 directionVector = glm::vec2(creatureArray[i]->getX() - getX(), creatureArray[i]->getY() - getY());
 		directionVector = glm::normalize(directionVector);
 	
-		creatureArray[i]->acc_x += directionVector.x / 10.0 * (Database::creatures[m_id].knockback + kbadd);
-		creatureArray[i]->acc_y += directionVector.y / 10.0 * (Database::creatures[m_id].knockback + kbadd);
+		creatureArray[i]->acc_x += directionVector.x / 10.0f * (Database::creatures[m_id].knockback + kbadd);
+		creatureArray[i]->acc_y += directionVector.y / 10.0f * (Database::creatures[m_id].knockback + kbadd);
 		creatureArray[i]->setHealth(creatureArray[i]->getHealth() - Database::creatures[m_id].meleeDamage - damageadd);
 	}
 
@@ -398,7 +410,7 @@ bool Creature::canSee(float _x, float _y) {
 					glm::vec2(getX(), getY()), 
 					glm::vec2(_x, _y),
 					glm::vec2(x + floor(getX()), y + floor(getY())), 
-					glm::vec2(x + floor(getX()), y + floor(getY()) + 1.0)
+					glm::vec2(x + floor(getX()), y + floor(getY()) + 1.0f)
 				)) {
 					//oe::Logger::out(oe::info, "0");
 					return false;
@@ -407,7 +419,7 @@ bool Creature::canSee(float _x, float _y) {
 					glm::vec2(getX(), getY()),
 					glm::vec2(_x, _y),
 					glm::vec2(x + floor(getX()), y + floor(getY())),
-					glm::vec2(x + floor(getX()) + 1.0, y + floor(getY()))
+					glm::vec2(x + floor(getX()) + 1.0f, y + floor(getY()))
 				)) {
 					//oe::Logger::out(oe::info, "1");
 					return false;
@@ -415,8 +427,8 @@ bool Creature::canSee(float _x, float _y) {
 				if (lineLine(
 					glm::vec2(getX(), getY()),
 					glm::vec2(_x, _y),
-					glm::vec2(x + floor(getX()) + 1.0, y + floor(getY()) + 1.0),
-					glm::vec2(x + floor(getX()), y + floor(getY()) + 1.0)
+					glm::vec2(x + floor(getX()) + 1.0f, y + floor(getY()) + 1.0f),
+					glm::vec2(x + floor(getX()), y + floor(getY()) + 1.0f)
 				)) {
 					//oe::Logger::out(oe::info, "2");
 					return false;
@@ -424,8 +436,8 @@ bool Creature::canSee(float _x, float _y) {
 				if (lineLine(
 					glm::vec2(getX(), getY()),
 					glm::vec2(_x, _y),
-					glm::vec2(x + floor(getX()) + 1.0, y + floor(getY()) + 1.0),
-					glm::vec2(x + floor(getX()) + 1.0, y + floor(getY()))
+					glm::vec2(x + floor(getX()) + 1.0f, y + floor(getY()) + 1.0f),
+					glm::vec2(x + floor(getX()) + 1.0f, y + floor(getY()))
 				)) {
 					//oe::Logger::out(oe::info, "3");
 					return false;
@@ -462,8 +474,8 @@ void Creature::enemyAi(float divider) {
 		glm::vec2 dstToPlayer = glm::vec2(Game::getPlayer()->getX() - getX(), Game::getPlayer()->getY() - getY());
 		glm::vec2 dirToPlayer = glm::normalize(dstToPlayer);
 		if (abs(dstToPlayer.x) > 1.2 || abs(dstToPlayer.y) > 1.2) {
-			acc_x += dirToPlayer.x * Database::creatures[m_id].walkSpeed;
-			acc_y += dirToPlayer.y * Database::creatures[m_id].walkSpeed;
+			acc_x += dirToPlayer.x * Database::creatures[m_id].walkSpeed / UPDATES_PER_SECOND;
+			acc_y += dirToPlayer.y * Database::creatures[m_id].walkSpeed / UPDATES_PER_SECOND;
 			setHeading(acc_x, acc_y);
 		}
 		else {
@@ -573,8 +585,8 @@ void Creature::followTarget(float divider) {
 			}
 		}
 
-		if (abs(mov_x) > 0.2) acc_x += sign(mov_x) * Database::creatures[m_id].walkSpeed;
-		if (abs(mov_y) > 0.2) acc_y += sign(mov_y) * Database::creatures[m_id].walkSpeed;
+		if (abs(mov_x) > 0.2) acc_x += sign(mov_x) * Database::creatures[m_id].walkSpeed / UPDATES_PER_SECOND;
+		if (abs(mov_y) > 0.2) acc_y += sign(mov_y) * Database::creatures[m_id].walkSpeed / UPDATES_PER_SECOND;
 		setHeading(acc_x, acc_y);
 	}
 }

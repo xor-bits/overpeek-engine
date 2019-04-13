@@ -16,7 +16,7 @@
 
 #define MAX_QUADS_PER_FLUSH (60000)
 #define VERTEX_PER_QUAD		(4)
-#define DATA_PER_VERTEX		(sizeof(TriangleVertexData) / sizeof(GLfloat))
+#define DATA_PER_VERTEX		(sizeof(VertexData) / sizeof(GLfloat))
 #define INDEX_PER_QUAD		(6)
 #define MAX_VBO				(MAX_QUADS_PER_FLUSH * VERTEX_PER_QUAD * DATA_PER_VERTEX)
 #define MAX_IBO				(MAX_QUADS_PER_FLUSH * INDEX_PER_QUAD)
@@ -24,9 +24,10 @@
 namespace oe {
 
 	QuadRenderer::QuadRenderer(Window *window) {
-		oe::Logger::out(oe::info, "Creating renderer");
 		m_indexcount = 0;
 		m_buffer_current = 0;
+		m_submit_quad_vertex_index = 0;
+		m_buffer_mapped = false;
 		m_window = window;
 
 		if (!m_window) return;
@@ -50,13 +51,13 @@ namespace oe {
 
 		m_VAO->addBuffer(m_VBO);
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(TriangleVertexData), (void*)(0 * sizeof(GLfloat)));
+		glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(VertexData), (void*)(0 * sizeof(GLfloat)));
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, false, sizeof(TriangleVertexData), (void*)(3 * sizeof(GLfloat)));
+		glVertexAttribPointer(1, 2, GL_FLOAT, false, sizeof(VertexData), (void*)(3 * sizeof(GLfloat)));
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 1, GL_FLOAT, false, sizeof(TriangleVertexData), (void*)(5 * sizeof(GLfloat)));
+		glVertexAttribPointer(2, 1, GL_FLOAT, false, sizeof(VertexData), (void*)(5 * sizeof(GLfloat)));
 		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 4, GL_FLOAT, false, sizeof(TriangleVertexData), (void*)(6 * sizeof(GLfloat)));
+		glVertexAttribPointer(3, 4, GL_FLOAT, false, sizeof(VertexData), (void*)(6 * sizeof(GLfloat)));
 	}
 
 	glm::vec2 rotatePoint(float cx, float cy, float angle, glm::vec2 p)
@@ -79,50 +80,68 @@ namespace oe {
 	}
 
 	void QuadRenderer::beginRendering() {
-		m_buffer = (TriangleVertexData*)m_VBO->mapBuffer();
+		m_buffer = (VertexData*)m_VBO->mapBuffer();
+		m_buffer_mapped = true;
 	}
 
 	void QuadRenderer::stopRendering() {
-		m_VBO->unmapBuffer();
+		if (m_buffer_mapped) m_VBO->unmapBuffer();
+		m_buffer_mapped = false;
 	}
 
-	void QuadRenderer::renderBox(glm::vec2 _pos, glm::vec2 _size, int _id, glm::vec4 _color) {
-		m_buffer[m_buffer_current].position.x = _pos.x;
-		m_buffer[m_buffer_current].position.y = _pos.y;
-		m_buffer[m_buffer_current].uv.x = 0.0;
-		m_buffer[m_buffer_current].uv.y = 0.0;
-		m_buffer[m_buffer_current].texture = _id;
-		m_buffer[m_buffer_current].color = _color;
-		m_buffer_current++;
+	void QuadRenderer::submitVertex(VertexData data) {
+		if (!m_buffer_mapped) beginRendering();
 
-		m_buffer[m_buffer_current].position.x = _pos.x;
-		m_buffer[m_buffer_current].position.y = _pos.y + _size.y;
-		m_buffer[m_buffer_current].uv.x = 0.0;
-		m_buffer[m_buffer_current].uv.y = 1.0;
-		m_buffer[m_buffer_current].texture = _id;
-		m_buffer[m_buffer_current].color = _color;
-		m_buffer_current++;
+		m_buffer[m_buffer_current] = data;
 
-		m_buffer[m_buffer_current].position.x = _pos.x + _size.x;
-		m_buffer[m_buffer_current].position.y = _pos.y + _size.y;
-		m_buffer[m_buffer_current].uv.x = 1.0;
-		m_buffer[m_buffer_current].uv.y = 1.0;
-		m_buffer[m_buffer_current].texture = _id;
-		m_buffer[m_buffer_current].color = _color;
 		m_buffer_current++;
+		m_submit_quad_vertex_index++;
 
-		m_buffer[m_buffer_current].position.x = _pos.x + _size.x;
-		m_buffer[m_buffer_current].position.y = _pos.y;
-		m_buffer[m_buffer_current].uv.x = 1.0;
-		m_buffer[m_buffer_current].uv.y = 0.0;
-		m_buffer[m_buffer_current].texture = _id;
-		m_buffer[m_buffer_current].color = _color;
-		m_buffer_current++;
-
-		m_indexcount += INDEX_PER_QUAD;
+		if (m_submit_quad_vertex_index > 3) {
+			m_submit_quad_vertex_index = 0;
+			m_indexcount += INDEX_PER_QUAD;
+		}
 	}
+
+	//void QuadRenderer::renderBox(glm::vec2 _pos, glm::vec2 _size, int _id, glm::vec4 _color) {
+	//	m_buffer[m_buffer_current].position.x = _pos.x;
+	//	m_buffer[m_buffer_current].position.y = _pos.y;
+	//	m_buffer[m_buffer_current].uv.x = 0.0;
+	//	m_buffer[m_buffer_current].uv.y = 0.0;
+	//	m_buffer[m_buffer_current].texture = _id;
+	//	m_buffer[m_buffer_current].color = _color;
+	//	m_buffer_current++;
+	//
+	//	m_buffer[m_buffer_current].position.x = _pos.x;
+	//	m_buffer[m_buffer_current].position.y = _pos.y + _size.y;
+	//	m_buffer[m_buffer_current].uv.x = 0.0;
+	//	m_buffer[m_buffer_current].uv.y = 1.0;
+	//	m_buffer[m_buffer_current].texture = _id;
+	//	m_buffer[m_buffer_current].color = _color;
+	//	m_buffer_current++;
+	//
+	//	m_buffer[m_buffer_current].position.x = _pos.x + _size.x;
+	//	m_buffer[m_buffer_current].position.y = _pos.y + _size.y;
+	//	m_buffer[m_buffer_current].uv.x = 1.0;
+	//	m_buffer[m_buffer_current].uv.y = 1.0;
+	//	m_buffer[m_buffer_current].texture = _id;
+	//	m_buffer[m_buffer_current].color = _color;
+	//	m_buffer_current++;
+	//
+	//	m_buffer[m_buffer_current].position.x = _pos.x + _size.x;
+	//	m_buffer[m_buffer_current].position.y = _pos.y;
+	//	m_buffer[m_buffer_current].uv.x = 1.0;
+	//	m_buffer[m_buffer_current].uv.y = 0.0;
+	//	m_buffer[m_buffer_current].texture = _id;
+	//	m_buffer[m_buffer_current].color = _color;
+	//	m_buffer_current++;
+	//
+	//	m_indexcount += INDEX_PER_QUAD;
+	//}
 
 	void QuadRenderer::draw(int texture, int textureType) {
+		stopRendering();
+
 		glEnable(GL_DEPTH_TEST);
 
 		//Binding
@@ -134,6 +153,7 @@ namespace oe {
 			glDrawElements(GL_TRIANGLES, m_indexcount, GL_UNSIGNED_SHORT, 0);
 			m_indexcount = 0;
 			m_buffer_current = 0;
+			m_submit_quad_vertex_index = 0;
 		}
 
 		glDisable(GL_DEPTH_TEST);

@@ -134,6 +134,9 @@
     <ClInclude Include="graphics\lineRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="graphics\vertexData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\texture.frag.glsl" />

@@ -10,7 +10,7 @@
 
 #define USE_MOUSE				true
 
-#define UPDATES_PER_SECOND		32
+#define UPDATES_PER_SECOND		60
 
 #define DEBUG_ZOOM				1.0f
 #define DEBUG_MODE				false
@@ -34,7 +34,7 @@
 #define REGION_SIZE				8
 #define REGOIN_SIZE_HALF		REGION_SIZE / 2.0
 #else
-#define RENDER_VERTICAL			16 * 2
+#define RENDER_VERTICAL			16
 #define MAP_WORK_DST			32
 #define RENDER_HORIZONTAL		RENDER_VERTICAL * Game::getWindow()->getAspect()
 #endif

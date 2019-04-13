@@ -2,6 +2,12 @@
 
 #include <glm/glm.hpp>
 
+#include "fontRenderer.h"
+#include "quadRenderer.h"
+#include "pointRenderer.h"
+#include "vertexData.h"
+#include "lineRenderer.h"
+
 namespace oe {
 
 	enum textOrigin
@@ -9,11 +15,6 @@ namespace oe {
 		topLeft, topCenter, topRight, centerLeft, center, centerRight, bottomLeft, bottomCenter, bottomRight
 	};
 
-
-	class FontRenderer;
-	class QuadRenderer;
-	class PointRenderer;
-	class LineRenderer;
 	class Window;
 	class VertexArray;
 	class Buffer;
@@ -21,17 +22,6 @@ namespace oe {
 
 	class Renderer {
 	private:
-		//Font
-		FontRenderer *m_fontRenderer;
-
-		//Quad
-		QuadRenderer *m_quadRenderer;
-
-		//Line
-		LineRenderer *m_lineRenderer;
-
-		//Point
-		PointRenderer *m_pointRenderer;
 
 		//Dependecies
 		Window *m_window;
@@ -45,27 +35,23 @@ namespace oe {
 		VertexArray *m_ScreenVAO;
 		Buffer *m_ScreenVBO;
 
-		bool m_quadMapped;
-		bool m_fontMapped;
-		bool m_pointMapped;
-		bool m_lineMapped;
-
 	public:
+		//Font
+		FontRenderer* fontRenderer;
+
+		//Quad
+		QuadRenderer* quadRenderer;
+
+		//Line
+		LineRenderer* lineRenderer;
+
+		//Point
+		PointRenderer* pointRenderer;
+
+
 		Renderer(const char *font, Window *window);
 
 		~Renderer();
-
-		//Submit line to renderer
-		void renderLine(glm::vec2 _pos1, glm::vec2 _pos2, int _id, glm::vec4 _color);
-
-		//Submit quad to renderer
-		void renderBox(glm::vec2 _pos, glm::vec2 _size, int _id, glm::vec4 _color);
-
-		//Submit point to renderer
-		void renderPoint(glm::vec2 pos, glm::vec2 size, int id, glm::vec4 color);
-
-		//Submit text to renderer
-		void renderText(glm::vec2 pos, glm::vec2 size, const char *text, int _textOrigin);
 
 		//Draws all quads and text
 		//textbool is location of int (used as boolean) in shader that enables or disables text rendering

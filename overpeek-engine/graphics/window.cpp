@@ -10,8 +10,6 @@
 #include <glm/glm.hpp>
 #include <stb_image.h>
 
-#include <vulkan/vulkan.h>
-
 #include "../utility/logger.h"
 
 #define M_NUM_KEYS		2048

@@ -2,6 +2,8 @@
 
 #include <glm/glm.hpp>
 
+#include "vertexData.h"
+
 ///TODO: make use of geometry shader program
 
 namespace oe {
@@ -13,13 +15,6 @@ namespace oe {
 
 	class PointRenderer {
 	private:
-		struct PointVertexData
-		{
-			glm::vec3 position;
-			glm::vec2 size;
-			float texture;
-			glm::vec4 color;
-		};
 
 		VertexArray *m_vao;
 		Buffer *m_vbo;
@@ -27,9 +22,11 @@ namespace oe {
 
 		Window *m_window;
 
-		PointVertexData* m_buffer;
+		VertexData* m_buffer;
 		int m_buffer_current;
-	
+
+		bool m_buffer_mapped;
+
 	public:
 
 		//Initialize particle rendering
@@ -42,7 +39,7 @@ namespace oe {
 		void stopRendering();
 
 		//Submit point to renderer
-		void renderPoint(glm::vec2 pos, glm::vec2 size, int id, glm::vec4 color);
+		void submitVertex(VertexData data);
 
 		//Draws buffers and then clears them
 		void draw(int pointtexture, int textureType);

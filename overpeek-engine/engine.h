@@ -39,6 +39,16 @@
 #include "graphics/buffers/vertexArray.h"
 #include "graphics/buffers/indexBuffer.h"
 
+//Preset colors
+#define OE_COLOR_WHITE		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
+#define OE_COLOR_GREY		glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)
+#define OE_COLOR_BLACK		glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
+#define OE_COLOR_RED		glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)
+#define OE_COLOR_GREEN		glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
+#define OE_COLOR_BLUE		glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)
+#define OE_COLOR_CYAN		glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)
+#define OE_COLOR_ORANGE		glm::vec4(1.0f, 0.5f, 0.0f, 1.0f)
+#define OE_COLOR_PINK		glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)
 
 //Keys
 #define OE_KEY_SPACE              32

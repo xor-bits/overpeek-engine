@@ -2,6 +2,8 @@
 
 #include <glm/glm.hpp>
 
+#include "vertexData.h"
+
 namespace oe {
 
 	class Window;
@@ -11,13 +13,6 @@ namespace oe {
 
 	class QuadRenderer {
 	private:
-		struct TriangleVertexData
-		{
-			glm::vec3 position;
-			glm::vec2 uv;
-			float texture;
-			glm::vec4 color;
-		};
 
 		Window *m_window;
 
@@ -26,9 +21,11 @@ namespace oe {
 		IndexBuffer *m_IBO;
 		unsigned int m_indexcount;
 
-		TriangleVertexData* m_buffer;
+		VertexData* m_buffer;
 		unsigned int m_buffer_current;
+		unsigned int m_submit_quad_vertex_index;
 
+		bool m_buffer_mapped;
 		//int debug = 0;
 
 	public:
@@ -42,8 +39,11 @@ namespace oe {
 		//Unmaps buffer
 		void stopRendering();
 
-		//Submit quad to renderer
-		void renderBox(glm::vec2 _pos, glm::vec2 _size, int _id, glm::vec4 _color);
+		//Submit all vertices for quad
+		//Returns index of that vertex
+		void submitVertex(VertexData data);
+
+		//void renderBox(glm::vec2 _pos, glm::vec2 _size, int _id, glm::vec4 _color);
 		
 		//Draws buffers and then clears them
 		void draw(int texture, int textureType);

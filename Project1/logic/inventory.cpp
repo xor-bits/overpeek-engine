@@ -113,24 +113,20 @@ void Inventory::render(oe::Renderer *m_renderer) {
 
 void Inventory::renderOneSlot(oe::Renderer *m_renderer, float x, float y, float scale, int itemid, int itemcount) {
 	//All inventory slots
-	m_renderer->renderPoint(
-		glm::vec2(x, y),
-		glm::vec2(1.0) * scale,
-		80,
-		glm::vec4(1.0, 1.0, 1.0, 1.0)
-	);
+	m_renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(x, y, 0.0f), glm::vec2(0.0f, 0.0f), 80, OE_COLOR_WHITE));
+	m_renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(x, y + scale, 0.0f), glm::vec2(0.0f, 1.0f), 80, OE_COLOR_WHITE));
+	m_renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(x + scale, y + scale, 0.0f), glm::vec2(1.0f, 1.0f), 80, OE_COLOR_WHITE));
+	m_renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(x + scale, y, 0.0f), glm::vec2(1.0f, 0.0f), 80, OE_COLOR_WHITE));
 
 	//All inventory items
 	if (itemid != 0) {
-		m_renderer->renderPoint(
-			glm::vec2(x, y),
-			glm::vec2(1.0) * scale,
-			Database::items[itemid].texture,
-			glm::vec4(1.0)
-		);
+		m_renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(x, y, 0.0f), glm::vec2(0.0f, 0.0f), Database::items[itemid].texture, OE_COLOR_WHITE));
+		m_renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(x, y + scale, 0.0f), glm::vec2(0.0f, 1.0f), Database::items[itemid].texture, OE_COLOR_WHITE));
+		m_renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(x + scale, y + scale, 0.0f), glm::vec2(1.0f, 1.0f), Database::items[itemid].texture, OE_COLOR_WHITE));
+		m_renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(x + scale, y, 0.0f), glm::vec2(1.0f, 0.0f), Database::items[itemid].texture, OE_COLOR_WHITE));
 	}
-	m_renderer->renderText(
-		glm::vec2(x, y),
+	m_renderer->fontRenderer->renderText(
+		glm::vec3(x, y, 0.0f),
 		glm::vec2(1.0 / 3.0) * scale,
 		std::to_string(itemcount).c_str(),
 		oe::topLeft

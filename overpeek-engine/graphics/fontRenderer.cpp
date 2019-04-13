@@ -139,12 +139,12 @@ namespace oe {
 		m_renderer->draw(texture, GL_TEXTURE_2D_ARRAY);
 	}
 	
-	void FontRenderer::renderText(float _x, float _y, float _w, float _h, const char *_text, int _textOrigin)
+	void FontRenderer::renderText(glm::vec3 pos, glm::vec2 scale, const char *_text, int _textOrigin)
 	{
 		std::string text = _text;
 		if (!initalized) return;
-		float x = _x;
-		float y = _y;
+		float x = pos.x;
+		float y = pos.y;
 		std::string::const_iterator c;
 
 		glm::vec4 cur_color = glm::vec4(1.0);
@@ -165,10 +165,10 @@ namespace oe {
 				}
 
 				if (*c == ' ') {
-					textWidth += _w / 2.0;
+					textWidth += scale.x / 2.0;
 					continue;
 				}
-				textWidth += (m_characters[*c]->advance >> 6) / FONT_RESOLUTION * _w;
+				textWidth += (m_characters[*c]->advance >> 6) / FONT_RESOLUTION * scale.x;
 			}
 			x -= textWidth;
 		}
@@ -186,17 +186,17 @@ namespace oe {
 				}
 
 				if (*c == ' ') {
-					textWidth += _w / 2.0;
+					textWidth += scale.x / 2.0;
 					continue;
 				}
-				textWidth += (m_characters[*c]->advance >> 6) / FONT_RESOLUTION * _w;
+				textWidth += (m_characters[*c]->advance >> 6) / FONT_RESOLUTION * scale.x;
 			}
 			x -= textWidth/2.0;
 		}
 		
 		if (_textOrigin == bottomLeft || _textOrigin == bottomCenter || _textOrigin == bottomRight) {} //Already
-		else if (_textOrigin == topLeft || _textOrigin == topCenter || _textOrigin == topRight) y += 1.0f * _h;
-		else if (_textOrigin == centerLeft || _textOrigin == center || _textOrigin == centerRight) y += 0.25f * _h;
+		else if (_textOrigin == topLeft || _textOrigin == topCenter || _textOrigin == topRight) y += 1.0f * scale.y;
+		else if (_textOrigin == centerLeft || _textOrigin == center || _textOrigin == centerRight) y += 0.25f * scale.y;
 		
 		// Iterate through all characters
 		for (c = text.begin(); c != text.end(); c++)
@@ -219,18 +219,30 @@ namespace oe {
 			}
 
 			if (*c == ' ') {
-				x += _w / 2.0;
+				x += scale.x / 2.0;
 				continue;
 			}
-			float xpos = x + m_characters[*c]->bearing.x / FONT_RESOLUTION * _w;
-			float ypos = y - m_characters[*c]->bearing.y / FONT_RESOLUTION * _h;
-			float w = m_characters[*c]->size.x / FONT_RESOLUTION * _w;
-			float h = m_characters[*c]->size.y / FONT_RESOLUTION * _h;
+			float xpos = x + m_characters[*c]->bearing.x / FONT_RESOLUTION * scale.x;
+			float ypos = y - m_characters[*c]->bearing.y / FONT_RESOLUTION * scale.y;
+			float w = m_characters[*c]->size.x / FONT_RESOLUTION * scale.x;
+			float h = m_characters[*c]->size.y / FONT_RESOLUTION * scale.y;
 
-			m_renderer->renderBox(glm::vec2(xpos, ypos), glm::vec2(_w, _h), m_characters[*c]->textureID, cur_color);
+			VertexData p = VertexData(glm::vec3(xpos, ypos, 0.0f), glm::vec2(0.0f, 0.0f), m_characters[*c]->textureID, cur_color);
+			m_renderer->submitVertex(p);
+
+			p = VertexData(glm::vec3(xpos, ypos + scale.y, 0.0f), glm::vec2(0.0f, 1.0f), m_characters[*c]->textureID, cur_color);
+			m_renderer->submitVertex(p);
+
+			p = VertexData(glm::vec3(xpos + scale.x, ypos + scale.y, 0.0f), glm::vec2(1.0f, 1.0f), m_characters[*c]->textureID, cur_color);
+			m_renderer->submitVertex(p);
+
+			p = VertexData(glm::vec3(xpos + scale.x, ypos, 0.0f), glm::vec2(1.0f, 0.0f), m_characters[*c]->textureID, cur_color);
+			m_renderer->submitVertex(p);
+
+			//m_renderer->renderBox(glm::vec2(xpos, ypos), glm::vec2(_w, _h), m_characters[*c]->textureID, cur_color);
 		
 			// Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-			x += (m_characters[*c]->advance >> 6) / FONT_RESOLUTION * _w; // Bitshift by 6 to get value in pixels (2^6 = 64)
+			x += (m_characters[*c]->advance >> 6) / FONT_RESOLUTION * scale.x; // Bitshift by 6 to get value in pixels (2^6 = 64)
 		}
 	}
 }
