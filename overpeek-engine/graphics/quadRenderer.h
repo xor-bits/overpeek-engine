@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <glm/glm.hpp>
 
@@ -13,7 +13,7 @@ namespace oe {
 	private:
 		struct TriangleVertexData
 		{
-			glm::vec2 position;
+			glm::vec3 position;
 			glm::vec2 uv;
 			float texture;
 			glm::vec4 color;

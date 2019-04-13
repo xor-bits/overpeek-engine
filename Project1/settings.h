@@ -10,9 +10,9 @@
 
 #define USE_MOUSE				true
 
-#define UPDATES_PER_SECOND		30
+#define UPDATES_PER_SECOND		32
 
-#define DEBUG_ZOOM				2.0f
+#define DEBUG_ZOOM				1.0f
 #define DEBUG_MODE				false
 #define ENABLE_AUDIO			true
 #define SHOW_DEBUG_MESSAGES		false
@@ -46,7 +46,7 @@
 
 
 
-#define MAP_SIZE 250 * 4
+#define MAP_SIZE 250
 #define MAP_MAX_CREATURES 2048
 
 #define APP_DATA std::string(getenv("APPDATA"))

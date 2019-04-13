@@ -50,13 +50,13 @@ namespace oe {
 
 		m_VAO->addBuffer(m_VBO);
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, false, sizeof(TriangleVertexData), (void*)(0 * sizeof(GLfloat)));
+		glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(TriangleVertexData), (void*)(0 * sizeof(GLfloat)));
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, false, sizeof(TriangleVertexData), (void*)(2 * sizeof(GLfloat)));
+		glVertexAttribPointer(1, 2, GL_FLOAT, false, sizeof(TriangleVertexData), (void*)(3 * sizeof(GLfloat)));
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 1, GL_FLOAT, false, sizeof(TriangleVertexData), (void*)(4 * sizeof(GLfloat)));
+		glVertexAttribPointer(2, 1, GL_FLOAT, false, sizeof(TriangleVertexData), (void*)(5 * sizeof(GLfloat)));
 		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 4, GL_FLOAT, false, sizeof(TriangleVertexData), (void*)(5 * sizeof(GLfloat)));
+		glVertexAttribPointer(3, 4, GL_FLOAT, false, sizeof(TriangleVertexData), (void*)(6 * sizeof(GLfloat)));
 	}
 
 	glm::vec2 rotatePoint(float cx, float cy, float angle, glm::vec2 p)

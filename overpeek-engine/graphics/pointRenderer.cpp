@@ -33,13 +33,13 @@ namespace oe {
 
 		m_vao->addBuffer(m_vbo);
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, false, sizeof(PointVertexData), (void*)(0 * sizeof(GLfloat)));
+		glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(PointVertexData), (void*)(0 * sizeof(GLfloat)));
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, false, sizeof(PointVertexData), (void*)(2 * sizeof(GLfloat)));
+		glVertexAttribPointer(1, 2, GL_FLOAT, false, sizeof(PointVertexData), (void*)(3 * sizeof(GLfloat)));
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 1, GL_FLOAT, false, sizeof(PointVertexData), (void*)(4 * sizeof(GLfloat)));
+		glVertexAttribPointer(2, 1, GL_FLOAT, false, sizeof(PointVertexData), (void*)(5 * sizeof(GLfloat)));
 		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 4, GL_FLOAT, false, sizeof(PointVertexData), (void*)(5 * sizeof(GLfloat)));
+		glVertexAttribPointer(3, 4, GL_FLOAT, false, sizeof(PointVertexData), (void*)(6 * sizeof(GLfloat)));
 	}
 
 	void PointRenderer::renderPoint(glm::vec2 pos, glm::vec2 size, int id, glm::vec4 color) {

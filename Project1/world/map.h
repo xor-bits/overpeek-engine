@@ -36,14 +36,11 @@ class Map {
 		std::vector<std::vector<MapTile*>>  m_tiles;
 		std::string m_name;
 
-		struct noisemap
-		{
-			float* m_mapnoise;
-			float* m_biomenoise1;
-			float* m_biomenoise2;
-			float* m_plantnoise1;
-			float* m_plantnoise2;
-		} m_noisemaps[4];
+		float* m_mapnoise;
+		float* m_biomenoise1;
+		float* m_biomenoise2;
+		float* m_plantnoise1;
+		float* m_plantnoise2;
 
 		int getInfoFromNoiseIfLoop(Database::Biome *biome, float x, float y, int index);
 		void getInfoFromNoise(int &tileId, int &objId, float x, float y);

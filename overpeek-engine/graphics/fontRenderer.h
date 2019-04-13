@@ -22,9 +22,9 @@ namespace oe {
 		unsigned int texture;
 		struct Character {
 			unsigned int textureID;		//Glyph texture id
-			glm::ivec2 size;				//Glyph size
+			glm::ivec2 size;	    	//Glyph size
 			glm::ivec2 bearing;			//Offset from baseline to top left
-			signed long advance;	//Offset to advance to next glyph
+			signed long advance;	    //Offset to advance to next glyph
 		};
 		std::map<char, Character*> m_characters;
 		bool initalized = false;

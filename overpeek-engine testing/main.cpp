@@ -16,7 +16,12 @@ void render(float corrector) {
 
 	//oe::Logger::out(oe::info, gameloop->fastFPS());
 
-	renderer->renderBox(glm::vec2(box_x + (box_vel_x * corrector / 5.0f), 0.0), glm::vec2(0.05), 20, glm::vec4(1.0, 0.5, 0.0, 1.0));
+	glm::vec3 pos1 = glm::vec3(0.0, 0.0, 0.0);
+	glm::vec3 pos2 = glm::vec3(0.0, 0.5, 0.0);
+	glm::vec3 pos3 = glm::vec3(0.5, 0.5, 0.0);
+	glm::vec3 pos4 = glm::vec3(0.5, 0.0, 0.0);
+
+	renderer->renderBox(pos1, pos2, pos3, pos4, 20, glm::vec4(1.0, 0.5, 0.0, 1.0));
 	renderer->draw(shader, shader, oe::TextureManager::getTexture(0), true);
 }
 

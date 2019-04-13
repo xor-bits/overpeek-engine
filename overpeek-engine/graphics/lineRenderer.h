@@ -13,7 +13,7 @@ namespace oe {
 	private:
 		struct LineVertexData
 		{
-			glm::vec2 position;
+			glm::vec3 position;
 			glm::vec2 uv;
 			float texture;
 			glm::vec4 color;

@@ -148,47 +148,31 @@ bool Map::create(std::string name) {
 	m_name = name;
 
 	
-
+	int time = oe::Clock::getMicroseconds();
 	//Get noisemaps
-	FastNoiseSIMD* noise = FastNoiseSIMD::NewFastNoiseSIMD(oe::Clock::getMicroseconds() + 0);
-	noise->SetFractalOctaves(MAP_BIOME_OCTA);
-	noise->SetFrequency(MAP_BIOME_FREQ);
-	m_noisemaps[0].m_biomenoise1 = noise->GetSimplexFractalSet(0, 0, 0, MAP_SIZE, MAP_SIZE, 1, 1.0f);
-	m_noisemaps[1].m_biomenoise1 = noise->GetSimplexFractalSet(0, 0, 0, MAP_SIZE, 1, MAP_SIZE, 1.0f);
-	m_noisemaps[2].m_biomenoise1 = noise->GetSimplexFractalSet(0, 0, MAP_SIZE, MAP_SIZE, MAP_SIZE, 1, 1.0f);
-	m_noisemaps[3].m_biomenoise1 = noise->GetSimplexFractalSet(MAP_SIZE, 0, 0, MAP_SIZE, 1, MAP_SIZE, 1.0f);
+	FastNoiseSIMD* noise = FastNoiseSIMD::NewFastNoiseSIMD(time);
 
-	noise = FastNoiseSIMD::NewFastNoiseSIMD(oe::Clock::getMicroseconds() + 1);
-	noise->SetFractalOctaves(MAP_BIOME_OCTA);
-	noise->SetFrequency(MAP_BIOME_FREQ);
-	m_noisemaps[0].m_biomenoise2 = noise->GetSimplexFractalSet(0, 0, 0, MAP_SIZE / 4, MAP_SIZE, 1, 1.0f);
-	m_noisemaps[1].m_biomenoise2 = noise->GetSimplexFractalSet(0, 0, 0, 1, MAP_SIZE, MAP_SIZE / 4, 1.0f);
-	m_noisemaps[2].m_biomenoise2 = noise->GetSimplexFractalSet(0, 0, MAP_SIZE / 4, MAP_SIZE / 4, MAP_SIZE, 1, 1.0f);
-	m_noisemaps[3].m_biomenoise2 = noise->GetSimplexFractalSet(MAP_SIZE / 4, 0, 0, 1, MAP_SIZE, MAP_SIZE / 4, 1.0f);
+#define NOISEMAP_WITH_GENERIC_SETTINGS noise->GetSimplexFractalSet(0, 0, 0, MAP_SIZE, MAP_SIZE, 1, 1.0f)
 	
-	noise = FastNoiseSIMD::NewFastNoiseSIMD(oe::Clock::getMicroseconds() + 2);
-	noise->SetFractalOctaves(MAP_OCTA);
-	noise->SetFrequency(MAP_FREQ);
-	m_noisemaps[0].m_mapnoise = noise->GetSimplexFractalSet(0, 0, 0, MAP_SIZE / 4, MAP_SIZE, 1, 1.0f);
-	m_noisemaps[1].m_mapnoise = noise->GetSimplexFractalSet(0, 0, 0, 1, MAP_SIZE, MAP_SIZE / 4, 1.0f);
-	m_noisemaps[2].m_mapnoise = noise->GetSimplexFractalSet(0, 0, MAP_SIZE / 4, MAP_SIZE / 4, MAP_SIZE, 1, 1.0f);
-	m_noisemaps[3].m_mapnoise = noise->GetSimplexFractalSet(MAP_SIZE / 4, 0, 0, 1, MAP_SIZE, MAP_SIZE / 4, 1.0f);
+	//Biomemap 0
+	noise = FastNoiseSIMD::NewFastNoiseSIMD(time + 0); noise->SetFractalOctaves(MAP_BIOME_OCTA); noise->SetFrequency(MAP_BIOME_FREQ);
+	m_biomenoise1 = NOISEMAP_WITH_GENERIC_SETTINGS;
+
+	//Biomemap 1
+	noise = FastNoiseSIMD::NewFastNoiseSIMD(time + 1); noise->SetFractalOctaves(MAP_BIOME_OCTA); noise->SetFrequency(MAP_BIOME_FREQ);
+	m_biomenoise2 = NOISEMAP_WITH_GENERIC_SETTINGS;
 	
-	noise = FastNoiseSIMD::NewFastNoiseSIMD(oe::Clock::getMicroseconds() + 3);
-	noise->SetFractalOctaves(MAP_PLANT1_OCTA);
-	noise->SetFrequency(MAP_PLANT1_FREQ);
-	m_noisemaps[0].m_plantnoise1 = noise->GetSimplexFractalSet(0, 0, 0, MAP_SIZE / 4, MAP_SIZE, 1, 1.0f);
-	m_noisemaps[1].m_plantnoise1 = noise->GetSimplexFractalSet(0, 0, 0, 1, MAP_SIZE, MAP_SIZE / 4, 1.0f);
-	m_noisemaps[2].m_plantnoise1 = noise->GetSimplexFractalSet(0, 0, MAP_SIZE / 4, MAP_SIZE / 4, MAP_SIZE, 1, 1.0f);
-	m_noisemaps[3].m_plantnoise1 = noise->GetSimplexFractalSet(MAP_SIZE / 4, 0, 0, 1, MAP_SIZE, MAP_SIZE / 4, 1.0f);
+	//Heightmap
+	noise = FastNoiseSIMD::NewFastNoiseSIMD(time + 2); noise->SetFractalOctaves(MAP_OCTA); noise->SetFrequency(MAP_FREQ);
+	m_mapnoise = NOISEMAP_WITH_GENERIC_SETTINGS;
 	
-	noise = FastNoiseSIMD::NewFastNoiseSIMD(oe::Clock::getMicroseconds() + 4);
-	noise->SetFractalOctaves(MAP_PLANT2_OCTA);
-	noise->SetFrequency(MAP_PLANT2_FREQ);
-	m_noisemaps[0].m_plantnoise2 = noise->GetSimplexFractalSet(0, 0, 0, MAP_SIZE / 4, MAP_SIZE, 1, 1.0f);
-	m_noisemaps[1].m_plantnoise2 = noise->GetSimplexFractalSet(0, 0, 0, 1, MAP_SIZE, MAP_SIZE / 4, 1.0f);
-	m_noisemaps[2].m_plantnoise2 = noise->GetSimplexFractalSet(0, 0, MAP_SIZE / 4, MAP_SIZE / 4, MAP_SIZE, 1, 1.0f);
-	m_noisemaps[3].m_plantnoise2 = noise->GetSimplexFractalSet(MAP_SIZE / 4, 0, 0, 1, MAP_SIZE, MAP_SIZE / 4, 1.0f);
+	//Plantmap 0
+	noise = FastNoiseSIMD::NewFastNoiseSIMD(time + 3); noise->SetFractalOctaves(MAP_PLANT1_OCTA); noise->SetFrequency(MAP_PLANT1_FREQ);
+	m_plantnoise1 = NOISEMAP_WITH_GENERIC_SETTINGS;
+	
+	//Plantmap 1
+	noise = FastNoiseSIMD::NewFastNoiseSIMD(time + 4); noise->SetFractalOctaves(MAP_PLANT2_OCTA); noise->SetFrequency(MAP_PLANT2_FREQ);
+	m_plantnoise2 = NOISEMAP_WITH_GENERIC_SETTINGS;
 
 	
 	//Create world based on noisemaps
@@ -205,30 +189,11 @@ bool Map::create(std::string name) {
 	}
 
 	//Cleanup
-	noise->FreeNoiseSet(m_noisemaps[0].m_biomenoise1);
-	noise->FreeNoiseSet(m_noisemaps[1].m_biomenoise1);
-	noise->FreeNoiseSet(m_noisemaps[2].m_biomenoise1);
-	noise->FreeNoiseSet(m_noisemaps[3].m_biomenoise1);
-
-	noise->FreeNoiseSet(m_noisemaps[0].m_biomenoise2);
-	noise->FreeNoiseSet(m_noisemaps[1].m_biomenoise2);
-	noise->FreeNoiseSet(m_noisemaps[2].m_biomenoise2);
-	noise->FreeNoiseSet(m_noisemaps[3].m_biomenoise2);
-
-	noise->FreeNoiseSet(m_noisemaps[0].m_mapnoise);
-	noise->FreeNoiseSet(m_noisemaps[1].m_mapnoise);
-	noise->FreeNoiseSet(m_noisemaps[2].m_mapnoise);
-	noise->FreeNoiseSet(m_noisemaps[3].m_mapnoise);
-
-	noise->FreeNoiseSet(m_noisemaps[0].m_plantnoise1);
-	noise->FreeNoiseSet(m_noisemaps[1].m_plantnoise1);
-	noise->FreeNoiseSet(m_noisemaps[2].m_plantnoise1);
-	noise->FreeNoiseSet(m_noisemaps[3].m_plantnoise1);
-
-	noise->FreeNoiseSet(m_noisemaps[0].m_plantnoise2);
-	noise->FreeNoiseSet(m_noisemaps[1].m_plantnoise2);
-	noise->FreeNoiseSet(m_noisemaps[2].m_plantnoise2);
-	noise->FreeNoiseSet(m_noisemaps[3].m_plantnoise2);
+	noise->FreeNoiseSet(m_biomenoise1);
+	noise->FreeNoiseSet(m_biomenoise2);
+	noise->FreeNoiseSet(m_mapnoise);
+	noise->FreeNoiseSet(m_plantnoise1);
+	noise->FreeNoiseSet(m_plantnoise2);
 
 
 
@@ -240,23 +205,19 @@ Database::Biome *Map::getTileBiome(float x, float y) {
 	x = wrapCoordinate(x, MAP_SIZE);
 	y = wrapCoordinate(y, MAP_SIZE);
 
-	int noiseindex = x / (MAP_SIZE / 4.0f);
-	//oe::Logger::out(oe::info, x / (MAP_SIZE / 4.0f));
+	float height0 = (m_biomenoise1[int(x + y * MAP_SIZE)] + 1.0f) / 2.0f;
+	float height1 = (m_biomenoise2[int(x + y * MAP_SIZE)] + 1.0f) / 2.0f;
 
-	Database::Biome *biome = Database::getBiome((m_noisemaps[noiseindex].m_biomenoise1[int(x + y * MAP_SIZE / 4)] + 1.0f) / 2.0f, (m_noisemaps[noiseindex].m_biomenoise2[int(x + y * MAP_SIZE / 4)] + 1.0f) / 2.0f);
-	oe::Logger::out(oe::info, (int)biome);
+	Database::Biome *biome = Database::getBiome(height0, height1);
 	return biome;
 }
 
 int Map::getInfoFromNoiseIfLoop(Database::Biome *biome, float x, float y, int index) {
-	int noiseindex = x / (MAP_SIZE / 4.0f);
-	//oe::Logger::out(oe::info, x / (MAP_SIZE / 4.0f));
-	//oe::Logger::out(oe::info, y);
 	if (biome->heightMap[index].grassId != 0) {
-		if ((m_noisemaps[noiseindex].m_plantnoise1[int(x + y * MAP_SIZE / 4)] + 1.0f) / 2.0f > biome->heightMap[index].grassRarity) return biome->heightMap[index].grassId;
+		if ((m_plantnoise1[int(x + y * MAP_SIZE)] + 1.0f) / 2.0f > biome->heightMap[index].grassRarity) return biome->heightMap[index].grassId;
 	}
 	if (biome->heightMap[index].plantId != 0) {
-		if ((m_noisemaps[noiseindex].m_plantnoise2[int(x + y * MAP_SIZE / 4)] + 1.0f) / 2.0f > biome->heightMap[index].plantRarity) return biome->heightMap[index].plantId;
+		if ((m_plantnoise2[int(x + y * MAP_SIZE)] + 1.0f) / 2.0f > biome->heightMap[index].plantRarity) return biome->heightMap[index].plantId;
 	}
 	return 0;
 }
@@ -270,8 +231,7 @@ void Map::getInfoFromNoise(int &tileId, int &objId, float x, float y) {
 		objId = getInfoFromNoiseIfLoop(biome, x, y, 0);
 	}
 	else {
-		int noiseindex = x / (MAP_SIZE / 4.0f);
-		float height1 = (m_noisemaps[noiseindex].m_mapnoise[int(x + y * MAP_SIZE / 4)] + 1.0f) / 2.0f;
+		float height1 = (m_mapnoise[int(x + y * MAP_SIZE)] + 1.0f) / 2.0f;
 		for (int i = 0; i < biome->heightMap.size(); i++)
 		{
 			if (height1 <= biome->heightMap[i].height) {
@@ -333,18 +293,24 @@ void Map::submitToRenderer(oe::Renderer *renderer, float offX, float offY, float
 	{
 		for (int y = -RENDER_VERTICAL; y < RENDER_VERTICAL; y++)
 		{
+			//Tile to be rendered
 			int tile_x = x + player_prediction.x;
 			int tile_y = y + player_prediction.y;
 
+			//Not trying to render outside of map
+			if (tile_x >= MAP_SIZE || tile_x < 0 || tile_y >= MAP_SIZE || tile_y < 0) continue;
+
+			//Calculate correct positions to render tile at
 			MapTile *tile = getTile(tile_x, tile_y);
 			Database::Tile db_tile = Database::tiles[tile->m_tile];
 			Database::Object db_object = Database::objects[tile->m_object];
 			float rx = (tile_x + offX) * TILE_SIZE * Game::renderScale();
 			float ry = (tile_y + offY) * TILE_SIZE * Game::renderScale();
-			//oe::Logger::out(oe::info, "Tile at: ", offX, offY);
-			//oe::Logger::out(oe::info, "Tile: ", tile_x, tile_y);
-			renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE, TILE_SIZE) * Game::renderScale(), db_tile.texture, glm::vec4(1.0));
+			
+			//Renter tile
+			renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE) * Game::renderScale(), db_tile.texture, glm::vec4(1.0));
 
+			//Render object on tile
 			if (db_object.id != 0) {
 				int objTexture = getObjectTexture(tile_x, tile_y);
 				renderer->renderPoint(glm::vec2(rx, ry), glm::vec2(TILE_SIZE, TILE_SIZE) * Game::renderScale(), objTexture, glm::vec4(db_object.color, 1.0));
