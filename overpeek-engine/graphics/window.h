@@ -57,6 +57,7 @@ namespace oe {
 		void setCharmodCallback(void(*callback)(unsigned int, int));
 
 		void setSwapInterval(unsigned int interval);
+		void setBackFaceCulling(bool on);
 
 		void setClearColor(float r, float g, float b, float a);
 

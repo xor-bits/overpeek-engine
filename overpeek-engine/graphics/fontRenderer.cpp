@@ -53,11 +53,11 @@ namespace oe {
 		}
 	
 
-		GLubyte *data = new GLubyte[128 * pow(FONT_RESOLUTION + FONT_BACKGROUND, 2) * 4];
-		for (int c = 0; c < 128 * FONT_RESOLUTION * FONT_RESOLUTION; c++) {
+		GLubyte *data = new GLubyte[128 * pow(FONT_RESOLUTION + FONT_BACKGROUND * 4, 2) * 4];
+		for (int c = 0; c < 128 * pow(FONT_RESOLUTION + FONT_BACKGROUND * 4, 2) * 4; c++) {
 			data[c] = 0;
 		}
-		GLuint maxWidth = FONT_RESOLUTION + FONT_BACKGROUND, maxHeight = FONT_RESOLUTION + FONT_BACKGROUND;
+		GLuint maxWidth = FONT_RESOLUTION + FONT_BACKGROUND * 4, maxHeight = FONT_RESOLUTION + FONT_BACKGROUND * 4;
 		
 		FT_Set_Pixel_Sizes(face, 0, FONT_RESOLUTION);
 		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
@@ -86,13 +86,17 @@ namespace oe {
 			{
 				for (int x = 0; x < g->bitmap.width; x++)
 				{
-					int pixel = (x + FONT_BACKGROUND) + (y + FONT_BACKGROUND) * maxWidth + c * maxWidth * maxHeight;
+					int pixel = (x + FONT_BACKGROUND / 4 * 1) + (y + FONT_BACKGROUND / 4 * 1) * maxWidth + c * maxWidth * maxHeight;
+					data[pixel * 4 + 3] = oe::clamp(data[pixel * 4 + 3] + g->bitmap.buffer[x + y * g->bitmap.width], 0, 255);
+					pixel = (x + FONT_BACKGROUND / 4 * 2) + (y + FONT_BACKGROUND / 4 * 2) * maxWidth + c * maxWidth * maxHeight;
+					data[pixel * 4 + 3] = oe::clamp(data[pixel * 4 + 3] + g->bitmap.buffer[x + y * g->bitmap.width], 0, 255);
+					pixel = (x + FONT_BACKGROUND / 4 * 3) + (y + FONT_BACKGROUND / 4 * 3) * maxWidth + c * maxWidth * maxHeight;
+					data[pixel * 4 + 3] = oe::clamp(data[pixel * 4 + 3] + g->bitmap.buffer[x + y * g->bitmap.width], 0, 255);
+					pixel = (x + FONT_BACKGROUND / 4 * 4) + (y + FONT_BACKGROUND / 4 * 4) * maxWidth + c * maxWidth * maxHeight;
+					data[pixel * 4 + 3] = oe::clamp(data[pixel * 4 + 3] + g->bitmap.buffer[x + y * g->bitmap.width], 0, 255);
 					
-					GLubyte byte = 0;
-					data[pixel * 4 + 0] = byte;
-					data[pixel * 4 + 1] = byte;
-					data[pixel * 4 + 2] = byte;
-					data[pixel * 4 + 3] = g->bitmap.buffer[x + y * g->bitmap.width];
+					//GLubyte byte = 0; data[pixel * 4 + 0] = byte; data[pixel * 4 + 1] = byte; data[pixel * 4 + 2] = byte; //Black color
+
 				}
 			}
 			//WHITE FRONT FONT
@@ -224,19 +228,19 @@ namespace oe {
 			}
 			float xpos = x + m_characters[*c]->bearing.x / FONT_RESOLUTION * scale.x;
 			float ypos = y - m_characters[*c]->bearing.y / FONT_RESOLUTION * scale.y;
-			float w = m_characters[*c]->size.x / FONT_RESOLUTION * scale.x;
+			float w = ((m_characters[*c]->advance >> 6) - FONT_BACKGROUND) / FONT_RESOLUTION * scale.x;
 			float h = m_characters[*c]->size.y / FONT_RESOLUTION * scale.y;
 
 			VertexData p = VertexData(glm::vec3(xpos, ypos, 0.0f), glm::vec2(0.0f, 0.0f), m_characters[*c]->textureID, cur_color);
 			m_renderer->submitVertex(p);
 
-			p = VertexData(glm::vec3(xpos, ypos + scale.y, 0.0f), glm::vec2(0.0f, 1.0f), m_characters[*c]->textureID, cur_color);
+			p = VertexData(glm::vec3(xpos, ypos + h, 0.0f), glm::vec2(0.0f, m_characters[*c]->size.y / FONT_RESOLUTION), m_characters[*c]->textureID, cur_color);
 			m_renderer->submitVertex(p);
 
-			p = VertexData(glm::vec3(xpos + scale.x, ypos + scale.y, 0.0f), glm::vec2(1.0f, 1.0f), m_characters[*c]->textureID, cur_color);
+			p = VertexData(glm::vec3(xpos + w, ypos + h, 0.0f), glm::vec2(((m_characters[*c]->advance >> 6) - FONT_BACKGROUND) / FONT_RESOLUTION, m_characters[*c]->size.y / FONT_RESOLUTION), m_characters[*c]->textureID, cur_color);
 			m_renderer->submitVertex(p);
 
-			p = VertexData(glm::vec3(xpos + scale.x, ypos, 0.0f), glm::vec2(1.0f, 0.0f), m_characters[*c]->textureID, cur_color);
+			p = VertexData(glm::vec3(xpos + w, ypos, 0.0f), glm::vec2(((m_characters[*c]->advance >> 6) - FONT_BACKGROUND) / FONT_RESOLUTION, 0.0f), m_characters[*c]->textureID, cur_color);
 			m_renderer->submitVertex(p);
 
 			//m_renderer->renderBox(glm::vec2(xpos, ypos), glm::vec2(_w, _h), m_characters[*c]->textureID, cur_color);

@@ -146,7 +146,8 @@ namespace oe {
 		glClearColor(0.18f, 0.18f, 0.20f, 1.0f);
 		glEnable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
+		glDepthFunc(GL_LEQUAL); 
+		//glDepthMask(GL_FALSE);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
 		glEnable(GL_CULL_FACE);
@@ -156,6 +157,11 @@ namespace oe {
 		glfwSwapInterval(0);
 
 		return true;
+	}
+
+	void Window::setBackFaceCulling(bool on) {
+		if (on) glEnable(GL_CULL_FACE);
+		else glDisable(GL_CULL_FACE);
 	}
 
 	void Window::setIcon(const char *path) {

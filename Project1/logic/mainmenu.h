@@ -14,8 +14,8 @@ private:
 
 	static float m_t;
 
-	static glm::vec2 m_objpos[1000];
-	static glm::vec2 m_objvel[1000];
+	static glm::vec3 m_objpos[1000];
+	static glm::vec3 m_objvel[1000];
 	static glm::vec4 m_objcol[1000];
 
 public:

@@ -62,13 +62,14 @@ void Game::init() {
 	m_window->setSwapInterval(0);
 	m_window->setClearColor(1.0, 1.0, 1.0, 1.0);
 	m_window->setIcon("res/texture/icon.png");
+	m_window->setBackFaceCulling(false);
 	renderer = m_window->getRenderer();
 
 
 	//Loading screen (barely noticeable lol)
 	oe::Shader *tmpshader = new oe::Shader("res/shader/texture-single.vert.glsl", "res/shader/texture-single.frag.glsl");
-	glm::mat4 ortho = glm::ortho(-m_window->getAspect(), m_window->getAspect(), 1.0f, -1.0f);
-	tmpshader->enable(); tmpshader->SetUniformMat4("pr_matrix", ortho);
+	glm::mat4 projection = glm::ortho(-m_window->getAspect(), m_window->getAspect(), 1.0f, -1.0f);
+	tmpshader->enable(); tmpshader->SetUniformMat4("pr_matrix", projection);
 	m_guirenderer = std::unique_ptr<oe::Renderer>(new oe::Renderer("res/font/arial.ttf", m_window.get()));
 	oe::TextureManager::loadTexture("res/texture/splash.png", 3);
 	m_window->clear();
@@ -132,6 +133,9 @@ void Game::init() {
 	//Main menu
 	mainMenu = true;
 	MainMenu::init(m_guirenderer.get(), m_shader.get(), m_pointshader.get(), m_postshader.get());
+
+	//Reset shader
+	resize(m_window->getWidth(), m_window->getHeight());
 
 	//Loading world
 	loadWorld(WORLD_NAME, true);
