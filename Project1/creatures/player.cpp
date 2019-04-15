@@ -204,7 +204,7 @@ void Player::mouseHit(int button, int action) {
 		if (exhausted()) return;
 		float dmgadd = Database::items[inventory->selectedId].melee_damage;
 		float kbadd = Database::items[inventory->selectedId].melee_kb;
-		if (Game::advancedDebugMode) dmgadd *= 100.0;
+		if (Game::advancedDebugMode) kbadd += 100.0;
 		Creature::hit(dmgadd, kbadd);
 	}
 

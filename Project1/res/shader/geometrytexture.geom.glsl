@@ -37,13 +37,13 @@ void main() {
 	shader_uv = vec2(1.0, 1.0);
 	shader_id = _shader_id[0];
 	shader_color = _shader_color[0];
-	gl_Position = v2;
+	gl_Position = v3;
 	EmitVertex();
     
 	shader_uv = vec2(1.0, 0.0);
 	shader_id = _shader_id[0];
 	shader_color = _shader_color[0];
-	gl_Position = v3;
+	gl_Position = v2;
 	EmitVertex();
 	EndPrimitive();
     
@@ -57,13 +57,13 @@ void main() {
 	shader_uv = vec2(0.0, 1.0);
 	shader_id = _shader_id[0];
 	shader_color = _shader_color[0];
-	gl_Position = v3;
+	gl_Position = v4;
 	EmitVertex();
     
 	shader_uv = vec2(1.0, 1.0);
 	shader_id = _shader_id[0];
 	shader_color = _shader_color[0];
-	gl_Position = v4;
+	gl_Position = v3;
 	EmitVertex();
 	EndPrimitive();
 

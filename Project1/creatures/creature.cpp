@@ -128,7 +128,7 @@ void Creature::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, flo
 		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y, pos.z), glm::vec2(1.0f, 0.0f), Database::items[m_id].texture, OE_COLOR_WHITE));
 	}
 
-	if (m_path && m_result != 0) m_path->debugRender(renderer, renderOffsetX, renderOffsetY);
+	if (m_path && m_result != 0 && Game::advancedDebugMode) m_path->debugRender(renderer, renderOffsetX, renderOffsetY);
 
 }
 
@@ -169,9 +169,7 @@ void Creature::update(int index, float divider) {
 
 		if (m_swingDir != 0) {
 			float addition = 1.0f / divider;
-			oe::Logger::out(oe::info, "Swing counter timer: ", m_counterToRemoveSwingAnimation);
 			m_counterToRemoveSwingAnimation += addition;
-			oe::Logger::out(oe::info, "Swing counter timer: ", m_counterToRemoveSwingAnimation, ", t: ", addition);
 		}
 		if (m_counterToRemoveSwingAnimation > 0.10) {
 			m_counterToRemoveSwingAnimation = 0;

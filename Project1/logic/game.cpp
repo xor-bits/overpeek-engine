@@ -62,7 +62,8 @@ void Game::init() {
 	m_window->setSwapInterval(0);
 	m_window->setClearColor(1.0, 1.0, 1.0, 1.0);
 	m_window->setIcon("res/texture/icon.png");
-	m_window->setBackFaceCulling(false);
+	m_window->setLineWidth(5.0f);
+	//m_window->setBackFaceCulling(false);
 	renderer = m_window->getRenderer();
 
 
@@ -233,7 +234,7 @@ void Game::update() {
 		m_player->update(UPDATES_PER_SECOND);
 		m_player->collide(UPDATES_PER_SECOND);
 
-		m_gui->update();
+		m_gui->update(UPDATES_PER_SECOND);
 		m_inventory->update();
 
 		//Load regions after camera/player moves
@@ -417,6 +418,7 @@ void Game::saveWorld() {
 	m_map->save();
 	m_player->save();
 #endif
+	m_gui->addChatLine("World saved");
 }
 
 

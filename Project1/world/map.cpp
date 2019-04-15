@@ -311,6 +311,8 @@ void Map::submitToRenderer(oe::Renderer *renderer, float offX, float offY, float
 			glm::vec3 pos = glm::vec3(rx, ry, 0.0f);
 			glm::vec2 size = glm::vec2(TILE_SIZE) * Game::renderScale();
 
+			//renderer->pointRenderer->submitVertex(oe::VertexData(pos, size, db_tile.texture, OE_COLOR_WHITE));
+
 			renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), db_tile.texture, OE_COLOR_WHITE));
 			renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y + size.y, pos.z), glm::vec2(0.0f, 1.0f), db_tile.texture, OE_COLOR_WHITE));
 			renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y + size.y, pos.z), glm::vec2(1.0f, 1.0f), db_tile.texture, OE_COLOR_WHITE));
@@ -321,6 +323,8 @@ void Map::submitToRenderer(oe::Renderer *renderer, float offX, float offY, float
 				int objTexture = getObjectTexture(tile_x, tile_y);
 				glm::vec3 pos = glm::vec3(rx, ry, 0.0f);
 				glm::vec2 size = glm::vec2(TILE_SIZE) * Game::renderScale();
+
+				//renderer->pointRenderer->submitVertex(oe::VertexData(pos, size, objTexture, glm::vec4(db_object.color, 1.0f)));
 
 				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), objTexture, glm::vec4(db_object.color, 1.0f)));
 				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y + size.y, pos.z), glm::vec2(0.0f, 1.0f), objTexture, glm::vec4(db_object.color, 1.0f)));

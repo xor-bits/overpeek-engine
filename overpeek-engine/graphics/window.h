@@ -59,6 +59,8 @@ namespace oe {
 		void setSwapInterval(unsigned int interval);
 		void setBackFaceCulling(bool on);
 
+		void setLineWidth(float w);
+
 		void setClearColor(float r, float g, float b, float a);
 
 		void setIcon(const char *path);

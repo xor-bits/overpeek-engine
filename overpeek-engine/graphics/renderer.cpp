@@ -13,7 +13,7 @@ namespace oe {
 	Renderer::Renderer(const char *font, Window *window) {
 		m_window = window;
 		quadRenderer = new QuadRenderer(window);
-		fontRenderer = new FontRenderer(font, new QuadRenderer(window));
+		fontRenderer = new FontRenderer(font, new QuadRenderer(window), this);
 		pointRenderer = new PointRenderer(window);
 		lineRenderer = new LineRenderer(window);
 

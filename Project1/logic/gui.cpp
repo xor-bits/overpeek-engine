@@ -5,15 +5,29 @@
 #include "../world/map.h"
 #include "../creatures/player.h"
 
+#include <cmath>
+
 #define BUTTONS	3
 
 Gui::Gui(float maxHealth, float maxStamina, float healthGainRate, float staminaGainRate) {
+	m_frame_logger = new float[GUI_FRAME_LOGGER_SIZE];
+	m_update_logger = new float[GUI_FRAME_LOGGER_SIZE];
+
 	for (int i = 0; i < GUI_FRAME_LOGGER_SIZE; i++) {
 		m_frame_logger[i] = 0;
+		m_update_logger[i] = 0;
 	}
 
+	m_current_input_history = 0;
+	m_chat_just_opened = false;
+	m_chat_opened = false;
+	m_chat_opened_timer = 0.0f;
 	m_currentUpdate = 0;
 	m_currentFrame = 0;
+	m_selectedButton = 0;
+	m_selected_logger = 0;
+	m_avg_frame = 0.0f;
+	m_avg_update = 0.0f;
 }
 
 char *GetProcessorName()
@@ -77,60 +91,74 @@ void Gui::renderBlur(oe::Renderer *renderer) {
 	if (Game::debugMode) {
 		//Debug mode text
 		std::string text = "UPS: " + std::to_string(Game::getLoop()->getUPS());
-		renderer->fontRenderer->renderText(glm::vec3(x, -1.0f + (textScale * 1), 0.0f), glm::vec2(textScale, textScale), text.c_str(), oe::topLeft);
+		renderer->fontRenderer->renderText(glm::vec3(x, -1.0f + (textScale * 1), 0.0f), glm::vec2(textScale, textScale), text.c_str(), oe::topLeft, M_COLOR_TEXT_GB);
 	}
 	if (Game::advancedDebugMode) {
 		//Advanced debug mode text
 		char *cpuInfo = GetProcessorName();
 
 		std::string text = "Position X: " + std::to_string(Game::getPlayer()->getX()) + ", Y: " + std::to_string(Game::getPlayer()->getY());
-		renderer->fontRenderer->renderText(glm::vec3(x, -1.0f + (textScale * 2), 0.0f), glm::vec2(textScale, textScale), text.c_str(), oe::topLeft);
+		renderer->fontRenderer->renderText(glm::vec3(x, -1.0f + (textScale * 2), 0.0f), glm::vec2(textScale, textScale), text.c_str(), oe::topLeft, M_COLOR_TEXT_GB);
 		text = "Renderer: " + Game::getWindow()->getRenderer();
-		renderer->fontRenderer->renderText(glm::vec3(x, -1.0f + (textScale * 4), 0.0f), glm::vec2(textScale, textScale), text.c_str(), oe::topLeft);
+		renderer->fontRenderer->renderText(glm::vec3(x, -1.0f + (textScale * 4), 0.0f), glm::vec2(textScale, textScale), text.c_str(), oe::topLeft, M_COLOR_TEXT_GB);
 		text = "CPU: " + std::string(cpuInfo);
-		renderer->fontRenderer->renderText(glm::vec3(x, -1.0f + (textScale * 5), 0.0f), glm::vec2(textScale, textScale), text.c_str(), oe::topLeft);
+		renderer->fontRenderer->renderText(glm::vec3(x, -1.0f + (textScale * 5), 0.0f), glm::vec2(textScale, textScale), text.c_str(), oe::topLeft, M_COLOR_TEXT_GB);
 
 		m_currentFrame++;
 		if (m_currentFrame >= GUI_FRAME_LOGGER_SIZE) m_currentFrame = 0;
 		m_frame_logger[m_currentFrame] = Game::getLoop()->getFMS();
-		if (m_frame_logger[m_currentFrame] > m_slowest_frame) m_slowest_frame = m_frame_logger[m_currentFrame];
 
-		glm::vec3 pos = glm::vec3(-Game::getWindow()->getAspect(), 2.0 / 3.0, 0.0f);
-		glm::vec2 size = glm::vec2(GUI_FRAME_LOGGER_BAR_WIDTH * (GUI_FRAME_LOGGER_SIZE - 1), 0.005) * Game::renderScale();
-		glm::vec3 textPos = glm::vec3(-Game::getWindow()->getAspect(), 2.0 / 3.0 - 0.02 * Game::renderScale(), 0.0f);
-		glm::vec2 textSize = glm::vec2(textScale * 0.8);
+		m_avg_frame = 0;
+		for (int i = 0; i < GUI_FRAME_LOGGER_SIZE; i++)
+		{
+			m_avg_frame += m_frame_logger[i];
+		}
+		m_avg_frame /= (float)GUI_FRAME_LOGGER_SIZE;
+
+		glm::vec3 pos = glm::vec3(-Game::getWindow()->getAspect(), 2.0f / 3.0f, 0.0f);
+		glm::vec2 size = glm::vec2(GUI_FRAME_LOGGER_BAR_WIDTH * (GUI_FRAME_LOGGER_SIZE - 1), 0.005f) * Game::renderScale();
+		glm::vec3 textPos = glm::vec3(-Game::getWindow()->getAspect(), 2.0f / 3.0f - 0.02f * Game::renderScale(), 0.0f);
+		glm::vec2 textSize = glm::vec2(textScale * 0.8f);
 		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), 20, OE_COLOR_GREEN));
 		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y + size.y, pos.z), glm::vec2(0.0f, 1.0f), 20, OE_COLOR_GREEN));
 		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y + size.y, pos.z), glm::vec2(1.0f, 1.0f), 20, OE_COLOR_GREEN));
 		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y, pos.z), glm::vec2(1.0f, 0.0f), 20, OE_COLOR_GREEN));
 		if (m_selected_logger) {
 			//Top bar
-			text = "frame: " + std::to_string((int)m_slowest_frame);
-			renderer->fontRenderer->renderText(textPos, textSize, text.c_str(), oe::bottomLeft);
+			text = "frame: " + std::to_string((int)m_avg_frame);
+			renderer->fontRenderer->renderText(textPos, textSize, text.c_str(), oe::bottomLeft, M_COLOR_TEXT_GB);
 
 			//Actual logger
 			for (int i = 0; i < GUI_FRAME_LOGGER_SIZE; i++) {
-				float bar_height = (m_frame_logger[i] / m_slowest_frame) / 3.0;
+				float bar_height = (m_frame_logger[i] / m_avg_frame) / 3.0;
 				pos = glm::vec3(-Game::getWindow()->getAspect() + (GUI_FRAME_LOGGER_BAR_WIDTH * Game::renderScale() * i), 1.0 - bar_height, 0.0f);
 				size = glm::vec2(GUI_FRAME_LOGGER_BAR_WIDTH * Game::renderScale(), bar_height);
-				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), 20, OE_COLOR_BLACK));
-				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y + size.y, pos.z), glm::vec2(0.0f, 1.0f), 20, OE_COLOR_BLACK));
-				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y + size.y, pos.z), glm::vec2(1.0f, 1.0f), 20, OE_COLOR_BLACK));
-				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y, pos.z), glm::vec2(1.0f, 0.0f), 20, OE_COLOR_BLACK));
+
+
+				glm::vec4 barColor(max(0.0f, bar_height - 0.5f), max(0.0f, 0.5f - bar_height), 0.0f, 1.0f);
+
+				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), 20, barColor));
+				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y + size.y, pos.z), glm::vec2(0.0f, 1.0f), 20, barColor));
+				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y + size.y, pos.z), glm::vec2(1.0f, 1.0f), 20, barColor));
+				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y, pos.z), glm::vec2(1.0f, 0.0f), 20, barColor));
 			}
 		}
 		else {
-			text = "update: " + std::to_string((int)m_slowest_update);
-			renderer->fontRenderer->renderText(textPos, textSize, text.c_str(), oe::bottomLeft);
+			text = "update: " + std::to_string((int)m_avg_update);
+			renderer->fontRenderer->renderText(textPos, textSize, text.c_str(), oe::bottomLeft, M_COLOR_TEXT_GB);
 
 			for (int i = 0; i < GUI_FRAME_LOGGER_SIZE; i++) {
-				float bar_height = (m_update_logger[i] / m_slowest_update) / 3.0;
+				float bar_height = (m_update_logger[i] / m_avg_update) / 3.0;
 				pos = glm::vec3(-Game::getWindow()->getAspect() + (GUI_FRAME_LOGGER_BAR_WIDTH * Game::renderScale() * i), 1.0 - bar_height, 0.0f);
 				size = glm::vec2(GUI_FRAME_LOGGER_BAR_WIDTH * Game::renderScale(), bar_height);
-				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), 20, OE_COLOR_BLACK));
-				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y + size.y, pos.z), glm::vec2(0.0f, 1.0f), 20, OE_COLOR_BLACK));
-				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y + size.y, pos.z), glm::vec2(1.0f, 1.0f), 20, OE_COLOR_BLACK));
-				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y, pos.z), glm::vec2(1.0f, 0.0f), 20, OE_COLOR_BLACK));
+
+				float br = max(0.0f, bar_height);
+				glm::vec4 barColor(br, 1.0f - br, 0.0f, 1.0f);
+
+				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), 20, barColor));
+				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y + size.y, pos.z), glm::vec2(0.0f, 1.0f), 20, barColor));
+				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y + size.y, pos.z), glm::vec2(1.0f, 1.0f), 20, barColor));
+				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y, pos.z), glm::vec2(1.0f, 0.0f), 20, barColor));
 			}
 		}
 	}
@@ -142,7 +170,7 @@ void Gui::renderNoBlur(oe::Renderer *renderer) {
 	if (Game::debugMode) {
 		//Debug mode text
 		std::string text = "FPS: " + std::to_string(Game::getLoop()->getFPS());
-		renderer->fontRenderer->renderText(glm::vec3(x, -1.0 + (textScale * 0), 0.0f), glm::vec2(textScale, textScale), text.c_str(), oe::topLeft);
+		renderer->fontRenderer->renderText(glm::vec3(x, -1.0, 0.0f), glm::vec2(textScale, textScale), text.c_str(), oe::topLeft, M_COLOR_TEXT_GB);
 	}
 
 	if (Game::paused) {
@@ -153,7 +181,7 @@ void Gui::renderNoBlur(oe::Renderer *renderer) {
 		float textScale = 0.1 * Game::renderScale();
 
 		std::string text = "PAUSED";
-		renderer->fontRenderer->renderText(glm::vec3(0.003, -0.003 - 0.75, 0.0f), glm::vec2(textScale, textScale), text.c_str(), oe::center);
+		renderer->fontRenderer->renderText(glm::vec3(0.003, -0.003 - 0.75, 0.0f), glm::vec2(textScale, textScale), text.c_str(), oe::center, M_COLOR_TEXT_GB);
 
 		for (int i = 0; i < 3; i++)
 		{
@@ -183,26 +211,34 @@ void Gui::renderNoBlur(oe::Renderer *renderer) {
 
 	if (m_chat_opened || m_chat_opened_timer > 0) {
 		if (m_chat_opened) {
-			glm::vec3 pos = glm::vec3(-Game::getWindow()->getAspect(), 1.0 - textScale - 0.05 * Game::renderScale(), 0.0f);
-			glm::vec2 size = glm::vec2(Game::getWindow()->getAspect() * 2, textScale + 0.05 * Game::renderScale());
+			glm::vec3 pos = glm::vec3(-Game::getWindow()->getAspect(), 1.0 - textScale, 0.0f);
+			glm::vec2 size = glm::vec2(textScale);
 
-			renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), 20, glm::vec4(0.0, 0.0, 0.0, 0.2)));
-			renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y + size.y, pos.z), glm::vec2(0.0f, 1.0f), 20, glm::vec4(0.0, 0.0, 0.0, 0.2)));
-			renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y + size.y, pos.z), glm::vec2(1.0f, 1.0f), 20, glm::vec4(0.0, 0.0, 0.0, 0.2)));
-			renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y, pos.z), glm::vec2(1.0f, 0.0f), 20, glm::vec4(0.0, 0.0, 0.0, 0.2)));
-			renderer->fontRenderer->renderText(glm::vec3(-Game::getWindow()->getAspect(), 1.0 - 0.05 * Game::renderScale(), 0.0f), glm::vec2(textScale, textScale), m_current_line.c_str(), oe::bottomLeft);
+			//renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), 20, glm::vec4(0.0, 0.0, 0.0, 0.2)));
+			//renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y - size.y, pos.z), glm::vec2(0.0f, 1.0f), 20, glm::vec4(0.0, 0.0, 0.0, 0.2)));
+			//renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + Game::getWindow()->getAspect() * 2, pos.y - size.y, pos.z), glm::vec2(1.0f, 1.0f), 20, glm::vec4(0.0, 0.0, 0.0, 0.2)));
+			//renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + Game::getWindow()->getAspect() * 2, pos.y, pos.z), glm::vec2(1.0f, 0.0f), 20, glm::vec4(0.0, 0.0, 0.0, 0.2)));
+			
+			const char* rendertext = " ";
+			if (m_current_line.length() != 0) {
+				rendertext = m_current_line.c_str();
+			}
+			renderer->fontRenderer->renderText(pos, size, rendertext, oe::bottomLeft, M_COLOR_TEXT_GB);
 		}
 
 		for (int i = 0; i < m_text_lines.size(); i++)
 		{
-			renderer->fontRenderer->renderText(glm::vec3(-Game::getWindow()->getAspect(), 1.0 - ((i + 1.5) * textScale * 1.2), 0.0f), glm::vec2(textScale, textScale), m_text_lines[m_text_lines.size() - 1 - i].c_str(), oe::bottomLeft);
+			glm::vec3 pos = glm::vec3(-Game::getWindow()->getAspect(), 1.0f - (float(i + 3) * textScale), 0.0f);
+			glm::vec2 size = glm::vec2(textScale);
+
+			renderer->fontRenderer->renderText(pos, size, m_text_lines[m_text_lines.size() - 1 - i].c_str(), oe::bottomLeft, M_COLOR_TEXT_GB);
 		}
 	}
 }
 
 void Gui::addChatLine(std::string text) {
 	oe::Logger::out(oe::info, "chat:", text.c_str());
-	m_chat_opened_timer = 500;
+	m_chat_opened_timer = 5.0f;
 	m_text_lines.push_back(text);
 	if (m_text_lines.size() > MAX_TEXT_LINES) m_text_lines.erase(m_text_lines.begin());
 }
@@ -212,13 +248,19 @@ void Gui::addTextToLatest(std::string text) {
 	if (m_last_inputs.size() > MAX_TEXT_LINES) m_last_inputs.erase(m_last_inputs.begin());
 }
 
-void Gui::update() {
-	m_chat_opened_timer--;
+void Gui::update(float divider) {
+	m_chat_opened_timer -= 1.0f / divider;
 	if (Game::advancedDebugMode) {
 		m_currentUpdate++;
 		if (m_currentUpdate >= GUI_FRAME_LOGGER_SIZE) m_currentUpdate = 0;
 		m_update_logger[m_currentUpdate] = Game::getLoop()->getUMS();
-		if (m_update_logger[m_currentUpdate] > m_slowest_update) m_slowest_update = m_update_logger[m_currentUpdate];
+
+		m_avg_update = 0;
+		for (int i = 0; i < GUI_FRAME_LOGGER_SIZE; i++)
+		{
+			m_avg_update += m_update_logger[i];
+		}
+		m_avg_update /= (float)GUI_FRAME_LOGGER_SIZE;
 	}
 }
 
@@ -255,13 +297,13 @@ void Gui::keyPress(int key, int action) {
 		if (action == OE_PRESS && key == OE_KEY_ESCAPE && m_chat_opened) {
 			//Only closes chat if its opened
 			m_chat_opened = false;
-			m_chat_opened_timer = 500;
+			m_chat_opened_timer = 5.0f;
 			return;
 		}
 		if (action == OE_PRESS && key == OE_KEY_ENTER && m_chat_opened) {
 			//Only closes chat if its opened
 			m_chat_opened = false;
-			m_chat_opened_timer = 500;
+			m_chat_opened_timer = 5.0f;
 			userInput();
 			addTextToLatest(m_current_line);
 			m_current_line = "";
@@ -279,13 +321,15 @@ void Gui::keyPress(int key, int action) {
 			if (m_current_input_history == -1) m_current_line_reserved = m_current_line;
 			m_current_input_history++;
 			selectInputHistory();
+			return;
 		}
 		if (action == OE_PRESS && key == OE_KEY_DOWN && m_chat_opened) {
 			m_current_input_history--;
 			selectInputHistory();
+			return;
 		}
 	}
-	if (key == OE_KEY_F9) m_selected_logger = !m_selected_logger;
+	if (action == OE_PRESS && key == OE_KEY_F9) { m_selected_logger = !m_selected_logger; return; }
 }
 
 void Gui::selectInputHistory() {
@@ -296,7 +340,7 @@ void Gui::selectInputHistory() {
 		m_current_line = m_current_line_reserved;
 		return;
 	}
-	m_current_line = m_last_inputs[(int)m_last_inputs.size() - 1 - m_current_input_history];
+	m_current_line = m_last_inputs[(int)(m_last_inputs.size() - 1 - m_current_input_history)];
 }
 
 void Gui::typing(unsigned int codepoint, int mods) {
@@ -315,8 +359,8 @@ void Gui::userInput() {
 	//Check if command is typed
 	if (m_current_line[0] == '/') {
 		int space = m_current_line.find(' ');
-		std::string command = m_current_line.substr(1, space - 1);
-		std::string arguments = m_current_line.substr(space + 1);
+		std::string command = m_current_line.substr(1, (size_t)space - (size_t)1);
+		std::string arguments = m_current_line.substr((size_t)space + (size_t)1);
 		std::vector<std::string> argumentVec;
 
 		//Check if has arguments
@@ -327,7 +371,7 @@ void Gui::userInput() {
 			while (nextArg != -1) {
 				nextArg = leftArguments.find(' ');
 				std::string thisargument = leftArguments.substr(0, nextArg);
-				leftArguments = leftArguments.substr(nextArg + 1);
+				leftArguments = leftArguments.substr((size_t)nextArg + (size_t)1);
 				argumentVec.push_back(thisargument);
 				//std::cout << "\"" << thisargument << "\"" << std::endl;
 			}
@@ -384,7 +428,7 @@ void Gui::userInput() {
 				tooFewArguments();
 				return;
 			}
-			float id;
+			float id = 0;
 			float n = 1;
 			bool item = false;
 

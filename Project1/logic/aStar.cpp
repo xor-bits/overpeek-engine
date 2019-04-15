@@ -152,21 +152,24 @@ bool Pathfinder::runUnitlEnd() {
 void Pathfinder::debugRender(oe::Renderer *renderer, float offx, float offy) {
 	Node *curNode = p_curnode;
 	bool first = true;
-	while (curNode != p_startnode) {
-		glm::vec3 pos = glm::vec3((curNode->x + offx) * TILE_SIZE, (curNode->y + offy) * TILE_SIZE, 0.0f);
 
-		if (first) {
-			renderer->lineRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), 20, glm::vec4(1.0, 0.5, 0.0, 0.2)));
-		}
-		else {
-			renderer->lineRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), 20, glm::vec4(1.0, 0.5, 0.0, 0.2)));
-			renderer->lineRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), 20, glm::vec4(1.0, 0.5, 0.0, 0.2)));
-		}
+	glm::vec4 lineColor(1.0f, 0.5f, 0.0f, 1.0f);
+
+	glm::vec3 pos = glm::vec3((curNode->x + offx + 0.5f) * TILE_SIZE, (curNode->y + offy + 0.5f) * TILE_SIZE, 0.0f);
+	renderer->lineRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), 20, lineColor));
+	
+	while (curNode != p_startnode) {
+		glm::vec3 pos = glm::vec3((curNode->x + offx + 0.5f) * TILE_SIZE, (curNode->y + offy + 0.5f) * TILE_SIZE, 0.0f);
+
+		renderer->lineRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), 20, lineColor));
+		renderer->lineRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), 20, lineColor));
 
 		curNode = curNode->parent;
-
 		first = false;
 	}
+
+	pos = glm::vec3((p_startnode->x + offx + 0.5f) * TILE_SIZE, (p_startnode->y + offy + 0.5f) * TILE_SIZE, 0.0f);
+	renderer->lineRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), 20, lineColor));
 }
 
 std::vector<glm::vec2> *Pathfinder::retrace() {

@@ -159,6 +159,10 @@ namespace oe {
 		return true;
 	}
 
+	void Window::setLineWidth(float w) {
+		glLineWidth(w);
+	}
+
 	void Window::setBackFaceCulling(bool on) {
 		if (on) glEnable(GL_CULL_FACE);
 		else glDisable(GL_CULL_FACE);
