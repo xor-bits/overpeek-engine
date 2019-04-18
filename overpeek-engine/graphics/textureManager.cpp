@@ -86,9 +86,9 @@ namespace oe {
 		glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, r, r, 256, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		//glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 
-		GLint max_layers;
-		glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &max_layers);
-		oe::Logger::out(oe::info, "Max OpenGL layers", max_layers);
+		//GLint max_layers;
+		//glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &max_layers);
+		//oe::Logger::out(oe::info, "Max OpenGL layers", max_layers);
 		
 		mTextures[id] = texture;
 		return texture;

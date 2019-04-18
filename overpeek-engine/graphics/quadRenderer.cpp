@@ -60,25 +60,6 @@ namespace oe {
 		glVertexAttribPointer(3, 4, GL_FLOAT, false, sizeof(VertexData), (void*)(6 * sizeof(GLfloat)));
 	}
 
-	glm::vec2 rotatePoint(float cx, float cy, float angle, glm::vec2 p)
-	{
-		float s = sin(angle);
-		float c = cos(angle);
-
-		// translate point back to origin:
-		p.x -= cx;
-		p.y -= cy;
-
-		// rotate point
-		float xnew = p.x * c - p.y * s;
-		float ynew = p.x * s + p.y * c;
-
-		// translate point back:
-		p.x = xnew + cx;
-		p.y = ynew + cy;
-		return p;
-	}
-
 	void QuadRenderer::beginRendering() {
 		m_buffer = (VertexData*)m_VBO->mapBuffer();
 		m_buffer_mapped = true;
@@ -103,42 +84,6 @@ namespace oe {
 		}
 	}
 
-	//void QuadRenderer::renderBox(glm::vec2 _pos, glm::vec2 _size, int _id, glm::vec4 _color) {
-	//	m_buffer[m_buffer_current].position.x = _pos.x;
-	//	m_buffer[m_buffer_current].position.y = _pos.y;
-	//	m_buffer[m_buffer_current].uv.x = 0.0;
-	//	m_buffer[m_buffer_current].uv.y = 0.0;
-	//	m_buffer[m_buffer_current].texture = _id;
-	//	m_buffer[m_buffer_current].color = _color;
-	//	m_buffer_current++;
-	//
-	//	m_buffer[m_buffer_current].position.x = _pos.x;
-	//	m_buffer[m_buffer_current].position.y = _pos.y + _size.y;
-	//	m_buffer[m_buffer_current].uv.x = 0.0;
-	//	m_buffer[m_buffer_current].uv.y = 1.0;
-	//	m_buffer[m_buffer_current].texture = _id;
-	//	m_buffer[m_buffer_current].color = _color;
-	//	m_buffer_current++;
-	//
-	//	m_buffer[m_buffer_current].position.x = _pos.x + _size.x;
-	//	m_buffer[m_buffer_current].position.y = _pos.y + _size.y;
-	//	m_buffer[m_buffer_current].uv.x = 1.0;
-	//	m_buffer[m_buffer_current].uv.y = 1.0;
-	//	m_buffer[m_buffer_current].texture = _id;
-	//	m_buffer[m_buffer_current].color = _color;
-	//	m_buffer_current++;
-	//
-	//	m_buffer[m_buffer_current].position.x = _pos.x + _size.x;
-	//	m_buffer[m_buffer_current].position.y = _pos.y;
-	//	m_buffer[m_buffer_current].uv.x = 1.0;
-	//	m_buffer[m_buffer_current].uv.y = 0.0;
-	//	m_buffer[m_buffer_current].texture = _id;
-	//	m_buffer[m_buffer_current].color = _color;
-	//	m_buffer_current++;
-	//
-	//	m_indexcount += INDEX_PER_QUAD;
-	//}
-
 	void QuadRenderer::draw(int texture, int textureType) {
 		stopRendering();
 
@@ -149,6 +94,7 @@ namespace oe {
 		glBindTexture(textureType, texture);
 		m_VAO->bind();
 
+		//oe::Logger::out(oe::info, "Quads: ", m_indexcount / 6);
 		if (m_indexcount > 0) {
 			glDrawElements(GL_TRIANGLES, m_indexcount, GL_UNSIGNED_SHORT, 0);
 			m_indexcount = 0;

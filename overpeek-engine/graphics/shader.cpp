@@ -84,8 +84,6 @@ namespace oe {
 		//Free up data
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
-
-		oe::Logger::out(oe::info, "Created vertex - fragment shader");
 	}
 
 	Shader::Shader(const char *vertexPath, const char *fragmentPath, const char *geometryPath) {
@@ -113,8 +111,6 @@ namespace oe {
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
 		glDeleteShader(geometryShader);
-
-		oe::Logger::out(oe::info, "Created vertex - geometry - fragment shader");
 	}
 
 

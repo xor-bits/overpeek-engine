@@ -14,7 +14,7 @@
 #include "renderer.h"
 #include "quadRenderer.h"
 #include "window.h"
-#include "../math/math.h"
+#include "../utility/math.h"
 
 namespace oe {
 

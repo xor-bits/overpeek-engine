@@ -34,7 +34,7 @@
 #define REGION_SIZE				8
 #define REGOIN_SIZE_HALF		REGION_SIZE / 2.0
 #else
-#define RENDER_VERTICAL			16
+#define RENDER_VERTICAL			10
 #define MAP_WORK_DST			32
 #define RENDER_HORIZONTAL		RENDER_VERTICAL * Game::getWindow()->getAspect()
 #endif

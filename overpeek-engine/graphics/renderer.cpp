@@ -16,6 +16,7 @@ namespace oe {
 		fontRenderer = new FontRenderer(font, new QuadRenderer(window), this);
 		pointRenderer = new PointRenderer(window);
 		lineRenderer = new LineRenderer(window);
+		triangleRenderer = new TriangleRenderer(window);
 
 		//Post processing
 
@@ -102,6 +103,8 @@ namespace oe {
 		quadRenderer->draw(texture, textureType);
 		fontRenderer->draw();
 		lineRenderer->draw(texture, textureType);
+		triangleRenderer->draw(texture, textureType);
+
 	}
 
 	//Draws all quads and text to specified framebuffer at index

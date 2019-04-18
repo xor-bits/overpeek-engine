@@ -104,7 +104,10 @@ bool Map::unload() {
 	catch (const std::exception&)
 	{
 		oe::Logger::out(oe::warning, "Couln't unload map");
+		return false;
 	}
+
+	return true;
 }
 
 bool Map::save() {
@@ -199,6 +202,8 @@ bool Map::create(std::string name) {
 
 	//Print status
 	std::cout << "SUCCESS" << std::endl;
+
+	return true;
 }
 
 Database::Biome *Map::getTileBiome(float x, float y) {

@@ -48,9 +48,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>PGOptimize</WholeProgramOptimization>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -181,20 +180,11 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>GLEW_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OpenMPSupport>true</OpenMPSupport>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries\zlib\include;$(SolutionDir)\Libraries\al\include;$(SolutionDir)\Libraries\opencv\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\spdlog\include;$(SolutionDir)\Libraries\box2d\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\glm</AdditionalIncludeDirectories>
-      <FloatingPointModel>Precise</FloatingPointModel>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -222,11 +212,13 @@
     <ClCompile Include="graphics\textureManager.cpp" />
     <ClCompile Include="graphics\shader.cpp" />
     <ClCompile Include="graphics\quadRenderer.cpp" />
+    <ClCompile Include="graphics\triangleRenderer.cpp" />
     <ClCompile Include="graphics\window.cpp" />
     <ClCompile Include="utility\filereader.cpp" />
     <ClCompile Include="utility\gameloop.cpp" />
     <ClCompile Include="utility\clock.cpp" />
     <ClCompile Include="utility\debug.cpp" />
+    <ClCompile Include="utility\math.cpp" />
     <ClCompile Include="utility\random.cpp" />
     <ClCompile Include="utility\logger.cpp" />
   </ItemGroup>
@@ -243,15 +235,16 @@
     <ClInclude Include="graphics\textureManager.h" />
     <ClInclude Include="graphics\shader.h" />
     <ClInclude Include="graphics\quadRenderer.h" />
+    <ClInclude Include="graphics\triangleRenderer.h" />
     <ClInclude Include="graphics\vertexData.h" />
     <ClInclude Include="graphics\window.h" />
-    <ClInclude Include="math\math.h" />
     <ClInclude Include="utility\binaryIO.h" />
     <ClInclude Include="utility\clock.h" />
     <ClInclude Include="utility\filereader.h" />
     <ClInclude Include="utility\debug.h" />
     <ClInclude Include="utility\gameloop.h" />
     <ClInclude Include="utility\logger.h" />
+    <ClInclude Include="utility\math.h" />
     <ClInclude Include="utility\random.h" />
   </ItemGroup>
   <ItemGroup>
