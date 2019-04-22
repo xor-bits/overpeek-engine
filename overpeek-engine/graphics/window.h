@@ -60,6 +60,9 @@ namespace oe {
 		void setBackFaceCulling(bool on);
 
 		void setLineWidth(float w);
+		void setPointRadius(float w);
+
+		void showCursor(bool show);
 
 		void setClearColor(float r, float g, float b, float a);
 

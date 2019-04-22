@@ -17,10 +17,10 @@ bool m_strong = true;
 bool m_electro = true;
 bool m_grav = false;
 
-double force_mult = 1;
 double zoom = 1.0;
 double xoff = 0.0;
 double yoff = 0.0;
+double zoff = 0.0;
 double xoff_drag = 0.0;
 double yoff_drag = 0.0;
 
@@ -32,58 +32,79 @@ double before_mouse_y = 0;
 
 double last_mouse_x = 0;
 double last_mouse_y = 0;
-glm::vec2 last_vector_dir = glm::vec2(0.0);
+glm::vec3 last_vector_dir = glm::vec3(0.0);
 Particle *selector;
 
 
 void step() {
-	for (int i = 0; i < speed; i++)
+#pragma omp parallel for
+	for (int i = 0; i < PARTICLE_COUNT; i++)
 	{
-		#pragma omp parallel for
-		for (int i = 0; i < PARTICLE_COUNT; i++)
-		{
-			if (m_particles[i]) m_particles[i]->update();
-		}
-		#pragma omp parallel for
-		for (int i = 0; i < PARTICLE_COUNT; i++)
-		{
-			if (m_particles[i]) m_particles[i]->preupdate(m_particles, PARTICLE_COUNT, force_mult, m_strong, m_electro, m_grav);
-		}
+		if (m_particles[i]) m_particles[i]->preupdate(m_particles, PARTICLE_COUNT, speed, m_strong, m_electro, m_grav);
+	}
+
+#pragma omp parallel for
+	for (int i = 0; i < PARTICLE_COUNT; i++)
+	{
+		if (m_particles[i]) m_particles[i]->update();
 	}
 }
 
-void render() {
+void render(float correct) {
 	for (int i = 0; i < PARTICLE_COUNT; i++)
 	{
-		if (m_particles[i]) m_particles[i]->render(m_renderer, zoom, xoff + xoff_drag, yoff + yoff_drag);
+		if (m_particles[i]) m_particles[i]->render(m_renderer, zoom, xoff, yoff, zoff);
 	}
 
-	m_renderer->renderText(glm::vec2(-100.0, -100.0), glm::vec2(6), ("Strong force: " + oe::boolToString(m_strong )).c_str(), oe::topLeft);
-	m_renderer->renderText(glm::vec2(-100.0, -094.0), glm::vec2(6), ("Electromagnetic force: " + oe::boolToString(m_electro)).c_str(), oe::topLeft);
-	m_renderer->renderText(glm::vec2(-100.0, -088.0), glm::vec2(6), ("Gravitational force: " + oe::boolToString(m_grav   )).c_str(), oe::topLeft);
-	m_renderer->renderText(glm::vec2(-100.0, -082.0), glm::vec2(6), ("Zoom: " + std::to_string(zoom)).c_str(), oe::topLeft);
-	m_renderer->renderText(glm::vec2(-100.0, -076.0), glm::vec2(6), ("Sim speed: " + std::to_string(speed)).c_str(), oe::topLeft);
-	m_renderer->renderText(glm::vec2(-100.0, -070.0), glm::vec2(6), ("Tick time: " + std::to_string(m_loop->getUMS())).c_str(), oe::topLeft);
-	m_renderer->renderText(glm::vec2(-100.0, -064.0), glm::vec2(6), ("Forces: x" + std::to_string(force_mult)).c_str(), oe::topLeft);
-
-	m_renderer->draw(m_shader, m_shader, oe::TextureManager::getTexture(0), true);
+	m_renderer->fontRenderer->renderText(glm::vec3(-100.0f, -100.0f, 0.0f), glm::vec2(6), ("Strong force: " + oe::boolToString(m_strong )).c_str(), oe::topLeft);
+	m_renderer->fontRenderer->renderText(glm::vec3(-100.0f, -094.0f, 0.0f), glm::vec2(6), ("Electromagnetic force: " + oe::boolToString(m_electro)).c_str(), oe::topLeft);
+	m_renderer->fontRenderer->renderText(glm::vec3(-100.0f, -088.0f, 0.0f), glm::vec2(6), ("Gravitational force: " + oe::boolToString(m_grav   )).c_str(), oe::topLeft);
+	m_renderer->fontRenderer->renderText(glm::vec3(-100.0f, -082.0f, 0.0f), glm::vec2(6), ("Zoom: " + std::to_string(zoom)).c_str(), oe::topLeft);
+	m_renderer->fontRenderer->renderText(glm::vec3(-100.0f, -076.0f, 0.0f), glm::vec2(6), ("Sim speed: " + std::to_string(speed)).c_str(), oe::topLeft);
+	m_renderer->fontRenderer->renderText(glm::vec3(-100.0f, -070.0f, 0.0f), glm::vec2(6), ("Tick time: " + std::to_string(m_loop->getUMS())).c_str(), oe::topLeft);
+	
+	if (m_paused) m_renderer->fontRenderer->renderText(glm::vec3(0.0f, -50.0f, 0.0f), glm::vec2(20), "PAUSED", oe::center);
 
 
 	//Selector
-
 	double mouse_x, mouse_y;
 	m_window->getMousePos(mouse_x, mouse_y);
-	glm::vec2 mouse = glm::vec2(mouse_x * 100, mouse_y * 100);
-	glm::vec2 arrow = glm::normalize(last_vector_dir) * glm::vec2(20.0);
+	glm::vec3 mouse = glm::vec3(mouse_x * 100, mouse_y * 100, 0.0f);
+	//glm::vec3 arrow = glm::normalize(last_vector_dir) * glm::vec3(20.0);
+	glm::vec3 arrow = last_vector_dir * glm::vec3(1000.0f);
+	
+	
+	m_renderer->lineRenderer->submitVertex(oe::VertexData(mouse, glm::vec2(0.0f, 0.0f), 24, glm::vec4(1.0, 0.5, 0.0, 1.0)));
+	m_renderer->lineRenderer->submitVertex(oe::VertexData(mouse + arrow, glm::vec2(0.0f, 0.0f), 24, glm::vec4(1.0, 0.5, 0.0, 1.0)));
+	
+	m_renderer->fontRenderer->renderText(glm::vec3(mouse.x, mouse.y - 5.0, 0.0f), glm::vec2(5, 5), (std::to_string(arrow.x) + ", " + std::to_string(arrow.y)).c_str(), oe::center);
+	
 
-	m_renderer->renderLine(mouse, mouse + arrow, 24, glm::vec4(1.0, 0.5, 0.0, 1.0));
-	m_renderer->renderText(glm::vec2(mouse.x, mouse.y - 5.0), glm::vec2(5, 5), (std::to_string(last_vector_dir.x) + ", " + std::to_string(last_vector_dir.y)).c_str(), oe::center);
+	selector->render(m_renderer, zoom, xoff, yoff, zoff);
+	
+	glm::vec4 color;
+	std::string name;
+	if (selector->proton()) {
+		color = glm::vec4(1.0, 0.0, 0.0, 1.0);
+		name = "proton";
+	}
+	else if (selector->neutron()) {
+		color = glm::vec4(0.7, 0.7, 0.7, 1.0);
+		name = "neutron";
+	}
+	else {
+		color = glm::vec4(0.0, 0.0, 1.0, 1.0);
+		name = "electron";
+	}
+	m_renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(90, 90, 0), glm::vec2(0.0f, 0.0f), 24, color));
+	m_renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(90, 98, 0), glm::vec2(0.0f, 1.0f), 24, color));
+	m_renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(98, 98, 0), glm::vec2(1.0f, 1.0f), 24, color));
+	m_renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(98, 90, 0), glm::vec2(1.0f, 0.0f), 24, color));
+	
+	
+	m_renderer->fontRenderer->renderText(glm::vec3(-98.0f, 90.0f, 0.0f), glm::vec2(6), ("Particle: " + name + ", Weight: " + std::to_string(selector->mass()) + ", Charge: " + std::to_string(selector->getCharge())).c_str(), oe::topLeft);
 
-	selector->render(m_renderer, zoom, xoff + xoff_drag, yoff + yoff_drag);
-
-	if (selector->proton()) m_renderer->renderBox(glm::vec2(90), glm::vec2(10), 24, glm::vec4(1.0, 0.0, 0.0, 1.0));
-	else if (selector->neutron()) m_renderer->renderBox(glm::vec2(90), glm::vec2(10), 24, glm::vec4(0.7, 0.7, 0.7, 1.0));
-	else m_renderer->renderBox(glm::vec2(90), glm::vec2(10), 24, glm::vec4(0.0, 0.0, 1.0, 1.0));
+	m_renderer->draw(m_shader, m_shader, oe::TextureManager::getTexture(0), true);
 }
 
 void update() {
@@ -92,14 +113,10 @@ void update() {
 	double mouse_x, mouse_y;
 	m_window->getMousePos(mouse_x, mouse_y);
 
-	if (m_window->getButton(OE_MOUSE_BUTTON_RIGHT)) {
-		xoff_drag = (mouse_x - before_mouse_x) * 100.0 / zoom;
-		yoff_drag = (mouse_y - before_mouse_y) * 100.0 / zoom;
-	}
-
-	selector->setX((mouse_x * 100.0) / zoom - xoff - xoff_drag);
-	selector->setY((mouse_y * 100.0) / zoom - yoff - yoff_drag);
-	last_vector_dir = Particle::calcForces(selector, m_particles, force_mult, PARTICLE_COUNT, m_strong, m_electro, m_grav);
+	selector->setX((mouse_x * 100.0) / zoom - xoff);
+	selector->setY((mouse_y * 100.0) / zoom - yoff);
+	selector->setZ(0.0f - zoff);
+	last_vector_dir = Particle::calcForces(selector, m_particles, speed, PARTICLE_COUNT, m_strong, m_electro, m_grav, true) / selector->mass();
 
 
 	if (m_window->getKey(OE_KEY_D)) xoff -= 3.0 / zoom;
@@ -113,7 +130,7 @@ void rapid() {
 }
 
 void setup() {
-	selector = new Particle(0.0, 0.0, 0.0, 0.0, 1, 1.0);
+	selector = new Particle(-xoff, -yoff, -zoff, 0.0f, 0.0f, 0.0f, 1.0f);
 	for (int i = 0; i < PARTICLE_COUNT; i++)
 	{
 		m_particles[i] = nullptr;
@@ -123,9 +140,6 @@ void setup() {
 void keyPress(int key, int action) {
 	if (action == OE_PRESS) {
 		int n = int(oe::Random::random(0.0, PARTICLE_COUNT));
-		float dir = 0.0;
-		if (m_window->getKey(OE_KEY_LEFT_CONTROL) || m_window->getKey(OE_KEY_RIGHT_CONTROL)) dir = -0.5;
-		if (m_window->getKey(OE_KEY_LEFT_SHIFT) || m_window->getKey(OE_KEY_RIGHT_SHIFT)) dir = 0.5;
 
 		switch (key)
 		{
@@ -142,27 +156,28 @@ void keyPress(int key, int action) {
 
 		case OE_KEY_R:
 			for (int i = 0; i < PARTICLE_COUNT; i++) delete m_particles[i];
+			delete selector;
 			setup();
 			break;
 
 		case OE_KEY_1:
 			delete selector;
-			selector = new Particle(-xoff - xoff_drag, -yoff - yoff_drag, 0, 0.0, 1.0);
+			selector = new Particle(-xoff, -yoff, -zoff, 0.0f, 0.0f, 0.0f, 1.0f);
 			break;
 
 		case OE_KEY_2:
 			delete selector;
-			selector = new Particle(-xoff - xoff_drag, -yoff - yoff_drag, 0, 0.0, 0.0);
+			selector = new Particle(-xoff, -yoff, -zoff, 0.0f, 0.0f, 0.0f, 0.0f);
 			break;
 
 		case OE_KEY_3:
 			delete selector;
-			selector = new Particle(-xoff - xoff_drag, -yoff - yoff_drag, 0, 0.0, -1.0);
+			selector = new Particle(-xoff, -yoff, -zoff, 0.0f, 0.0f, 0.0f, -1.0f);
 			break;
 
 		case OE_KEY_4:
 			delete selector;
-			selector = new Particle(-xoff - xoff_drag, -yoff - yoff_drag, 0, -10000.0, 100000000);
+			selector = new Particle(-xoff, -yoff, -zoff, 0.0f, 0.0f, 0.0f, 1.0f, INFINITY);
 			break;
 
 		case OE_KEY_F1:
@@ -185,16 +200,6 @@ void keyPress(int key, int action) {
 
 		case OE_KEY_DOWN:
 			speed /= 2;
-			break;
-
-		case OE_KEY_PAGE_UP:
-			force_mult *= 2;
-
-			if (force_mult == 0) force_mult = 1;
-			break;
-
-		case OE_KEY_PAGE_DOWN:
-			force_mult /= 2;
 			break;
 
 		case OE_KEY_LEFT:
@@ -225,7 +230,8 @@ void buttonPress(int button, int action) {
 		switch (button)
 		{
 		case OE_MOUSE_BUTTON_LEFT:
-			m_particles[n] = new Particle(selector->getX(), selector->getY(), dir, 0.0, selector->getCharge());
+			m_particles[n] = new Particle(*selector);
+			m_particles[n]->applyForceX(dir * m_particles[n]->mass());
 			break;
 		case OE_MOUSE_BUTTON_RIGHT:
 			double mouse_x, mouse_y;
@@ -241,7 +247,6 @@ void buttonPress(int button, int action) {
 		}
 	}
 	else if (action == OE_RELEASE) {
-		oe::Logger::out(oe::info, "Release");
 		if (button == OE_MOUSE_BUTTON_RIGHT) {
 			xoff += xoff_drag;
 			yoff += yoff_drag;
@@ -270,8 +275,6 @@ void scroll(double x) {
 
 		zoom *= 0.5;
 	}
-
-	oe::Logger::out(oe::info, mouse_x);
 }
 
 int main() {
@@ -280,6 +283,9 @@ int main() {
 	m_window->setButtonCallback(buttonPress);
 	m_window->setScrollCallback(scroll);
 	m_window->setSwapInterval(1);
+	m_window->setLineWidth(5.0f);
+	m_window->setPointRadius(8.0f);
+	m_window->showCursor(false);
 	m_renderer = new oe::Renderer("recourses/arial.ttf", m_window);
 	m_shader = new oe::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl");
 	glm::mat4 pr = glm::ortho(-100.0, 100.0, 100.0, -100.0);
@@ -289,7 +295,7 @@ int main() {
 
 	setup();
 
-	m_loop = new oe::GameLoop(render, update, 60, 60, m_window);
+	m_loop = new oe::GameLoop(render, update, 60, m_window);
 	m_loop->start();
 	return 0;
 }

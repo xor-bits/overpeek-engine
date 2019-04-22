@@ -159,8 +159,17 @@ namespace oe {
 		return true;
 	}
 
+	void Window::showCursor(bool show) {
+		if (!show) glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+		else glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
+
 	void Window::setLineWidth(float w) {
 		glLineWidth(w);
+	}
+
+	void Window::setPointRadius(float w) {
+		glPointSize(w);
 	}
 
 	void Window::setBackFaceCulling(bool on) {

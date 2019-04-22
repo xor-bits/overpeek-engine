@@ -7,6 +7,7 @@
 #include "pointRenderer.h"
 #include "vertexData.h"
 #include "lineRenderer.h"
+#include "triangleRenderer.h"
 
 namespace oe {
 
@@ -47,6 +48,9 @@ namespace oe {
 
 		//Point
 		PointRenderer* pointRenderer;
+
+		//Triangle
+		TriangleRenderer* triangleRenderer;
 
 
 		Renderer(const char *font, Window *window);

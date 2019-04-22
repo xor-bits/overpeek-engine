@@ -14,13 +14,8 @@
 
 #include "audio/audioManager.h"
 
-#include "math/noise.h"
-#include "math/math.h"
-
 #include "../FastNoiseSIMD/FastNoise.h"
 #include "../FastNoiseSIMD/FastNoiseSIMD/FastNoiseSIMD.h"
-//#include "math/FastNoise.h"
-//#include "math/FastNoiseSIMD/FastNoiseSIMD.h"
 
 #include "utility/clock.h"
 #include "utility/random.h"
@@ -29,6 +24,7 @@
 #include "utility/debug.h"
 #include "utility/gameloop.h"
 #include "utility/filereader.h"
+#include "utility/math.h"
 
 //#include "graphics/camera.h"
 #include "graphics/shader.h"

@@ -44,203 +44,73 @@ namespace oe {
 	}
 
 	void Logger::out(int type, const char *output) {
-		setup();
-		spdlog::logger *console = (spdlog::logger*)m_console;
-
-		switch (type)
-		{
-		case info:
-			console->info(output);
-			break;
-		case warning:
-			console->warn(output);
-			break;
-		case critical:
-			console->critical(output);
-			break;
-		case error:
-			console->error(output);
-			Window::terminate();
-			break;
-
-		default:
-			break;
-		}
+		std::string log = output;
+		out(type, log);
 	}
 
 	void Logger::out(int type, double output) {
-		setup();
-		spdlog::logger *console = (spdlog::logger*)m_console;
-
-		switch (type)
-		{
-		case info:
-			console->info(output);
-			break;
-		case warning:
-			console->warn(output);
-			break;
-		case critical:
-			console->critical(output);
-			break;
-		case error:
-			console->error(output);
-			Window::terminate();
-			break;
-
-		default:
-			break;
-		}
+		std::string log = std::to_string(output);
+		out(type, log);
 	}
 
 	void Logger::out(int type, const char *output, double output2) {
-		setup();
-		spdlog::logger *console = (spdlog::logger*)m_console;
-
-		switch (type)
-		{
-		case info:
-			console->info(output + std::to_string(output2));
-			break;
-		case warning:
-			console->warn(output + std::to_string(output2));
-			break;
-		case critical:
-			console->critical(output + std::to_string(output2));
-			break;
-		case error:
-			console->error(output + std::to_string(output2));
-			Window::terminate();
-			break;
-
-		default:
-			break;
-		}
+		std::string log = output + std::to_string(output2);
+		out(type, log);
 	}
 
 	void Logger::out(int type, const char *output, double output2, double output3) {
-		setup();
-		spdlog::logger *console = (spdlog::logger*)m_console;
-
-		switch (type)
-		{
-		case info:
-			console->info(output + std::to_string(output2) + ", " + std::to_string(output3));
-			break;
-		case warning:
-			console->warn(output + std::to_string(output2) + ", " + std::to_string(output3));
-			break;
-		case critical:
-			console->critical(output + std::to_string(output2) + ", " + std::to_string(output3));
-			break;
-		case error:
-			console->error(output + std::to_string(output2) + ", " + std::to_string(output3));
-			Window::terminate();
-			break;
-
-		default:
-			break;
-		}
+		std::string log = output + std::to_string(output2) + ", " + std::to_string(output3);
+		out(type, log);
 	}
 
 	void Logger::out(int type, const char *output, const char *output2) {
-		setup();
-		spdlog::logger *console = (spdlog::logger*)m_console;
-
-		switch (type)
-		{
-		case info:
-			console->info(std::string(output) + output2);
-			break;
-		case warning:
-			console->warn(std::string(output) + output2);
-			break;
-		case critical:
-			console->critical(std::string(output) + output2);
-			break;
-		case error:
-			console->error(std::string(output) + output2);
-			Window::terminate();
-			break;
-
-		default:
-			break;
-		}
+		std::string log = std::string(output) + output2;
+		out(type, log);
 	}
 
 	void Logger::out(int type, const char *output, const char *output2, const char *output3) {
-		setup();
-		spdlog::logger *console = (spdlog::logger*)m_console;
-
-		switch (type)
-		{
-		case info:
-			console->info(std::string(output) + output2 + output3);
-			break;
-		case warning:
-			console->warn(std::string(output) + output2 + output3);
-			break;
-		case critical:
-			console->critical(std::string(output) + output2 + output3);
-			break;
-		case error:
-			console->error(std::string(output) + output2 + output3);
-			Window::terminate();
-			break;
-
-		default:
-			break;
-		}
+		std::string log = std::string(output) + output2 + output3;
+		out(type, log);
 	}
 
 	void Logger::out(int type, const char *output, double output2, const char *output3, double output4) {
-		setup();
-		spdlog::logger *console = (spdlog::logger*)m_console;
-
-		switch (type)
-		{
-		case info:
-			console->info(std::string(output) + std::to_string(output2) + output3 + std::to_string(output4));
-			break;
-		case warning:
-			console->warn(std::string(output) + std::to_string(output2) + output3 + std::to_string(output4));
-			break;
-		case critical:
-			console->critical(std::string(output) + std::to_string(output2) + output3 + std::to_string(output4));
-			break;
-		case error:
-			console->error(std::string(output) + std::to_string(output2) + output3 + std::to_string(output4));
-			Window::terminate();
-			break;
-
-		default:
-			break;
-		}
+		std::string log = std::string(output) + std::to_string(output2) + output3 + std::to_string(output4);
+		out(type, log);
 	}
 
 	void Logger::out(int type, const char *output, double output2, const char *output3, double output4, const char *output5, double output6) {
-		setup();
-		spdlog::logger *console = (spdlog::logger*)m_console;
+		std::string log = std::string(output) + std::to_string(output2) + output3 + std::to_string(output4) + output5 + std::to_string(output6);
+		out(type, log);
+	}
 
-		switch (type)
-		{
-		case info:
-			console->info(std::string(output) + std::to_string(output2) + output3 + std::to_string(output4) + output5 + std::to_string(output6));
-			break;
-		case warning:
-			console->warn(std::string(output) + std::to_string(output2) + output3 + std::to_string(output4) + output5 + std::to_string(output6));
-			break;
-		case critical:
-			console->critical(std::string(output) + std::to_string(output2) + output3 + std::to_string(output4) + output5 + std::to_string(output6));
-			break;
-		case error:
-			console->error(std::string(output) + std::to_string(output2) + output3 + std::to_string(output4) + output5 + std::to_string(output6));
-			Window::terminate();
-			break;
+	void Logger::out(int type, glm::vec2 output) {
+		std::string log = std::to_string(output.x) + ", " + std::to_string(output.y);
+		out(type, log);
+	}
 
-		default:
-			break;
-		}
+	void Logger::out(int type, const char* output, glm::vec2 output2) {
+		std::string log = output + std::to_string(output2.x) + ", " + std::to_string(output2.y);
+		out(type, log);
+	}
+
+	void Logger::out(int type, glm::vec3 output) {
+		std::string log = std::to_string(output.x) + ", " + std::to_string(output.y) + ", " + std::to_string(output.z);
+		out(type, log);
+	}
+
+	void Logger::out(int type, const char* output, glm::vec3 output2) {
+		std::string log = output + std::to_string(output2.x) + ", " + std::to_string(output2.y) + ", " + std::to_string(output2.z);
+		out(type, log);
+	}
+
+	void Logger::out(int type, glm::vec4 output) {
+		std::string log = std::to_string(output.x) + ", " + std::to_string(output.y) + ", " + std::to_string(output.z) + ", " + std::to_string(output.w);
+		out(type, log);
+	}
+	
+	void Logger::out(int type, const char* output, glm::vec4 output2) {
+		std::string log = output + std::to_string(output2.x) + ", " + std::to_string(output2.y) + ", " + std::to_string(output2.z) + ", " + std::to_string(output2.z);
+		out(type, log);
 	}
 
 }
