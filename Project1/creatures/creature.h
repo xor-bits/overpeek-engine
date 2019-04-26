@@ -1,27 +1,19 @@
 #pragma once
 
 #include "../settings.h"
-//#include "../oe/game.h"
+#include "engine.h"
+
 #define HEADING_UP 0
 #define HEADING_DOWN 2
 #define HEADING_LEFT 3
 #define HEADING_RIGHT 1
 
-class Pathfinder;
 class Creature {
 protected:
 	//Variables
 	float m_counterToRemoveSwingAnimation = 0;
 	int m_id;
 	int m_swingDir;
-
-	float m_untilnexttarget;
-	float m_wait;
-	float m_hit_cooldown;
-	float m_check_player_cooldown;
-	float m_curtarget_x;
-	float m_curtarget_y;
-	bool m_chasing;
 	bool m_bumping;
 
 	//Health and stamina
@@ -37,18 +29,8 @@ protected:
 	float m_staminaRegenCooldown;
 	float m_healthRegenCooldown;
 
-	Pathfinder *m_path = nullptr;
-	std::vector<glm::vec2> *m_retrace;
-	unsigned int m_retrace_checkpoint;
-	glm::ivec2 last_target_pos;
-	int m_result;
-	int m_stuck_timer;
-
 	//Private functions
-	void enemyAi(float divider);
 	void clampHPAndSTA();
-	void followTarget(float divider);
-
 	void setHeading(float x, float y);
 
 public:
@@ -60,11 +42,12 @@ public:
 	uint8_t heading : 2;
 
 	Creature(float x, float y, int id, bool item);
-	Creature();
 
+	virtual void update(int index, float divider);
+	virtual void ai(float divider) = 0;
+	virtual void collide(float divider);
+	
 	void submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY, float corrector);
-	void update(int index, float divider);
-	void collide(float divider);
 	void hit(float damageadd, float kbadd);
 	void die();
 	bool canSee(float x, float y);

@@ -54,6 +54,12 @@
     <ClCompile Include="logic\mainmenu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="creatures\zombie.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="creatures\item.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -96,6 +102,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="logic\mainmenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="creatures\zombie.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="creatures\item.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="creatures\all_creatures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -28,4 +28,6 @@ namespace oe {
 
 	bool isInRange(int input, int min, int max);
 
+	int sign(float n);
+
 }

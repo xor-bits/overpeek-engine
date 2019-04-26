@@ -38,7 +38,7 @@ namespace oe {
 		in.read(buffer, 4);
 		if (strncmp(buffer, "RIFF", 4) != 0)
 		{
-			oe::Logger::out(oe::error, "oe not valid!");
+			oe::Logger::out("oe not valid!", oe::error);
 			return nullptr;
 		}
 		in.read(buffer, 4);
@@ -63,21 +63,21 @@ namespace oe {
 	}
 
 	void AudioManager::init() {
-		oe::Logger::out(oe::info, "Creating oe device");
+		oe::Logger::out("Creating oe device", oe::info);
 		ALCdevice* device = alcOpenDevice(NULL);
 		if (device == NULL)
 		{
-			oe::Logger::out(oe::error, "Cannot open sound card!");
+			oe::Logger::out("Cannot open sound card!", oe::error);
 			Window::terminate();
 		}
 		ALCcontext* context = alcCreateContext(device, NULL);
 		if (context == NULL)
 		{
-			oe::Logger::out(oe::error, "Cannot open oe context!");
+			oe::Logger::out("Cannot open oe context!", oe::error);
 			Window::terminate();
 		}
 		alcMakeContextCurrent(context);
-		oe::Logger::out(oe::info, "oe device done!");
+		oe::Logger::out("oe device done!", oe::info);
 	}
 
 	void AudioManager::loadAudio(std::string filepath, int id) {

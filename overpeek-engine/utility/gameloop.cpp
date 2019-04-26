@@ -35,7 +35,7 @@ namespace oe {
 		m_update_lag += elapsed;
 		
 		//Input
-		m_window->input();
+		//m_window->input();
 
 		//Updates
 		while (m_update_lag >= m_upsCap) {
@@ -51,9 +51,9 @@ namespace oe {
 		m_frames++;
 		long long timeframe = oe::Clock::getMicroseconds();
 
-		m_window->clear();
+		//m_window->clear();
 		mCallbackRender((float)m_update_lag / (float)m_upsCap);
-		m_window->update();
+		//m_window->update();
 
 		m_microsec_frame = oe::Clock::getMicroseconds() - timeframe;
 

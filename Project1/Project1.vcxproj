@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -171,6 +171,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="creatures\item.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"../pch.h"</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="creatures\zombie.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"../pch.h"</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="logic\aStar.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"../pch.h"</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"../pch.h"</PrecompiledHeaderFile>
@@ -289,6 +295,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="creatures\all_creatures.h" />
+    <ClInclude Include="creatures\item.h" />
+    <ClInclude Include="creatures\zombie.h" />
     <ClInclude Include="logic\aStar.h" />
     <ClInclude Include="creatures\creature.h" />
     <ClInclude Include="creatures\player.h" />

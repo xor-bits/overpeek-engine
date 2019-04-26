@@ -3,7 +3,7 @@
 #include "map.h"
 
 #include "../logic/game.h"
-#include "../creatures/player.h"
+#include "../creatures/all_creatures.h"
 
 
 
@@ -26,7 +26,7 @@ std::string Map::saveLocation(std::string path) {
 }
 
 bool Map::load(std::string name) {
-	oe::Logger::out(oe::info, "Loading world...  ");
+	oe::Logger::out("Loading world...  ");
 	m_name = name;
 
 	//Load and check tile data
@@ -43,7 +43,7 @@ bool Map::load(std::string name) {
 	Byte* uncompressedTiles = new Byte[uncompressedSize];
 	int state = uncompress(uncompressedTiles, &uncompressedSize, tile_data, tile_data_size);
 	if (state != Z_OK) {
-		oe::Logger::out(oe::error, "Error uncompressing save file! ", state);
+		oe::Logger::out("Error uncompressing save file! ", state, oe::error);
 	}
 	short int *tileData = (short int*)uncompressedTiles;
 
@@ -103,7 +103,7 @@ bool Map::unload() {
 	}
 	catch (const std::exception&)
 	{
-		oe::Logger::out(oe::warning, "Couln't unload map");
+		oe::Logger::out("Couln't unload map", oe::warning);
 		return false;
 	}
 
@@ -111,7 +111,7 @@ bool Map::unload() {
 }
 
 bool Map::save() {
-	oe::Logger::out(oe::info, "Saving map...  ");
+	oe::Logger::out("Saving map...  ");
 
 	//Tile collection
 	short *tiles = new short[MAP_SIZE * MAP_SIZE * 3];
@@ -136,7 +136,7 @@ bool Map::save() {
 	Byte* compressedTiles = new Byte[compressedSize];
 	Byte* tiledata = (Byte*)(tiles);
 	int state = compress(compressedTiles, &compressedSize, tiledata, sourceLen);
-	if (state != Z_OK) oe::Logger::out(oe::error, "Error compressing save file!");
+	if (state != Z_OK) oe::Logger::out("Error compressing save file!", oe::error);
 
 	//Writing
 	oe::BinaryIO::write<Byte>(saveLocation(Game::getSaveLocation()) + "tile.data", compressedTiles, compressedSize);
@@ -147,7 +147,7 @@ bool Map::save() {
 }
 
 bool Map::create(std::string name) {
-	oe::Logger::out(oe::info, "Generating map...  ");
+	oe::Logger::out("Generating map...  ");
 	m_name = name;
 
 	
@@ -229,7 +229,7 @@ int Map::getInfoFromNoiseIfLoop(Database::Biome *biome, float x, float y, int in
 
 void Map::getInfoFromNoise(int &tileId, int &objId, float x, float y) {
 	Database::Biome *biome = getTileBiome(x, y);
-	if (!biome) oe::Logger::out(oe::error, "Biome was null pointer");
+	if (!biome) oe::Logger::out("Biome was null pointer", oe::error);
 
 	if (biome->heightMap.size() == 1) {
 		tileId = biome->heightMap[0].id;
@@ -318,10 +318,11 @@ void Map::submitToRenderer(oe::Renderer *renderer, float offX, float offY, float
 
 			//renderer->pointRenderer->submitVertex(oe::VertexData(pos, size, db_tile.texture, OE_COLOR_WHITE));
 
-			renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), db_tile.texture, OE_COLOR_WHITE));
-			renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y + size.y, pos.z), glm::vec2(0.0f, 1.0f), db_tile.texture, OE_COLOR_WHITE));
-			renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y + size.y, pos.z), glm::vec2(1.0f, 1.0f), db_tile.texture, OE_COLOR_WHITE));
-			renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y, pos.z), glm::vec2(1.0f, 0.0f), db_tile.texture, OE_COLOR_WHITE));
+			renderer->pointRenderer->submitVertex(oe::VertexData(pos, size, db_tile.texture, OE_COLOR_WHITE));
+			//renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), db_tile.texture, OE_COLOR_WHITE));
+			//renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y + size.y, pos.z), glm::vec2(0.0f, 1.0f), db_tile.texture, OE_COLOR_WHITE));
+			//renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y + size.y, pos.z), glm::vec2(1.0f, 1.0f), db_tile.texture, OE_COLOR_WHITE));
+			//renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y, pos.z), glm::vec2(1.0f, 0.0f), db_tile.texture, OE_COLOR_WHITE));
 
 			//Render object on tile
 			if (db_object.id != 0) {
@@ -331,10 +332,11 @@ void Map::submitToRenderer(oe::Renderer *renderer, float offX, float offY, float
 
 				//renderer->pointRenderer->submitVertex(oe::VertexData(pos, size, objTexture, glm::vec4(db_object.color, 1.0f)));
 
-				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), objTexture, glm::vec4(db_object.color, 1.0f)));
-				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y + size.y, pos.z), glm::vec2(0.0f, 1.0f), objTexture, glm::vec4(db_object.color, 1.0f)));
-				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y + size.y, pos.z), glm::vec2(1.0f, 1.0f), objTexture, glm::vec4(db_object.color, 1.0f)));
-				renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y, pos.z), glm::vec2(1.0f, 0.0f), objTexture, glm::vec4(db_object.color, 1.0f)));
+				renderer->pointRenderer->submitVertex(oe::VertexData(pos, size, objTexture, glm::vec4(db_object.color, 1.0f)));
+				//renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 0.0f), objTexture, glm::vec4(db_object.color, 1.0f)));
+				//renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x, pos.y + size.y, pos.z), glm::vec2(0.0f, 1.0f), objTexture, glm::vec4(db_object.color, 1.0f)));
+				//renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y + size.y, pos.z), glm::vec2(1.0f, 1.0f), objTexture, glm::vec4(db_object.color, 1.0f)));
+				//renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y, pos.z), glm::vec2(1.0f, 0.0f), objTexture, glm::vec4(db_object.color, 1.0f)));
 			}
 		
 		}
@@ -394,7 +396,22 @@ void Map::debugCeilCreatures() {
 }
 
 Creature *Map::addCreature(float x, float y, int id, bool item) {
-	std::unique_ptr<Creature> tmp(new Creature(x, y, id, item));
+	Creature *toBeAdded;
+	
+	switch (id)
+	{
+	case 1:	// Zombie
+		toBeAdded = new Zombie(x, y);
+		break;
+	case 2:	// Item
+		toBeAdded = new Item(x, y, id);
+		break;
+	default:
+		oe::Logger::out("Invalid creature id: ", id, oe::warning);
+		break;
+	}
+	
+	std::unique_ptr<Creature> tmp(toBeAdded);
 	m_creatures.push_back(std::move(tmp));
 	return m_creatures[m_creatures.size() - 1].get();
 }
@@ -423,7 +440,7 @@ void Map::removeCreature(Creature *creature) {
 	char buff[100];
 	snprintf(buff, sizeof(buff), "%p", (void*)creature);
 	std::string buffAsStdStr = buff;
-	oe::Logger::out(oe::critical, "Couldn't find creature: ", buffAsStdStr.c_str(), "!");
+	oe::Logger::out("Couldn't find creature: ", buffAsStdStr.c_str(), "!", oe::critical);
 }
 
 void Map::update(float divider) {

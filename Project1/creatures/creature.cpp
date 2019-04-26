@@ -20,11 +20,6 @@ Creature::Creature(float _x, float _y, int _id, bool _item) {
 	acc_x = 0; acc_y = 0;
 	m_swingDir = 0;
 
-	m_untilnexttarget = 500;
-	m_wait = 0;
-	m_hit_cooldown = 0;
-	m_chasing = false;
-
 	//HS
 	m_maxHealth = Database::creatures[m_id].health;
 	m_maxStamina = Database::creatures[m_id].stamina;
@@ -36,17 +31,6 @@ Creature::Creature(float _x, float _y, int _id, bool _item) {
 
 	resetHealth();
 	resetStamina();
-}
-
-Creature::Creature() {
-	x = 0; y = 0;
-	vel_x = 0; vel_y = 0;
-	acc_x = 0; acc_y = 0;
-	m_swingDir = 0;
-
-	m_untilnexttarget = 0;
-	m_wait = 0;
-	m_chasing = false;
 }
 
 void Creature::die() {
@@ -140,61 +124,41 @@ void Creature::clampHPAndSTA() {
 }
 
 void Creature::update(int index, float divider) {
+	if (vel_x < 1e-5 && vel_y < 1e-5) {
+		collide(divider);
+	}
+
+	//Vectorplate
 	if (Game::getMap()->getTile(getX(), getY())->m_object == 7) {
 		m_bumping = true;
 		acc_y += 1;
 	}
 
+	//Health and stamina regeneration
+	if (m_staminaRegenCooldown > 2.0f) m_stamina += m_staminaGainRate;
+	else m_staminaRegenCooldown += 1.0 / divider;
 
-	if (!m_item) {
-
-		if (m_staminaRegenCooldown > 2.0f) m_stamina += m_staminaGainRate;
-		else m_staminaRegenCooldown += 1.0 / divider;
-
-		if (m_healthRegenCooldown > 2.0f) m_health += m_healthGainRate;
-		else m_healthRegenCooldown += 1.0 / divider;
+	if (m_healthRegenCooldown > 2.0f) m_health += m_healthGainRate;
+	else m_healthRegenCooldown += 1.0 / divider;
 
 
-
-		if (m_id == 1) enemyAi(divider);
-		
-		if (!m_id == 0) { //!Player
-			collide(divider);
-			clampHPAndSTA();
-			if (m_health <= 0) {
-				die();
-				return;
-			}
-		}
-
-		if (m_swingDir != 0) {
-			float addition = 1.0f / divider;
-			m_counterToRemoveSwingAnimation += addition;
-		}
-		if (m_counterToRemoveSwingAnimation > 0.10) {
-			m_counterToRemoveSwingAnimation = 0;
-			m_swingDir = 0;
-		}
-	}
-	else {
-		collide(divider);
-		float distanceToPlayer = abs(getX() - Game::getPlayer()->getX()) + abs(getY() - Game::getPlayer()->getY());
-		if (distanceToPlayer < 0.8) {
-			if (Game::getPlayer()->inventory->addItem(m_id, 1)) {
-				//oe::Debug::startTimer();
-				///REMOVE THIS CREATURE
-				#if !STORE_MAP_IN_RAM
-				Game::getRegion(getX(), getY())->removeCreature(m_regionIndex, true);
-				#else
-				Game::getMap()->removeCreature(index);
-				#endif				
-				oe::AudioManager::play(2);
-				//oe::Debug::printTimer("Item collected: ");
-				return;
-			}
-		}
+	clampHPAndSTA();
+	if (m_health <= 0) {
+		die();
+		return;
 	}
 
+	if (m_swingDir != 0) {
+		float addition = 1.0f / divider;
+		m_counterToRemoveSwingAnimation += addition;
+	}
+	if (m_counterToRemoveSwingAnimation > 0.10) {
+		m_counterToRemoveSwingAnimation = 0;
+		m_swingDir = 0;
+	}
+
+	//Positions
+	collide(divider);
 	vel_x += acc_x;
 	vel_y += acc_y;
 	//DELAY IF l_
@@ -447,73 +411,6 @@ bool Creature::canSee(float _x, float _y) {
 	return true;
 }
 
-int sign(float n) {
-	if (n > 0) return 1;
-	return -1;
-}
-
-void Creature::enemyAi(float divider) {
-	m_untilnexttarget -= 1.0 / divider;
-	m_wait -= 1.0 / divider;
-	m_check_player_cooldown -= 1.0 / divider;
-
-	if (m_check_player_cooldown <= 0) {
-		m_check_player_cooldown = oe::Random::random(0, 1);
-
-		if (canSee(Game::getPlayer()->getX(), Game::getPlayer()->getY())) {
-			m_chasing = true;
-			delete m_path;
-			m_path = nullptr;
-			return;
-		}
-		else m_chasing = false;
-	}
-	if (m_chasing) {
-		glm::vec2 dstToPlayer = glm::vec2(Game::getPlayer()->getX() - getX(), Game::getPlayer()->getY() - getY());
-		glm::vec2 dirToPlayer = glm::normalize(dstToPlayer);
-		if (abs(dstToPlayer.x) > 1.2 || abs(dstToPlayer.y) > 1.2) {
-			acc_x += dirToPlayer.x * Database::creatures[m_id].walkSpeed / UPDATES_PER_SECOND;
-			acc_y += dirToPlayer.y * Database::creatures[m_id].walkSpeed / UPDATES_PER_SECOND;
-			setHeading(acc_x, acc_y);
-		}
-		else {
-			m_hit_cooldown += 1.0 / divider;
-			if (m_hit_cooldown > 0.5) {
-				m_hit_cooldown = 0;
-				hit(0, 0);
-			}
-		}
-		setHeading(dstToPlayer.x, dstToPlayer.y);
-	}
-	if (m_untilnexttarget < 0) {
-		m_wait = 5.0;
-		m_untilnexttarget = 20.0;
-
-
-		m_curtarget_x = oe::Random::random(-16, 16);
-		m_curtarget_y = oe::Random::random(-16, 16);
-
-		m_path = new Pathfinder(getX(), getY(), getX() + m_curtarget_x, getY() + m_curtarget_y, 10);
-		if (m_path->failed) {
-			delete m_path;
-			m_path = nullptr;
-		}
-		m_result = 0;
-	}
-	if (m_wait < 0) {
-		m_untilnexttarget = oe::Random::random(0.5, 2);
-		m_wait = 40;
-
-
-		m_result = 0;
-		m_chasing = false;
-		delete m_path;
-		m_path = nullptr;
-	}
-
-	if (m_path && !m_chasing) followTarget(divider);
-}
-
 void Creature::setHeading(float x, float y) {
 	//Heads towards where its going
 	if (abs(x) > abs(y)) {
@@ -531,60 +428,5 @@ void Creature::setHeading(float x, float y) {
 		else {
 			heading = HEADING_DOWN;
 		}
-	}
-}
-
-void Creature::followTarget(float divider) {
-	if (m_result == 0) {
-		m_result = m_path->runNSteps(200.0 / divider);
-		m_wait = 20;
-		m_untilnexttarget = 100;
-		if (m_result != 0) {
-			m_retrace = m_path->retrace();
-			m_retrace_checkpoint = 0;
-		}
-	}
-
-	if (m_result != 0) {
-
-		if (m_retrace->size() <= 0) {
-			delete m_path;
-			m_path = nullptr;
-			return;
-		}
-
-		if (m_bumping) {
-			m_stuck_timer += 1.0 / divider;
-
-			if (m_stuck_timer > 1) {
-				m_stuck_timer = 0;
-				m_untilnexttarget = oe::Random::random(0.5, 2);
-				m_wait = 40;
-				delete m_path;
-				m_path = nullptr;
-				return;
-			}
-		}
-
-		int arr = m_retrace->size() - 1 - m_retrace_checkpoint;
-		float mov_x = (m_retrace->at(arr).x - getX() + 0.5);
-		float mov_y = (m_retrace->at(arr).y - getY() + 0.5);
-
-		if (mov_x < 0.2 && mov_x > -0.2 && mov_y < 0.2 && mov_y > -0.2) {
-			m_retrace_checkpoint++;
-			if (m_retrace_checkpoint >= m_retrace->size()) {
-				m_untilnexttarget = oe::Random::random(0.5, 2);
-				m_wait = 4000;
-				vel_x = 0;
-				vel_y = 0;
-				delete m_path;
-				m_path = nullptr;
-				return;
-			}
-		}
-
-		if (abs(mov_x) > 0.2) acc_x += sign(mov_x) * Database::creatures[m_id].walkSpeed / UPDATES_PER_SECOND;
-		if (abs(mov_y) > 0.2) acc_y += sign(mov_y) * Database::creatures[m_id].walkSpeed / UPDATES_PER_SECOND;
-		setHeading(acc_x, acc_y);
 	}
 }

@@ -44,6 +44,12 @@ namespace oe {
 		
 		//Draws buffers and then clears them
 		void draw(int texture, int textureType);
+
+		//Submit sphere with radius r
+		//x,y is the middle of the sphere
+		//resolution is triangle count
+		void submitSphere(float x, float y, float r, unsigned long long resolution, glm::vec4 color, int texture = 0);
+
 	};
 	
 }

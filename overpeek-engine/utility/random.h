@@ -11,8 +11,8 @@ namespace oe {
 
 	class Random {
 	public:
-		static void seed();
-		static void seed(int seed);
+		//Seed = 0 is time
+		static void seed(int seed = 0);
 		static float random(float min, float max);
 
 		static unsigned long hash(const char* str);

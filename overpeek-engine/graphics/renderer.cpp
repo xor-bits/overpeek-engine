@@ -58,7 +58,7 @@ namespace oe {
 
 		//attach
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) oe::Logger::out(oe::error, "Framebuffer is not complete!");
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) oe::Logger::out("Framebuffer is not complete!", oe::error);
 
 		//Second framebuffer and frametexture
 		//buffer
@@ -77,7 +77,7 @@ namespace oe {
 
 		//attach
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) oe::Logger::out(oe::error, "Framebuffer is not complete!");
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) oe::Logger::out("Framebuffer is not complete!", oe::error);
 
 		//Unbinding
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);

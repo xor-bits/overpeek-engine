@@ -2,6 +2,15 @@
 
 #include <string>
 
+#define WINDOW_MULTISAMPLE_X2	0x000020
+#define WINDOW_MULTISAMPLE_X4	0x000040
+#define WINDOW_MULTISAMPLE_X8	0x000080
+#define WINDOW_BORDERLESS		0x000001
+#define WINDOW_RESIZEABLE		0x000100
+#define WINDOW_TRANSPARENT		0x001000
+#define WINDOW_FULLSCREEN		0x010000
+
+
 struct GLFWwindow;
 namespace oe {
 	class Window {
@@ -14,6 +23,9 @@ namespace oe {
 		bool m_fullscreen;
 		unsigned int m_multisample;
 		static double mMouseX, mMouseY;
+		bool m_resizeable;
+		bool m_transparent;
+		bool m_borderless;
 
 		static bool mKeys[];
 		static bool mButtons[];
@@ -27,7 +39,7 @@ namespace oe {
 		static void(*m_charmods_callback)(unsigned int, int);
 
 		//Functions
-		bool mInit(bool resizeable);
+		bool mInit();
 		static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 		static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 		static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
@@ -40,7 +52,13 @@ namespace oe {
 
 		
 		//Functions
-		Window(unsigned int width, unsigned int height, const char *title, bool fullscreen, unsigned int multisample, bool resizeable);
+		/*
+		width	-	window width
+		height	-	window height
+		title	-	window title
+		mods	-	window modification flags, prefixed with "WINDOW_"		ex.	WINDOW_MULTISAMPLE_X8 | WINDOW_BORDERLESS
+		*/
+		Window(unsigned int width, unsigned int height, const char *title, int mods);
 		~Window();
 
 		static void checkErrors();
@@ -62,15 +80,17 @@ namespace oe {
 		void setLineWidth(float w);
 		void setPointRadius(float w);
 
-		void showCursor(bool show);
 
 		void setClearColor(float r, float g, float b, float a);
 
 		void setIcon(const char *path);
 
+		void showCursor(bool show);
+		void setCursorPos(double x, double y);
 		inline bool getButton(int button) { return mButtons[button]; }
 		inline bool getKey(int key) { return mKeys[key]; }
 		inline void getMousePos(double &x, double &y) { x = (mMouseX / mWidth * 2.0 * mAspect) - mAspect; y = mMouseY / mHeight * 2 - 1; }
+
 
 		inline float getAspect() { return mAspect; }
 		inline int getHeight() { return mHeight; }

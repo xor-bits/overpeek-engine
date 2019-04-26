@@ -44,7 +44,9 @@
 #define OE_COLOR_BLUE		glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)
 #define OE_COLOR_CYAN		glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)
 #define OE_COLOR_ORANGE		glm::vec4(1.0f, 0.5f, 0.0f, 1.0f)
-#define OE_COLOR_PINK		glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)
+#define OE_COLOR_YELLOW		glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)
+#define OE_COLOR_PURPLE		glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)
+#define OE_COLOR_DARKRED	glm::vec4(0.5f, 0.0f, 0.0f, 1.0f)
 
 //Keys
 #define OE_KEY_SPACE              32

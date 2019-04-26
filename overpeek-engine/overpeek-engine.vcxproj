@@ -197,7 +197,7 @@
     </ProjectReference>
     <Lib>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)Libraries\zlib\lib;$(SolutionDir)\Libraries\box2d\lib;$(SolutionDir)\Libraries\FreeType\lib;$(SolutionDir)\Libraries\GLFW\lib;$(SolutionDir)\Libraries\GLEW\lib;$(SolutionDir)\Libraries\al\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Libraries\zlib\lib;$(SolutionDir)Libraries\box2d\lib;$(SolutionDir)Libraries\FreeType\lib;$(SolutionDir)Libraries\GLFW\lib;$(SolutionDir)Libraries\GLEW\lib;$(SolutionDir)Libraries\al\lib</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -37,19 +37,52 @@ namespace oe {
 	void(*Window::m_resize_callback)(int, int);
 	void(*Window::m_charmods_callback)(unsigned int, int);
 
-	Window::Window(unsigned int width, unsigned int height, const char *title, bool fullscreen, unsigned int multisample, bool resizeable)
+	Window::Window(unsigned int width, unsigned int height, const char *title, int mods)
 	{
+		m_resizeable = false;
+		m_transparent = false;
+		m_borderless = false;
+
+		m_fullscreen = false; 
+		m_multisample = 0;
+		if (mods & WINDOW_MULTISAMPLE_X2) {
+			//oe::Logger::out("WINDOW MULTISAMPLE X2"); 
+			m_multisample = 2;
+		}
+		if (mods & WINDOW_MULTISAMPLE_X4) {
+			//oe::Logger::out("WINDOW MULTISAMPLE X4");
+			m_multisample = 4;
+		}
+		if (mods & WINDOW_MULTISAMPLE_X8) {
+			//oe::Logger::out("WINDOW MULTISAMPLE X8");
+			m_multisample = 8;
+		}
+		if (mods & WINDOW_TRANSPARENT) {
+			//oe::Logger::out("WINDOW TRANSPARENT");
+			m_transparent = true;
+		}
+		if (mods & WINDOW_BORDERLESS) {
+			//oe::Logger::out("WINDOW BORDERLESS");
+			m_borderless = true;
+		}
+		if (mods & WINDOW_RESIZEABLE) {
+			//oe::Logger::out("WINDOW RESIZEABLE");
+			m_resizeable = true;
+		}
+		if (mods & WINDOW_FULLSCREEN) {
+			//oe::Logger::out("WINDOW FULLSCREEN");
+			m_fullscreen = true;
+		}
 
 
 		mWidth = width; mHeight = height; mTitle = title; mAspect = width / (float)height;
-		m_fullscreen = fullscreen; m_multisample = multisample;
 
 		for (int i = 0; i < M_NUM_KEYS; i++) mKeys[i] = false;
 		for (int i = 0; i < M_NUM_BUTTONS; i++) mButtons[i] = false;
 		for (int i = 0; i < M_NUM_KEYS; i++) mSingleKeys[i] = false;
 		for (int i = 0; i < M_NUM_BUTTONS; i++) mSingleButtons[i] = false;
 
-		if (!mInit(resizeable)) {
+		if (!mInit()) {
 			glfwTerminate();
 			system("pause");
 			exit(EXIT_FAILURE);
@@ -60,26 +93,36 @@ namespace oe {
 		glfwTerminate();
 	}
 
-	bool Window::mInit(bool resizeable) {
+	bool Window::mInit() {
 		if (!glfwInit()) {
-			oe::Logger::out(oe::error, "Failed to initialize GLFW!");
+			oe::Logger::out("Failed to initialize GLFW!", oe::error);
 			return false;
 		}
-		if (m_multisample != 0) glfwWindowHint(GLFW_SAMPLES, m_multisample);
-		glfwWindowHint(GLFW_RESIZABLE, resizeable);
 		
 		//Vulkan
 		//glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		//
+
+		if (m_multisample != 0) glfwWindowHint(GLFW_SAMPLES, m_multisample);
+		glfwWindowHint(GLFW_RESIZABLE, m_resizeable);
+		glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, m_transparent);
+		glfwWindowHint(GLFW_DECORATED, !m_borderless);
 
 		if (m_fullscreen)
 			mWindow = glfwCreateWindow(mWidth, mHeight, mTitle, glfwGetPrimaryMonitor(), NULL);
 		else
 			mWindow = glfwCreateWindow(mWidth, mHeight, mTitle, NULL, NULL);
 		if (!mWindow) {
-			oe::Logger::out(oe::error, "Failed to create window!");
+			oe::Logger::out("Failed to create window!", oe::error);
 			return false;
 		}
+
+		//Center the window
+		int xpos, ypos, width, height;
+		glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), &xpos, &ypos, &width, &height);
+		glfwSetWindowPos(mWindow, width / 2.0f - mWidth / 2.0f, height / 2.0f - mHeight / 2.0f);
+
+		//glfwSetWindowOpacity(mWindow, 0.5f);
 		//------
 		//Vulkan
 		//------
@@ -122,13 +165,13 @@ namespace oe {
 		glfwMakeContextCurrent(mWindow);
 
 		if (glewInit() != GLEW_OK) {
-			oe::Logger::out(oe::error, "Failed to initalize GLEW!");
+			oe::Logger::out("Failed to initalize GLEW!", oe::error);
 			return false;
 		}
 
-		oe::Logger::out(oe::info, "Window created");
-		oe::Logger::out(oe::info, "OpenGL Renderer: ", (char*)glGetString(GL_RENDERER));
-		oe::Logger::out(oe::info, "OpenGL Version: ", (char*)glGetString(GL_VERSION));
+		oe::Logger::out("Window created", oe::info);
+		oe::Logger::out("OpenGL Renderer: ", (char*)glGetString(GL_RENDERER), oe::info);
+		oe::Logger::out("OpenGL Version: ", (char*)glGetString(GL_VERSION), oe::info);
 
 		glfwSetCharModsCallback(mWindow, charmods_callback);
 		glfwSetFramebufferSizeCallback(mWindow, framebuffer_size_callback);
@@ -235,6 +278,11 @@ namespace oe {
 		if (mKeyCallback) (*mKeyCallback)(key, action);
 	}
 
+	void Window::setCursorPos(double x, double y) {
+		glfwSetCursorPos(mWindow, x, y);
+		mMouseX = x; mMouseY = y;
+	}
+
 	void Window::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 	{
 		mMouseX = xpos; mMouseY = ypos;
@@ -272,7 +320,7 @@ namespace oe {
 				errorText = "Unknown error!";
 				break;
 			}
-			oe::Logger::out(oe::error, ("OpenGL " + std::to_string(err) + std::string(": ") + errorText).c_str());
+			oe::Logger::out(("OpenGL " + std::to_string(err) + std::string(": ") + errorText).c_str(), oe::error);
 			glfwTerminate();
 			system("pause");
 			exit(EXIT_FAILURE);
@@ -285,7 +333,6 @@ namespace oe {
 
 	void Window::input() {
 		glfwPollEvents();
-		//glfwWaitEvents();
 	}
 
 	void Window::update() {

@@ -35,7 +35,7 @@ namespace oe {
 			char* infoLog = new char[infoLogLength];
 			glGetShaderInfoLog(shader, 512, nullptr, infoLog);
 
-			oe::Logger::out(oe::critical, text);
+			oe::Logger::out(text, oe::critical);
 			std::cout << infoLog << std::endl;
 			delete infoLog;
 			Window::terminate();
@@ -55,7 +55,7 @@ namespace oe {
 			char* infoLog = new char[infoLogLength];
 			glGetProgramInfoLog(program, 512, nullptr, infoLog);
 
-			oe::Logger::out(oe::critical, text);
+			oe::Logger::out(text, oe::critical);
 			std::cout << infoLog << std::endl;
 			delete infoLog;
 			Window::terminate();

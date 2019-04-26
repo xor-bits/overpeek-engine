@@ -237,7 +237,7 @@ void Gui::renderNoBlur(oe::Renderer *renderer) {
 }
 
 void Gui::addChatLine(std::string text) {
-	oe::Logger::out(oe::info, "chat:", text.c_str());
+	oe::Logger::out("chat:", text.c_str());
 	m_chat_opened_timer = 5.0f;
 	m_text_lines.push_back(text);
 	if (m_text_lines.size() > MAX_TEXT_LINES) m_text_lines.erase(m_text_lines.begin());
@@ -275,7 +275,7 @@ void Gui::keyPress(int key, int action) {
 				return;
 			}
 			if (m_selectedButton == 1) {
-				oe::Logger::out(oe::critical, "TODO: Open settings!");
+				oe::Logger::out("TODO: Open settings!", oe::critical);
 				return;
 			}
 			if (m_selectedButton == 2) {
@@ -414,7 +414,7 @@ void Gui::userInput() {
 			Game::getPlayer()->setX(posX);
 			Game::getPlayer()->setY(posY);
 
-			oe::Logger::out(oe::info, "Teleported player to ", posX, ", ", posY);
+			oe::Logger::out("Teleported player to ", posX, ", ", posY);
 			addChatLine("Teleported player to " + std::to_string(posX) + ", " + std::to_string(posY));
 		}
 		//RESPAWN COMMAND

@@ -15,10 +15,10 @@ namespace oe {
 	}
 
 	void Debug::printTimer() {
-		oe::Logger::out(oe::info, "Passed time in microseconds: ", getTimer());
+		oe::Logger::out("Passed time in microseconds: ", getTimer(), oe::info);
 	}
 
 	void Debug::printTimer(std::string text) {
-		oe::Logger::out(oe::info, text.c_str(), getTimer());
+		oe::Logger::out(text.c_str(), getTimer(), oe::info);
 	}
 }

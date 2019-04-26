@@ -15,10 +15,10 @@ namespace oe {
 		m_console = spdlog::stdout_color_mt("console").get();
 		spdlog::set_pattern("%^[%l]: %v%$");
 		m_initalized = true;
-		out(info, "Logger created.");
+		out("Logger created.", info);
 	}
 
-	void Logger::out(int type, std::string output) {
+	void Logger::out(std::string output, int type) {
 		setup();
 		spdlog::logger *console = (spdlog::logger*)m_console;
 
@@ -43,74 +43,79 @@ namespace oe {
 		}
 	}
 
-	void Logger::out(int type, const char *output) {
+	void Logger::out(const char *output, int type) {
 		std::string log = output;
-		out(type, log);
+		out(log, type);
 	}
 
-	void Logger::out(int type, double output) {
+	void Logger::out(double output, int type) {
 		std::string log = std::to_string(output);
-		out(type, log);
+		out(log, type);
 	}
 
-	void Logger::out(int type, const char *output, double output2) {
+	void Logger::out(double output, double output2, int type) {
+		std::string log = std::to_string(output) + ", " + std::to_string(output2);
+		out(log, type);
+	}
+
+	void Logger::out(const char *output, double output2, int type) {
 		std::string log = output + std::to_string(output2);
-		out(type, log);
+		out(log, type);
 	}
 
-	void Logger::out(int type, const char *output, double output2, double output3) {
+	void Logger::out(const char *output, double output2, double output3, int type) {
 		std::string log = output + std::to_string(output2) + ", " + std::to_string(output3);
-		out(type, log);
+		out(log, type);
 	}
 
-	void Logger::out(int type, const char *output, const char *output2) {
+	void Logger::out(const char *output, const char *output2, int type) {
 		std::string log = std::string(output) + output2;
-		out(type, log);
+		out(log, type);
 	}
 
-	void Logger::out(int type, const char *output, const char *output2, const char *output3) {
+	void Logger::out(const char *output, const char *output2, const char *output3, int type) {
 		std::string log = std::string(output) + output2 + output3;
-		out(type, log);
+		out(log, type);
 	}
 
-	void Logger::out(int type, const char *output, double output2, const char *output3, double output4) {
+	void Logger::out(const char *output, double output2, const char *output3, double output4, int type) {
 		std::string log = std::string(output) + std::to_string(output2) + output3 + std::to_string(output4);
-		out(type, log);
+		out(log, type);
 	}
 
-	void Logger::out(int type, const char *output, double output2, const char *output3, double output4, const char *output5, double output6) {
+	void Logger::out(const char *output, double output2, const char *output3, double output4, const char *output5, double output6, int type) {
 		std::string log = std::string(output) + std::to_string(output2) + output3 + std::to_string(output4) + output5 + std::to_string(output6);
-		out(type, log);
+		out(log, type);
 	}
 
-	void Logger::out(int type, glm::vec2 output) {
+	void Logger::out(glm::vec2 output, int type) {
 		std::string log = std::to_string(output.x) + ", " + std::to_string(output.y);
-		out(type, log);
+		out(log, type);
 	}
 
-	void Logger::out(int type, const char* output, glm::vec2 output2) {
+	void Logger::out(const char* output, glm::vec2 output2, int type) {
 		std::string log = output + std::to_string(output2.x) + ", " + std::to_string(output2.y);
-		out(type, log);
+		out(log, type);
 	}
 
-	void Logger::out(int type, glm::vec3 output) {
+	void Logger::out(glm::vec3 output, int type) {
 		std::string log = std::to_string(output.x) + ", " + std::to_string(output.y) + ", " + std::to_string(output.z);
-		out(type, log);
+		out(log, type);
 	}
 
-	void Logger::out(int type, const char* output, glm::vec3 output2) {
+	void Logger::out(const char* output, glm::vec3 output2, int type) {
 		std::string log = output + std::to_string(output2.x) + ", " + std::to_string(output2.y) + ", " + std::to_string(output2.z);
-		out(type, log);
+		out(log, type);
 	}
 
-	void Logger::out(int type, glm::vec4 output) {
+	void Logger::out(glm::vec4 output, int type) {
 		std::string log = std::to_string(output.x) + ", " + std::to_string(output.y) + ", " + std::to_string(output.z) + ", " + std::to_string(output.w);
-		out(type, log);
+		out(log, type);
 	}
 	
-	void Logger::out(int type, const char* output, glm::vec4 output2) {
+	void Logger::out(const char* output, glm::vec4 output2, int type) {
 		std::string log = output + std::to_string(output2.x) + ", " + std::to_string(output2.y) + ", " + std::to_string(output2.z) + ", " + std::to_string(output2.z);
-		out(type, log);
+		out(log, type);
 	}
 
 }

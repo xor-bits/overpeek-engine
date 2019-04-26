@@ -87,4 +87,34 @@ namespace oe {
 
 		glDisable(GL_DEPTH_TEST);
 	}
+
+	void TriangleRenderer::submitSphere(float x, float y, float r, unsigned long long resolution, glm::vec4 color, int texture) {
+		VertexData centerVertexData = VertexData(glm::fvec3(x, y, 0.0f), glm::vec2(0.0f, 0.0f), texture, color);
+
+		for (size_t i = 0; i < resolution; i++)
+		{
+			//Center
+			submitVertex(centerVertexData);
+
+			//First
+			float xoff = cos(i / (float)resolution * glm::radians(360.0f)) * r / 2.0f;
+			float yoff = sin(i / (float)resolution * glm::radians(360.0f)) * r / 2.0f;
+
+			centerVertexData.position.x += xoff;
+			centerVertexData.position.y += yoff;
+			submitVertex(centerVertexData);
+			centerVertexData.position.x -= xoff;
+			centerVertexData.position.y -= yoff;
+
+			//Second
+			xoff = cos((i + 1) / (float)resolution * glm::radians(360.0f)) * r / 2.0f;
+			yoff = sin((i + 1) / (float)resolution * glm::radians(360.0f)) * r / 2.0f;
+
+			centerVertexData.position.x += xoff;
+			centerVertexData.position.y += yoff;
+			submitVertex(centerVertexData);
+			centerVertexData.position.x -= xoff;
+			centerVertexData.position.y -= yoff;
+		}
+	}
 }

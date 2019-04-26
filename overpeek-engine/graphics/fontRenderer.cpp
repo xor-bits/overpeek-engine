@@ -43,13 +43,13 @@ namespace oe {
 	bool FontRenderer::init(const char *fontPath) {
 		FT_Library ft;
 		if (FT_Init_FreeType(&ft)) {
-			oe::Logger::out(oe::error, "Failed to initialize Freetype!");
+			oe::Logger::out("Failed to initialize Freetype!", oe::error);
 			Window::terminate();
 		}
 		
 		FT_Face face;
 		if (FT_New_Face(ft, fontPath, 0, &face)) {
-			oe::Logger::out(oe::error, "Failed to load font!");
+			oe::Logger::out("Failed to load font!", oe::error);
 			Window::terminate();
 		}
 	
@@ -61,12 +61,13 @@ namespace oe {
 		GLuint maxWidth = FONT_RESOLUTION, maxHeight = FONT_RESOLUTION;
 		
 		FT_Set_Pixel_Sizes(face, 0, FONT_RESOLUTION);
+		
 		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
 
 		for (GLubyte c = 32; c < 127; c++) {
 			//Load glyph
 			if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
-				oe::Logger::out(oe::error, "Failed to load glyph for: \"", (char*)c, "\"");
+				oe::Logger::out("Failed to load glyph for: \"", (char*)c, "\"", oe::error);
 				continue;
 			}
 

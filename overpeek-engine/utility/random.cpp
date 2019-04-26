@@ -5,11 +5,8 @@
 
 namespace oe {
 
-	void Random::seed() {
-		srand(static_cast<float>(time(0)));
-	}
-
 	void Random::seed(int seed) {
+		if (seed == 0) seed == time(0);
 		srand(static_cast<float>(seed));
 	}
 

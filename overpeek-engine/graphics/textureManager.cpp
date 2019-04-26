@@ -21,7 +21,7 @@ namespace oe {
 		int width, height, nrChannels;
 		GLubyte *tmpdata = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
 		if (!tmpdata) {
-			oe::Logger::out(oe::error, "Image couldn't be loaded at path (", path.c_str(), ")");
+			oe::Logger::out("Image couldn't be loaded at path (", path.c_str(), ")", oe::error);
 			system("pause");
 			exit(-1);
 		}
@@ -50,7 +50,7 @@ namespace oe {
 		int width, height, nrChannels;
 		GLubyte *tmpdata = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
 		if (!tmpdata) {
-			oe::Logger::out(oe::error, "Image couldn't be loaded at path (", path.c_str(), ")");
+			oe::Logger::out("Image couldn't be loaded at path (", path.c_str(), ")", oe::error);
 			system("pause");
 			exit(-1);
 		}
