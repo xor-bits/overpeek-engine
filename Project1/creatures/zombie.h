@@ -1,6 +1,10 @@
 #pragma once
 
+#include <vector>
+#include <glm/glm.hpp>
+
 #include "creature.h"
+
 
 class Pathfinder;
 class Zombie : public Creature {
@@ -25,9 +29,9 @@ private:
 
 public:
 	Zombie(float x, float y);
-	~Zombie();
 
 	void ai(float divider);
 	void update(int index, float divider);
 	void collide(float divider);
+	void submitToRenderer(oe::Renderer* renderer, float renderOffsetX, float renderOffsetY, float corrector) override;
 };

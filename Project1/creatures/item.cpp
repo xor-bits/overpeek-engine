@@ -1,20 +1,18 @@
 #include "item.h"
 
+#include "../pch.h"
+
 #include "player.h"
 #include "creature.h"
 
 #include "../logic/game.h"
 #include "../logic/inventory.h"
 #include "../world/map.h"
+#include "../logic/game.h"
 
-#include "../pch.h"
 
 Item::Item(float x, float y, int id) : Creature::Creature(x, y, id, true) {
 	nothing = false;
-}
-
-Item::~Item() {
-
 }
 
 void Item::ai(float divider) {

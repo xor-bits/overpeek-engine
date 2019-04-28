@@ -88,7 +88,7 @@ namespace oe {
 
 		//GLint max_layers;
 		//glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &max_layers);
-		//oe::Logger::out(oe::info, "Max OpenGL layers", max_layers);
+		//oe::Logger::out("Max OpenGL layers", max_layers);
 		
 		mTextures[id] = texture;
 		return texture;

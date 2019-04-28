@@ -1,13 +1,13 @@
 #pragma once
 
 #include "../settings.h"
-#include "engine.h"
 
 #define HEADING_UP 0
 #define HEADING_DOWN 2
 #define HEADING_LEFT 3
 #define HEADING_RIGHT 1
 
+namespace oe { class Renderer; }
 class Creature {
 protected:
 	//Variables
@@ -39,17 +39,17 @@ public:
 	float old_x, old_y;
 	float vel_x, vel_y;
 	float acc_x, acc_y;
-	uint8_t heading : 2;
+	unsigned char heading;
 
 	Creature(float x, float y, int id, bool item);
 
 	virtual void update(int index, float divider);
 	virtual void ai(float divider) = 0;
 	virtual void collide(float divider);
+	virtual void submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY, float corrector);
+	virtual void hit(float damageadd, float kbadd);
+	virtual void die();
 	
-	void submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY, float corrector);
-	void hit(float damageadd, float kbadd);
-	void die();
 	bool canSee(float x, float y);
 
 	inline int getId() { return m_id; }

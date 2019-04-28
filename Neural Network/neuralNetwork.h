@@ -37,7 +37,7 @@ public:
 	float combinedError(float *correct_values);
 	float error(unsigned int output, float correct);
 
-	void modifyNeuronOutput(float delta, unsigned int layer, unsigned int neuron_on_layer);
+	void modifyLayer(float *correct_outputs, unsigned int layer);
 
 public:
 	static neuralNetwork *geneticAlgorithm(unsigned int NN_count, unsigned int trainings, unsigned int generations);

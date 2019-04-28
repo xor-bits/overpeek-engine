@@ -51,7 +51,7 @@ std::string renderer;
 void Game::init() {
 
 	//Window
-	oe::Logger::out(oe::info, "Creating window");
+	oe::Logger::out("Creating window");
 	m_window = std::unique_ptr<oe::Window>(new oe::Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, (M_WINDOW_DEFAULT_TITLE).c_str(), false, M_DEFAULT_MULTISAMPLE, !M_ASPECT_FIXED));
 	m_window->setSwapInterval(NULL);
 	m_window->setButtonCallback(buttonPress);
@@ -87,18 +87,18 @@ void Game::init() {
 
 	//Audio
 #if ENABLE_AUDIO
-	oe::Logger::out(oe::info, "Creating audio device");
+	oe::Logger::out("Creating audio device");
 	oe::AudioManager::init();
 #endif
 
 	//Create shader
-	oe::Logger::out(oe::info, "Creating all the shaders");
-	oe::Logger::out(oe::info, "Shader for postprocessing");
+	oe::Logger::out("Creating all the shaders");
+	oe::Logger::out("Shader for postprocessing");
 	m_postshader = std::unique_ptr<oe::Shader>(new oe::Shader("res/shader/postprocess.vert.glsl", "res/shader/postprocess.frag.glsl"));
-	oe::Logger::out(oe::info, "Shader for textures");
+	oe::Logger::out("Shader for textures");
 	m_shader = std::unique_ptr<oe::Shader>(new oe::Shader("res/shader/texture.vert.glsl", "res/shader/texture.frag.glsl"));
 	m_pointshader = std::unique_ptr<oe::Shader>(new oe::Shader("res/shader/geometrytexture.vert.glsl", "res/shader/geometrytexture.frag.glsl", "res/shader/geometrytexture.geom.glsl"));
-	oe::Logger::out(oe::info, "All shaders created successfully!");
+	oe::Logger::out("All shaders created successfully!");
 
 	//Shader stuff
 	resize(m_window->getWidth(), m_window->getHeight());
@@ -109,13 +109,13 @@ void Game::init() {
 	m_guirenderer = std::unique_ptr<oe::Renderer>(new oe::Renderer("res/font/arial.ttf", m_window.get()));
 
 	//Resources
-	oe::Logger::out(oe::info, "Loading resources");
+	oe::Logger::out("Loading resources");
 	oe::TextureManager::loadTextureAtlas("res/texture/atlas.png", 0, 16);
 	oe::AudioManager::loadAudio("res/audio/hit.wav", 0);
 	oe::AudioManager::loadAudio("res/audio/swing.wav", 1);
 	oe::AudioManager::loadAudio("res/audio/collect.wav", 2);
 
-	oe::Logger::out(oe::info, "Loading database");
+	oe::Logger::out("Loading database");
 	Database::init();
 
 	//Constructing objects
@@ -142,7 +142,7 @@ void Game::init() {
 	loadWorld(WORLD_NAME, true);
 
 	//Ready
-	oe::Logger::out(oe::info, "Game ready! Running update and renderloops");
+	oe::Logger::out("Game ready! Running update and renderloops");
 	m_loop->start();
 }
 
@@ -209,7 +209,7 @@ void Game::render(float corrector) {
 void Game::update() {
 	//double mx, my;
 	//m_window->getMousePos(mx, my);
-	//oe::Logger::out(oe::info, "mouse: ", mx, my);
+	//oe::Logger::out("mouse: ", mx, my);
 
 	if (!m_window) return;
 
@@ -354,7 +354,7 @@ void Game::keyPress(int key, int action) {
 	}
 
 	//Get FPS
-	if (action == OE_PRESS && key == OE_KEY_F3) { oe::Logger::out(oe::info, "Fps: ", m_loop->getFPS()); return; }
+	if (action == OE_PRESS && key == OE_KEY_F3) { oe::Logger::out("Fps: ", m_loop->getFPS()); return; }
 	
 	//Clear inventoy
 	if (action == OE_PRESS && key == OE_KEY_F4) { m_inventory->clear(); return; }
@@ -397,7 +397,7 @@ void Game::close() {
 //Saves loaded world
 void Game::loadWorld(const char* name, bool create) {
 	if (!m_map->load(name)) {
-		oe::Logger::out(oe::info, "Couldn't load world");
+		oe::Logger::out("Couldn't load world");
 
 		if (create) {
 			m_map->create(name);

@@ -151,7 +151,7 @@ void Inventory::clear() {
 void Inventory::removeSelected(int n) {
 	m_itemCounts[int(selectedSlot)][0] -= n;
 
-	//oe::Logger::out(oe::info, m_itemCounts[int(selectedSlot)][0]);
+	//oe::Logger::out(m_itemCounts[int(selectedSlot)][0]);
 
 	if (m_itemCounts[int(selectedSlot)][0] <= 0) m_itemIds[int(selectedSlot)][0] = 0;
 }
@@ -161,7 +161,7 @@ bool Inventory::addItem(int id, int n) {
 	{
 		for (int x = 0; x < INVENTORY_WIDTH; x++)
 		{
-			//oe::Logger::out(oe::info, "inv ", n);
+			//oe::Logger::out("inv ", n);
 			if (m_itemIds[x][y] == 0 || m_itemIds[x][y] == id) {
 				m_itemIds[x][y] = id;
 				m_itemCounts[x][y] += n;

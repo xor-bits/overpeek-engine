@@ -12,8 +12,10 @@ neuron::neuron(int id, unsigned int input_count)
 	i_id = id;
 	u_input_count = input_count;
 	f_bias_weight = math::random(-1.0f, 1.0f);
+	f_bias_weight_change = 0.0f;
 	f_hold = 0.0f;
 	f_weighted_sum = 0.0f;
+	requested_change = 0.0f;
 
 	for (int i = 0; i < input_count; i++)
 	{

@@ -211,7 +211,7 @@ void keyPress(int key, int action) {
 			break;
 
 		case OE_KEY_F:
-			oe::Logger::out(oe::info, m_loop->getFPS());
+			oe::Logger::out(m_loop->getFPS());
 			break;
 
 		default:

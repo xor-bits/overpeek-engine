@@ -38,7 +38,7 @@ void ball::render(float divider, oe::Renderer* renderer) {
 
 void ball::update(int ups) {
 	v_pos += v_vel;
-	v_vel += v_acc;
+	v_vel += v_acc / float(ups);
 	v_acc = glm::vec2(0.0f, 0.0f);
 
 	//Friction

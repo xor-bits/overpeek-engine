@@ -575,7 +575,7 @@ void Gui::userInput() {
 				name = argumentVec[0].c_str();
 			}
 
-			oe::Logger::out(oe::info, name);
+			oe::Logger::out(name);
 			Game::loadWorld(name.c_str(), false);
 		}
 		//UPDATEWARP COMMAND
@@ -661,7 +661,7 @@ void Gui::userInput() {
 	else {
 		//Not a command but regular text
 		addChatLine("Player: " + m_current_line);
-		oe::Logger::out(oe::info, "Player", m_current_line.c_str());
+		oe::Logger::out("Player", m_current_line.c_str());
 	}
 }
 

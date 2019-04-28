@@ -21,7 +21,6 @@ public:
 	Inventory *inventory;
 	
 public:
-	Player() {}
 	Player(float x, float y, Inventory *inv);
 	void die();
 	void setSpawnPoint(unsigned int x, unsigned int y);

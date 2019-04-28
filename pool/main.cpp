@@ -4,11 +4,9 @@
 
 #define WINDOW_WIDTH	900
 #define WINDOW_HEIGHT	600
-#define UPS				240
+#define UPS				1000
 #define BALL_COUNT		15
-#define DEFAULT_PWR		20
-
-#define SHOT_POWER		1
+#define SHOT_POWER		5
 
 
 oe::Window *window;
@@ -46,8 +44,9 @@ void render(float divider) {
 
 void update() {
 	//Collisions
-	for (int i = 0; i < BALL_COUNT-1; i++) {
-		for (int j = i+1; j < BALL_COUNT; j++)
+//#pragma omp parallel for
+	for (int i = 0; i < BALL_COUNT; i++) {
+		for (int j = i + 1; j < BALL_COUNT; j++)
 		{
 			if (i == j) continue;
 
@@ -71,8 +70,8 @@ void mouseButton(int button, int action) {
 		mouse_drag_start = glm::vec2(mx, my);
 	}
 	if (action == OE_RELEASE) {
-		cue->setAccX(-(mx - mouse_drag_start.x) / DEFAULT_PWR * SHOT_POWER);
-		cue->setAccY(-(my - mouse_drag_start.y) / DEFAULT_PWR * SHOT_POWER);
+		cue->setAccX(pow(-(mx - mouse_drag_start.x) * SHOT_POWER, 3));
+		cue->setAccY(pow(-(my - mouse_drag_start.y) * SHOT_POWER, 3));
 		
 		mouse_drag_start = glm::vec2(0.0f, 0.0f);
 	}

@@ -42,9 +42,9 @@ class Map {
 		float* m_plantnoise1;
 		float* m_plantnoise2;
 
-		int getInfoFromNoiseIfLoop(Database::Biome *biome, float x, float y, int index);
+		int getInfoFromNoiseIfLoop(Database::Data_Biome *biome, float x, float y, int index);
 		void getInfoFromNoise(int &tileId, int &objId, float x, float y);
-		Database::Biome *getTileBiome(float x, float y);
+		Database::Data_Biome *getTileBiome(float x, float y);
 
 	public:
 		Map();

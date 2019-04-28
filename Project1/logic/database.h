@@ -17,7 +17,7 @@
 class Database {
 public:
 
-	static struct Item
+	static struct Data_Item
 	{
 		std::string name = "null";
 		unsigned int id = 0;
@@ -31,8 +31,8 @@ public:
 
 		unsigned int placedAs;
 
-		Item() {}
-		Item(std::string _name, unsigned int _id, unsigned int _texture, unsigned int _stack, float _melee_damage, float _melee_kb, float _break_speed, unsigned int _placedAs) {
+		Data_Item() {}
+		Data_Item(std::string _name, unsigned int _id, unsigned int _texture, unsigned int _stack, float _melee_damage, float _melee_kb, float _break_speed, unsigned int _placedAs) {
 			name = _name;
 			id = _id;
 			texture = _texture;
@@ -44,21 +44,21 @@ public:
 		}
 	};
 
-	static struct Tile
+	static struct Data_Tile
 	{
 		std::string name = "null";
 		unsigned int id = 0;
 		unsigned int texture = 0;
 
-		Tile() {}
-		Tile(std::string _name, unsigned int _id, unsigned int _texture) {
+		Data_Tile() {}
+		Data_Tile(std::string _name, unsigned int _id, unsigned int _texture) {
 			name = _name;
 			id = _id;
 			texture = _texture;
 		}
 	};
 
-	static struct Object
+	static struct Data_Object
 	{
 		std::string name = "null";
 		unsigned int id = 0;
@@ -72,8 +72,8 @@ public:
 		short health = 0;
 		unsigned int dropsAs = 0;
 
-		Object() {}
-		Object(std::string _name, unsigned int _id, unsigned int _texture, bool _wall, bool _multitexture, bool _smooth, bool _destructable, glm::vec3 _color, short _health, unsigned int _dropsAs) {
+		Data_Object() {}
+		Data_Object(std::string _name, unsigned int _id, unsigned int _texture, bool _wall, bool _multitexture, bool _smooth, bool _destructable, glm::vec3 _color, short _health, unsigned int _dropsAs) {
 
 			name = _name;
 			id = _id;
@@ -256,7 +256,7 @@ public:
 		}
 	};
 
-	static struct Creature
+	static struct Data_Creature
 	{
 		std::string name = "null";
 		unsigned int id = 0;
@@ -278,8 +278,8 @@ public:
 
 		float walkSpeed = 0.0f;
 
-		Creature() {}
-		Creature(std::string _name, unsigned int _id, float _walkSpeed, bool _friendly, bool _ghost, float _kb, float _melee, float _hp, float _hpg, float _st, float _stg, unsigned int _dropsAs, glm::vec3 _color, unsigned int _texture_heading_up, unsigned int _texture_heading_down, unsigned int _texture_heading_left, unsigned int _texture_heading_right) {
+		Data_Creature() {}
+		Data_Creature(std::string _name, unsigned int _id, float _walkSpeed, bool _friendly, bool _ghost, float _kb, float _melee, float _hp, float _hpg, float _st, float _stg, unsigned int _dropsAs, glm::vec3 _color, unsigned int _texture_heading_up, unsigned int _texture_heading_down, unsigned int _texture_heading_left, unsigned int _texture_heading_right) {
 			name = _name;
 			walkSpeed = _walkSpeed;
 			id = _id;
@@ -300,10 +300,10 @@ public:
 		}
 	};
 
-	static struct BiomeTileHeight 
+	static struct Data_BiomeTileHeight
 	{
-		float height;
-		int id;
+		float height = 0.0f;
+		int id = 0;
 		
 		unsigned int grassId = 0;
 		float grassRarity = 0.0f;
@@ -312,16 +312,16 @@ public:
 		float plantRarity = 0.0f;
 	};
 
-	static struct Biome 
+	static struct Data_Biome
 	{
 		std::string name = "null";
 		unsigned int id = 0;
 		float temperature = 0;	//0 - 1.
 		float humidity = 0;		//0 - 1.
 		float noiseScale = 0;
-		std::vector<BiomeTileHeight> heightMap;
+		std::vector<Data_BiomeTileHeight> heightMap;
 
-		Biome(std::string _name, unsigned int _id, float _temperature, float _humidity, float _noiseScale, std::vector<BiomeTileHeight> _heightMap) {
+		Data_Biome(std::string _name, unsigned int _id, float _temperature, float _humidity, float _noiseScale, std::vector<Data_BiomeTileHeight> _heightMap) {
 			name = _name;
 			id = _id;
 			temperature = _temperature;
@@ -333,62 +333,62 @@ public:
 
 
 
-	static std::vector<Item> items;
-	static std::vector<Biome> biomes;
-	static std::vector<Creature> creatures;
-	static std::vector<Object> objects;
-	static std::vector<Tile> tiles;
+	static std::vector<Data_Item> items;
+	static std::vector<Data_Biome> biomes;
+	static std::vector<Data_Creature> creatures;
+	static std::vector<Data_Object> objects;
+	static std::vector<Data_Tile> tiles;
 
 	static void init() {
 
 		//Items					//Name			//Id	//Texture	//Stack size	//Melee		//Knock		//Break		//Placed as
-		items.push_back(Item(	"Empty",		0,		9,			99,				0.0,		0.0,		0.0,		0));
-		items.push_back(Item(	"Stone",		1,		17,			99,				0.0,		0.0,		0.0,		5));
-		items.push_back(Item(	"Plant fiber",	2,		18,			99,				0.0,		0.0,		0.0,		0));
-		items.push_back(Item(	"Log",			3,		16,			99,				0.0,		0.0,		0.0,		4));
-		items.push_back(Item(	"Sword",		4,		22,			1,				4.0,		4.0,		0.0,		0));
-		items.push_back(Item(	"Pickaxe",		5,		23,			1,				2.0,		4.0,		4.0,		0));
+		items.push_back(Data_Item(	"Empty",		0,		9,			99,				0.0,		0.0,		0.0,		0));
+		items.push_back(Data_Item(	"Stone",		1,		17,			99,				0.0,		0.0,		0.0,		5));
+		items.push_back(Data_Item(	"Plant fiber",	2,		18,			99,				0.0,		0.0,		0.0,		0));
+		items.push_back(Data_Item(	"Log",			3,		16,			99,				0.0,		0.0,		0.0,		4));
+		items.push_back(Data_Item(	"Sword",		4,		22,			1,				4.0,		4.0,		0.0,		0));
+		items.push_back(Data_Item(	"Pickaxe",		5,		23,			1,				2.0,		4.0,		4.0,		0));
 
 		//Tiles					//Name			//Id	//Texture
-		tiles.push_back(Tile(	"Soil",			0,		0));
-		tiles.push_back(Tile(	"Water",		1,		1));
-		tiles.push_back(Tile(	"Sand",			2,		2));
-		tiles.push_back(Tile(	"Grassy soil",	3,		3));
-		tiles.push_back(Tile(	"Gravel",		4,		7));
+		tiles.push_back(Data_Tile(	"Soil",			0,		0));
+		tiles.push_back(Data_Tile(	"Water",		1,		1));
+		tiles.push_back(Data_Tile(	"Sand",			2,		2));
+		tiles.push_back(Data_Tile(	"Grassy soil",	3,		3));
+		tiles.push_back(Data_Tile(	"Gravel",		4,		7));
 
 		//Objects					//Name			//id	//Texture	//Wall		//Multitexture	//Smooth	//Destroyable	//Color							//Health	//Drop as		
-		objects.push_back(Object(	"Air",			0,		0,			false,		false,			false,		false,			glm::vec3(1.0f),				0,			0));
-		objects.push_back(Object(	"Grass",		1,		4,			false,		false,			false,		true,			glm::vec3(1.0f),				1,			2));
-		objects.push_back(Object(	"Spruce",		2,		5,			false,		false,			false,		true,			glm::vec3(1.0f),				5,			3));
-		objects.push_back(Object(	"Birch",		3,		6,			false,		false,			false,		true,			glm::vec3(1.0f),				5,			3));
-		objects.push_back(Object(	"Wood wall",	4,		207,		true,		true,			true,		true,			glm::vec3(0.58f, 0.43f, 0.2f),	10,			3));
-		objects.push_back(Object(	"Stone wall",	5,		255,		true,		true,			false,		true,			glm::vec3(0.5f, 0.5f, 0.5f),	15,			1));
-		objects.push_back(Object(	"Spawner",		6,		24,			false,		false,			false,		true,			glm::vec3(1.0f),				5,			0));
-		objects.push_back(Object(	"Mover",		7,		26,			false,		false,			false,		true,			glm::vec3(1.0f),				5,			0));
+		objects.push_back(Data_Object(	"Air",			0,		0,			false,		false,			false,		false,			glm::vec3(1.0f),				0,			0));
+		objects.push_back(Data_Object(	"Grass",		1,		4,			false,		false,			false,		true,			glm::vec3(1.0f),				1,			2));
+		objects.push_back(Data_Object(	"Spruce",		2,		5,			false,		false,			false,		true,			glm::vec3(1.0f),				5,			3));
+		objects.push_back(Data_Object(	"Birch",		3,		6,			false,		false,			false,		true,			glm::vec3(1.0f),				5,			3));
+		objects.push_back(Data_Object(	"Wood wall",	4,		207,		true,		true,			true,		true,			glm::vec3(0.58f, 0.43f, 0.2f),	10,			3));
+		objects.push_back(Data_Object(	"Stone wall",	5,		255,		true,		true,			false,		true,			glm::vec3(0.5f, 0.5f, 0.5f),	15,			1));
+		objects.push_back(Data_Object(	"Spawner",		6,		24,			false,		false,			false,		true,			glm::vec3(1.0f),				5,			0));
+		objects.push_back(Data_Object(	"Mover",		7,		26,			false,		false,			false,		true,			glm::vec3(1.0f),				5,			0));
 		
 		//Creatures						//Name		//Id	//Walkspeed	//Friendly		//Ghost		//Knockback		//Melee		//Hp	//Regen		//Stamina	//Staminaregen	//Drops as	//Color			//Textures >>>>	//Up	//Down	//Left	//Right
-		creatures.push_back(Creature(	"Player",	0,		50.0,		true,			false,		0.3f,			1.0f,		20.0f,	0.005f,		5.0f,		0.005f,			0,			glm::vec3(1.0f),				8,		9,		10,		11));
-		creatures.push_back(Creature(	"Whatever",	1,		50.0,		false,			false,		0.3f,			4.0f,		20.0f,	0.0f,		5.0f,		5.0f,			2,			glm::vec3(1.0f),				8,		9,		10,		11));
-		creatures.push_back(Creature(	"Item",		2,		50.0,		false,			false,		0.0f,			0.0f,		1.0f,	0.0f,		0.0f,		0.0f,			0,			glm::vec3(1.0f),				0,		0,		0,		0));
+		creatures.push_back(Data_Creature(	"Player",	0,		50.0,		true,			false,		0.3f,			1.0f,		20.0f,	0.005f,		5.0f,		0.005f,			0,			glm::vec3(1.0f),				8,		9,		10,		11));
+		creatures.push_back(Data_Creature(	"Whatever",	1,		50.0,		false,			false,		0.3f,			4.0f,		20.0f,	0.0f,		5.0f,		5.0f,			2,			glm::vec3(1.0f),				8,		9,		10,		11));
+		creatures.push_back(Data_Creature(	"Item",		2,		50.0,		false,			false,		0.0f,			0.0f,		1.0f,	0.0f,		0.0f,		0.0f,			0,			glm::vec3(1.0f),				0,		0,		0,		0));
 
 		//Biomes
 
-		BiomeTileHeight height0;
-		BiomeTileHeight height1;
-		BiomeTileHeight height2;
-		BiomeTileHeight height3;
+		Data_BiomeTileHeight height0;
+		Data_BiomeTileHeight height1;
+		Data_BiomeTileHeight height2;
+		Data_BiomeTileHeight height3;
 
 		//Ocean
 		height0 = { 0.8f, 1};
 		height1 = { 0.95f, 2 };
 		height2 = { 1.0f, 0 };
-		std::vector<BiomeTileHeight> heightmap = { height0, height1, height2 };
-		biomes.push_back(Biome("Ocean", 0, 0.5f, 0.5f, 0.02f, heightmap));
+		std::vector<Data_BiomeTileHeight> heightmap = { height0, height1, height2 };
+		biomes.push_back(Data_Biome("Ocean", 0, 0.5f, 0.5f, 0.02f, heightmap));
 
 		//Beach
 		height0 = { 1.0, 2 };
 		heightmap = { height0 };
-		biomes.push_back(Biome("Beach", 0, 0.5f, 0.5f, 0.02f, heightmap));
+		biomes.push_back(Data_Biome("Beach", 0, 0.5f, 0.5f, 0.02f, heightmap));
 
 		//Default
 		height0 = { 0.05f, 1 };
@@ -396,7 +396,7 @@ public:
 		height2 = { 0.80f, 0, 1, 0.5f };
 		height3 = { 1.00f, 4 };
 		heightmap = { height0, height1, height2, height3 };
-		biomes.push_back(Biome("Default", 0, 0.5f, 0.5f, 0.02f, heightmap));
+		biomes.push_back(Data_Biome("Default", 0, 0.5f, 0.5f, 0.02f, heightmap));
 
 		//Forest
 		height0 = { 0.05f, 1 };
@@ -404,7 +404,7 @@ public:
 		height2 = { 0.80f, 0, 1, 0.5f, 2, 0.5f };
 		height3 = { 1.00f, 4 };
 		heightmap = { height0, height1, height2, height3 };
-		biomes.push_back(Biome("Forest", 0, 0.5f, 0.5f, 0.02f, heightmap));
+		biomes.push_back(Data_Biome("Forest", 0, 0.5f, 0.5f, 0.02f, heightmap));
 
 		//Forest 2
 		height0 = { 0.05f, 1 };
@@ -412,15 +412,15 @@ public:
 		height2 = { 0.80f, 0, 1, 0.5f, 3, 0.5f };
 		height3 = { 1.09f, 4 };
 		heightmap = { height0, height1, height2, height3 };
-		biomes.push_back(Biome("Forest 2", 0, 0.5f, 0.5f, 0.02f, heightmap));
+		biomes.push_back(Data_Biome("Forest 2", 0, 0.5f, 0.5f, 0.02f, heightmap));
 
 		//Mountains
 		height0 = { 1.0f, 4, 5, 0.1f };
 		heightmap = { height0 };
-		biomes.push_back(Biome("Mountains", 0, 0.5f, 0.5f, 0.02f, heightmap));
+		biomes.push_back(Data_Biome("Mountains", 0, 0.5f, 0.5f, 0.02f, heightmap));
 	}
 
-	static Biome *getBiome(float height, float height2) {
+	static Data_Biome *getBiome(float height, float height2) {
 		if (height < 0.5f) return &biomes[0];
 		if (height < 0.51f) return &biomes[1];
 		else if (height < 0.75f) {

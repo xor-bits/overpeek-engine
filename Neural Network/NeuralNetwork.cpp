@@ -383,92 +383,105 @@ neuralNetwork *neuralNetwork::geneticAlgorithm(unsigned int NN_count, unsigned i
 	return neur[fitnesses[networks - 1].index];
 }
 
-void neuralNetwork::modifyNeuronOutput(float delta, unsigned int layer, unsigned int neuron_on_layer) {
-	neuron *selected = &p_pcts[layer][neuron_on_layer];
-	float derivateOfSigmoidFunction = math::sigmoidDerivate(selected->getWeightedSum());
-
-	//----
-	//Adjust bias of this neuron
-	selected->changeBiasWeight(delta * derivateOfSigmoidFunction);
-
-
-	//----
-	//Adjust weights of all connections to this neur
-	for (int j = 0; j < selected->getInputCount(); j++)
+void neuralNetwork::modifyLayer(float *correct_outputs, unsigned int layer) {
+	float delta;
+	for (int i = 0; i < p_pcts[layer].size(); i++)
 	{
-		float input = selected->getInput(j);
-		float change = delta * derivateOfSigmoidFunction * input;
-		selected->changeWeight(j, change);
-		//std::cout << selected->getInput(j) << std::endl;
-	}
+		neuron* selected = &p_pcts[layer][i];
+		float derivateOfSigmoidFunction = math::sigmoidDerivate(selected->getWeightedSum());
+		
+		
+		if (layer == u_layer_count - 1) {
+			float output = p_pcts[layer][i].getOutput();
+			float o_error = error(i, correct_outputs[i]);
+			delta = 2 * (output - correct_outputs[i]);
 
-	//----
-	//Adjust all neurons connected to this neuron
-	//Unless it is first layer (cant change input)
-	if (layer >= 1) {
+			//std::cout << "DELTA: " << delta << ". " << std::endl;
+		}
+		else {
+			delta = selected->requested_change;
+		}
+
+
+
+		//----
+		//Adjust bias of this neuron
+		selected->changeBiasWeight(delta * derivateOfSigmoidFunction);
+
+
+		//----
+		//Adjust weights of all connections to this neur
 		for (int j = 0; j < selected->getInputCount(); j++)
 		{
-			float weight = selected->getWeight(j);
-			float newDelta = delta * derivateOfSigmoidFunction * weight;
-			modifyNeuronOutput(newDelta, layer - 1, j);
+			float input = selected->getInput(j);
+			float change = derivateOfSigmoidFunction * input;
+			selected->changeWeight(j, delta * change);
+		}
+
+		//----
+		//Adjust all neurons connected to this neuron
+		//Unless it is first layer (cant change input)
+		if (layer >= 1) {
+			for (int j = 0; j < selected->getInputCount(); j++)
+			{
+				float weight = selected->getWeight(j);
+				float newDelta = delta * derivateOfSigmoidFunction * weight;
+				p_pcts[layer - 1][j].requested_change += newDelta;
+			}
 		}
 	}
-
 }
 
 void neuralNetwork::backpropagation(neuralNetwork &network, unsigned int trainings, float trainingRate) {
-	float combined_errors = 0.0f;
 	float correct_percentage_var = 0.0f;
+
+	//decoration only
+	unsigned int backspace_count = 0; 
+	std::cout << "Batch ";
+
+	unsigned int batch_size = 1000;
 	for (int i = 1; i < trainings; i++)
 	{
 
-		float* correct_outputs;
-		int index;
-		while (true) {
-			index = rand() % 60000;
-			correct_outputs = getOutput(index);
-
-			if (correct_outputs[0] > 0.5f || correct_outputs[1] > 0.5f || correct_outputs[2] > 0.5f) {
-				break;
-			}
-		}
-
-		float* first_layer = getInput(index);
-
-		network.operateAll(first_layer);
-
-		int guess = network.neuronGuess();
-		int target = math::argmax(correct_outputs, 10);
-
-		if (guess == target) {
-			//std::cout << "GUESSED RIGHT!\n";
-			correct_percentage_var += 1.0f;
-		}
-
 //#pragma omp parallel for
-		for (int j = 0; j < network.p_pcts[network.u_layer_count - 1].size(); j++)
-		//for (unsigned int i = 0; i < 1; i++)
+		for (int batch_id = 0; batch_id < batch_size; batch_id++)
 		{
-			float output = network.p_pcts[network.u_layer_count - 1][j].getOutput();
-			float error = network.error(j, correct_outputs[j]);
-			combined_errors += error;
+			float* correct_outputs;
+			int index;
+			while (true) {
+				index = rand() % 60000;
+				correct_outputs = getOutput(index);
 
-			network.modifyNeuronOutput(2 * (output - correct_outputs[j]), network.u_layer_count - 1, j);
-			
-			//if(i % 10 == 0) std::cout << "Neuron " << j << ", Correct: " << std::setprecision(2) << correct_outputs[j] << ", Output: " << output << " , Error: " << error << ", Fix: " << correct_outputs[j] - output << std::endl;
+				if (correct_outputs[0] > 0.5f || correct_outputs[1] > 0.5f) {
+					break;
+				}
+			}
+			float* first_layer = getInput(index);
+
+			network.operateAll(first_layer);
+
+			int guess = network.neuronGuess();
+			int target = math::argmax(correct_outputs, 10);
+			if (guess == target) correct_percentage_var += 1.0f;
+
+			for (int j = network.p_pcts.size() - 1; j >= 0; j--)
+			{
+				//std::cout << j << std::endl;
+				network.modifyLayer(correct_outputs, j);
+			}
+
+			//Cleanup
+			delete[] first_layer; delete[] correct_outputs;
 		}
 
-		delete[] first_layer;
-		delete[] correct_outputs;
-
-		if (i % 1000 == 0) {
-			network.applyChanges(trainingRate);
-			std::cout << "Train " << i << " : " << combined_errors / 1000.0f << std::endl;
-			std::cout << "Current percentage: " << correct_percentage_var / 10.0f << "\%" << std::endl;
-			combined_errors = 0.0f;
-
-			correct_percentage_var = 0.0f;
-		}
+		//Batch completed
+		network.applyChanges(trainingRate);
+		std::cout << std::string(backspace_count, '\b');
+		std::string text = std::to_string(i) + " : " + std::to_string(correct_percentage_var / (float)batch_size * 100.0f) + "\%";
+		backspace_count = text.length();
+		std::cout << text;
+		correct_percentage_var = 0.0f;
+		
 
 		if (GetAsyncKeyState(VK_ESCAPE)) break;
 	}

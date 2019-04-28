@@ -86,7 +86,7 @@ class Particle {
 			float force_x = 0, force_y = 0, force_z = 0;
 
 			//DEBUGGING
-			//if (!selector) oe::Logger::out(oe::info, "STEP FROM PARTICLE");
+			//if (!selector) oe::Logger::out("STEP FROM PARTICLE");
 
 			for (unsigned int i = 0; i < count; i++)
 			{
@@ -94,7 +94,7 @@ class Particle {
 				if (particles[i] == from) continue;
 
 				//DEBUGGING
-				//if (!selector) oe::Logger::out(oe::info, i);
+				//if (!selector) oe::Logger::out(i);
 
 				float distanceSqr = pow(particles[i]->m_x - from->m_x, 2);
 				distanceSqr += pow(particles[i]->m_y - from->m_y, 2);
@@ -116,7 +116,7 @@ class Particle {
 							float exponent = -1.02041 * distanceSqr;
 							float force = -1.64 - 4.0 * pow(EULER_NUMBER, exponent) + (5.0 / sqrt(distanceSqr));
 
-							//oe::Logger::out(oe::info, "x: ", 
+							//oe::Logger::out("x: ", 
 							//	closeZero(normalized.x, direction.x), ", y: ",
 							//	closeZero(normalized.y, direction.y));
 
@@ -163,20 +163,20 @@ class Particle {
 		void update() {
 			if (m_mass == INFINITY) return;
 
-			oe::Logger::out(oe::info, m_vel_x);
+			oe::Logger::out(m_vel_x);
 
 
 			m_x += m_vel_x;
 			m_y += m_vel_y;
 			m_z += m_vel_z;
 
-			//oe::Logger::out(oe::info, m_vel_x);
+			//oe::Logger::out(m_vel_x);
 
 			m_vel_x += m_acc_x / m_mass;
 			m_vel_y += m_acc_y / m_mass;
 			m_vel_z += m_acc_z / m_mass;
 
-			//oe::Logger::out(oe::info, m_mass);
+			//oe::Logger::out(m_mass);
 
 			m_acc_x = 0;
 			m_acc_y = 0;

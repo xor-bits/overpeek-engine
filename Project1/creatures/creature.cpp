@@ -112,8 +112,6 @@ void Creature::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, flo
 		renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(pos.x + size.x, pos.y, pos.z), glm::vec2(1.0f, 0.0f), Database::items[m_id].texture, OE_COLOR_WHITE));
 	}
 
-	if (m_path && m_result != 0 && Game::advancedDebugMode) m_path->debugRender(renderer, renderOffsetX, renderOffsetY);
-
 }
 
 void Creature::clampHPAndSTA() {
@@ -330,8 +328,8 @@ void Creature::collide(float divider) {
 					#endif
 				}
 
-				if (top != bottom) { addY(y_to_move); vel_y = 0; m_bumping = true; } //oe::Logger::out(oe::info, "bump");}
-				if (left != right) { addX(x_to_move); vel_x = 0; m_bumping = true; } //oe::Logger::out(oe::info, "bump");}
+				if (top != bottom) { addY(y_to_move); vel_y = 0; m_bumping = true; } //oe::Logger::out("bump");}
+				if (left != right) { addX(x_to_move); vel_x = 0; m_bumping = true; } //oe::Logger::out("bump");}
 			}
 		}
 	}
@@ -374,7 +372,7 @@ bool Creature::canSee(float _x, float _y) {
 					glm::vec2(x + floor(getX()), y + floor(getY())), 
 					glm::vec2(x + floor(getX()), y + floor(getY()) + 1.0f)
 				)) {
-					//oe::Logger::out(oe::info, "0");
+					//oe::Logger::out("0");
 					return false;
 				}
 				if (lineLine(
@@ -383,7 +381,7 @@ bool Creature::canSee(float _x, float _y) {
 					glm::vec2(x + floor(getX()), y + floor(getY())),
 					glm::vec2(x + floor(getX()) + 1.0f, y + floor(getY()))
 				)) {
-					//oe::Logger::out(oe::info, "1");
+					//oe::Logger::out("1");
 					return false;
 				}
 				if (lineLine(
@@ -392,7 +390,7 @@ bool Creature::canSee(float _x, float _y) {
 					glm::vec2(x + floor(getX()) + 1.0f, y + floor(getY()) + 1.0f),
 					glm::vec2(x + floor(getX()), y + floor(getY()) + 1.0f)
 				)) {
-					//oe::Logger::out(oe::info, "2");
+					//oe::Logger::out("2");
 					return false;
 				}
 				if (lineLine(
@@ -401,7 +399,7 @@ bool Creature::canSee(float _x, float _y) {
 					glm::vec2(x + floor(getX()) + 1.0f, y + floor(getY()) + 1.0f),
 					glm::vec2(x + floor(getX()) + 1.0f, y + floor(getY()))
 				)) {
-					//oe::Logger::out(oe::info, "3");
+					//oe::Logger::out("3");
 					return false;
 				}
 			}

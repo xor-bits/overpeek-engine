@@ -3,6 +3,9 @@
 #include "player.h"
 #include "../logic/aStar.h"
 #include "../settings.h"
+#include "../logic/database.h"
+#include "../logic/game.h"
+#include "../settings.h"
 
 #include "../pch.h"
 
@@ -15,8 +18,6 @@ Zombie::Zombie(float x, float y) : Creature::Creature(x, y, 1, false) {
 	m_curtarget_y = 0;
 	m_check_player_cooldown = 0;
 }
-
-Zombie::~Zombie() {}
 
 void Zombie::update(int index, float divider) {
 	Creature::update(index, divider);
@@ -48,9 +49,9 @@ void Zombie::ai(float divider) {
 		glm::vec2 dstToPlayer = glm::vec2(Game::getPlayer()->getX() - getX(), Game::getPlayer()->getY() - getY());
 		glm::vec2 dirToPlayer = glm::normalize(dstToPlayer);
 		if (abs(dstToPlayer.x) > 1.2 || abs(dstToPlayer.y) > 1.2) {
-			acc_x += dirToPlayer.x * Database::creatures[m_id].walkSpeed / UPDATES_PER_SECOND;
-			acc_y += dirToPlayer.y * Database::creatures[m_id].walkSpeed / UPDATES_PER_SECOND;
-			setHeading(acc_x, acc_y);
+			Creature::acc_x += dirToPlayer.x * Database::creatures[m_id].walkSpeed / UPDATES_PER_SECOND;
+			Creature::acc_y += dirToPlayer.y * Database::creatures[m_id].walkSpeed / UPDATES_PER_SECOND;
+			setHeading(Creature::acc_x, Creature::acc_y);
 		}
 		else {
 			m_hit_cooldown += 1.0 / divider;
@@ -149,4 +150,10 @@ void Zombie::followTarget(float divider) {
 		if (abs(mov_y) > 0.2) acc_y += oe::sign(mov_y) * Database::creatures[m_id].walkSpeed / UPDATES_PER_SECOND;
 		setHeading(acc_x, acc_y);
 	}
+}
+
+void Zombie::submitToRenderer(oe::Renderer* renderer, float renderOffsetX, float renderOffsetY, float corrector) {
+	Creature::submitToRenderer(renderer, renderOffsetX, renderOffsetY, corrector);
+
+	if (m_path && m_result != 0 && Game::advancedDebugMode) m_path->debugRender(renderer, renderOffsetX, renderOffsetY);
 }

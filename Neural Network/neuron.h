@@ -11,12 +11,17 @@ private:
 
 	unsigned int u_input_count;
 	std::vector<float> f_weights;
-	std::vector<float> f_weight_changes;
 	float f_bias_weight;
+
+	std::vector<float> f_weight_changes;
 	float f_bias_weight_change;
 
 	float f_weighted_sum;
 	std::vector<float> f_inputs;
+
+public:
+	float requested_change;
+
 
 public:
 	neuron(int id, unsigned int input_count);

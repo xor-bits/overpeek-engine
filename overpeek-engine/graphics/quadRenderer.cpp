@@ -94,7 +94,7 @@ namespace oe {
 		glBindTexture(textureType, texture);
 		m_VAO->bind();
 
-		//oe::Logger::out(oe::info, "Quads: ", m_indexcount / 6);
+		//oe::Logger::out("Quads: ", m_indexcount / 6);
 		if (m_indexcount > 0) {
 			glDrawElements(GL_TRIANGLES, m_indexcount, GL_UNSIGNED_SHORT, 0);
 			m_indexcount = 0;

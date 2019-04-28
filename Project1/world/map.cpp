@@ -206,18 +206,18 @@ bool Map::create(std::string name) {
 	return true;
 }
 
-Database::Biome *Map::getTileBiome(float x, float y) {
+Database::Data_Biome *Map::getTileBiome(float x, float y) {
 	x = wrapCoordinate(x, MAP_SIZE);
 	y = wrapCoordinate(y, MAP_SIZE);
 
 	float height0 = (m_biomenoise1[int(x + y * MAP_SIZE)] + 1.0f) / 2.0f;
 	float height1 = (m_biomenoise2[int(x + y * MAP_SIZE)] + 1.0f) / 2.0f;
 
-	Database::Biome *biome = Database::getBiome(height0, height1);
+	Database::Data_Biome *biome = Database::getBiome(height0, height1);
 	return biome;
 }
 
-int Map::getInfoFromNoiseIfLoop(Database::Biome *biome, float x, float y, int index) {
+int Map::getInfoFromNoiseIfLoop(Database::Data_Biome *biome, float x, float y, int index) {
 	if (biome->heightMap[index].grassId != 0) {
 		if ((m_plantnoise1[int(x + y * MAP_SIZE)] + 1.0f) / 2.0f > biome->heightMap[index].grassRarity) return biome->heightMap[index].grassId;
 	}
@@ -228,7 +228,7 @@ int Map::getInfoFromNoiseIfLoop(Database::Biome *biome, float x, float y, int in
 }
 
 void Map::getInfoFromNoise(int &tileId, int &objId, float x, float y) {
-	Database::Biome *biome = getTileBiome(x, y);
+	Database::Data_Biome *biome = getTileBiome(x, y);
 	if (!biome) oe::Logger::out("Biome was null pointer", oe::error);
 
 	if (biome->heightMap.size() == 1) {
@@ -307,8 +307,8 @@ void Map::submitToRenderer(oe::Renderer *renderer, float offX, float offY, float
 
 			//Calculate correct positions to render tile at
 			MapTile *tile = getTile(tile_x, tile_y);
-			Database::Tile db_tile = Database::tiles[tile->m_tile];
-			Database::Object db_object = Database::objects[tile->m_object];
+			Database::Data_Tile db_tile = Database::tiles[tile->m_tile];
+			Database::Data_Object db_object = Database::objects[tile->m_object];
 			float rx = (tile_x + offX) * TILE_SIZE * Game::renderScale();
 			float ry = (tile_y + offY) * TILE_SIZE * Game::renderScale();
 			
@@ -356,7 +356,7 @@ void Map::renderGhostObject(oe::Renderer *renderer, float x, float y, int id, fl
 	//y += 0.5;
 
 
-	Database::Object db_object = Database::objects[id];
+	Database::Data_Object db_object = Database::objects[id];
 	float rx = (x + offX) * TILE_SIZE * Game::renderScale();
 	float ry = (y + offY) * TILE_SIZE * Game::renderScale();
 

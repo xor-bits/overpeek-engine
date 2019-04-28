@@ -8,7 +8,6 @@ private:
 	
 public:
 	Item(float x, float y, int id);
-	~Item();
 
 	void ai(float divider);
 	void update(int index, float divider);
