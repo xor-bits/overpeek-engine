@@ -20,11 +20,12 @@ namespace oe {
 
 	glm::vec4 FontRenderer::colors[9];
 	
-	FontRenderer::FontRenderer(const char *fontPath, QuadRenderer *renderer, Renderer* parent) {
-		init(fontPath);
+	FontRenderer::FontRenderer(const char *fontPath, Renderer* parent) {
 		initalized = true;
+		if (fontPath == nullptr) { initalized = false; return; }
+		init(fontPath);
 
-		m_renderer = renderer;
+		m_renderer = new QuadRenderer();
 		m_ptr_to_parent = parent;
 
 
@@ -41,6 +42,8 @@ namespace oe {
 	}
 
 	bool FontRenderer::init(const char *fontPath) {
+		if (!initalized) return false;
+		
 		FT_Library ft;
 		if (FT_Init_FreeType(&ft)) {
 			oe::Logger::out("Failed to initialize Freetype!", oe::error);
@@ -54,8 +57,8 @@ namespace oe {
 		}
 	
 
-		GLubyte *data = new GLubyte[128 * pow(FONT_RESOLUTION, 2) * 4];
-		for (int c = 0; c < 128 * pow(FONT_RESOLUTION, 2) * 4; c++) {
+		GLubyte *data = new GLubyte[256 * pow(FONT_RESOLUTION, 2) * 4];
+		for (int c = 0; c < 256 * pow(FONT_RESOLUTION, 2) * 4; c++) {
 			data[c] = 0;
 		}
 		GLuint maxWidth = FONT_RESOLUTION, maxHeight = FONT_RESOLUTION;
@@ -64,7 +67,7 @@ namespace oe {
 		
 		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
 
-		for (GLubyte c = 32; c < 127; c++) {
+		for (GLubyte c = 0; c < 255; c++) {
 			//Load glyph
 			if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
 				oe::Logger::out("Failed to load glyph for: \"", (char*)c, "\"", oe::error);
@@ -84,26 +87,6 @@ namespace oe {
 			};
 			m_characters.insert(std::pair<GLchar, Character*>(c, character));
 
-#define DEBUGTEXT
-#ifdef DEBUGTEXT
-			////BLACK BACKGROUND
-			//for (int y = 0; y < g->bitmap.rows; y++)
-			//{
-			//	for (int x = 0; x < g->bitmap.width; x++)
-			//	{
-			//		int pixel = (x + FONT_BACKGROUND / 4 * 1) + (y + FONT_BACKGROUND / 4 * 1) * maxWidth + c * maxWidth * maxHeight;
-			//		data[pixel * 4 + 3] = oe::clamp(data[pixel * 4 + 3] + g->bitmap.buffer[x + y * g->bitmap.width], 0, 255);
-			//		pixel = (x + FONT_BACKGROUND / 4 * 2) + (y + FONT_BACKGROUND / 4 * 2) * maxWidth + c * maxWidth * maxHeight;
-			//		data[pixel * 4 + 3] = oe::clamp(data[pixel * 4 + 3] + g->bitmap.buffer[x + y * g->bitmap.width], 0, 255);
-			//		pixel = (x + FONT_BACKGROUND / 4 * 3) + (y + FONT_BACKGROUND / 4 * 3) * maxWidth + c * maxWidth * maxHeight;
-			//		data[pixel * 4 + 3] = oe::clamp(data[pixel * 4 + 3] + g->bitmap.buffer[x + y * g->bitmap.width], 0, 255);
-			//		pixel = (x + FONT_BACKGROUND / 4 * 4) + (y + FONT_BACKGROUND / 4 * 4) * maxWidth + c * maxWidth * maxHeight;
-			//		data[pixel * 4 + 3] = oe::clamp(data[pixel * 4 + 3] + g->bitmap.buffer[x + y * g->bitmap.width], 0, 255);
-			//		
-			//		//GLubyte byte = 0; data[pixel * 4 + 0] = byte; data[pixel * 4 + 1] = byte; data[pixel * 4 + 2] = byte; //Black color
-			//
-			//	}
-			//}
 			//WHITE FRONT FONT
 			for (int y = 0; y < g->bitmap.rows; y++)
 			{
@@ -117,7 +100,6 @@ namespace oe {
 					data[pixel * 4 + 3] = g->bitmap.buffer[x + y * g->bitmap.width];
 				}
 			}
-			#endif
 		}
 
 		glGenTextures(1, &texture);
@@ -128,8 +110,8 @@ namespace oe {
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA8, maxWidth, maxHeight, 128);
-		glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, maxWidth, maxHeight, 128, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA8, maxWidth, maxHeight, 256);
+		glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, maxWidth, maxHeight, 256, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
 		FT_Done_Face(face);
 		FT_Done_FreeType(ft);
@@ -137,15 +119,23 @@ namespace oe {
 	}
 
 	void FontRenderer::beginRendering() {
+		if (!initalized) return;
+
 		m_renderer->beginRendering();
 	}
 
 	void FontRenderer::stopRendering() {
+		if (!initalized) return;
+		
 		m_renderer->stopRendering();
 	}
 
 	void FontRenderer::draw() {
+		if (!initalized) return;
+
 		//Flush text
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		m_renderer->draw(texture, GL_TEXTURE_2D_ARRAY);
 	}
 
@@ -252,9 +242,12 @@ namespace oe {
 
 	void FontRenderer::renderText(glm::vec3 pos, glm::vec2 scale, const char* _text, int _textOrigin, glm::vec4 background)
 	{
+		if (!initalized) return;
+		
 		float final_width;
 		getStartingPos(pos, final_width, scale, _text, _textOrigin);
-
+		
+		//Background
 		m_ptr_to_parent->quadRenderer->submitVertex(VertexData(glm::vec3(pos.x, pos.y - scale.y, pos.z), glm::vec2(0.0f, 0.0f), 20, background));
 		m_ptr_to_parent->quadRenderer->submitVertex(VertexData(glm::vec3(pos.x, pos.y, pos.z), glm::vec2(0.0f, 1.0f), 20, background));
 		m_ptr_to_parent->quadRenderer->submitVertex(VertexData(glm::vec3(pos.x + final_width, pos.y, pos.z), glm::vec2(1.0f, 1.0f), 20, background));
@@ -265,6 +258,8 @@ namespace oe {
 	
 	void FontRenderer::renderText(glm::vec3 pos, glm::vec2 scale, const char *_text, int _textOrigin)
 	{
+		if (!initalized) return;
+		
 		float final_width;
 		getStartingPos(pos, final_width, scale, _text, _textOrigin);
 		renderText(pos, scale, _text);

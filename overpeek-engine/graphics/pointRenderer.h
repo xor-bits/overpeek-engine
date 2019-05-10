@@ -11,16 +11,12 @@ namespace oe {
 	class VertexArray;
 	class Buffer;
 	class IndexBuffer;
-	class Window;
 
 	class PointRenderer {
 	private:
-
 		VertexArray *m_vao;
 		Buffer *m_vbo;
 		int pointcount;
-
-		Window *m_window;
 
 		VertexData* m_buffer;
 		int m_buffer_current;
@@ -30,7 +26,7 @@ namespace oe {
 	public:
 
 		//Initialize particle rendering
-		PointRenderer(Window *window);
+		PointRenderer();
 
 		//Maps buffer
 		void beginRendering();

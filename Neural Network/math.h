@@ -1,7 +1,5 @@
 #pragma once
 
-#define e 2.71828f
-
 namespace math {
 
 	float gaussRandom(float min, float max);

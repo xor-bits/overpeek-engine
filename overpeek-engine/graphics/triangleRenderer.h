@@ -6,16 +6,12 @@
 
 namespace oe {
 
-	class Window;
 	class VertexArray;
 	class Buffer;
 	class IndexBuffer;
 
 	class TriangleRenderer {
 	private:
-
-		Window *m_window;
-
 		VertexArray *m_VAO;
 		Buffer *m_VBO;
 		unsigned int triangle_count;
@@ -30,7 +26,7 @@ namespace oe {
 	public:
 		
 		//Constructor
-		TriangleRenderer(Window *window);
+		TriangleRenderer();
 
 		//Maps buffer
 		void beginRendering();

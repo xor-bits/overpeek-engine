@@ -52,7 +52,7 @@ void Game::init() {
 
 	//Window
 	oe::Logger::out("Creating window");
-	m_window = std::unique_ptr<oe::Window>(new oe::Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, (M_WINDOW_DEFAULT_TITLE).c_str(), false, M_DEFAULT_MULTISAMPLE, !M_ASPECT_FIXED));
+	m_window = std::unique_ptr<oe::Window>(new oe::Window(M_WINDOW_WIDTH, M_WINDOW_HEIGHT, (M_WINDOW_DEFAULT_TITLE).c_str(), WINDOW_MULTISAMPLE_X8 | WINDOW_RESIZEABLE));
 	m_window->setSwapInterval(NULL);
 	m_window->setButtonCallback(buttonPress);
 	m_window->setKeyboardCallback(keyPress);
@@ -63,7 +63,7 @@ void Game::init() {
 	m_window->setClearColor(1.0, 1.0, 1.0, 1.0);
 	m_window->setIcon("res/texture/icon.png");
 	m_window->setLineWidth(5.0f);
-	//m_window->setBackFaceCulling(false);
+	m_window->setBackFaceCulling(false);
 	renderer = m_window->getRenderer();
 
 
@@ -152,6 +152,8 @@ void Game::rapidUpdate() {
 void Game::render(float corrector) {
 	//return;
 	if (!m_window) return;
+	m_window->clear();
+
 	
 	//World tiles
 	if (!paused || justPaused) {
@@ -170,7 +172,7 @@ void Game::render(float corrector) {
 		m_map->submitToRenderer(m_worldrenderer.get(), -m_player->getX() - m_player->getVelX() * corrector / UPDATES_PER_SECOND, -m_player->getY() - m_player->getVelY() * corrector / UPDATES_PER_SECOND, corrector);
 #endif
 
-		m_player->submitToRenderer(m_worldrenderer.get(), -m_player->getX() - m_player->getVelX() * corrector / UPDATES_PER_SECOND, -m_player->getY() - m_player->getVelY() * corrector / UPDATES_PER_SECOND, corrector);
+		m_player->submitToRenderer(m_worldrenderer.get(), -m_player->getX() - m_player->getVelX() * corrector / UPDATES_PER_SECOND, -m_player->getY() - m_player->getVelY() * corrector / UPDATES_PER_SECOND, corrector, renderScale());
 		m_gui->renderBlur(m_worldrenderer.get());
 		m_inventory->render(m_worldrenderer.get());
 	}
@@ -204,6 +206,10 @@ void Game::render(float corrector) {
 
 	//Other
 	justPaused = false;
+
+
+	m_window->update();
+	m_window->input();
 }
 
 void Game::update() {
@@ -384,6 +390,7 @@ void Game::resize(int width, int height) {
 	glm::mat4 orthographic = glm::ortho(-aspect * DEBUG_ZOOM, aspect * DEBUG_ZOOM, DEBUG_ZOOM, -DEBUG_ZOOM);
 	m_shader->enable(); m_shader->SetUniformMat4("pr_matrix", orthographic);
 	m_pointshader->enable(); m_pointshader->SetUniformMat4("pr_matrix", orthographic);
+	m_pointshader->enable(); m_pointshader->setUniform1i("ortho", 1);
 }
 
 void Game::charmod(unsigned int codepoint, int mods) {
@@ -772,4 +779,8 @@ oe::Window *Game::getWindow() {
 
 std::string Game::getSaveLocation() {
 	return SAVE_PATH + "\\";
+}
+
+float Game::renderScale() { 
+	return 720.0f / m_window->getHeight(); 
 }

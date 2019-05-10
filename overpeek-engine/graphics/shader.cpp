@@ -2,26 +2,34 @@
 
 #include <iostream>
 #include <GL/glew.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "window.h"
 #include "../utility/logger.h"
 #include "../utility/filereader.h"
 
+
+
 namespace oe {
 
-	unsigned int Shader::loadShader(unsigned int shadertype, const char *path) {
-		//Load and compile
-		std::string shaderStr = oe::readFile(path);
-		const char *shaderChar = shaderStr.c_str();
-
+	unsigned int Shader::loadShader(unsigned int shadertype, const char* shaderText) {
 		GLuint shader;
 		shader = glCreateShader(shadertype);
-		glShaderSource(shader, 1, &shaderChar, NULL);
+		glShaderSource(shader, 1, &shaderText, NULL);
 		glCompileShader(shader);
 
 		//Get errors
 		shaderLog("Shader compilation failed!", shader, GL_COMPILE_STATUS);
 		return shader;
+	}
+
+	unsigned int Shader::loadShaderFile(unsigned int shadertype, const char *path) {
+		//Load and compile
+		std::string shaderStr = oe::readFile(path);
+		const char *shaderChar = shaderStr.c_str();
+		
+		return loadShader(shadertype, shaderChar);
 	}
 
 	void Shader::shaderLog(const char* text, unsigned int shader, unsigned int type) {
@@ -37,7 +45,7 @@ namespace oe {
 
 			oe::Logger::out(text, oe::critical);
 			std::cout << infoLog << std::endl;
-			delete infoLog;
+			delete[] infoLog;
 			Window::terminate();
 			system("pause");
 			exit(EXIT_FAILURE);
@@ -57,26 +65,95 @@ namespace oe {
 
 			oe::Logger::out(text, oe::critical);
 			std::cout << infoLog << std::endl;
-			delete infoLog;
+			delete[] infoLog;
 			Window::terminate();
 			system("pause");
 			exit(EXIT_FAILURE);
 		}
 	}
 
-	Shader::Shader(const char *vertexPath, const char *fragmentPath) {
+	Shader::Shader() {
 
 		//Vertex shader
-		GLuint vertexShader = loadShader(GL_VERTEX_SHADER, vertexPath);
+		GLuint vertexShader = loadShader(GL_VERTEX_SHADER, 
+			"#version 330 core\n"
+			"layout(location = 0) in vec3 vertex_pos;\n"
+			"layout(location = 1) in vec2 texture_uv;\n"
+			"layout(location = 2) in float texture_id;\n"
+			"layout(location = 3) in vec4 vertex_color;\n"
+
+			"out vec2 shader_uv;\n"
+			"out vec4 shader_color;\n"
+			"flat out int shader_id;\n"
+			"\n"
+			"uniform mat4 pr_matrix = mat4(1.0);\n"
+			"uniform mat4 ml_matrix = mat4(1.0);\n"
+			"uniform mat4 vw_matrix = mat4(1.0);\n"
+			"\n"
+			"void main()\n"
+			"{\n"
+			"   mat4 mvp = pr_matrix * vw_matrix * ml_matrix;\n"
+			"	gl_Position = mvp * vec4(vertex_pos.x, vertex_pos.y, vertex_pos.z, 1.0f);\n"
+			"	shader_uv = texture_uv;\n"
+			"	shader_id = int(floor(texture_id));\n"
+			"	shader_color = vertex_color;\n"
+			"}\n"
+		);
 
 		//Fragment shader
-		GLuint fragmentShader = loadShader(GL_FRAGMENT_SHADER, fragmentPath);
+		GLuint fragmentShader = loadShader(GL_FRAGMENT_SHADER,
+			"#version 330 core\n"
+			"\n"
+			"in vec2 shader_uv;\n"
+			"in vec4 shader_color;\n"
+			"flat in int shader_id;\n"
+			"\n"
+			"layout(location = 0) out vec4 color;\n"
+			"\n"
+			"uniform sampler2DArray tex;\n"
+			"uniform int textured = 0;\n"
+			"\n"
+			"void main()\n"
+			"{\n"
+			"	if (textured != 0) color = texture(tex, vec3(shader_uv, shader_id)) * shader_color;\n"
+			"	else color = shader_color;\n"
+			"}\n"
+		);
 
 		//Shader program
 		mShaderProgram = glCreateProgram();
 		glAttachShader(mShaderProgram, vertexShader);
 		glAttachShader(mShaderProgram, fragmentShader);
 		glLinkProgram(mShaderProgram);
+
+		//Get shader program linking error
+		programLog("Shader program linking failed!", mShaderProgram, GL_LINK_STATUS);
+
+		//Default projection matrix
+		glm::mat4 pr = glm::ortho(-1.0f, 1.0f, 1.0f, -1.0f);
+		enable();
+		SetUniformMat4("pr_matrix", pr);
+
+		//Free up data
+		glDeleteShader(vertexShader);
+		glDeleteShader(fragmentShader);
+	}
+
+	Shader::Shader(const char *vertexPath, const char *fragmentPath) {
+
+		//Vertex shader
+		GLuint vertexShader = loadShaderFile(GL_VERTEX_SHADER, vertexPath);
+
+		//Fragment shader
+		GLuint fragmentShader = loadShaderFile(GL_FRAGMENT_SHADER, fragmentPath);
+
+
+		//Shader program
+		mShaderProgram = glCreateProgram();
+		glAttachShader(mShaderProgram, vertexShader);
+		glAttachShader(mShaderProgram, fragmentShader);
+		glLinkProgram(mShaderProgram);
+
 
 		//Get shader program linking error
 		programLog("Shader program linking failed!", mShaderProgram, GL_LINK_STATUS);
@@ -89,13 +166,13 @@ namespace oe {
 	Shader::Shader(const char *vertexPath, const char *fragmentPath, const char *geometryPath) {
 
 		//Vertex shader
-		GLuint vertexShader = loadShader(GL_VERTEX_SHADER, vertexPath);
+		GLuint vertexShader = loadShaderFile(GL_VERTEX_SHADER, vertexPath);
 
 		//Fragment shader
-		GLuint fragmentShader = loadShader(GL_FRAGMENT_SHADER, fragmentPath);
+		GLuint fragmentShader = loadShaderFile(GL_FRAGMENT_SHADER, fragmentPath);
 
 		//Geometry shader
-		GLuint geometryShader = loadShader(GL_GEOMETRY_SHADER, geometryPath);
+		GLuint geometryShader = loadShaderFile(GL_GEOMETRY_SHADER, geometryPath);
 
 		//Shader program
 		mShaderProgram = glCreateProgram();

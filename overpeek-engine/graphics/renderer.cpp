@@ -10,15 +10,16 @@
 
 namespace oe {
 
-	Renderer::Renderer(const char *font, Window *window) {
-		m_window = window;
-		quadRenderer = new QuadRenderer(window);
-		fontRenderer = new FontRenderer(font, new QuadRenderer(window), this);
-		pointRenderer = new PointRenderer(window);
-		lineRenderer = new LineRenderer(window);
-		triangleRenderer = new TriangleRenderer(window);
+	Renderer::Renderer(const char *font, int window_width, int window_height) {
+		quadRenderer = new QuadRenderer();
+		fontRenderer = new FontRenderer(font, this);
+		pointRenderer = new PointRenderer();
+		lineRenderer = new LineRenderer();
+		triangleRenderer = new TriangleRenderer();
+		shader = new Shader();
 
 		//Post processing
+		post_shader = new Shader();
 
 		// The fullscreen quad's VBO
 		GLfloat g_quad_vertex_buffer_data[] = {
@@ -39,7 +40,7 @@ namespace oe {
 		unsigned int rbo;
 		glGenRenderbuffers(1, &rbo);
 		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_window->getWidth(), m_window->getHeight());
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, window_width, window_height);
 
 		//First framebuffer and frametexture
 		//buffer
@@ -49,7 +50,7 @@ namespace oe {
 		//texture
 		glGenTextures(1, &m_frametexture1);
 		glBindTexture(GL_TEXTURE_2D, m_frametexture1);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_window->getWidth(), m_window->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, window_width, window_height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -68,7 +69,7 @@ namespace oe {
 		//texture
 		glGenTextures(1, &m_frametexture2);
 		glBindTexture(GL_TEXTURE_2D, m_frametexture2);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_window->getWidth(), m_window->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, window_width, window_height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -91,24 +92,23 @@ namespace oe {
 
 	//Draws all quads and text
 	//textbool is location of int (used as boolean) in shader that enables or disables text rendering
-	void Renderer::draw(Shader *shader, Shader *pointshader, int texture, bool textureArray) {
+	void Renderer::draw(int texture, bool textureArray) {
 
 		int textureType = GL_TEXTURE_2D;
 		if (textureArray) textureType = GL_TEXTURE_2D_ARRAY;
 
-		pointshader->enable();
-		pointRenderer->draw(texture, textureType);
-
 		shader->enable();
+		pointRenderer->draw(texture, textureType);
 		quadRenderer->draw(texture, textureType);
-		fontRenderer->draw();
 		lineRenderer->draw(texture, textureType);
 		triangleRenderer->draw(texture, textureType);
 
+		//Last is text
+		fontRenderer->draw();
 	}
 
 	//Draws all quads and text to specified framebuffer at index
-	void Renderer::drawToFramebuffer(Shader *shader, Shader *pointshader, int texture, bool textureArray, bool first_framebuffer) {
+	void Renderer::drawToFramebuffer(int texture, bool textureArray, bool first_framebuffer, int window_width, int window_height) {
 		if (first_framebuffer) glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer1);
 		else glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer2);
 
@@ -116,20 +116,20 @@ namespace oe {
 
 		int textureType = GL_TEXTURE_2D;
 		if (textureArray) textureType = GL_TEXTURE_2D_ARRAY;
-		draw(shader, pointshader, texture, textureArray);
+		draw(texture, textureArray);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glViewport(0, 0, m_window->getWidth(), m_window->getHeight());
+		glViewport(0, 0, window_width, window_height);
 	}
 
 	//Draws (first or second) framebuffer to screen
-	void Renderer::drawFramebuffer(Shader *postshader, const char *texture_sampler, bool first_framebuffer) {
+	void Renderer::drawFramebuffer(const char *texture_sampler, bool first_framebuffer) {
 		//Render quad to whole screen
 		glClear(GL_COLOR_BUFFER_BIT);
 		glDisable(GL_DEPTH_TEST);
 
-		postshader->enable();
-		postshader->setUniform1i(texture_sampler, 0);
+		post_shader->enable();
+		post_shader->setUniform1i(texture_sampler, 0);
 		glActiveTexture(GL_TEXTURE0);
 
 		if (first_framebuffer) glBindTexture(GL_TEXTURE_2D, m_frametexture1);
@@ -143,11 +143,11 @@ namespace oe {
 	}
 
 	//Draws framebuffer to another framebuffer
-	void Renderer::drawFramebufferToFramebuffer(Shader *postshader, const char *texture_sampler, bool first_framebuffer) {
+	void Renderer::drawFramebufferToFramebuffer(const char *texture_sampler, bool first_framebuffer) {
 		if (first_framebuffer) glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer1);
 		else glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer2);
 
-		drawFramebuffer(postshader, texture_sampler, !first_framebuffer);
+		drawFramebuffer(texture_sampler, !first_framebuffer);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}

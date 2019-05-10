@@ -40,7 +40,7 @@ public:
 	void modifyLayer(float *correct_outputs, unsigned int layer);
 
 public:
-	static neuralNetwork *geneticAlgorithm(unsigned int NN_count, unsigned int trainings, unsigned int generations);
+	static neuralNetwork *geneticAlgorithm(unsigned int* layers, unsigned int layer_count, unsigned int NN_count, unsigned int trainings, unsigned int generations);
 	static neuralNetwork *backpropagation(unsigned int trainings, float trainingRate);
 	static void backpropagation(neuralNetwork &network, unsigned int trainings, float trainingRate);
 

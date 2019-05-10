@@ -23,14 +23,11 @@
 
 namespace oe {
 
-	QuadRenderer::QuadRenderer(Window *window) {
+	QuadRenderer::QuadRenderer() {
 		m_indexcount = 0;
 		m_buffer_current = 0;
 		m_submit_quad_vertex_index = 0;
 		m_buffer_mapped = false;
-		m_window = window;
-
-		if (!m_window) return;
 
 		GLushort *indices = new GLushort[MAX_IBO];
 		int offset = 0;
@@ -84,6 +81,13 @@ namespace oe {
 		}
 	}
 
+	void QuadRenderer::submitQuad(glm::vec3 _pos, glm::vec2 _size, int _id, glm::vec4 _color) {
+		submitVertex(oe::VertexData(glm::vec3(_pos.x, _pos.y, _pos.z), glm::vec2(0.0f, 0.0f), _id, _color));
+		submitVertex(oe::VertexData(glm::vec3(_pos.x, _pos.y + _size.y, _pos.z), glm::vec2(0.0f, 1.0f), _id, _color));
+		submitVertex(oe::VertexData(glm::vec3(_pos.x + _size.x, _pos.y + _size.y, _pos.z), glm::vec2(1.0f, 1.0f), _id, _color));
+		submitVertex(oe::VertexData(glm::vec3(_pos.x + _size.x, _pos.y, _pos.z), glm::vec2(1.0f, 0.0f), _id, _color));
+	}
+
 	void QuadRenderer::draw(int texture, int textureType) {
 		stopRendering();
 
@@ -104,4 +108,5 @@ namespace oe {
 
 		glDisable(GL_DEPTH_TEST);
 	}
+
 }

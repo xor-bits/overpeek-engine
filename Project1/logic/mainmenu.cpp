@@ -28,15 +28,17 @@ void MainMenu::init(oe::Renderer *renderer, oe::Shader *shader, oe::Shader *poin
 		m_objpos[i].y = oe::Random::random(-1.0, 1.0);
 		m_objpos[i].z = oe::Random::random(-1.0, 1.0);
 
-		m_objvel[i].x = oe::Random::random(-0.2, 0.2);
-		m_objvel[i].y = oe::Random::random(-0.2, 0.2);
-		m_objvel[i].z = oe::Random::random(-0.2, 0.2);
+		m_objvel[i].x = oe::Random::random(-1.0f, 1.0f);
+		m_objvel[i].y = oe::Random::random(-1.0f, 1.0f);
+		m_objvel[i].z = oe::Random::random(-1.0f, 1.0f);
 
 		float r = oe::Random::random(0.0, 1.0);
 		float g = oe::Random::random(0.0, 1.0);
 		float b = oe::Random::random(0.0, 1.0);
 		m_objcol[i] = glm::vec4(r, g, b, 1.0f);
 	}
+
+	pointshader->enable(); pointshader->setUniform1i("ortho", 0);
 
 	m_loop->start();
 }
@@ -50,6 +52,8 @@ void MainMenu::deinit() {
 float anglex = 0.0f;
 float angley = 0.0f;
 void MainMenu::render(float corrector) {
+	Game::getWindow()->clear();
+
 	double mx, my;
 	Game::getWindow()->getMousePos(mx, my);
 	anglex = -mx * 4;
@@ -85,6 +89,9 @@ void MainMenu::render(float corrector) {
 	//	m_renderer->drawFramebufferToFramebuffer(m_post_shader, "unif_texture", true);
 	//}
 	m_renderer->drawFramebuffer(m_post_shader, "unif_texture", true);
+
+	Game::getWindow()->update();
+	Game::getWindow()->input();
 }
 
 void MainMenu::update() {

@@ -12,6 +12,8 @@
 #include "math.h"
 #include "binaryIO.h"
 
+#include "../Snake/snake_game.h"
+
 
 neuralNetwork::neuralNetwork(unsigned int init_input_count, unsigned int *layer_sizes, unsigned int layer_count)
 {
@@ -267,17 +269,12 @@ float *getOutput(unsigned int index) {
 	return output;
 }
 
-neuralNetwork *neuralNetwork::geneticAlgorithm(unsigned int NN_count, unsigned int trainings, unsigned int generations) {
-	unsigned int layers[] = {
-		18,
-		18,
-		10
-	};
-
+neuralNetwork *neuralNetwork::geneticAlgorithm(unsigned int* layers, unsigned int layer_count, unsigned int NN_count, unsigned int trainings, unsigned int generations) {
 	struct fitnessdata
 	{
 		float fitness;
 		int index;
+		std::string move_data;
 
 		bool operator< (const fitnessdata &a) const {
 			return fitness < a.fitness;
@@ -286,15 +283,15 @@ neuralNetwork *neuralNetwork::geneticAlgorithm(unsigned int NN_count, unsigned i
 
 	srand(time(0));
 
-	const int networks = 100;
-	const int training_samples = 100;
-	const int max_generations = 100000;
-	neuralNetwork *neur[networks];
+	const int networks = NN_count;
+	const int training_samples = trainings;
+	const int max_generations = generations;
+	neuralNetwork **neur = new neuralNetwork*[NN_count];
 	std::vector<fitnessdata> fitnesses;
 	for (int i = 0; i < networks; i++)
 	{
-		neur[i] = new neuralNetwork(784, layers, 3);
-		fitnesses.push_back({ 0.5, i });
+		neur[i] = new neuralNetwork(layers[0], layers, layer_count);
+		fitnesses.push_back({ 0.5, i, "" });
 	}
 
 	fitnessdata best_fitness = { 0.0f, 0 };
@@ -302,62 +299,48 @@ neuralNetwork *neuralNetwork::geneticAlgorithm(unsigned int NN_count, unsigned i
 	//Train loop
 	bool train_complete = false;
 	int generation = 0;
+	std::string movedata = "";
 	while (!train_complete) {
 
 		for (int i = 0; i < networks; i++)
 		{
-			float this_error = 0.0f;
-
+			int timescore = 0;
+			snake_game* game = new snake_game(i);
+			movedata = "";
 			//#pragma omp parallel for
 			for (int s = 0; s < training_samples; s++)
 			{
-				int index = rand() % 60000;
-				float *first_layer = getInput(index);
-				float *correct_outputs = getOutput(index);
-
-				neur[i]->operateAll(first_layer);
-
-				//std::cout << "THIS: " << s << std::endl;
-				//std::cout << "INPUT: " << first_layer[0] << ", " << first_layer[1] << std::endl;
-				//std::cout << "EXPECTED OUTPUT: " << correct_outputs[0] << std::endl;
-				//std::cout << "OUTPUT: "; neur[i].dumpOutputs();
-				//std::cout << "ERROR: " << neur[i].combinedError(correct_outputs) << std::endl;
-				//neur[i].dumpInfo();
-				//
-				//system("pause");
-
-				this_error += neur[i]->combinedError(correct_outputs);
+				float* input = new float[2];
+				glm::vec2 in = game->getSnakeHead();
+				//glm::vec2 input2 = game->getFood();
+				input[0] = in.x;
+				input[1] = in.y;
 
 
-				delete first_layer;
-				delete correct_outputs;
+				neur[i]->operateAll(input);
+				delete[] input;
+				int key = neur[i]->neuronGuess() + 1;
+				movedata += std::to_string(key);
+				//std::cout << key << std::endl;
+				int feedback = game->input(key);
+				if (feedback == 0) timescore += 1;
+				if (feedback == 1) timescore += 5;
+				//timescore += game->input(key);
+
+				if (game->isGameOver()) {
+					break;
+				}
 			}
-			fitnesses[i] = { 10000.0f / this_error, i };
+
+			delete game;
+
+			fitnesses[i] = { float(timescore), i, movedata };
 
 
 			if (fitnesses[i].fitness > best_fitness.fitness) {
 				std::sort(fitnesses.begin(), fitnesses.end());
 				best_fitness.fitness = fitnesses[i].fitness;
 				best_fitness.index = i;
-
-				//std::cout << "\n\n\n-- New best --\n";
-				//std::cout << "Generation: " << generation << std::endl;
-				//std::cout << "Worst: " << fitnesses[0].fitness << std::endl;
-				//std::cout << "Best: " << fitnesses[networks - 1].fitness << std::endl << std::endl << std::endl;
-
-
-				//first_layer[0] = random(-1.0, 1.0);
-				//first_layer[1] = random(-1.0, 1.0);
-				//
-				//correct_outputs[0] = first_layer[0] + first_layer[1];
-				//
-				//neur[i].operateLayer(first_layer, 0, neuralNetwork::both);
-				//
-				//std::cout << "INPUT: " << first_layer[0] << ", " << first_layer[1] << std::endl;
-				//std::cout << "EXPECTED OUTPUT: " << correct_outputs[0] << std::endl;
-				//std::cout << "OUTPUT: "; neur[i].dumpOutputs();
-				//std::cout << "ERROR: " << neur[i].combinedError(correct_outputs) << std::endl;
-				//neur[i].dumpInfo();
 			}
 		}
 
@@ -369,13 +352,16 @@ neuralNetwork *neuralNetwork::geneticAlgorithm(unsigned int NN_count, unsigned i
 		std::sort(fitnesses.begin(), fitnesses.end());
 		std::cout << "Generation: " << generation << std::endl;
 		std::cout << "Worst: " << fitnesses[0].fitness << std::endl;
-		std::cout << "Best: " << fitnesses[networks - 1].fitness << std::endl << std::endl << std::endl;
+		std::cout << "Worst movedata: " << fitnesses[0].move_data << std::endl << std::endl;
+		std::cout << "Best: " << fitnesses[networks - 1].fitness << std::endl;
+		std::cout << "Best movedata: " << fitnesses[networks - 1].move_data << std::endl << std::endl << std::endl;
+
 
 		for (int i = 0; i < networks; i++) {
 			if (i != fitnesses[networks - 1].index) {
 				delete neur[i];
 				neur[i] = new neuralNetwork(*neur[fitnesses[networks - 1].index]);
-				neur[i]->mutate(784);
+				neur[i]->mutate(2);
 			}
 		}
 	}
@@ -500,108 +486,112 @@ neuralNetwork *neuralNetwork::backpropagation(unsigned int trainings, float trai
 int main() {
 	srand(time(0));
 	readImagesAndLabels();
-	//neuralNetwork *trained_network = neuralNetwork::geneticAlgorithm(100, 100, 1000);
+	unsigned int layers[] = {
+		2,
+		4
+	};
+	neuralNetwork *trained_network = neuralNetwork::geneticAlgorithm(layers, 2, 10000, 100, 1000);
 	
 
-	bool trainNoRead = false;
-	std::string train;
-	std::cout << "Train (no reading): ";
-	std::cin >> train;
-	trainNoRead = (int)atof(train.c_str());
-
-	neuralNetwork *trained_network;
-	if (trainNoRead) {
-		float inputTrainRate = 0.0;
-		std::string trainRate;
-		std::cout << "Training rate: ";
-		std::cin >> trainRate;
-
-		inputTrainRate = atof(trainRate.c_str());
-
-		trained_network = neuralNetwork::backpropagation(INFINITE, inputTrainRate);
-	}
-	else {
-		bool trainAfterRead = false;
-		std::string trainAfter;
-		std::cout << "Train after reading: ";
-		std::cin >> trainAfter;
-		trainAfterRead = (int)atof(trainAfter.c_str());
-
-		trained_network = neuralNetwork::loadNeuralNetwork("backpropped");
-
-		if (trainAfterRead) {
-			float inputTrainRate = 0.0;
-			std::string trainRate;
-			std::cout << "Training rate: ";
-			std::cin >> trainRate;
-
-			inputTrainRate = atof(trainRate.c_str());
-
-			neuralNetwork::backpropagation(*trained_network, INFINITE, inputTrainRate);
-		}
-	}
-	trained_network->saveNeuralNetwork("backpropped");
-
-	while (true) {
-		float inputX = 0.0;
-		float inputY = 0.0;
-		bool infoDump = false;
-
-		std::string in1;
-		std::cout << "Input X: ";
-		std::cin >> in1;
-
-		//std::string in2;
-		//std::cout << "Input Y: ";
-		//std::cin >> in2;
-		//
-		std::string in3;
-		std::cout << "Info dump: ";
-		std::cin >> in3;
-
-		inputX = atof(in1.c_str());
-		//inputY = atof(in2.c_str());
-		infoDump = (int)atof(in3.c_str());
-
-		float *first_layer = getInput(inputX);
-		float *correct_outputs = getOutput(inputX);
-
-		trained_network->operateAll(first_layer);
-
-		//std::cout << "INPUT: " << std::endl;
-		//for (int y = 0; y < 28; y++)
-		//{
-		//	for (int x = 0; x < 28; x++)
-		//	{
-		//		std::cout << std::setprecision(3) << first_layer[x + y * 28] * 255.0 << "\t";
-		//	}
-		//	std::cout << std::endl;
-		//}
-		//
-		int biggest = 0;
-		float val_biggest = 0.0f;
-		for (int x = 0; x < 10; x++)
-		{
-			if (correct_outputs[x] > val_biggest) {
-				val_biggest = correct_outputs[x];
-				biggest = x;
-			}
-		}
-		std::cout << std::endl;
-		std::cout << "EXPECTED OUTPUT: " << biggest << std::endl;
-
-		std::cout << "OUTPUT: " << trained_network->neuronGuess() << std::endl;
-		
-
-		//trained_network->dumpOutputs();
-
-
-		if (infoDump) trained_network->dumpInfo();
-
-		delete first_layer;
-		delete correct_outputs;
-		//system("pause");
-	}
+	//bool trainNoRead = false;
+	//std::string train;
+	//std::cout << "Train (no reading): ";
+	//std::cin >> train;
+	//trainNoRead = (int)atof(train.c_str());
+	//
+	//neuralNetwork *trained_network;
+	//if (trainNoRead) {
+	//	float inputTrainRate = 0.0;
+	//	std::string trainRate;
+	//	std::cout << "Training rate: ";
+	//	std::cin >> trainRate;
+	//
+	//	inputTrainRate = atof(trainRate.c_str());
+	//
+	//	trained_network = neuralNetwork::backpropagation(INFINITE, inputTrainRate);
+	//}
+	//else {
+	//	bool trainAfterRead = false;
+	//	std::string trainAfter;
+	//	std::cout << "Train after reading: ";
+	//	std::cin >> trainAfter;
+	//	trainAfterRead = (int)atof(trainAfter.c_str());
+	//
+	//	trained_network = neuralNetwork::loadNeuralNetwork("backpropped");
+	//
+	//	if (trainAfterRead) {
+	//		float inputTrainRate = 0.0;
+	//		std::string trainRate;
+	//		std::cout << "Training rate: ";
+	//		std::cin >> trainRate;
+	//
+	//		inputTrainRate = atof(trainRate.c_str());
+	//
+	//		neuralNetwork::backpropagation(*trained_network, INFINITE, inputTrainRate);
+	//	}
+	//}
+	//trained_network->saveNeuralNetwork("backpropped");
+	//
+	//while (true) {
+	//	float inputX = 0.0;
+	//	float inputY = 0.0;
+	//	bool infoDump = false;
+	//
+	//	std::string in1;
+	//	std::cout << "Input X: ";
+	//	std::cin >> in1;
+	//
+	//	//std::string in2;
+	//	//std::cout << "Input Y: ";
+	//	//std::cin >> in2;
+	//	//
+	//	std::string in3;
+	//	std::cout << "Info dump: ";
+	//	std::cin >> in3;
+	//
+	//	inputX = atof(in1.c_str());
+	//	//inputY = atof(in2.c_str());
+	//	infoDump = (int)atof(in3.c_str());
+	//
+	//	float *first_layer = getInput(inputX);
+	//	float *correct_outputs = getOutput(inputX);
+	//
+	//	trained_network->operateAll(first_layer);
+	//
+	//	//std::cout << "INPUT: " << std::endl;
+	//	//for (int y = 0; y < 28; y++)
+	//	//{
+	//	//	for (int x = 0; x < 28; x++)
+	//	//	{
+	//	//		std::cout << std::setprecision(3) << first_layer[x + y * 28] * 255.0 << "\t";
+	//	//	}
+	//	//	std::cout << std::endl;
+	//	//}
+	//	//
+	//	int biggest = 0;
+	//	float val_biggest = 0.0f;
+	//	for (int x = 0; x < 10; x++)
+	//	{
+	//		if (correct_outputs[x] > val_biggest) {
+	//			val_biggest = correct_outputs[x];
+	//			biggest = x;
+	//		}
+	//	}
+	//	std::cout << std::endl;
+	//	std::cout << "EXPECTED OUTPUT: " << biggest << std::endl;
+	//
+	//	std::cout << "OUTPUT: " << trained_network->neuronGuess() << std::endl;
+	//	
+	//
+	//	//trained_network->dumpOutputs();
+	//
+	//
+	//	if (infoDump) trained_network->dumpInfo();
+	//
+	//	delete first_layer;
+	//	delete correct_outputs;
+	//	//system("pause");
+	//}
 }
 
 

@@ -13,9 +13,6 @@ namespace oe {
 
 	class QuadRenderer {
 	private:
-
-		Window *m_window;
-
 		VertexArray *m_VAO;
 		Buffer *m_VBO;
 		IndexBuffer *m_IBO;
@@ -31,7 +28,7 @@ namespace oe {
 	public:
 		
 		//Constructor
-		QuadRenderer(Window *window);
+		QuadRenderer();
 
 		//Maps buffer
 		void beginRendering();
@@ -43,9 +40,11 @@ namespace oe {
 		//Returns index of that vertex
 		void submitVertex(VertexData data);
 
-		//void renderBox(glm::vec2 _pos, glm::vec2 _size, int _id, glm::vec4 _color);
+		//Quick and easy way to submit a quad
+		//For more options, use submitVertex()
+		void submitQuad(glm::vec3 _pos, glm::vec2 _size, int _id, glm::vec4 _color);
 		
-		//Draws buffers and then clears them
+		//Draws buffers
 		void draw(int texture, int textureType);
 	};
 	

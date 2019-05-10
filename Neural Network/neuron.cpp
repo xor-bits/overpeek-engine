@@ -66,17 +66,21 @@ void neuron::a_relu() {
 }
 
 void neuron::debugInfo() {
-	std::string *weight_text = new std::string();
+	std::string* weight_text = new std::string();
+	std::string *input_text = new std::string();
 	for (int i = 0; i < u_input_count; i++)
 	{
 		std::string tmp = std::string("Weight ") + std::to_string(i) + ": " + std::to_string(f_weights[i]) + "\n";
 		weight_text->append(tmp);
+		tmp = std::string("Input ") + std::to_string(i) + ": " + std::to_string(f_inputs[i]) + "\n";
+		input_text->append(tmp);
 	}
 
 	std::cout << "Hold " << f_hold << std::endl;
-	std::cout << "\n\n\nPerceptron ID " << i_id << std::endl;
+	std::cout << "Perceptron ID " << i_id << std::endl;
 	printf(weight_text->c_str());
-	std::cout << "Bias weight " << f_bias_weight << std::endl;
+	printf(input_text->c_str());
+	std::cout << "Bias weight " << f_bias_weight << std::endl << std::endl << std::endl;
 }
 
 void neuron::mutate() {
@@ -84,10 +88,8 @@ void neuron::mutate() {
 
 	float mutation = math::random(-mutation_size, mutation_size);
 
-	bool bias_to_mutate = floor(math::random(0.0f, 1.99999f));
 
-
-	if (bias_to_mutate) {
+	if (math::random(0.0f, 100.0f) > 75.0f) {
 		f_bias_weight += mutation;
 	}
 	else {

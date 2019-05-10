@@ -19,7 +19,7 @@ namespace math {
 	}
 
 	float sigmoid(float val) {
-		return ((1) / (1 + pow(e, -val)));
+		return ((1) / (1 + pow(E, -val)));
 	}
 
 	float relu(float val) {

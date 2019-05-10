@@ -6,7 +6,6 @@
 
 namespace oe {
 
-	class Window;
 	class VertexArray;
 	class Buffer;
 	class IndexBuffer;
@@ -16,8 +15,6 @@ namespace oe {
 		VertexArray *m_VAO;
 		Buffer *m_VBO;
 		unsigned int m_indexcount;
-
-		Window *m_window;
 
 		VertexData* m_buffer;
 		unsigned int m_buffer_current;
@@ -29,7 +26,7 @@ namespace oe {
 	public:
 		
 		//Constructor
-		LineRenderer(Window *window);
+		LineRenderer();
 
 		//Maps buffer
 		void beginRendering();

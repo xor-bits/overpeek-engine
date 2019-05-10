@@ -41,7 +41,7 @@ void Creature::die() {
 	Game::getMap()->removeCreature(this);
 }
 
-void Creature::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY, float corrector) {
+void Creature::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY, float corrector, float renderScale) {
 	if (!m_item) {
 		int heading_texture = 0;
 		switch (heading)
@@ -122,6 +122,8 @@ void Creature::clampHPAndSTA() {
 }
 
 void Creature::update(int index, float divider) {
+	ai(divider);
+
 	if (vel_x < 1e-5 && vel_y < 1e-5) {
 		collide(divider);
 	}

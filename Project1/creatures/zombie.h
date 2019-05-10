@@ -33,5 +33,5 @@ public:
 	void ai(float divider);
 	void update(int index, float divider);
 	void collide(float divider);
-	void submitToRenderer(oe::Renderer* renderer, float renderOffsetX, float renderOffsetY, float corrector) override;
+	void submitToRenderer(oe::Renderer* renderer, float renderOffsetX, float renderOffsetY, float corrector, float renderScale) override;
 };

@@ -19,15 +19,10 @@
 
 namespace oe {
 
-	PointRenderer::PointRenderer(Window *window)
-		: m_window(window)
-	{
+	PointRenderer::PointRenderer() {
 		m_buffer_current = 0;
 		pointcount = 0;
 		m_buffer_mapped = false;
-		m_window = window;
-
-		if (!m_window) return;
 
 		m_vao = new VertexArray();
 		m_vbo = new Buffer(0, MAX_VBO, DATA_PER_VERTEX, sizeof(GLfloat), GL_DYNAMIC_DRAW);
@@ -56,8 +51,6 @@ namespace oe {
 		stopRendering();
 
 		glEnable(GL_DEPTH_TEST);
-
-		if (!m_window) return;
 
 		//Flush quads
 		glActiveTexture(GL_TEXTURE0);

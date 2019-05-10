@@ -11,6 +11,8 @@
 #include <stb_image.h>
 
 #include "../utility/logger.h"
+#include "../utility/gameloop.h"
+#include "renderer.h";
 
 #define M_NUM_KEYS		2048
 #define M_NUM_BUTTONS	1024
@@ -193,7 +195,7 @@ namespace oe {
 		//glDepthMask(GL_FALSE);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
-		glEnable(GL_CULL_FACE);
+		//glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		glFrontFace(GL_CCW);
 
@@ -376,6 +378,27 @@ namespace oe {
 
 	std::string Window::getVendor() {
 		return std::string((char*)glGetString(GL_VENDOR));
+	}
+
+	void Window::createGameLoop(void(*callbackRender)(float), void(*callbackUpdate)(), unsigned int updates_per_second) {
+		m_main_gameloop = new GameLoop(callbackRender, callbackUpdate, updates_per_second, this);
+	}
+
+	void Window::setPolygonMode(int mode) {
+		switch (mode)
+		{
+		case POLYGON_FILL:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			break;
+		case POLYGON_LINE:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			break;
+		case POLYGON_POINT:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+			break;
+		default:
+			break;
+		}
 	}
 
 }

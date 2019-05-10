@@ -40,7 +40,7 @@ namespace oe {
 		bool init(const char *fontPath);
 
 	public:
-		FontRenderer(const char *fontPath, QuadRenderer *renderer, Renderer *parent);
+		FontRenderer(const char *fontPath, Renderer *parent);
 
 		//Maps buffer
 		void beginRendering();

@@ -21,14 +21,11 @@
 
 namespace oe {
 
-	LineRenderer::LineRenderer(Window *window) {
+	LineRenderer::LineRenderer() {
 		m_indexcount = 0;
 		m_buffer_current = 0;
 		m_submit_quad_vertex_index = 0;
 		m_buffer_mapped = false;
-		m_window = window;
-
-		if (!m_window) return;
 
 		m_VAO = new VertexArray();
 		m_VBO = new Buffer(0, MAX_VBO, DATA_PER_VERTEX, sizeof(GLfloat), GL_DYNAMIC_DRAW);

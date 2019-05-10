@@ -3,6 +3,7 @@
 #include "database.h"
 #include "../settings.h"
 #include <string>
+#include <memory>
 
 class Map;
 class Tile;
@@ -101,5 +102,5 @@ public:
 
 	static std::string getSaveLocation();
 
-	inline static float renderScale() { return 720.0f / m_window->getHeight(); }
+	inline static float renderScale();
 };

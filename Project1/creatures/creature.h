@@ -46,7 +46,7 @@ public:
 	virtual void update(int index, float divider);
 	virtual void ai(float divider) = 0;
 	virtual void collide(float divider);
-	virtual void submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY, float corrector);
+	virtual void submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY, float corrector, float renderScale);
 	virtual void hit(float damageadd, float kbadd);
 	virtual void die();
 	

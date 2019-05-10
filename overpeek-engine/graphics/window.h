@@ -10,12 +10,19 @@
 #define WINDOW_TRANSPARENT		0x001000
 #define WINDOW_FULLSCREEN		0x010000
 
+#define POLYGON_LINE			0
+#define POLYGON_FILL			1
+#define POLYGON_POINT			2
 
 struct GLFWwindow;
 namespace oe {
+	class Renderer;
+	class GameLoop;
 	class Window {
 	private:
 		//Variables
+		GameLoop* m_main_gameloop;
+
 		static int mWidth, mHeight;
 		static float mAspect;
 		const char *mTitle;
@@ -79,7 +86,7 @@ namespace oe {
 
 		void setLineWidth(float w);
 		void setPointRadius(float w);
-
+		void setPolygonMode(int mode);
 
 		void setClearColor(float r, float g, float b, float a);
 
@@ -91,6 +98,11 @@ namespace oe {
 		inline bool getKey(int key) { return mKeys[key]; }
 		inline void getMousePos(double &x, double &y) { x = (mMouseX / mWidth * 2.0 * mAspect) - mAspect; y = mMouseY / mHeight * 2 - 1; }
 
+
+		//More info on this on GameLoop constructor header declaration
+		void createGameLoop(void(*callbackRender)(float), void(*callbackUpdate)(), unsigned int updates_per_second);
+		GameLoop* getGameLoop() { return m_main_gameloop; };
+		void setGameLoop(GameLoop* loop) { m_main_gameloop = loop; };
 
 		inline float getAspect() { return mAspect; }
 		inline int getHeight() { return mHeight; }
