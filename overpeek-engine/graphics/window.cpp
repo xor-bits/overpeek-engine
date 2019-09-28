@@ -1,6 +1,5 @@
 #include "window.h"
 
-#include <Windows.h>
 #include <string>
 #include <iostream>
 
@@ -11,25 +10,24 @@
 #include <stb_image.h>
 
 #include "../utility/logger.h"
+#include "../utility/math.h"
 
 #define M_NUM_KEYS		2048
 #define M_NUM_BUTTONS	1024
 
 
-///TODO: MAKE WINDOW RESIZEABLE
 
 namespace oe {
 
-	float Window::mAspect;
-	int Window::mWidth, Window::mHeight;
+	void *Window::p_window;
+	int Window::p_width, Window::p_height;
 
-	bool Window::mKeys[M_NUM_KEYS];
-	bool Window::mButtons[M_NUM_BUTTONS];
-	bool Window::mSingleKeys[M_NUM_KEYS];
-	bool Window::mSingleButtons[M_NUM_BUTTONS];
+	bool Window::p_keys[M_NUM_KEYS];
+	bool Window::p_buttons[M_NUM_BUTTONS];
+	
+	bool Window::p_debugmode = false;
 
-	double Window::mMouseX;
-	double Window::mMouseY;
+	glm::vec2 Window::p_mouse;
 
 	void(*Window::mKeyCallback)(int, int);
 	void(*Window::mButtonCallback)(int, int);
@@ -37,174 +35,97 @@ namespace oe {
 	void(*Window::m_resize_callback)(int, int);
 	void(*Window::m_charmods_callback)(unsigned int, int);
 
-	Window::Window(unsigned int width, unsigned int height, const char *title, int mods)
+	int Window::init(unsigned int width, unsigned int height, const char *title, int mods)
 	{
-		m_resizeable = false;
-		m_transparent = false;
-		m_borderless = false;
+		p_width = width; p_height = height;
 
-		m_fullscreen = false; 
-		m_multisample = 0;
-		if (mods & WINDOW_MULTISAMPLE_X2) {
-			//oe::Logger::out("WINDOW MULTISAMPLE X2"); 
-			m_multisample = 2;
-		}
-		if (mods & WINDOW_MULTISAMPLE_X4) {
-			//oe::Logger::out("WINDOW MULTISAMPLE X4");
-			m_multisample = 4;
-		}
-		if (mods & WINDOW_MULTISAMPLE_X8) {
-			//oe::Logger::out("WINDOW MULTISAMPLE X8");
-			m_multisample = 8;
-		}
-		if (mods & WINDOW_TRANSPARENT) {
-			//oe::Logger::out("WINDOW TRANSPARENT");
-			m_transparent = true;
-		}
-		if (mods & WINDOW_BORDERLESS) {
-			//oe::Logger::out("WINDOW BORDERLESS");
-			m_borderless = true;
-		}
-		if (mods & WINDOW_RESIZEABLE) {
-			//oe::Logger::out("WINDOW RESIZEABLE");
-			m_resizeable = true;
-		}
-		if (mods & WINDOW_FULLSCREEN) {
-			//oe::Logger::out("WINDOW FULLSCREEN");
-			m_fullscreen = true;
-		}
+		bool resizeable = false;
+		bool transparent = false;
+		bool borderless = false;
+		bool fullscreen = false; 
+		int multisample = 0;
+
+		if (mods & WINDOW_MULTISAMPLE_X2) multisample = 2;
+		if (mods & WINDOW_MULTISAMPLE_X4) multisample = 4;
+		if (mods & WINDOW_MULTISAMPLE_X8) multisample = 8;
+		if (mods & WINDOW_TRANSPARENT) transparent = true;
+		if (mods & WINDOW_BORDERLESS) borderless = true;
+		if (mods & WINDOW_RESIZEABLE) resizeable = true;
+		if (mods & WINDOW_FULLSCREEN) fullscreen = true;
+		if (mods & WINDOW_GL_DEBUG) p_debugmode = true;
+
+		for (int i = 0; i < M_NUM_KEYS; i++) p_keys[i] = false;
+		for (int i = 0; i < M_NUM_BUTTONS; i++) p_buttons[i] = false;
 
 
-		mWidth = width; mHeight = height; mTitle = title; mAspect = width / (float)height;
-
-		for (int i = 0; i < M_NUM_KEYS; i++) mKeys[i] = false;
-		for (int i = 0; i < M_NUM_BUTTONS; i++) mButtons[i] = false;
-		for (int i = 0; i < M_NUM_KEYS; i++) mSingleKeys[i] = false;
-		for (int i = 0; i < M_NUM_BUTTONS; i++) mSingleButtons[i] = false;
-
-		if (!mInit()) {
-			glfwTerminate();
-			system("pause");
-			exit(EXIT_FAILURE);
-		}
-	}
-
-	Window::~Window() {
-		glfwTerminate();
-	}
-
-	bool Window::mInit() {
+		// glfw
+		//--------------
 		if (!glfwInit()) {
-			oe::Logger::out("Failed to initialize GLFW!", oe::error);
-			return false;
+			oe::Logger::error("Failed to initialize GLFW!");
+			return -1;
 		}
-		
-		//Vulkan
-		//glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		//
 
-		if (m_multisample != 0) glfwWindowHint(GLFW_SAMPLES, m_multisample);
-		glfwWindowHint(GLFW_RESIZABLE, m_resizeable);
-		glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, m_transparent);
-		glfwWindowHint(GLFW_DECORATED, !m_borderless);
+		if (multisample != 0) glfwWindowHint(GLFW_SAMPLES, multisample);
+		glfwWindowHint(GLFW_RESIZABLE, resizeable);
+		glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, transparent);
+		glfwWindowHint(GLFW_DECORATED, !borderless);
 
-		if (m_fullscreen)
-			mWindow = glfwCreateWindow(mWidth, mHeight, mTitle, glfwGetPrimaryMonitor(), NULL);
+		if (fullscreen)
+			p_window = glfwCreateWindow(p_width, p_height, title, glfwGetPrimaryMonitor(), NULL);
 		else
-			mWindow = glfwCreateWindow(mWidth, mHeight, mTitle, NULL, NULL);
-		if (!mWindow) {
-			oe::Logger::out("Failed to create window!", oe::error);
-			return false;
+			p_window = glfwCreateWindow(p_width, p_height, title, NULL, NULL);
+		if (!p_window) {
+			oe::Logger::error("Failed to create window!");
+			return -2;
 		}
 
 		//Center the window
-		int xpos, ypos, width, height;
-		glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), &xpos, &ypos, &width, &height);
-		glfwSetWindowPos(mWindow, width / 2.0f - mWidth / 2.0f, height / 2.0f - mHeight / 2.0f);
+		int monitor_xpos, monitor_ypos, monitor_width, monitor_height;
+		glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), &monitor_xpos, &monitor_ypos, &monitor_width, &monitor_height);
+		glfwSetWindowPos((GLFWwindow*)p_window, monitor_width / 2.0f - p_width / 2.0f, monitor_height / 2.0f - p_height / 2.0f);
 
-		//glfwSetWindowOpacity(mWindow, 0.5f);
-		//------
-		//Vulkan
-		//------
-
-
-		////Application info
-		//VkApplicationInfo appInfo = {};
-		//appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		//appInfo.pApplicationName = "Unnamed Application";
-		//appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-		//appInfo.pEngineName = "Overpeek Engine";
-		//appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-		//appInfo.apiVersion = VK_API_VERSION_1_0;
-		//
-		////Instance create info
-		//VkInstanceCreateInfo createInfo = {};
-		//createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-		//createInfo.pApplicationInfo = &appInfo;
-		//
-		////GLFW extensions
-		//uint32_t glfwExtensionCount = 0;
-		//const char** glfwExtensions;
-		//glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-		//createInfo.enabledExtensionCount = glfwExtensionCount;
-		//createInfo.ppEnabledExtensionNames = glfwExtensions;
-		//createInfo.enabledLayerCount = 0;
-		//
-		////Create instance
-		//VkInstance instance;
-		//if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
-		//	throw std::runtime_error("failed to create instance!");
-		//}
-		//
-		//while(true) {}
-		//vkDestroyInstance(instance, nullptr);
-
-		//------
-		//OpenGL
-		//------
-		glfwMakeContextCurrent(mWindow);
+		// opengl/glew
+		//--------
+		glfwMakeContextCurrent((GLFWwindow*)p_window);
 
 		if (glewInit() != GLEW_OK) {
-			oe::Logger::out("Failed to initalize GLEW!", oe::error);
-			return false;
+			oe::Logger::error("Failed to initalize GLEW");
+			return -3;
 		}
 
-		oe::Logger::out("Window created", oe::info);
-		oe::Logger::out("OpenGL Renderer: ", (char*)glGetString(GL_RENDERER), oe::info);
-		oe::Logger::out("OpenGL Version: ", (char*)glGetString(GL_VERSION), oe::info);
+		oe::Logger::info("Window created");
+		oe::Logger::info("OpenGL Renderer: " + std::string((char*)glGetString(GL_RENDERER)));
+		oe::Logger::info("OpenGL Version: " + std::string((char*)glGetString(GL_VERSION)));
 
-		glfwSetCharModsCallback(mWindow, charmods_callback);
-		glfwSetFramebufferSizeCallback(mWindow, framebuffer_size_callback);
-		glfwSetCursorPosCallback(mWindow, cursor_position_callback);
-		glfwSetMouseButtonCallback(mWindow, mouse_button_callback);
-		glfwSetKeyCallback(mWindow, key_callback);
-		glfwSetScrollCallback(mWindow, scroll_callback);
-		
-		
+		glfwSetCharModsCallback((GLFWwindow*)p_window, [](GLFWwindow* window, unsigned int codepoint, int mods) { charmods_callback(codepoint, mods); });
+		glfwSetFramebufferSizeCallback((GLFWwindow*)p_window, [](GLFWwindow* window, int width, int height) { framebuffer_size_callback(width, height); });
+		glfwSetCursorPosCallback((GLFWwindow*)p_window, [](GLFWwindow* window, double x, double y) { cursor_position_callback(x, y); });
+		glfwSetMouseButtonCallback((GLFWwindow*)p_window, [](GLFWwindow* window, int button, int action, int mods) { mouse_button_callback(button, action, mods); });
+		glfwSetKeyCallback((GLFWwindow*)p_window, [](GLFWwindow* window, int key, int scancode, int action, int mode) { key_callback(key, scancode, action, mode); });
+		glfwSetScrollCallback((GLFWwindow*)p_window, [](GLFWwindow* window, double xoffset, double yoffset) { scroll_callback(xoffset, yoffset); });
+
 		//glfwSetInputMode(mWindow, OE_CURSOR, OE_CURSOR_DISABLED);
 
-		if (m_multisample != 0) glEnable(GL_MULTISAMPLE);
+		if (multisample != 0) glEnable(GL_MULTISAMPLE);
 
-		glViewport(0, 0, mWidth, mHeight);
+		glViewport(0, 0, p_width, p_height);
 		glClearColor(0.18f, 0.18f, 0.20f, 1.0f);
 		glEnable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL); 
+		glDepthFunc(GL_ALWAYS);
 		//glDepthMask(GL_FALSE);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		
+
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		glFrontFace(GL_CCW);
 
 		glfwSwapInterval(0);
-
-		return true;
 	}
 
 	void Window::showCursor(bool show) {
-		if (!show) glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-		else glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		if (!show) glfwSetInputMode((GLFWwindow*)p_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+		else glfwSetInputMode((GLFWwindow*)p_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 
 	void Window::setLineWidth(float w) {
@@ -224,7 +145,7 @@ namespace oe {
 		int width, height, nrChannels;
 		GLubyte *data = stbi_load(path, &width, &height, &nrChannels, 0);
 		GLFWimage icon; icon.height = height; icon.width = width; icon.pixels = data;
-		glfwSetWindowIcon(mWindow, 1, &icon);
+		glfwSetWindowIcon((GLFWwindow*)p_window, 1, &icon);
 	}
 
 	void Window::setClearColor(float r, float g, float b, float a) {
@@ -235,64 +156,54 @@ namespace oe {
 		glfwSwapInterval(interval);
 	}
 
-	void Window::framebuffer_size_callback(GLFWwindow *window, int numer, int denom) {
-		glfwGetFramebufferSize(window, &mWidth, &mHeight);
+	void Window::framebuffer_size_callback(int width, int height) {
+		p_width = width; p_height = height;
+		if (p_height <= 0) p_height = 1;
+		glViewport(0, 0, p_width, p_height);
 
-		if (mHeight <= 0) {
-			mHeight = 1;
-			glfwSetWindowSize(window, mWidth, mHeight);
-		}
-
-		mAspect = mWidth / (float)mHeight;
-
-		glViewport(0, 0, mWidth, mHeight);
-
-		if (m_resize_callback) m_resize_callback(mWidth, mHeight);
+		if (m_resize_callback) m_resize_callback(p_width, p_height);
 	}
 
-	void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+	void Window::scroll_callback(double xoffset, double yoffset)
 	{
 		if (m_scroll_callback) m_scroll_callback(yoffset);
 	}
 
-	void Window::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+	void Window::mouse_button_callback(int button, int action, int mods) {
 		if (button >= M_NUM_BUTTONS || button < 0) return;
-		if (mButtonCallback && action == GLFW_PRESS && !mSingleButtons[button]) { mSingleButtons[button] = true; }
-		else if (action == GLFW_RELEASE) mSingleButtons[button] = false;
 
-		if (action == GLFW_PRESS) mButtons[button] = true;
-		else if (action == GLFW_RELEASE) mButtons[button] = false;
+		if (action == GLFW_PRESS) p_buttons[button] = true;
+		else if (action == GLFW_RELEASE) p_buttons[button] = false;
 
 		if (mButtonCallback) (*mButtonCallback)(button, action);
 	}
 
-	void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	void Window::key_callback(int key, int scancode, int action, int mods) {
 		if (key >= M_NUM_KEYS || key < 0) return;
 
-		if (mKeyCallback && action == GLFW_PRESS && !mSingleKeys[key]) { mSingleKeys[key] = true; }
-		else if (action == GLFW_RELEASE) mSingleKeys[key] = false;
-
-		if (action == GLFW_PRESS) mKeys[key] = true;
-		else if (action == GLFW_RELEASE) mKeys[key] = false;
+		if (action == GLFW_PRESS) p_keys[key] = true;
+		else if (action == GLFW_RELEASE) p_keys[key] = false;
 
 		if (mKeyCallback) (*mKeyCallback)(key, action);
 	}
 
 	void Window::setCursorPos(double x, double y) {
-		glfwSetCursorPos(mWindow, x, y);
-		mMouseX = x; mMouseY = y;
+		glfwSetCursorPos((GLFWwindow*)p_window, x, y);
+		p_mouse = glm::vec2(x, y);
 	}
 
-	void Window::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+	void Window::cursor_position_callback(double xpos, double ypos)
 	{
-		mMouseX = xpos; mMouseY = ypos;
+		xpos = map((double)xpos, (double)0.0, (double)p_width, (double)-getAspect(), (double)getAspect());
+		ypos = map((double)xpos, (double)0.0, (double)p_height, (double)-1.0, (double)1.0);
+		p_mouse = glm::vec2(xpos, ypos);
 	}
 
-	void Window::charmods_callback(GLFWwindow* window, unsigned int codepoint, int mods) {
+	void Window::charmods_callback(unsigned int codepoint, int mods) {
 		if (m_charmods_callback) m_charmods_callback(codepoint, mods);
 	}
 
-	void Window::checkErrors() {
+	int Window::checkGLErrors() {
 		GLenum err = glGetError();
 		if (err != 0) {
 			std::string errorText;
@@ -320,15 +231,14 @@ namespace oe {
 				errorText = "Unknown error!";
 				break;
 			}
-			oe::Logger::out(("OpenGL " + std::to_string(err) + std::string(": ") + errorText).c_str(), oe::error);
-			glfwTerminate();
-			system("pause");
-			exit(EXIT_FAILURE);
+			oe::Logger::error("OpenGL " + std::to_string(err) + std::string(": ") + errorText);
+			return err;
 		}
+		return 0;
 	}
 
-	bool Window::close() {
-		return glfwWindowShouldClose(mWindow) == 1;
+	bool Window::shouldClose() {
+		return glfwWindowShouldClose((GLFWwindow*)p_window) == 1;
 	}
 
 	void Window::input() {
@@ -336,8 +246,8 @@ namespace oe {
 	}
 
 	void Window::update() {
-		checkErrors();
-		glfwSwapBuffers(mWindow);
+		if (p_debugmode) checkGLErrors();
+		glfwSwapBuffers((GLFWwindow*)p_window);
 	}
 
 	void Window::clear() {
@@ -364,10 +274,8 @@ namespace oe {
 		m_charmods_callback = callback;
 	}
 
-	void Window::terminate() {
+	void Window::close() {
 		glfwTerminate();
-		system("pause");
-		exit(1);
 	}
 
 	std::string Window::getRenderer() {

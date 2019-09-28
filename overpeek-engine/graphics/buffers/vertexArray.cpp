@@ -7,35 +7,27 @@
 namespace oe {
 
 	VertexArray::VertexArray() {
-		glGenVertexArrays(1, &mID);
-		glBindVertexArray(mID);
+		glGenVertexArrays(1, &p_id);
+		bind();
 	}
 
 	VertexArray::~VertexArray() {
-		for (Buffer *v : mBuffers)
-		{
-			delete v;
-		}
-		glDeleteVertexArrays(1, &mID);
+		for (VertexBuffer* v : p_buffers) { delete v; }
+		glDeleteVertexArrays(1, &p_id);
 	}
 
-	void VertexArray::addBuffer(Buffer* buffer) {
-		bind();
-		buffer->bind();
-		mBuffers.push_back(buffer);
-	}
+	void VertexArray::addBuffer(VertexBuffer* buffer, unsigned int location) {
+		p_buffers.push_back(buffer);
 
-	void VertexArray::addBuffer(Buffer* buffer, unsigned int index) {
 		bind();
 		buffer->bind();
 
-		glEnableVertexAttribArray(index);
-		glVertexAttribPointer(index, buffer->getComponentCount(), GL_FLOAT, GL_FALSE, 0, 0);
-		mBuffers.push_back(buffer);
+		glEnableVertexAttribArray(location);
+		glVertexAttribPointer(location, buffer->getComponentsPerVertex(), GL_FLOAT, GL_FALSE, 0, 0);
 	}
 
 	void VertexArray::bind() {
-		glBindVertexArray(mID);
+		glBindVertexArray(p_id);
 	}
 
 	void VertexArray::unbind() {

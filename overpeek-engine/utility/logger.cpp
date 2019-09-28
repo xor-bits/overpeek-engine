@@ -5,117 +5,103 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
+#define D template void Logger
+
 namespace oe {
 
-	void *Logger::m_console;
-	bool Logger::m_initalized;
-
 	void Logger::setup() {
-		if (m_initalized) return;
-		m_console = spdlog::stdout_color_mt("console").get();
-		spdlog::set_pattern("%^[%l]: %v%$");
-		m_initalized = true;
-		out("Logger created.", info);
+		spdlog::set_pattern("%^[%T] [%l]:%$ %v");
+		spdlog::set_level(spdlog::level::level_enum::trace);
 	}
 
-	void Logger::out(std::string output, int type) {
-		setup();
-		spdlog::logger *console = (spdlog::logger*)m_console;
-
-		switch (type)
-		{
-		case info:
-			console->info(output);
-			break;
-		case warning:
-			console->warn(output);
-			break;
-		case critical:
-			console->critical(output);
-			break;
-		case error:
-			console->error(output);
-			Window::terminate();
-			break;
-
-		default:
-			break;
-		}
+	template<class T> void Logger::info(T output) {
+		spdlog::info(output);
 	}
 
-	void Logger::out(const char *output, int type) {
-		std::string log = output;
-		out(log, type);
+	template<class T> void Logger::debug(T output) {
+		spdlog::debug(output);
 	}
 
-	void Logger::out(double output, int type) {
-		std::string log = std::to_string(output);
-		out(log, type);
+	template<class T> void Logger::warning(T output){
+		spdlog::warn(output);
+	}	
+
+	template<class T> void Logger::critical(T output){
+		spdlog::critical(output);
 	}
 
-	void Logger::out(double output, double output2, int type) {
-		std::string log = std::to_string(output) + ", " + std::to_string(output2);
-		out(log, type);
+	template<class T> void Logger::error(T output){
+		spdlog::error(output);
 	}
 
-	void Logger::out(const char *output, double output2, int type) {
-		std::string log = output + std::to_string(output2);
-		out(log, type);
+	template<typename ... Args> void Logger::info(const char* format, const Args& ... arguments) {
+		spdlog::info(format, arguments...);
 	}
 
-	void Logger::out(const char *output, double output2, double output3, int type) {
-		std::string log = output + std::to_string(output2) + ", " + std::to_string(output3);
-		out(log, type);
+	template<typename ... Args> void Logger::debug(const char* format, const Args& ... arguments) {
+		spdlog::debug(format, arguments...);
 	}
 
-	void Logger::out(const char *output, const char *output2, int type) {
-		std::string log = std::string(output) + output2;
-		out(log, type);
+	template<typename ... Args> void Logger::warning(const char* format, const Args& ... arguments) {
+		spdlog::warn(format, arguments...);
 	}
 
-	void Logger::out(const char *output, const char *output2, const char *output3, int type) {
-		std::string log = std::string(output) + output2 + output3;
-		out(log, type);
+	template<typename ... Args> void Logger::critical(const char* format, const Args& ... arguments) {
+		spdlog::critical(format, arguments...);
 	}
 
-	void Logger::out(const char *output, double output2, const char *output3, double output4, int type) {
-		std::string log = std::string(output) + std::to_string(output2) + output3 + std::to_string(output4);
-		out(log, type);
+	template<typename ... Args> void Logger::error(const char* format, const Args& ... arguments) {
+		spdlog::error(format, arguments...);
 	}
 
-	void Logger::out(const char *output, double output2, const char *output3, double output4, const char *output5, double output6, int type) {
-		std::string log = std::string(output) + std::to_string(output2) + output3 + std::to_string(output4) + output5 + std::to_string(output6);
-		out(log, type);
-	}
+	// declarations
 
-	void Logger::out(glm::vec2 output, int type) {
-		std::string log = std::to_string(output.x) + ", " + std::to_string(output.y);
-		out(log, type);
-	}
+	// const char*
+	D::info			(const char*);
+	D::debug		(const char*);
+	D::warning		(const char*);
+	D::critical		(const char*);
+	D::error		(const char*);
 
-	void Logger::out(const char* output, glm::vec2 output2, int type) {
-		std::string log = output + std::to_string(output2.x) + ", " + std::to_string(output2.y);
-		out(log, type);
-	}
-
-	void Logger::out(glm::vec3 output, int type) {
-		std::string log = std::to_string(output.x) + ", " + std::to_string(output.y) + ", " + std::to_string(output.z);
-		out(log, type);
-	}
-
-	void Logger::out(const char* output, glm::vec3 output2, int type) {
-		std::string log = output + std::to_string(output2.x) + ", " + std::to_string(output2.y) + ", " + std::to_string(output2.z);
-		out(log, type);
-	}
-
-	void Logger::out(glm::vec4 output, int type) {
-		std::string log = std::to_string(output.x) + ", " + std::to_string(output.y) + ", " + std::to_string(output.z) + ", " + std::to_string(output.w);
-		out(log, type);
-	}
+	D::info<int>	(const char*, int const &);
+	D::debug		(const char*);
+	D::warning		(const char*);
+	D::critical		(const char*);
+	D::error		(const char*);
 	
-	void Logger::out(const char* output, glm::vec4 output2, int type) {
-		std::string log = output + std::to_string(output2.x) + ", " + std::to_string(output2.y) + ", " + std::to_string(output2.z) + ", " + std::to_string(output2.z);
-		out(log, type);
-	}
+	// string
+	D::info			(std::string);
+	D::debug		(std::string);
+	D::warning		(std::string);
+	D::critical		(std::string);
+	D::error		(std::string);
+	
+	// float
+	D::info			(float);
+	D::debug		(float);
+	D::warning		(float);
+	D::critical		(float);
+	D::error		(float);
+	
+	// int
+	D::info			(int);
+	D::debug		(int);
+	D::warning		(int);
+	D::critical		(int);
+	D::error		(int);
+	
+	// int
+	D::info			(char);
+	D::debug		(char);
+	D::warning		(char);
+	D::critical		(char);
+	D::error		(char);
+	
+	// int
+	D::info			(double);
+	D::debug		(double);
+	D::warning		(double);
+	D::critical		(double);
+	D::error		(double);
 
 }

@@ -2,73 +2,62 @@
 
 #include <glm/glm.hpp>
 
-#include "fontRenderer.h"
-#include "quadRenderer.h"
-#include "pointRenderer.h"
+#include "buffers/vertexArray.h"
+#include "buffers/vertexBuffer.h"
+#include "buffers/indexBuffer.h"
+
 #include "vertexData.h"
-#include "lineRenderer.h"
-#include "triangleRenderer.h"
+
+
 
 namespace oe {
 
-	enum textOrigin
+	struct alignments
 	{
-		topLeft, topCenter, topRight, centerLeft, center, centerRight, bottomLeft, bottomCenter, bottomRight
+		glm::vec2 a;
+	};
+	static alignments topLeft		{ glm::vec2(0.0f, 0.0f) };
+	static alignments centerLeft	{ glm::vec2(0.0f, 0.5f) };
+	static alignments bottomLeft	{ glm::vec2(0.0f, 1.0f) };
+	static alignments topCenter		{ glm::vec2(0.5f, 0.0f) };
+	static alignments centerCenter	{ glm::vec2(0.5f, 0.5f) };
+	static alignments bottomCenter	{ glm::vec2(0.5f, 1.0f) };
+	static alignments topRight		{ glm::vec2(1.0f, 0.0f) };
+	static alignments centerRight	{ glm::vec2(1.0f, 0.5f) };
+	static alignments bottomRight	{ glm::vec2(1.0f, 1.0f) };
+	static glm::vec2 getAlignmentOffset(glm::vec2 size, alignments a) {
+		return (size * a.a);
+	}
+
+	enum types {
+		staticDraw, dynamicDraw
 	};
 
-	class Window;
-	class VertexArray;
-	class Buffer;
-	class Shader;
-
+	/*Batched quad renderer*/
 	class Renderer {
 	private:
+		VertexArray *vao;
+		VertexBuffer *vbo;
+		IndexBuffer *ibo;
 
-		//Dependecies
-		Window *m_window;
-
-
-		//Framebuffers
-		unsigned int m_framebuffer1;
-		unsigned int m_frametexture1;
-		unsigned int m_framebuffer2;
-		unsigned int m_frametexture2;
-		VertexArray *m_ScreenVAO;
-		Buffer *m_ScreenVBO;
+		int max_quad_count;
+		int quad_count;
+		VertexData *mapped_buffer;
+		int buffer_pos;
 
 	public:
-		//Font
-		FontRenderer* fontRenderer;
-
-		//Quad
-		QuadRenderer* quadRenderer;
-
-		//Line
-		LineRenderer* lineRenderer;
-
-		//Point
-		PointRenderer* pointRenderer;
-
-		//Triangle
-		TriangleRenderer* triangleRenderer;
-
-
-		Renderer(const char *font, Window *window);
-
+		Renderer(types arrayRenderType, types indexRenderType, int max_quad_count, void* staticVBOBuffer_data = nullptr);
 		~Renderer();
 
-		//Draws all quads and text
-		//textbool is location of int (used as boolean) in shader that enables or disables text rendering
-		void draw(Shader *shader, Shader * pointshader, int texture, bool textureArray);
+		void begin();
+		void end();
+		void submitVertexData(glm::vec2 position, glm::vec2 size, int texture, glm::vec4 color);
+		void submitVertexData(glm::vec3 position, glm::vec2 size, int texture, glm::vec4 color);
+		void submit(glm::vec2 position, glm::vec2 size, int texture, glm::vec4 color, alignments alignment, float angle);
+		void submit(glm::vec2 position, glm::vec2 size, int texture, glm::vec4 color, alignments alignment, float angle, int quad_index);
 
-		//Draws all quads and text to specified framebuffer at index
-		void drawToFramebuffer(Shader *shader, Shader * pointshader, int texture, bool textureArray, bool first_framebuffer);
-		
-		//Draws (first or second) framebuffer to screen
-		void drawFramebuffer(Shader *postshader, const char *texture_sampler, bool first_framebuffer);
-		
-		//Draws framebuffer to another framebuffer
-		void drawFramebufferToFramebuffer(Shader *postshader, const char *texture_sampler, bool first_framebuffer);
+		void clear();
+		void draw(int quad_count = -1);
 
 	};
 

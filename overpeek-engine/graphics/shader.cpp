@@ -35,12 +35,9 @@ namespace oe {
 			char* infoLog = new char[infoLogLength];
 			glGetShaderInfoLog(shader, 512, nullptr, infoLog);
 
-			oe::Logger::out(text, oe::critical);
+			oe::Logger::error(text);
 			std::cout << infoLog << std::endl;
 			delete infoLog;
-			Window::terminate();
-			system("pause");
-			exit(EXIT_FAILURE);
 		}
 	}
 
@@ -55,12 +52,9 @@ namespace oe {
 			char* infoLog = new char[infoLogLength];
 			glGetProgramInfoLog(program, 512, nullptr, infoLog);
 
-			oe::Logger::out(text, oe::critical);
+			oe::Logger::error(text);
 			std::cout << infoLog << std::endl;
 			delete infoLog;
-			Window::terminate();
-			system("pause");
-			exit(EXIT_FAILURE);
 		}
 	}
 
@@ -114,22 +108,18 @@ namespace oe {
 	}
 
 
-	void Shader::enable() { glUseProgram(mShaderProgram); }
-	void Shader::disable() { glUseProgram(0); }
+	void Shader::bind() { glUseProgram(mShaderProgram); }
+	void Shader::unbind() { glUseProgram(0); }
 	
 	int Shader::getUniformLocation(const char *name) { return glGetUniformLocation(mShaderProgram, name); }
 	
-	void Shader::setUniform1f(const char *name, float value) { enable(); glUniform1f(getUniformLocation(name), value); }
-	void Shader::setUniform2f(const char *name, glm::fvec2 &value) { enable(); glUniform2f(getUniformLocation(name), value.x, value.y); }
-	void Shader::setUniform3f(const char *name, glm::fvec3 &value) { enable(); glUniform3f(getUniformLocation(name), value.x, value.y, value.z); }
-	void Shader::setUniform4f(const char *name, glm::fvec4 &value) { enable(); glUniform4f(getUniformLocation(name), value.x, value.y, value.z, value.w); }
-	void Shader::setUniform1i(const char *name, int value) { enable(); glUniform1i(getUniformLocation(name), value); }
-	void Shader::setUniform2i(const char *name, glm::ivec2 &value) { enable(); glUniform2i(getUniformLocation(name), value.x, value.y); }
-	void Shader::setUniform3i(const char *name, glm::ivec3 &value) { enable(); glUniform3i(getUniformLocation(name), value.x, value.y, value.z); }
-	void Shader::setUniform4i(const char *name, glm::ivec4 &value) { enable(); glUniform4i(getUniformLocation(name), value.x, value.y, value.z, value.w); }
-	void Shader::setUniform1d(const char *name, double value) { enable(); glUniform1d(getUniformLocation(name), value); }
-	void Shader::setUniform2d(const char *name, glm::dvec2 &value) { enable(); glUniform2d(getUniformLocation(name), value.x, value.y); }
-	void Shader::setUniform3d(const char *name, glm::dvec3 &value) { enable(); glUniform3d(getUniformLocation(name), value.x, value.y, value.z); }
-	void Shader::setUniform4d(const char *name, glm::dvec4 &value) { enable(); glUniform4d(getUniformLocation(name), value.x, value.y, value.z, value.w); }
-	void Shader::SetUniformMat4(const char *name, glm::mat4 &value) { enable(); glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(value)); }
+	void Shader::setUniform1f(const char *name, float value) { bind(); glUniform1f(getUniformLocation(name), value); }
+	void Shader::setUniform2f(const char *name, glm::fvec2 &value) { bind(); glUniform2f(getUniformLocation(name), value.x, value.y); }
+	void Shader::setUniform3f(const char *name, glm::fvec3 &value) { bind(); glUniform3f(getUniformLocation(name), value.x, value.y, value.z); }
+	void Shader::setUniform4f(const char *name, glm::fvec4 &value) { bind(); glUniform4f(getUniformLocation(name), value.x, value.y, value.z, value.w); }
+	void Shader::setUniform1i(const char *name, int value) { bind(); glUniform1i(getUniformLocation(name), value); }
+	void Shader::setUniform2i(const char *name, glm::ivec2 &value) { bind(); glUniform2i(getUniformLocation(name), value.x, value.y); }
+	void Shader::setUniform3i(const char *name, glm::ivec3 &value) { bind(); glUniform3i(getUniformLocation(name), value.x, value.y, value.z); }
+	void Shader::setUniform4i(const char *name, glm::ivec4 &value) { bind(); glUniform4i(getUniformLocation(name), value.x, value.y, value.z, value.w); }
+	void Shader::SetUniformMat4(const char *name, glm::mat4 &value) { bind(); glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(value)); }
 }

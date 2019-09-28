@@ -1,43 +1,44 @@
 #include "buffer.h"
 
 #include <GL/glew.h>
+#include "../window.h"
+#include "../../utility/logger.h"
+#include "../../utility/debug.h"
 
 namespace oe {
 
-	Buffer::Buffer(const void *data, int count, unsigned int componentCount, int componentSize, unsigned int usage) {
-		mComponentCount = componentCount;
-		
-		glGenBuffers(1, &mID);
+	Buffer::Buffer(const void* data, size_t size, int target, unsigned int usage) {
+		p_target = target;
+
+		glGenBuffers(1, &p_id);
 		bind();
-		glBufferData(GL_ARRAY_BUFFER, count * componentSize, data, usage);
+		glBufferData(target, size, data, usage);
 	}
 
 	Buffer::~Buffer() {
-		glDeleteBuffers(1, &mID);
+		glDeleteBuffers(1, &p_id);
 	}
 
 	void Buffer::bind() {
-		glBindBuffer(GL_ARRAY_BUFFER, mID);
+		glBindBuffer(p_target, p_id);
 	}
 
 	void Buffer::unbind() {
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(p_target, 0);
 	}
 
-	void Buffer::setBufferData(const void *data, unsigned int count, unsigned int componentCount, int componentSize) {
-		mComponentCount = componentCount;
-
+	void* Buffer::mapBuffer() {
 		bind();
-		glBufferSubData(GL_ARRAY_BUFFER, 0, count, data);
-	}
-
-	void *Buffer::mapBuffer() {
-		bind();
-		return glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+		return glMapBuffer(p_target, GL_WRITE_ONLY);
 	}
 
 	void Buffer::unmapBuffer() {
 		bind();
-		glUnmapBuffer(GL_ARRAY_BUFFER);
+		glUnmapBuffer(p_target);
+	}
+
+	void Buffer::setBufferData(const void *data, size_t size) {
+		bind();
+		glBufferSubData(p_target, 0, size, data);
 	}
 }

@@ -20,8 +20,6 @@ namespace oe {
 		static unsigned int loadTextureAtlas(std::string path, int id, unsigned int r);
 		
 		static unsigned int getTexture(int id);
-		
-		static void saveTexture(std::string path, unsigned char *data, int width, int height, bool preview);
 
 	};
 

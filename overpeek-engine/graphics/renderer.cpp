@@ -2,154 +2,140 @@
 
 #include "buffers/vertexArray.h"
 #include "buffers/buffer.h"
-#include "window.h"
 #include "../utility/logger.h"
-#include "shader.h"
+#include "../utility/math.h"
 
 #include <GL/glew.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace oe {
 
-	Renderer::Renderer(const char *font, Window *window) {
-		m_window = window;
-		quadRenderer = new QuadRenderer(window);
-		fontRenderer = new FontRenderer(font, new QuadRenderer(window), this);
-		pointRenderer = new PointRenderer(window);
-		lineRenderer = new LineRenderer(window);
-		triangleRenderer = new TriangleRenderer(window);
+	Renderer::Renderer(types arrayRenderType, types indexRenderType, int _max_quad_count, void* staticVBOBuffer_data) {
+		quad_count = 0;
+		max_quad_count = _max_quad_count;
+		int max_vertices = max_quad_count * 4;
+		int max_indices = max_quad_count * 6; // 0 1 2, 0 2 3
 
-		//Post processing
+		// Vertex buffer
+		float *vb;
+		if (staticVBOBuffer_data == nullptr)
+			vb = nullptr;
+		else
+			vb = (float*)staticVBOBuffer_data;
 
-		// The fullscreen quad's VBO
-		GLfloat g_quad_vertex_buffer_data[] = {
-			-1.0f, -1.0f,
-			 1.0f, -1.0f,
-			 1.0f,  1.0f,
-			-1.0f, -1.0f,
-			 1.0f,  1.0f,
-			-1.0f,  1.0f
-		};
+		// Index buffer
+		unsigned short *ib = new unsigned short[max_indices];
+		int index_counter = 0;
+		for (int i = 0; i < max_quad_count; i++) {
+			ib[(i * 6) + 0] = index_counter + 0;
+			ib[(i * 6) + 1] = index_counter + 1;
+			ib[(i * 6) + 2] = index_counter + 2;
+			ib[(i * 6) + 3] = index_counter + 0;
+			ib[(i * 6) + 4] = index_counter + 2;
+			ib[(i * 6) + 5] = index_counter + 3;
+			index_counter += 4;
+		}
 
-		m_ScreenVAO = new VertexArray();
-		m_ScreenVBO = new Buffer(g_quad_vertex_buffer_data, 12, 2, sizeof(GLfloat), GL_STATIC_DRAW);
-		m_ScreenVAO->addBuffer(m_ScreenVBO, 0);
-		m_ScreenVAO->unbind();
-
-		//Render buffer object
-		unsigned int rbo;
-		glGenRenderbuffers(1, &rbo);
-		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_window->getWidth(), m_window->getHeight());
-
-		//First framebuffer and frametexture
-		//buffer
-		glGenFramebuffers(1, &m_framebuffer1);
-		glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer1);
-
-		//texture
-		glGenTextures(1, &m_frametexture1);
-		glBindTexture(GL_TEXTURE_2D, m_frametexture1);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_window->getWidth(), m_window->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_frametexture1, 0);
-
-		//attach
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) oe::Logger::out("Framebuffer is not complete!", oe::error);
-
-		//Second framebuffer and frametexture
-		//buffer
-		glGenFramebuffers(1, &m_framebuffer2);
-		glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer2);
-
-		//texture
-		glGenTextures(1, &m_frametexture2);
-		glBindTexture(GL_TEXTURE_2D, m_frametexture2);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_window->getWidth(), m_window->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_frametexture2, 0);
-
-		//attach
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) oe::Logger::out("Framebuffer is not complete!", oe::error);
-
-		//Unbinding
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		// Shader buffers and attributes
+		vao = new VertexArray();
+		vbo = new VertexBuffer(vb, max_vertices * VertexData::component_count, VertexData::component_count, arrayRenderType);
+		ibo = new IndexBuffer(ib, max_indices, indexRenderType);
+		VertexData::configVBO(*vbo);
 	}
 
 	Renderer::~Renderer() {
-		delete fontRenderer;
-		delete quadRenderer;
-		delete pointRenderer;
+		delete vao;
+		delete vbo;
+		delete ibo;
 	}
 
-	//Draws all quads and text
-	//textbool is location of int (used as boolean) in shader that enables or disables text rendering
-	void Renderer::draw(Shader *shader, Shader *pointshader, int texture, bool textureArray) {
-
-		int textureType = GL_TEXTURE_2D;
-		if (textureArray) textureType = GL_TEXTURE_2D_ARRAY;
-
-		pointshader->enable();
-		pointRenderer->draw(texture, textureType);
-
-		shader->enable();
-		quadRenderer->draw(texture, textureType);
-		fontRenderer->draw();
-		lineRenderer->draw(texture, textureType);
-		triangleRenderer->draw(texture, textureType);
-
+	void Renderer::begin() {
+		vao->bind();
+		vbo->bind();
+		mapped_buffer = (VertexData*)vbo->mapBuffer();
 	}
 
-	//Draws all quads and text to specified framebuffer at index
-	void Renderer::drawToFramebuffer(Shader *shader, Shader *pointshader, int texture, bool textureArray, bool first_framebuffer) {
-		if (first_framebuffer) glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer1);
-		else glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer2);
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		int textureType = GL_TEXTURE_2D;
-		if (textureArray) textureType = GL_TEXTURE_2D_ARRAY;
-		draw(shader, pointshader, texture, textureArray);
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glViewport(0, 0, m_window->getWidth(), m_window->getHeight());
+	void Renderer::end() {
+		vao->bind();
+		vbo->bind();
+		vbo->unmapBuffer();
 	}
 
-	//Draws (first or second) framebuffer to screen
-	void Renderer::drawFramebuffer(Shader *postshader, const char *texture_sampler, bool first_framebuffer) {
-		//Render quad to whole screen
-		glClear(GL_COLOR_BUFFER_BIT);
-		glDisable(GL_DEPTH_TEST);
-
-		postshader->enable();
-		postshader->setUniform1i(texture_sampler, 0);
-		glActiveTexture(GL_TEXTURE0);
-
-		if (first_framebuffer) glBindTexture(GL_TEXTURE_2D, m_frametexture1);
-		else glBindTexture(GL_TEXTURE_2D, m_frametexture2);
-
-
-		m_ScreenVAO->bind();
-		m_ScreenVBO->bind();
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glEnable(GL_DEPTH_TEST);
+	void Renderer::submitVertexData(glm::vec2 position, glm::vec2 size, int texture, glm::vec4 color) {
+		mapped_buffer[buffer_pos] = VertexData(position, size, texture, color);
+		buffer_pos++;
 	}
 
-	//Draws framebuffer to another framebuffer
-	void Renderer::drawFramebufferToFramebuffer(Shader *postshader, const char *texture_sampler, bool first_framebuffer) {
-		if (first_framebuffer) glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer1);
-		else glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer2);
+	void Renderer::submitVertexData(glm::vec3 position, glm::vec2 size, int texture, glm::vec4 color) {
+		mapped_buffer[buffer_pos] = VertexData(position, size, texture, color);
+		buffer_pos++;
+	}
 
-		drawFramebuffer(postshader, texture_sampler, !first_framebuffer);
+	void Renderer::submit(glm::vec2 position, glm::vec2 size, int texture, glm::vec4 color, alignments alignment, float angle) {
+		//submitVertexData(glm::vec2(position.x, position.y), glm::vec2(0.0f, 0.0f), texture, color);
+		//submitVertexData(glm::vec2(position.x, position.y + size.y), glm::vec2(0.0f, 0.0f), texture, color);
+		//submitVertexData(glm::vec2(position.x + size.x, position.y + size.y), glm::vec2(0.0f, 0.0f), texture, color);
+		//
+		//submitVertexData(glm::vec2(position.x, position.y), glm::vec2(0.0f, 0.0f), texture, color);
+		//submitVertexData(glm::vec2(position.x + size.x, position.y + size.y), glm::vec2(0.0f, 0.0f), texture, color);
+		//submitVertexData(glm::vec2(position.x + size.x, position.y), glm::vec2(0.0f, 0.0f), texture, color);
+		//Logger::debug(buffer_pos);
+		submit(position, size, texture, color, alignment, angle, buffer_pos);
+	}
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	void Renderer::submit(glm::vec2 position, glm::vec2 size, int texture, glm::vec4 color, alignments alignment, float angle, int quad_index) {
+		int initial_position = buffer_pos;
+		buffer_pos = quad_index;
+
+		glm::vec2 pointA = (size * glm::vec2(0.0f, 0.0f));
+		glm::vec2 pointB = (size * glm::vec2(0.0f, 1.0f));
+		glm::vec2 pointC = (size * glm::vec2(1.0f, 1.0f));
+		glm::vec2 pointD = (size * glm::vec2(1.0f, 0.0f));
+
+		pointA -= getAlignmentOffset(size, alignment);
+		pointB -= getAlignmentOffset(size, alignment);
+		pointC -= getAlignmentOffset(size, alignment);
+		pointD -= getAlignmentOffset(size, alignment);
+
+		if (angle != 0.0f) {
+
+			glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 0.0f, 1.0f));
+			rotatePoint(glm::vec2(0.0f, 0.0f), angle, pointA);
+			rotatePoint(glm::vec2(0.0f, 0.0f), angle, pointB);
+			rotatePoint(glm::vec2(0.0f, 0.0f), angle, pointC);
+			rotatePoint(glm::vec2(0.0f, 0.0f), angle, pointD);
+		}
+
+		pointA += position;
+		pointB += position;
+		pointC += position;
+		pointD += position;
+
+		submitVertexData(pointA, glm::vec2(0.0f, 0.0f), texture, color);
+		submitVertexData(pointB, glm::vec2(0.0f, 1.0f), texture, color);
+		submitVertexData(pointC, glm::vec2(1.0f, 1.0f), texture, color);
+		submitVertexData(pointD, glm::vec2(1.0f, 0.0f), texture, color);
+
+		buffer_pos = initial_position;
+	}
+
+	void Renderer::clear() {
+		buffer_pos = 0;
+		quad_count = 0;
+	}
+
+	void Renderer::draw(int quad_count) {
+		if (quad_count == -1) quad_count = max_quad_count;
+
+		//Binding
+		vao->bind();
+		vbo->bind();
+		ibo->bind();
+
+		if (quad_count > 0) {
+			//glDrawArrays(GL_TRIANGLES, 0, 4);
+			glDrawElements(GL_TRIANGLES, quad_count * 6, GL_UNSIGNED_SHORT, 0);
+		}
 	}
 
 }

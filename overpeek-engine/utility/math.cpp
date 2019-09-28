@@ -2,9 +2,9 @@
 
 namespace oe {
 
-	void rotatePoint(glm::vec2 center, float xyangle, glm::vec2& p) {
-		float s = sin(xyangle);
-		float c = cos(xyangle);
+	void rotatePoint(glm::vec2 center, float z_angle, glm::vec2& p) {
+		float s = sin(z_angle);
+		float c = cos(z_angle);
 
 		// translate point back to origin:
 		p.x -= center.x;

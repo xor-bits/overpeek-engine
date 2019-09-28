@@ -13,7 +13,7 @@ NTL::RR xo = NTL::RR(0.0);//1.6873200000000003);
 NTL::RR yo = NTL::RR(0.0);
 
 void render(float corrector); void update();
-oe::Window *m_window = new oe::Window(600, 600, "Mandelbrot", false, 0, false);
+oe::Window *m_window = new oe::Window(600, 600, "Mandelbrot", WINDOW_MULTISAMPLE_X8);
 oe::Shader *m_shader = new oe::Shader("shaders/texture.vert.glsl", "shaders/texture.frag.glsl");
 oe::Renderer *m_renderer = new oe::Renderer("resources/arial.ttf", m_window);
 oe::GameLoop *m_loop = new oe::GameLoop(render, update, 5, m_window);
@@ -131,7 +131,10 @@ void render(float corrector) {
 
 	//oe::Logger::info("Draw");
 	draw();
-	m_renderer->renderBox(glm::vec2(-1.0f), glm::vec2(2.0f), 0, glm::vec4(1.0f));
+	m_renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec2(0.0f, 0.0f), 0, glm::vec4(1.0f)));
+	m_renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(-1.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f), 0, glm::vec4(1.0f)));
+	m_renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(1.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f), 0, glm::vec4(1.0f)));
+	m_renderer->quadRenderer->submitVertex(oe::VertexData(glm::vec3(1.0f, -1.0f, 0.0f), glm::vec2(0.0f, 0.0f), 0, glm::vec4(1.0f)));
 	m_renderer->draw(m_shader, m_shader, texture, true);
 
 	//m_window->update();

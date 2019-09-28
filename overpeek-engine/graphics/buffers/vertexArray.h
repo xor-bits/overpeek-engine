@@ -1,25 +1,24 @@
 #pragma once
 
+#include "vertexBuffer.h"
+
 #include <vector>
 
 namespace oe {
 
-	class Buffer;
 	class VertexArray {
 	private:
-		unsigned int mID;
-		std::vector<Buffer*> mBuffers;
+		unsigned int p_id;
+		std::vector<VertexBuffer*> p_buffers;
+	
 	public:
 		VertexArray();
 		~VertexArray();
-
-		void addBuffer(Buffer* buffer, unsigned int index);
-
-		//Need to manually call glEnableVertexAttribArray and glVertexAttribPointer
-		void addBuffer(Buffer* buffer);
 		
 		void bind();
 		void unbind();
+
+		void addBuffer(VertexBuffer* buffer, unsigned int location);
 	};
 
 }

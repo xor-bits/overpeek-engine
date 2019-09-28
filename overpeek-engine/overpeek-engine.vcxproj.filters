@@ -36,15 +36,6 @@
     <ClCompile Include="audio\audioManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="graphics\quadRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="graphics\fontRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="graphics\pointRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="utility\clock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -66,13 +57,19 @@
     <ClCompile Include="utility\filereader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="graphics\lineRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="graphics\triangleRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="utility\math.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="graphics\buffers\vertexBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="graphics\texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="graphics\frameBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="audio\audio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -101,16 +98,7 @@
     <ClInclude Include="audio\audioManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="graphics\quadRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="graphics\renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="graphics\fontRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="graphics\pointRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utility\binaryIO.h">
@@ -134,16 +122,22 @@
     <ClInclude Include="utility\gameloop.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="graphics\lineRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="graphics\vertexData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="graphics\triangleRenderer.h">
+    <ClInclude Include="utility\math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\math.h">
+    <ClInclude Include="graphics\buffers\vertexBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics\texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics\framebuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="audio\audio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
