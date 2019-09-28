@@ -10,9 +10,6 @@ namespace oe {
 
 	//XY angle
 	void rotatePoint(glm::vec2 center, float xyangle, glm::vec2 &p);
-	
-	//XY angle and XZ angle
-	void rotatePoint(glm::vec3 center, float xyangle, float xzangle, glm::vec3 &p);
 
 	template<class T>
 	T clamp(T _val, T _min, T _max) {
@@ -30,4 +27,9 @@ namespace oe {
 
 	int sign(float n);
 
+	glm::vec4 rgb2hsv(glm::vec4 in);
+
+	glm::vec4 hsv2rgb(glm::vec4 in);
+
+	void map(double& val, double a_low, double a_high, double b_low, double b_high);
 }

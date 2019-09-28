@@ -345,7 +345,7 @@ void Map::submitToRenderer(oe::Renderer *renderer, float offX, float offY, float
 	//Creature rendering
 	for (int i = 0; i < m_creatures.size(); i++)
 	{
-		m_creatures[i]->submitToRenderer(renderer, -Game::getPlayer()->getX() - Game::getPlayer()->getVelX() * corrector / UPDATES_PER_SECOND, -Game::getPlayer()->getY() - Game::getPlayer()->getVelY() * corrector / UPDATES_PER_SECOND, corrector);
+		m_creatures[i]->submitToRenderer(renderer, -Game::getPlayer()->getX() - Game::getPlayer()->getVelX() * corrector / UPDATES_PER_SECOND, -Game::getPlayer()->getY() - Game::getPlayer()->getVelY() * corrector / UPDATES_PER_SECOND, corrector, Game::renderScale());
 	}
 }
 
@@ -401,18 +401,16 @@ Creature *Map::addCreature(float x, float y, int id, bool item) {
 	switch (id)
 	{
 	case 1:	// Zombie
-		toBeAdded = new Zombie(x, y);
+		m_creatures.push_back(std::move(std::unique_ptr<Creature>(new Zombie(x, y))));
 		break;
 	case 2:	// Item
-		toBeAdded = new Item(x, y, id);
+		m_creatures.push_back(std::move(std::unique_ptr<Creature>(new Item(x, y, id))));
 		break;
 	default:
 		oe::Logger::out("Invalid creature id: ", id, oe::warning);
 		break;
 	}
 	
-	std::unique_ptr<Creature> tmp(toBeAdded);
-	m_creatures.push_back(std::move(tmp));
 	return m_creatures[m_creatures.size() - 1].get();
 }
 

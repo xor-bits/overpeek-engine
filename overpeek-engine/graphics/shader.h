@@ -8,11 +8,12 @@ namespace oe {
 	private:
 		unsigned int mShaderProgram;
 
-		unsigned int loadShader(unsigned int shadertype, const char *path);
+		unsigned int loadShader(unsigned int shadertype, const char* shaderText);
+		unsigned int loadShaderFile(unsigned int shadertype, const char *path);
 		void shaderLog(const char* text, unsigned int shader, unsigned int type);
 		void programLog(const char* text, unsigned int program, unsigned int type);
 	public:
-		Shader() {}
+		Shader();
 		Shader(const char *vertexPath, const char *fragmentPath);
 		Shader(const char *vertexPath, const char *fragmentPath, const char *geometryPath);
 		

@@ -17,8 +17,8 @@ Player::Player(float x, float y, Inventory *inv) : Creature(x, y, 0, false) {
 	m_death_y = -1;
 }
 
-void Player::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY, float corrector) {
-	Creature::submitToRenderer(renderer, renderOffsetX, renderOffsetY, corrector);
+void Player::submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY, float corrector, float renderScale) {
+	Creature::submitToRenderer(renderer, renderOffsetX, renderOffsetY, corrector, Game::renderScale());
 
 	if (m_death_x != -1) {
 

@@ -26,9 +26,10 @@ public:
 	void setSpawnPoint(unsigned int x, unsigned int y);
 	void getSpawnPoint(int &x, int &y);
 
-	void submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY, float corrector);
+	void submitToRenderer(oe::Renderer *renderer, float renderOffsetX, float renderOffsetY, float corrector, float renderScale);
 	void update(float divider);
 	void collide(float divider);
+	void ai(float divider) {}
 	void hit();
 	void mouseHit(int button, int action);
 	void place();
