@@ -1,7 +1,8 @@
 #include "vertexBuffer.h"
 
 #include "../renderer.h"
-#include "../../utility/logger.h"
+
+#include "../../internal_libs.h"
 
 #include <GL/glew.h>
 
@@ -13,9 +14,9 @@ namespace oe {
 		p_components_per_vertex = components_per_vertex;
 	}
 
-	void VertexBuffer::attrib(int index, int components, int strideBytes, int startBytes) {
+	void VertexBuffer::attrib(int index, int components, int startBytes) {
 		glEnableVertexAttribArray(index);
-		glVertexAttribPointer(index, components, GL_FLOAT, false, strideBytes, (void*)startBytes);
+		glVertexAttribPointer(index, components, GL_FLOAT, false, p_components_per_vertex * sizeof(float), (void*)startBytes);
 	}
 
 }

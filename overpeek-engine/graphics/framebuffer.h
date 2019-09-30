@@ -1,7 +1,7 @@
 #pragma once
 
 #include "texture.h"
-#include "glm/glm.hpp"
+#include "../internal_libs.h"
 
 namespace oe {
 
@@ -19,7 +19,7 @@ namespace oe {
 		~FrameBuffer();
 
 		void bind();
-		void unbind();
+		static void unbind();
 
 		void clear();
 		void clearColor(glm::vec4 c);

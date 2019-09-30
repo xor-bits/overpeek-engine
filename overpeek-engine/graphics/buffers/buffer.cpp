@@ -2,17 +2,19 @@
 
 #include <GL/glew.h>
 #include "../window.h"
-#include "../../utility/logger.h"
 #include "../../utility/debug.h"
+
+#include "../../internal_libs.h"
 
 namespace oe {
 
 	Buffer::Buffer(const void* data, size_t size, int target, unsigned int usage) {
 		p_target = target;
+		p_size = size;
 
 		glGenBuffers(1, &p_id);
 		bind();
-		glBufferData(target, size, data, usage);
+		glBufferData(target, size * sizeof(float), data, usage);
 	}
 
 	Buffer::~Buffer() {

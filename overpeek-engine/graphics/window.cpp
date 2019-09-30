@@ -6,11 +6,11 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <GL/GLU.h>
-#include <glm/glm.hpp>
 #include <stb_image.h>
 
-#include "../utility/logger.h"
+#include "../internal_libs.h"
 #include "../utility/math.h"
+#include "gl.h"
 
 #define M_NUM_KEYS		2048
 #define M_NUM_BUTTONS	1024
@@ -61,7 +61,7 @@ namespace oe {
 		// glfw
 		//--------------
 		if (!glfwInit()) {
-			oe::Logger::error("Failed to initialize GLFW!");
+			spdlog::error("Failed to initialize GLFW!");
 			return -1;
 		}
 
@@ -74,8 +74,9 @@ namespace oe {
 			p_window = glfwCreateWindow(p_width, p_height, title, glfwGetPrimaryMonitor(), NULL);
 		else
 			p_window = glfwCreateWindow(p_width, p_height, title, NULL, NULL);
+		
 		if (!p_window) {
-			oe::Logger::error("Failed to create window!");
+			spdlog::error("Failed to create window!");
 			return -2;
 		}
 
@@ -89,13 +90,13 @@ namespace oe {
 		glfwMakeContextCurrent((GLFWwindow*)p_window);
 
 		if (glewInit() != GLEW_OK) {
-			oe::Logger::error("Failed to initalize GLEW");
+			spdlog::error("Failed to initalize GLEW");
 			return -3;
 		}
 
-		oe::Logger::info("Window created");
-		oe::Logger::info("OpenGL Renderer: " + std::string((char*)glGetString(GL_RENDERER)));
-		oe::Logger::info("OpenGL Version: " + std::string((char*)glGetString(GL_VERSION)));
+		spdlog::info("Window created");
+		spdlog::info("OpenGL Renderer: " + std::string((char*)glGetString(GL_RENDERER)));
+		spdlog::info("OpenGL Version: " + std::string((char*)glGetString(GL_VERSION)));
 
 		glfwSetCharModsCallback((GLFWwindow*)p_window, [](GLFWwindow* window, unsigned int codepoint, int mods) { charmods_callback(codepoint, mods); });
 		glfwSetFramebufferSizeCallback((GLFWwindow*)p_window, [](GLFWwindow* window, int width, int height) { framebuffer_size_callback(width, height); });
@@ -108,37 +109,17 @@ namespace oe {
 
 		if (multisample != 0) glEnable(GL_MULTISAMPLE);
 
-		glViewport(0, 0, p_width, p_height);
 		glClearColor(0.18f, 0.18f, 0.20f, 1.0f);
-		glEnable(GL_BLEND);
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_ALWAYS);
-		//glDepthMask(GL_FALSE);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		viewport();
+	}
 
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-		glFrontFace(GL_CCW);
-
-		glfwSwapInterval(0);
+	void Window::viewport() {
+		glViewport(0, 0, p_width, p_height);
 	}
 
 	void Window::showCursor(bool show) {
 		if (!show) glfwSetInputMode((GLFWwindow*)p_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 		else glfwSetInputMode((GLFWwindow*)p_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-	}
-
-	void Window::setLineWidth(float w) {
-		glLineWidth(w);
-	}
-
-	void Window::setPointRadius(float w) {
-		glPointSize(w);
-	}
-
-	void Window::setBackFaceCulling(bool on) {
-		if (on) glEnable(GL_CULL_FACE);
-		else glDisable(GL_CULL_FACE);
 	}
 
 	void Window::setIcon(const char *path) {
@@ -150,10 +131,6 @@ namespace oe {
 
 	void Window::setClearColor(float r, float g, float b, float a) {
 		glClearColor(r, g, b, a);
-	}
-
-	void Window::setSwapInterval(unsigned int interval) {
-		glfwSwapInterval(interval);
 	}
 
 	void Window::framebuffer_size_callback(int width, int height) {
@@ -203,40 +180,6 @@ namespace oe {
 		if (m_charmods_callback) m_charmods_callback(codepoint, mods);
 	}
 
-	int Window::checkGLErrors() {
-		GLenum err = glGetError();
-		if (err != 0) {
-			std::string errorText;
-			switch (err)
-			{
-			case GL_NO_ERROR:
-				errorText = "If you see this, your processor is propably broken or something?";
-				break;
-			case GL_INVALID_ENUM:
-				errorText = "Invalid enum!";
-				break;
-			case GL_INVALID_VALUE:
-				errorText = "Invalid value!";
-				break;
-			case GL_INVALID_OPERATION:
-				errorText = "Invalid operation!";
-				break;
-			case GL_INVALID_FRAMEBUFFER_OPERATION:
-				errorText = "Invalid framebuffer operation!";
-				break;
-			case GL_OUT_OF_MEMORY:
-				errorText = "Out of memory!";
-				break;
-			default:
-				errorText = "Unknown error!";
-				break;
-			}
-			oe::Logger::error("OpenGL " + std::to_string(err) + std::string(": ") + errorText);
-			return err;
-		}
-		return 0;
-	}
-
 	bool Window::shouldClose() {
 		return glfwWindowShouldClose((GLFWwindow*)p_window) == 1;
 	}
@@ -246,7 +189,7 @@ namespace oe {
 	}
 
 	void Window::update() {
-		if (p_debugmode) checkGLErrors();
+		if (p_debugmode) GL::checkGLErrors();
 		glfwSwapBuffers((GLFWwindow*)p_window);
 	}
 
@@ -276,14 +219,6 @@ namespace oe {
 
 	void Window::close() {
 		glfwTerminate();
-	}
-
-	std::string Window::getRenderer() {
-		return std::string((char*)glGetString(GL_RENDERER));
-	}
-
-	std::string Window::getVendor() {
-		return std::string((char*)glGetString(GL_VENDOR));
 	}
 
 }

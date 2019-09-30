@@ -1,7 +1,8 @@
 #pragma once
 
 #include <string>
-#include <glm/glm.hpp>
+
+#include "../internal_libs.h"
 
 #define WINDOW_MULTISAMPLE_X2	0b0000000000000001
 #define WINDOW_MULTISAMPLE_X4	0b0000000000000010
@@ -46,7 +47,6 @@ namespace oe {
 		*/
 		static int init(unsigned int width, unsigned int height, const char *title, int mods);
 
-		static int checkGLErrors();
 		static bool shouldClose();
 		static void input();
 		static void update();
@@ -59,11 +59,7 @@ namespace oe {
 		static void setResizeCallback(void(*callback)(int, int));
 		static void setCharmodCallback(void(*callback)(unsigned int, int));
 
-		static void setSwapInterval(unsigned int interval);
-		static void setBackFaceCulling(bool on);
-
-		static void setLineWidth(float w);
-		static void setPointRadius(float w);
+		static void viewport();
 
 		static void setClearColor(float r, float g, float b, float a);
 
@@ -76,13 +72,9 @@ namespace oe {
 		static inline bool getKey(int key) { return p_keys[key]; }
 		static inline void getMousePos(glm::vec2 &pos) { pos = p_mouse; }
 
-
 		static inline float getAspect() { return (float)getWidth() / (float)getHeight(); }
 		static inline int getHeight() { return p_height; }
 		static inline int getWidth() { return p_width; }
-
-		static std::string getRenderer();
-		static std::string getVendor();
 	};
 
 }

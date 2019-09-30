@@ -34,9 +34,9 @@ namespace oe {
 		//
 		//Update loop:
 		//Example of calculating position "loaction = velocity / ups"
-		GameLoop(void(*callbackRender)(float), void(*callbackUpdate)(), unsigned int updates_per_second);
+		GameLoop();
 
-		void start();
+		void start(void(*callbackRender)(float), void(*callbackUpdate)(), unsigned int updates_per_second);
 		void stop();
 
 		inline int getFPS() { return m_fps; }

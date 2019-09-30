@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "../internal_libs.h"
 
 namespace oe {
 
@@ -21,11 +21,11 @@ namespace oe {
 			: position(_position, 0.0f), size_or_uv(_size_or_uv), texture(_texture), color(_color)
 		{}
 
-		static void configVBO(VertexBuffer &vbo) {
-			vbo.attrib(0, 3, component_count, 0 * sizeof(float));
-			vbo.attrib(1, 2, component_count, 3 * sizeof(float));
-			vbo.attrib(2, 1, component_count, 5 * sizeof(float));
-			vbo.attrib(3, 4, component_count, 6 * sizeof(float));
+		static void configVBO(VertexBuffer *vbo) {
+			vbo->attrib(0, 3, 0 * sizeof(float));
+			vbo->attrib(1, 2, 3 * sizeof(float));
+			vbo->attrib(2, 1, 5 * sizeof(float));
+			vbo->attrib(3, 4, 6 * sizeof(float));
 		}
 	};
 

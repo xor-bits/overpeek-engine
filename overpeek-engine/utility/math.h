@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "../internal_libs.h"
 #include <string>
 
 namespace oe {
@@ -30,6 +30,4 @@ namespace oe {
 	glm::vec4 rgb2hsv(glm::vec4 in);
 
 	glm::vec4 hsv2rgb(glm::vec4 in);
-
-	void map(double& val, double a_low, double a_high, double b_low, double b_high);
 }

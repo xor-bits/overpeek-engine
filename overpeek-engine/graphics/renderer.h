@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "../internal_libs.h"
 
 #include "buffers/vertexArray.h"
 #include "buffers/vertexBuffer.h"

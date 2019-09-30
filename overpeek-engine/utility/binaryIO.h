@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <iostream>
 #include <string>
-#include "logger.h"
+#include "../internal_libs.h"
 
 namespace oe {
 
@@ -12,7 +12,7 @@ namespace oe {
 	public:
 		template<typename T> static void write(std::string name, void* data, size_t dataSize) {
 			FILE *pFile = fopen(name.c_str(), "wb");
-			if (pFile == NULL) { oe::Logger::out("Failed to write file: \"", name.c_str(), "\"", oe::error); }
+			if (pFile == NULL) { spdlog::error("Failed to write file: \"{}\"", name.c_str()); }
 			fwrite(data, sizeof(T), dataSize, pFile);
 			fclose(pFile);
 		}

@@ -1,6 +1,4 @@
 #include "audio.h"
-
-#include "../utility/logger.h"
 #include "audioManager.h"
 
 #include <stb_vorbis.c>
@@ -15,7 +13,7 @@ namespace oe {
 		short* data;
 		int size = stb_vorbis_decode_filename(filepath, &channels, &sampleRate, &data);
 		if (size <= 0) {
-			Logger::error("Failed to load audiofile (" + std::string(filepath) + ")");
+			spdlog::error("Failed to load audiofile \"{}\"", std::string(filepath));
 			return;
 		}
 

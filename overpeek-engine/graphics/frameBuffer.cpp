@@ -1,6 +1,5 @@
 #include "framebuffer.h"
-
-#include "../utility/logger.h"
+#include "../internal_libs.h"
 
 #include <GL/glew.h>
 
@@ -29,7 +28,7 @@ namespace oe {
 		// FBO
 		int fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
-			Logger::error("Framebuffer not complete: " + fboStatus);
+			spdlog::error("Framebuffer not complete {}", fboStatus);
 
 		clear();
 		unbind();

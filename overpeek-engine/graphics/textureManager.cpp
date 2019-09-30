@@ -1,6 +1,6 @@
 #include "textureManager.h"
 
-#include "../utility/logger.h"
+#include "../internal_libs.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -16,7 +16,7 @@ namespace oe {
 		int width, height, nrChannels;
 		GLubyte *tmpdata = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
 		if (!tmpdata) {
-			oe::Logger::error("Image couldn't be loaded at path (" + path + ")");
+			spdlog::error("Image couldn't be loaded ({})", path);
 		}
 
 		unsigned int texture;
@@ -43,7 +43,7 @@ namespace oe {
 		int width, height, nrChannels;
 		GLubyte *tmpdata = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
 		if (!tmpdata) {
-			oe::Logger::error("Image couldn't be loaded at path (" + path + ")");
+			spdlog::error("Image couldn't be loaded at path (" + path + ")");
 		}
 		//1 048 576
 		//1 048 575
@@ -79,7 +79,7 @@ namespace oe {
 
 		//GLint max_layers;
 		//glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &max_layers);
-		//oe::Logger::out("Max OpenGL layers", max_layers);
+		//spdlog::out("Max OpenGL layers", max_layers);
 		
 		mTextures[id] = texture;
 		return texture;

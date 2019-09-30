@@ -22,7 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{4E67B5EF-25F9-4248-9027-DF3CED549DA1}</ProjectGuid>
     <RootNamespace>My2DShooter</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>overpeek-engine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -135,10 +135,13 @@
       <PreprocessorDefinitions>GLEW_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(SolutionDir)\Libraries\al\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\spdlog\include</AdditionalIncludeDirectories>
-      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <OmitFramePointers />
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -155,11 +158,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PreprocessorDefinitions>GLEW_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\Libraries\al\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\spdlog\include</AdditionalIncludeDirectories>
-      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>$(SolutionDir)\Libraries\al\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\glm</AdditionalIncludeDirectories>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -178,6 +183,7 @@
     <ClCompile Include="audio\audioManager.cpp" />
     <ClCompile Include="graphics\frameBuffer.cpp" />
     <ClCompile Include="graphics\buffers\indexBuffer.cpp" />
+    <ClCompile Include="graphics\gl.cpp" />
     <ClCompile Include="graphics\texture.cpp" />
     <ClCompile Include="graphics\buffers\vertexArray.cpp" />
     <ClCompile Include="graphics\buffers\buffer.cpp" />
@@ -191,15 +197,17 @@
     <ClCompile Include="utility\debug.cpp" />
     <ClCompile Include="utility\math.cpp" />
     <ClCompile Include="utility\random.cpp" />
-    <ClCompile Include="utility\logger.cpp" />
     <ClCompile Include="graphics\buffers\vertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio\audio.h" />
     <ClInclude Include="audio\audioManager.h" />
     <ClInclude Include="engine.h" />
+    <ClInclude Include="graphics\assets\multiTextureShader.h" />
+    <ClInclude Include="graphics\assets\singleTextureShader.h" />
     <ClInclude Include="graphics\framebuffer.h" />
     <ClInclude Include="graphics\buffers\indexBuffer.h" />
+    <ClInclude Include="graphics\gl.h" />
     <ClInclude Include="graphics\texture.h" />
     <ClInclude Include="graphics\buffers\vertexArray.h" />
     <ClInclude Include="graphics\buffers\buffer.h" />
@@ -208,15 +216,64 @@
     <ClInclude Include="graphics\shader.h" />
     <ClInclude Include="graphics\vertexData.h" />
     <ClInclude Include="graphics\window.h" />
+    <ClInclude Include="internal_libs.h" />
     <ClInclude Include="utility\binaryIO.h" />
     <ClInclude Include="utility\clock.h" />
     <ClInclude Include="utility\filereader.h" />
     <ClInclude Include="utility\debug.h" />
     <ClInclude Include="utility\gameloop.h" />
-    <ClInclude Include="utility\logger.h" />
     <ClInclude Include="utility\math.h" />
     <ClInclude Include="utility\random.h" />
     <ClInclude Include="graphics\buffers\vertexBuffer.h" />
+    <ClInclude Include="utility\spdlog\async.h" />
+    <ClInclude Include="utility\spdlog\async_logger.h" />
+    <ClInclude Include="utility\spdlog\common.h" />
+    <ClInclude Include="utility\spdlog\details\async_logger_impl.h" />
+    <ClInclude Include="utility\spdlog\details\circular_q.h" />
+    <ClInclude Include="utility\spdlog\details\console_globals.h" />
+    <ClInclude Include="utility\spdlog\details\file_helper.h" />
+    <ClInclude Include="utility\spdlog\details\fmt_helper.h" />
+    <ClInclude Include="utility\spdlog\details\logger_impl.h" />
+    <ClInclude Include="utility\spdlog\details\log_msg.h" />
+    <ClInclude Include="utility\spdlog\details\mpmc_blocking_q.h" />
+    <ClInclude Include="utility\spdlog\details\null_mutex.h" />
+    <ClInclude Include="utility\spdlog\details\os.h" />
+    <ClInclude Include="utility\spdlog\details\pattern_formatter.h" />
+    <ClInclude Include="utility\spdlog\details\periodic_worker.h" />
+    <ClInclude Include="utility\spdlog\details\registry.h" />
+    <ClInclude Include="utility\spdlog\details\thread_pool.h" />
+    <ClInclude Include="utility\spdlog\fmt\bin_to_hex.h" />
+    <ClInclude Include="utility\spdlog\fmt\bundled\colors.h" />
+    <ClInclude Include="utility\spdlog\fmt\bundled\core.h" />
+    <ClInclude Include="utility\spdlog\fmt\bundled\format-inl.h" />
+    <ClInclude Include="utility\spdlog\fmt\bundled\format.h" />
+    <ClInclude Include="utility\spdlog\fmt\bundled\ostream.h" />
+    <ClInclude Include="utility\spdlog\fmt\bundled\posix.h" />
+    <ClInclude Include="utility\spdlog\fmt\bundled\printf.h" />
+    <ClInclude Include="utility\spdlog\fmt\bundled\ranges.h" />
+    <ClInclude Include="utility\spdlog\fmt\bundled\time.h" />
+    <ClInclude Include="utility\spdlog\fmt\fmt.h" />
+    <ClInclude Include="utility\spdlog\fmt\ostr.h" />
+    <ClInclude Include="utility\spdlog\formatter.h" />
+    <ClInclude Include="utility\spdlog\logger.h" />
+    <ClInclude Include="utility\spdlog\sinks\android_sink.h" />
+    <ClInclude Include="utility\spdlog\sinks\ansicolor_sink.h" />
+    <ClInclude Include="utility\spdlog\sinks\base_sink.h" />
+    <ClInclude Include="utility\spdlog\sinks\basic_file_sink.h" />
+    <ClInclude Include="utility\spdlog\sinks\daily_file_sink.h" />
+    <ClInclude Include="utility\spdlog\sinks\dist_sink.h" />
+    <ClInclude Include="utility\spdlog\sinks\msvc_sink.h" />
+    <ClInclude Include="utility\spdlog\sinks\null_sink.h" />
+    <ClInclude Include="utility\spdlog\sinks\ostream_sink.h" />
+    <ClInclude Include="utility\spdlog\sinks\rotating_file_sink.h" />
+    <ClInclude Include="utility\spdlog\sinks\sink.h" />
+    <ClInclude Include="utility\spdlog\sinks\stdout_color_sinks.h" />
+    <ClInclude Include="utility\spdlog\sinks\stdout_sinks.h" />
+    <ClInclude Include="utility\spdlog\sinks\syslog_sink.h" />
+    <ClInclude Include="utility\spdlog\sinks\wincolor_sink.h" />
+    <ClInclude Include="utility\spdlog\spdlog.h" />
+    <ClInclude Include="utility\spdlog\tweakme.h" />
+    <ClInclude Include="utility\spdlog\version.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\texture.frag.glsl" />

@@ -2,15 +2,19 @@
 
 #include "buffers/vertexArray.h"
 #include "buffers/buffer.h"
-#include "../utility/logger.h"
 #include "../utility/math.h"
+#include "../internal_libs.h"
 
 #include <GL/glew.h>
-#include <glm/gtc/matrix_transform.hpp>
+
+
 
 namespace oe {
 
 	Renderer::Renderer(types arrayRenderType, types indexRenderType, int _max_quad_count, void* staticVBOBuffer_data) {
+		buffer_pos = 0;
+		mapped_buffer = nullptr;
+
 		quad_count = 0;
 		max_quad_count = _max_quad_count;
 		int max_vertices = max_quad_count * 4;
@@ -27,20 +31,20 @@ namespace oe {
 		unsigned short *ib = new unsigned short[max_indices];
 		int index_counter = 0;
 		for (int i = 0; i < max_quad_count; i++) {
-			ib[(i * 6) + 0] = index_counter + 0;
-			ib[(i * 6) + 1] = index_counter + 1;
-			ib[(i * 6) + 2] = index_counter + 2;
-			ib[(i * 6) + 3] = index_counter + 0;
-			ib[(i * 6) + 4] = index_counter + 2;
-			ib[(i * 6) + 5] = index_counter + 3;
+			ib[i * 6 + 0] = index_counter + 0;
+			ib[i * 6 + 1] = index_counter + 1;
+			ib[i * 6 + 2] = index_counter + 2;
+			ib[i * 6 + 3] = index_counter + 0;
+			ib[i * 6 + 4] = index_counter + 2;
+			ib[i * 6 + 5] = index_counter + 3;
 			index_counter += 4;
 		}
 
 		// Shader buffers and attributes
 		vao = new VertexArray();
-		vbo = new VertexBuffer(vb, max_vertices * VertexData::component_count, VertexData::component_count, arrayRenderType);
 		ibo = new IndexBuffer(ib, max_indices, indexRenderType);
-		VertexData::configVBO(*vbo);
+		vbo = new VertexBuffer(vb, (size_t)max_vertices * (size_t)VertexData::component_count, VertexData::component_count, arrayRenderType);
+		VertexData::configVBO(vbo);
 	}
 
 	Renderer::~Renderer() {
@@ -62,8 +66,7 @@ namespace oe {
 	}
 
 	void Renderer::submitVertexData(glm::vec2 position, glm::vec2 size, int texture, glm::vec4 color) {
-		mapped_buffer[buffer_pos] = VertexData(position, size, texture, color);
-		buffer_pos++;
+		submitVertexData(glm::vec3(position, 0.0f), size, texture, color);
 	}
 
 	void Renderer::submitVertexData(glm::vec3 position, glm::vec2 size, int texture, glm::vec4 color) {
@@ -72,14 +75,6 @@ namespace oe {
 	}
 
 	void Renderer::submit(glm::vec2 position, glm::vec2 size, int texture, glm::vec4 color, alignments alignment, float angle) {
-		//submitVertexData(glm::vec2(position.x, position.y), glm::vec2(0.0f, 0.0f), texture, color);
-		//submitVertexData(glm::vec2(position.x, position.y + size.y), glm::vec2(0.0f, 0.0f), texture, color);
-		//submitVertexData(glm::vec2(position.x + size.x, position.y + size.y), glm::vec2(0.0f, 0.0f), texture, color);
-		//
-		//submitVertexData(glm::vec2(position.x, position.y), glm::vec2(0.0f, 0.0f), texture, color);
-		//submitVertexData(glm::vec2(position.x + size.x, position.y + size.y), glm::vec2(0.0f, 0.0f), texture, color);
-		//submitVertexData(glm::vec2(position.x + size.x, position.y), glm::vec2(0.0f, 0.0f), texture, color);
-		//Logger::debug(buffer_pos);
 		submit(position, size, texture, color, alignment, angle, buffer_pos);
 	}
 
