@@ -12,7 +12,7 @@ namespace oe {
 	public:
 		VertexBuffer(const void* data, size_t size, unsigned int components_per_vertex, int buffer_type);
 
-		void attrib(int index, int components, int startBytes);
+		void attrib(int index, int components, size_t startBytes);
 
 		inline size_t getComponentsPerVertex() { return p_components_per_vertex; }
 	};

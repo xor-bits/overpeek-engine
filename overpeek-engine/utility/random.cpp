@@ -6,7 +6,7 @@
 namespace oe {
 
 	void Random::seed(int seed) {
-		if (seed == 0) seed == time(0);
+		if (seed == 0) seed = time(0);
 		srand(static_cast<float>(seed));
 	}
 

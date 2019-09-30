@@ -27,16 +27,16 @@ namespace oe {
 		unsigned int p_shader_program;
 		std::string p_shader_name;
 
-		unsigned int loadShader(std::string source, unsigned int shadertype) throw();
-		void shaderLog(unsigned int shader, unsigned int type) throw();
-		void programLog(int program, unsigned int type) throw();
+		unsigned int loadShader(std::string source, unsigned int shadertype);
+		void shaderLog(unsigned int shader, unsigned int type);
+		void programLog(int program, unsigned int type);
 
 	public:
 		Shader(std::string name = "default_shader");
 
-		void load(std::string compute_shader_source) throw();
-		void load(std::string vertex_shader_source, std::string fragment_shader_source) throw();
-		void load(std::string vertex_shader_source, std::string fragment_shader_source, std::string geometry_shader_source) throw();
+		void load(std::string compute_shader_source);
+		void load(std::string vertex_shader_source, std::string fragment_shader_source);
+		void load(std::string vertex_shader_source, std::string fragment_shader_source, std::string geometry_shader_source);
 		
 		void bind();
 		void unbind();

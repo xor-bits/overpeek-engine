@@ -14,7 +14,7 @@ namespace oe {
 		p_components_per_vertex = components_per_vertex;
 	}
 
-	void VertexBuffer::attrib(int index, int components, int startBytes) {
+	void VertexBuffer::attrib(int index, int components, size_t startBytes) {
 		glEnableVertexAttribArray(index);
 		glVertexAttribPointer(index, components, GL_FLOAT, false, p_components_per_vertex * sizeof(float), (void*)startBytes);
 	}

@@ -15,7 +15,7 @@
 
 namespace oe {
 	
-	static class Window {
+	class Window {
 	private:
 		//Variables
 		static int p_width, p_height;

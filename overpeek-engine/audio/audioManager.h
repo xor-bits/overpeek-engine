@@ -4,7 +4,7 @@
 
 namespace oe {
 
-	static class AudioManager {
+	class AudioManager {
 	public:
 		static int init();
 	};

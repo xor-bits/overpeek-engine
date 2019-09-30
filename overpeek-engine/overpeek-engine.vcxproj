@@ -282,9 +282,6 @@
     <None Include="shaders\postprocess.vert.glsl" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FastNoiseSIMD\FastNoiseSIMD.vcxproj">
-      <Project>{466ecfcc-531c-4ca1-b91b-f02e45dc1000}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
