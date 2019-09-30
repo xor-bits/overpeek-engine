@@ -6,12 +6,7 @@
 #include <stb_image.h>
 #include <GL/glew.h>
 
-#define USING_OPENCV 0
-#if USING_OPENCV
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/opencv.hpp>
-#endif
+
 
 namespace oe {
 
@@ -21,9 +16,7 @@ namespace oe {
 		int width, height, nrChannels;
 		GLubyte *tmpdata = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
 		if (!tmpdata) {
-			oe::Logger::out("Image couldn't be loaded at path (", path.c_str(), ")", oe::error);
-			system("pause");
-			exit(-1);
+			oe::Logger::error("Image couldn't be loaded at path (" + path + ")");
 		}
 
 		unsigned int texture;
@@ -50,9 +43,7 @@ namespace oe {
 		int width, height, nrChannels;
 		GLubyte *tmpdata = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
 		if (!tmpdata) {
-			oe::Logger::out("Image couldn't be loaded at path (", path.c_str(), ")", oe::error);
-			system("pause");
-			exit(-1);
+			oe::Logger::error("Image couldn't be loaded at path (" + path + ")");
 		}
 		//1 048 576
 		//1 048 575
@@ -96,18 +87,6 @@ namespace oe {
 
 	unsigned int TextureManager::getTexture(int id) {
 		return mTextures[id];
-	}
-
-	void TextureManager::saveTexture(std::string path, unsigned char *data, int width, int height, bool preview) {
-#if USING_OPENCV
-		cv::Mat image(height, width, CV_8UC3, data);
-		cv::cvtColor(image, image, CV_RGB2BGR);
-		cv::imwrite((std::string)"./mandelbrot" + std::to_string(time(0)) + (std::string)".png", image);
-
-		if (!preview) return;
-		cv::namedWindow("Preview", cv::WINDOW_AUTOSIZE);
-		cv::imshow("Preview", image);
-#endif
 	}
 
 }

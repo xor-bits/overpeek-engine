@@ -3,28 +3,38 @@
 namespace oe {
 
 	class Buffer {
-	private:
-		unsigned int mID;
-		unsigned int mComponentCount;
+	protected:
+		unsigned int p_id;
+		size_t p_size;
+		int p_target;
+
+		// size_t size (in bytes)
+		Buffer(const void* data, size_t size, int target, unsigned int usage);
 
 	public:
-		/*
-		- "count" means all of the objects in the array
-		- "componentCount" is amount of components per vertex
-		- "componentSize" is the size of one object in bytes
-		- "usage" is either GL_STATIC_DRAW or GL_DYNAMIC_DRAW
-		*/
-		Buffer(const void *data, int count, unsigned int componentCount, int componentSize, unsigned int usage);
 		~Buffer();
+		
+		// Binding
 
-		void bind();
-		void unbind();
+		virtual void bind();
+		virtual void unbind();
+		void test(int ...);
 
-		void setBufferData(const void *data, unsigned int count, unsigned int componentCount, int componentSize);
-		void *mapBuffer();
-		void unmapBuffer();
+		
+		
+		// Data
 
-		inline unsigned int getComponentCount() { return mComponentCount; }
+		virtual void* mapBuffer();
+		virtual void unmapBuffer();
+		virtual void setBufferData(const void* data, size_t size);
+
+
+
+		// Getters/setters
+		
+		inline size_t getSize() { return p_size; }
+		inline size_t getId() { return p_id; }
+		inline size_t getTarget() { return p_target; }
 	};
 
 }

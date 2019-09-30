@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../graphics/window.h"
-
 namespace oe {
 
 	class GameLoop {
@@ -26,8 +24,6 @@ namespace oe {
 		short int m_microsec_frame;
 		short int m_microsec_update;
 
-		Window *m_window;
-
 		void loop();
 
 	public:
@@ -38,7 +34,7 @@ namespace oe {
 		//
 		//Update loop:
 		//Example of calculating position "loaction = velocity / ups"
-		GameLoop(void(*callbackRender)(float), void(*callbackUpdate)(), unsigned int updates_per_second, Window *window);
+		GameLoop(void(*callbackRender)(float), void(*callbackUpdate)(), unsigned int updates_per_second);
 
 		void start();
 		void stop();

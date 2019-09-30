@@ -4,7 +4,7 @@
 
 namespace oe {
 
-	GameLoop::GameLoop(void(*callbackRender)(float), void(*callbackUpdate)(), unsigned int updates_per_second, Window *window) {
+	GameLoop::GameLoop(void(*callbackRender)(float), void(*callbackUpdate)(), unsigned int updates_per_second) {
 		m_upsCap = 1000000 / updates_per_second;
 		m_frame_lastTime = 0.0;
 		m_frame_startTime = oe::Clock::getMicroseconds();
@@ -15,14 +15,11 @@ namespace oe {
 		m_update_start = oe::Clock::getMicroseconds();
 		m_update_previous = m_update_start;
 		m_update_lag = 0;
-
-		m_window = window;
 	}
 
 	void GameLoop::start() {
 		while (mShouldRun) {
 			loop();
-			if (m_window->close()) stop();
 		}
 	}
 
@@ -33,9 +30,6 @@ namespace oe {
 		long long elapsed = current - m_update_previous;
 		m_update_previous = current;
 		m_update_lag += elapsed;
-		
-		//Input
-		//m_window->input();
 
 		//Updates
 		while (m_update_lag >= m_upsCap) {
@@ -54,6 +48,7 @@ namespace oe {
 		//m_window->clear();
 		mCallbackRender((float)m_update_lag / (float)m_upsCap);
 		//m_window->update();
+		//m_window->input();
 
 		m_microsec_frame = oe::Clock::getMicroseconds() - timeframe;
 

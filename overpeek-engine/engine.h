@@ -14,9 +14,6 @@
 
 #include "audio/audioManager.h"
 
-#include "../FastNoiseSIMD/FastNoise.h"
-#include "../FastNoiseSIMD/FastNoiseSIMD/FastNoiseSIMD.h"
-
 #include "utility/clock.h"
 #include "utility/random.h"
 #include "utility/binaryIO.h"
@@ -172,17 +169,9 @@
 #define OE_KEY_RIGHT_SUPER        347
 #define OE_KEY_MENU               348
 
-/*! @brief If this bit is set one or more Shift keys were held down.
- */
 #define OE_MOD_SHIFT           0x0001
- /*! @brief If this bit is set one or more Control keys were held down.
-  */
 #define OE_MOD_CONTROL         0x0002
-  /*! @brief If this bit is set one or more Alt keys were held down.
-   */
 #define OE_MOD_ALT             0x0004
-   /*! @brief If this bit is set one or more Super keys were held down.
-	*/
 #define OE_MOD_SUPER           0x0008
 
 //Mouse buttons
@@ -218,18 +207,7 @@
 #define OE_JOYSTICK_16            15
 #define OE_JOYSTICK_LAST          OE_JOYSTICK_16
 
+//Presstypes
 #define OE_RELEASE                0
-/*! @brief The key or mouse button was pressed.
- *
- *  The key or mouse button was pressed.
- *
- *  @ingroup input
- */
 #define OE_PRESS                  1
- /*! @brief The key was held down until it repeated.
-  *
-  *  The key was held down until it repeated.
-  *
-  *  @ingroup input
-  */
 #define OE_REPEAT                 2

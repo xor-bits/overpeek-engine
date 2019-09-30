@@ -10,9 +10,10 @@ namespace oe {
 
 	public:
 		static void startTimer();
-		static long long getTimer();
+		static int getTimer();
 		static void printTimer();
 		static void printTimer(std::string text);
+		static void testGLErrors(std::string errortext);
 	};
 
 }

@@ -1,22 +1,12 @@
 #pragma once
 
+#include "buffer.h"
+
 namespace oe {
 
-	class IndexBuffer {
-	private:
-		unsigned int mID;
-		unsigned int mCount;
-
+	class IndexBuffer : public Buffer {
 	public:
-		IndexBuffer(unsigned short int *data, int count, unsigned int usage);
-		~IndexBuffer();
-
-		void bind();
-		void unbind();
-
-		void setBufferData(const void *data, int count);
-
-		inline unsigned int getCount() { return mCount; }
+		IndexBuffer(unsigned short int *data, size_t size, int buffer_type);
 	};
 
 }

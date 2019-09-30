@@ -1,6 +1,9 @@
 #include "debug.h"
 #include "logger.h"
 #include "clock.h"
+#include "../graphics/window.h"
+
+#include <string>
 
 namespace oe {
 
@@ -10,15 +13,19 @@ namespace oe {
 		m_passed_time = oe::Clock::getMicroseconds();
 	}
 
-	long long Debug::getTimer() {
+	int Debug::getTimer() {
 		return oe::Clock::getMicroseconds() - m_passed_time;
 	}
 
 	void Debug::printTimer() {
-		oe::Logger::out("Passed time in microseconds: ", getTimer(), oe::info);
+		oe::Logger::info("Passed time in microseconds: " + std::to_string(getTimer()));
 	}
 
 	void Debug::printTimer(std::string text) {
-		oe::Logger::out(text.c_str(), getTimer(), oe::info);
+		oe::Logger::info(text + std::to_string(getTimer()));
+	}
+
+	void Debug::testGLErrors(std::string errortext) {
+		oe::Logger::debug(errortext + " : " + std::to_string(oe::Window::checkGLErrors()));
 	}
 }
