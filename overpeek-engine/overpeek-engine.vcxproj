@@ -88,7 +88,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(SolutionDir)\Libraries\al\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\spdlog\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\dependencies\al\include;$(ProjectDir)\dependencies\FreeType\include;$(ProjectDir)\dependencies\GLFW\include;$(ProjectDir)\dependencies\GLEW\include;$(ProjectDir)\dependencies\stb-master;$(ProjectDir)\dependencies\glm</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -100,7 +100,7 @@
     </Link>
     <Lib>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)Libraries\zlib\lib;$(SolutionDir)Libraries\FreeType\lib;$(SolutionDir)Libraries\GLFW\lib;$(SolutionDir)Libraries\GLEW\lib;$(SolutionDir)Libraries\al\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)\dependencies\FreeType\lib;$(ProjectDir)\dependencies\GLFW\lib;$(ProjectDir)\dependencies\GLEW\lib;$(ProjectDir)\dependencies\al\lib</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
     </Lib>
     <ProjectReference />
@@ -111,7 +111,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(SolutionDir)\Libraries\al\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\spdlog\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\dependencies\al\include;$(ProjectDir)\dependencies\FreeType\include;$(ProjectDir)\dependencies\GLFW\include;$(ProjectDir)\dependencies\GLEW\include;$(ProjectDir)\dependencies\stb-master;$(ProjectDir)\dependencies\glm</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -123,7 +123,7 @@
     </Link>
     <Lib>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)Libraries\zlib\lib;$(SolutionDir)Libraries\FreeType\lib;$(SolutionDir)Libraries\GLFW\lib;$(SolutionDir)Libraries\GLEW\lib;$(SolutionDir)Libraries\al\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)\dependencies\FreeType\lib;$(ProjectDir)\dependencies\GLFW\lib;$(ProjectDir)\dependencies\GLEW\lib;$(ProjectDir)\dependencies\al\lib</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
     </Lib>
     <ProjectReference />
@@ -134,7 +134,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(SolutionDir)\Libraries\al\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\glm;$(SolutionDir)\Libraries\spdlog\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\dependencies\al\include;$(ProjectDir)\dependencies\FreeType\include;$(ProjectDir)\dependencies\GLFW\include;$(ProjectDir)\dependencies\GLEW\include;$(ProjectDir)\dependencies\stb-master;$(ProjectDir)\dependencies\glm</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -152,13 +152,13 @@
     <ProjectReference />
     <Lib>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)Libraries\zlib\lib;$(SolutionDir)Libraries\FreeType\lib;$(SolutionDir)Libraries\GLFW\lib;$(SolutionDir)Libraries\GLEW\lib;$(SolutionDir)Libraries\al\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)\dependencies\FreeType\lib;$(ProjectDir)\dependencies\GLFW\lib;$(ProjectDir)\dependencies\GLEW\lib;$(ProjectDir)\dependencies\al\lib</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PreprocessorDefinitions>GLEW_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\Libraries\al\include;$(SolutionDir)Libraries\FreeType\include;$(SolutionDir)\Libraries\GLFW\include;$(SolutionDir)\Libraries\GLEW\include;$(SolutionDir)\Libraries\stb-master;$(SolutionDir)\Libraries\glm</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\dependencies\al\include;$(ProjectDir)\dependencies\FreeType\include;$(ProjectDir)\dependencies\GLFW\include;$(ProjectDir)\dependencies\GLEW\include;$(ProjectDir)\dependencies\stb-master;$(ProjectDir)\dependencies\glm</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -175,7 +175,7 @@
     <ProjectReference />
     <Lib>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)Libraries\zlib\lib;$(SolutionDir)Libraries\FreeType\lib;$(SolutionDir)Libraries\GLFW\lib;$(SolutionDir)Libraries\GLEW\lib;$(SolutionDir)Libraries\al\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)\dependencies\FreeType\lib;$(ProjectDir)\dependencies\GLFW\lib;$(ProjectDir)\dependencies\GLEW\lib;$(ProjectDir)\dependencies\al\lib</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
