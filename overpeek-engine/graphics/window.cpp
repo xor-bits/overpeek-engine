@@ -35,7 +35,7 @@ namespace oe {
 	void(*Window::m_resize_callback)(int, int);
 	void(*Window::m_charmods_callback)(unsigned int, int);
 
-	int Window::init(unsigned int width, unsigned int height, const char *title, int mods)
+	int Window::init(unsigned int width, unsigned int height, std::string title, int mods)
 	{
 		p_width = width; p_height = height;
 
@@ -71,9 +71,9 @@ namespace oe {
 		glfwWindowHint(GLFW_DECORATED, !borderless);
 
 		if (fullscreen)
-			p_window = glfwCreateWindow(p_width, p_height, title, glfwGetPrimaryMonitor(), NULL);
+			p_window = glfwCreateWindow(p_width, p_height, title.c_str(), glfwGetPrimaryMonitor(), NULL);
 		else
-			p_window = glfwCreateWindow(p_width, p_height, title, NULL, NULL);
+			p_window = glfwCreateWindow(p_width, p_height, title.c_str(), NULL, NULL);
 		
 		if (!p_window) {
 			spdlog::error("Failed to create window!");
@@ -122,9 +122,9 @@ namespace oe {
 		else glfwSetInputMode((GLFWwindow*)p_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 
-	void Window::setIcon(const char *path) {
+	void Window::setIcon(std::string filename) {
 		int width, height, nrChannels;
-		GLubyte *data = stbi_load(path, &width, &height, &nrChannels, 0);
+		GLubyte *data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
 		GLFWimage icon; icon.height = height; icon.width = width; icon.pixels = data;
 		glfwSetWindowIcon((GLFWwindow*)p_window, 1, &icon);
 	}

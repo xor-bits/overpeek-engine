@@ -10,7 +10,7 @@ namespace oe {
 		unsigned int buffer_id;
 
 	public:
-		Audio(const char* filepath);
+		Audio(std::string filepath);
 
 		//Play audio at id
 		void play(glm::vec2 position = glm::vec2(0.0f, 0.0f));

@@ -45,7 +45,7 @@ namespace oe {
 		/*
 		mods	-	window modification flags prefixed with WINDOW_
 		*/
-		static int init(unsigned int width, unsigned int height, const char *title, int mods);
+		static int init(unsigned int width, unsigned int height, std::string title, int mods = NULL);
 
 		static bool shouldClose();
 		static void input();
@@ -63,7 +63,7 @@ namespace oe {
 
 		static void setClearColor(float r, float g, float b, float a);
 
-		static void setIcon(const char *path);
+		static void setIcon(std::string filename);
 
 		static void showCursor(bool show);
 		static void setCursorPos(double x, double y);

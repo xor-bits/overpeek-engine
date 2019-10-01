@@ -7,7 +7,7 @@
 
 namespace oe {
 
-	Audio::Audio(const char* filepath) {
+	Audio::Audio(std::string filepath) {
 		AudioManager::init();
 		int channels, sampleRate;
 		short* data;
