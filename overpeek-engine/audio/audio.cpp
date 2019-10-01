@@ -11,7 +11,7 @@ namespace oe {
 		AudioManager::init();
 		int channels, sampleRate;
 		short* data;
-		int size = stb_vorbis_decode_filename(filepath, &channels, &sampleRate, &data);
+		int size = stb_vorbis_decode_filename(filepath.c_str(), &channels, &sampleRate, &data);
 		if (size <= 0) {
 			spdlog::error("Failed to load audiofile \"{}\"", std::string(filepath));
 			return;
