@@ -4,27 +4,13 @@ namespace oe {
 
 	class GameLoop {
 	private:
-		void(*mCallbackRender)(float);
-		void(*mCallbackUpdate)();
-		long long m_upsCap;
-		bool mShouldRun = true;
+		static void(*p_callback_render)(float delta_frame);
+		static void(*p_callback_update)();
 
-		int m_fps, m_ups;
-		int m_frames, m_updates;
+		static int p_fps, p_ups;
+		static int p_microsec_frame, p_microsec_update;
 
-		long long m_update_start;
-		long long m_update_previous;
-		long long m_update_lag;
-
-		long long m_frame_lastTime;
-		long long m_frame_startTime;
-
-		long long m_counter;
-
-		short int m_microsec_frame;
-		short int m_microsec_update;
-
-		void loop();
+		static void loop();
 
 	public:
 		//Render loop:
@@ -34,19 +20,24 @@ namespace oe {
 		//
 		//Update loop:
 		//Example of calculating position "loaction = velocity / ups"
-		GameLoop();
+		//Also starts the gameloop
+		static void init(void(*callbackRender)(float), void(*callbackUpdate)(), unsigned int updates_per_second);
+		static void stop();
 
-		void start(void(*callbackRender)(float), void(*callbackUpdate)(), unsigned int updates_per_second);
-		void stop();
+		static inline int getFPS() { return p_fps; }
+		static inline int getUPS() { return p_ups; }
 
-		inline int getFPS() { return m_fps; }
-		inline int getUPS() { return m_ups; }
+		static inline int getMSPerFrame() { return p_microsec_frame; }
+		static inline int getMSPerUpdate() { return p_microsec_update; }
 
-		inline short int getFMS() { return m_microsec_frame; }
-		inline short int getUMS() { return m_microsec_update; }
-
-		int fastFPS() { if (getFMS() != 0) { return 1000000 / getFMS(); } else return 1; }
-		int fastUPS() { if (getUMS() != 0) { return 1000000 / getUMS(); } else return 1; }
+		static int getCalculatedFPS() {
+			int mspf = getMSPerFrame();
+			return (mspf != 0) ? (1000000 / mspf) : 0;
+		}
+		static int getCalculatedUPS() {
+			int mspu = getMSPerUpdate();
+			return (mspu != 0) ? (1000000 / mspu) : 0;
+		}
 	};
 
 }
