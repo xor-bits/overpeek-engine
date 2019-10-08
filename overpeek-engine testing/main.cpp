@@ -10,7 +10,6 @@
 
 oe::Shader* shader;
 oe::Renderer *renderer;
-oe::GameLoop *gameloop;
 
 float t = 0;
 void render(float corrector) {
@@ -28,19 +27,18 @@ void render(float corrector) {
 	
 	oe::Window::update();
 	oe::Window::input();
-	if (oe::Window::shouldClose()) gameloop->stop();
+	if (oe::Window::shouldClose()) oe::GameLoop::stop();
 }
 
 int n = 0;
 void update() {
-	if (n++%100==99) spdlog::info("FPS: " + std::to_string(gameloop->getFPS()));
+	if (n++%100==99) spdlog::info("FPS: " + std::to_string(oe::GameLoop::getFPS()));
 }
 
 int main() {
 	oe::init();
 
 	oe::Window::init(900, 600, "overpeek-engine", WINDOW_GL_DEBUG);
-	gameloop = new oe::GameLoop();
 	renderer = new oe::Renderer(oe::types::dynamicDraw, oe::types::staticDraw, 1, nullptr);
 	shader = new oe::SingleTextureShader();
 
@@ -56,12 +54,11 @@ int main() {
 	oe::Window::viewport();
 	
 	// start
-	gameloop->start(render, update, 100);
+	oe::GameLoop::init(render, update, 100);
 
 	// closing
 	oe::Window::close();
 	delete shader;
-	delete gameloop;
 	delete renderer;
 
 	return 0;

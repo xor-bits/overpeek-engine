@@ -22,7 +22,6 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{4E67B5EF-25F9-4248-9027-DF3CED549DA1}</ProjectGuid>
     <RootNamespace>My2DShooter</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>overpeek-engine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -93,6 +92,7 @@
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
       <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -104,6 +104,9 @@
       <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
     </Lib>
     <ProjectReference />
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -116,6 +119,7 @@
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
       <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -127,6 +131,9 @@
       <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
     </Lib>
     <ProjectReference />
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -154,6 +161,9 @@
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\dependencies\FreeType\lib;$(ProjectDir)\dependencies\GLFW\lib;$(ProjectDir)\dependencies\GLEW\lib;$(ProjectDir)\dependencies\al\lib</AdditionalLibraryDirectories>
     </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -177,10 +187,12 @@
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\dependencies\FreeType\lib;$(ProjectDir)\dependencies\GLFW\lib;$(ProjectDir)\dependencies\GLEW\lib;$(ProjectDir)\dependencies\al\lib</AdditionalLibraryDirectories>
     </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="audio\audio.cpp" />
-    <ClCompile Include="audio\audioManager.cpp" />
     <ClCompile Include="graphics\frameBuffer.cpp" />
     <ClCompile Include="graphics\buffers\indexBuffer.cpp" />
     <ClCompile Include="graphics\gl.cpp" />
@@ -188,7 +200,6 @@
     <ClCompile Include="graphics\buffers\vertexArray.cpp" />
     <ClCompile Include="graphics\buffers\buffer.cpp" />
     <ClCompile Include="graphics\renderer.cpp" />
-    <ClCompile Include="graphics\textureManager.cpp" />
     <ClCompile Include="graphics\shader.cpp" />
     <ClCompile Include="graphics\window.cpp" />
     <ClCompile Include="utility\filereader.cpp" />
@@ -201,7 +212,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio\audio.h" />
-    <ClInclude Include="audio\audioManager.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="graphics\assets\multiTextureShader.h" />
     <ClInclude Include="graphics\assets\singleTextureShader.h" />
@@ -212,7 +222,6 @@
     <ClInclude Include="graphics\buffers\vertexArray.h" />
     <ClInclude Include="graphics\buffers\buffer.h" />
     <ClInclude Include="graphics\renderer.h" />
-    <ClInclude Include="graphics\textureManager.h" />
     <ClInclude Include="graphics\shader.h" />
     <ClInclude Include="graphics\vertexData.h" />
     <ClInclude Include="graphics\window.h" />

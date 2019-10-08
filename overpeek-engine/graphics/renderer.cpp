@@ -119,7 +119,7 @@ namespace oe {
 		quad_count = 0;
 	}
 
-	void Renderer::draw(int quad_count) {
+	void Renderer::draw(int quad_count) const {
 		if (quad_count == -1) quad_count = max_quad_count;
 
 		//Binding

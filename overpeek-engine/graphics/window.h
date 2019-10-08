@@ -63,7 +63,7 @@ namespace oe {
 
 		static void setClearColor(float r, float g, float b, float a);
 
-		static void setIcon(std::string filename);
+		static void setIcon(unsigned char* icon, int width, int height);
 
 		static void showCursor(bool show);
 		static void setCursorPos(double x, double y);

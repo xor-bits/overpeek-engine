@@ -18,7 +18,6 @@ namespace oe {
 
 		virtual void bind();
 		virtual void unbind();
-		void test(int ...);
 
 		
 		
@@ -32,9 +31,9 @@ namespace oe {
 
 		// Getters/setters
 		
-		inline size_t getSize() { return p_size; }
-		inline size_t getId() { return p_id; }
-		inline size_t getTarget() { return p_target; }
+		inline size_t getSize() const { return p_size; }
+		inline size_t getId() const { return p_id; }
+		inline size_t getTarget() const { return p_target; }
 	};
 
 }

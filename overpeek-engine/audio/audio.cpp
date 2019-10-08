@@ -1,5 +1,4 @@
 #include "audio.h"
-#include "audioManager.h"
 
 #include <stb_vorbis.c>
 #include <al.h>
@@ -7,8 +6,31 @@
 
 namespace oe {
 
+	bool Audio::initialized = false;
+
+	int Audio::init() {
+		if (initialized) return 0;
+
+		spdlog::info("Opening audio device");
+		ALCdevice* device = alcOpenDevice(NULL);
+		if (device == NULL)
+		{
+			spdlog::error("Cannot open audio device");
+			return -1;
+		}
+		ALCcontext* context = alcCreateContext(device, NULL);
+		if (context == NULL)
+		{
+			spdlog::error("Cannot create OpenAL context");
+			return -2;
+		}
+		alcMakeContextCurrent(context);
+
+		spdlog::info("Audio init done");
+		return 0;
+	}
+
 	Audio::Audio(std::string filepath) {
-		AudioManager::init();
 		int channels, sampleRate;
 		short* data;
 		int size = stb_vorbis_decode_filename(filepath.c_str(), &channels, &sampleRate, &data);
@@ -34,7 +56,7 @@ namespace oe {
 		delete data;
 	}
 
-	void Audio::play(glm::vec2 position) {
+	void Audio::play(glm::vec2 position) const {
 		alSource3f(source_id, AL_POSITION, position.x, position.y, 0.0f);
 		alSourcePlay(source_id);
 	}

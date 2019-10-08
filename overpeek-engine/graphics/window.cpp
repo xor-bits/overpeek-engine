@@ -122,11 +122,10 @@ namespace oe {
 		else glfwSetInputMode((GLFWwindow*)p_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 
-	void Window::setIcon(std::string filename) {
-		int width, height, nrChannels;
-		GLubyte *data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
-		GLFWimage icon; icon.height = height; icon.width = width; icon.pixels = data;
-		glfwSetWindowIcon((GLFWwindow*)p_window, 1, &icon);
+	void Window::setIcon(unsigned char *icon, int width, int height) {
+		GLFWimage glfwicon; 
+		glfwicon.height = height; glfwicon.width = width; glfwicon.pixels = icon;
+		glfwSetWindowIcon((GLFWwindow*)p_window, 1, &glfwicon);
 	}
 
 	void Window::setClearColor(float r, float g, float b, float a) {

@@ -27,13 +27,7 @@
     <ClCompile Include="graphics\shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="graphics\textureManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="graphics\window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="audio\audioManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="utility\clock.cpp">
@@ -89,13 +83,7 @@
     <ClInclude Include="graphics\shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="graphics\textureManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="graphics\window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="audio\audioManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="graphics\renderer.h">

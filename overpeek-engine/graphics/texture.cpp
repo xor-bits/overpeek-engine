@@ -5,6 +5,11 @@
 namespace oe {
 
 	Texture::Texture() {
+		p_depth = 0;
+		p_width = 0;
+		p_height = 0;
+		p_target = 0;
+
 		glGenTextures(1, &p_id);
 		bind();
 	}
@@ -13,11 +18,11 @@ namespace oe {
 		glDeleteTextures(1, &p_id);
 	}
 
-	void Texture::bind() {
+	void Texture::bind() const {
 		glBindTexture(p_target, p_id);
 	}
 
-	void Texture::unbind() {
+	void Texture::unbind() const {
 		glBindTexture(p_target, 0);
 	}
 

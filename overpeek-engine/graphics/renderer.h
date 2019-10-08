@@ -29,7 +29,7 @@ namespace oe {
 		return (size * a.a);
 	}
 
-	enum types {
+	const enum types {
 		staticDraw, dynamicDraw
 	};
 
@@ -57,7 +57,7 @@ namespace oe {
 		void submit(glm::vec2 position, glm::vec2 size, int texture, glm::vec4 color, alignments alignment, float angle, int quad_index);
 
 		void clear();
-		void draw(int quad_count = -1);
+		void draw(int quad_count = -1) const;
 
 	};
 
