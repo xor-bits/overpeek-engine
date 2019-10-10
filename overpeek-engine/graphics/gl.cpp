@@ -26,6 +26,23 @@ namespace oe {
 		glPointSize(w);
 	}
 
+	void GL::setPolygonMode(int n) {
+		switch (n)
+		{
+		case 0:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			break;
+		case 1:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			break;
+		case 2:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+			break;
+		default:
+			break;
+		}
+	}
+
 	void GL::enableBlending() {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

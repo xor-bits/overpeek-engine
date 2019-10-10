@@ -42,6 +42,8 @@ int main() {
 	oe::init();
 
 	oe::Window::init(900, 600, "overpeek-engine", WINDOW_GL_DEBUG);
+	oe::Window::setClearColor(0.1f, 0.2f, 0.3f, 1.0f);
+	oe::GL::setPolygonMode(1);
 	renderer = new oe::Renderer(oe::types::dynamicDraw, oe::types::staticDraw, 4, nullptr);
 	shader = new oe::SingleTextureShader();
 
@@ -51,7 +53,6 @@ int main() {
 	shader->useTexture(false);
 
 	//oe::TextureManager::loadTextureAtlas("res/texture/atlas.png", 0, 16);
-	oe::Window::setClearColor(0.1f, 0.2f, 0.3f, 1.0f);
 	oe::GL::setBackFaceCulling(false);
 	oe::GL::setSwapInterval(0);
 	oe::FrameBuffer::unbind();

@@ -21,6 +21,9 @@ namespace oe {
 		static void setLineWidth(float w);
 		static void setPointRadius(float w);
 
+		/*0 - fill, 1 - lines, 2 - points*/
+		static void setPolygonMode(int n);
+
 		static std::string getRenderer();
 		static std::string getVendor();
 
