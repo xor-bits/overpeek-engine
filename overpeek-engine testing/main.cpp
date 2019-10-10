@@ -14,7 +14,7 @@ oe::Renderer *renderer;
 float t = 0;
 void render(float corrector) {
 	oe::Window::clear();
-	t += 0.001f;
+	t += oe::GameLoop::getFrameUpdateScale();
 
 	// quad
 	renderer->clear();
@@ -23,7 +23,8 @@ void render(float corrector) {
 	renderer->submit(glm::vec2(-0.5f,  0.5f), glm::vec2(0.4f), 0, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), oe::centerCenter, t);
 	renderer->submit(glm::vec2( 0.5f,  0.5f), glm::vec2(0.4f), 0, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), oe::centerCenter, sin(t));
 	renderer->submit(glm::vec2( 0.5f, -0.5f), glm::vec2(0.4f), 0, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), oe::centerCenter, tan(t));
-	renderer->submit(glm::vec2(-0.5f, -0.5f), glm::vec2(0.4f), 0, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), oe::centerCenter, floor(t));
+	renderer->submit(glm::vec2(-0.5f, -0.5f), glm::vec2(0.4f), 0, glm::vec4(0.0f, 0.5f, 1.0f, 1.0f), oe::centerCenter, round(t));
+	renderer->submit(glm::vec2( 0.0f,  0.0f), glm::vec2(0.4f), 0, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), oe::centerCenter, t * 100.0f);
 	renderer->end();
 
 	renderer->draw();
@@ -41,10 +42,10 @@ void update() {
 int main() {
 	oe::init();
 
-	oe::Window::init(900, 600, "overpeek-engine", WINDOW_GL_DEBUG);
+	oe::Window::init(900, 600, "overpeek-engine", WINDOW_GL_DEBUG | WINDOW_MULTISAMPLE_X2);
 	oe::Window::setClearColor(0.1f, 0.2f, 0.3f, 1.0f);
-	oe::GL::setPolygonMode(1);
-	renderer = new oe::Renderer(oe::types::dynamicDraw, oe::types::staticDraw, 4, nullptr);
+	oe::GL::setPolygonMode(0);
+	renderer = new oe::Renderer(oe::types::dynamicDraw, oe::types::staticDraw, 5, nullptr);
 	shader = new oe::SingleTextureShader();
 
 	// pr matrix

@@ -30,6 +30,9 @@ namespace oe {
 		static inline int getMSPerFrame() { return p_microsec_frame; }
 		static inline int getMSPerUpdate() { return p_microsec_update; }
 
+		// If you dont want to use update loop to move objects
+		static inline float getFrameUpdateScale() { return 0.000001f * oe::GameLoop::getMSPerFrame(); }
+
 		static int getCalculatedFPS() {
 			int mspf = getMSPerFrame();
 			return (mspf != 0) ? (1000000 / mspf) : 0;
