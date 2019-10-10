@@ -142,11 +142,9 @@
       <PreprocessorDefinitions>GLEW_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(ProjectDir)\dependencies\al\include;$(ProjectDir)\dependencies\FreeType\include;$(ProjectDir)\dependencies\GLFW\include;$(ProjectDir)\dependencies\GLEW\include;$(ProjectDir)\dependencies\stb-master;$(ProjectDir)\dependencies\glm</AdditionalIncludeDirectories>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <Optimization>MaxSpeed</Optimization>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <Optimization>Disabled</Optimization>
       <OmitFramePointers />
       <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
@@ -169,11 +167,9 @@
     <ClCompile>
       <PreprocessorDefinitions>GLEW_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)\dependencies\al\include;$(ProjectDir)\dependencies\FreeType\include;$(ProjectDir)\dependencies\GLFW\include;$(ProjectDir)\dependencies\GLEW\include;$(ProjectDir)\dependencies\stb-master;$(ProjectDir)\dependencies\glm</AdditionalIncludeDirectories>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <Optimization>MaxSpeed</Optimization>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>

@@ -76,6 +76,7 @@ namespace oe {
 
 	void Renderer::submit(glm::vec2 position, glm::vec2 size, int texture, glm::vec4 color, alignments alignment, float angle) {
 		submit(position, size, texture, color, alignment, angle, buffer_pos);
+		buffer_pos += 4;
 	}
 
 	void Renderer::submit(glm::vec2 position, glm::vec2 size, int texture, glm::vec4 color, alignments alignment, float angle, int quad_index) {

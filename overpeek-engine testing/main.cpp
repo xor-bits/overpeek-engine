@@ -8,7 +8,7 @@
 
 
 
-oe::Shader* shader;
+oe::SingleTextureShader* shader;
 oe::Renderer *renderer;
 
 float t = 0;
@@ -20,7 +20,10 @@ void render(float corrector) {
 	renderer->clear();
 
 	renderer->begin();
-	renderer->submit(glm::vec2(-0.5f, -0.5f), glm::vec2(1.0f, 1.0f), 0, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), oe::centerCenter, t);
+	renderer->submit(glm::vec2(-0.5f,  0.5f), glm::vec2(0.4f), 0, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), oe::centerCenter, t);
+	renderer->submit(glm::vec2( 0.5f,  0.5f), glm::vec2(0.4f), 0, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), oe::centerCenter, sin(t));
+	renderer->submit(glm::vec2( 0.5f, -0.5f), glm::vec2(0.4f), 0, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), oe::centerCenter, tan(t));
+	renderer->submit(glm::vec2(-0.5f, -0.5f), glm::vec2(0.4f), 0, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), oe::centerCenter, floor(t));
 	renderer->end();
 
 	renderer->draw();
@@ -39,15 +42,16 @@ int main() {
 	oe::init();
 
 	oe::Window::init(900, 600, "overpeek-engine", WINDOW_GL_DEBUG);
-	renderer = new oe::Renderer(oe::types::dynamicDraw, oe::types::staticDraw, 1, nullptr);
+	renderer = new oe::Renderer(oe::types::dynamicDraw, oe::types::staticDraw, 4, nullptr);
 	shader = new oe::SingleTextureShader();
 
 	// pr matrix
 	glm::mat4 pr = glm::ortho(-oe::Window::getAspect(), oe::Window::getAspect(), 1.0f, -1.0f);
-	shader->setUniformMat4("pr_matrix", pr);
+	shader->projectionMatrix(pr);
+	shader->useTexture(false);
 
 	//oe::TextureManager::loadTextureAtlas("res/texture/atlas.png", 0, 16);
-	oe::Window::setClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+	oe::Window::setClearColor(0.1f, 0.2f, 0.3f, 1.0f);
 	oe::GL::setBackFaceCulling(false);
 	oe::GL::setSwapInterval(0);
 	oe::FrameBuffer::unbind();
