@@ -34,7 +34,7 @@ namespace oe {
 				"}\n";
 
 			std::string fragsource = std::string() +
-				"\n" +
+				"#version 330 core\n\n" +
 				"in vec2 shader_uv;\n" +
 				"in vec4 shader_color;\n" +
 				"flat in int shader_id;\n" +
