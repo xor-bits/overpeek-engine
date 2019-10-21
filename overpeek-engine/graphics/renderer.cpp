@@ -42,8 +42,8 @@ namespace oe {
 
 		// Shader buffers and attributes
 		vao = new VertexArray();
-		ibo = new IndexBuffer(ib, max_indices, indexRenderType);
-		vbo = new VertexBuffer(vb, (size_t)max_vertices * (size_t)VertexData::component_count, VertexData::component_count, arrayRenderType);
+		ibo = new IndexBuffer(ib, max_indices * sizeof(unsigned short), indexRenderType);
+		vbo = new VertexBuffer(vb, (size_t)max_vertices * (size_t)VertexData::component_count * sizeof(float), VertexData::component_count, arrayRenderType);
 		VertexData::configVBO(vbo);
 	}
 
