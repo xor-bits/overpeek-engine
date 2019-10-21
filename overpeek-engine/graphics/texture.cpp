@@ -26,6 +26,10 @@ namespace oe {
 		glBindTexture(p_target, 0);
 	}
 
+	void Texture::load2D(image_data data) {
+		load2D(data.data, data.width, data.height);
+	}
+
 	void Texture::load2D(void* data, int width, int height) {
 		p_target = GL_TEXTURE_2D;
 

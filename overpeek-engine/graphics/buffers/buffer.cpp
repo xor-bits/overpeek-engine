@@ -1,5 +1,8 @@
 #include "buffer.h"
 
+#include <iomanip>
+#include <sstream>
+
 #include <GL/glew.h>
 #include "../window.h"
 #include "../../utility/debug.h"
@@ -14,7 +17,8 @@ namespace oe {
 
 		glGenBuffers(1, &p_id);
 		bind();
-		glBufferData(target, size * sizeof(float), data, usage);
+
+		glBufferData(target, size, data, usage);
 	}
 
 	Buffer::~Buffer() {

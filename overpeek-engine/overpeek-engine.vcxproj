@@ -23,6 +23,7 @@
     <ProjectGuid>{4E67B5EF-25F9-4248-9027-DF3CED549DA1}</ProjectGuid>
     <RootNamespace>My2DShooter</RootNamespace>
     <ProjectName>overpeek-engine</ProjectName>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -93,6 +94,7 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -118,6 +120,7 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -143,6 +146,7 @@
       <Optimization>Disabled</Optimization>
       <OmitFramePointers />
       <WholeProgramOptimization>true</WholeProgramOptimization>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -165,6 +169,7 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>true</WholeProgramOptimization>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

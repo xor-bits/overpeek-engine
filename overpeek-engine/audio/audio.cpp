@@ -1,6 +1,5 @@
 #include "audio.h"
 
-#include <stb_vorbis.c>
 #include <al.h>
 #include <alc.h>
 
@@ -30,30 +29,11 @@ namespace oe {
 		return 0;
 	}
 
-	Audio::Audio(std::string filepath) {
-		int channels, sampleRate;
-		short* data;
-		int size = stb_vorbis_decode_filename(filepath.c_str(), &channels, &sampleRate, &data);
-		if (size <= 0) {
-			spdlog::error("Failed to load audiofile \"{}\"", std::string(filepath));
-			return;
-		}
-
-		// Format
-		int format = -1;
-		if (channels == 1) {
-			format = AL_FORMAT_MONO16;
-		}
-		else if (channels == 2) {
-			format = AL_FORMAT_STEREO16;
-		}
-
+	Audio::Audio(audio_data audio) {
 		alGenBuffers(1, &buffer_id);
-		alBufferData(buffer_id, format, data, size, sampleRate);
+		alBufferData(buffer_id, audio.format, audio.data, audio.size, audio.sample_rate);
 		alGenSources(1, &source_id);
 		alSourcei(source_id, AL_BUFFER, buffer_id);
-
-		delete data;
 	}
 
 	void Audio::play(glm::vec2 position) const {
