@@ -20,9 +20,12 @@ namespace oe {
 
 		void bind() const;
 		void unbind() const;
-
+		
+		// Format RGBA
 		void load2D(image_data data);
+		// Format RGBA
 		void load2D(void *data, int width, int height);
+		// Format RGBA
 		void load3D(void *data, int width, int height, int depth);
 		void computeShaderBuffer(int width, int height);
 

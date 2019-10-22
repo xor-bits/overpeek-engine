@@ -3,7 +3,7 @@
 #include "../utility/clock.h"
 
 namespace oe {
-	void(*GameLoop::p_callback_render)(float delta_frame) = nullptr;
+	void(*GameLoop::p_callback_render)(float update_fraction) = nullptr;
 	void(*GameLoop::p_callback_update)() = nullptr;
 
 	int GameLoop::p_fps = 0, GameLoop::p_ups = 0;

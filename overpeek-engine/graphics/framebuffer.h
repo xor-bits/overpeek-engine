@@ -24,6 +24,7 @@ namespace oe {
 		void clear();
 		void clearColor(glm::vec4 c);
 
+		inline const Texture* getTexture() const { return p_texture; }
 		inline int getWidth() const { return p_width; }
 		inline int getHeight() const { return p_height; }
 		inline float getAspect() const { return (float)p_width / (float)p_height; }

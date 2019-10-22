@@ -4,7 +4,7 @@ namespace oe {
 
 	class GameLoop {
 	private:
-		static void(*p_callback_render)(float delta_frame);
+		static void(*p_callback_render)(float update_fraction);
 		static void(*p_callback_update)();
 
 		static int p_fps, p_ups;

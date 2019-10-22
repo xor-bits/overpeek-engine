@@ -186,9 +186,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="audio\audio.cpp" />
+    <ClCompile Include="graphics\text\font.cpp" />
     <ClCompile Include="graphics\frameBuffer.cpp" />
     <ClCompile Include="graphics\buffers\indexBuffer.cpp" />
     <ClCompile Include="graphics\gl.cpp" />
+    <ClCompile Include="graphics\text\textLabel.cpp" />
     <ClCompile Include="graphics\texture.cpp" />
     <ClCompile Include="graphics\buffers\vertexArray.cpp" />
     <ClCompile Include="graphics\buffers\buffer.cpp" />
@@ -206,8 +208,10 @@
   <ItemGroup>
     <ClInclude Include="audio\audio.h" />
     <ClInclude Include="engine.h" />
+    <ClInclude Include="graphics\text\font.h" />
     <ClInclude Include="graphics\assets\multiTextureShader.h" />
     <ClInclude Include="graphics\assets\singleTextureShader.h" />
+    <ClInclude Include="graphics\text\textLabel.h" />
     <ClInclude Include="graphics\framebuffer.h" />
     <ClInclude Include="graphics\buffers\indexBuffer.h" />
     <ClInclude Include="graphics\gl.h" />

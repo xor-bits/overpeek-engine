@@ -33,6 +33,8 @@ namespace oe {
 	void Texture::load2D(void* data, int width, int height) {
 		p_target = GL_TEXTURE_2D;
 
+		bind();
+
 		glTexParameteri(p_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(p_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(p_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -43,6 +45,8 @@ namespace oe {
 
 	void Texture::load3D(void* data, int width, int height, int depth) {
 		p_target = GL_TEXTURE_2D_ARRAY;
+
+		bind();
 
 		glTexParameteri(p_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(p_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -55,6 +59,8 @@ namespace oe {
 
 	void Texture::computeShaderBuffer(int width, int height) {
 		p_target = GL_TEXTURE_2D;
+
+		bind();
 
 		glTexParameteri(p_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(p_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

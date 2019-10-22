@@ -8,11 +8,16 @@
 #include "graphics/renderer.h"
 #include "graphics/gl.h"
 #include "graphics/framebuffer.h"
+#include "graphics/texture.h"
+#include "graphics/text/textLabel.h"
 
 // Logic
 #include "utility/gameloop.h"
+#include "utility/math.h"
 
 // Other
+#include "graphics/assets/multiTextureShader.h"
+#include "graphics/assets/singleTextureShader.h"
 #include "../overpeek-engine/utility/filereader.h"
 
 
