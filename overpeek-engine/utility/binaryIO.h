@@ -17,7 +17,7 @@ namespace oe {
 			fclose(pFile);
 		}
 
-		template<typename T> static void* read(std::string name, unsigned long &lenght) {
+		template<typename T> static void* read(std::string name, size_t &lenght) {
 			FILE *pFile;
 			//long lSize;
 			T *buffer;
