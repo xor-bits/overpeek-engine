@@ -24,15 +24,19 @@ namespace oe {
 			return;
 		}
 
-		//					char							r, g, b, a
-		size_t data_size = 256 * resolution * resolution * 4;
+		//												  r, g, b, a
+		size_t data_per_glyph = resolution * resolution * 4;
+		size_t data_size = CHAR_COUNT * data_per_glyph;
 		unsigned char* data = new unsigned char[data_size];
 		//memset(data, (unsigned char)0, data_size); // clear to 0
+
+		bb_max_height = 0;
+		bb_min_height = 0;
 
 		FT_Set_Pixel_Sizes(face, 0, resolution);
 		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
 
-		for (int i = 0; i < 256; i++) {
+		for (int i = 0; i < CHAR_COUNT; i++) {
 			unsigned char c = i;
 
 			//Load glyph
@@ -49,10 +53,18 @@ namespace oe {
 			Glyph* glyph = new Glyph{
 				c,
 				glm::vec2(g->bitmap.width, g->bitmap.rows) / (float)m_resolution,
-				glm::vec2(g->bitmap_left,  g->bitmap_top) / (float)m_resolution,
+				glm::vec2(g->bitmap_left, -g->bitmap_top) / (float)m_resolution,
 				glm::vec2(g->advance.x >> 6, g->advance.y >> 6) / (float)m_resolution
 			};
 			m_glyphs[c] = glyph;
+
+			// find the max bearing y
+			float bearing_y = -glyph->top_left.y;
+			if (bb_max_height < bearing_y) bb_max_height = bearing_y;
+
+			// find the lowest point
+			float lowest_y = (glyph->top_left.y + glyph->size.y);
+			if (bb_min_height > lowest_y) bb_min_height = lowest_y;
 
 			//WHITE FRONT FONT
 			for (int y = 0; y < g->bitmap.rows; y++)
@@ -68,10 +80,13 @@ namespace oe {
 				}
 			}
 		}
+		
+		// set glyph at 1 to white box
+		memset(data + data_per_glyph, 255, data_per_glyph);
 
 		// instead of nullptr for some characters
 		// do something
-		for (int i = 0; i < 256; i++) {
+		for (int i = 0; i < CHAR_COUNT; i++) {
 			if (!m_glyphs[i]) {
 				m_glyphs[i] = new Glyph{
 					(unsigned char)i,
@@ -80,7 +95,6 @@ namespace oe {
 					glm::vec2(0.0f)
 				};
 			}
-			
 		}
 		// whitespace
 		m_glyphs[32] = new Glyph{
@@ -90,9 +104,11 @@ namespace oe {
 			glm::vec2(0.3f)
 		};
 
+		bb_height = bb_max_height - bb_min_height;
+		spdlog::debug("bb_max_height: {}, bb_min_height: {}, bb_height: {}", bb_max_height, bb_min_height, bb_height);
 
 		m_glyph_texture = Texture();
-		m_glyph_texture.load3D(data, resolution, resolution, 256);
+		m_glyph_texture.load3D(data, resolution, resolution, CHAR_COUNT);
 
 		FT_Done_Face(face);
 		FT_Done_FreeType(ft);

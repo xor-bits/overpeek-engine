@@ -64,7 +64,7 @@ namespace oe {
 
 		static void setClearColor(float r, float g, float b, float a);
 
-		static void setIcon(const image_data& const image);
+		static void setIcon(const image_data& image);
 
 		static void showCursor(bool show);
 		static void setCursorPos(double x, double y);

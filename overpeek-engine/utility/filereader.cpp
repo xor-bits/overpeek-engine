@@ -27,7 +27,7 @@ namespace oe {
 		return buffer.str();
 	}
 
-	void saveImage(std::filesystem::path path, const image_data& const image) {
+	void saveImage(std::filesystem::path path, const image_data& image) {
 		stbi_write_png(path.string().c_str(), image.width, image.height, image.channels, image.data, image.width * image.channels * sizeof(char));
 	}
 
@@ -40,7 +40,7 @@ namespace oe {
 			return image_data();
 		}
 
-		return image_data { image, width, height, channels };
+		return image_data { image, (size_t)width, (size_t)height, (size_t)channels };
 	}
 
 	const audio_data loadAudio(std::filesystem::path path) {
@@ -62,14 +62,14 @@ namespace oe {
 			format = AL_FORMAT_STEREO16;
 		}
 
-		return audio_data { data, size, format, channels, sampleRate };
+		return audio_data { data, (size_t)size, (size_t)format, (size_t)channels, (size_t)sampleRate };
 	}
 
-	void freeImage(const image_data& const image) {
+	void freeImage(const image_data& image) {
 		stbi_image_free(image.data);
 	}
 
-	void freeAudio(const audio_data& const audio) {
+	void freeAudio(const audio_data& audio) {
 		free(audio.data);
 	}
 

@@ -8,6 +8,8 @@
 
 
 
+#define CHAR_COUNT 128
+
 namespace oe {
 
 	class Font {
@@ -23,6 +25,10 @@ namespace oe {
 		Texture m_glyph_texture;
 		Glyph* m_glyphs[256];
 		int m_resolution;
+
+		float bb_max_height;
+		float bb_min_height;
+		float bb_height;
 	
 	public:
 		Font(int resolution = 64, std::string font_path = "calibri.ttf");

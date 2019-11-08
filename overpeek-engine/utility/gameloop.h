@@ -27,7 +27,9 @@ namespace oe {
 		static inline int getFPS() { return p_fps; }
 		static inline int getUPS() { return p_ups; }
 
+		// NOTE: microseconds not milliseconds
 		static inline int getMSPerFrame() { return p_microsec_frame; }
+		// NOTE: microseconds not milliseconds
 		static inline int getMSPerUpdate() { return p_microsec_update; }
 
 		// If you dont want to use update loop to move objects

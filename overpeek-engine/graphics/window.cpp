@@ -122,7 +122,7 @@ namespace oe {
 		else glfwSetInputMode((GLFWwindow*)p_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 
-	void Window::setIcon(const image_data& const image) {
+	void Window::setIcon(const image_data& image) {
 		GLFWimage glfwicon; 
 		glfwicon.height = image.height; glfwicon.width = image.width; glfwicon.pixels = image.data;
 		glfwSetWindowIcon((GLFWwindow*)p_window, 1, &glfwicon);

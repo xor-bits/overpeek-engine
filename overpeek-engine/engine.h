@@ -1,7 +1,5 @@
 #pragma once
 
-#define _CRT_SECURE_NO_WARNINGS
-
 // Graphics
 #include "graphics/window.h"
 #include "graphics/shader.h"
@@ -19,6 +17,7 @@
 #include "graphics/assets/multiTextureShader.h"
 #include "graphics/assets/singleTextureShader.h"
 #include "../overpeek-engine/utility/filereader.h"
+#include "graphics/textureManager.h"
 
 
 //Preset colors

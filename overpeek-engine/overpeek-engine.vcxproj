@@ -89,12 +89,13 @@
       <PreprocessorDefinitions>GLEW_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(ProjectDir)\dependencies\al\include;$(ProjectDir)\dependencies\FreeType\include;$(ProjectDir)\dependencies\GLFW\include;$(ProjectDir)\dependencies\GLEW\include;$(ProjectDir)\dependencies\stb-master;$(ProjectDir)\dependencies\glm</AdditionalIncludeDirectories>
-      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -115,12 +116,13 @@
       <PreprocessorDefinitions>GLEW_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(ProjectDir)\dependencies\al\include;$(ProjectDir)\dependencies\FreeType\include;$(ProjectDir)\dependencies\GLFW\include;$(ProjectDir)\dependencies\GLEW\include;$(ProjectDir)\dependencies\stb-master;$(ProjectDir)\dependencies\glm</AdditionalIncludeDirectories>
-      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -143,10 +145,11 @@
       <AdditionalIncludeDirectories>$(ProjectDir)\dependencies\al\include;$(ProjectDir)\dependencies\FreeType\include;$(ProjectDir)\dependencies\GLFW\include;$(ProjectDir)\dependencies\GLEW\include;$(ProjectDir)\dependencies\stb-master;$(ProjectDir)\dependencies\glm</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <OmitFramePointers />
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -167,9 +170,10 @@
       <AdditionalIncludeDirectories>$(ProjectDir)\dependencies\al\include;$(ProjectDir)\dependencies\FreeType\include;$(ProjectDir)\dependencies\GLFW\include;$(ProjectDir)\dependencies\GLEW\include;$(ProjectDir)\dependencies\stb-master;$(ProjectDir)\dependencies\glm</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -186,6 +190,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="audio\audio.cpp" />
+    <ClCompile Include="graphics\textureManager.cpp" />
     <ClCompile Include="graphics\text\font.cpp" />
     <ClCompile Include="graphics\frameBuffer.cpp" />
     <ClCompile Include="graphics\buffers\indexBuffer.cpp" />
@@ -208,6 +213,7 @@
   <ItemGroup>
     <ClInclude Include="audio\audio.h" />
     <ClInclude Include="engine.h" />
+    <ClInclude Include="graphics\textureManager.h" />
     <ClInclude Include="graphics\text\font.h" />
     <ClInclude Include="graphics\assets\multiTextureShader.h" />
     <ClInclude Include="graphics\assets\singleTextureShader.h" />
@@ -220,6 +226,7 @@
     <ClInclude Include="graphics\buffers\buffer.h" />
     <ClInclude Include="graphics\renderer.h" />
     <ClInclude Include="graphics\shader.h" />
+    <ClInclude Include="graphics\text\text.h" />
     <ClInclude Include="graphics\vertexData.h" />
     <ClInclude Include="graphics\window.h" />
     <ClInclude Include="internal_libs.h" />

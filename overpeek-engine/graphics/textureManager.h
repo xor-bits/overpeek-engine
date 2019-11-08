@@ -1,25 +1,42 @@
 #pragma once
 
-#include <map>
-#include <string>
+#include "../engine.h"
+#include <filesystem>
 
-#define MAX_TEXTURES 8
+
 
 namespace oe {
 
 	class TextureManager {
 	private:
-		static unsigned int mTextures[MAX_TEXTURES];
+		static unsigned char* m_textureBuffer;
+		static size_t m_textureBufferCurrent;
+		static size_t m_textureBufferSize;
+
+		static int m_r;
+		static Texture m_texture;
+		static size_t m_current_layer;
+
+		static Texture getTexture() {
+			return m_texture;
+		}
 
 	public:
-		//Format must be RGBA
-		static unsigned int loadTexture(std::string path, int id);
-		
-		//Format must be RGBA
-		//16x16 array of r*r sized textures
-		static unsigned int loadTextureAtlas(std::string path, int id, unsigned int r);
-		
-		static unsigned int getTexture(int id);
+		/*
+		 * 'wh' is width and height of all textures NOTE: All textures must be same size
+		 */
+		static void init(int wh);
+
+		static size_t coordsToIndex(size_t x, size_t y, size_t c, size_t width, size_t channels);
+		static void resize(size_t added_bytes);
+
+		// pair first = gl texture id
+		// pair second = texture count
+		typedef std::pair<size_t, size_t> multitexture;
+		static multitexture load(std::filesystem::path path);
+		static void finish();
+
+		static void bind();
 
 	};
 
