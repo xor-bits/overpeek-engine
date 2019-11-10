@@ -24,6 +24,7 @@ namespace oe {
 		/*0 - fill, 1 - lines, 2 - points*/
 		static void setPolygonMode(int n);
 
+		static std::string getVersion();
 		static std::string getRenderer();
 		static std::string getVendor();
 
