@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../utility/filereader.h"
 #include "../internal_libs.h"
 
 namespace oe {
@@ -14,7 +15,7 @@ namespace oe {
 	public:
 		static int init();
 
-		Audio(std::string filepath);
+		Audio(audio_data audio);
 
 		//Play audio at id
 		void play(glm::vec2 position = glm::vec2(0.0f, 0.0f)) const;

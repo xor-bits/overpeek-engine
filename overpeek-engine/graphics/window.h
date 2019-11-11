@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "../utility/filereader.h"
 #include "../internal_libs.h"
 
 #define WINDOW_MULTISAMPLE_X2	0b0000000000000001
@@ -63,7 +64,7 @@ namespace oe {
 
 		static void setClearColor(float r, float g, float b, float a);
 
-		static void setIcon(unsigned char* icon, int width, int height);
+		static void setIcon(const image_data& image);
 
 		static void showCursor(bool show);
 		static void setCursorPos(double x, double y);

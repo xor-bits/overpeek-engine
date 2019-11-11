@@ -122,9 +122,9 @@ namespace oe {
 		else glfwSetInputMode((GLFWwindow*)p_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 
-	void Window::setIcon(unsigned char *icon, int width, int height) {
+	void Window::setIcon(const image_data& image) {
 		GLFWimage glfwicon; 
-		glfwicon.height = height; glfwicon.width = width; glfwicon.pixels = icon;
+		glfwicon.height = image.height; glfwicon.width = image.width; glfwicon.pixels = image.data;
 		glfwSetWindowIcon((GLFWwindow*)p_window, 1, &glfwicon);
 	}
 
@@ -171,7 +171,7 @@ namespace oe {
 	void Window::cursor_position_callback(double xpos, double ypos)
 	{
 		xpos = map((double)xpos, (double)0.0, (double)p_width, (double)-getAspect(), (double)getAspect());
-		ypos = map((double)xpos, (double)0.0, (double)p_height, (double)-1.0, (double)1.0);
+		ypos = map((double)ypos, (double)0.0, (double)p_height, (double)-1.0, (double)1.0);
 		p_mouse = glm::vec2(xpos, ypos);
 	}
 

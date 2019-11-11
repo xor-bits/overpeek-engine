@@ -4,7 +4,7 @@ namespace oe {
 
 	class GameLoop {
 	private:
-		static void(*p_callback_render)(float delta_frame);
+		static void(*p_callback_render)(float update_fraction);
 		static void(*p_callback_update)();
 
 		static int p_fps, p_ups;
@@ -27,7 +27,9 @@ namespace oe {
 		static inline int getFPS() { return p_fps; }
 		static inline int getUPS() { return p_ups; }
 
+		// NOTE: microseconds not milliseconds
 		static inline int getMSPerFrame() { return p_microsec_frame; }
+		// NOTE: microseconds not milliseconds
 		static inline int getMSPerUpdate() { return p_microsec_update; }
 
 		// If you dont want to use update loop to move objects

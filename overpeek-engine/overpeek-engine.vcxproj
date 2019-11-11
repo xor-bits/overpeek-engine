@@ -23,6 +23,7 @@
     <ProjectGuid>{4E67B5EF-25F9-4248-9027-DF3CED549DA1}</ProjectGuid>
     <RootNamespace>My2DShooter</RootNamespace>
     <ProjectName>overpeek-engine</ProjectName>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -88,11 +89,13 @@
       <PreprocessorDefinitions>GLEW_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(ProjectDir)\dependencies\al\include;$(ProjectDir)\dependencies\FreeType\include;$(ProjectDir)\dependencies\GLFW\include;$(ProjectDir)\dependencies\GLEW\include;$(ProjectDir)\dependencies\stb-master;$(ProjectDir)\dependencies\glm</AdditionalIncludeDirectories>
-      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -104,9 +107,7 @@
       <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
     </Lib>
     <ProjectReference />
-    <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-    </ProjectReference>
+    <ProjectReference />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -115,11 +116,13 @@
       <PreprocessorDefinitions>GLEW_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(ProjectDir)\dependencies\al\include;$(ProjectDir)\dependencies\FreeType\include;$(ProjectDir)\dependencies\GLFW\include;$(ProjectDir)\dependencies\GLEW\include;$(ProjectDir)\dependencies\stb-master;$(ProjectDir)\dependencies\glm</AdditionalIncludeDirectories>
-      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -131,9 +134,7 @@
       <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
     </Lib>
     <ProjectReference />
-    <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-    </ProjectReference>
+    <ProjectReference />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -144,9 +145,11 @@
       <AdditionalIncludeDirectories>$(ProjectDir)\dependencies\al\include;$(ProjectDir)\dependencies\FreeType\include;$(ProjectDir)\dependencies\GLFW\include;$(ProjectDir)\dependencies\GLEW\include;$(ProjectDir)\dependencies\stb-master;$(ProjectDir)\dependencies\glm</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <OmitFramePointers />
       <WholeProgramOptimization>true</WholeProgramOptimization>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -159,9 +162,7 @@
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\dependencies\FreeType\lib;$(ProjectDir)\dependencies\GLFW\lib;$(ProjectDir)\dependencies\GLEW\lib;$(ProjectDir)\dependencies\al\lib</AdditionalLibraryDirectories>
     </Lib>
-    <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-    </ProjectReference>
+    <ProjectReference />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -169,8 +170,10 @@
       <AdditionalIncludeDirectories>$(ProjectDir)\dependencies\al\include;$(ProjectDir)\dependencies\FreeType\include;$(ProjectDir)\dependencies\GLFW\include;$(ProjectDir)\dependencies\GLEW\include;$(ProjectDir)\dependencies\stb-master;$(ProjectDir)\dependencies\glm</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <WholeProgramOptimization>true</WholeProgramOptimization>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -183,18 +186,16 @@
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;freetype.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\dependencies\FreeType\lib;$(ProjectDir)\dependencies\GLFW\lib;$(ProjectDir)\dependencies\GLEW\lib;$(ProjectDir)\dependencies\al\lib</AdditionalLibraryDirectories>
     </Lib>
-    <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-    </ProjectReference>
+    <ProjectReference />
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="audio\audio.cpp" />
-    <ClCompile Include="graphics\assets\basicPostprocessShader.cpp" />
-    <ClCompile Include="graphics\assets\multiTextureShader.cpp" />
-    <ClCompile Include="graphics\assets\singleTextureShader.cpp" />
+    <ClCompile Include="graphics\textureManager.cpp" />
+    <ClCompile Include="graphics\text\font.cpp" />
     <ClCompile Include="graphics\frameBuffer.cpp" />
     <ClCompile Include="graphics\buffers\indexBuffer.cpp" />
     <ClCompile Include="graphics\gl.cpp" />
+    <ClCompile Include="graphics\text\textLabel.cpp" />
     <ClCompile Include="graphics\texture.cpp" />
     <ClCompile Include="graphics\buffers\vertexArray.cpp" />
     <ClCompile Include="graphics\buffers\buffer.cpp" />
@@ -212,9 +213,11 @@
   <ItemGroup>
     <ClInclude Include="audio\audio.h" />
     <ClInclude Include="engine.h" />
-    <ClInclude Include="graphics\assets\basicPostprocessShader.h" />
+    <ClInclude Include="graphics\textureManager.h" />
+    <ClInclude Include="graphics\text\font.h" />
     <ClInclude Include="graphics\assets\multiTextureShader.h" />
     <ClInclude Include="graphics\assets\singleTextureShader.h" />
+    <ClInclude Include="graphics\text\textLabel.h" />
     <ClInclude Include="graphics\framebuffer.h" />
     <ClInclude Include="graphics\buffers\indexBuffer.h" />
     <ClInclude Include="graphics\gl.h" />
@@ -223,6 +226,7 @@
     <ClInclude Include="graphics\buffers\buffer.h" />
     <ClInclude Include="graphics\renderer.h" />
     <ClInclude Include="graphics\shader.h" />
+    <ClInclude Include="graphics\text\text.h" />
     <ClInclude Include="graphics\vertexData.h" />
     <ClInclude Include="graphics\window.h" />
     <ClInclude Include="internal_libs.h" />

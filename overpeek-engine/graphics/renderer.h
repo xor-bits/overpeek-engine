@@ -12,38 +12,49 @@
 
 namespace oe {
 
-	struct alignments
+	enum class alignment
 	{
-		glm::vec2 a;
+		top_left, center_left, bottom_left, top_center, center_center, bottom_center, top_right, center_right, bottom_right
 	};
-	static alignments topLeft		{ glm::vec2(0.0f, 0.0f) };
-	static alignments centerLeft	{ glm::vec2(0.0f, 0.5f) };
-	static alignments bottomLeft	{ glm::vec2(0.0f, 1.0f) };
-	static alignments topCenter		{ glm::vec2(0.5f, 0.0f) };
-	static alignments centerCenter	{ glm::vec2(0.5f, 0.5f) };
-	static alignments bottomCenter	{ glm::vec2(0.5f, 1.0f) };
-	static alignments topRight		{ glm::vec2(1.0f, 0.0f) };
-	static alignments centerRight	{ glm::vec2(1.0f, 0.5f) };
-	static alignments bottomRight	{ glm::vec2(1.0f, 1.0f) };
-	static glm::vec2 getAlignmentOffset(glm::vec2 size, alignments a) {
-		return (size * a.a);
+	static glm::vec2 alignmentOffset(const glm::vec2& size, alignment align) {
+		switch (align)
+		{
+		case oe::alignment::top_left:
+			return size * glm::vec2(0.0f, 0.0f);
+		case oe::alignment::center_left:
+			return size * glm::vec2(0.0f, 0.5f);
+		case oe::alignment::bottom_left:
+			return size * glm::vec2(0.0f, 1.0f);
+		case oe::alignment::top_center:
+			return size * glm::vec2(0.5f, 0.0f);
+		case oe::alignment::center_center:
+			return size * glm::vec2(0.5f, 0.5f);
+		case oe::alignment::bottom_center:
+			return size * glm::vec2(0.5f, 1.0f);
+		case oe::alignment::top_right:
+			return size * glm::vec2(1.0f, 0.0f);
+		case oe::alignment::center_right:
+			return size * glm::vec2(1.0f, 0.5f);
+		case oe::alignment::bottom_right:
+			return size * glm::vec2(1.0f, 1.0f);
+		}
 	}
 
 	const enum types {
-		staticDraw, dynamicDraw
+		staticrender, dynamicrender
 	};
 
 	/*Batched quad renderer*/
 	class Renderer {
 	private:
-		VertexArray *vao;
-		VertexBuffer *vbo;
-		IndexBuffer *ibo;
+		VertexArray * m_vao;
+		VertexBuffer * m_vbo;
+		IndexBuffer * m_ibo;
 
-		int max_quad_count;
-		int quad_count;
-		VertexData *mapped_buffer;
-		int buffer_pos;
+		int m_max_quad_count;
+		int m_quad_count;
+		VertexData * m_mapped_buffer;
+		int m_buffer_pos;
 
 	public:
 		Renderer(types arrayRenderType, types indexRenderType, int max_quad_count, void* staticVBOBuffer_data = nullptr);
@@ -51,14 +62,18 @@ namespace oe {
 
 		void begin();
 		void end();
-		void submitVertexData(glm::vec2 position, glm::vec2 size, int texture, glm::vec4 color);
-		void submitVertexData(glm::vec3 position, glm::vec2 size, int texture, glm::vec4 color);
-		void submit(glm::vec2 position, glm::vec2 size, int texture, glm::vec4 color, alignments alignment, float angle);
-		void submit(glm::vec2 position, glm::vec2 size, int texture, glm::vec4 color, alignments alignment, float angle, int quad_index);
+		void submitVertexData(const glm::vec2& position, const glm::vec2& size, int texture, const glm::vec4& color);
+		void submitVertexData(const glm::vec3& position, const glm::vec2& size, int texture, const glm::vec4& color);
+		void submit(const glm::vec2& position, const glm::vec2& size, int texture = 0, const glm::vec4& color = glm::vec4(1.0f));
+		void submit(const glm::vec2& position, const glm::vec2& size, int texture, const glm::vec4& color, alignment align);
+		void submit(const glm::vec2& position, const glm::vec2& size, int texture, const glm::vec4& color, alignment align, float angle);
+		void submit(const glm::vec2& position, const glm::vec2& size, int texture, const glm::vec4& color, alignment align, float angle, int quad_index);
 
 		void clear();
-		void draw(int quad_count = -1) const;
+		void render(int quad_count = -1) const;
 
+		size_t getQuadCount();
+		void incrementQuadCount(int n = 1);
 	};
 
 }

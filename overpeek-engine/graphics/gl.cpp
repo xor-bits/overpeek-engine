@@ -98,6 +98,10 @@ namespace oe {
 		return 0;
 	}
 
+	std::string GL::getVersion() {
+		return std::string((char*)glGetString(GL_VERSION));
+	}
+
 	std::string GL::getRenderer() {
 		return std::string((char*)glGetString(GL_RENDERER));
 	}

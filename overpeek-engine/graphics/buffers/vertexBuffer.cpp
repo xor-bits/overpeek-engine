@@ -9,7 +9,7 @@
 namespace oe {
 
 	VertexBuffer::VertexBuffer(const void* data, size_t size, unsigned int components_per_vertex, int buffer_type)
-		: Buffer(data, size, GL_ARRAY_BUFFER, buffer_type == types::staticDraw ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW)
+		: Buffer(data, size, GL_ARRAY_BUFFER, buffer_type == types::staticrender ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW)
 	{
 		p_components_per_vertex = components_per_vertex;
 	}
