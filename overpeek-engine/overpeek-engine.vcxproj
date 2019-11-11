@@ -190,6 +190,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="audio\audio.cpp" />
+    <ClCompile Include="graphics\assets\basicPostprocessShader.cpp" />
+    <ClCompile Include="graphics\assets\multiTextureShader.cpp" />
+    <ClCompile Include="graphics\assets\singleTextureShader.cpp" />
     <ClCompile Include="graphics\textureManager.cpp" />
     <ClCompile Include="graphics\text\font.cpp" />
     <ClCompile Include="graphics\frameBuffer.cpp" />
@@ -213,6 +216,7 @@
   <ItemGroup>
     <ClInclude Include="audio\audio.h" />
     <ClInclude Include="engine.h" />
+    <ClInclude Include="graphics\assets\basicPostprocessShader.h" />
     <ClInclude Include="graphics\textureManager.h" />
     <ClInclude Include="graphics\text\font.h" />
     <ClInclude Include="graphics\assets\multiTextureShader.h" />

@@ -42,8 +42,8 @@ void update() {
 int main() {
 	oe::init();
 
-	oe::Window::init(900, 600, "overpeek-engine", WINDOW_GL_DEBUG | WINDOW_MULTISAMPLE_X2);
-	oe::Window::setClearColor(0.1f, 0.2f, 0.3f, 1.0f);
+	oe::Window::init(900, 600, "overpeek-engine", WINDOW_GL_DEBUG | WINDOW_MULTISAMPLE_X2 | WINDOW_TRANSPARENT);
+	oe::Window::setClearColor(0.0f, 0.0f, 0.0f, 0.2f);
 	oe::GL::setPolygonMode(0);
 	renderer = new oe::Renderer(oe::types::dynamicrender, oe::types::staticrender, 5, nullptr);
 	shader = new oe::SingleTextureShader();

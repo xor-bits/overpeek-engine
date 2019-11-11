@@ -1,7 +1,5 @@
 #version 400 core
 
-//#define LENS
-
 out vec4 color;
 
 in vec2 UV;
@@ -69,6 +67,7 @@ void main()
 		//color.z = color.x;
 	}
 	else if (unif_effect == 5) {
+		// Trippy
 		//color = texture(unif_texture, UV) * (sin(50 * (UV.x) + unif_t) + 1.0) / 2.0 * (sin(50 * (UV.y) + unif_t) + 1.0) / 2.0;
 		//color.a = 1.0;
 	}
