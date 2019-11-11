@@ -12,7 +12,7 @@ oe::SingleTextureShader* shader;
 oe::Renderer *renderer;
 
 float t = 0;
-void render(float corrector) {
+void render(float update_fraction) {
 	oe::Window::clear();
 	t += oe::GameLoop::getFrameUpdateScale();
 
@@ -20,14 +20,14 @@ void render(float corrector) {
 	renderer->clear();
 
 	renderer->begin();
-	renderer->submit(glm::vec2(-0.5f,  0.5f), glm::vec2(0.4f), 0, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), oe::centerCenter, t);
-	renderer->submit(glm::vec2( 0.5f,  0.5f), glm::vec2(0.4f), 0, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), oe::centerCenter, sin(t));
-	renderer->submit(glm::vec2( 0.5f, -0.5f), glm::vec2(0.4f), 0, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), oe::centerCenter, tan(t));
-	renderer->submit(glm::vec2(-0.5f, -0.5f), glm::vec2(0.4f), 0, glm::vec4(0.0f, 0.5f, 1.0f, 1.0f), oe::centerCenter, round(t));
-	renderer->submit(glm::vec2( 0.0f,  0.0f), glm::vec2(0.4f), 0, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), oe::centerCenter, t * 100.0f);
+	renderer->submit(glm::vec2(-0.5f,  0.5f), glm::vec2(0.4f), 0, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), oe::alignment::center_center, t);
+	renderer->submit(glm::vec2( 0.5f,  0.5f), glm::vec2(0.4f), 0, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), oe::alignment::center_center, sin(t));
+	renderer->submit(glm::vec2( 0.5f, -0.5f), glm::vec2(0.4f), 0, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), oe::alignment::center_center, tan(t));
+	renderer->submit(glm::vec2(-0.5f, -0.5f), glm::vec2(0.4f), 0, glm::vec4(0.0f, 0.5f, 1.0f, 1.0f), oe::alignment::center_center, round(t));
+	renderer->submit(glm::vec2( 0.0f,  0.0f), glm::vec2(0.4f), 0, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), oe::alignment::center_center, t * 100.0f);
 	renderer->end();
 
-	renderer->draw();
+	renderer->render();
 	
 	oe::Window::update();
 	oe::Window::input();
@@ -45,7 +45,7 @@ int main() {
 	oe::Window::init(900, 600, "overpeek-engine", WINDOW_GL_DEBUG | WINDOW_MULTISAMPLE_X2);
 	oe::Window::setClearColor(0.1f, 0.2f, 0.3f, 1.0f);
 	oe::GL::setPolygonMode(0);
-	renderer = new oe::Renderer(oe::types::dynamicDraw, oe::types::staticDraw, 5, nullptr);
+	renderer = new oe::Renderer(oe::types::dynamicrender, oe::types::staticrender, 5, nullptr);
 	shader = new oe::SingleTextureShader();
 
 	// pr matrix
