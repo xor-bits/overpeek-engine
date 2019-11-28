@@ -19,6 +19,8 @@
 #include "../overpeek-engine/utility/filereader.h"
 #include "graphics/textureManager.h"
 
+#define quickDebug(x) spdlog::debug(#x ## ": {}", x)
+
 
 //Preset colors
 #define OE_COLOR_WHITE		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)

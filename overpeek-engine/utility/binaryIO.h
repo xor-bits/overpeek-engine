@@ -2,6 +2,7 @@
 
 
 #include <cstdio>
+#include <fstream>
 #include <iostream>
 #include <string>
 #include "../internal_libs.h"

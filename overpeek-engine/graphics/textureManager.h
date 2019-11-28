@@ -33,7 +33,12 @@ namespace oe {
 		// pair first = gl texture id
 		// pair second = texture count
 		typedef std::pair<size_t, size_t> multitexture;
+		
+		// wont free the image data
+		static multitexture load(oe::image_data img);
+		
 		static multitexture load(std::filesystem::path path);
+		
 		static void finish();
 
 		static void bind();

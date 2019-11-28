@@ -14,6 +14,7 @@ namespace oe {
 
 	public:
 		static int init();
+		static int checkALErrors(int debug_info = 0);
 
 		Audio(audio_data audio);
 

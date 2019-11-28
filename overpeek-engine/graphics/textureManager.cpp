@@ -17,6 +17,12 @@ namespace oe {
 		m_textureBuffer = new unsigned char[0];
 		m_textureBufferSize = 0;
 		m_current_layer = 0;
+
+		// first image is always empty image (for non textured rendering)
+		auto data = new unsigned char[4 * wh * wh];
+		std::memset(data, (unsigned char)255u, 4 * wh * wh);
+		load(image_data(data, wh, wh, 4));
+		delete[] data;
 	}
 
 	size_t TextureManager::coordsToIndex(size_t x, size_t y, size_t c, size_t width, size_t channels) {
@@ -34,12 +40,7 @@ namespace oe {
 		m_textureBuffer = newArr;
 	}
 
-	// pair first = gl texture id
-	// pair second = texture count
-	TextureManager::multitexture TextureManager::load(std::filesystem::path path) {
-
-		oe::image_data image = oe::loadImage(path);
-
+	TextureManager::multitexture TextureManager::load(oe::image_data image) {
 		//Texture data
 		size_t rows = image.height / m_r;
 		size_t columns = image.width / m_r;
@@ -69,9 +70,13 @@ namespace oe {
 			}
 
 		}
+		return returnData;
+	}
 
+	TextureManager::multitexture TextureManager::load(std::filesystem::path path) {
+		oe::image_data image = oe::loadImage(path);
+		TextureManager::multitexture returnData = load(image);
 		oe::freeImage(image);
-
 		return returnData;
 	}
 

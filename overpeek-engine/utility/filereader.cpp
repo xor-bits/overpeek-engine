@@ -40,7 +40,7 @@ namespace oe {
 			return image_data();
 		}
 
-		return image_data { image, (size_t)width, (size_t)height, (size_t)channels };
+		return image_data(image, width, height, channels);
 	}
 
 	const audio_data loadAudio(std::filesystem::path path) {
@@ -62,15 +62,15 @@ namespace oe {
 			format = AL_FORMAT_STEREO16;
 		}
 
-		return audio_data { data, (size_t)size, (size_t)format, (size_t)channels, (size_t)sampleRate };
+		return audio_data(data, size, channels, sampleRate, format);
 	}
 
 	void freeImage(const image_data& image) {
-		stbi_image_free(image.data);
+		delete[] image.data;
 	}
 
 	void freeAudio(const audio_data& audio) {
-		free(audio.data);
+		delete[] audio.data;
 	}
 
 }

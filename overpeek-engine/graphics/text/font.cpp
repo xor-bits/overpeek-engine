@@ -28,7 +28,7 @@ namespace oe {
 		size_t data_per_glyph = resolution * resolution * 4;
 		size_t data_size = CHAR_COUNT * data_per_glyph;
 		unsigned char* data = new unsigned char[data_size];
-		//memset(data, (unsigned char)0, data_size); // clear to 0
+		memset(data, (unsigned char)0, data_size); // clear to 0
 
 		bb_max_height = 0;
 		bb_min_height = 0;
@@ -105,7 +105,6 @@ namespace oe {
 		};
 
 		bb_height = bb_max_height - bb_min_height;
-		spdlog::debug("bb_max_height: {}, bb_min_height: {}, bb_height: {}", bb_max_height, bb_min_height, bb_height);
 
 		m_glyph_texture = Texture();
 		m_glyph_texture.load3D(data, resolution, resolution, CHAR_COUNT);
