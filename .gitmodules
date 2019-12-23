@@ -1,6 +1,21 @@
 [submodule "src/lib/glew"]
 	path = src/lib/glew
-	url = https://github.com/Perlmint/glew-cmake.git
+	url = https://github.com/nigels-com/glew.git
 [submodule "src/lib/glfw"]
 	path = src/lib/glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "src/lib/freetype"]
+	path = src/lib/freetype
+	url = https://git.sv.nongnu.org/r/freetype/freetype2.git
+[submodule "src/lib/glm/glm"]
+	path = src/lib/glm/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "src/lib/miniaudio"]
+	path = src/lib/miniaudio
+	url = https://github.com/dr-soft/miniaudio.git
+[submodule "src/lib/spdlog"]
+	path = src/lib/spdlog
+	url = https://github.com/gabime/spdlog.git
+[submodule "src/lib/stb-master"]
+	path = src/lib/stb-master
+	url = https://github.com/nothings/stb.git
