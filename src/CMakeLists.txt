@@ -10,10 +10,13 @@ SET(CMAKE_CXX_STANDARD 17)
 SET(CMAKE_USE_RELATIVE_PATHS TRUE)
 SET(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../cmake/Modules/")
+message("CMAKE_MODULE_PATH: " ${CMAKE_MODULE_PATH})
+
 # packages
-find_package(glew REQUIRED)
-find_package(freetype REQUIRED)
-find_package(glfw3 3.3 REQUIRED)
+find_package(GLEW REQUIRED)
+find_package(Freetype REQUIRED)
+find_package(GLFW3 3.3 REQUIRED)
 find_package(OpenGL REQUIRED)
 
 
