@@ -37,7 +37,7 @@ namespace oe::graphics {
 		// wont free the image data
 		static multitexture load(oe::utils::image_data img);
 		
-		static multitexture load(std::filesystem::path path);
+		static multitexture load(fs::path path);
 		
 		static void finish();
 

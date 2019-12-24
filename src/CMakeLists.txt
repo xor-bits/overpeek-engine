@@ -8,7 +8,7 @@ project(engine C CXX)
 
 SET(CMAKE_CXX_STANDARD 17)
 SET(CMAKE_USE_RELATIVE_PATHS TRUE)
-SET(CMAKE_INCLUDE_CURRENT_DIR TRUE)
+# SET(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../cmake/Modules/")
 message("CMAKE_MODULE_PATH: " ${CMAKE_MODULE_PATH})
@@ -37,10 +37,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${FREETYPE_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PRIVATE ${OPENGL_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${GLFW3_INCLUDE_DIR})
 # add others
-target_include_directories(${PROJECT_NAME} PRIVATE ../lib/glm/glm)
-target_include_directories(${PROJECT_NAME} PRIVATE ../lib/spdlog/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ../lib/stb)
-target_include_directories(${PROJECT_NAME} PRIVATE ../lib/miniaudio)
+include_directories(../lib/glm/glm)
+include_directories(../lib/spdlog/include)
+include_directories(../lib/stb)
+include_directories(../lib/miniaudio)
+target_include_directories(${PROJECT_NAME} PUBLIC engine)
 
 # print all variables
 # get_cmake_property(_variableNames VARIABLES)
@@ -52,10 +53,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ../lib/miniaudio)
 get_property(inc_dirs DIRECTORY PROPERTY INCLUDE_DIRECTORIES)
 set(${PROJECT_NAME}_INCLUDE_DIRS
 	${PROJECT_SOURCE_DIR}
-	../lib/glm/glm
-	../lib/spdlog/include
-	../lib/stb
-	../lib/miniaudio
+	${inc_dirs}
     CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE
 )
 

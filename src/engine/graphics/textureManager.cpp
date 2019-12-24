@@ -74,7 +74,7 @@ namespace oe::graphics {
 		return returnData;
 	}
 
-	TextureManager::multitexture TextureManager::load(std::filesystem::path path) {
+	TextureManager::multitexture TextureManager::load(fs::path path) {
 		oe::utils::image_data image = oe::utils::loadImage(path);
 		TextureManager::multitexture returnData = load(image);
 		oe::utils::freeImage(image);

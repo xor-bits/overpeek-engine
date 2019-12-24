@@ -17,7 +17,7 @@
 
 namespace oe::utils {
 
-	std::string readFile(std::filesystem::path path)
+	std::string readFile(fs::path path)
 	{
 		std::ifstream input_file_stream = std::ifstream(path);
 		std::stringstream buffer;
@@ -25,11 +25,11 @@ namespace oe::utils {
 		return buffer.str();
 	}
 
-	void saveImage(std::filesystem::path path, const image_data& image) {
+	void saveImage(fs::path path, const image_data& image) {
 		stbi_write_png(path.string().c_str(), image.width, image.height, image.channels, image.data, image.width * image.channels * sizeof(char));
 	}
 
-	const image_data loadImage(std::filesystem::path path) {
+	const image_data loadImage(fs::path path) {
 		int width, height, channels;
 		unsigned char* image = stbi_load(path.string().c_str(), &width, &height, &channels, STBI_rgb_alpha);
 		
