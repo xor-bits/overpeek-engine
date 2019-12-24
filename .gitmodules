@@ -7,9 +7,6 @@
 [submodule "lib/spdlog"]
 	path = lib/spdlog
 	url = https://github.com/gabime/spdlog.git
-[submodule "lib/stb-master"]
-	path = lib/stb-master
-	url = https://github.com/nothings/stb.git
 [submodule "lib/stb"]
 	path = lib/stb
 	url = https://github.com/nothings/stb.git
