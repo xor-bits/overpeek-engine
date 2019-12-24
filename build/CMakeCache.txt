@@ -1,0 +1,8 @@
+FREETYPE_INCLUDE_DIR_freetype2:PATH=C:/Program Files (x86)/freetype/include/freetype2
+FREETYPE_INCLUDE_DIR_ft2build:PATH=C:/Program Files (x86)/freetype/include/freetype2
+FREETYPE_LIBRARY_RELEASE:FILEPATH=C:/Program Files (x86)/freetype/lib/freetype.lib
+GLEW_DIR:PATH=C:/Program Files (x86)/glew/lib/cmake/glew
+GLEW_INCLUDE_DIRS:PATH=C:/Program Files (x86)/glew/include
+GLEW_STATIC_LIBRARIES:FILEPATH=C:/Program Files (x86)/glew/lib/libglew32.lib
+GLFW3_INCLUDE_DIR:PATH=C:/Program Files (x86)/GLFW/include
+GLFW3_LIBRARY:FILEPATH=C:/Program Files (x86)/GLFW/lib/glfw3.lib

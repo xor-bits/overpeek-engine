@@ -27,14 +27,10 @@ add_compile_definitions(GLEW_STATIC)
 
 # add dependencies
 # add glew
-target_link_libraries(${PROJECT_NAME} ${GLEW_STATIC_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${GLEW_INCLUDE_DIRS})
 # add freetype
-target_link_libraries(${PROJECT_NAME} ${FREETYPE_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${FREETYPE_INCLUDE_DIRS})
 # add glfw and opengl
-target_link_libraries(${PROJECT_NAME} ${GLFW3_LIBRARY})
-target_link_libraries(${PROJECT_NAME} ${OPENGL_gl_LIBRARY})
 target_include_directories(${PROJECT_NAME} PRIVATE ${OPENGL_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${GLFW3_INCLUDE_DIR})
 # add others
