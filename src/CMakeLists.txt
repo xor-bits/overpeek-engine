@@ -40,7 +40,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${GLFW3_INCLUDE_DIR})
 # add others
 target_include_directories(${PROJECT_NAME} PRIVATE ../lib/glm/glm)
 target_include_directories(${PROJECT_NAME} PRIVATE ../lib/spdlog/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ../lib/stb-master)
+target_include_directories(${PROJECT_NAME} PRIVATE ../lib/stb)
 target_include_directories(${PROJECT_NAME} PRIVATE ../lib/miniaudio)
 
 # print all variables
@@ -55,7 +55,7 @@ set(${PROJECT_NAME}_INCLUDE_DIRS
 	${PROJECT_SOURCE_DIR}
 	../lib/glm/glm
 	../lib/spdlog/include
-	../lib/stb-master
+	../lib/stb
 	../lib/miniaudio
     CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE
 )
