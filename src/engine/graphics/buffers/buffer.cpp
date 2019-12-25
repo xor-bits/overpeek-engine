@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <sstream>
 #include <GL/glew.h>
+#include <cstddef>
 
 #include "graphics/window.h"
 #include "utility/debug.h"

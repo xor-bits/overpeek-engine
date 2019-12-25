@@ -4,7 +4,7 @@
 
 #include "font.h"
 #include "graphics/renderer.h"
-#include "graphics/frameBuffer.h"
+#include "graphics/framebuffer.h"
 #include "internal_libs.h"
 
 

@@ -38,7 +38,7 @@ namespace oe::graphics {
 		}
 	}
 
-	const enum types {
+	enum types {
 		staticrender, dynamicrender
 	};
 

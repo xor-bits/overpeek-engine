@@ -7,8 +7,10 @@
 
 namespace oe::utils {
 
-	#define min(a, b) (a > b ? b : a)
-	#define max(a, b) (a > b ? a : b)
+	template<class T> 
+	T min(T a, T b) { return ((a) > (b) ? (b) : (a)); }
+	template<class T>
+	T max(T a, T b) { return ((a) > (b) ? (a) : (b)); }
 
 	glm::vec2 randomVec2(float min = -1.0f, float max = 1.0f);
 	glm::vec3 randomVec3(float min = -1.0f, float max = 1.0f);
