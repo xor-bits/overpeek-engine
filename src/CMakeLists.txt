@@ -6,9 +6,9 @@ cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 
 project(engine C CXX)
 
-SET(CMAKE_CXX_STANDARD 17)
-SET(CMAKE_USE_RELATIVE_PATHS TRUE)
-# SET(CMAKE_INCLUDE_CURRENT_DIR TRUE)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_USE_RELATIVE_PATHS TRUE)
+set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../cmake/Modules/")
 message("CMAKE_MODULE_PATH: " ${CMAKE_MODULE_PATH})
@@ -41,7 +41,6 @@ include_directories(../lib/glm/glm)
 include_directories(../lib/spdlog/include)
 include_directories(../lib/stb)
 include_directories(../lib/miniaudio)
-target_include_directories(${PROJECT_NAME} PUBLIC engine)
 
 # print all variables
 # get_cmake_property(_variableNames VARIABLES)

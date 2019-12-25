@@ -5,7 +5,7 @@
 #include <string>
 #include <sstream>
 
-#include "internal_libs.h"
+#include "engine/internal_libs.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>

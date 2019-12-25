@@ -6,9 +6,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "internal_libs.h"
-#include "utility/math.h"
-#include "graphics/gl.h"
+#include "engine/internal_libs.h"
+#include "engine/utility/math.h"
+#include "engine/graphics/gl.h"
 
 #define M_NUM_KEYS		2048
 #define M_NUM_BUTTONS	1024

@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "utility/filereader.h"
-#include "internal_libs.h"
+#include "engine/utility/filereader.h"
+#include "engine/internal_libs.h"
 
 #define WINDOW_MULTISAMPLE_X2	0b0000000000000001
 #define WINDOW_MULTISAMPLE_X4	0b0000000000000010

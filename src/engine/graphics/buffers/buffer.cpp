@@ -5,9 +5,9 @@
 #include <GL/glew.h>
 #include <cstddef>
 
-#include "graphics/window.h"
-#include "utility/debug.h"
-#include "internal_libs.h"
+#include "engine/graphics/window.h"
+#include "engine/utility/debug.h"
+#include "engine/internal_libs.h"
 
 
 namespace oe::graphics {

@@ -1,7 +1,7 @@
 #include "vertexBuffer.h"
 
-#include "graphics/renderer.h"
-#include "internal_libs.h"
+#include "engine/graphics/renderer.h"
+#include "engine/internal_libs.h"
 
 #include <GL/glew.h>
 

@@ -1,6 +1,6 @@
 #include "gl.h"
 
-#include "internal_libs.h"
+#include "engine/internal_libs.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>

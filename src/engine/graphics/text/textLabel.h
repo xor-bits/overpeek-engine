@@ -3,9 +3,9 @@
 #include <string>
 
 #include "font.h"
-#include "graphics/renderer.h"
-#include "graphics/framebuffer.h"
-#include "internal_libs.h"
+#include "engine/graphics/renderer.h"
+#include "engine/graphics/framebuffer.h"
+#include "engine/internal_libs.h"
 
 
 

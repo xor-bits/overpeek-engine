@@ -1,6 +1,6 @@
 #include "audio.h"
 
-#include "utility/debug.h"
+#include "engine/utility/debug.h"
 
 #define DR_MP3_IMPLEMENTATION
 #include <extras/dr_mp3.h>

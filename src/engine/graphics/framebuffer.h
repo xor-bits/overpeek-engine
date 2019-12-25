@@ -1,7 +1,7 @@
 #pragma once
 
-#include "texture.h"
-#include "internal_libs.h"
+#include "engine/graphics/texture.h"
+#include "engine/internal_libs.h"
 
 
 

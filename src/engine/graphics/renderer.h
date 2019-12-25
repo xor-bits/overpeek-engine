@@ -1,10 +1,10 @@
 #pragma once
 
-#include "internal_libs.h"
-#include "graphics/buffers/vertexArray.h"
-#include "graphics/buffers/vertexBuffer.h"
-#include "graphics/buffers/indexBuffer.h"
-#include "graphics/vertexData.h"
+#include "engine/internal_libs.h"
+#include "engine/graphics/buffers/vertexArray.h"
+#include "engine/graphics/buffers/vertexBuffer.h"
+#include "engine/graphics/buffers/indexBuffer.h"
+#include "engine/graphics/vertexData.h"
 
 
 

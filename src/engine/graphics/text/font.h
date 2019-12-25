@@ -3,8 +3,8 @@
 #include <string>
 #include <map>
 
-#include "graphics/texture.h"
-#include "internal_libs.h"
+#include "engine/graphics/texture.h"
+#include "engine/internal_libs.h"
 
 #define CHAR_COUNT 128
 
