@@ -1,9 +1,6 @@
 [submodule "lib/glm/glm"]
 	path = lib/glm/glm
 	url = https://github.com/g-truc/glm.git
-[submodule "lib/miniaudio"]
-	path = lib/miniaudio
-	url = https://github.com/dr-soft/miniaudio.git
 [submodule "lib/spdlog"]
 	path = lib/spdlog
 	url = https://github.com/gabime/spdlog.git

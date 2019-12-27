@@ -1,75 +1,91 @@
 #include "audio.h"
 
-#include "engine/utility/debug.h"
-
-#define DR_MP3_IMPLEMENTATION
-#include <extras/dr_mp3.h>
-#define MINIAUDIO_IMPLEMENTATION
-#include <miniaudio.h>
+#include <al.h>
+#include <alc.h>
+#include "engine/engine.h"
 
 
 
 namespace oe::audio {
 
-	void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
-	{
-		ma_decoder* pDecoder = (ma_decoder*)pDevice->pUserData;
-		if (pDecoder == NULL) {
-			return;
+	bool Audio::initialized = false;
+
+	int Audio::init() {
+		if (initialized) return 0;
+
+		// audio device
+		const char* device_name = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
+		ALCdevice* device = alcOpenDevice(device_name);
+		if (device == NULL) {
+			spdlog::error("Cannot open audio device");
+			return -1;
 		}
 
-		ma_decoder_read_pcm_frames(pDecoder, pOutput, frameCount);
+		// audio context
+		ALCcontext* context = alcCreateContext(device, NULL);
+		if (context == NULL) {
+			spdlog::error("Cannot create OpenAL context");
+			return -2;
+		}
+		alcMakeContextCurrent(context);
 
-		(void)pInput;
+		// post init
+		spdlog::info("Audio device opened");
+		initialized = true;
+		return 0;
 	}
 
-	Audio::Audio(std::string audio_file) {
-		ma_result result;
-		m_decoder = new ma_decoder();
-		m_device = new ma_device();
+	int Audio::checkALErrors(int debug_info) {
+		ALCenum error = alGetError();
+		if (error == AL_NO_ERROR) return 0;
 
-		// open audiofile
-		result = ma_decoder_init_file(audio_file.c_str(), NULL, (ma_decoder*)m_decoder);
-		if (result != MA_SUCCESS) {
-			spdlog::error("Decode failed");
-			return;
+		std::string error_string;
+		switch (error)
+		{
+		case AL_NO_ERROR:
+			error_string = "There is no current error";
+			break;
+		case AL_INVALID_NAME:
+			error_string = "Invalid name parameter";
+			break;
+		case AL_INVALID_ENUM:
+			error_string = "Invalid parameter";
+			break;
+		case AL_INVALID_VALUE:
+			error_string = "Invalid enum parameter value";
+			break;
+		case AL_INVALID_OPERATION:
+			error_string = "Illegal call";
+			break;
+		case AL_OUT_OF_MEMORY:
+			error_string = "Unable to allocate memory";
+			break;
 		}
-		m_first_frame = 0;
-		m_last_frame = ma_decoder_get_length_in_pcm_frames((ma_decoder*)m_decoder);
 
-		// init device
-		ma_device_config deviceConfig = ma_device_config_init(ma_device_type_playback);
-		deviceConfig.playback.format = ((ma_decoder*)m_decoder)->outputFormat;
-		deviceConfig.playback.channels = ((ma_decoder*)m_decoder)->outputChannels;
-		deviceConfig.sampleRate = ((ma_decoder*)m_decoder)->outputSampleRate;
-		deviceConfig.dataCallback = data_callback;
-		deviceConfig.pUserData = (ma_decoder*)m_decoder;
-		deviceConfig.wasapi.noAutoConvertSRC = true;
-
-		// init device
-		if (ma_device_init(NULL, &deviceConfig, ((ma_device*)m_device)) != MA_SUCCESS) {
-			spdlog::error("Failed to open playback device");
-			ma_decoder_uninit((ma_decoder*)m_decoder);
-			return;
-		}
-		ma_decoder_seek_to_pcm_frame((ma_decoder*)m_decoder, m_last_frame);
-
-		// start
-		if (ma_device_start((ma_device*)m_device) != MA_SUCCESS) {
-			spdlog::error("Failed to start playback device");
-			return;
-		}
+		if (debug_info == 0)
+			spdlog::error("OpenAL ({}):\n{}", error, error_string);
+		else
+			spdlog::error("(Line {}) OpenAL ({}):\n{}", debug_info, error, error_string);
+		return error;
 	}
 
-	Audio::~Audio() {
-		delete m_decoder;
-		delete m_device;
-		ma_decoder_uninit((ma_decoder*)m_decoder);
-		ma_device_uninit((ma_device*)m_device);
+	Audio::Audio(oe::utils::audio_data audio) {
+		spdlog::info("Loading {}", audio.format);
+		alGenBuffers(1, &buffer_id);
+		alBufferData(buffer_id, audio.format, audio.data, audio.size, audio.sample_rate);
+		checkALErrors();
+		quickDebug(buffer_id);
+		quickDebug(audio.format);
+		quickDebug((long long)audio.data);
+		quickDebug(audio.size);
+		quickDebug(audio.sample_rate);
+		alGenSources(1, &source_id);
+		alSourcei(source_id, AL_BUFFER, buffer_id);
 	}
 
 	void Audio::play(glm::vec2 position) const {
-		ma_decoder_seek_to_pcm_frame((ma_decoder*)m_decoder, m_first_frame);
+		alSource3f(source_id, AL_POSITION, position.x, position.y, 0.0f);
+		alSourcePlay(source_id);
 	}
 
 }

@@ -4,47 +4,49 @@
 
 namespace oe::graphics {
 
-	const std::string vertsource = std::string() +
-		"#version 330 core\n" +
-		"layout(location = 0) in vec3 vertex_pos;\n" +
-		"layout(location = 1) in vec2 texture_uv;\n" +
-		"layout(location = 2) in float texture_id;\n" +
-		"layout(location = 3) in vec4 vertex_color;\n" +
+	constexpr char* vertsource = R"(
+		#version 330 core
+		layout(location = 0) in vec3 vertex_pos;
+		layout(location = 1) in vec2 texture_uv;
+		layout(location = 2) in float texture_id;
+		layout(location = 3) in vec4 vertex_color;
 
-		"out vec2 shader_uv;\n" +
-		"out vec4 shader_color;\n" +
-		"flat out int shader_id;\n" +
-		"\n" +
-		"uniform mat4 pr_matrix = mat4(1.0);\n" +
-		"uniform mat4 ml_matrix = mat4(1.0);\n" +
-		"uniform mat4 vw_matrix = mat4(1.0);\n" +
-		"\n" +
-		"void main()\n" +
-		"{\n" +
-		"   mat4 mvp = pr_matrix * vw_matrix * ml_matrix;\n" +
-		"	gl_Position = mvp * vec4(vertex_pos.x, vertex_pos.y, vertex_pos.z, 1.0f);\n" +
-		"	shader_uv = texture_uv;\n" +
-		"	shader_id = int(floor(texture_id));\n" +
-		"	shader_color = vertex_color;\n" +
-		"}\n";
+		out vec2 shader_uv;
+		out vec4 shader_color;
+		flat out int shader_id;
+		
+		uniform mat4 pr_matrix = mat4(1.0);
+		uniform mat4 ml_matrix = mat4(1.0);
+		uniform mat4 vw_matrix = mat4(1.0);
+		
+		void main()
+		{
+			mat4 mvp = pr_matrix * vw_matrix * ml_matrix;
+			gl_Position = mvp * vec4(vertex_pos.x, vertex_pos.y, vertex_pos.z, 1.0f);
+			shader_uv = texture_uv;
+			shader_id = int(floor(texture_id));
+			shader_color = vertex_color;
+		}
+	)";
 
-	const std::string fragsource = std::string() +
-		"#version 330 core\n" +
-		"\n" +
-		"in vec2 shader_uv;\n" +
-		"in vec4 shader_color;\n" +
-		"flat in int shader_id;\n" +
-		"\n" +
-		"layout(location = 0) out vec4 color;\n" +
-		"\n" +
-		"uniform sampler2D tex;\n" +
-		"uniform int usetex = 1;\n" +
-		"\n" +
-		"void main()\n" +
-		"{\n" +
-		"	if (usetex != 0) color = texture(tex, vec2(shader_uv)) * shader_color;\n" +
-		"	else color = shader_color;\n" +
-		"}\n";
+	constexpr char* fragsource = R"(
+		#version 330 core
+		
+		in vec2 shader_uv;
+		in vec4 shader_color;
+		flat in int shader_id;
+		
+		layout(location = 0) out vec4 color;
+		
+		uniform sampler2D tex;
+		uniform int usetex = 1;
+		
+		void main()
+		{
+			if (usetex != 0) color = texture(tex, vec2(shader_uv)) * shader_color;
+			else color = shader_color;
+		}
+	)";
 
 	SingleTextureShader::SingleTextureShader() : Shader("Asset:SingleTextureShader") {
 		try {

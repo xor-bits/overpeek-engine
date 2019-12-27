@@ -4,94 +4,98 @@
 
 namespace oe::graphics {
 
-	const std::string vertsource = std::string() +
-		"#version 400 core" +
-		"layout(location = 0) in vec3 vertex_pos;" +
-		"out vec2 UV;" +
-		"void main() {" +
-		"	gl_Position = vec4(vertex_pos, 1);" +
-		"	UV = (vertex_pos.xy + vec2(1.0, 1.0)) / 2.0;" +
-		"}";
+	constexpr char* vertsource = R"(
+		#version 400 core
+		layout(location = 0) in vec3 vertex_pos;
+		
+		out vec2 UV;
 
-	const std::string fragsource = std::string() +
-		"#version 330 core\n" +
-		"\n" +
-		"out vec4 color;\n" +
-		"\n" +
-		"in vec2 UV;\n" +
-		"\n" +
-		"uniform sampler2D unif_texture;\n" +
-		"uniform int unif_effect;\n" +
-		"uniform float unif_t;\n" +
-		"\n" +
-		"float gauss_kernel[] = float[](0.035822f, 0.05879f, 0.086425f, 0.113806f, 0.13424f, 0.141836f, 0.13424f, 0.113806f, 0.086425f, 0.05879f, 0.035822f);\n" +
-		"\n" +
-		"float edge_kernel[] = float[](\n" +
-		"-1, -1, -1,\n" +
-		"-1,  8, -1,\n" +
-		"-1, -1, -1\n" +
-		");\n" +
-		"\n" +
-		"float pixelSizeX;\n" +
-		"float pixelSizeY;\n" +
-		"\n" +
-		"float rand(vec2 co) {\n" +
-		"return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);\n" +
-		"}\n" +
-		"\n" +
-		"void main()\n" +
-		"{\n" +
-		"pixelSizeX = 1.0 / textureSize(unif_texture, 0).x;\n" +
-		"pixelSizeY = 1.0 / textureSize(unif_texture, 0).y;\n" +
-		"if (unif_effect == 1) {\n" +
-		"color = vec4(0.0);\n" +
-		"\n" +
-		"//Horitzontal gaussian blur\n" +
-		"for (int i = -5; i < 6; i++) {\n" +
-		"float ioff = pixelSizeX * i;\n" +
-		"color += texture(unif_texture, vec2(UV.x + ioff, UV.y)) * gauss_kernel[i + 5];\n" +
-		"}\n" +
-		"}\n" +
-		"else if (unif_effect == 2) {\n" +
-		"color = vec4(0.0);\n" +
-		"\n" +
-		"//Vertical gaussian blur\n" +
-		"for (int i = -5; i < 6; i++) {\n" +
-		"float ioff = pixelSizeY * i;\n" +
-		"color += texture(unif_texture, vec2(UV.x, UV.y + ioff)) * gauss_kernel[i + 5];\n" +
-		"}\n" +
-		"}\n" +
-		"else if (unif_effect == 3) {\n" +
-		"//Inverted colors\n" +
-		"color = vec4(1.0, 1.0, 1.0, 2.0) - texture(unif_texture, UV);\n" +
-		"}\n" +
-		"else if (unif_effect == 4) {\n" +
-		"//Edge detection\n" +
-		"color += texture(unif_texture, vec2(UV.x - pixelSizeX, UV.y - pixelSizeY));\n" +
-		"color += texture(unif_texture, vec2(UV.x - pixelSizeX, UV.y));\n" +
-		"color += texture(unif_texture, vec2(UV.x - pixelSizeX, UV.y + pixelSizeY));\n" +
-		"color += 0;// texture(unif_texture, vec2(UV.x, UV.y - pixelSizeY));\n" +
-		"color += 0;// texture(unif_texture, vec2(UV.x, UV.y));\n" +
-		"color += 0;// texture(unif_texture, vec2(UV.x, UV.y + pixelSizeY));\n" +
-		"color += -texture(unif_texture, vec2(UV.x + pixelSizeX, UV.y - pixelSizeY));\n" +
-		"color += -texture(unif_texture, vec2(UV.x + pixelSizeX, UV.y));\n" +
-		"color += -texture(unif_texture, vec2(UV.x + pixelSizeX, UV.y + pixelSizeY));\n" +
-		"\n" +
-		"//Black and white\n" +
-		"color.x = color.y = color.z = (color.x + color.y + color.z) / 3;\n" +
-		"// = color.x;\n" +
-		"//color.z = color.x;\n" +
-		"}\n" +
-		"else if (unif_effect == 5) {\n" +
-		"// Trippy\n" +
-		"color = texture(unif_texture, UV) * (sin(50 * (UV.x) + unif_t) + 1.0) / 2.0 * (sin(50 * (UV.y) + unif_t) + 1.0) / 2.0;\n" +
-		"color.a = 1.0;\n" +
-		"}\n" +
-		"else {\n" +
-		"//Normal\n" +
-		"color = texture(unif_texture, UV);\n" +
-		"}\n" +
-		"}";
+		void main() {
+			gl_Position = vec4(vertex_pos, 1);
+			UV = (vertex_pos.xy + vec2(1.0, 1.0)) / 2.0;
+		}
+	)";
+
+	constexpr char* fragsource = R"(
+		#version 330 core
+		
+		out vec4 color;
+		
+		in vec2 UV;
+		
+		uniform sampler2D unif_texture;
+		uniform int unif_effect;
+		uniform float unif_t;
+		
+		float gauss_kernel[] = float[](0.035822f, 0.05879f, 0.086425f, 0.113806f, 0.13424f, 0.141836f, 0.13424f, 0.113806f, 0.086425f, 0.05879f, 0.035822f);
+		
+		float edge_kernel[] = float[](
+			-1, -1, -1,
+			-1,  8, -1,
+			-1, -1, -1
+		);
+		
+		float pixelSizeX;
+		float pixelSizeY;
+		
+		float rand(vec2 co) {
+			return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+		}
+		
+		void main()
+		{
+			pixelSizeX = 1.0 / textureSize(unif_texture, 0).x;
+			pixelSizeY = 1.0 / textureSize(unif_texture, 0).y;
+			if (unif_effect == 1) {
+				color = vec4(0.0);
+			
+				//Horitzontal gaussian blur
+				for (int i = -5; i < 6; i++) {
+					float ioff = pixelSizeX * i;
+					color += texture(unif_texture, vec2(UV.x + ioff, UV.y)) * gauss_kernel[i + 5];
+				}
+			}
+			else if (unif_effect == 2) {
+				color = vec4(0.0);
+			
+				//Vertical gaussian blur
+				for (int i = -5; i < 6; i++) {
+					float ioff = pixelSizeY * i;
+					color += texture(unif_texture, vec2(UV.x, UV.y + ioff)) * gauss_kernel[i + 5];
+				}
+			}
+			else if (unif_effect == 3) {
+				//Inverted colors
+				color = vec4(1.0, 1.0, 1.0, 2.0) - texture(unif_texture, UV);
+			}
+			else if (unif_effect == 4) {
+				//Edge detection
+				color += texture(unif_texture, vec2(UV.x - pixelSizeX, UV.y - pixelSizeY));
+				color += texture(unif_texture, vec2(UV.x - pixelSizeX, UV.y));
+				color += texture(unif_texture, vec2(UV.x - pixelSizeX, UV.y + pixelSizeY));
+				color += 0;// texture(unif_texture, vec2(UV.x, UV.y - pixelSizeY));
+				color += 0;// texture(unif_texture, vec2(UV.x, UV.y));
+				color += 0;// texture(unif_texture, vec2(UV.x, UV.y + pixelSizeY));
+				color += -texture(unif_texture, vec2(UV.x + pixelSizeX, UV.y - pixelSizeY));
+				color += -texture(unif_texture, vec2(UV.x + pixelSizeX, UV.y));
+				color += -texture(unif_texture, vec2(UV.x + pixelSizeX, UV.y + pixelSizeY));
+				
+				//Black and white
+				color.x = color.y = color.z = (color.x + color.y + color.z) / 3;
+				// = color.x;
+				//color.z = color.x;
+			}
+			else if (unif_effect == 5) {
+				// Trippy
+				color = texture(unif_texture, UV) * (sin(50 * (UV.x) + unif_t) + 1.0) / 2.0 * (sin(50 * (UV.y) + unif_t) + 1.0) / 2.0;
+				color.a = 1.0;
+			}
+			else {
+				//Normal
+				color = texture(unif_texture, UV);
+			}
+		}
+	)";
 
 	BasicPostprocessShader::BasicPostprocessShader() : Shader("Asset:BasicPostprocessShader") {
 		try {

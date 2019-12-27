@@ -3,24 +3,24 @@
 #include "engine/utility/filereader.h"
 #include "engine/internal_libs.h"
 
-
-
 namespace oe::audio {
 
 	class Audio {
 	private:
-		void* m_decoder; // ma_decoder
-		void* m_device;  // ma_device
+		unsigned int source_id;
+		unsigned int buffer_id;
 
-		long m_first_frame;
-		long m_last_frame;
+		static bool initialized;
 
 	public:
-		Audio(std::string audio_file);
-		~Audio();
+		static int init();
+		static int checkALErrors(int debug_info = 0);
+
+		Audio(oe::utils::audio_data audio);
 
 		//Play audio at id
 		void play(glm::vec2 position = glm::vec2(0.0f, 0.0f)) const;
+
 	};
 
 }

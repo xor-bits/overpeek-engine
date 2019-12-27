@@ -11,7 +11,12 @@
 #include <stb_image.h>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
-#include <stb_vorbis.c>
+
+#define MINIMP3_IMPLEMENTATION
+// #include "minimp3.h"
+#include "minimp3_ex.h"
+
+#include <al.h>
 
 
 
@@ -41,8 +46,36 @@ namespace oe::utils {
 		return image_data(image, width, height, channels);
 	}
 
+	const audio_data loadAudio(std::filesystem::path path) {
+		mp3dec_t mp3d;
+		mp3dec_file_info_t info;
+		if (mp3dec_load(&mp3d, path.string().c_str(), &info, NULL, NULL)) {
+			spdlog::error("Failed to load audiofile \"{}\"", std::string(path.string().c_str()));
+			getchar();
+			exit(-1);
+		}
+
+		// data size
+		int size = info.samples * sizeof(short);
+
+		// Format
+		int format = -1;
+		if (info.channels == 1) {
+			format = AL_FORMAT_MONO16;
+		}
+		else if (info.channels == 2) {
+			format = AL_FORMAT_STEREO16;
+		}
+
+		return audio_data(info.buffer, size, info.channels, info.hz, format);
+	}
+
 	void freeImage(const image_data& image) {
 		delete[] image.data;
+	}
+
+	void freeAudio(const audio_data& audio) {
+		free(audio.data);
 	}
 
 }
