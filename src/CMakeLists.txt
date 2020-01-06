@@ -55,6 +55,7 @@ include_directories(../lib/glm/glm)
 include_directories(../lib/spdlog/include)
 include_directories(../lib/stb)
 include_directories(../lib/minimp3/include)
+include_directories(${GLEW_INCLUDE_DIRS})
 
 get_property(inc_dirs DIRECTORY PROPERTY INCLUDE_DIRECTORIES)
 set(${PROJECT_NAME}_INCLUDE_DIRS

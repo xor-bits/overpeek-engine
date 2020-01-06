@@ -21,6 +21,10 @@ namespace oe::graphics {
 			glm::vec2 advance;
 		};
 
+		void* m_ft;
+		void* m_face;
+		unsigned char* m_data;
+
 	public:
 		Texture m_glyph_texture;
 		Glyph* m_glyphs[256];
@@ -31,8 +35,11 @@ namespace oe::graphics {
 		float bb_height;
 	
 	public:
-		Font(int resolution = 64, std::string font_path = "calibri.ttf");
+		Font(int resolution = 64, bool manual_finish = false, std::string font_path = "calibri.ttf");
 		~Font();
+
+		// Must be executed on main thread (OpenGL thread)
+		void finish();
 
 		inline void bindTexture() const { m_glyph_texture.bind(); }
 	};

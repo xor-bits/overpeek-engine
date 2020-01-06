@@ -20,10 +20,10 @@ namespace oe::graphics {
 		m_current_layer = 0;
 
 		// first image is always empty image (for non textured rendering)
-		auto data = new unsigned char[4 * wh * wh];
-		std::memset(data, (unsigned char)255u, 4 * wh * wh);
-		load(oe::utils::image_data(data, wh, wh, 4));
-		delete[] data;
+		unsigned char* data = new unsigned char[4ul * wh * wh];
+		std::memset(data, (unsigned char)255, 4ul * wh * wh);
+		oe::utils::image_data img(data, wh, wh, 4);
+		load(img);
 	}
 
 	size_t TextureManager::coordsToIndex(size_t x, size_t y, size_t c, size_t width, size_t channels) {

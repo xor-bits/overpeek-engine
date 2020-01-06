@@ -69,16 +69,10 @@ namespace oe::audio {
 		return error;
 	}
 
-	Audio::Audio(oe::utils::audio_data audio) {
-		spdlog::info("Loading {}", audio.format);
+	Audio::Audio(const oe::utils::audio_data& audio) {
 		alGenBuffers(1, &buffer_id);
 		alBufferData(buffer_id, audio.format, audio.data, audio.size, audio.sample_rate);
 		checkALErrors();
-		quickDebug(buffer_id);
-		quickDebug(audio.format);
-		quickDebug((long long)audio.data);
-		quickDebug(audio.size);
-		quickDebug(audio.sample_rate);
 		alGenSources(1, &source_id);
 		alSourcei(source_id, AL_BUFFER, buffer_id);
 	}

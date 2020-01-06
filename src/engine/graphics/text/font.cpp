@@ -8,7 +8,7 @@
 
 namespace oe::graphics {
 
-	Font::Font(int resolution, std::string font_path) {
+	Font::Font(int resolution, bool manual_finish, std::string font_path) {
 		spdlog::info("Loading font: {}, with resolution: {}", font_path, resolution);
 		m_resolution = resolution;
 
@@ -106,12 +106,20 @@ namespace oe::graphics {
 
 		bb_height = bb_max_height - bb_min_height;
 
-		m_glyph_texture = Texture();
-		m_glyph_texture.load3D(data, resolution, resolution, CHAR_COUNT);
+		m_ft = ft;
+		m_face = face;
+		m_data = data;
 
-		FT_Done_Face(face);
-		FT_Done_FreeType(ft);
-		delete[] data;
+		if (!manual_finish) finish();
+	}
+
+	void Font::finish() {
+		m_glyph_texture = Texture();
+		m_glyph_texture.load3D(m_data, m_resolution, m_resolution, CHAR_COUNT);
+
+		FT_Done_Face((FT_Face)m_face);
+		FT_Done_FreeType((FT_Library)m_ft);
+		delete[] m_data;
 	}
 
 	Font::~Font() {

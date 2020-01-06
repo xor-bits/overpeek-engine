@@ -1,8 +1,8 @@
 #include "buffer.h"
 
+#include <GL/glew.h>
 #include <iomanip>
 #include <sstream>
-#include <GL/glew.h>
 #include <cstddef>
 
 #include "engine/graphics/window.h"
@@ -36,7 +36,8 @@ namespace oe::graphics {
 
 	void* Buffer::mapBuffer() {
 		bind();
-		return glMapBuffer(p_target, GL_WRITE_ONLY);
+		void* buffer = glMapBuffer(p_target, GL_WRITE_ONLY);
+		return buffer;
 	}
 
 	void Buffer::unmapBuffer() {

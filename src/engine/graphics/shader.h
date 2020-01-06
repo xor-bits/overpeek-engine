@@ -27,16 +27,16 @@ namespace oe::graphics {
 		unsigned int p_shader_program;
 		std::string p_shader_name;
 
-		unsigned int loadShader(std::string source, unsigned int shadertype);
+		unsigned int loadShader(const std::string& source, unsigned int shadertype);
 		void shaderLog(unsigned int shader, unsigned int type) const;
 		void programLog(int program, unsigned int type) const;
 
 	public:
 		Shader(std::string name = "default_shader");
 
-		void load(std::string compute_shader_source);
-		void load(std::string vertex_shader_source, std::string fragment_shader_source);
-		void load(std::string vertex_shader_source, std::string fragment_shader_source, std::string geometry_shader_source);
+		void load(const std::string& compute_shader_source);
+		void load(const std::string& vertex_shader_source, const std::string& fragment_shader_source);
+		void load(const std::string& vertex_shader_source, const std::string& fragment_shader_source, const std::string& geometry_shader_source);
 		
 		void bind() const;
 		void unbind() const;

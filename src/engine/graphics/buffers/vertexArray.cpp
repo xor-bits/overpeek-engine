@@ -3,6 +3,7 @@
 #include "buffer.h"
 
 #include <GL/glew.h>
+#include <engine/internal_libs.h>
 
 
 

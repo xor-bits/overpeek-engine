@@ -9,7 +9,7 @@
 
 namespace oe::graphics {
 
-	unsigned int Shader::loadShader(std::string source, unsigned int shadertype) {
+	unsigned int Shader::loadShader(const std::string& source, unsigned int shadertype) {
 		//Load and compile
 		const char* shaderChar = source.c_str();
 
@@ -59,7 +59,7 @@ namespace oe::graphics {
 	Shader::Shader(std::string name) 
 	: p_shader_name(name), p_shader_program(0) {}
 
-	void Shader::load(std::string compute_shader_source) {
+	void Shader::load(const std::string& compute_shader_source) {
 #ifndef EMSCRIPTEN
 
 		// Compute shader
@@ -81,7 +81,7 @@ namespace oe::graphics {
 	}
 
 	
-	void Shader::load(std::string vertex_shader_source, std::string fragment_shader_source) {
+	void Shader::load(const std::string& vertex_shader_source, const std::string& fragment_shader_source) {
 
 		// Vertex shader
 		GLuint vertex_shader = loadShader(vertex_shader_source, GL_VERTEX_SHADER);
@@ -103,7 +103,7 @@ namespace oe::graphics {
 		glDeleteShader(fragment_shader);
 	}
 	
-	void Shader::load(std::string vertex_shader_source, std::string fragment_shader_source, std::string geometry_shader_source) {
+	void Shader::load(const std::string& vertex_shader_source, const std::string& fragment_shader_source, const std::string& geometry_shader_source) {
 
 		// Vertex shader
 		GLuint vertex_shader = loadShader(vertex_shader_source, GL_VERTEX_SHADER);

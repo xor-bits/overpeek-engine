@@ -1,6 +1,7 @@
 #include "texture.h"
 
 #include <GL/glew.h>
+#include <assert.h>
 
 
 
@@ -13,7 +14,6 @@ namespace oe::graphics {
 		p_target = 0;
 
 		glGenTextures(1, &p_id);
-		bind();
 	}
 
 	Texture::~Texture() {
@@ -28,7 +28,7 @@ namespace oe::graphics {
 		glBindTexture(p_target, 0);
 	}
 
-	void Texture::load2D(oe::utils::image_data data) {
+	void Texture::load2D(const oe::utils::image_data& data) {
 		load2D(data.data, data.width, data.height);
 	}
 
@@ -41,7 +41,7 @@ namespace oe::graphics {
 		glTexParameteri(p_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(p_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(p_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
+		
 		glTexImage2D(p_target, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 

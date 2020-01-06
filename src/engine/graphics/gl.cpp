@@ -4,6 +4,7 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <iostream>
 
 
 
@@ -65,7 +66,7 @@ namespace oe::graphics {
 		glfwSwapInterval(interval);
 	}
 
-	int GL::checkGLErrors() {
+	int GL::__checkGLErrors(const std::string& file, int line) {
 		GLenum err = glGetError();
 		if (err != 0) {
 			std::string errorText;
@@ -93,7 +94,12 @@ namespace oe::graphics {
 				errorText = "Unknown error!";
 				break;
 			}
-			spdlog::error("OpenGL ({}):\n{}", err, errorText);
+			spdlog::error("OpenGL Error");
+			std::cout << fmt::format("Code          :   {}", err) << std::endl;
+			std::cout << fmt::format("Description   :   {}", errorText) << std::endl;
+			std::cout << fmt::format("Line          :   {}", line) << std::endl;
+			std::cout << fmt::format("File          :   {}", file) << std::endl;
+			std::cout << std::endl;
 			return err;
 		}
 		return 0;

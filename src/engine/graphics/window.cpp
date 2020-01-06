@@ -33,6 +33,59 @@ namespace oe::graphics {
 	void(*Window::m_resize_callback)(int, int);
 	void(*Window::m_charmods_callback)(unsigned int, int);
 
+
+
+	static void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+		// ignore non-significant error/warning codes
+		if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
+
+		std::string log_text = "OpenGL Debug Message";
+		switch (severity) {
+			case GL_DEBUG_SEVERITY_HIGH:         spdlog::error(log_text); break;
+			case GL_DEBUG_SEVERITY_MEDIUM:       spdlog::critical(log_text); break;
+			case GL_DEBUG_SEVERITY_LOW:          spdlog::warn(log_text); break;
+			case GL_DEBUG_SEVERITY_NOTIFICATION: spdlog::info(log_text); break;
+		}
+
+		std::string log_source;
+		switch (source) {
+			case GL_DEBUG_SOURCE_API:             log_source = "API"; break;
+			case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   log_source = "Window System"; break;
+			case GL_DEBUG_SOURCE_SHADER_COMPILER: log_source = "Shader Compiler"; break;
+			case GL_DEBUG_SOURCE_THIRD_PARTY:     log_source = "Third Party"; break;
+			case GL_DEBUG_SOURCE_APPLICATION:     log_source = "Application"; break;
+			case GL_DEBUG_SOURCE_OTHER:           log_source = "Other"; break;
+		}
+
+		std::string log_type;
+		switch (type) {
+			case GL_DEBUG_TYPE_ERROR:               log_type = "Error"; break;
+			case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: log_type = "Deprecated Behaviour"; break;
+			case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  log_type = "Undefined Behaviour"; break;
+			case GL_DEBUG_TYPE_PORTABILITY:         log_type = "Portability"; break;
+			case GL_DEBUG_TYPE_PERFORMANCE:         log_type = "Performance"; break;
+			case GL_DEBUG_TYPE_MARKER:              log_type = "Marker"; break;
+			case GL_DEBUG_TYPE_PUSH_GROUP:          log_type = "Push Group"; break;
+			case GL_DEBUG_TYPE_POP_GROUP:           log_type = "Pop Group"; break;
+			case GL_DEBUG_TYPE_OTHER:               log_type = "Other"; break;
+		}
+
+		std::string log_severity;
+		switch (severity) {
+			case GL_DEBUG_SEVERITY_HIGH:         log_severity = "Severity: high"; break;
+			case GL_DEBUG_SEVERITY_MEDIUM:       log_severity = "Severity: medium"; break;
+			case GL_DEBUG_SEVERITY_LOW:          log_severity = "Severity: low"; break;
+			case GL_DEBUG_SEVERITY_NOTIFICATION: log_severity = "Severity: notification"; break;
+		}
+
+		std::cout << fmt::format("Message       :   ({}): {}", id, message) << std::endl;
+		std::cout << fmt::format("Source        :   {}", log_source) << std::endl;
+		std::cout << fmt::format("Description   :   {}", log_type) << std::endl;
+		std::cout << fmt::format("Line          :   {}", log_severity) << std::endl;
+		std::cout << std::endl;
+		
+	}
+
 	int Window::init(unsigned int width, unsigned int height, std::string title, int mods)
 	{
 		p_width = width; p_height = height;
@@ -63,13 +116,19 @@ namespace oe::graphics {
 			return -1;
 		}
 
+		// Window hints
 		if (multisample != 0) glfwWindowHint(GLFW_SAMPLES, multisample);
 		glfwWindowHint(GLFW_RESIZABLE, resizeable);
 #ifndef EMSCRIPTEN
 		glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, transparent);
 #endif
 		glfwWindowHint(GLFW_DECORATED, !borderless);
+		if (p_debugmode) {
+			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+		}
 
+
+		// Window creation
 		if (fullscreen)
 			p_window = glfwCreateWindow(p_width, p_height, title.c_str(), glfwGetPrimaryMonitor(), NULL);
 		else
@@ -109,10 +168,16 @@ namespace oe::graphics {
 
 		//glfwSetInputMode(mWindow, OE_CURSOR, OE_CURSOR_DISABLED);
 
+		// GL settings
 		if (multisample != 0) glEnable(GL_MULTISAMPLE);
-
 		glClearColor(0.18f, 0.18f, 0.20f, 1.0f);
 		viewport();
+		if (p_debugmode) {
+			glEnable(GL_DEBUG_OUTPUT);
+			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+			glDebugMessageCallback(glDebugOutput, nullptr);
+			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+		}
 	}
 
 	void Window::viewport() {
@@ -190,7 +255,6 @@ namespace oe::graphics {
 	}
 
 	void Window::update() {
-		if (p_debugmode) GL::checkGLErrors();
 		glfwSwapBuffers((GLFWwindow*)p_window);
 	}
 

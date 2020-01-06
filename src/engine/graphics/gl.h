@@ -4,11 +4,18 @@
 
 
 
+
 namespace oe::graphics {
 
 	class GL {
 	public:
-		static int checkGLErrors();
+		static int __checkGLErrors(const std::string& file, int line);
+
+#ifdef _DEBUG
+#define checkGLErrors() __checkGLErrors(__FILE__, __LINE__)
+#else
+#define checkGLErrors()
+#endif
 
 		static void enableBlending();
 		static void disableBlending();

@@ -4,7 +4,7 @@
 
 namespace oe::graphics {
 
-	constexpr char* vertsource = R"(
+	constexpr char* vertsource = R"shader(
 		#version 400 core
 		layout(location = 0) in vec3 vertex_pos;
 		
@@ -14,9 +14,9 @@ namespace oe::graphics {
 			gl_Position = vec4(vertex_pos, 1);
 			UV = (vertex_pos.xy + vec2(1.0, 1.0)) / 2.0;
 		}
-	)";
+	)shader";
 
-	constexpr char* fragsource = R"(
+	constexpr char* fragsource = R"shader(
 		#version 330 core
 		
 		out vec4 color;
@@ -95,7 +95,7 @@ namespace oe::graphics {
 				color = texture(unif_texture, UV);
 			}
 		}
-	)";
+	)shader";
 
 	BasicPostprocessShader::BasicPostprocessShader() : Shader("Asset:BasicPostprocessShader") {
 		try {

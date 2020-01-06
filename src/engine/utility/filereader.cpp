@@ -51,12 +51,11 @@ namespace oe::utils {
 		mp3dec_file_info_t info;
 		if (mp3dec_load(&mp3d, path.string().c_str(), &info, NULL, NULL)) {
 			spdlog::error("Failed to load audiofile \"{}\"", std::string(path.string().c_str()));
-			getchar();
-			exit(-1);
+			return audio_data();
 		}
 
 		// data size
-		int size = info.samples * sizeof(short);
+		size_t size = info.samples * sizeof(int16_t);
 
 		// Format
 		int format = -1;
@@ -71,7 +70,7 @@ namespace oe::utils {
 	}
 
 	void freeImage(const image_data& image) {
-		delete[] image.data;
+		free(image.data);
 	}
 
 	void freeAudio(const audio_data& audio) {

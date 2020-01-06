@@ -4,6 +4,7 @@
 #include "buffers/buffer.h"
 #include "../utility/math.h"
 #include "../internal_libs.h"
+#include "engine/graphics/gl.h"
 
 #include <GL/glew.h>
 
@@ -70,6 +71,7 @@ namespace oe::graphics {
 	}
 
 	void Renderer::submitVertexData(const glm::vec3& position, const glm::vec2& size, int texture, const glm::vec4& color) {
+		if (!m_mapped_buffer) { spdlog::error("Buffer not mapped!"); return; }
 		m_mapped_buffer[m_buffer_pos].position = position;
 		m_mapped_buffer[m_buffer_pos].size_or_uv = size;
 		m_mapped_buffer[m_buffer_pos].texture = texture;

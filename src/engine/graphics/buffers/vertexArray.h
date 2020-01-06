@@ -10,7 +10,7 @@ namespace oe::graphics {
 
 	class VertexArray {
 	private:
-		unsigned int p_id;
+		unsigned int p_id = 0;
 		std::vector<VertexBuffer*> p_buffers;
 	
 	public:

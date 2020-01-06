@@ -22,7 +22,7 @@ namespace oe::graphics {
 		void unbind() const;
 		
 		// Format RGBA
-		void load2D(oe::utils::image_data data);
+		void load2D(const oe::utils::image_data& data);
 		// Format RGBA
 		void load2D(void *data, int width, int height);
 		// Format RGBA

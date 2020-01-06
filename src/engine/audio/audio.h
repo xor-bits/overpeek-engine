@@ -16,7 +16,7 @@ namespace oe::audio {
 		static int init();
 		static int checkALErrors(int debug_info = 0);
 
-		Audio(oe::utils::audio_data audio);
+		Audio(const oe::utils::audio_data& audio);
 
 		//Play audio at id
 		void play(glm::vec2 position = glm::vec2(0.0f, 0.0f)) const;

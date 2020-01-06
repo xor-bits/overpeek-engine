@@ -4,7 +4,7 @@
 
 namespace oe::graphics {
 
-	constexpr char* vertsource = R"(
+	constexpr char* vertsource = R"shader(
 		#version 330 core
 		layout(location = 0) in vec3 vertex_pos;
 		layout(location = 1) in vec2 texture_uv;
@@ -27,9 +27,9 @@ namespace oe::graphics {
 			shader_id = int(floor(texture_id));
 			shader_color = vertex_color;
 		}
-	)";
+	)shader";
 
-	constexpr char* fragsource = R"(
+	constexpr char* fragsource = R"shader(
 		#version 330 core
 		in vec2 shader_uv;
 		in vec4 shader_color;
@@ -45,7 +45,7 @@ namespace oe::graphics {
 			if (usetex != 0) color = texture(tex, vec3(shader_uv, shader_id)) * shader_color;
 			else color = shader_color;
 		}
-	)";
+	)shader";
 
 	MultiTextureShader::MultiTextureShader() : Shader("Asset:MultiTextureShader") {
 		try {
