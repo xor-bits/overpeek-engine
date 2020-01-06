@@ -3,5 +3,5 @@ Engine project
 
 ## CMake
 ```
-cmake -B -build
+cmake -B /build/
 ```
