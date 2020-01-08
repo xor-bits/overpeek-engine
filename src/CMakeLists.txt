@@ -31,23 +31,23 @@ file(
     "${_src_root_path}/*.cpp*"
     "${_src_root_path}/*.h*"
 )
-# library
-add_library(${PROJECT_NAME} STATIC ${_source_list} ../lib/glad/src/glad.c)
-# organize
 foreach(_source IN ITEMS ${_source_list})
     get_filename_component(_source_path "${_source}" PATH)
     file(RELATIVE_PATH _source_path_rel "${_src_root_path}" "${_source_path}")
     string(REPLACE "/" "\\" _group_path "${_source_path_rel}")
     source_group("${_group_path}" FILES "${_source}")
 endforeach()
+# library
+add_library(${PROJECT_NAME} STATIC ${_source_list})
 # linux
 if(UNIX)
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-ldl")
 endif()
 
 # add dependencies
-# glad
-target_include_directories(${PROJECT_NAME} PRIVATE ../lib/glad/include)
+# add glad
+target_link_libraries(${PROJECT_NAME} PRIVATE glad)
+target_include_directories(${PROJECT_NAME} PRIVATE ${glad_INCLUDE_DIRS})
 # add freetype
 target_include_directories(${PROJECT_NAME} PRIVATE ${FREETYPE_INCLUDE_DIRS})
 # add glfw and opengl
@@ -56,9 +56,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${GLFW3_INCLUDE_DIR})
 # add openal
 target_include_directories(${PROJECT_NAME} PRIVATE ${OPENAL_INCLUDE_DIR})
 # add others
-include_directories(../lib/glm/glm)
+include_directories(../lib/glad/include)
+include_directories(../lib/glm/include)
 include_directories(../lib/spdlog/include)
-include_directories(../lib/stb)
+include_directories(../lib/stb/include)
 include_directories(../lib/minimp3/include)
 
 get_property(inc_dirs DIRECTORY PROPERTY INCLUDE_DIRECTORIES)

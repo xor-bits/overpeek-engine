@@ -10,7 +10,7 @@ namespace oe::graphics {
 	size_t TextureManager::m_textureBufferSize;
 
 	int TextureManager::m_r;
-	oe::graphics::Texture TextureManager::m_texture;
+	oe::graphics::Texture* TextureManager::m_texture;
 	size_t TextureManager::m_current_layer;
 
 	void TextureManager::init(int wh) {
@@ -84,14 +84,14 @@ namespace oe::graphics {
 	void TextureManager::finish() {
 		int layers = m_current_layer;
 
-		m_texture = oe::graphics::Texture();
-		m_texture.load3D(m_textureBuffer, m_r, m_r, layers);
+		m_texture = new oe::graphics::Texture();
+		m_texture->load3D(m_textureBuffer, m_r, m_r, layers);
 
 		delete[] m_textureBuffer;
 	}
 
 	void TextureManager::bind() {
-		m_texture.bind();
+		m_texture->bind();
 	}
 
 }

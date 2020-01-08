@@ -14,10 +14,10 @@ namespace oe::graphics {
 		static size_t m_textureBufferSize;
 
 		static int m_r;
-		static Texture m_texture;
+		static Texture* m_texture;
 		static size_t m_current_layer;
 
-		static Texture getTexture() {
+		static Texture* getTexture() {
 			return m_texture;
 		}
 
