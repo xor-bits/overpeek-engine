@@ -39,6 +39,7 @@ foreach(_source IN ITEMS ${_source_list})
 endforeach()
 # library
 add_library(${PROJECT_NAME} STATIC ${_source_list})
+set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER engine)
 # linux
 if(UNIX)
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-ldl")

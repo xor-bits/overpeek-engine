@@ -13,6 +13,7 @@ set(CMAKE_USE_RELATIVE_PATHS TRUE)
 # glad
 add_library(${PROJECT_NAME} STATIC src/glad.c include/glad/glad.h include/KHR/khrplatform.h)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
+set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER lib)
 
 # glad_INCLUDE_DIRS
 set(${PROJECT_NAME}_INCLUDE_DIRS
