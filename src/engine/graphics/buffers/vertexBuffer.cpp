@@ -3,7 +3,7 @@
 #include "engine/graphics/renderer.h"
 #include "engine/internal_libs.h"
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 
 

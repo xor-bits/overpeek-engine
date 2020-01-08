@@ -1,16 +1,11 @@
-#include <engine.h>
-#include <internal_libs.h>
-#include <graphics/textureManager.h>
-#include <graphics/assets/singleTextureShader.h>
+#include <engine/engine.h>
+#include <engine/internal_libs.h>
+#include <engine/graphics/textureManager.h>
+#include <engine/graphics/assets/singleTextureShader.h>
 
-#include <Windows.h>
 #include <string>
 
-#if GLEW_STATIC
-void sm();
-#else
-void sm();
-#endif
+
 
 oe::graphics::SingleTextureShader* shader;
 oe::graphics::Renderer* renderer_0;
@@ -56,7 +51,7 @@ void update() {
 int main() {
 	oe::init();
 
-	oe::graphics::Window::init(900, 600, "overpeek-engine", WINDOW_GL_DEBUG | WINDOW_MULTISAMPLE_X2 | WINDOW_TRANSPARENT);
+	oe::graphics::Window::init(900, 600, "overpeek-engine", NULL);
 	oe::graphics::Window::setClearColor(0.0f, 0.0f, 0.0f, 0.2f);
 	oe::graphics::GL::setPolygonMode(0);
 	renderer_0 = new oe::graphics::Renderer(oe::graphics::types::dynamicrender, oe::graphics::types::staticrender, 5, nullptr);

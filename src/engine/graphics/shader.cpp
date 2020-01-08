@@ -1,7 +1,9 @@
 #include "shader.h"
 
 #include <iostream>
-#include <GL/glew.h>
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 #include "engine/utility/filereader.h"
 

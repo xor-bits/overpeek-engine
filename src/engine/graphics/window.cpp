@@ -3,7 +3,7 @@
 #include <string>
 #include <iostream>
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include "engine/internal_libs.h"
@@ -146,16 +146,15 @@ namespace oe::graphics {
 		glfwSetWindowPos((GLFWwindow*)p_window, monitor_width / 2.0f - p_width / 2.0f, monitor_height / 2.0f - p_height / 2.0f);
 #endif
 
-		// opengl/glew
+		// opengl/glad
 		//--------
 		glfwMakeContextCurrent((GLFWwindow*)p_window);
 
-		if (glewInit() != GLEW_OK) {
-			spdlog::error("Failed to initalize GLEW");
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+			spdlog::error("Failed to init GLAD");
 			return -3;
-		}
+    		}
 
-		spdlog::info("Window created");
 		spdlog::info("OpenGL Renderer: " + std::string((char*)glGetString(GL_RENDERER)));
 		spdlog::info("OpenGL Version: " + std::string((char*)glGetString(GL_VERSION)));
 
@@ -178,6 +177,8 @@ namespace oe::graphics {
 			glDebugMessageCallback(glDebugOutput, nullptr);
 			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 		}
+
+		spdlog::info("Window created");
 	}
 
 	void Window::viewport() {

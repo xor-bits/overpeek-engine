@@ -1,6 +1,6 @@
 #include "buffer.h"
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <iomanip>
 #include <sstream>
 #include <cstddef>

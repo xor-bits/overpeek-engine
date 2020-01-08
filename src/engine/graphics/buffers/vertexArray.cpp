@@ -2,7 +2,7 @@
 
 #include "buffer.h"
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <engine/internal_libs.h>
 
 
