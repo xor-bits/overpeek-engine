@@ -9,23 +9,23 @@
 namespace oe::graphics {
 
 	Font::Font(int resolution, bool manual_finish, std::string font_path) {
-		spdlog::info("Loading font: {}, with resolution: {}", font_path, resolution);
+		spdlog::info("Loading font {} with resolution {}", font_path, resolution);
 		m_resolution = resolution;
 
 		FT_Library ft;
 		if (FT_Init_FreeType(&ft)) {
-			spdlog::error("Failed to initialize Freetype");
+			throw std::exception("Failed to initialize Freetype");
 			return;
 		}
 
 		FT_Face face;
 		if (FT_New_Face(ft, font_path.c_str(), 0, &face)) {
-			spdlog::error("Failed to load font");
+			throw std::exception("Failed to load font");
 			return;
 		}
 
 		//												  r, g, b, a
-		size_t data_per_glyph = resolution * resolution * 4;
+		size_t data_per_glyph = (size_t)resolution * (size_t)resolution * 4ul;
 		size_t data_size = CHAR_COUNT * data_per_glyph;
 		unsigned char* data = new unsigned char[data_size];
 		memset(data, (unsigned char)0, data_size); // clear to 0
@@ -36,6 +36,7 @@ namespace oe::graphics {
 		FT_Set_Pixel_Sizes(face, 0, resolution);
 		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
 
+		spdlog::debug("Loading {} glyphs", CHAR_COUNT);
 		for (int i = 0; i < CHAR_COUNT; i++) {
 			unsigned char c = i;
 
@@ -111,6 +112,7 @@ namespace oe::graphics {
 		m_data = data;
 
 		if (!manual_finish) finish();
+		spdlog::debug("Font loaded");
 	}
 
 	void Font::finish() {

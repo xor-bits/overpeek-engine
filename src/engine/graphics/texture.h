@@ -21,13 +21,21 @@ namespace oe::graphics {
 		void bind() const;
 		void unbind() const;
 		
-		// Format RGBA
+		/*
+		Data format is always RGBA
+		4 bytes
+		*/
+		
 		void load2D(const oe::utils::image_data& data);
-		// Format RGBA
-		void load2D(void *data, int width, int height);
-		// Format RGBA
-		void load3D(void *data, int width, int height, int depth);
 		void computeShaderBuffer(int width, int height);
+		void generateMipMap();
+
+		void empty2D(int width, int height);
+		void load2D(void *data, int width, int height);
+		void data2D(void *data, int offx, int offy, int width, int height);
+		void empty3D(int width, int height, int depth);
+		void load3D(void *data, int width, int height, int depth);
+		void data3D(void* data, int offx, int offy, int offz, int width, int height, int depth);
 
 		inline unsigned int getId() const { return p_id; }
 		inline unsigned int getWidth() const { return p_width; }

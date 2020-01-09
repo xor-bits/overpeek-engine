@@ -34,15 +34,20 @@ namespace oe::graphics {
 			if (c == '#') {
 				// chech if there are enough characters remaining
 				if (i + 6 < text.size()) {
-					std::stringstream hex_str;
-					hex_str << std::hex << text.substr(i + 1, 6);
-					unsigned long hex = std::stol(hex_str.str(), nullptr, 16);
+					try {
+						std::stringstream hex_str;
+						hex_str << std::hex << text.substr(i + 1, 6);
+						unsigned long hex = std::stol(hex_str.str(), nullptr, 16);
 
-					glm::vec3 rgb = hexToRGB(hex);
-					curColor = glm::vec4(rgb / 255.0f, 1.0f); // alpha 1.0
+						glm::vec3 rgb = hexToRGB(hex);
+						curColor = glm::vec4(rgb / 255.0f, 1.0f); // alpha 1.0
 
-					i += 6;
-					continue;
+						i += 6;
+						continue;
+					}
+					catch (std::exception & e) {
+						// Wasn't hexcode
+					}
 				}
 			}
 			

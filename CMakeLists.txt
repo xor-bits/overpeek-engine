@@ -10,3 +10,4 @@ add_subdirectory(src) # static library (engine)
 # tests
 add_subdirectory(tests/test1) # executable (test1)
 add_subdirectory(tests/test2) # executable (test2)
+add_subdirectory(tests/test3) # executable (test3)

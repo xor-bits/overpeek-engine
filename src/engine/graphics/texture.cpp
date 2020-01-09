@@ -30,6 +30,38 @@ namespace oe::graphics {
 		glBindTexture(p_target, 0);
 	}
 
+	void Texture::generateMipMap() {
+		bind();
+		glGenerateMipmap(p_target);
+	}
+
+	void Texture::empty2D(int width, int height) {
+		p_target = GL_TEXTURE_2D;
+
+		bind();
+
+		glTexParameteri(p_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(p_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(p_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(p_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		glTexStorage2D(p_target, 1, GL_RGBA8, width, height);
+	}
+
+	void Texture::empty3D(int width, int height, int depth) {
+		p_target = GL_TEXTURE_2D_ARRAY;
+
+		bind();
+
+		glTexParameteri(p_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(p_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(p_target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		glTexParameteri(p_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(p_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		glTexStorage3D(p_target, 1, GL_RGBA8, width, height, depth);
+	}
+
 	void Texture::load2D(const oe::utils::image_data& data) {
 		load2D(data.data, data.width, data.height);
 	}
@@ -44,7 +76,7 @@ namespace oe::graphics {
 		glTexParameteri(p_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(p_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		
-		glTexImage2D(p_target, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(p_target, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 
 	void Texture::load3D(void* data, int width, int height, int depth) {
@@ -58,7 +90,7 @@ namespace oe::graphics {
 		glTexParameteri(p_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(p_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-		glTexImage3D(p_target, 0, GL_RGBA, width, height, depth, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glTexImage3D(p_target, 0, GL_RGBA8, width, height, depth, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 
 	void Texture::computeShaderBuffer(int width, int height) {
@@ -70,6 +102,14 @@ namespace oe::graphics {
 		glTexParameteri(p_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 		glTexImage2D(p_target, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+	}
+
+	void Texture::data2D(void* data, int offx, int offy, int width, int height) {
+		glTextureSubImage2D(p_id, 0, offx, offy, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	}
+
+	void Texture::data3D(void* data, int offx, int offy, int offz, int width, int height, int depth) {
+		glTextureSubImage3D(p_id, 0, offx, offy, offz, width, height, depth, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 
 }

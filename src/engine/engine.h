@@ -12,15 +12,20 @@
 // Logic
 #include "utility/math.h"
 #include "utility/clock.h"
+#include "utility/debug.h"
 #include "utility/random.h"
 #include "utility/gameloop.h"
 #include "utility/binaryIO.h"
 #include "utility/filereader.h"
 
+// internal libs
+#include "internal_libs.h"
+
 // Other
 #include "graphics/textureManager.h"
 #include "graphics/assets/multiTextureShader.h"
 #include "graphics/assets/singleTextureShader.h"
+#include "graphics/assets/basicPostprocessShader.h"
 
 #define quickDebug(x) spdlog::debug(#x ## ": {}", x)
 

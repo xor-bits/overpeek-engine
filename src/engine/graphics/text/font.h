@@ -8,6 +8,14 @@
 
 #define CHAR_COUNT 128
 
+#ifdef WIN32
+#define DEFAULT_FONT	"C:/Windows/Fonts/LiberationSans-Regular.ttf"
+#elif __linux__
+#define DEFAULT_FONT	"/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"
+#else
+#define DEFAULT_FONT	"LiberationSans-Regular.ttf"
+#endif
+
 
 
 namespace oe::graphics {
@@ -35,7 +43,13 @@ namespace oe::graphics {
 		float bb_height;
 	
 	public:
-		Font(int resolution = 64, bool manual_finish = false, std::string font_path = "calibri.ttf");
+		/*
+		font_path = "default" loads LiberationSans-Regular.ttf from
+		linux: /usr/share/fonts/truetype/liberation/
+		windows: C:/Windows/Fonts/
+		macos: *workdir*
+		*/
+		Font(int resolution = 64, bool manual_finish = false, std::string font_path = DEFAULT_FONT);
 		~Font();
 
 		// Must be executed on main thread (OpenGL thread)
