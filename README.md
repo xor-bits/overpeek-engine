@@ -3,7 +3,7 @@ Engine project
 
 ### Cloning
 ```
-git clone --recursive https://github.com/Overpeek/unnamed-game.git
+git clone --recursive https://github.com/Overpeek/overpeek-engine.git
 ```
 
 ### CMake
