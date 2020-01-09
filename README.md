@@ -6,10 +6,16 @@ Engine project
 git clone --recursive https://github.com/Overpeek/overpeek-engine.git
 ```
 
+
 ### CMake
 ```
 cmake -B build/
 ```
+#### Depends:
+- Freetype
+- GLFW3
+- OpenGL
+- OpenAL
 
 
 ### TODO
