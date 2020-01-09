@@ -1,9 +1,14 @@
 # overpeek-engine
 Engine project
 
-## CMake
+### Cloning
 ```
-cmake -B /build/
+git clone --recursive https://github.com/Overpeek/unnamed-game.git
+```
+
+### CMake
+```
+cmake -B build/
 ```
 
 
