@@ -4,6 +4,8 @@
 #include FT_FREETYPE_H
 #include <freetype/ftstroke.h>
 
+#include "engine/internal_libs.h"
+
 
 
 namespace oe::graphics {
@@ -14,13 +16,13 @@ namespace oe::graphics {
 
 		FT_Library ft;
 		if (FT_Init_FreeType(&ft)) {
-			throw std::exception("Failed to initialize Freetype");
+			oe::error_terminate("FT_Init_FreeType failed");
 			return;
 		}
 
 		FT_Face face;
 		if (FT_New_Face(ft, font_path.c_str(), 0, &face)) {
-			throw std::exception("Failed to load font");
+			oe::error_terminate("Failed to load font at path {}", font_path.c_str());
 			return;
 		}
 
@@ -43,12 +45,13 @@ namespace oe::graphics {
 			//Load glyph
 			if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
 				spdlog::warn("Failed to load glyph: {}", c);
+				m_glyphs[i] = nullptr; 
 				continue;
 			}
 
 			auto g = face->glyph;
 
-			if (!g->bitmap.buffer) continue;
+			if (!g->bitmap.buffer) { m_glyphs[i] = nullptr; continue; }
 
 			//Now store character for later use
 			Glyph* glyph = new Glyph{
@@ -126,7 +129,7 @@ namespace oe::graphics {
 
 	Font::~Font() {
 		for (Glyph* g : m_glyphs) {
-			delete g;
+			if (g) delete g;
 		}
 	}
 

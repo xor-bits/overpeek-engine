@@ -10,8 +10,8 @@ oe::graphics::SingleTextureShader* shader_single;
 oe::graphics::Renderer* renderer;
 oe::graphics::Font* font;
 oe::graphics::Texture* texture;
-constexpr int width = 128;
-constexpr int height = 128;
+constexpr int width = 64;
+constexpr int height = 64;
 constexpr int channels = 4;
 unsigned char data[width * height * channels];
 FastNoise* noise;
@@ -23,19 +23,19 @@ void render(float update_fraction) {
 	// Update texture
 	// This is stupid
 	// Just for testing
-	//static glm::vec2 delta = { 0.0f, 0.0f };
-	//const glm::vec2& cursor = oe::graphics::Window::getMousePos();
-	//delta += cursor * (0.00001f * oe::utils::GameLoop::getMSPerFrame());
+	static glm::vec2 delta = { 0.0f, 0.0f };
+	const glm::vec2& cursor = oe::graphics::Window::getMousePos();
+	delta += cursor * (0.00001f * oe::utils::GameLoop::getMSPerFrame());
 	memset(data, (char)255, width * height * channels);
-	//for (size_t x = 0; x < width; x++) {
-	//	for (size_t y = 0; y < height; y++) {
-	//		unsigned char value = (noise->GetSimplexFractal((float)x / (float)width + delta.x, (float)y / (float)height + delta.y) + 1.0f) * 128.0f;
-	//		data[x * channels + y * width * channels + 0] = 255;
-	//		data[x * channels + y * width * channels + 1] = 255;
-	//		data[x * channels + y * width * channels + 2] = 255;
-	//		data[x * channels + y * width * channels + 3] = 255;
-	//	}
-	//}
+	for (size_t x = 0; x < width; x++) {
+		for (size_t y = 0; y < height; y++) {
+			unsigned char value = (noise->GetSimplexFractal((float)x / (float)width + delta.x, (float)y / (float)height + delta.y) + 1.0f) * 128.0f;
+			data[x * channels + y * width * channels + 0] = value;
+			data[x * channels + y * width * channels + 1] = value;
+			data[x * channels + y * width * channels + 2] = value;
+			data[x * channels + y * width * channels + 3] = 255;
+		}
+	}
 
 	// Texture
 	renderer->begin();
@@ -105,7 +105,7 @@ int main() {
 	shader = new oe::graphics::MultiTextureShader();
 	shader_single = new oe::graphics::SingleTextureShader();
 	texture = new oe::graphics::Texture();
-	texture->empty2D(128, 128);
+	texture->empty2D(width, height);
 	noise = new FastNoise(oe::utils::Clock::getMicroseconds());
 	noise->SetFractalOctaves(8);
 	noise->SetFractalGain(0.5f);

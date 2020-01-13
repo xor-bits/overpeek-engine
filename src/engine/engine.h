@@ -9,6 +9,9 @@
 #include "graphics/framebuffer.h"
 #include "graphics/text/textLabel.h"
 
+// Audio
+#include "audio/audio.h"
+
 // Logic
 #include "utility/math.h"
 #include "utility/clock.h"

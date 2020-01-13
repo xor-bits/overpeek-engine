@@ -8,12 +8,13 @@
 
 #define CHAR_COUNT 128
 
+#define __FONT_NAME		"Arial.ttf"
 #ifdef WIN32
-#define DEFAULT_FONT	"C:/Windows/Fonts/LiberationSans-Regular.ttf"
+#define DEFAULT_FONT	"C:/Windows/Fonts/" __FONT_NAME
 #elif __linux__
-#define DEFAULT_FONT	"/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"
+#define DEFAULT_FONT	"/usr/share/fonts/truetype/liberation/" __FONT_NAME
 #else
-#define DEFAULT_FONT	"LiberationSans-Regular.ttf"
+#define DEFAULT_FONT	 __FONT_NAME
 #endif
 
 
@@ -35,7 +36,7 @@ namespace oe::graphics {
 
 	public:
 		Texture m_glyph_texture;
-		Glyph* m_glyphs[256];
+		Glyph* m_glyphs[CHAR_COUNT];
 		int m_resolution;
 
 		float bb_max_height;
@@ -44,7 +45,7 @@ namespace oe::graphics {
 	
 	public:
 		/*
-		font_path = "default" loads LiberationSans-Regular.ttf from
+		font_path = "default" loads Arial.ttf from
 		linux: /usr/share/fonts/truetype/liberation/
 		windows: C:/Windows/Fonts/
 		macos: *workdir*

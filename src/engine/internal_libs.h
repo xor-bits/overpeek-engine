@@ -72,4 +72,20 @@ namespace oe {
 		spdlog::info("Engine initialized");
 	}
 
+
+#define error_terminate(error_msg, ...) __error(fmt::format(error_msg, __VA_ARGS__), __LINE__, __FILE__)
+
+	static void terminate() {
+#ifdef _DEBUG
+		spdlog::info("Press <ENTER> to exit");
+		assert(0);
+#else
+#endif // _DEBUG
+	}
+
+	static void __error(std::string error_msg, int line, std::string file) {
+		spdlog::error("error: {}\nline: {}\nfile: {}", error_msg, line, file);
+		oe::terminate();
+	}
+
 }
