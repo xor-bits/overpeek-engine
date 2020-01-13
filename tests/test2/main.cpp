@@ -1,6 +1,7 @@
 #include <engine/engine.h>
 
 #include <string>
+#include "FastNoise.h"
 
 
 
@@ -9,20 +10,38 @@ oe::graphics::SingleTextureShader* shader_single;
 oe::graphics::Renderer* renderer;
 oe::graphics::Font* font;
 oe::graphics::Texture* texture;
-constexpr int width = 64;
-constexpr int height = 64;
+constexpr int width = 128;
+constexpr int height = 128;
 constexpr int channels = 4;
 unsigned char data[width * height * channels];
+FastNoise* noise;
 
 void render(float update_fraction) {
 	// clear framebuffer
 	oe::graphics::Window::clear();
 
+	// Update texture
+	// This is stupid
+	// Just for testing
+	//static glm::vec2 delta = { 0.0f, 0.0f };
+	//const glm::vec2& cursor = oe::graphics::Window::getMousePos();
+	//delta += cursor * (0.00001f * oe::utils::GameLoop::getMSPerFrame());
+	memset(data, (char)255, width * height * channels);
+	//for (size_t x = 0; x < width; x++) {
+	//	for (size_t y = 0; y < height; y++) {
+	//		unsigned char value = (noise->GetSimplexFractal((float)x / (float)width + delta.x, (float)y / (float)height + delta.y) + 1.0f) * 128.0f;
+	//		data[x * channels + y * width * channels + 0] = 255;
+	//		data[x * channels + y * width * channels + 1] = 255;
+	//		data[x * channels + y * width * channels + 2] = 255;
+	//		data[x * channels + y * width * channels + 3] = 255;
+	//	}
+	//}
+
 	// Texture
 	renderer->begin();
 	renderer->clear();
 	texture->data2D(data, 0, 0, width, height);
-	renderer->submit({ -0.5f, -0.5f }, { 1.0f, 1.0f });
+	renderer->submit({ -0.8f, -0.8f }, { 1.6f, 1.6f });
 	texture->bind();
 	shader_single->bind();
 	renderer->end();
@@ -33,9 +52,9 @@ void render(float update_fraction) {
 	renderer->clear();
 
 	// submitting
-	oe::graphics::Text::submit(*renderer, "The quick brown fox jumps over the lazy dog.", { 0.0f,  0.2f }, 0.14f, oe::graphics::alignment::center_center);
-	oe::graphics::Text::submit(*renderer, "1234567890 =+-/*", { 0.0f,  0.0f }, 0.14f, oe::graphics::alignment::center_center);
-	oe::graphics::Text::submit(*renderer, "@#%()[]{}<>,.;:?!|/\\", { 0.0f, -0.2f }, 0.14f, oe::graphics::alignment::center_center);
+	oe::graphics::Text::submit(*renderer, "#0000ff0@#%()[]{}<>,.;:?!|/\\", { 0.0f, -0.2f }, 0.14f, oe::graphics::alignment::center_center);
+	oe::graphics::Text::submit(*renderer, "#ff00001234567890 =+-/*", { 0.0f,  0.0f }, 0.14f, oe::graphics::alignment::center_center);
+	oe::graphics::Text::submit(*renderer, "#00ff00The quick brown fox jumps over the lazy dog.", { 0.0f,  0.2f }, 0.14f, oe::graphics::alignment::center_center);
 
 	// bind font texture and shader
 	oe::graphics::Text::getFont()->bindTexture();
@@ -54,19 +73,7 @@ void render(float update_fraction) {
 }
 
 void update() {
-	spdlog::info("FPS: " + std::to_string(oe::utils::GameLoop::getFPS()));
 
-#if 1
-	for (size_t x = 0; x < width; x++) {
-		for (size_t y = 0; y < height; y++) {
-			unsigned char c = rand() % 256;
-			data[x * channels + y * width * channels + 0] = c;
-			data[x * channels + y * width * channels + 1] = c;
-			data[x * channels + y * width * channels + 2] = c;
-			data[x * channels + y * width * channels + 3] = 255;
-		}
-	}
-#endif
 }
 
 void resize(int width, int height) {
@@ -98,7 +105,12 @@ int main() {
 	shader = new oe::graphics::MultiTextureShader();
 	shader_single = new oe::graphics::SingleTextureShader();
 	texture = new oe::graphics::Texture();
-	texture->empty2D(64, 64);
+	texture->empty2D(128, 128);
+	noise = new FastNoise(oe::utils::Clock::getMicroseconds());
+	noise->SetFractalOctaves(8);
+	noise->SetFractalGain(0.5f);
+	noise->SetFractalLacunarity(1.72f);
+	noise->SetFrequency(2.0f);
 	std::thread *worker = new std::thread([] {while (true) { update(); } });
 	worker->detach();
 
@@ -114,6 +126,9 @@ int main() {
 
 	// closing
 	oe::graphics::Window::close();
+	delete shader_single;
+	delete noise;
+	delete texture;
 	delete shader;
 	delete renderer;
 	delete font;

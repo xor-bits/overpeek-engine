@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 
 #include <assert.h>
+#include <spdlog/spdlog.h>
 
 
 
@@ -68,6 +69,8 @@ namespace oe::graphics {
 
 	void Texture::load2D(void* data, int width, int height) {
 		p_target = GL_TEXTURE_2D;
+		p_width = width;
+		p_height = height;
 
 		bind();
 
@@ -81,6 +84,9 @@ namespace oe::graphics {
 
 	void Texture::load3D(void* data, int width, int height, int depth) {
 		p_target = GL_TEXTURE_2D_ARRAY;
+		p_width = width;
+		p_height = height;
+		p_depth = depth;
 
 		bind();
 
@@ -95,6 +101,8 @@ namespace oe::graphics {
 
 	void Texture::computeShaderBuffer(int width, int height) {
 		p_target = GL_TEXTURE_2D;
+		p_width = width;
+		p_height = height;
 
 		bind();
 
@@ -105,10 +113,12 @@ namespace oe::graphics {
 	}
 
 	void Texture::data2D(void* data, int offx, int offy, int width, int height) {
+		if (offx + width > p_width || offy + height > p_height) { spdlog::error("Sub texture bigger than initial texture"); return; }
 		glTextureSubImage2D(p_id, 0, offx, offy, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 
 	void Texture::data3D(void* data, int offx, int offy, int offz, int width, int height, int depth) {
+		if (offx + width > p_width || offy + height > p_height || offz + depth > p_depth) { spdlog::error("Sub texture bigger than initial texture"); return; }
 		glTextureSubImage3D(p_id, 0, offx, offy, offz, width, height, depth, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 

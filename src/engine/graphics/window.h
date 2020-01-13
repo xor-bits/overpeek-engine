@@ -73,7 +73,7 @@ namespace oe::graphics {
 
 		static inline bool getButton(int button) { return p_buttons[button]; }
 		static inline bool getKey(int key) { return p_keys[key]; }
-		static inline glm::vec2& getMousePos() { return p_mouse; }
+		static inline const glm::vec2& getMousePos() { return p_mouse; }
 
 		static inline float getAspect() { return (float)getWidth() / (float)getHeight(); }
 		static inline int getHeight() { return p_height; }
