@@ -21,3 +21,4 @@ cmake -B build/
 ### TODO
 - [ ] Freetype -> stb_truetype
 - [ ] Optimized text rendering
+- [ ] GUI (and ImGUI for debugging) 
