@@ -17,15 +17,13 @@ namespace oe::audio {
 		const char* device_name = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
 		ALCdevice* device = alcOpenDevice(device_name);
 		if (device == NULL) {
-			spdlog::error("Cannot open audio device");
-			return -1;
+			oe::error_terminate("Cannot open audio device");
 		}
 
 		// audio context
 		ALCcontext* context = alcCreateContext(device, NULL);
 		if (context == NULL) {
-			spdlog::error("Cannot create OpenAL context");
-			return -2;
+			oe::error_terminate("Cannot create OpenAL context");
 		}
 		alcMakeContextCurrent(context);
 
@@ -35,7 +33,7 @@ namespace oe::audio {
 		return 0;
 	}
 
-	int Audio::checkALErrors(int debug_info) {
+	int Audio::checkALErrors() {
 		ALCenum error = alGetError();
 		if (error == AL_NO_ERROR) return 0;
 
@@ -62,10 +60,7 @@ namespace oe::audio {
 			break;
 		}
 
-		if (debug_info == 0)
-			spdlog::error("OpenAL ({}):\n{}", error, error_string);
-		else
-			spdlog::error("(Line {}) OpenAL ({}):\n{}", debug_info, error, error_string);
+		oe::error_terminate("OpenAL ({}):\n{}", error, error_string);
 		return error;
 	}
 

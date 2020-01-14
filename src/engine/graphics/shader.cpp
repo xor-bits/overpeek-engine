@@ -62,8 +62,6 @@ namespace oe::graphics {
 	: p_shader_name(name), p_shader_program(0) {}
 
 	void Shader::load(const std::string& compute_shader_source) {
-#ifndef EMSCRIPTEN
-
 		// Compute shader
 		GLuint compute_shader = loadShader(compute_shader_source, GL_COMPUTE_SHADER);
 
@@ -77,9 +75,6 @@ namespace oe::graphics {
 
 		//Free up data
 		glDeleteShader(compute_shader);
-#else
-		spdlog::error("No computer shaders for emscripten!");
-#endif
 	}
 
 	

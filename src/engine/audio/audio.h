@@ -14,7 +14,7 @@ namespace oe::audio {
 
 	public:
 		static int init();
-		static int checkALErrors(int debug_info = 0);
+		static int checkALErrors();
 
 		Audio(const oe::utils::audio_data& audio);
 

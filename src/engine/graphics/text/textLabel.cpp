@@ -119,7 +119,7 @@ namespace oe::graphics {
 
 	void Text::submit(Renderer& renderer, const std::string& text, const glm::vec2& pos, const glm::vec2& size, oe::graphics::alignment align, const glm::vec4& bg_color, const Font* font) {
 		if (!font) font = s_font;
-		if (!font) { spdlog::error("No font!"); return; }
+		if (!font) oe::error_terminate("No font!");
 
 		textrenderData renderData = textTorenderData(text);
 		float size_x_accumulator = 0.0f;

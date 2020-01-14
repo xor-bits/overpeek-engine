@@ -83,7 +83,11 @@ namespace oe::graphics {
 		std::cout << fmt::format("Description   :   {}", log_type) << std::endl;
 		std::cout << fmt::format("Line          :   {}", log_severity) << std::endl;
 		std::cout << std::endl;
-		
+		oe::terminate();
+	}
+
+	static void glfwError(int id, const char* description) {
+		oe::error_terminate("GLFW ({}): {}", id, description);
 	}
 
 	int Window::init(unsigned int width, unsigned int height, std::string title, int mods)
@@ -111,9 +115,9 @@ namespace oe::graphics {
 
 		// glfw
 		//--------------
+		glfwSetErrorCallback(glfwError);
 		if (!glfwInit()) {
-			spdlog::error("Failed to initialize GLFW!");
-			return -1;
+			oe::error_terminate("Failed to initialize GLFW!");
 		}
 
 		// Window hints
@@ -135,8 +139,7 @@ namespace oe::graphics {
 			p_window = glfwCreateWindow(p_width, p_height, title.c_str(), NULL, NULL);
 		
 		if (!p_window) {
-			spdlog::error("Failed to create window!");
-			return -2;
+			oe::error_terminate("Failed to create window!");
 		}
 
 #ifndef EMSCRIPTEN
@@ -151,9 +154,8 @@ namespace oe::graphics {
 		glfwMakeContextCurrent((GLFWwindow*)p_window);
 
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-			spdlog::error("Failed to init GLAD");
-			return -3;
-    		}
+			oe::error_terminate("Failed to init GLAD");
+    	}
 
 		spdlog::info("OpenGL Renderer: " + std::string((char*)glGetString(GL_RENDERER)));
 		spdlog::info("OpenGL Version: " + std::string((char*)glGetString(GL_VERSION)));

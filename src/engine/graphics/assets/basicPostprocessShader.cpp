@@ -103,7 +103,7 @@ namespace oe::graphics {
 		}
 		catch (ShaderException & se) {
 			// This shouldn't fail
-			spdlog::error(se.what());
+			oe::error_terminate(se.what());
 		}
 	}
 

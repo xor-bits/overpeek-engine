@@ -19,6 +19,7 @@ find_package(Freetype REQUIRED)
 find_package(GLFW3 3.3 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
+find_package(EntityX REQUIRED)
 
 # ------
 # engine
@@ -56,6 +57,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${OPENGL_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${GLFW3_INCLUDE_DIR})
 # add openal
 target_include_directories(${PROJECT_NAME} PRIVATE ${OPENAL_INCLUDE_DIR})
+# add entityx
+target_include_directories(${PROJECT_NAME} PRIVATE ${ENTITYX_INCLUDE_DIRS})
 # add others
 include_directories(../lib/glad/include)
 include_directories(../lib/glm/include)
@@ -76,6 +79,7 @@ set(${PROJECT_NAME}_LIBS
 	${GLFW3_LIBRARY}
 	${OPENGL_gl_LIBRARY}
 	${OPENAL_LIBRARY}
+	${ENTITYX_LIBRARIES}
 	${CMAKE_DL_LIBS}
     CACHE INTERNAL "${PROJECT_NAME}: Libraries" FORCE
 )
@@ -85,6 +89,7 @@ set(${PROJECT_NAME}_LIBS
 	${GLFW3_LIBRARY}
 	${OPENGL_gl_LIBRARY}
 	${OPENAL_LIBRARY}
+	${ENTITYX_LIBRARIES}
     CACHE INTERNAL "${PROJECT_NAME}: Libraries" FORCE
 )
 endif()

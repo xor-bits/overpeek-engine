@@ -100,6 +100,7 @@ namespace oe::graphics {
 			std::cout << fmt::format("Line          :   {}", line) << std::endl;
 			std::cout << fmt::format("File          :   {}", file) << std::endl;
 			std::cout << std::endl;
+			oe::terminate();
 			return err;
 		}
 		return 0;
