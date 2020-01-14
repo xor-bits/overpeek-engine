@@ -30,20 +30,22 @@ namespace oe::utils {
 		static inline int getUPS() { return p_ups; }
 
 		// NOTE: microseconds not milliseconds
-		static inline int getMSPerFrame() { return p_microsec_frame; }
+		static inline int getFrameMicroseconds() { return p_microsec_frame; }
+		static inline int getFrameMilliseconds() { return getFrameMicroseconds() / 1000.0f; }
 		// NOTE: microseconds not milliseconds
-		static inline int getMSPerUpdate() { return p_microsec_update; }
+		static inline int getUpdateMicroseconds() { return p_microsec_update; }
+		static inline int getUpdateMilliseconds() { return getUpdateMicroseconds() / 1000.0f; }
 
 		// If you dont want to use update loop to move objects
-		static inline float getFrameUpdateScale() { return 0.000001f * oe::utils::GameLoop::getMSPerFrame(); }
+		static inline float getFrameUpdateScale() { return 0.000001f * oe::utils::GameLoop::getFrameMicroseconds(); }
 
 		static int getCalculatedFPS() {
-			int mspf = getMSPerFrame();
-			return (mspf != 0) ? (1000000 / mspf) : 0;
+			int mspf = getFrameMicroseconds();
+			return (mspf != 0) ? (0.000001f * mspf) : 60;
 		}
 		static int getCalculatedUPS() {
-			int mspu = getMSPerUpdate();
-			return (mspu != 0) ? (1000000 / mspu) : 0;
+			int mspu = getUpdateMicroseconds();
+			return (mspu != 0) ? (0.000001f * mspu) : 60;
 		}
 	};
 
