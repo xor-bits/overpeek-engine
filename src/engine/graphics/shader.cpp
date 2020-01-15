@@ -35,7 +35,7 @@ namespace oe::graphics {
 			char* infoLog = new char[infoLogLength];
 			glGetShaderInfoLog(shader, 512, nullptr, infoLog);
 
-			throw ShaderException(p_shader_name + ": shader compilation: \n" + infoLog);
+			oe_error_terminate("{}: shader compilation: \n{}", p_shader_name, infoLog);
 			delete[] infoLog;
 		}
 	}
@@ -50,7 +50,7 @@ namespace oe::graphics {
 			char* infoLog = new char[infoLogLength];
 			glGetProgramInfoLog(program, 512, nullptr, infoLog);
 
-			throw ShaderException(p_shader_name + ": program linking: \n" + infoLog);
+			oe_error_terminate("{}: program linking: \n{}", p_shader_name, infoLog);
 			delete[] infoLog;
 		}
 	}

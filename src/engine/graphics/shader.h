@@ -8,20 +8,6 @@
 
 namespace oe::graphics {
 
-	class ShaderException : public std::exception {
-	private:
-		std::string p_error;
-
-	public:
-		ShaderException(std::string error) {
-			p_error = error;
-		}
-
-		virtual const char* what() const throw() override {
-			return p_error.c_str();
-		}
-	};
-
 	class Shader {
 	private:
 		unsigned int p_shader_program;

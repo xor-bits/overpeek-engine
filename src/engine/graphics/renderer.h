@@ -10,10 +10,11 @@
 
 namespace oe::graphics {
 
-	enum class alignment
+	enum alignment
 	{
-		top_left, center_left, bottom_left, top_center, center_center, bottom_center, top_right, center_right, bottom_right
+		top_left, center_left, bottom_left, top_center, center_center, bottom_center, top_right, center_right, bottom_right, last
 	};
+
 	static glm::vec2 alignmentOffset(const glm::vec2& size, alignment align) {
 		switch (align)
 		{
@@ -35,6 +36,8 @@ namespace oe::graphics {
 			return size * glm::vec2(1.0f, 0.5f);
 		case alignment::bottom_right:
 			return size * glm::vec2(1.0f, 1.0f);
+		default:
+			return size * glm::vec2(0.0f, 0.0f);
 		}
 	}
 

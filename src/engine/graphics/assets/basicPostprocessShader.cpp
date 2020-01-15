@@ -98,13 +98,7 @@ namespace oe::graphics {
 	)shader";
 
 	BasicPostprocessShader::BasicPostprocessShader() : Shader("Asset:BasicPostprocessShader") {
-		try {
-			load(vertsource, fragsource);
-		}
-		catch (ShaderException & se) {
-			// This shouldn't fail
-			oe::error_terminate(se.what());
-		}
+		load(vertsource, fragsource);
 	}
 
 }

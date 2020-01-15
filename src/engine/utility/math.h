@@ -20,12 +20,12 @@ namespace oe::utils {
 	void rotatePoint(glm::vec2 center, float xyangle, glm::vec2 &p);
 
 	template<class T>
-	T clamp(T _val, T _min, T _max) {
+	T clamp(const T _val, const T _min, const T _max) {
 		return max(min(_val, _max), _min);
 	}
 
 	template<class T>
-	T map(T value, T low1, T high1, T low2, T high2) {
+	T map(const T value, const T low1, const T high1, const T low2, const T high2) {
 		return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
 	}
 

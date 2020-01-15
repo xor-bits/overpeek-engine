@@ -17,13 +17,13 @@ namespace oe::audio {
 		const char* device_name = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
 		ALCdevice* device = alcOpenDevice(device_name);
 		if (device == NULL) {
-			oe::error_terminate("Cannot open audio device");
+			oe_error_terminate("Cannot open audio device");
 		}
 
 		// audio context
 		ALCcontext* context = alcCreateContext(device, NULL);
 		if (context == NULL) {
-			oe::error_terminate("Cannot create OpenAL context");
+			oe_error_terminate("Cannot create OpenAL context");
 		}
 		alcMakeContextCurrent(context);
 
@@ -60,7 +60,7 @@ namespace oe::audio {
 			break;
 		}
 
-		oe::error_terminate("OpenAL ({}):\n{}", error, error_string);
+		oe_error_terminate("OpenAL ({}):\n{}", error, error_string);
 		return error;
 	}
 

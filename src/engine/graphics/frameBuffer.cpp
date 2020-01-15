@@ -31,7 +31,7 @@ namespace oe::graphics {
 		// FBO
 		int fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
-			oe::error_terminate("Framebuffer not complete {}", fboStatus);
+			oe_error_terminate("Framebuffer not complete {}", fboStatus);
 
 		clear();
 		unbind();

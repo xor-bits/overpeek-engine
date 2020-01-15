@@ -15,7 +15,7 @@ void render(float update_fraction) {
 	t += oe::utils::GameLoop::getFrameUpdateScale();
 
 	// clear framebuffer
-	oe::graphics::Window::clear();
+	oe::graphics::Window::clearWindow();
 
 	// begin submitting
 	renderer->begin();
@@ -33,15 +33,33 @@ void render(float update_fraction) {
 	renderer->render();
 	
 	// swap buffers and poll events
-	oe::graphics::Window::update();
-	oe::graphics::Window::input();
+	oe::graphics::Window::updateWindow();
+	oe::graphics::Window::pollEvents();
 
 	// check if needs to close
-	if (oe::graphics::Window::shouldClose()) oe::utils::GameLoop::stop();
+	if (oe::graphics::Window::windowShouldClose()) oe::utils::GameLoop::stop();
 }
 
 void update() {
 	spdlog::info("FPS: " + std::to_string(oe::utils::GameLoop::getFPS()));
+}
+
+void resize(int width, int height) {
+	float aspect = oe::graphics::Window::aspect();
+	glm::mat4 pr = glm::ortho(-aspect, aspect, 1.0f, -1.0f);
+	shader->projectionMatrix(pr);
+	shader->useTexture(false);
+}
+
+void keyboard(int key, int action) {
+	if (action == OE_PRESS) {
+		if (key == OE_KEY_ESCAPE) {
+			oe::utils::GameLoop::stop();
+		}
+		else if (key == OE_KEY_ENTER) {
+			oe::graphics::Window::setFullscreen(!oe::graphics::Window::getFullscreen());
+		}
+	}
 }
 
 int main() {
@@ -49,26 +67,27 @@ int main() {
 	oe::init();
 
 	// window
-	oe::graphics::Window::init(900, 600, "Test 1 - Renderer", NULL);
-	oe::graphics::Window::setClearColor(0.0f, 0.0f, 0.0f, 0.2f);
-	oe::graphics::GL::setPolygonMode(0);
+	oe::graphics::Window::WindowConfig window_config;
+	window_config.title = "Test 1 - Renderer";
+	window_config.multisamples = 4;
+	window_config.opengl_debugmode = true;
+	oe::graphics::Window::init(window_config);
+	oe::graphics::Window::setResizeCallback(resize);
+	oe::graphics::Window::setKeyboardCallback(keyboard);
 	oe::graphics::GL::setBackFaceCulling(true);
-	oe::graphics::GL::setSwapInterval(0);
 
 	// drawing
 	renderer = new oe::graphics::Renderer(oe::graphics::types::dynamicrender, oe::graphics::types::staticrender, 5, nullptr);
 	shader = new oe::graphics::SingleTextureShader();
 
 	// matrices
-	glm::mat4 pr = glm::ortho(-oe::graphics::Window::getAspect(), oe::graphics::Window::getAspect(), 1.0f, -1.0f);
-	shader->projectionMatrix(pr);
-	shader->useTexture(false);
+	resize(oe::graphics::Window::getSize().x, oe::graphics::Window::getSize().y);
 	
 	// start
 	oe::utils::GameLoop::init(render, update, 1);
 
 	// closing
-	oe::graphics::Window::close();
+	oe::graphics::Window::closeWindow();
 	delete shader;
 	delete renderer;
 

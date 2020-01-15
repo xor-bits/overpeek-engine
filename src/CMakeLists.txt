@@ -19,7 +19,7 @@ find_package(Freetype REQUIRED)
 find_package(GLFW3 3.3 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
-find_package(EntityX REQUIRED)
+find_package(flecs REQUIRED)
 
 # ------
 # engine
@@ -47,9 +47,12 @@ set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-ldl")
 endif()
 
 # add dependencies
+# add flecs
+target_include_directories(${PROJECT_NAME} PRIVATE ${flecs_INCLUDE_DIR})
 # add glad
-target_link_libraries(${PROJECT_NAME} PRIVATE glad)
 target_include_directories(${PROJECT_NAME} PRIVATE ${glad_INCLUDE_DIRS})
+# add imgui
+target_include_directories(${PROJECT_NAME} PUBLIC ${imgui_INCLUDE_DIRS})
 # add freetype
 target_include_directories(${PROJECT_NAME} PRIVATE ${FREETYPE_INCLUDE_DIRS})
 # add glfw and opengl
@@ -57,13 +60,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${OPENGL_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${GLFW3_INCLUDE_DIR})
 # add openal
 target_include_directories(${PROJECT_NAME} PRIVATE ${OPENAL_INCLUDE_DIR})
-# add entityx
-target_include_directories(${PROJECT_NAME} PRIVATE ${ENTITYX_INCLUDE_DIRS})
 # add others
 include_directories(../lib/glad/include)
 include_directories(../lib/glm/include)
 include_directories(../lib/spdlog/include)
 include_directories(../lib/stb/include)
+include_directories(../lib/minimp3/include)
 include_directories(../lib/minimp3/include)
 
 get_property(inc_dirs DIRECTORY PROPERTY INCLUDE_DIRECTORIES)
@@ -73,23 +75,25 @@ set(${PROJECT_NAME}_INCLUDE_DIRS
     CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE
 )
 
-if (UNIX)
-set(${PROJECT_NAME}_LIBS
+set(_${PROJECT_NAME}_INTERNAL_LIBS
 	${FREETYPE_LIBRARIES}
 	${GLFW3_LIBRARY}
 	${OPENGL_gl_LIBRARY}
 	${OPENAL_LIBRARY}
-	${ENTITYX_LIBRARIES}
+	glad
+	${flecs_LIBRARY}
+	imgui
+)
+
+if (UNIX)
+set(${PROJECT_NAME}_LIBS
+	${_${PROJECT_NAME}_INTERNAL_LIBS}
 	${CMAKE_DL_LIBS}
     CACHE INTERNAL "${PROJECT_NAME}: Libraries" FORCE
 )
 else()
 set(${PROJECT_NAME}_LIBS
-	${FREETYPE_LIBRARIES}
-	${GLFW3_LIBRARY}
-	${OPENGL_gl_LIBRARY}
-	${OPENAL_LIBRARY}
-	${ENTITYX_LIBRARIES}
+	${_${PROJECT_NAME}_INTERNAL_LIBS}
     CACHE INTERNAL "${PROJECT_NAME}: Libraries" FORCE
 )
 endif()

@@ -39,7 +39,7 @@ namespace oe::utils {
 		unsigned char* image = stbi_load(path.string().c_str(), &width, &height, &channels, STBI_rgb_alpha);
 		
 		if (!image) {
-			oe::error_terminate("Failed to load imagefile \"{}\"", std::string(path.string().c_str()));
+			oe_error_terminate("Failed to load imagefile \"{}\"", std::string(path.string().c_str()));
 		}
 
 		return image_data(image, width, height, channels);
@@ -49,7 +49,7 @@ namespace oe::utils {
 		mp3dec_t mp3d;
 		mp3dec_file_info_t info;
 		if (mp3dec_load(&mp3d, path.string().c_str(), &info, NULL, NULL)) {
-			oe::error_terminate("Failed to load audiofile \"{}\"", std::string(path.string().c_str()));
+			oe_error_terminate("Failed to load audiofile \"{}\"", std::string(path.string().c_str()));
 		}
 
 		// data size

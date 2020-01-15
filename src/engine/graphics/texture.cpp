@@ -120,12 +120,12 @@ namespace oe::graphics {
 	}
 
 	void Texture::data2D(void* data, int offx, int offy, int width, int height) {
-		if (offx + width > p_width || offy + height > p_height) oe::error_terminate("Sub texture bigger than initial texture");
+		if (offx + width > p_width || offy + height > p_height) oe_error_terminate("Sub texture bigger than initial texture");
 		glTextureSubImage2D(p_id, 0, offx, offy, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 
 	void Texture::data3D(void* data, int offx, int offy, int offz, int width, int height, int depth) {
-		if (offx + width > p_width || offy + height > p_height || offz + depth > p_depth) oe::error_terminate("Sub texture bigger than initial texture");
+		if (offx + width > p_width || offy + height > p_height || offz + depth > p_depth) oe_error_terminate("Sub texture bigger than initial texture");
 		glTextureSubImage3D(p_id, 0, offx, offy, offz, width, height, depth, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 

@@ -1,65 +1,33 @@
 #include <engine/engine.h>
 
 #include <string>
-#include "FastNoise.h"
 
 
 
 oe::graphics::MultiTextureShader* shader;
 oe::graphics::Renderer* renderer;
 oe::graphics::Font* font;
-<<<<<<< HEAD
-=======
-oe::graphics::Texture* texture;
-constexpr int width = 64;
-constexpr int height = 64;
-constexpr int channels = 4;
-unsigned char data[width * height * channels];
-FastNoise* noise;
->>>>>>> 8407de2847ef13a7573967e21e079fde70e9df00
 
 void render(float update_fraction) {
 	// clear framebuffer
-	oe::graphics::Window::clear();
+	oe::graphics::Window::clearWindow();
 
-<<<<<<< HEAD
-=======
-	// Update texture
-	// This is stupid
-	// Just for testing
-	static glm::vec2 delta = { 0.0f, 0.0f };
-	const glm::vec2& cursor = oe::graphics::Window::getMousePos();
-	delta += cursor * (0.00001f * oe::utils::GameLoop::getMSPerFrame());
-	memset(data, (char)255, width * height * channels);
-	for (size_t x = 0; x < width; x++) {
-		for (size_t y = 0; y < height; y++) {
-			unsigned char value = (noise->GetSimplexFractal((float)x / (float)width + delta.x, (float)y / (float)height + delta.y) + 1.0f) * 128.0f;
-			data[x * channels + y * width * channels + 0] = value;
-			data[x * channels + y * width * channels + 1] = value;
-			data[x * channels + y * width * channels + 2] = value;
-			data[x * channels + y * width * channels + 3] = 255;
-		}
-	}
-
-	// Texture
-	renderer->begin();
-	renderer->clear();
-	texture->data2D(data, 0, 0, width, height);
-	renderer->submit({ -0.8f, -0.8f }, { 1.6f, 1.6f });
-	texture->bind();
-	shader_single->bind();
-	renderer->end();
-	renderer->render();
-
->>>>>>> 8407de2847ef13a7573967e21e079fde70e9df00
 	// begin submitting
 	renderer->begin();
 	renderer->clear();
 
 	// submitting
-	oe::graphics::Text::submit(*renderer, "#0000ff0@#%()[]{}<>,.;:?!|/\\", { 0.0f, -0.2f }, 0.14f, oe::graphics::alignment::center_center);
-	oe::graphics::Text::submit(*renderer, "#ff00001234567890 =+-/*", { 0.0f,  0.0f }, 0.14f, oe::graphics::alignment::center_center);
-	oe::graphics::Text::submit(*renderer, "#00ff00The quick brown fox jumps over the lazy dog.", { 0.0f,  0.2f }, 0.14f, oe::graphics::alignment::center_center);
+#if 0
+	oe::graphics::Text::submit(*renderer, "0@#%()[]{}<>,.;:?!|/\\", { 0.0f, -0.2f }, 0.14f, oe::graphics::alignment::center_center);
+	oe::graphics::Text::submit(*renderer, "1234567890 =+-/*", { 0.0f, 0.0f }, 0.14f, oe::graphics::alignment::center_center);
+	oe::graphics::Text::submit(*renderer, "The quick brown fox jumps over the lazy dog.", { 0.0f, 0.4f }, 0.14f, oe::graphics::alignment::center_center);
+#else
+	oe::graphics::Text::submit(*renderer, "blue:<#0000ff> test", { 0.0f, -0.2f }, 0.14f, oe::graphics::alignment::center_center);
+	oe::graphics::Text::submit(*renderer, "incomplete:<#542> test", { 0.0f, 0.0f }, 0.14f, oe::graphics::alignment::center_center);
+	oe::graphics::Text::submit(*renderer, "faulty:<#5f>>>>>>>>> test", { 0.0f, 0.2f }, 0.14f, oe::graphics::alignment::center_center);
+	oe::graphics::Text::submit(*renderer, "with 0x:<#0x4354> test", { 0.0f, 0.4f }, 0.14f, oe::graphics::alignment::center_center);
+	oe::graphics::Text::submit(*renderer, "negative:<#-43531> test", { 0.0f, 0.6f }, 0.14f, oe::graphics::alignment::center_center);
+#endif
 
 	// bind font texture and shader
 	oe::graphics::Text::getFont()->bindTexture();
@@ -70,11 +38,11 @@ void render(float update_fraction) {
 	renderer->render();
 
 	// swap buffers and poll events
-	oe::graphics::Window::update();
-	oe::graphics::Window::input();
+	oe::graphics::Window::updateWindow();
+	oe::graphics::Window::pollEvents();
 
 	// check if needs to close
-	if (oe::graphics::Window::shouldClose()) oe::utils::GameLoop::stop();
+	if (oe::graphics::Window::windowShouldClose()) oe::utils::GameLoop::stop();
 }
 
 void update() {
@@ -95,33 +63,23 @@ int main() {
 	oe::init();
 
 	// window
-	oe::graphics::Window::init(900, 600, "Test 2 - Text", WINDOW_GL_DEBUG);
+	oe::graphics::Window::WindowConfig window_config;
+	window_config.title = "Test 2 - Colored Text";
+	window_config.multisamples = 4;
+	window_config.opengl_debugmode = true;
+	oe::graphics::Window::init(window_config);
 	oe::graphics::Window::setResizeCallback(resize);
-	oe::graphics::GL::setBackFaceCulling(false);
+	oe::graphics::GL::setBackFaceCulling(true);
 	oe::graphics::GL::enableBlending();
-	oe::graphics::GL::setSwapInterval(0);
 
 	// drawing
 	font = new oe::graphics::Font();
 	oe::graphics::Text::setFont(*font);
-	renderer = new oe::graphics::Renderer(oe::graphics::types::dynamicrender, oe::graphics::types::staticrender, 100, nullptr);
+	renderer = new oe::graphics::Renderer(oe::graphics::types::dynamicrender, oe::graphics::types::staticrender, 1000, nullptr);
 	shader = new oe::graphics::MultiTextureShader();
-<<<<<<< HEAD
-=======
-	shader_single = new oe::graphics::SingleTextureShader();
-	texture = new oe::graphics::Texture();
-	texture->empty2D(width, height);
-	noise = new FastNoise(oe::utils::Clock::getMicroseconds());
-	noise->SetFractalOctaves(8);
-	noise->SetFractalGain(0.5f);
-	noise->SetFractalLacunarity(1.72f);
-	noise->SetFrequency(2.0f);
-	std::thread *worker = new std::thread([] {while (true) { update(); } });
-	worker->detach();
->>>>>>> 8407de2847ef13a7573967e21e079fde70e9df00
 
 	// matrices
-	glm::mat4 pr = glm::ortho(-oe::graphics::Window::getAspect(), oe::graphics::Window::getAspect(), 1.0f, -1.0f);
+	glm::mat4 pr = glm::ortho(-oe::graphics::Window::aspect(), oe::graphics::Window::aspect(), 1.0f, -1.0f);
 	shader->projectionMatrix(pr);
 	shader->useTexture(true);
 	
@@ -129,7 +87,7 @@ int main() {
 	oe::utils::GameLoop::init(render, update, 1);
 
 	// closing
-	oe::graphics::Window::close();
+	oe::graphics::Window::closeWindow();
 	delete shader;
 	delete renderer;
 	delete font;

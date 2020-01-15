@@ -16,13 +16,13 @@ namespace oe::graphics {
 
 		FT_Library ft;
 		if (FT_Init_FreeType(&ft)) {
-			oe::error_terminate("FT_Init_FreeType failed");
+			oe_error_terminate("FT_Init_FreeType failed");
 			return;
 		}
 
 		FT_Face face;
 		if (FT_New_Face(ft, font_path.c_str(), 0, &face)) {
-			oe::error_terminate("Failed to load font at path {}", font_path.c_str());
+			oe_error_terminate("Failed to load font at path {}", font_path.c_str());
 			return;
 		}
 

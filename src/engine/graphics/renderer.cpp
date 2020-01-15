@@ -59,7 +59,7 @@ namespace oe::graphics {
 		m_vao->bind();
 		m_vbo->bind();
 		m_mapped_buffer = (VertexData*)m_vbo->mapBuffer();
-		if (!m_mapped_buffer) oe::error_terminate("Buffer not mapped!");
+		if (!m_mapped_buffer) oe_error_terminate("Buffer not mapped!");
 	}
 
 	void Renderer::end() {
@@ -73,7 +73,7 @@ namespace oe::graphics {
 	}
 
 	void Renderer::submitVertexData(const glm::vec3& position, const glm::vec2& size, int texture, const glm::vec4& color) {
-		if (!m_mapped_buffer) oe::error_terminate("Buffer not mapped!");
+		if (!m_mapped_buffer) oe_error_terminate("Buffer not mapped!");
 		m_mapped_buffer[m_buffer_pos].position = position;
 		m_mapped_buffer[m_buffer_pos].size_or_uv = size;
 		m_mapped_buffer[m_buffer_pos].texture = texture;

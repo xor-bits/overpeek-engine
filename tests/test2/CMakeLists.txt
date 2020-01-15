@@ -11,7 +11,7 @@ SET(CMAKE_USE_RELATIVE_PATHS TRUE)
 SET(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
 # test2
-add_executable(${PROJECT_NAME} main.cpp FastNoise.cpp FastNoise.h)
+add_executable(${PROJECT_NAME} main.cpp)
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER engine)
 
 # add dependencies

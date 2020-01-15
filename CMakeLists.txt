@@ -5,6 +5,8 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # glad
 add_subdirectory(lib/glad) # static library (glad)
+# imgui
+add_subdirectory(lib/imgui) # static library (imgui)
 # engine
 add_subdirectory(src) # static library (engine)
 # tests

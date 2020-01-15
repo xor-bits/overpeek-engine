@@ -20,6 +20,28 @@ namespace oe::graphics {
 		return rgb.x << 16 + rgb.y << 8 + rgb.z << 0;
 	}
 
+	bool checkChar(const std::string& text, char character, int position) {
+		if (position >= text.size() || position < 0) {
+			return false;
+		}
+		
+		if (text[position] == character) {
+			return true;
+		}
+
+		return false;
+	}
+
+	bool is_number(const char* input) {
+		if (strchr(input, 'x')) return false; // no
+		if (strchr(input, 'b')) return false; // hex
+		if (strchr(input, 'o')) return false; // or oct or bin
+
+		char* p = nullptr;
+		long hex = strtol(input, &p, 16);
+		return !*p;
+	}
+
 	textrenderData textTorenderData(const std::string& text) {
 		textrenderData renderData = textrenderData();
 
@@ -29,31 +51,25 @@ namespace oe::graphics {
 		for (int i = 0; i < text.size(); i++) {
 			char c = text[i];
 
-			// "blablabla~#00ff00~"
+			// "blablabla<#00ff00>"
 			// check if there's upcoming colorcode
-			if (c == '#') {
-				// chech if there are enough characters remaining
-				if (i + 6 < text.size()) {
-					try {
-						std::stringstream hex_str;
-						hex_str << std::hex << text.substr(i + 1, 6);
-						unsigned long hex = std::stol(hex_str.str(), nullptr, 16);
+			if (checkChar(text, '<', i) && checkChar(text, '#', i + 1) && checkChar(text, '>', i + 8)) {
+				std::stringstream hex_str;
+				hex_str << std::hex << text.substr(i + 2, 6);
 
-						glm::vec3 rgb = hexToRGB(hex);
-						curColor = glm::vec4(rgb / 255.0f, 1.0f); // alpha 1.0
+				long hex = std::stol(hex_str.str().c_str(), nullptr, 16);
+				if (is_number(hex_str.str().c_str()) && hex >= 0) {
+					glm::vec3 rgb = hexToRGB(hex);
+					curColor = glm::vec4(rgb / 255.0f, 1.0f); // alpha 1.0
 
-						i += 6;
-						continue;
-					}
-					catch (std::exception & e) {
-						// Wasn't hexcode
-					}
+					i += 8;
+					continue;
 				}
+				// Invalid hex code
 			}
 			
 			renderData.push_back(std::pair(c, curColor));
 		}
-
 		return renderData;
 	}
 
@@ -119,7 +135,7 @@ namespace oe::graphics {
 
 	void Text::submit(Renderer& renderer, const std::string& text, const glm::vec2& pos, const glm::vec2& size, oe::graphics::alignment align, const glm::vec4& bg_color, const Font* font) {
 		if (!font) font = s_font;
-		if (!font) oe::error_terminate("No font!");
+		if (!font) oe_error_terminate("No font!");
 
 		textrenderData renderData = textTorenderData(text);
 		float size_x_accumulator = 0.0f;

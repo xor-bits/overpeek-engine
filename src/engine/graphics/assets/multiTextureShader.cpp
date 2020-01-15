@@ -48,13 +48,7 @@ namespace oe::graphics {
 	)shader";
 
 	MultiTextureShader::MultiTextureShader() : Shader("Asset:MultiTextureShader") {
-		try {
-			load(vertsource, fragsource);
-		}
-		catch (ShaderException &se) {
-			// This shouldn't fail
-			oe::error_terminate(se.what());
-		}
+		load(vertsource, fragsource);
 	}
 
 }

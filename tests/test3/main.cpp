@@ -1,89 +1,191 @@
-/* Created By: Justin Meiners (2013) */
-#include <stdio.h>
-#include <stdlib.h>
 #include <engine/engine.h>
-#include <engine/utility/debug.h>
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h" /* http://nothings.org/stb/stb_image_write.h */
+#include <string>
 
-#define STB_TRUETYPE_IMPLEMENTATION 
-#include "stb_truetype.h" /* http://nothings.org/stb/stb_truetype.h */
 
-int main() {/* load font file */
-    long size;
-    unsigned char* fontBuffer;
+oe::graphics::SingleTextureShader* shader;
+oe::graphics::Renderer* renderer;
+oe::graphics::Font* font;
+oe::gui::GUI* gui;
 
-    FILE* fontFile = fopen(DEFAULT_FONT, "rb");
-    fseek(fontFile, 0, SEEK_END);
-    size = ftell(fontFile); /* how long is the file ? */
-    fseek(fontFile, 0, SEEK_SET); /* reset */
+void cube() {
+	// begin submitting
+	renderer->begin();
+	renderer->clear();
 
-    fontBuffer = (unsigned char*)malloc(size);
+	// front
+	renderer->submitVertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f }, 0, oe::colors::orange);
+	renderer->submitVertexData({ -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, 0, oe::colors::orange);
+	renderer->submitVertexData({  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, 0, oe::colors::orange);
+	renderer->submitVertexData({  1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f }, 0, oe::colors::orange);
+	renderer->incrementQuadCount();
 
-    fread(fontBuffer, size, 1, fontFile);
-    fclose(fontFile);
+	// back
+	renderer->submitVertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, 0, oe::colors::orange);
+	renderer->submitVertexData({ -1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f }, 0, oe::colors::orange);
+	renderer->submitVertexData({  1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f }, 0, oe::colors::orange);
+	renderer->submitVertexData({  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, 0, oe::colors::orange);
+	renderer->incrementQuadCount();
 
-    oe::utils::Debug::startTimer();
-    /* prepare font */
-    stbtt_fontinfo info;
-    if (!stbtt_InitFont(&info, fontBuffer, 0))
-    {
-        printf("failed\n");
-    }
+	// top
+	renderer->submitVertexData({ -1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f }, 0, oe::colors::orange);
+	renderer->submitVertexData({ -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, 0, oe::colors::orange);
+	renderer->submitVertexData({  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, 0, oe::colors::orange);
+	renderer->submitVertexData({  1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, 0, oe::colors::orange);
+	renderer->incrementQuadCount();
 
-    int b_w = 512; /* bitmap width */
-    int b_h = 128; /* bitmap height */
-    int l_h = 64; /* line height */
+	// bottom
+	renderer->submitVertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, 0, oe::colors::orange);
+	renderer->submitVertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, 0, oe::colors::orange);
+	renderer->submitVertexData({  1.0f, -1.0f,  1.0f }, { 1.0f, 1.0f }, 0, oe::colors::orange);
+	renderer->submitVertexData({  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, 0, oe::colors::orange);
+	renderer->incrementQuadCount();
 
-    /* create a bitmap for the phrase */
-    unsigned char* bitmap = (unsigned char*)malloc(b_w * b_h);
+	// left
+	renderer->submitVertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, 0, oe::colors::orange);
+	renderer->submitVertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, 0, oe::colors::orange);
+	renderer->submitVertexData({ -1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, 0, oe::colors::orange);
+	renderer->submitVertexData({ -1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, 0, oe::colors::orange);
+	renderer->incrementQuadCount();
 
-    /* calculate font scaling */
-    float scale = stbtt_ScaleForPixelHeight(&info, l_h);
+	// right
+	renderer->submitVertexData({  1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, 0, oe::colors::orange);
+	renderer->submitVertexData({  1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, 0, oe::colors::orange);
+	renderer->submitVertexData({  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, 0, oe::colors::orange);
+	renderer->submitVertexData({  1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, 0, oe::colors::orange);
+	renderer->incrementQuadCount();
 
-    char* word = "234usna";
+	// stop submitting and rendera
+	static float t;
+	t += 0.005 * oe::utils::GameLoop::getFrameMilliseconds();
+	shader->bind();
+	glm::mat4 ml_matrix = glm::mat4(1.0f);
+	ml_matrix = glm::rotate(glm::mat4(1.0f), t, glm::vec3(0.0f, 1.0f, 0.0f));
+	shader->modelMatrix(ml_matrix);
+	oe::graphics::GL::setPolygonMode(1);
+	renderer->end();
+	renderer->render();
+	oe::graphics::GL::setPolygonMode(0);
+}
 
-    int x = 0;
+void render(float update_fraction) {
+	// clear framebuffer
+	oe::graphics::Window::clear();
 
-    int ascent, descent, lineGap;
-    stbtt_GetFontVMetrics(&info, &ascent, &descent, &lineGap);
+	// submitting
+	cube();
 
-    ascent *= scale;
-    descent *= scale;
+	// gui
+	gui->render();
 
-    int i;
-    for (i = 0; i < strlen(word); ++i)
-    {
-        /* get bounding box for character (may be offset to account for chars that dip above or below the line */
-        int c_x1, c_y1, c_x2, c_y2;
-        stbtt_GetCodepointBitmapBox(&info, word[i], scale, scale, &c_x1, &c_y1, &c_x2, &c_y2);
+	// swap buffers and poll events
+	oe::graphics::Window::update();
+	oe::graphics::Window::input();
 
-        /* compute y (different characters have different heights */
-        int y = ascent + c_y1;
+	// check if needs to close
+	if (oe::graphics::Window::shouldClose()) oe::utils::GameLoop::stop();
+}
 
-        /* render character (stride and offset is important here) */
-        int byteOffset = x + (y * b_w);
-        stbtt_MakeCodepointBitmap(&info, bitmap + byteOffset, c_x2 - c_x1, c_y2 - c_y1, b_w, scale, scale, word[i]);
+void resize(int width, int height) {
+	gui->resize();
 
-        /* how wide is this character */
-        int ax;
-        stbtt_GetCodepointHMetrics(&info, word[i], &ax, 0);
-        x += ax * scale;
+	shader->bind();
+	shader->useTexture(false);
+	glm::mat4 pr_matrix = glm::perspectiveFov(30.0f, (float)width, (float)height, 0.0f, 1000.0f);
+	shader->projectionMatrix(pr_matrix);
+	glm::mat4 vw_matrix = glm::lookAt(glm::vec3(0.0f, 0.0f,-5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	shader->viewMatrix(vw_matrix);
+}
 
-        /* add kerning */
-        int kern;
-        kern = stbtt_GetCodepointKernAdvance(&info, word[i], word[i + 1]);
-        x += kern * scale;
-    }
-    spdlog::info("Time to create texture with text: {}", oe::utils::Debug::getTimer());
-    getchar();
+void update() {
+	spdlog::info("Performance\nFPS: {}\nmspf: {}\n--------\n", oe::utils::GameLoop::getFPS(), oe::utils::GameLoop::getFrameMilliseconds());
 
-    /* save out a 1 channel image */
-    stbi_write_png("out.png", b_w, b_h, 1, bitmap, b_w);
+	// debugger
+	resize(oe::graphics::Window::getWidth(), oe::graphics::Window::getHeight());
+}
 
-    free(fontBuffer);
-    free(bitmap);
+void setup_gui() {
+	{
+		auto widget = new oe::gui::Form({ 200, 200 });
+		widget->align_parent() = oe::graphics::alignment::top_center;
+		widget->align_render() = oe::graphics::alignment::top_center;
+		gui->addSubWidget(widget);
+
+		auto widget2 = new oe::gui::Button({ 50, 50 });
+		widget2->align_parent() = oe::graphics::alignment::center_center;
+		widget2->align_render() = oe::graphics::alignment::center_center;
+		widget2->setCallback([] { spdlog::info("Button pressed"); });
+		widget->addSubWidget(widget2);
+		
+		{
+
+			/*auto text = new oe::gui::TextView({ 50, 50 });
+			text->align_parent() = oe::graphics::alignment::center_center;
+			text->align_render() = oe::graphics::alignment::center_center;
+			text->string() = "Test text view";
+			widget->addSubWidget(text);*/
+		}
+	}
+	{
+		auto widget = new oe::gui::Form({ 100, 40 });
+		widget->align_parent() = oe::graphics::alignment::bottom_right;
+		widget->align_render() = oe::graphics::alignment::bottom_right;
+		gui->addSubWidget(widget);
+
+		{
+			/*auto button = new oe::gui::TextView({ 50, 50 });
+			button->align_parent() = oe::graphics::alignment::center_center;
+			button->align_render() = oe::graphics::alignment::center_center;
+			button->string() = "Button";
+			widget->addSubWidget(button);*/
+		}
+	}
+}
+
+void cursor_pos(const glm::vec2& cursor) {
+	float aspect = oe::graphics::Window::getAspect();
+	glm::vec2 window = { oe::graphics::Window::getWidth(), oe::graphics::Window::getHeight() };
+	gui->cursor(0, 0, 
+		oe::utils::map(cursor.x, -aspect, aspect, 0.0f, window.x), 
+		oe::utils::map(cursor.y, 1.0f, -1.0f, 0.0f, window.y)
+	);
+}
+
+void button(int button, int action) {
+	const glm::vec2& cursor = oe::graphics::Window::getMousePos();
+	gui->cursor(button, action, cursor.x, cursor.y);
+}
+
+int main() {
+	// engine
+	oe::init();
+
+	// window
+	oe::graphics::Window::init(900, 600, "Test 2 - Text", WINDOW_GL_DEBUG);
+	oe::graphics::Window::setCursorPositionCallback(cursor_pos);
+	oe::graphics::Window::setResizeCallback(resize);
+	oe::graphics::Window::setButtonCallback(button);
+	oe::graphics::GL::setBackFaceCulling(false);
+	oe::graphics::GL::enableBlending();
+
+	// drawing
+	font = new oe::graphics::Font();
+	oe::graphics::Text::setFont(*font);
+	gui = new oe::gui::GUI();
+	setup_gui();
+	renderer = new oe::graphics::Renderer(oe::graphics::types::dynamicrender, oe::graphics::types::staticrender, 6, nullptr);
+	shader = new oe::graphics::SingleTextureShader();
+	resize(oe::graphics::Window::getWidth(), oe::graphics::Window::getHeight());
+
+	// start
+	oe::utils::GameLoop::init(render, update, 1);
+
+	// closing
+	oe::graphics::Window::close();
+	delete gui;
+	delete font;
+	delete renderer;
+	delete shader;
 
 	return 0;
 }

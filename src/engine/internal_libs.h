@@ -63,29 +63,47 @@ struct fmt::formatter<glm::mat3> {
 	}
 };
 
+// (input) -> ("input: {}", input)
+#define quickDebug(x) spdlog::debug(#x ## ": {}", x)
+#define oe_error_terminate(error_msg, ...) oe::__error(fmt::format(error_msg, __VA_ARGS__), __LINE__, __FILE__)
+#define oe_terminate() oe::terminate()
 namespace oe {
 
-	static void init() {
-		spdlog::set_pattern("%^[%T] [%l]:%$ %v");
-		spdlog::set_level(spdlog::level::level_enum::trace);
+	void init();
 
-		spdlog::info("Engine initialized");
-	}
+	void terminate();
+	void __error(std::string error_msg, int line, std::string file);
 
+	static struct colors {
+	public:
+		static constexpr glm::vec4 white = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		static constexpr glm::vec4 grey = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+		static constexpr glm::vec4 black = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+		
+		static constexpr glm::vec4 red = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+		static constexpr glm::vec4 green = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+		static constexpr glm::vec4 blue = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
 
-#define error_terminate(error_msg, ...) __error(fmt::format(error_msg, __VA_ARGS__), __LINE__, __FILE__)
+		static constexpr glm::vec4 dark_red = glm::vec4(0.5f, 0.0f, 0.0f, 1.0f);
+		static constexpr glm::vec4 dark_green = glm::vec4(0.0f, 0.5f, 0.0f, 1.0f);
+		static constexpr glm::vec4 dark_blue = glm::vec4(0.0f, 0.0f, 0.5f, 1.0f);
 
-	static void terminate() {
-#ifdef _DEBUG
-		spdlog::info("Press <ENTER> to exit");
-		assert(0);
-#else
-#endif // _DEBUG
-	}
+		static constexpr glm::vec4 light_red = glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
+		static constexpr glm::vec4 light_green = glm::vec4(0.5f, 1.0f, 0.5f, 1.0f);
+		static constexpr glm::vec4 light_blue = glm::vec4(0.5f, 0.5f, 1.0f, 1.0f);
+		
+		static constexpr glm::vec4 cyan = glm::vec4(0.0f, 1.0f, 1.0f, 1.0f);
+		static constexpr glm::vec4 magenta = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
+		static constexpr glm::vec4 yellow = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
 
-	static void __error(std::string error_msg, int line, std::string file) {
-		spdlog::error("error: {}\nline: {}\nfile: {}", error_msg, line, file);
-		oe::terminate();
-	}
+		static constexpr glm::vec4 orange = glm::vec4(1.0f, 0.5f, 0.0f, 1.0f);
+		static constexpr glm::vec4 pink = glm::vec4(1.0f, 0.0f, 0.5f, 1.0f);
+		
+		static constexpr glm::vec4 lime = glm::vec4(0.5f, 1.0f, 0.0f, 1.0f);
+		static constexpr glm::vec4 mint = glm::vec4(0.0f, 1.0f, 0.5f, 1.0f);
+		
+		static constexpr glm::vec4 purple = glm::vec4(0.5f, 0.0f, 1.0f, 1.0f);
+		static constexpr glm::vec4 sky = glm::vec4(0.0f, 0.5f, 1.0f, 1.0f);
+	};
 
 }

@@ -21,6 +21,9 @@
 #include "utility/binaryIO.h"
 #include "utility/filereader.h"
 
+// Gui
+#include "gui/gui_manager.h"
+
 // internal libs
 #include "internal_libs.h"
 
@@ -30,24 +33,8 @@
 #include "graphics/assets/singleTextureShader.h"
 #include "graphics/assets/basicPostprocessShader.h"
 
-#define quickDebug(x) spdlog::debug(#x ## ": {}", x)
-
-
-//Preset colors
-#define OE_COLOR_WHITE		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
-#define OE_COLOR_GREY		glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)
-#define OE_COLOR_BLACK		glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
-#define OE_COLOR_RED		glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)
-#define OE_COLOR_GREEN		glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
-#define OE_COLOR_DARKGREEN	glm::vec4(0.0f, 0.5f, 0.0f, 1.0f)
-#define OE_COLOR_BLUE		glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)
-#define OE_COLOR_CYAN		glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)
-#define OE_COLOR_ORANGE		glm::vec4(1.0f, 0.5f, 0.0f, 1.0f)
-#define OE_COLOR_YELLOW		glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)
-#define OE_COLOR_PURPLE		glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)
-#define OE_COLOR_DARKRED	glm::vec4(0.5f, 0.0f, 0.0f, 1.0f)
-
-//Keys
+// stolen from GLFW >:)
+// Keys
 #define OE_KEY_SPACE              32
 #define OE_KEY_APOSTROPHE         39  /* ' */
 #define OE_KEY_COMMA              44  /* , */
