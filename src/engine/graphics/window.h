@@ -41,7 +41,7 @@ namespace oe::graphics {
 		static void setButtonCallback(void(*callback)(int, int));
 		static void setKeyboardCallback(void(*callback)(int, int));
 		static void setScrollCallback(void(*callback)(double));
-		static void setResizeCallback(void(*callback)(int, int));
+		static void setResizeCallback(void(*callback)(const glm::vec2&));
 		static void setCharmodCallback(void(*callback)(unsigned int, int));
 		static void setCursorPositionCallback(void(*callback)(const glm::vec2&, const glm::vec2&));
 

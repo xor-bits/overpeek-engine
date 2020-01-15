@@ -43,7 +43,6 @@ namespace oe::gui {
 		if (m_parent) m_render_position = m_offset_position + m_parent->m_render_position + oe::graphics::alignmentOffset(m_parent->m_size, m_align_parent) - oe::graphics::alignmentOffset(m_size, m_align_render);
 		else m_render_position = m_offset_position - oe::graphics::alignmentOffset(m_size, m_align_render);
 		resize();
-		spdlog::info("{} = {}, {}", typeid(*this).name(), m_render_position, m_size);
 
 		__resizeNodes();
 	}
@@ -54,14 +53,14 @@ namespace oe::gui {
 		}
 	}
 
-	void Widget::__cursor(int button, int action, int x, int y) {
-		cursor(button, action, x, y);
-		__cursorNodes(button, action, x, y);
+	void Widget::__cursor(int button, int action, const glm::vec2& cursor_window) {
+		cursor(button, action, cursor_window);
+		__cursorNodes(button, action, cursor_window);
 	}
 
-	void Widget::__cursorNodes(int button, int action, int x, int y) {
+	void Widget::__cursorNodes(int button, int action, const glm::vec2& cursor_window) {
 		for (auto& w : m_nodes) {
-			w->__cursor(button, action, x, y);
+			w->__cursor(button, action, cursor_window);
 		}
 	}
 

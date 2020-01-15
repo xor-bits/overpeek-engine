@@ -15,12 +15,12 @@ namespace oe::gui {
 		~GUI();
 		
 		// needs to be after every window resize
-		void resize(int width, int height);
+		void resize(const glm::vec2& window_size);
 
 		// calls resize(window width, window height)
 		void resize();
 
-		void cursor(int button, int action, int x, int y);
+		void cursor(int button, int action, const glm::vec2& cursor_window);
 		
 		// assigns std::unique_ptr for this pointer
 		// do forget pointer to this widget

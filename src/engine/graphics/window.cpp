@@ -26,7 +26,7 @@ namespace oe::graphics {
 	void(*m_key_callback)(int, int) = nullptr;
 	void(*m_button_callback)(int, int) = nullptr;
 	void(*m_scroll_callback)(double) = nullptr;
-	void(*m_resize_callback)(int, int) = nullptr;
+	void(*m_resize_callback)(const glm::vec2&) = nullptr;
 	void(*m_charmods_callback)(unsigned int, int) = nullptr;
 	void(*m_cursor_position_callback)(const glm::vec2&, const glm::vec2&) = nullptr;
 
@@ -215,7 +215,7 @@ namespace oe::graphics {
 	void Window::setButtonCallback(void(*callback)(int, int)) { m_button_callback = callback; }
 	void Window::setKeyboardCallback(void (*callback)(int, int)) { m_key_callback = callback; }
 	void Window::setScrollCallback(void(*callback)(double)) { m_scroll_callback = callback; }
-	void Window::setResizeCallback(void(*callback)(int, int)) { m_resize_callback = callback; }
+	void Window::setResizeCallback(void(*callback)(const glm::vec2&)) { m_resize_callback = callback; }
 	void Window::setCharmodCallback(void(*callback)(unsigned int, int)) { m_charmods_callback = callback; }
 	void Window::setCursorPositionCallback(void(*callback)(const glm::vec2&, const glm::vec2&)) { m_cursor_position_callback = callback; }
 
@@ -229,7 +229,7 @@ namespace oe::graphics {
 		m_aspect_ratio = (float)width / (float)height;
 		glViewport(0, 0, m_window.size.x, m_window.size.y);
 
-		if (m_resize_callback) m_resize_callback(m_window.size.x, m_window.size.y);
+		if (m_resize_callback) m_resize_callback(m_window.size);
 	}
 
 	void scroll_callback(double xoffset, double yoffset) {

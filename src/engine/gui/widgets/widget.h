@@ -24,8 +24,8 @@ namespace oe::gui {
 		// called from manager || __renderNodes
 		void __render(oe::graphics::Renderer& renderer, oe::graphics::Renderer& text_renderer);
 		void __renderNodes(oe::graphics::Renderer& renderer, oe::graphics::Renderer& text_renderer);
-		void __cursor(int button, int action, int x, int y);
-		void __cursorNodes(int button, int action, int x, int y);
+		void __cursor(int button, int action, const glm::vec2& cursor_window);
+		void __cursorNodes(int button, int action, const glm::vec2& cursor_window);
 		void __resize();
 		void __resizeNodes();
 
@@ -38,7 +38,7 @@ namespace oe::gui {
 		virtual void addSubWidget(Widget* widget);
 		virtual void render(oe::graphics::Renderer& renderer, oe::graphics::Renderer& text_renderer) = 0;
 		virtual void resize() = 0;
-		virtual void cursor(int button, int action, int x, int y) = 0;
+		virtual void cursor(int button, int action, const glm::vec2& cursor_window) = 0;
 
 	public:
 		oe::graphics::alignment& align_parent() { return m_align_parent; }

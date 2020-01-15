@@ -44,7 +44,7 @@ namespace oe::gui {
 
 		if (m_main_frame) m_main_frame->__render(*m_renderer, *m_font_renderer);
 		
-#if _DEBUG
+#if _DEBUG && 0
 		oe::graphics::GL::setPolygonMode(1);
 #else
 #endif // _DEBUG
@@ -60,11 +60,11 @@ namespace oe::gui {
 	}
 
 	void GUI::resize() {
-		resize(oe::graphics::Window::getSize().x, oe::graphics::Window::getSize().y);
+		resize(oe::graphics::Window::getSize());
 	}
 
-	void GUI::resize(int width, int height) {
-		m_main_frame->size() = { width - 2 * border, height - 2 * border };
+	void GUI::resize(const glm::vec2& window_size) {
+		m_main_frame->size() = window_size - glm::vec2(2 * border);
 		m_main_frame->offset_position() = { border, border };
 		m_main_frame->__resize();
 
@@ -78,7 +78,7 @@ namespace oe::gui {
 		    h                  h
 		*/
 
-		glm::mat4 pr_matrix = glm::ortho(0.0f, (float)width, (float)height, 0.0f);
+		glm::mat4 pr_matrix = glm::ortho(0.0f, (float)window_size.x, (float)window_size.y, 0.0f);
 		m_shader->bind();
 		m_shader->useTexture(true);
 		m_shader->projectionMatrix(pr_matrix);
@@ -88,8 +88,8 @@ namespace oe::gui {
 		m_main_frame->addSubWidget(widget);
 	}
 
-	void GUI::cursor(int button, int action, int x, int y) {
-		m_main_frame->__cursor(button, action, x, y);
+	void GUI::cursor(int button, int action, const glm::vec2& cursor_window) {
+		m_main_frame->__cursor(button, action, cursor_window);
 	}
 
 }
