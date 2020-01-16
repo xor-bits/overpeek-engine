@@ -19,6 +19,7 @@ cmake -B build/
 
 
 ### TODO
+- [ ] Texture packer - rework textures and renderer
 - [ ] Freetype -> stb_truetype
 - [ ] Optimized text rendering
 - [ ] GUI (and ImGUI for debugging) 
