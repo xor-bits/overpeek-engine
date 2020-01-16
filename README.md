@@ -17,6 +17,14 @@ cmake -B build/
 - OpenGL
 - OpenAL
 
+### Features
+- Window creation (glfw) 
+- Audio (OpenAL) 
+- Rendering (OpenGL)
+    - Text rendering (Freetype) (basic) 
+    - GUI (basic)
+- General utility tools (that I find useful) 
+
 
 ### TODO
 - [ ] Texture packer - rework textures and renderer
