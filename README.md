@@ -31,3 +31,4 @@ cmake -B build/
 - [ ] Freetype -> stb_truetype
 - [ ] Optimized text rendering
 - [ ] GUI (and ImGUI for debugging) 
+- [ ] Easy to use mode
