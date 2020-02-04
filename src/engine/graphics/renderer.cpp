@@ -1,5 +1,6 @@
 #include "renderer.h"
 
+#include "engine/engine.h"
 #include "buffers/vertexArray.h"
 #include "buffers/buffer.h"
 #include "../utility/math.h"

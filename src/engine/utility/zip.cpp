@@ -1,6 +1,7 @@
 #include "zip.h"
 
 #include "engine/internal_libs.h"
+#include "engine/engine.h"
 
 
 

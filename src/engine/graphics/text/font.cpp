@@ -5,6 +5,7 @@
 #include <freetype/ftstroke.h>
 
 #include "engine/internal_libs.h"
+#include "engine/engine.h"
 
 
 

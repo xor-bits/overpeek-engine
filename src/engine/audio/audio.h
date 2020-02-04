@@ -10,11 +10,10 @@ namespace oe::audio {
 		unsigned int source_id;
 		unsigned int buffer_id;
 
-		static bool initialized;
-
 	public:
-		static int init();
-		static int checkALErrors();
+		static void init();
+		static void deinit();
+		static void checkALErrors();
 
 		Audio(const oe::utils::audio_data& audio);
 

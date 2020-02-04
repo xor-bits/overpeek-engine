@@ -30,23 +30,10 @@ endforeach()
 # engine
 add_library(${PROJECT_NAME} STATIC ${_source_list})
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER engine)
-
-
-set(GLFW_INSTALL FALSE)
-set(GLFW_BUILD_DOCS FALSE)
-macro(library name)
-	add_subdirectory(vendor/${name})
-	set_target_properties(${name} PROPERTIES FOLDER engine/vendor)
-	target_include_directories(${PROJECT_NAME} PUBLIC ${${name}_INCLUDE_DIRS})
-	target_include_directories(${PROJECT_NAME} PUBLIC ${${name}_INCLUDE_DIR})
-	target_link_libraries(${PROJECT_NAME} PUBLIC ${name})
-	# target_link_libraries(${PROJECT_NAME} PUBLIC ${${name}_LIBRARIES})
-	# target_link_libraries(${PROJECT_NAME} PUBLIC ${${name}_LIBRARY})
-endmacro()
-macro(header_library name)
-	target_include_directories(${PROJECT_NAME} PUBLIC vendor/${name}/include)
-endmacro()
-
+if (MSVC)
+target_link_libraries(${PROJECT_NAME} PRIVATE "Ws2_32.lib") # required by enet
+target_link_libraries(${PROJECT_NAME} PRIVATE "Winmm.lib")  # required by enet
+endif() # no idea about linux and macos
 
 
 # engine_INCLUDE_DIRS
@@ -56,6 +43,9 @@ set(${PROJECT_NAME}_INCLUDE_DIRS
 )
 
 
+
+set(GLFW_INSTALL FALSE)
+set(GLFW_BUILD_DOCS FALSE)
 
 # add dependencies
 # glfw
@@ -76,7 +66,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE enet)
 # miniz
 add_subdirectory(vendor/miniz)
 set_target_properties(miniz PROPERTIES FOLDER engine/vendor)
-target_include_directories(${PROJECT_NAME} PRIVATE ${miniz_INCLUDE_DIRS})
+target_include_directories(${PROJECT_NAME} PUBLIC ${miniz_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE miniz)
 # freetype
 add_subdirectory(vendor/freetype)

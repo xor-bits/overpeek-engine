@@ -5,8 +5,6 @@
 #include "sprite.h"
 #include "gltexture.h"
 
-#include <finders_interface.h>
-
 
 
 namespace oe::graphics {
@@ -15,15 +13,10 @@ namespace oe::graphics {
 	// 2D only sprite packer
 	class SpritePack {
 	private:
-		const static bool allow_flip = false;
-		const rectpack2D::flipping_option runtime_flipping_mode = rectpack2D::flipping_option::DISABLED;
-		using spaces_type = rectpack2D::empty_spaces<allow_flip, rectpack2D::default_empty_spaces>;
-		using rect_type = rectpack2D::output_rect_t<spaces_type>;
+		void* m_usr_data;
 
 	private:
 		glm::vec2 m_size;     // size of the packed texture
-		std::vector<rect_type> m_rectangles;
-		std::vector<oe::utils::image_data> m_images;
 		int m_border;
 
 		std::vector<std::vector<Sprite*>> m_sprites;

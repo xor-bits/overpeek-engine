@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <spdlog/spdlog.h>
 
+#include "engine/engine.h"
 #include "engine/internal_libs.h"
 
 

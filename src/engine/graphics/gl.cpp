@@ -2,6 +2,8 @@
 
 #include "engine/internal_libs.h"
 
+#include "engine/engine.h"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -100,46 +102,6 @@ namespace oe::graphics {
 
 	void GL::setSwapInterval(unsigned int interval) {
 		glfwSwapInterval(interval);
-	}
-
-	int GL::__checkGLErrors(const std::string& file, int line) {
-		GLenum err = glGetError();
-		if (err != 0) {
-			std::string errorText;
-			switch (err)
-			{
-			case GL_NO_ERROR:
-				errorText = "How did you get an error while not getting an error?";
-				break;
-			case GL_INVALID_ENUM:
-				errorText = "Invalid enum!";
-				break;
-			case GL_INVALID_VALUE:
-				errorText = "Invalid value!";
-				break;
-			case GL_INVALID_OPERATION:
-				errorText = "Invalid operation!";
-				break;
-			case GL_INVALID_FRAMEBUFFER_OPERATION:
-				errorText = "Invalid framebuffer operation!";
-				break;
-			case GL_OUT_OF_MEMORY:
-				errorText = "Out of memory!";
-				break;
-			default:
-				errorText = "Unknown error!";
-				break;
-			}
-			spdlog::error("OpenGL Error");
-			std::cout << fmt::format("Code          :   {}", err) << std::endl;
-			std::cout << fmt::format("Description   :   {}", errorText) << std::endl;
-			std::cout << fmt::format("Line          :   {}", line) << std::endl;
-			std::cout << fmt::format("File          :   {}", file) << std::endl;
-			std::cout << std::endl;
-			oe::terminate();
-			return err;
-		}
-		return 0;
 	}
 
 	std::string GL::getVersion() {

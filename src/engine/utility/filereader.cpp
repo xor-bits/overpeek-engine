@@ -6,6 +6,7 @@
 #include <sstream>
 
 #include "engine/internal_libs.h"
+#include "engine/engine.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>

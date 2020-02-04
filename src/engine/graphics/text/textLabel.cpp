@@ -4,6 +4,8 @@
 #include <iostream>
 #include <ostream>
 
+#include "engine/engine.h"
+
 
 
 namespace oe::graphics {

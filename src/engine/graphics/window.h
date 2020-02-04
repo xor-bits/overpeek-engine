@@ -73,6 +73,9 @@ namespace oe::graphics {
 
 		static const glm::vec2& getCursorTransformed();
 		static void setCursorTransformed(const glm::vec2& cursor_at_world_space);
+
+		static const std::string getClipboard();
+		static void setClipboard(const std::string& str);
 	};
 
 }

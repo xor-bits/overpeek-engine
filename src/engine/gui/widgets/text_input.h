@@ -2,10 +2,6 @@
 
 #include "widget.h"
 
-#define STB_TEXTEDIT_STRING						std::string
-#define STB_TEXTEDIT_CHARTYPE					char
-#include <stb_textedit.h>
-
 
 
 namespace oe::gui {
@@ -15,7 +11,7 @@ namespace oe::gui {
 		std::string m_string;
 		// baked text label
 		glm::vec4 m_color;
-		STB_TexteditState* m_state;
+		void* m_state;
 		bool m_selected;
 		const oe::graphics::Sprite* m_sprite;
 

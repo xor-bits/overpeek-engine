@@ -34,12 +34,12 @@ namespace oe::gui {
 			cursor_window.y < m_render_position.y + m_size.y)
 		{
 			// hold
-			if (button == OE_MOUSE_BUTTON_LEFT && action == OE_PRESS)
+			if (button == oe::button_left && action == oe::press)
 				m_dragging = true;
 		}
 
 		// release
-		if (button == OE_MOUSE_BUTTON_LEFT && action == OE_RELEASE)
+		if (button == oe::button_left && action == oe::release)
 			m_dragging = false;
 
 

@@ -1,35 +1,50 @@
 #include "engine.h"
 
 
-int _argc;
-char** _argv;
-int oe::argc() {
-	return _argc;
-}
 
-char** oe::argv() {
-	return _argv;
-}
+namespace oe {
 
-void oe::init(int _argc_, char* _argv_[]) {
-	_argc = _argc_;
-	_argv = _argv_;
+	EngineInfo Engine::m_engine_info;
 
-	spdlog::set_pattern("%^[%T] [%l]:%$ %v");
-	spdlog::set_level(spdlog::level::level_enum::trace);
+	void Engine::init(EngineInfo engine_info) {
+		spdlog::set_pattern("%^[%T] [%l]:%$ %v");
+		spdlog::set_level(spdlog::level::level_enum::trace);
 
-	spdlog::info("Engine initialized");
-}
+		m_engine_info = engine_info;
+		
+		if (m_engine_info.audio) {
+			spdlog::debug("Initializing audio");
+			audio::Audio::init();
+		}
+		if (m_engine_info.networking) {
+			spdlog::debug("Initializing networking");
+			networking::enet::initEnet();
+		}
 
-void oe::terminate() {
+		spdlog::debug("Engine initialized");
+	}
+
+	void Engine::deinit() {
+		if (m_engine_info.audio) {
+			spdlog::debug("Deinitializing audio");
+			audio::Audio::deinit();
+		}
+		if (m_engine_info.networking) {
+			spdlog::debug("Deinitializing networking");
+			networking::enet::deinitEnet();
+		}
+	}
+
+	void Engine::terminate() {
 #ifdef _DEBUG
-	spdlog::info("Press <ENTER> to exit");
-	assert(0);
+		assert(0);
 #else
 #endif // _DEBUG
-}
+	}
 
-void oe::__error(std::string error_msg, int line, std::string file) {
-	spdlog::error("error: {}\nline: {}\nfile: {}", error_msg, line, file);
-	oe::terminate();
+	void Engine::__error(std::string error_msg, int line, std::string file) {
+		spdlog::error("error: {}\nline: {}\nfile: {}", error_msg, line, file);
+		oe::Engine::terminate();
+	}
+
 }

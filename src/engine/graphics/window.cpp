@@ -9,6 +9,7 @@
 #include "engine/internal_libs.h"
 #include "engine/utility/math.h"
 #include "engine/graphics/gl.h"
+#include "engine/engine.h"
 
 #define M_NUM_KEYS		2048
 #define M_NUM_BUTTONS	1024
@@ -96,7 +97,7 @@ namespace oe::graphics {
 		std::cout << fmt::format("Description   :   {}", log_type) << std::endl;
 		std::cout << fmt::format("Line          :   {}", log_severity) << std::endl;
 		std::cout << std::endl;
-		oe::terminate();
+		oe_error_terminate("OpenGL error");
 	}
 
 	void glfwError(int id, const char* description) {
@@ -328,4 +329,13 @@ namespace oe::graphics {
 		m_cursor_transformed.y = oe::utils::map((double)m_cursor_transformed.y, (double)-1.0, (double)1.0, (double)0.0, (double)m_window.size.y);
 		glfwSetCursorPos(m_window_handle, m_cursor_transformed.x, m_cursor_transformed.y);
 	}
+
+	const std::string Window::getClipboard() {
+		return glfwGetClipboardString(m_window_handle);
+	}
+	
+	void Window::setClipboard(const std::string& str) {
+		glfwSetClipboardString(m_window_handle, str.c_str());
+	}
+
 }

@@ -1,4 +1,5 @@
 #include "sprite_panel.h"
+#include "engine/engine.h"
 
 #if _DEBUG && 0
 #define _DEFAULT_COLOR glm::vec4(1.0f, 1.0f, 1.0f, 0.2f)

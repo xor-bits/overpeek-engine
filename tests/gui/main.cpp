@@ -119,7 +119,7 @@ void setup_gui() {
 		button->align_render() = oe::graphics::alignment::top_center;
 		button->setCallback(
 			[](int button, int action) {
-				if (action == OE_PRESS && button == OE_MOUSE_BUTTON_LEFT) {
+				if (action == oe::press && button == oe::button_left) {
 					// spdlog::info("Button pressed"); 
 					std::swap(rotate.x, rotate.y);
 					std::swap(rotate.y, rotate.z);
@@ -151,7 +151,7 @@ void setup_gui() {
 		button->align_render() = oe::graphics::alignment::top_center;
 		button->setCallback(
 			[](int button, int action) {
-				if (action == OE_PRESS && button == OE_MOUSE_BUTTON_LEFT) {
+				if (action == oe::press && button == oe::button_left) {
 					// spdlog::info("Button pressed"); 
 					rotate *= -1;
 				}
@@ -163,7 +163,7 @@ void setup_gui() {
 		gui->addSubWidget(button);
 
 		auto button_background = new oe::gui::SpritePanel({ 175, 50 });
-		button_background->align_parent() = oe::graphics::alignment::center_center;
+		button_background->align_parent() = oe::graphics::center_center;
 		button_background->align_render() = oe::graphics::alignment::center_center;
 		button_background->setSprite(pack->empty_sprite());
 		button_background->color() = oe::colors::grey;
@@ -198,7 +198,7 @@ void setup_gui() {
 			button->align_render() = oe::graphics::alignment::bottom_center;
 			button->setCallback(
 				[](int button, int action) {
-					if (action == OE_PRESS && button == OE_MOUSE_BUTTON_LEFT) {
+					if (action == oe::press && button == oe::button_left) {
 						spdlog::info(textbox->string());
 						textbox->string() = "";
 					}
@@ -246,9 +246,13 @@ void keyboard(int key, int action, int mods) {
 	gui->key(key, action, mods);
 }
 
-int main(int argc, char* argv[]) {
+int main() {
 	// engine
-	oe::init(argc, argv);
+	oe::EngineInfo engine_info = {};
+	engine_info.api = oe::Vulkan;
+	engine_info.networking = false;
+	engine_info.audio = false;
+	oe::Engine::init(engine_info);
 
 	// window
 	oe::graphics::Window::WindowConfig window_config;
@@ -273,7 +277,7 @@ int main(int argc, char* argv[]) {
 	sprite = pack->addSprite(img);
 	gui = new oe::gui::GUI();
 	setup_gui();
-	renderer = new oe::graphics::Renderer(oe::graphics::types::dynamicrender, oe::graphics::types::staticrender, 6, nullptr);
+	renderer = new oe::graphics::Renderer(oe::graphics::dynamicrender, oe::graphics::staticrender, 6, nullptr);
 	shader = new oe::graphics::SpriteShader();
 	resize(oe::graphics::Window::getSize());
 
@@ -292,6 +296,8 @@ int main(int argc, char* argv[]) {
 	delete renderer;
 	delete shader;
 	delete pack;
+
+	oe::Engine::deinit();
 
 	return 0;
 }

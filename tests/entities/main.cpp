@@ -51,6 +51,7 @@ void render(float update_fraction) {
 	renderer->clear();
 	renderer->begin();
 	registry.view<position>().each([&](position& pos) {
+		// rendering
 		renderer->submit(pos, { 0.2f, 0.2f }, sprite);
 	});
 
