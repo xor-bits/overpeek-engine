@@ -3,7 +3,7 @@ Engine project
 
 ### Cloning
 ```
-git clone https://gitlab.com/Overpeek/overpeek-engine.git
+git clone --recursive https://gitlab.com/Overpeek/overpeek-engine.git
 ```
 
 ### CMake
