@@ -13,8 +13,8 @@ namespace oe::gui {
 		std::vector<Widget*> m_nodes;
 		
 	protected:
-		oe::graphics::alignment m_align_parent;
-		oe::graphics::alignment m_align_render;
+		glm::vec2 m_align_parent;
+		glm::vec2 m_align_render;
 		glm::vec2 m_offset_position;
 		glm::vec2 m_topleft_position;
 		glm::vec2 m_render_position;
@@ -42,8 +42,8 @@ namespace oe::gui {
 		virtual void key(int key, int action, int mods) {}
 
 	public:
-		oe::graphics::alignment& align_parent() { return m_align_parent; }
-		oe::graphics::alignment& align_render() { return m_align_render; }
+		glm::vec2& align_parent() { return m_align_parent; }
+		glm::vec2& align_render() { return m_align_render; }
 		glm::vec2& offset_position() { return m_offset_position; }
 		glm::vec2& render_position() { return m_render_position; }
 		glm::vec2& size() { return m_size; }

@@ -11,8 +11,8 @@ namespace oe::gui {
 		m_topleft_position({ 0, 0 }),
 		m_nodes(std::vector<Widget*>()), 
 		m_parent(nullptr), 
-		m_align_parent(oe::graphics::alignment::top_left),
-		m_align_render(oe::graphics::alignment::top_left)
+		m_align_parent(oe::alignments::top_left),
+		m_align_render(oe::alignments::top_left)
 	{
 
 	}
@@ -42,8 +42,8 @@ namespace oe::gui {
 	}
 
 	void Widget::__resize() {
-		if (m_parent) m_render_position = m_offset_position + m_parent->m_render_position + oe::graphics::alignmentOffset(m_parent->m_size, m_align_parent) - oe::graphics::alignmentOffset(m_size, m_align_render);
-		else m_render_position = m_offset_position - oe::graphics::alignmentOffset(m_size, m_align_render);
+		if (m_parent) m_render_position = m_offset_position + m_parent->m_render_position + oe::alignmentOffset(m_parent->m_size, m_align_parent) - oe::alignmentOffset(m_size, m_align_render);
+		else m_render_position = m_offset_position - oe::alignmentOffset(m_size, m_align_render);
 		resize();
 
 		for (auto& w : m_nodes) {

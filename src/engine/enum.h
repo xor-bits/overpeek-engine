@@ -6,15 +6,19 @@
 
 namespace oe {
 
+	// render types
+	enum types {
+		staticrender, dynamicrender
+	};
+
+	// shader stages
+	enum shader_stages {
+		vertex_shader, tesselation_shader, geometry_shader, fragment_shader, compute_shader
+	};
+
 	// supported graphics apis
 	enum graphics_api {
 		OpenGL, Vulkan
-	};
-
-	struct EngineInfo {
-		bool audio = false;
-		bool networking = false;
-		graphics_api api = Vulkan;
 	};
 
 	// modifiers
@@ -234,6 +238,63 @@ namespace oe {
 		static constexpr glm::vec4 mint = glm::vec4(0.0f, 1.0f, 0.5f, 1.0f);
 		static constexpr glm::vec4 purple = glm::vec4(0.5f, 0.0f, 1.0f, 1.0f);
 		static constexpr glm::vec4 sky = glm::vec4(0.0f, 0.5f, 1.0f, 1.0f);
+	};
+
+	struct alignments {
+		static constexpr glm::vec2 top_left = glm::vec2(0.0f, 0.0f);
+		static constexpr glm::vec2 center_left = glm::vec2(0.0f, 0.5f);
+		static constexpr glm::vec2 bottom_left = glm::vec2(0.0f, 1.0f);
+		static constexpr glm::vec2 top_center = glm::vec2(0.5f, 0.0f);
+		static constexpr glm::vec2 center_center = glm::vec2(0.5f, 0.5f);
+		static constexpr glm::vec2 bottom_center = glm::vec2(0.5f, 1.0f);
+		static constexpr glm::vec2 top_right = glm::vec2(1.0f, 0.0f);
+		static constexpr glm::vec2 center_right = glm::vec2(1.0f, 0.5f);
+		static constexpr glm::vec2 bottom_right = glm::vec2(1.0f, 1.0f);
+	};
+	static glm::vec2 alignmentOffset(const glm::vec2& size, const glm::vec2& alignment) {
+		return size * alignment;
+	}
+
+	// window open info
+	struct WindowInfo {
+		glm::vec2 position = { 0, 0 };
+		glm::vec2 size = { 900, 600 };
+		std::string title = "Overpeek Engine";
+		unsigned char multisamples = 0;
+		bool borderless = false;
+		bool resizeable = true;
+		bool transparent = false;
+		bool fullscreen = false;
+
+		bool debug_messages = false;
+	};
+
+	// renderer create info
+	struct RendererInfo {
+		int max_quad_count = 10000;
+		oe::types arrayRenderType = oe::types::dynamicrender;
+		oe::types indexRenderType = oe::types::staticrender;
+		void* staticVBOBuffer_data = nullptr;
+	};
+
+	// shader per stage create info
+	struct ShaderStageInfo {
+		bool source_is_filepath = true;
+		shader_stages stage; // must be initialized
+		std::string source;  // must be initialized
+	};
+
+	// shader create info
+	struct ShaderInfo {
+		std::string name = "default_shader";
+		std::vector<ShaderStageInfo> shader_stages;
+	};
+
+	// engine create info
+	struct EngineInfo {
+		bool audio = false;
+		bool networking = false;
+		graphics_api api = Vulkan;
 	};
 
 }

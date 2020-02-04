@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/graphics/gltexture.h"
+#include "engine/graphics/opengl/gl_texture.h"
 #include "engine/internal_libs.h"
 
 

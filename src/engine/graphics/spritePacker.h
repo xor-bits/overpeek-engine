@@ -3,7 +3,7 @@
 #include "engine/utility/filereader.h"
 #include "engine/internal_libs.h"
 #include "sprite.h"
-#include "gltexture.h"
+#include "engine/graphics/opengl/gl_texture.h"
 
 
 

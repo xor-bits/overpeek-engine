@@ -10,6 +10,7 @@ oe::gui::TextInput* textbox;
 oe::gui::TextPanel* textpanel;
 
 const oe::graphics::Sprite* sprite;
+oe::graphics::Window* window;
 oe::graphics::SpritePack* pack;
 oe::graphics::SingleTextureShader* shader;
 oe::graphics::Renderer* renderer;
@@ -79,7 +80,7 @@ void cube() {
 
 void render(float update_fraction) {
 	// clear framebuffer
-	oe::graphics::Window::clearWindow();
+	window->clear();
 
 	// submitting
 	cube();
@@ -89,11 +90,10 @@ void render(float update_fraction) {
 	gui->render();
 
 	// swap buffers and poll events
-	oe::graphics::Window::updateWindow();
-	oe::graphics::Window::pollEvents();
+	window->update();
 
 	// check if needs to close
-	if (oe::graphics::Window::windowShouldClose()) oe::utils::GameLoop::stop();
+	if (window->shouldClose()) oe::utils::GameLoop::stop();
 }
 
 void resize(const glm::vec2& window_size) {
@@ -234,7 +234,7 @@ void cursor_pos(const glm::vec2& cursor_window, const glm::vec2& cursor) {
 }
 
 void button(int button, int action) {
-	const glm::vec2& cursor = oe::graphics::Window::getCursorWindow();
+	const glm::vec2& cursor = window->getCursorWindow();
 	gui->cursor(button, action, cursor);
 }
 
@@ -258,7 +258,8 @@ int main() {
 	oe::graphics::Window::WindowConfig window_config;
 	window_config.title = "Test 3 - GUIs";
 	window_config.multisamples = 4;
-	window_config.opengl_debugmode = true;
+	window_config.debug_messages = true;
+	window = oe::Engine::createWindow();
 	oe::graphics::Window::init(window_config);
 	oe::graphics::Window::setCursorPositionCallback(cursor_pos);
 	oe::graphics::Window::setResizeCallback(resize);

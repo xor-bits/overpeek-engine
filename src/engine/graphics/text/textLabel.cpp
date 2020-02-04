@@ -81,7 +81,7 @@ namespace oe::graphics {
 	}
 
 	void TextLabel::submit(Renderer& renderer, std::string text, glm::vec2 pos, glm::vec2 size) {
-		Text::submit(renderer, text, pos, size, oe::graphics::alignment::top_left, glm::vec4(1.0f), m_font);
+		Text::submit(renderer, text, pos, size, oe::alignments::top_left, glm::vec4(1.0f), m_font);
 	}
 
 	/*void TextLabel::generate(const std::string& text) {
@@ -168,7 +168,7 @@ namespace oe::graphics {
 		return calculate_final_size(renderData, size, font);
 	}
 
-	void Text::submit(Renderer& renderer, const std::string& text, const glm::vec2& pos, const glm::vec2& size, alignment align, const glm::vec4& bg_color, const Font* font) {
+	void Text::submit(Renderer& renderer, const std::string& text, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align, const glm::vec4& bg_color, const Font* font) {
 		if (!font) font = s_font;
 		if (!font) oe_error_terminate("No font!");
 

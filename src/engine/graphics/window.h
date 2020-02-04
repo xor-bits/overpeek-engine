@@ -6,76 +6,93 @@
 #include "engine/internal_libs.h"
 
 
+#define M_NUM_KEYS		2048
+#define M_NUM_BUTTONS	1024
 
+
+
+class GLFWwindow;
 namespace oe::graphics {
-	
+
 	class Window {
 	public:
-		struct WindowConfig {
-			glm::vec2 position = { 0, 0 };
-			glm::vec2 size = { 900, 600 };
-			std::string title = "Overpeek Engine";
-			unsigned char multisamples = 0;
-			bool borderless = false;
-			bool resizeable = true;
-			bool transparent = false;
-			bool fullscreen = false;
+		typedef std::function<void(oe::keyboard key, oe::actions action, oe::modifiers mods)> key_callback;
+		typedef std::function<void(oe::mouse button, oe::actions action)> button_callback;
+		typedef std::function<void(float delta)> scroll_callback;
+		typedef std::function<void(const glm::vec2 & framebuffer_size)> resize_callback;
+		typedef std::function<void(uint32_t codepoint, oe::modifiers mods)> text_callback;
+		typedef std::function<void(const glm::vec2 & transformed, const glm::vec2 & window)> cursor_callback;
 
-			bool opengl_debugmode = false;
-		};
-		
-	public:
-		static void init(WindowConfig& window_config);
+	protected:
+		WindowInfo m_window;
+		GLFWwindow* m_window_handle = nullptr;
 
-		static bool windowShouldClose();
-		
-		static void pollEvents();
-		static void updateWindow();
-		static void clearWindow(const glm::vec4& color = glm::vec4(0.18f, 0.18f, 0.20f, 1.0f));
-		static void closeWindow();
+		bool m_keys[M_NUM_KEYS];
+		bool m_buttons[M_NUM_BUTTONS];
 
-		static void viewport();
-		static void setIcon(const oe::utils::image_data& image);
-		static void showCursor(bool show);
+		key_callback m_key_callback;
+		button_callback m_button_callback;
+		scroll_callback m_scroll_callback;
+		resize_callback m_resize_callback;
+		text_callback m_text_callback;
+		cursor_callback m_cursor_callback;
 
-		static void setKeyboardCallback(void(*callback)(int key, int action, int mods));
-		static void setButtonCallback(void(*callback)(int button, int action));
-		static void setScrollCallback(void(*callback)(double delta));
-		static void setResizeCallback(void(*callback)(const glm::vec2& framebuffer_size));
-		static void setCharmodCallback(void(*callback)(unsigned int codepoint, int mods));
-		static void setCursorPositionCallback(void(*callback)(const glm::vec2& transformed, const glm::vec2& window));
+		glm::vec2 m_cursor_transformed = { 0.0f, 0.0f };
+		glm::vec2 m_cursor_window = { 0, 0 };
+		float m_aspect_ratio = 0;
+
+		void postglfw();
 
 	public:
-		static float aspect();
-		static float button(int button);
-		static float key(int key);
+		Window(const WindowInfo& window_config);
+		~Window();
 
-		static const glm::vec2& getPosition();
-		static void setPosition(const glm::vec2& pos);
+		virtual void update() = 0;
+		virtual void clear(const glm::vec4& color = glm::vec4(0.18f, 0.18f, 0.20f, 1.0f)) = 0;
+		virtual void viewport() = 0;
 
-		static const glm::vec2& getSize();
-		static void setSize(const glm::vec2& size);
+		bool shouldClose();
+		void setIcon(const oe::utils::image_data& image);
+		void showCursor(bool show);
 
-		static const std::string& getTitle();
-		static void setTitle(const std::string& title);
+		void setKeyboardCallback(key_callback);
+		void setButtonCallback(button_callback);
+		void setScrollCallback(scroll_callback);
+		void setResizeCallback(resize_callback);
+		void setCharmodCallback(text_callback);
+		void setCursorPositionCallback(cursor_callback);
 
-		static bool getBorderless();
-		static void setBorderless(bool borderless);
+	public:
+		float aspect();
+		float button(oe::mouse button);
+		float key(oe::keyboard key);
 
-		static bool getResizeable();
-		static void setResizeable(bool resizeable);
+		const glm::vec2& getPosition();
+		void setPosition(const glm::vec2& pos);
 
-		static bool getFullscreen();
-		static void setFullscreen(bool fullscreen);
+		const glm::vec2& getSize();
+		void setSize(const glm::vec2& size);
 
-		static const glm::vec2& getCursorWindow();
-		static void setCursorWindow(const glm::vec2& cursor_at_window);
+		const std::string& getTitle();
+		void setTitle(const std::string& title);
 
-		static const glm::vec2& getCursorTransformed();
-		static void setCursorTransformed(const glm::vec2& cursor_at_world_space);
+		bool getBorderless();
+		void setBorderless(bool borderless);
 
-		static const std::string getClipboard();
-		static void setClipboard(const std::string& str);
+		bool getResizeable();
+		void setResizeable(bool resizeable);
+
+		bool getFullscreen();
+		void setFullscreen(bool fullscreen);
+
+		const glm::vec2& getCursorWindow();
+		void setCursorWindow(const glm::vec2& cursor_at_window);
+
+		const glm::vec2& getCursorTransformed();
+		void setCursorTransformed(const glm::vec2& cursor_at_world_space);
+
+		const std::string getClipboard();
+		void setClipboard(const std::string& str);
 	};
 
 }

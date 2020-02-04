@@ -4,19 +4,19 @@
 
 namespace oe {
 
-	EngineInfo Engine::m_engine_info;
+	EngineInfo Engine::engine_info;
 
-	void Engine::init(EngineInfo engine_info) {
+	void Engine::init(EngineInfo _engine_info) {
 		spdlog::set_pattern("%^[%T] [%l]:%$ %v");
 		spdlog::set_level(spdlog::level::level_enum::trace);
 
-		m_engine_info = engine_info;
+		engine_info = _engine_info;
 		
-		if (m_engine_info.audio) {
+		if (engine_info.audio) {
 			spdlog::debug("Initializing audio");
 			audio::Audio::init();
 		}
-		if (m_engine_info.networking) {
+		if (engine_info.networking) {
 			spdlog::debug("Initializing networking");
 			networking::enet::initEnet();
 		}
@@ -25,11 +25,11 @@ namespace oe {
 	}
 
 	void Engine::deinit() {
-		if (m_engine_info.audio) {
+		if (engine_info.audio) {
 			spdlog::debug("Deinitializing audio");
 			audio::Audio::deinit();
 		}
-		if (m_engine_info.networking) {
+		if (engine_info.networking) {
 			spdlog::debug("Deinitializing networking");
 			networking::enet::deinitEnet();
 		}
