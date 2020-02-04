@@ -10,3 +10,6 @@
 [submodule "src/vendor/freetype"]
 	path = src/vendor/freetype
 	url = https://git.savannah.nongnu.org/git/freetype/freetype2.git
+[submodule "src/vendor/flecs"]
+	path = src/vendor/flecs
+	url = https://github.com/SanderMertens/flecs.git
