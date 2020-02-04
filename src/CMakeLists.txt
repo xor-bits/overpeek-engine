@@ -8,6 +8,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
 # packages
 set(OpenGL_GL_PREFERENCE GLVND) # required
+find_package(Vulkan REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
 
@@ -60,42 +61,45 @@ set(${PROJECT_NAME}_INCLUDE_DIRS
 # glfw
 add_subdirectory(vendor/glfw)
 set_target_properties(glfw PROPERTIES FOLDER engine/vendor)
-target_include_directories(${PROJECT_NAME} PUBLIC ${glfw_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
+target_include_directories(${PROJECT_NAME} PRIVATE ${glfw_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 # glad
 add_subdirectory(vendor/glad)
 set_target_properties(glad PROPERTIES FOLDER engine/vendor)
-target_include_directories(${PROJECT_NAME} PUBLIC ${glad_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PUBLIC glad)
+target_include_directories(${PROJECT_NAME} PRIVATE ${glad_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PRIVATE glad)
 # enet
 add_subdirectory(vendor/enet)
 set_target_properties(enet PROPERTIES FOLDER engine/vendor)
-target_include_directories(${PROJECT_NAME} PUBLIC vendor/enet/include)
-target_link_libraries(${PROJECT_NAME} PUBLIC enet)
+target_include_directories(${PROJECT_NAME} PRIVATE vendor/enet/include)
+target_link_libraries(${PROJECT_NAME} PRIVATE enet)
 # miniz
 add_subdirectory(vendor/miniz)
 set_target_properties(miniz PROPERTIES FOLDER engine/vendor)
-target_include_directories(${PROJECT_NAME} PUBLIC ${miniz_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PUBLIC miniz)
+target_include_directories(${PROJECT_NAME} PRIVATE ${miniz_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PRIVATE miniz)
 # freetype
 add_subdirectory(vendor/freetype)
 set_target_properties(freetype PROPERTIES FOLDER engine/vendor)
-target_include_directories(${PROJECT_NAME} PUBLIC ${freetype_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PUBLIC freetype)
+target_include_directories(${PROJECT_NAME} PRIVATE ${freetype_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PRIVATE freetype)
 # glm
 target_include_directories(${PROJECT_NAME} PUBLIC vendor/glm/include)
 # stb
-target_include_directories(${PROJECT_NAME} PUBLIC vendor/stb/include)
+target_include_directories(${PROJECT_NAME} PRIVATE vendor/stb/include)
 # entt
 target_include_directories(${PROJECT_NAME} PUBLIC vendor/entt/include)
 # spdlog
 target_include_directories(${PROJECT_NAME} PUBLIC vendor/spdlog/include)
 # minimp3
-target_include_directories(${PROJECT_NAME} PUBLIC vendor/minimp3/include)
+target_include_directories(${PROJECT_NAME} PRIVATE vendor/minimp3/include)
 # rectpack2D
-target_include_directories(${PROJECT_NAME} PUBLIC vendor/rectpack2D/include)
+target_include_directories(${PROJECT_NAME} PRIVATE vendor/rectpack2D/include)
+# vulkan
+target_include_directories(${PROJECT_NAME} PRIVATE ${Vulkan_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${Vulkan_LIBRARIES})
 # openal
-target_include_directories(${PROJECT_NAME} PUBLIC ${OPENAL_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} PUBLIC ${OPENAL_LIBRARY})
+target_include_directories(${PROJECT_NAME} PRIVATE ${OPENAL_INCLUDE_DIR})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENAL_LIBRARY})
 # opengl
-target_link_libraries(${PROJECT_NAME} PUBLIC ${OPENGL_gl_LIBRARY})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENGL_gl_LIBRARY})
