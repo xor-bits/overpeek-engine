@@ -1,4 +1,4 @@
-#include "renderer.h"
+#include "gl_renderer.h"
 
 #include "engine/engine.h"
 #include "buffers/vertexArray.h"
@@ -72,14 +72,6 @@ namespace oe::graphics {
 		pointD += position;
 	}
 
-	void GLRenderer::clear() {
-		m_buffer_pos = 0;
-		m_quad_count = 0;
-	}
-
-	void GLRenderer::render(int quad_count) const {
-	}
-
 	void GLRenderer::begin()
 	{
 		m_vao->bind();
@@ -103,7 +95,7 @@ namespace oe::graphics {
 		m_buffer_pos++;
 	}
 
-	void GLRenderer::submit(const glm::vec2& position, const glm::vec2& size, const Sprite* sprite, const glm::vec4& color = glm::vec4(1.0f), glm::vec2 align = alignments::top_left, float angle = 0.0f, int quad_index = -1)
+	void GLRenderer::submit(const glm::vec2& position, const glm::vec2& size, const Sprite* sprite, const glm::vec4& color, glm::vec2 align, float angle, int quad_index)
 	{
 		if (!sprite) return;
 
@@ -135,7 +127,7 @@ namespace oe::graphics {
 		m_quad_count = 0;
 	}
 
-	void GLRenderer::render(int quad_count = -1) const
+	void GLRenderer::render(int quad_count) const
 	{
 		if (quad_count == -1) quad_count = m_quad_count;
 

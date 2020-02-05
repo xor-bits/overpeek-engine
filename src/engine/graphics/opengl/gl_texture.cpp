@@ -1,4 +1,4 @@
-#include "gltexture.h"
+#include "gl_texture.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -75,7 +75,7 @@ namespace oe::graphics {
 		load2D(data.data, data.width, data.height);
 	}
 
-	void Texture::load2D(void* data, int width, int height) {
+	void Texture::load2D(const void* data, int width, int height) {
 		p_target = GL_TEXTURE_2D;
 		p_width = width;
 		p_height = height;
@@ -90,7 +90,7 @@ namespace oe::graphics {
 		glTexImage2D(p_target, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 
-	void Texture::load3D(void* data, int width, int height, int depth) {
+	void Texture::load3D(const void* data, int width, int height, int depth) {
 		p_target = GL_TEXTURE_2D_ARRAY;
 		p_width = width;
 		p_height = height;
@@ -120,12 +120,12 @@ namespace oe::graphics {
 		glTexImage2D(p_target, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
 	}
 
-	void Texture::data2D(void* data, int offx, int offy, int width, int height) {
+	void Texture::data2D(const void* data, int offx, int offy, int width, int height) {
 		if (offx + width > p_width || offy + height > p_height) oe_error_terminate("Sub texture bigger than initial texture");
 		glTextureSubImage2D(p_id, 0, offx, offy, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 
-	void Texture::data3D(void* data, int offx, int offy, int offz, int width, int height, int depth) {
+	void Texture::data3D(const void* data, int offx, int offy, int offz, int width, int height, int depth) {
 		if (offx + width > p_width || offy + height > p_height || offz + depth > p_depth) oe_error_terminate("Sub texture bigger than initial texture");
 		glTextureSubImage3D(p_id, 0, offx, offy, offz, width, height, depth, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}

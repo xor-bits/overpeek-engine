@@ -114,7 +114,7 @@ namespace oe::graphics {
 		}
 
 		// GL
-		Window::viewport();
+		viewport();
 		GL::setPolygonMode();
 		GL::setSwapInterval();
 		GL::setCulling();

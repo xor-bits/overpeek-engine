@@ -9,13 +9,24 @@
 #include "widgets/slider.h"
 #include "widgets/sprite_panel.h"
 
+#include "engine/graphics/window.h"
+#include "engine/graphics/renderer.h"
+#include "engine/graphics/shader.h"
+
 
 
 namespace oe::gui {
 
 	class GUI {
+	private:
+		std::unique_ptr<Form> m_main_frame;
+		oe::graphics::Renderer* m_renderer;
+		oe::graphics::Renderer* m_font_renderer;
+		oe::graphics::Shader* m_shader;
+		oe::graphics::Window* m_window;
+
 	public:
-		GUI();
+		GUI(oe::graphics::Window* window);
 		~GUI();
 		
 		// needs to be after every window resize

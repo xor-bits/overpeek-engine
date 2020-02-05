@@ -2,6 +2,9 @@
 
 #include <string>
 
+#include "texture.png.h"
+
+
 
 const oe::graphics::Sprite* sprite;
 const oe::graphics::Sprite* sprite_white;
@@ -47,6 +50,7 @@ void update() {
 void resize(const glm::vec2& window_size) {
 	float aspect = window->aspect();
 	glm::mat4 pr = glm::ortho(-aspect, aspect, 1.0f, -1.0f);
+	spdlog::info(aspect);
 	shader->setUniformMat4("pr_matrix", pr);
 	shader->setUniform1i("usetex", 1);
 }
@@ -65,7 +69,7 @@ void keyboard(int key, int action, int mods) {
 int main(int argc, char** argv) {
 	// engine
 	oe::EngineInfo engine_info = {};
-	engine_info.api = oe::OpenGL;
+	engine_info.api = oe::Vulkan;
 	oe::Engine::init(engine_info);
 
 	// window
@@ -91,8 +95,10 @@ int main(int argc, char** argv) {
 
 	renderer = oe::Engine::createRenderer(renderer_info);
 	shader = oe::Engine::createShader(oe::graphics::SingleTextureShader::singleTextureShader());
+	
+	auto img = oe::utils::loadImageCopy(texture_png, 5, 5);
 	pack = new oe::graphics::SpritePack();
-	sprite = pack->addSprite("texture.png");
+	sprite = pack->addSprite(img);
 	sprite_white = pack->empty_sprite();
 	pack->construct();
 

@@ -69,7 +69,7 @@ namespace oe::graphics {
 				glm::vec2(g->advance.x >> 6, g->advance.y >> 6) / (float)m_resolution,
 
 				// add glyph to sprite packer
-				sprite_packer->addSprite(oe::utils::image_data(data, g->bitmap.width, g->bitmap.rows, 4))
+				sprite_packer->addSprite(oe::utils::loadImageMove(data, g->bitmap.width, g->bitmap.rows))
 			};
 			m_glyphs.insert(std::make_pair(c, glyph));
 

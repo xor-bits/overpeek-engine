@@ -67,19 +67,19 @@ namespace oe::gui {
 		renderer.submit(m_render_position, m_size, m_sprite, m_color);
 
 		// text
-		oe::graphics::Text::submit(renderer, "<#000000>" + m_string, m_render_position, glm::vec2(m_font_size), oe::graphics::alignment::top_left);
+		oe::graphics::Text::submit(renderer, "<#000000>" + m_string, m_render_position, glm::vec2(m_font_size), oe::alignments::top_left);
 
 		// vertical bar
 		if (!m_selected) return;
 		float input_x_bar = oe::graphics::Text::width(m_string.substr(0, reinterpret_cast<STB_TexteditState*>(m_state)->cursor), glm::vec2(m_font_size));
 		if (timer_key_pressed > oe::utils::Clock::getSessionMillisecond()) {
-			oe::graphics::Text::submit(renderer, "<#000000>|", m_render_position + glm::vec2(input_x_bar, 0.0f), glm::vec2(m_font_size), oe::graphics::alignment::top_left);
+			oe::graphics::Text::submit(renderer, "<#000000>|", m_render_position + glm::vec2(input_x_bar, 0.0f), glm::vec2(m_font_size), oe::alignments::top_left);
 			return;
 		}
 		else {
 			float time = oe::utils::Clock::getSessionMillisecond();
 			if ((int)floor(time) % 2000 > 1000)
-				oe::graphics::Text::submit(renderer, "<#000000>|", m_render_position + glm::vec2(input_x_bar, 0.0f), glm::vec2(m_font_size), oe::graphics::alignment::top_left);
+				oe::graphics::Text::submit(renderer, "<#000000>|", m_render_position + glm::vec2(input_x_bar, 0.0f), glm::vec2(m_font_size), oe::alignments::top_left);
 			return;
 		}
 	}

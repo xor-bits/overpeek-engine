@@ -23,7 +23,7 @@
 
 namespace oe::utils {
 
-	std::string readFile(fs::path path)
+	std::string oe::utils::readFile(fs::path path)
 	{
 		std::ifstream input_file_stream = std::ifstream(path);
 		std::stringstream buffer;
@@ -31,11 +31,12 @@ namespace oe::utils {
 		return buffer.str();
 	}
 
-	void saveImage(fs::path path, const image_data& image) {
+	void oe::utils::saveImage(fs::path path, const image_data& image) 
+	{
 		stbi_write_png(path.string().c_str(), image.width, image.height, image.channels, image.data, image.width * image.channels * sizeof(char));
 	}
 
-	const image_data loadImage(fs::path path) {
+	const image_data oe::utils::loadImage(fs::path path) {
 		int width, height, channels;
 		unsigned char* image = stbi_load(path.string().c_str(), &width, &height, &channels, STBI_rgb_alpha);
 		
@@ -43,10 +44,46 @@ namespace oe::utils {
 			oe_error_terminate("Failed to load imagefile \"{}\"", std::string(path.string().c_str()));
 		}
 
-		return image_data(image, width, height, channels);
+		// return
+		image_data returned = {};
+		returned.size = width * height * channels;
+		returned.data = image;
+		returned.width = width;
+		returned.height = height;
+		returned.channels = channels;
+
+		return returned;
 	}
 
-	const audio_data loadAudio(fs::path path) {
+	const image_data oe::utils::loadImageCopy(const unsigned char* data, int width, int height) {
+		size_t size = width * height * 4;
+		unsigned char* data_dest = new unsigned char[size];
+		std::memcpy(data_dest, data, size);
+
+		// return
+		image_data returned = {};
+		returned.size = size;
+		returned.data = data_dest;
+		returned.width = width;
+		returned.height = height;
+		returned.channels = 4;
+
+		return returned;
+	}
+
+	const image_data oe::utils::loadImageMove(unsigned char* data, int width, int height) {
+		// return
+		image_data returned = {};
+		returned.size = width * height * 4;
+		returned.data = data;
+		returned.width = width;
+		returned.height = height;
+		returned.channels = 4;
+
+		return returned;
+	}
+
+	const audio_data oe::utils::loadAudio(fs::path path) {
 		mp3dec_t mp3d;
 		mp3dec_file_info_t info;
 		if (mp3dec_load(&mp3d, path.string().c_str(), &info, NULL, NULL)) {
@@ -65,15 +102,23 @@ namespace oe::utils {
 			format = AL_FORMAT_STEREO16;
 		}
 
-		return audio_data(info.buffer, size, info.channels, info.hz, format);
+		// return
+		audio_data returned = {};
+		returned.data = info.buffer;
+		returned.channels = info.channels;
+		returned.sample_rate = info.hz;
+		returned.format = format;
+		returned.size = size;
+
+		return returned;
 	}
 
-	void freeImage(const image_data& image) {
-		free(image.data);
+	void oe::utils::freeImage(image_data& image) {
+		delete[] image.data;
 	}
 
-	void freeAudio(const audio_data& audio) {
-		free(audio.data);
+	void oe::utils::freeAudio(audio_data& audio) {
+		delete[] audio.data;
 	}
 
 }

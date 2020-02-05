@@ -5,22 +5,27 @@
 #include <engine/graphics/text/font.h>
 #include <engine/graphics/assets/singleTextureShader.h>
 
+#include "engine/engine.h"
+
 
 
 namespace oe::gui {
 
 	constexpr int border = 5;
 
-	std::unique_ptr<Form> m_main_frame;
-	oe::graphics::Renderer* m_renderer;
-	oe::graphics::Renderer* m_font_renderer;
-	oe::graphics::SpriteShader* m_shader;
 	
-	GUI::GUI() {
-		m_renderer = new oe::graphics::Renderer(oe::graphics::dynamicrender, oe::graphics::staticrender, 10000);
-		m_shader = new oe::graphics::SpriteShader();
+	GUI::GUI(oe::graphics::Window* window) : m_window(window) {
+		oe::RendererInfo renderer_info = {};
+		renderer_info.arrayRenderType = oe::dynamicrender;
+		renderer_info.indexRenderType = oe::staticrender;
+		renderer_info.max_quad_count = 10000;
+		renderer_info.staticVBOBuffer_data = nullptr;
+		m_renderer = oe::Engine::createRenderer(renderer_info);
 
-		auto form = new oe::gui::Form(oe::graphics::Window::getSize() - glm::vec2(2 * border));
+		oe::ShaderInfo shader_info = oe::graphics::SpriteShader::singleTextureShader();
+		m_shader = oe::Engine::createShader(shader_info);
+
+		auto form = new oe::gui::Form(m_window->getSize() - glm::vec2(2 * border));
 		form->size() = { border, border };
 		m_main_frame = std::unique_ptr<Form>(form);
 		resize();
@@ -43,7 +48,7 @@ namespace oe::gui {
 	}
 
 	void GUI::resize() {
-		resize(oe::graphics::Window::getSize());
+		resize(m_window->getSize());
 	}
 
 	void GUI::resize(const glm::vec2& window_size) {
@@ -63,8 +68,8 @@ namespace oe::gui {
 
 		glm::mat4 pr_matrix = glm::ortho(0.0f, (float)window_size.x, (float)window_size.y, 0.0f);
 		m_shader->bind();
-		m_shader->useTexture(true);
-		m_shader->projectionMatrix(pr_matrix);
+		m_shader->setUniform1i("usetex", 1);
+		m_shader->setUniformMat4("pr_matrix", pr_matrix);
 	}
 
 	void GUI::addSubWidget(Widget* widget) {

@@ -86,6 +86,8 @@ namespace oe::graphics {
 
 	Window::Window(const WindowInfo& window_config) {
 		m_window = window_config;
+		m_window.size.y = std::max(m_window.size.y, 1.0f);
+		m_aspect_ratio = m_window.size.x / m_window.size.y;
 	}
 
 	Window::~Window() {
@@ -100,7 +102,7 @@ namespace oe::graphics {
 
 	void Window::setIcon(const oe::utils::image_data& image) {
 		GLFWimage glfwicon; 
-		glfwicon.height = image.height; glfwicon.width = image.width; glfwicon.pixels = image.data;
+		glfwicon.height = image.height; glfwicon.width = image.width; glfwicon.pixels = const_cast<unsigned char*>(image.data);
 		glfwSetWindowIcon(m_window_handle, 1, &glfwicon);
 	}
 
@@ -165,19 +167,11 @@ namespace oe::graphics {
 	}
 
 	const std::string Window::getClipboard() {
-		return glfwGetClipboardString(m_window_handle);
+		return glfwGetClipboardString(nullptr);
 	}
 	
 	void Window::setClipboard(const std::string& str) {
-		glfwSetClipboardString(m_window_handle, str.c_str());
-	}
-
-	void GLWindow::update()
-	{
-	}
-
-	void GLWindow::clear(const glm::vec4& color = glm::vec4(0.18f, 0.18f, 0.20f, 1.0f))
-	{
+		glfwSetClipboardString(nullptr, str.c_str());
 	}
 
 }

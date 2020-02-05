@@ -1,4 +1,4 @@
-#include "shader.h"
+#include "gl_shader.h"
 
 #include <iostream>
 
@@ -102,14 +102,11 @@ namespace oe::graphics {
 			glAttachShader(p_shader_program, shader_module);
 		}
 
-		glLinkProgram(p_shader_program);
 		// Get shader program linking error
+		glLinkProgram(p_shader_program);
 		programLog(p_shader_program, GL_LINK_STATUS);
 
-
 		// Free up data
-
-		std::vector<GLuint> modules;
 		for (GLuint shader_module : modules) 
 		{
 			glDeleteShader(shader_module);

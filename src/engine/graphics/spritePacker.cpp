@@ -32,8 +32,7 @@ namespace oe::graphics {
 		size_t img_size = 4ul * (size_t)1 * (size_t)1;
 		unsigned char* data = new unsigned char[img_size];
 		std::memset(data, (unsigned char)255, img_size);
-		oe::utils::image_data img(data, 1, 1, 4);
-		addSprite(img);
+		addSprite(oe::utils::loadImageMove(data, 1, 1));
 	}
 
 	SpritePack::~SpritePack() {
@@ -150,7 +149,7 @@ namespace oe::graphics {
 		}
 
 
-		auto img = oe::utils::image_data(data, pack_width, pack_height, 4);
+		auto img = oe::utils::loadImageMove(data, pack_width, pack_height);
 		oe::utils::saveImage("pack.png", img);
 		m_texture = new Texture();
 		m_texture->load2D(img);
@@ -163,7 +162,7 @@ namespace oe::graphics {
 		constructRepeat();
 
 		for (size_t i = 0; i < usr_data->m_images.size(); i++) {
-			delete[] usr_data->m_images.at(i).data;
+			oe::utils::freeImage(usr_data->m_images.at(i));
 		}
 	}
 

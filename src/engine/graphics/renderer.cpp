@@ -1,11 +1,11 @@
 #include "renderer.h"
-#include "opengl\renderer.h"
 
 
 
 namespace oe::graphics {
 
-	Renderer::Renderer(const RendererInfo& renderer_info) {
+	Renderer::Renderer(const RendererInfo& renderer_info) 
+	{
 		m_max_quad_count = renderer_info.max_quad_count;
 		m_quad_count = 0;
 	}

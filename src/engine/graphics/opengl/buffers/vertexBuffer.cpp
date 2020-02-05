@@ -1,6 +1,6 @@
 #include "vertexBuffer.h"
 
-#include "engine/graphics/renderer.h"
+#include "engine/graphics/opengl/gl_renderer.h"
 #include "engine/internal_libs.h"
 
 #include <glad/glad.h>

@@ -31,11 +31,11 @@ namespace oe::graphics {
 		void generateMipMap();
 
 		void empty2D(int width, int height);
-		void load2D(void *data, int width, int height);
-		void data2D(void *data, int offx, int offy, int width, int height);
+		void load2D(const void* data, int width, int height);
+		void data2D(const void* data, int offx, int offy, int width, int height);
 		void empty3D(int width, int height, int depth);
-		void load3D(void *data, int width, int height, int depth);
-		void data3D(void* data, int offx, int offy, int offz, int width, int height, int depth);
+		void load3D(const void* data, int width, int height, int depth);
+		void data3D(const void* data, int offx, int offy, int offz, int width, int height, int depth);
 
 		inline unsigned int getId() const { return p_id; }
 		inline unsigned int getWidth() const { return p_width; }
