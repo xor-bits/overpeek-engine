@@ -31,9 +31,10 @@ endforeach()
 add_library(${PROJECT_NAME} STATIC ${_source_list})
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER engine)
 if (MSVC)
+set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/MP") # multicore compile
 target_link_libraries(${PROJECT_NAME} PRIVATE "Ws2_32.lib") # required by enet
 target_link_libraries(${PROJECT_NAME} PRIVATE "Winmm.lib")  # required by enet
-endif() # no idea about linux and macos
+endif()
 
 
 # engine_INCLUDE_DIRS

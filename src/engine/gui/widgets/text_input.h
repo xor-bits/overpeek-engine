@@ -13,6 +13,7 @@ namespace oe::gui {
 		glm::vec4 m_color;
 		void* m_state;
 		bool m_selected;
+		oe::graphics::Window* m_window_handle;
 		const oe::graphics::Sprite* m_sprite;
 
 		void(*m_callback_changed)(std::string& string);
@@ -21,13 +22,14 @@ namespace oe::gui {
 		int m_font_size;
 
 	public:
-		TextInput(const glm::vec2& bounding_box_size);
+		// window_handle is used for clipboard
+		TextInput(oe::graphics::Window* window_handle, const glm::vec2& bounding_box_size);
 
 		// Inherited via Widget
 		virtual void render(oe::graphics::Renderer& renderer) override;
-		virtual void text(unsigned int character, int mods) override;
-		virtual void key(int key, int action, int mods) override;
-		virtual void cursor(int button, int action, const glm::vec2& cursor_window) override;
+		virtual void text(uint32_t codepoint, oe::modifiers mods) override;
+		virtual void key(oe::keys key, oe::actions action, oe::modifiers mods) override;
+		virtual void cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) override;
 
 		inline std::string& string() { return m_string; };
 		inline glm::vec4& color() { return m_color; };

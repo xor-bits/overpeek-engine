@@ -1,7 +1,8 @@
 #include "text_input.h"
 
-#include <engine/graphics/text/textLabel.h>
-#include <engine/engine.h>
+#include "engine/graphics/textLabel.h"
+#include "engine/engine.h"
+#include "engine/graphics/interface/window.h"
 
 bool insertchars(std::string *obj, int i, char *chars, int n) {
 	obj->insert(i, chars, n);
@@ -38,8 +39,6 @@ bool insertchars(std::string *obj, int i, char *chars, int n) {
 #define STB_TEXTEDIT_IMPLEMENTATION
 #include <stb_textedit.h>
 
-#include "engine/graphics/window.h"
-
 
 
 namespace oe::gui {
@@ -49,15 +48,16 @@ namespace oe::gui {
 		timer_key_pressed = oe::utils::Clock::getSessionMillisecond() + 1000.0f;
 	}
 	
-	TextInput::TextInput(const glm::vec2& bounding_box_size) :
-		Widget(bounding_box_size),
-		m_string(""),
-		m_color(0.7f, 0.7f, 0.7f, 1.0f),
-		m_selected(false),
-		m_sprite(nullptr),
-		m_font_size(0),
-		m_callback_changed(nullptr),
-		m_callback_newline(nullptr)
+	TextInput::TextInput(oe::graphics::Window* window_handle, const glm::vec2& bounding_box_size) 
+		: Widget(bounding_box_size)
+		, m_string("")
+		, m_selected(false)
+		, m_color(0.7f, 0.7f, 0.7f, 1.0f)
+		, m_sprite(nullptr)
+		, m_font_size(0)
+		, m_callback_changed(nullptr)
+		, m_callback_newline(nullptr)
+		, m_window_handle(window_handle)
 	{
 		m_state = new STB_TexteditState();
 	}
@@ -84,17 +84,17 @@ namespace oe::gui {
 		}
 	}
 
-	void TextInput::text(unsigned int character, int mods) {
+	void TextInput::text(uint32_t codepoint, oe::modifiers mods) {
 		if (!m_selected) return;
 
-		stb_textedit_key(&m_string, reinterpret_cast<STB_TexteditState*>(m_state), character);
+		stb_textedit_key(&m_string, reinterpret_cast<STB_TexteditState*>(m_state), codepoint);
 		resetTimer();
 
 		if (m_callback_changed) m_callback_changed(m_string);
 	}
 
-	void TextInput::cursor(int button, int action, const glm::vec2& cursor_window) {
-		if (button == oe::button_left && action == oe::press) {
+	void TextInput::cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) {
+		if (button == oe::mouse_buttons::button_left && action == oe::actions::press) {
 			if (cursor_window.x >= m_render_position.x &&
 				cursor_window.x < m_render_position.x + m_size.x &&
 				cursor_window.y >= m_render_position.y &&
@@ -104,33 +104,33 @@ namespace oe::gui {
 		}
 	}
 
-	void TextInput::key(int key, int action, int mods) {
+	void TextInput::key(oe::keys key, oe::actions action, oe::modifiers mods) {
 		if (!m_selected) return;
 
-		if (action != oe::release) {
-			if (key == oe::key_backspace)
+		if (action != oe::actions::release) {
+			if (key == oe::keys::key_backspace)
 				stb_textedit_key(&m_string, reinterpret_cast<STB_TexteditState*>(m_state), STB_TEXTEDIT_K_BACKSPACE);
-			else if (key == oe::key_delete)
+			else if (key == oe::keys::key_delete)
 				stb_textedit_key(&m_string, reinterpret_cast<STB_TexteditState*>(m_state), STB_TEXTEDIT_K_DELETE);
-			else if (key == oe::key_left && mods == 0)
+			else if (key == oe::keys::key_left && mods == oe::modifiers::none)
 				stb_textedit_key(&m_string, reinterpret_cast<STB_TexteditState*>(m_state), STB_TEXTEDIT_K_LEFT);
-			else if (key == oe::key_left && mods == 2)
+			else if (key == oe::keys::key_left && mods == oe::modifiers::control)
 				stb_textedit_key(&m_string, reinterpret_cast<STB_TexteditState*>(m_state), STB_TEXTEDIT_K_WORDLEFT);
-			else if (key == oe::key_right && mods == 0)
+			else if (key == oe::keys::key_right && mods == oe::modifiers::none)
 				stb_textedit_key(&m_string, reinterpret_cast<STB_TexteditState*>(m_state), STB_TEXTEDIT_K_RIGHT);
-			else if (key == oe::key_right && mods == 2)
+			else if (key == oe::keys::key_right && mods == oe::modifiers::control)
 				stb_textedit_key(&m_string, reinterpret_cast<STB_TexteditState*>(m_state), STB_TEXTEDIT_K_WORDRIGHT);
-			else if (key == oe::key_v && mods == 2) { // ctrl + v
-				std::string cb = oe::graphics::Window::getClipboard();
+			else if (key == oe::keys::key_v && mods == oe::modifiers::control) { // ctrl + v
+				std::string cb = m_window_handle->getClipboard();
 				stb_textedit_paste(&m_string, reinterpret_cast<STB_TexteditState*>(m_state), cb.c_str(), cb.size());
 			}
-			else if (key == oe::key_c && mods == 2) { // ctrl + c
+			else if (key == oe::keys::key_c && mods == oe::modifiers::control) { // ctrl + c
 				std::string copied = m_string.substr(reinterpret_cast<STB_TexteditState*>(m_state)->select_start, reinterpret_cast<STB_TexteditState*>(m_state)->select_end - reinterpret_cast<STB_TexteditState*>(m_state)->select_start);
 				spdlog::info(copied);
-				oe::graphics::Window::setClipboard(copied);
+				m_window_handle->setClipboard(copied);
 				stb_textedit_cut(&m_string, reinterpret_cast<STB_TexteditState*>(m_state));
 			}
-			else if (key == oe::key_enter) {
+			else if (key == oe::keys::key_enter) {
 				if (m_callback_newline) m_callback_newline(m_string);
 			}
 

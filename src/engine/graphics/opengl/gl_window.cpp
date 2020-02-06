@@ -8,7 +8,6 @@
 
 #include "engine/internal_libs.h"
 #include "engine/utility/math.h"
-#include "engine/graphics/opengl/gl.h"
 #include "engine/engine.h"
 
 #define M_NUM_KEYS		2048
@@ -75,38 +74,38 @@ void glfwError(int id, const char* description) {
 
 namespace oe::graphics {
 
-	void GLWindow::glfw() {
+	void GLWindow::glfw(const Instance* instance) {
 		glfwSetErrorCallback(glfwError);
 		if (!glfwInit()) oe_error_terminate("Failed to initialize GLFW!");
 
 		// Window hints
-		glfwWindowHint(GLFW_SAMPLES, m_window.multisamples);
-		glfwWindowHint(GLFW_RESIZABLE, m_window.resizeable);
-		glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, m_window.transparent);
-		glfwWindowHint(GLFW_DECORATED, !m_window.borderless);
-		if (m_window.debug_messages) glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+		glfwWindowHint(GLFW_SAMPLES, m_window_info.multisamples);
+		glfwWindowHint(GLFW_RESIZABLE, m_window_info.resizeable);
+		glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, m_window_info.transparent);
+		glfwWindowHint(GLFW_DECORATED, !m_window_info.borderless);
+		if (m_debugging) glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 
 		// Window creation
-		m_window_handle = glfwCreateWindow(m_window.size.x, m_window.size.y, m_window.title.c_str(), m_window.fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
+		m_window_handle = glfwCreateWindow(m_window_info.size.x, m_window_info.size.y, m_window_info.title.c_str(), m_window_info.fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
 		if (!m_window_handle) oe_error_terminate("Failed to create window!");
 
 		//Center the window
 		int monitor_xpos, monitor_ypos, monitor_width, monitor_height;
 		glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), &monitor_xpos, &monitor_ypos, &monitor_width, &monitor_height);
-		m_window.position = { (monitor_width - m_window.size.x) * 0.5f, (monitor_height - m_window.size.y) * 0.5f };
-		glfwSetWindowPos(m_window_handle, m_window.position.x, m_window.position.y);
+		m_window_info.position = { (monitor_width - m_window_info.size.x) * 0.5f, (monitor_height - m_window_info.size.y) * 0.5f };
+		glfwSetWindowPos(m_window_handle, m_window_info.position.x, m_window_info.position.y);
 
 		// set context for opengl
 		glfwMakeContextCurrent(m_window_handle);
 	}
 
-	void GLWindow::glad() {
+	void GLWindow::glad(const Instance* instance) {
 		// Init glad
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) oe_error_terminate("Failed to init glad");
 
 		// GL config
-		if (m_window.multisamples) glEnable(GL_MULTISAMPLE);
-		if (m_window.debug_messages) {
+		if (m_window_info.multisamples) glEnable(GL_MULTISAMPLE);
+		if (m_debugging) {
 			glEnable(GL_DEBUG_OUTPUT);
 			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 			glDebugMessageCallback(glDebugOutput, nullptr);
@@ -115,40 +114,54 @@ namespace oe::graphics {
 
 		// GL
 		viewport();
-		GL::setPolygonMode();
-		GL::setSwapInterval();
-		GL::setCulling();
-		GL::enableDepth();
-		GL::enableBlending();
+		instance->polygonMode();
+		instance->swapInterval();
+		instance->culling();
+		instance->depth();
+		instance->blending();
 	}
 
-	GLWindow::GLWindow(WindowInfo& window_config) : Window::Window(window_config) {
+	GLWindow::GLWindow(const Instance* instance, const WindowInfo& window_config) 
+		: Window::Window(instance, window_config)
+		, m_debugging(instance->m_instance_info.debug_messages) 
+	{
 		spdlog::info("Opening window with OpenGL context");
+		if (m_debugging)
+			spdlog::warn("Debugger enabled");
 
-		glfw();
-		glad();
+		glfw(instance);
+		glad(instance);
 
 		Window::postglfw();
 	}
 
-	GLWindow::~GLWindow() {
+	GLWindow::~GLWindow() 
+	{
 
 	}
 
 
 
-	void GLWindow::update() {
+	void GLWindow::update() 
+	{
 		glfwPollEvents();
 		glfwSwapBuffers(m_window_handle);
 	}
 
-	void GLWindow::clear(const glm::vec4& color) {
+	void GLWindow::clear(const glm::vec4& color) 
+	{
 		glClearColor(color.r, color.g, color.b, color.a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	void GLWindow::viewport() {
-		glViewport(0, 0, m_window.size.x, m_window.size.y);
+	void GLWindow::viewport() 
+	{
+		glViewport(0, 0, m_window_info.size.x, m_window_info.size.y);
+	}
+
+	void GLWindow::swapInterval(uint8_t frames) 
+	{
+		glfwSwapInterval(frames);
 	}
 
 }

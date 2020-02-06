@@ -7,7 +7,9 @@
 constexpr unsigned int updates_per_second = 60;
 constexpr float inverse_ups = 1.0f / updates_per_second;
 
-oe::graphics::SpriteShader* shader;
+oe::graphics::Instance* instance;
+oe::graphics::Window* window;
+oe::graphics::DefaultShader* shader;
 const oe::graphics::Sprite* sprite;
 oe::graphics::SpritePack* pack;
 oe::graphics::Renderer* renderer;
@@ -43,7 +45,7 @@ void ecsSetup(int argc, char* argv[]) {
 
 void render(float update_fraction) {
 	// clear framebuffer
-	oe::graphics::Window::clearWindow();
+	window->clear();
 
 	// rendering
 	shader->bind();
@@ -59,15 +61,14 @@ void render(float update_fraction) {
 	renderer->render();
 
 	// swap buffers and poll events
-	oe::graphics::Window::updateWindow();
-	oe::graphics::Window::pollEvents();
+	window->update();
 
 	// check if needs to close
-	if (oe::graphics::Window::windowShouldClose()) oe::utils::GameLoop::stop();
+	if (window->shouldClose()) oe::utils::GameLoop::stop();
 }
 
 void resize(const glm::vec2& window_size) {
-	float aspect = oe::graphics::Window::aspect();
+	float aspect = window->aspect();
 
 	shader->bind();
 	shader->useTexture(false);
@@ -82,37 +83,51 @@ void update() {
 
 int main(int argc, char* argv[]) {
 	// engine
-	oe::init(argc, argv);
+	oe::EngineInfo engine_info = {};
+	engine_info.api = oe::graphics_api::OpenGL;
+	oe::Engine::init(engine_info);
 	ecsSetup(argc, argv);
 
-	// window
-	oe::graphics::Window::WindowConfig window_config;
-	window_config.title = "entities";
-	window_config.multisamples = 4;
-	window_config.opengl_debugmode = true;
-	oe::graphics::Window::init(window_config);
-	oe::graphics::Window::setResizeCallback(resize);
-	oe::graphics::GL::setSwapInterval(1);
-	oe::graphics::GL::setCulling(oe::graphics::GL::culling::back);
-	oe::graphics::GL::enableBlending();
+	// instance
+	oe::InstanceInfo instance_info = {};
+	instance_info.debug_messages = true;
+	// instance_info.favored_gpu_vulkan = oe::gpu::dedicated;
+	instance = oe::Engine::createInstance(instance_info);
 
-	pack = new oe::graphics::SpritePack();
+	// window
+	oe::WindowInfo window_info = {};
+	window_info.title = "entities";
+	window_info.multisamples = 4;
+	window = instance->createWindow(window_info);
+	window->setResizeCallback(resize);
+
+	// instance settings
+	instance->swapInterval(1);
+	instance->culling(oe::culling_modes::back);
+
+	pack = new oe::graphics::SpritePack(instance);
 	sprite = pack->empty_sprite();
 	pack->construct();
 
-	// drawing
-	renderer = new oe::graphics::Renderer(oe::graphics::types::dynamicrender, oe::graphics::types::staticrender, 600, nullptr);
-	shader = new oe::graphics::SpriteShader();
-	resize(oe::graphics::Window::getSize());
+	// renderer
+	oe::RendererInfo renderer_info = {};
+	renderer_info.arrayRenderType = oe::types::dynamicrender;
+	renderer_info.indexRenderType = oe::types::staticrender;
+	renderer_info.max_quad_count = 6;
+	renderer_info.staticVBOBuffer_data = nullptr;
+	renderer = instance->createRenderer(renderer_info);
+
+	// shader
+	shader = new oe::graphics::DefaultShader(instance);
 
 	// start
 	oe::utils::GameLoop::init(render, update, updates_per_second);
 
 	// closing
-	oe::graphics::Window::closeWindow();
-	delete renderer;
 	delete shader;
 	delete pack;
+	instance->destroyRenderer(renderer);
+	instance->destroyWindow(window);
 
 	return 0;
 }

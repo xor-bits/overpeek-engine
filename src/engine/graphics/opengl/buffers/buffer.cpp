@@ -5,7 +5,7 @@
 #include <sstream>
 #include <cstddef>
 
-#include "engine/graphics/window.h"
+#include "engine/graphics/interface/window.h"
 #include "engine/utility/debug.h"
 #include "engine/internal_libs.h"
 

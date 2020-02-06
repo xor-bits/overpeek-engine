@@ -51,7 +51,7 @@ namespace oe::gui {
 		}
 	}
 
-	void Widget::__cursor(int button, int action, const glm::vec2& cursor_window) {
+	void Widget::__cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) {
 		cursor(button, action, cursor_window);
 
 		for (auto& w : m_nodes) {
@@ -59,19 +59,19 @@ namespace oe::gui {
 		}
 	}
 
-	void Widget::__text(unsigned int character, int mods) {
-		text(character, mods);
+	void Widget::__text(uint32_t codepoint, oe::modifiers mods) {
+		text(codepoint, mods);
 
 		for (auto& w : m_nodes) {
-			w->__text(character, mods);
+			w->__text(codepoint, mods);
 		}
 	}
 
-	void Widget::__key(int _key, int action, int mods) {
-		key(_key, action, mods);
+	void Widget::__key(oe::keys _key, oe::actions _action, oe::modifiers _mods) {
+		key(_key, _action, _mods);
 
 		for (auto& w : m_nodes) {
-			w->__key(_key, action, mods);
+			w->__key(_key, _action, _mods);
 		}
 	}
 

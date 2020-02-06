@@ -1,5 +1,7 @@
 #include "engine.h"
 
+#include "graphics/opengl/gl_instance.h"
+
 
 
 namespace oe {
@@ -45,6 +47,19 @@ namespace oe {
 	void Engine::__error(std::string error_msg, int line, std::string file) {
 		spdlog::error("error: {}\nline: {}\nfile: {}", error_msg, line, file);
 		oe::Engine::terminate();
+	}
+
+	graphics::Instance* Engine::createInstance(const InstanceInfo& instance_config) {
+		if (engine_info.api == oe::graphics_api::Vulkan) {
+			// Vulkan instance
+		}
+		else {
+			return new oe::graphics::GLInstance(instance_config);
+		}
+	}
+
+	void Engine::destroyInstance(graphics::Instance* instance) {
+		delete instance;
 	}
 
 }

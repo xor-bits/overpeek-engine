@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/internal_libs.h"
+#include "engine/graphics/interface/instance.h"
 
 #include <string>
 
@@ -13,12 +14,15 @@ namespace oe::graphics {
 		ShaderInfo m_shader_info;
 
 	public:
-		Shader(const ShaderInfo& shader_info);
+		Shader(const Instance* instance, const ShaderInfo& shader_info);
+		~Shader();
 
 		virtual void bind() const = 0;
 		virtual void unbind() const = 0;
 
-
+	public:
+		inline const ShaderInfo& getShaderInfo() { return m_shader_info; }
+		
 		virtual int getUniformLocation(std::string name) const = 0;
 
 		virtual void setUniform1f(std::string name, float value) const = 0;

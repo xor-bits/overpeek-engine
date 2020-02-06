@@ -8,25 +8,44 @@
 
 namespace oe::graphics {
 
-	struct VertexData {
-		static const int component_count = 8;
-
-		glm::fvec2 position;
+	struct VertexData_internal {
+		glm::fvec3 position;
 		glm::fvec2 uv;
 		glm::fvec4 color;
 
-		VertexData()
+		VertexData_internal()
 			: position(0.0f), uv(0.0f), color(0.0f)
 		{}
 
-		VertexData(glm::fvec2 _position, glm::fvec2 _uv, glm::fvec4 _color)
+		VertexData_internal(glm::fvec3 _position, glm::fvec2 _uv, glm::fvec4 _color)
 			: position(_position), uv(_uv), color(_color)
 		{}
+
+		VertexData_internal(glm::fvec2 _position, glm::fvec2 _uv, glm::fvec4 _color)
+			: position(_position, 0.0f), uv(_uv), color(_color)
+		{}
+	};
+
+	struct VertexData : public VertexData_internal {
+		static constexpr size_t component_count = sizeof(VertexData_internal) / sizeof(float);
+		static constexpr size_t pos_offset = offsetof(VertexData_internal, position);
+		static constexpr size_t uv_offset = offsetof(VertexData_internal, uv);
+		static constexpr size_t col_offset = offsetof(VertexData_internal, color);
+
+		VertexData()
+			: VertexData_internal()
+		{}
+
+		VertexData(glm::fvec3 position, glm::fvec2 uv, glm::fvec4 color)
+			: VertexData_internal(position, uv, color)
+		{}
+
+		VertexData(glm::fvec2 position, glm::fvec2 uv, glm::fvec4 color)
+			: VertexData_internal(position, uv, color)
+		{}
+
 		static void configVBO(VertexBuffer *vbo) {
-			constexpr size_t pos_offset = offsetof(VertexData, position);
-			constexpr size_t uv_offset = offsetof(VertexData, uv);
-			constexpr size_t col_offset = offsetof(VertexData, color);
-			vbo->attrib(0, 2, pos_offset);
+			vbo->attrib(0, 3, pos_offset);
 			vbo->attrib(1, 2, uv_offset);
 			vbo->attrib(2, 4, col_offset);
 		}

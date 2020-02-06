@@ -20,7 +20,10 @@ namespace oe::graphics {
 
 
 
-	SpritePack::SpritePack(int border) {
+	SpritePack::SpritePack(Instance* instance, int border) 
+		: m_instance(instance)
+	{
+		m_texture = nullptr;
 		m_usr_data = new __usr_data();
 		auto usr_data = static_cast<__usr_data*>(m_usr_data);
 
@@ -41,7 +44,7 @@ namespace oe::graphics {
 				delete m_sprites.at(i).at(j);
 			}
 		}
-		delete m_texture;
+		if(m_texture) m_instance->destroyTexture(m_texture);
 	}
 
 	const Sprite* SpritePack::addSprite(oe::utils::image_data sprite_texture) {
@@ -149,10 +152,15 @@ namespace oe::graphics {
 		}
 
 
-		auto img = oe::utils::loadImageMove(data, pack_width, pack_height);
-		oe::utils::saveImage("pack.png", img);
-		m_texture = new Texture();
-		m_texture->load2D(img);
+		oe::TextureInfo texture_info = {};
+		texture_info.dimensions = 2;
+		texture_info.generate_mipmaps = true;
+		texture_info.data = data;
+		texture_info.width = pack_width;
+		texture_info.height = pack_height;
+
+		m_texture = m_instance->createTexture(texture_info);
+		
 		delete[] data;
 	}
 

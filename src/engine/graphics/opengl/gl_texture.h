@@ -1,46 +1,43 @@
 #pragma once
 
-#include "engine/utility/filereader.h"
+#include "engine/graphics/interface/texture.h"
 
 
 
 namespace oe::graphics {
 
-	class Texture {
+	class GLTexture : public Texture {
 	private:
-		unsigned int p_id;
-		unsigned int p_width;
-		unsigned int p_height;
-		unsigned int p_depth;
-		int p_target;
+		uint32_t m_id;
+		int32_t m_target;
+		
+
+	private:
+		void empty1D(size_t width);
+		void empty2D(size_t width, size_t height);
+		void empty3D(size_t width, size_t height, size_t depth);
+
+		void load1D(const uint8_t* data, size_t width);
+		void load2D(const uint8_t* data, size_t width, size_t height);
+		void load3D(const uint8_t* data, size_t width, size_t height, size_t depth);
+
+		void data1D(const uint8_t* data, size_t width, size_t x_offset);
+		void data2D(const uint8_t* data, size_t width, size_t x_offset, size_t height, size_t y_offset);
+		void data3D(const uint8_t* data, size_t width, size_t x_offset, size_t height, size_t y_offset, size_t depth, size_t z_offset);
 
 	public:
-		Texture();
-		~Texture();
+		GLTexture(const Instance* instance, const TextureInfo& texture_info);
+		~GLTexture();
 
-		void bind() const;
-		void unbind() const;
-		
-		/*
-		Data format is always RGBA
-		4 bytes
-		*/
-		
-		void load2D(const oe::utils::image_data& data);
-		void computeShaderBuffer(int width, int height);
-		void generateMipMap();
+		virtual void setData(const TextureInfo& texture_info) override;
 
-		void empty2D(int width, int height);
-		void load2D(const void* data, int width, int height);
-		void data2D(const void* data, int offx, int offy, int width, int height);
-		void empty3D(int width, int height, int depth);
-		void load3D(const void* data, int width, int height, int depth);
-		void data3D(const void* data, int offx, int offy, int offz, int width, int height, int depth);
+		virtual void bind() override;
+		virtual void unbind() override;
 
-		inline unsigned int getId() const { return p_id; }
-		inline unsigned int getWidth() const { return p_width; }
-		inline unsigned int getHeight() const { return p_height; }
-		inline unsigned int getDepth() const { return p_depth; }
+	public:
+		uint32_t getGLTexture() { return m_id; }
+		int32_t getGLTarget() { return m_target; }
+
 	};
 
 }

@@ -8,9 +8,10 @@
 
 const oe::graphics::Sprite* sprite;
 const oe::graphics::Sprite* sprite_white;
+oe::graphics::Instance* instance;
 oe::graphics::Window* window;
 oe::graphics::SpritePack* pack;
-oe::graphics::Shader* shader;
+oe::graphics::DefaultShader* shader;
 oe::graphics::Renderer* renderer;
 
 float t = 0;
@@ -25,11 +26,10 @@ void render(float update_fraction) {
 	renderer->clear();
 	
 	// submitting
-	renderer->submit(glm::vec2(-0.5f,  0.5f), glm::vec2(0.4f), sprite_white, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), oe::alignments::center_center, t);
-	renderer->submit(glm::vec2( 0.5f,  0.5f), glm::vec2(0.4f), sprite_white, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), oe::alignments::center_center, sin(t));
-	renderer->submit(glm::vec2(0.5f, -0.5f),  glm::vec2(0.4f), sprite_white, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), oe::alignments::center_center, tan(t));
-	renderer->submit(glm::vec2(-0.5f, -0.5f), glm::vec2(0.4f), sprite_white, glm::vec4(0.0f, 0.5f, 1.0f, 1.0f), oe::alignments::center_center, round(t));
-	renderer->submit(glm::vec2(0.0f, 0.0f),   glm::vec2(0.4f), sprite_white, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), oe::alignments::center_center, t * 100.0f);
+	renderer->submit(glm::vec2(-0.5f, 0.5f), glm::vec2(0.4f), sprite_white, oe::colors::blue, oe::alignments::center_center, std::sin(t));
+	renderer->submit(glm::vec2(-0.5f,-0.5f), glm::vec2(0.4f), sprite_white, oe::colors::red,   oe::alignments::center_center, std::tan(t));
+	renderer->submit(glm::vec2( 0.5f,-0.5f), glm::vec2(0.4f), sprite_white, oe::colors::green, oe::alignments::center_center, t * 100.0f);
+	renderer->submit(glm::vec2( 0.5f, 0.5f), glm::vec2(0.4f), sprite,       oe::colors::white, oe::alignments::center_center, std::pow(std::sin(t * 5.0f), 11.0f));
 
 	// stop submitting and render
 	pack->bind();
@@ -51,16 +51,16 @@ void resize(const glm::vec2& window_size) {
 	float aspect = window->aspect();
 	glm::mat4 pr = glm::ortho(-aspect, aspect, 1.0f, -1.0f);
 	spdlog::info(aspect);
-	shader->setUniformMat4("pr_matrix", pr);
-	shader->setUniform1i("usetex", 1);
+	shader->projectionMatrix(pr);
+	shader->useTexture(true);
 }
 
-void keyboard(int key, int action, int mods) {
-	if (action == oe::press) {
-		if (key == oe::key_escape) {
+void keyboard(oe::keys key, oe::actions action, oe::modifiers mods) {
+	if (action == oe::actions::press) {
+		if (key == oe::keys::key_escape) {
 			oe::utils::GameLoop::stop();
 		}
-		else if (key == oe::key_enter) {
+		else if (key == oe::keys::key_enter) {
 			window->setFullscreen(!window->getFullscreen());
 		}
 	}
@@ -69,50 +69,55 @@ void keyboard(int key, int action, int mods) {
 int main(int argc, char** argv) {
 	// engine
 	oe::EngineInfo engine_info = {};
-	engine_info.api = oe::Vulkan;
+	engine_info.api = oe::graphics_api::OpenGL;
 	oe::Engine::init(engine_info);
+
+	// instance
+	oe::InstanceInfo instance_info = {};
+	instance_info.debug_messages = true;
+	// instance_info.favored_gpu_vulkan = oe::gpu::dedicated;
+	instance = oe::Engine::createInstance(instance_info);
 
 	// window
 	oe::WindowInfo window_info;
 	window_info.title = "Test 1 - Renderer";
 	window_info.multisamples = 4;
-	window_info.debug_messages = true;
-
-	window = oe::Engine::createWindow(window_info);
+	window = instance->createWindow(window_info);
 	window->setResizeCallback(resize);
 	window->setKeyboardCallback(keyboard);
 	
-	// oe::graphics::GL::setCulling(oe::graphics::GL::culling::back);
-	// oe::graphics::GL::setSwapInterval(1);
-	// oe::graphics::GL::enableBlending();
+	// instance settings
+	instance->culling(oe::culling_modes::back);
+	instance->swapInterval(1);
+	instance->blending();
 
-	// drawing
+	// renderer
 	oe::RendererInfo renderer_info = {};
-	renderer_info.arrayRenderType = oe::dynamicrender;
-	renderer_info.indexRenderType = oe::dynamicrender;
-	renderer_info.max_quad_count = 5;
+	renderer_info.arrayRenderType = oe::types::dynamicrender;
+	renderer_info.indexRenderType = oe::types::staticrender;
+	renderer_info.max_quad_count = 6;
 	renderer_info.staticVBOBuffer_data = nullptr;
+	renderer = instance->createRenderer(renderer_info);
 
-	renderer = oe::Engine::createRenderer(renderer_info);
-	shader = oe::Engine::createShader(oe::graphics::SingleTextureShader::singleTextureShader());
+	// shader
+	shader = new oe::graphics::DefaultShader(instance);
 	
+	// sprites
 	auto img = oe::utils::loadImageCopy(texture_png, 5, 5);
-	pack = new oe::graphics::SpritePack();
+	pack = new oe::graphics::SpritePack(instance);
 	sprite = pack->addSprite(img);
 	sprite_white = pack->empty_sprite();
 	pack->construct();
-
-	// matrices
-	resize(window->getSize());
 	
 	// start
+	resize(window->getSize());
 	oe::utils::GameLoop::init(render, update, 1);
 
 	// closing
 	delete pack;
-	oe::Engine::destroyShader(shader);
-	oe::Engine::destroyRenderer(renderer);
-	oe::Engine::destroyWindow(window);
+	delete shader;
+	instance->destroyRenderer(renderer);
+	instance->destroyWindow(window);
 
 	return 0;
 }

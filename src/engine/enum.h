@@ -1,28 +1,53 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <string>
+#include <array>
+#include <vector>
 
 
 
 namespace oe {
 
+	enum class formats {
+		rgba8, rgba16, rgb8, rgb16, mono8, mono16
+	};
+	enum class modes {
+		enable, disable, keep
+	};
+	enum class depth_functions {
+		always, never, less_than, greater_than, equal, less_than_or_equal, greater_than_or_equal, disable
+	};
+	enum class culling_modes {
+		neither, both, front, back
+	};
+	enum class polygon_mode {
+		fill, lines, points
+	};
+
 	// render types
-	enum types {
+	enum class types {
 		staticrender, dynamicrender
 	};
 
 	// shader stages
-	enum shader_stages {
+	enum class shader_stages {
 		vertex_shader, tesselation_shader, geometry_shader, fragment_shader, compute_shader
 	};
 
 	// supported graphics apis
-	enum graphics_api {
+	enum class graphics_api {
 		OpenGL, Vulkan
 	};
 
+	// gpu types
+	enum class gpu {
+		integrated, dedicated
+	};
+
 	// modifiers
-	enum modifiers {
+	enum class modifiers {
+		none = 0,
 		shift = 0x0001,
 		control = 0x0002,
 		alt = 0x0004,
@@ -30,7 +55,8 @@ namespace oe {
 	};
 
 	// buttons
-	enum mouse {
+	enum class mouse_buttons {
+		none = -1,
 		button_last = 7,
 		button_left = 0,
 		button_right = 1,
@@ -38,14 +64,16 @@ namespace oe {
 	};
 
 	// actions
-	enum actions {
+	enum class actions {
+		none = -1,
 		release = 0,
 		press = 1,
 		repeat = 2
 	};
 
 	// keys
-	enum keyboard {
+	enum class keys {
+		none = -1,
 		key_space = 32,
 		key_apostrophe = 39,     /* ' */
 		key_comma = 44,		   /* , */
@@ -170,7 +198,8 @@ namespace oe {
 	};
 
 	// joystick input
-	enum joystick {
+	enum class joystick {
+		none = -1,
 		joystick_1            = 0 ,
 		joystick_2            = 1 ,
 		joystick_3            = 2 ,
@@ -191,7 +220,8 @@ namespace oe {
 	};
 
 	// gamepad input
-	enum gamepad {
+	enum class gamepad {
+		none = -1,
 		gamepad_a = 0,
 		gamepad_b = 1,
 		gamepad_x = 2,
@@ -238,6 +268,8 @@ namespace oe {
 		static constexpr glm::vec4 mint = glm::vec4(0.0f, 1.0f, 0.5f, 1.0f);
 		static constexpr glm::vec4 purple = glm::vec4(0.5f, 0.0f, 1.0f, 1.0f);
 		static constexpr glm::vec4 sky = glm::vec4(0.0f, 0.5f, 1.0f, 1.0f);
+
+		static constexpr glm::vec4 clear_color = glm::vec4(0.18f, 0.18f, 0.2f, 1.0f);
 	};
 
 	struct alignments {
@@ -265,8 +297,6 @@ namespace oe {
 		bool resizeable = true;
 		bool transparent = false;
 		bool fullscreen = false;
-
-		bool debug_messages = false;
 	};
 
 	// renderer create info
@@ -294,7 +324,33 @@ namespace oe {
 	struct EngineInfo {
 		bool audio = false;
 		bool networking = false;
-		graphics_api api = Vulkan;
+		graphics_api api = oe::graphics_api::Vulkan;
+	};
+
+	// instance create info
+	struct InstanceInfo {
+		gpu favored_gpu_vulkan = gpu::dedicated;
+		bool debug_messages = false;
+	};
+
+	struct TextureInfo {
+		bool empty = false;
+		const uint8_t* data;
+		oe::formats data_format = oe::formats::rgba8;
+		bool generate_mipmaps = false;
+
+		uint8_t dimensions = 2;
+		size_t width = 1;
+		size_t x_offset = 0;
+		size_t height = 0;
+		size_t y_offset = 0;
+		size_t depth = 0;
+		size_t z_offset = 0;
+	};
+
+	struct FrameBufferInfo {
+		size_t width = 1;
+		size_t height = 1;
 	};
 
 }

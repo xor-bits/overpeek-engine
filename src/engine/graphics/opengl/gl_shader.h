@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/graphics/shader.h"
+#include "engine/graphics/interface/shader.h"
 
 
 
@@ -15,7 +15,8 @@ namespace oe::graphics {
 		void programLog(int program, unsigned int type) const;
 
 	public:
-		GLShader(const ShaderInfo& shader_info);
+		GLShader(const Instance* instance, const ShaderInfo& shader_info);
+		~GLShader();
 
 		virtual void bind() const override;
 		virtual void unbind() const override;

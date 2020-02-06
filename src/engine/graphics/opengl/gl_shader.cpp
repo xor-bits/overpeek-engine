@@ -58,8 +58,8 @@ namespace oe::graphics {
 
 
 
-	GLShader::GLShader(const ShaderInfo& shader_info)
-		: Shader::Shader(shader_info) 
+	GLShader::GLShader(const Instance* instance, const ShaderInfo& shader_info)
+		: Shader::Shader(instance, shader_info) 
 	{
 		// Shader program
 		p_shader_program = glCreateProgram();
@@ -77,19 +77,19 @@ namespace oe::graphics {
 			uint32_t stage_id;
 			switch (stage.stage)
 			{
-			case vertex_shader:
+			case oe::shader_stages::vertex_shader:
 				stage_id = GL_VERTEX_SHADER;
 				break;
-			case tesselation_shader:
+			case oe::shader_stages::tesselation_shader:
 				stage_id = GL_TESS_CONTROL_SHADER;
 				break;
-			case geometry_shader:
+			case oe::shader_stages::geometry_shader:
 				stage_id = GL_GEOMETRY_SHADER;
 				break;
-			case fragment_shader:
+			case oe::shader_stages::fragment_shader:
 				stage_id = GL_FRAGMENT_SHADER;
 				break;
-			case compute_shader:
+			case oe::shader_stages::compute_shader:
 				stage_id = GL_COMPUTE_SHADER;
 				break;
 			}
@@ -111,6 +111,10 @@ namespace oe::graphics {
 		{
 			glDeleteShader(shader_module);
 		}
+	}
+
+	GLShader::~GLShader() {
+		glDeleteProgram(p_shader_program);
 	}
 
 

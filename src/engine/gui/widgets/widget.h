@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <engine/graphics/renderer.h>
+#include <engine/graphics/interface/renderer.h>
 
 
 
@@ -24,9 +24,9 @@ namespace oe::gui {
 		// called from manager || __renderNodes
 		void __render(oe::graphics::Renderer& renderer);
 		void __resize();
-		void __cursor(int button, int action, const glm::vec2& cursor_window);
-		void __text(unsigned int character, int mods);
-		void __key(int key, int action, int mods);
+		void __cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window);
+		void __text(uint32_t codepoint, oe::modifiers mods);
+		void __key(oe::keys key, oe::actions action, oe::modifiers mods);
 
 		void __setParent(Widget* parent);
 
@@ -37,9 +37,9 @@ namespace oe::gui {
 		virtual void addSubWidget(Widget* widget);
 		virtual void render(oe::graphics::Renderer& renderer) {}
 		virtual void resize() {}
-		virtual void cursor(int button, int action, const glm::vec2& cursor_window) {}
-		virtual void text(unsigned int character, int mods) {}
-		virtual void key(int key, int action, int mods) {}
+		virtual void cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) {}
+		virtual void text(uint32_t codepoint, oe::modifiers mods) {}
+		virtual void key(oe::keys key, oe::actions action, oe::modifiers mods) {}
 
 	public:
 		glm::vec2& align_parent() { return m_align_parent; }

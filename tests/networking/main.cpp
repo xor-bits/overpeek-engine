@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
 	client->send(compressed, compressedSize);
 
 	// wait for messages to get recieved
-	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 	// close the client
 	client->disconnect();

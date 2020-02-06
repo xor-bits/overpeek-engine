@@ -27,19 +27,19 @@ namespace oe::gui {
 		renderer.submit(m_render_position + slider_pos, m_slider_size, m_sprite, m_slider_color);
 	}
 
-	void Slider::cursor(int button, int action, const glm::vec2& cursor_window) {
+	void Slider::cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) {
 		if (cursor_window.x >= m_render_position.x &&
 			cursor_window.x < m_render_position.x + m_size.x &&
 			cursor_window.y >= m_render_position.y &&
 			cursor_window.y < m_render_position.y + m_size.y)
 		{
 			// hold
-			if (button == oe::button_left && action == oe::press)
+			if (button == oe::mouse_buttons::button_left && action == oe::actions::press)
 				m_dragging = true;
 		}
 
 		// release
-		if (button == oe::button_left && action == oe::release)
+		if (button == oe::mouse_buttons::button_left && action == oe::actions::release)
 			m_dragging = false;
 
 

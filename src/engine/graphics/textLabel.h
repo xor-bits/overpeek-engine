@@ -3,8 +3,8 @@
 #include <string>
 
 #include "font.h"
-#include "engine/graphics/renderer.h"
-#include "engine/graphics/framebuffer.h"
+#include "engine/graphics/interface/renderer.h"
+#include "engine/graphics/interface/framebuffer.h"
 #include "engine/internal_libs.h"
 
 
@@ -28,9 +28,6 @@ namespace oe::graphics {
 		void submit(Renderer& renderer, std::string text, glm::vec2 pos, glm::vec2 size);
 		// Generate framebuffer and render text to it
 		//void generate(const std::string& text);
-
-		// Return usable oe::Texture object
-		inline const Texture* getTexture() const { return m_framebuffer->getTexture(); }
 
 		inline std::string getText() const { return m_text; }
 

@@ -12,7 +12,7 @@
 
 namespace oe::graphics {
 
-	GLRenderer::GLRenderer(const RendererInfo& renderer_info) : Renderer(renderer_info) {
+	GLRenderer::GLRenderer(const Instance* instance, const RendererInfo& renderer_info) : Renderer(instance, renderer_info) {
 		m_buffer_pos = 0;
 		m_mapped_buffer = nullptr;
 
@@ -93,6 +93,12 @@ namespace oe::graphics {
 
 		m_mapped_buffer[m_buffer_pos] = position;
 		m_buffer_pos++;
+	}
+
+	void GLRenderer::submit(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, glm::vec2 align, float angle, int quad_index)
+	{
+		Sprite sprite(nullptr);
+		submit(position, size, &sprite, color, align, angle, quad_index);
 	}
 
 	void GLRenderer::submit(const glm::vec2& position, const glm::vec2& size, const Sprite* sprite, const glm::vec4& color, glm::vec2 align, float angle, int quad_index)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "buffer.h"
+#include "engine/enum.h"
 
 
 
@@ -12,7 +13,7 @@ namespace oe::graphics {
 		size_t p_components_per_vertex;
 
 	public:
-		VertexBuffer(const void* data, size_t size, unsigned int components_per_vertex, int buffer_type);
+		VertexBuffer(const void* data, size_t size, unsigned int components_per_vertex, oe::types buffer_type);
 
 		void attrib(int index, int components, size_t startBytes);
 

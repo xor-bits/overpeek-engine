@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "engine/graphics/interface/instance.h"
 #include "engine/utility/filereader.h"
 #include "engine/internal_libs.h"
 
@@ -16,15 +17,15 @@ namespace oe::graphics {
 
 	class Window {
 	public:
-		typedef std::function<void(oe::keyboard key, oe::actions action, oe::modifiers mods)> key_callback;
-		typedef std::function<void(oe::mouse button, oe::actions action)> button_callback;
+		typedef std::function<void(oe::keys key, oe::actions action, oe::modifiers mods)> key_callback;
+		typedef std::function<void(oe::mouse_buttons button, oe::actions action)> button_callback;
 		typedef std::function<void(float delta)> scroll_callback;
 		typedef std::function<void(const glm::vec2 & framebuffer_size)> resize_callback;
 		typedef std::function<void(uint32_t codepoint, oe::modifiers mods)> text_callback;
 		typedef std::function<void(const glm::vec2 & transformed, const glm::vec2 & window)> cursor_callback;
 
 	protected:
-		WindowInfo m_window;
+		WindowInfo m_window_info;
 		GLFWwindow* m_window_handle = nullptr;
 
 		bool m_keys[M_NUM_KEYS];
@@ -44,12 +45,15 @@ namespace oe::graphics {
 		void postglfw();
 
 	public:
-		Window(const WindowInfo& window_config);
+		Window(const Instance* instance, const WindowInfo& window_config);
 		~Window();
 
 		virtual void update() = 0;
-		virtual void clear(const glm::vec4& color = glm::vec4(0.18f, 0.18f, 0.20f, 1.0f)) = 0;
+		virtual void clear(const glm::vec4& color = oe::colors::clear_color) = 0;
 		virtual void viewport() = 0;
+
+		/*Also known as VSync*/
+		virtual void swapInterval(uint8_t frames) = 0;
 
 		bool shouldClose();
 		void setIcon(const oe::utils::image_data& image);
@@ -63,9 +67,11 @@ namespace oe::graphics {
 		void setCursorPositionCallback(cursor_callback);
 
 	public:
+		inline const WindowInfo& getWindowInfo() { return m_window_info; }
+
 		float aspect();
-		float button(oe::mouse button);
-		float key(oe::keyboard key);
+		float button(oe::mouse_buttons button);
+		float key(oe::keys key);
 
 		const glm::vec2& getPosition();
 		void setPosition(const glm::vec2& pos);
@@ -91,8 +97,8 @@ namespace oe::graphics {
 		const glm::vec2& getCursorTransformed();
 		void setCursorTransformed(const glm::vec2& cursor_at_world_space);
 
-		static const std::string getClipboard();
-		static void setClipboard(const std::string& str);
+		const std::string getClipboard();
+		void setClipboard(const std::string& str);
 	};
 
 }

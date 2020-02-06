@@ -1,7 +1,6 @@
 #include "gl_texture.h"
 
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 #include <assert.h>
 #include <spdlog/spdlog.h>
@@ -13,121 +12,172 @@
 
 namespace oe::graphics {
 
-	Texture::Texture() {
-		p_depth = 0;
-		p_width = 0;
-		p_height = 0;
-		p_target = 0;
+	GLTexture::GLTexture(const Instance* instance, const TextureInfo& texture_info)
+		: Texture(instance, texture_info)
+	{
+		// generate texture
+		m_target = 0;
+		glGenTextures(1, &m_id);
 
-		glGenTextures(1, &p_id);
+		// load texture
+		switch (m_texture_info.dimensions)
+		{
+		case 1:
+			if (m_texture_info.empty)
+				empty1D(m_texture_info.width);
+			else
+				load1D(m_texture_info.data, m_texture_info.width);
+			break;
+		case 2:
+			if (m_texture_info.empty)
+				empty2D(m_texture_info.width, m_texture_info.height);
+			else
+				load2D(m_texture_info.data, m_texture_info.width, m_texture_info.height);
+			break;
+		case 3:
+			if (m_texture_info.empty)
+				empty3D(m_texture_info.width, m_texture_info.height, m_texture_info.depth);
+			else
+				load3D(m_texture_info.data, m_texture_info.width, m_texture_info.height, m_texture_info.depth);
+			break;
+		default:
+			oe_error_terminate("Unsupported texture dimension ({})", m_texture_info.dimensions);
+			break;
+		}
+
+		// mipmaps
+		if (m_texture_info.generate_mipmaps) {
+			glGenerateMipmap(m_target);
+		}
 	}
 
-	Texture::~Texture() {
-		glDeleteTextures(1, &p_id);
+	GLTexture::~GLTexture() {
+		glDeleteTextures(1, &m_id);
 	}
 
-	void Texture::bind() const {
-		glBindTexture(p_target, p_id);
+	void GLTexture::bind() {
+		glBindTexture(m_target, m_id);
 	}
 
-	void Texture::unbind() const {
-		glBindTexture(p_target, 0);
+	void GLTexture::unbind() {
+		glBindTexture(m_target, 0);
 	}
 
-	void Texture::generateMipMap() {
+	void GLTexture::setData(const TextureInfo& texture_info) {
+		// load texture
+		switch (m_texture_info.dimensions)
+		{
+		case 1:
+			data1D(m_texture_info.data, m_texture_info.width, m_texture_info.x_offset);
+			break;
+		case 2:
+			data2D(m_texture_info.data, m_texture_info.width, m_texture_info.x_offset, m_texture_info.height, m_texture_info.y_offset);
+			break;
+		case 3:
+			data3D(m_texture_info.data, m_texture_info.width, m_texture_info.x_offset, m_texture_info.height, m_texture_info.y_offset, m_texture_info.depth, m_texture_info.z_offset);
+			break;
+		default:
+			oe_error_terminate("Unsupported texture dimension ({})", m_texture_info.dimensions);
+			break;
+		}
+
+		// mipmaps
+		if (m_texture_info.generate_mipmaps) {
+			glGenerateMipmap(m_target);
+		}
+	}
+
+	void GLTexture::empty1D(size_t width) {
+		m_target = GL_TEXTURE_1D;
 		bind();
-		glGenerateMipmap(p_target);
+
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		glTexStorage1D(m_target, 1, GL_RGBA8, width);
 	}
 
-	void Texture::empty2D(int width, int height) {
-		p_target = GL_TEXTURE_2D;
-		p_width = width;
-		p_height = height;
-
+	void GLTexture::empty2D(size_t width, size_t height) {
+		m_target = GL_TEXTURE_2D;
 		bind();
 
-		glTexParameteri(p_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(p_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(p_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(p_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-		glTexStorage2D(p_target, 1, GL_RGBA8, width, height);
+		glTexStorage2D(m_target, 1, GL_RGBA8, width, height);
 	}
 
-	void Texture::empty3D(int width, int height, int depth) {
-		p_target = GL_TEXTURE_2D_ARRAY;
-		p_width = width;
-		p_height = height;
-		p_depth = depth;
-
+	void GLTexture::empty3D(size_t width, size_t height, size_t depth) {
+		m_target = GL_TEXTURE_3D;
 		bind();
 
-		glTexParameteri(p_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(p_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(p_target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		glTexParameteri(p_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(p_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-		glTexStorage3D(p_target, 1, GL_RGBA8, width, height, depth);
+		glTexStorage3D(m_target, 1, GL_RGBA8, width, height, depth);
 	}
 
-	void Texture::load2D(const oe::utils::image_data& data) {
-		load2D(data.data, data.width, data.height);
-	}
-
-	void Texture::load2D(const void* data, int width, int height) {
-		p_target = GL_TEXTURE_2D;
-		p_width = width;
-		p_height = height;
-
+	void GLTexture::load1D(const uint8_t* data, size_t width) {
+		m_target = GL_TEXTURE_1D;
 		bind();
 
-		glTexParameteri(p_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(p_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(p_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(p_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		glTexImage1D(m_target, 0, GL_RGBA8, width, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	}
+
+	void GLTexture::load2D(const uint8_t* data, size_t width, size_t height) {
+		m_target = GL_TEXTURE_2D;
+		bind();
+
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		
-		glTexImage2D(p_target, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(m_target, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 
-	void Texture::load3D(const void* data, int width, int height, int depth) {
-		p_target = GL_TEXTURE_2D_ARRAY;
-		p_width = width;
-		p_height = height;
-		p_depth = depth;
-
+	void GLTexture::load3D(const uint8_t* data, size_t width, size_t height, size_t depth) {
+		m_target = GL_TEXTURE_3D;
 		bind();
 
-		glTexParameteri(p_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(p_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(p_target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		glTexParameteri(p_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(p_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-		glTexImage3D(p_target, 0, GL_RGBA8, width, height, depth, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glTexImage3D(m_target, 0, GL_RGBA8, width, height, depth, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 
-	void Texture::computeShaderBuffer(int width, int height) {
-		p_target = GL_TEXTURE_2D;
-		p_width = width;
-		p_height = height;
-
+	void GLTexture::data1D(const uint8_t* data, size_t width, size_t x_offset) {
 		bind();
-
-		glTexParameteri(p_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(p_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-		glTexImage2D(p_target, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+		if (x_offset + width > m_texture_info.width) 
+			oe_error_terminate("Sub texture bigger than initial texture");
+		glTextureSubImage1D(m_id, 0, x_offset, width, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
-
-	void Texture::data2D(const void* data, int offx, int offy, int width, int height) {
-		if (offx + width > p_width || offy + height > p_height) oe_error_terminate("Sub texture bigger than initial texture");
-		glTextureSubImage2D(p_id, 0, offx, offy, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	
+	void GLTexture::data2D(const uint8_t* data, size_t width, size_t x_offset, size_t height, size_t y_offset) {
+		bind();
+		if (x_offset + width > m_texture_info.width || y_offset + height > m_texture_info.height) 
+			oe_error_terminate("Sub texture bigger than initial texture");
+		glTextureSubImage2D(m_id, 0, x_offset, y_offset, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
-
-	void Texture::data3D(const void* data, int offx, int offy, int offz, int width, int height, int depth) {
-		if (offx + width > p_width || offy + height > p_height || offz + depth > p_depth) oe_error_terminate("Sub texture bigger than initial texture");
-		glTextureSubImage3D(p_id, 0, offx, offy, offz, width, height, depth, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	
+	void GLTexture::data3D(const uint8_t* data, size_t width, size_t x_offset, size_t height, size_t y_offset, size_t depth, size_t z_offset) {
+		bind();
+		if (x_offset + width > m_texture_info.width || y_offset + height > m_texture_info.height || z_offset + depth > m_texture_info.depth) 
+			oe_error_terminate("Sub texture bigger than initial texture");
+		glTextureSubImage3D(m_id, 0, x_offset, y_offset, z_offset, width, height, depth, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 
 }
