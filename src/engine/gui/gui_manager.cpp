@@ -1,9 +1,11 @@
 #include "gui_manager.h"
 
-#include <engine/graphics/window.h>
-#include <engine/graphics/renderer.h>
-#include <engine/graphics/text/font.h>
-#include <engine/graphics/assets/singleTextureShader.h>
+#include "engine/graphics/interface/window.h"
+#include "engine/graphics/interface/renderer.h"
+#include "engine/graphics/font.h"
+#include "engine/graphics/assets/default_shader.hpp"
+
+#include "engine/engine.h"
 
 
 
@@ -11,23 +13,30 @@ namespace oe::gui {
 
 	constexpr int border = 5;
 
-	std::unique_ptr<Form> m_main_frame;
-	oe::graphics::Renderer* m_renderer;
-	oe::graphics::Renderer* m_font_renderer;
-	oe::graphics::SpriteShader* m_shader;
 	
-	GUI::GUI() {
-		m_renderer = new oe::graphics::Renderer(oe::graphics::dynamicrender, oe::graphics::staticrender, 10000);
-		m_shader = new oe::graphics::SpriteShader();
+	GUI::GUI(oe::graphics::Instance* instance, oe::graphics::Window* window) 
+		: m_window(window) 
+		, m_instance(instance)
+	{
+		// renderer
+		oe::RendererInfo renderer_info = {};
+		renderer_info.arrayRenderType = oe::types::dynamicrender;
+		renderer_info.indexRenderType = oe::types::staticrender;
+		renderer_info.max_quad_count = 10000;
+		renderer_info.staticVBOBuffer_data = nullptr;
+		m_renderer = m_instance->createRenderer(renderer_info);
 
-		auto form = new oe::gui::Form(oe::graphics::Window::getSize() - glm::vec2(2 * border));
+		// shader
+		m_shader = new oe::graphics::DefaultShader(instance);
+
+		auto form = new oe::gui::Form(m_window->getSize() - glm::vec2(2 * border));
 		form->size() = { border, border };
 		m_main_frame = std::unique_ptr<Form>(form);
 		resize();
 	}
 
 	GUI::~GUI() {
-		delete m_renderer;
+		m_instance->destroyRenderer(m_renderer);
 		delete m_shader;
 	}
 
@@ -43,7 +52,7 @@ namespace oe::gui {
 	}
 
 	void GUI::resize() {
-		resize(oe::graphics::Window::getSize());
+		resize(m_window->getSize());
 	}
 
 	void GUI::resize(const glm::vec2& window_size) {
@@ -71,15 +80,15 @@ namespace oe::gui {
 		m_main_frame->addSubWidget(widget);
 	}
 
-	void GUI::cursor(int button, int action, const glm::vec2& cursor_window) {
+	void GUI::cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) {
 		m_main_frame->__cursor(button, action, cursor_window);
 	}
 
-	void GUI::text(unsigned int character, int mods) {
-		m_main_frame->__text(character, mods);
+	void GUI::text(uint32_t codepoint, oe::modifiers mods) {
+		m_main_frame->__text(codepoint, mods);
 	}
 
-	void GUI::key(int key, int action, int mods) {
+	void GUI::key(oe::keys key, oe::actions action, oe::modifiers mods) {
 		m_main_frame->__key(key, action, mods);
 	}
 

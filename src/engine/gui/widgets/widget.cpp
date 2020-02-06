@@ -11,8 +11,8 @@ namespace oe::gui {
 		m_topleft_position({ 0, 0 }),
 		m_nodes(std::vector<Widget*>()), 
 		m_parent(nullptr), 
-		m_align_parent(oe::graphics::alignment::top_left),
-		m_align_render(oe::graphics::alignment::top_left)
+		m_align_parent(oe::alignments::top_left),
+		m_align_render(oe::alignments::top_left)
 	{
 
 	}
@@ -42,8 +42,8 @@ namespace oe::gui {
 	}
 
 	void Widget::__resize() {
-		if (m_parent) m_render_position = m_offset_position + m_parent->m_render_position + oe::graphics::alignmentOffset(m_parent->m_size, m_align_parent) - oe::graphics::alignmentOffset(m_size, m_align_render);
-		else m_render_position = m_offset_position - oe::graphics::alignmentOffset(m_size, m_align_render);
+		if (m_parent) m_render_position = m_offset_position + m_parent->m_render_position + oe::alignmentOffset(m_parent->m_size, m_align_parent) - oe::alignmentOffset(m_size, m_align_render);
+		else m_render_position = m_offset_position - oe::alignmentOffset(m_size, m_align_render);
 		resize();
 
 		for (auto& w : m_nodes) {
@@ -51,7 +51,7 @@ namespace oe::gui {
 		}
 	}
 
-	void Widget::__cursor(int button, int action, const glm::vec2& cursor_window) {
+	void Widget::__cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) {
 		cursor(button, action, cursor_window);
 
 		for (auto& w : m_nodes) {
@@ -59,19 +59,19 @@ namespace oe::gui {
 		}
 	}
 
-	void Widget::__text(unsigned int character, int mods) {
-		text(character, mods);
+	void Widget::__text(uint32_t codepoint, oe::modifiers mods) {
+		text(codepoint, mods);
 
 		for (auto& w : m_nodes) {
-			w->__text(character, mods);
+			w->__text(codepoint, mods);
 		}
 	}
 
-	void Widget::__key(int _key, int action, int mods) {
-		key(_key, action, mods);
+	void Widget::__key(oe::keys _key, oe::actions _action, oe::modifiers _mods) {
+		key(_key, _action, _mods);
 
 		for (auto& w : m_nodes) {
-			w->__key(_key, action, mods);
+			w->__key(_key, _action, _mods);
 		}
 	}
 

@@ -2,19 +2,21 @@
 
 #include <string>
 
-#include "tex.h"
+#include "texture.png.h"
 
 
 
+oe::gui::GUI* gui;
 oe::gui::TextInput* textbox;
 oe::gui::TextPanel* textpanel;
 
 const oe::graphics::Sprite* sprite;
+oe::graphics::Instance* instance;
+oe::graphics::Window* window;
 oe::graphics::SpritePack* pack;
-oe::graphics::SingleTextureShader* shader;
+oe::graphics::DefaultShader* shader;
 oe::graphics::Renderer* renderer;
 oe::graphics::Font* font;
-oe::gui::GUI* gui;
 
 glm::vec3 rotate(0.0f, 1.0f, 0.0f);
 float speed = 0.01f;
@@ -25,61 +27,61 @@ void cube() {
 	renderer->clear();
 
 	// front
-	renderer->submitVertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f }, 0, oe::colors::orange);
-	renderer->submitVertexData({ -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, 0, oe::colors::orange);
-	renderer->submitVertexData({  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, 0, oe::colors::orange);
-	renderer->submitVertexData({  1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f }, 0, oe::colors::orange);
-	renderer->incrementQuadCount();
+	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({  1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f }, oe::colors::orange));
+	renderer->quadCount()++;
 
 	// back
-	renderer->submitVertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, 0, oe::colors::orange);
-	renderer->submitVertexData({ -1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f }, 0, oe::colors::orange);
-	renderer->submitVertexData({  1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f }, 0, oe::colors::orange);
-	renderer->submitVertexData({  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, 0, oe::colors::orange);
-	renderer->incrementQuadCount();
+	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({  1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, oe::colors::orange));
+	renderer->quadCount()++;
 
 	// top
-	renderer->submitVertexData({ -1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f }, 0, oe::colors::orange);
-	renderer->submitVertexData({ -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, 0, oe::colors::orange);
-	renderer->submitVertexData({  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, 0, oe::colors::orange);
-	renderer->submitVertexData({  1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, 0, oe::colors::orange);
-	renderer->incrementQuadCount();
+	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({  1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, oe::colors::orange));
+	renderer->quadCount()++;
 
 	// bottom
-	renderer->submitVertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, 0, oe::colors::orange);
-	renderer->submitVertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, 0, oe::colors::orange);
-	renderer->submitVertexData({  1.0f, -1.0f,  1.0f }, { 1.0f, 1.0f }, 0, oe::colors::orange);
-	renderer->submitVertexData({  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, 0, oe::colors::orange);
-	renderer->incrementQuadCount();
+	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({  1.0f, -1.0f,  1.0f }, { 1.0f, 1.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, oe::colors::orange));
+	renderer->quadCount()++;
 
 	// left
-	renderer->submitVertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, 0, oe::colors::orange);
-	renderer->submitVertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, 0, oe::colors::orange);
-	renderer->submitVertexData({ -1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, 0, oe::colors::orange);
-	renderer->submitVertexData({ -1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, 0, oe::colors::orange);
-	renderer->incrementQuadCount();
+	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, oe::colors::orange));
+	renderer->quadCount()++;
 
 	// right
-	renderer->submitVertexData({  1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, 0, oe::colors::orange);
-	renderer->submitVertexData({  1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, 0, oe::colors::orange);
-	renderer->submitVertexData({  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, 0, oe::colors::orange);
-	renderer->submitVertexData({  1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, 0, oe::colors::orange);
-	renderer->incrementQuadCount();
+	renderer->submit(oe::graphics::VertexData({  1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({  1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({  1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, oe::colors::orange));
+	renderer->quadCount()++;
 
 	// stop submitting and rendera
 	static glm::mat4 ml_matrix = glm::mat4(1.0f);
 	shader->bind();
 	ml_matrix = glm::rotate(ml_matrix, speed, rotate);
 	shader->modelMatrix(ml_matrix);
-	oe::graphics::GL::setPolygonMode(oe::graphics::GL::polygon_mode::lines);
+	instance->polygonMode(oe::polygon_mode::lines);
 	renderer->end();
 	renderer->render();
-	oe::graphics::GL::setPolygonMode(oe::graphics::GL::polygon_mode::fill);
+	instance->polygonMode(oe::polygon_mode::fill);
 }
 
 void render(float update_fraction) {
 	// clear framebuffer
-	oe::graphics::Window::clearWindow();
+	window->clear();
 
 	// submitting
 	cube();
@@ -89,11 +91,10 @@ void render(float update_fraction) {
 	gui->render();
 
 	// swap buffers and poll events
-	oe::graphics::Window::updateWindow();
-	oe::graphics::Window::pollEvents();
+	window->update();
 
 	// check if needs to close
-	if (oe::graphics::Window::windowShouldClose()) oe::utils::GameLoop::stop();
+	if (window->shouldClose()) oe::utils::GameLoop::stop();
 }
 
 void resize(const glm::vec2& window_size) {
@@ -115,16 +116,16 @@ void setup_gui() {
 	{
 		auto button = new oe::gui::Button({ 175, 50 });
 		button->offset_position() = { 0, 10 };
-		button->align_parent() = oe::graphics::alignment::top_center;
-		button->align_render() = oe::graphics::alignment::top_center;
+		button->align_parent() = oe::alignments::top_center;
+		button->align_render() = oe::alignments::top_center;
 		button->setCallback(
-			[](int button, int action) {
-				if (action == OE_PRESS && button == OE_MOUSE_BUTTON_LEFT) {
+			[](oe::mouse_buttons button, oe::actions action) {
+				if (action == oe::actions::press && button == oe::mouse_buttons::button_left) {
 					// spdlog::info("Button pressed"); 
 					std::swap(rotate.x, rotate.y);
 					std::swap(rotate.y, rotate.z);
 				}
-				else if (action == -1 && button == -1) {
+				else if (action == oe::actions::none || button == oe::mouse_buttons::none) {
 					// spdlog::info("Button hovered");
 				}
 			}
@@ -132,30 +133,30 @@ void setup_gui() {
 		gui->addSubWidget(button);
 
 		auto button_background = new oe::gui::SpritePanel({ 175, 50 });
-		button_background->align_parent() = oe::graphics::alignment::center_center;
-		button_background->align_render() = oe::graphics::alignment::center_center;
+		button_background->align_parent() = oe::alignments::center_center;
+		button_background->align_render() = oe::alignments::center_center;
 		button_background->setSprite(pack->empty_sprite());
 		button_background->color() = oe::colors::grey;
 		button->addSubWidget(button_background);
 
 		auto button_text = new oe::gui::TextPanel(40);
-		button_text->align_parent() = oe::graphics::alignment::center_center;
-		button_text->align_render() = oe::graphics::alignment::center_center;
+		button_text->align_parent() = oe::alignments::center_center;
+		button_text->align_render() = oe::alignments::center_center;
 		button_text->string() = "New dir";
 		button_background->addSubWidget(button_text);
 	}
 	{
 		auto button = new oe::gui::Button({ 175, 50 });
 		button->offset_position() = { 0, 70 };
-		button->align_parent() = oe::graphics::alignment::top_center;
-		button->align_render() = oe::graphics::alignment::top_center;
+		button->align_parent() = oe::alignments::top_center;
+		button->align_render() = oe::alignments::top_center;
 		button->setCallback(
-			[](int button, int action) {
-				if (action == OE_PRESS && button == OE_MOUSE_BUTTON_LEFT) {
+			[](oe::mouse_buttons button, oe::actions action) {
+				if (action == oe::actions::press && button == oe::mouse_buttons::button_left) {
 					// spdlog::info("Button pressed"); 
 					rotate *= -1;
 				}
-				else if (action == -1 && button == -1) {
+				else if (action == oe::actions::none || button == oe::mouse_buttons::none) {
 					// spdlog::info("Button hovered");
 				}
 			}
@@ -163,30 +164,30 @@ void setup_gui() {
 		gui->addSubWidget(button);
 
 		auto button_background = new oe::gui::SpritePanel({ 175, 50 });
-		button_background->align_parent() = oe::graphics::alignment::center_center;
-		button_background->align_render() = oe::graphics::alignment::center_center;
+		button_background->align_parent() = oe::alignments::center_center;
+		button_background->align_render() = oe::alignments::center_center;
 		button_background->setSprite(pack->empty_sprite());
 		button_background->color() = oe::colors::grey;
 		button->addSubWidget(button_background);
 
 		auto button_text = new oe::gui::TextPanel(40);
-		button_text->align_parent() = oe::graphics::alignment::center_center;
-		button_text->align_render() = oe::graphics::alignment::center_center;
+		button_text->align_parent() = oe::alignments::center_center;
+		button_text->align_render() = oe::alignments::center_center;
 		button_text->string() = "Reverse";
 		button_background->addSubWidget(button_text);
 	}
 	{
 		auto box = new oe::gui::SpritePanel({ 150, 150 });
-		box->align_parent() = oe::graphics::alignment::bottom_left;
-		box->align_render() = oe::graphics::alignment::bottom_left;
+		box->align_parent() = oe::alignments::bottom_left;
+		box->align_render() = oe::alignments::bottom_left;
 		box->offset_position() = { 10, -10 };
 		box->setSprite(sprite);
 		gui->addSubWidget(box);
 	}
 	{
-		textbox = new oe::gui::TextInput({ 200, 80 });
-		textbox->align_parent() = oe::graphics::alignment::bottom_right;
-		textbox->align_render() = oe::graphics::alignment::bottom_right;
+		textbox = new oe::gui::TextInput(window, { 200, 80 });
+		textbox->align_parent() = oe::alignments::bottom_right;
+		textbox->align_render() = oe::alignments::bottom_right;
 		textbox->font_size() = 14;
 		textbox->setSprite(pack->empty_sprite());
 		gui->addSubWidget(textbox);
@@ -194,15 +195,15 @@ void setup_gui() {
 		{
 			auto button = new oe::gui::DecoratedButton({ 175, 50 }, pack->empty_sprite(), "Log");
 			button->offset_position() = { 0, -10 };
-			button->align_parent() = oe::graphics::alignment::top_center;
-			button->align_render() = oe::graphics::alignment::bottom_center;
+			button->align_parent() = oe::alignments::top_center;
+			button->align_render() = oe::alignments::bottom_center;
 			button->setCallback(
-				[](int button, int action) {
-					if (action == OE_PRESS && button == OE_MOUSE_BUTTON_LEFT) {
+				[](oe::mouse_buttons button, oe::actions action) {
+					if (action == oe::actions::press && button == oe::mouse_buttons::button_left) {
 						spdlog::info(textbox->string());
 						textbox->string() = "";
 					}
-					else if (action == -1 && button == -1) {
+					else if (action == oe::actions::none || button == oe::mouse_buttons::none) {
 						// spdlog::info("Button hovered");
 					}
 				}
@@ -212,8 +213,8 @@ void setup_gui() {
 	}
 	{
 		auto box = new oe::gui::Slider({ 400, 30 });
-		box->align_parent() = oe::graphics::alignment::bottom_center;
-		box->align_render() = oe::graphics::alignment::bottom_center;
+		box->align_parent() = oe::alignments::bottom_center;
+		box->align_render() = oe::alignments::bottom_center;
 		box->setSprite(pack->empty_sprite());
 		box->min() = -0.3f;
 		box->max() = 0.3f;
@@ -222,76 +223,97 @@ void setup_gui() {
 	}
 	{
 		textpanel = new oe::gui::TextPanel(20);
-		textpanel->align_parent() = oe::graphics::alignment::top_left;
-		textpanel->align_render() = oe::graphics::alignment::top_left;
+		textpanel->align_parent() = oe::alignments::top_left;
+		textpanel->align_render() = oe::alignments::top_left;
 		textpanel->string() = "FPS:";
 		gui->addSubWidget(textpanel);
 	}
 }
 
 void cursor_pos(const glm::vec2& cursor_window, const glm::vec2& cursor) {
-	gui->cursor(-1, -1, cursor_window);
+	gui->cursor(oe::mouse_buttons::none, oe::actions::none, cursor_window);
 }
 
-void button(int button, int action) {
-	const glm::vec2& cursor = oe::graphics::Window::getCursorWindow();
+void button(oe::mouse_buttons button, oe::actions action) {
+	const glm::vec2& cursor = window->getCursorWindow();
 	gui->cursor(button, action, cursor);
 }
 
-void text(unsigned int character, int mods) {
+void text(uint32_t character, oe::modifiers mods) {
 	gui->text(character, mods);
 }
 
-void keyboard(int key, int action, int mods) {
+void keyboard(oe::keys key, oe::actions action, oe::modifiers mods) {
 	gui->key(key, action, mods);
 }
 
-int main(int argc, char* argv[]) {
+int main() {
 	// engine
-	oe::init(argc, argv);
+	oe::EngineInfo engine_info = {};
+	engine_info.api = oe::graphics_api::OpenGL;
+	engine_info.networking = false;
+	engine_info.audio = false;
+	oe::Engine::init(engine_info);
+
+	// instance
+	oe::InstanceInfo instance_info = {};
+	instance_info.debug_messages = true;
+	// instance_info.favored_gpu_vulkan = oe::gpu::dedicated;
+	instance = oe::Engine::createInstance(instance_info);
 
 	// window
-	oe::graphics::Window::WindowConfig window_config;
+	oe::WindowInfo window_config = {};
 	window_config.title = "Test 3 - GUIs";
 	window_config.multisamples = 4;
-	window_config.opengl_debugmode = true;
-	oe::graphics::Window::init(window_config);
-	oe::graphics::Window::setCursorPositionCallback(cursor_pos);
-	oe::graphics::Window::setResizeCallback(resize);
-	oe::graphics::Window::setButtonCallback(button);
-	oe::graphics::Window::setCharmodCallback(text);
-	oe::graphics::Window::setKeyboardCallback(keyboard);
-	oe::graphics::GL::setSwapInterval(0);
-	oe::graphics::GL::setCulling(oe::graphics::GL::culling::neither);
-	oe::graphics::GL::enableBlending();
+	window = instance->createWindow(window_config);
+	window->setCursorPositionCallback(cursor_pos);
+	window->setResizeCallback(resize);
+	window->setButtonCallback(button);
+	window->setCharmodCallback(text);
+	window->setKeyboardCallback(keyboard);
 
-	// drawing
-	pack = new oe::graphics::SpritePack();
-	unsigned char* data = new unsigned char[16 * 16 * 4];
-	for (size_t i = 0; i < 16 * 16 * 4; i++) data[i] = texture_data[i];
-	oe::utils::image_data img(data, 16, 16, 4);
+	// instance settings
+	instance->swapInterval(0);
+	instance->culling(oe::culling_modes::neither);
+	instance->blending(oe::modes::enable);
+
+	// renderer
+	oe::RendererInfo renderer_info = {};
+	renderer_info.arrayRenderType = oe::types::dynamicrender;
+	renderer_info.indexRenderType = oe::types::staticrender;
+	renderer_info.max_quad_count = 10000;
+	renderer_info.staticVBOBuffer_data = nullptr;
+	renderer = instance->createRenderer(renderer_info);
+
+	// shader
+	shader = new oe::graphics::DefaultShader(instance);
+
+	// spritepack
+	auto img = oe::utils::loadImageCopy(texture_png, 5, 5);
+	pack = new oe::graphics::SpritePack(instance);
 	sprite = pack->addSprite(img);
-	gui = new oe::gui::GUI();
-	setup_gui();
-	renderer = new oe::graphics::Renderer(oe::graphics::types::dynamicrender, oe::graphics::types::staticrender, 6, nullptr);
-	shader = new oe::graphics::SpriteShader();
-	resize(oe::graphics::Window::getSize());
 
 	// font
 	font = new oe::graphics::Font(pack);
 	oe::graphics::Text::setFont(*font);
 	pack->construct();
 
+	// gui
+	gui = new oe::gui::GUI(instance, window);
+	setup_gui();
+
 	// start
+	resize(window->getSize());
 	oe::utils::GameLoop::init(render, update, 1);
 
-	// closing
-	oe::graphics::Window::closeWindow();
+	// cleanup
 	delete gui;
 	delete font;
-	delete renderer;
-	delete shader;
 	delete pack;
+	delete shader;
+	instance->destroyWindow(window);
+	instance->destroyRenderer(renderer);
+	oe::Engine::deinit();
 
 	return 0;
 }

@@ -1,6 +1,6 @@
 #include "text_panel.h"
 
-#include <engine/graphics/text/textLabel.h>
+#include "engine/graphics/textLabel.h"
 
 
 
@@ -20,7 +20,7 @@ namespace oe::gui {
 		m_size.y = m_font_size;
 		__resize();
 
-		oe::graphics::Text::submit(renderer, m_string, m_render_position + oe::graphics::alignmentOffset(m_size, m_align_render), glm::vec2(m_font_size), m_align_render, m_bg_color);
+		oe::graphics::Text::submit(renderer, m_string, m_render_position + oe::alignmentOffset(m_size, m_align_render), glm::vec2(m_font_size), m_align_render, m_bg_color);
 	}
 
 }

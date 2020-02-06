@@ -25,32 +25,14 @@ namespace fs = boost::filesystem;
 namespace oe::utils {
 
 	struct image_data {
-		unsigned char* data;
+		const unsigned char* data;
 		int width, height, channels;
-
-		image_data(unsigned char* _data, int _width, int _height, int _channels) {
-			data = _data;
-			width = _width;
-			height = _height;
-			channels = _channels;
-		}
-
-		image_data() : image_data(nullptr, 0, 0, 0) {}
+		size_t size;
 	};
 
 	struct audio_data {
-		short* data;
+		const short* data;
 		int format, size, channels, sample_rate;
-
-		audio_data(short* _data, int _size, int _channels, int _sample_rate, int _format) {
-			data = _data;
-			size = _size;
-			channels = _channels;
-			sample_rate = _sample_rate;
-			format = _format;
-		}
-
-		audio_data() : audio_data(nullptr, 0, 0, 0, 0) {}
 	};
 
 	// Read contents of file to string
@@ -60,19 +42,12 @@ namespace oe::utils {
 	// Not tested
 	void saveImage(fs::path path, const image_data& image);
 
-	// Load image_data from file
-	// Remember to freeImage() after use
 	const image_data loadImage(fs::path path);
-
-	// Load audio_data from file
-	// Remember to freeAudio() after use
 	const audio_data loadAudio(fs::path path);
-
-	// Free image data
-	void freeImage(const image_data& image);
-
-	// Free audio data
-	void freeAudio(const audio_data& audio);
+	const image_data loadImageCopy(const unsigned char* data, int width, int height); // data is copied to image_data // can be freed and used with spritepack
+	const image_data loadImageMove(unsigned char* data, int width, int height);        // image_data will use data // do not free if used with spritepack
+	void freeImage(image_data& img);
+	void freeAudio(audio_data& aud);
 
 	// data size is count of T elements to write
 	template<class T> static void write(std::string name, const T* data, size_t data_size) {

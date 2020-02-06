@@ -13,15 +13,15 @@ namespace oe::gui {
 		Button::Button(size)
 	{
 		auto button_background = new oe::gui::SpritePanel(size);
-		button_background->align_parent() = oe::graphics::alignment::center_center;
-		button_background->align_render() = oe::graphics::alignment::center_center;
+		button_background->align_parent() = oe::alignments::center_center;
+		button_background->align_render() = oe::alignments::center_center;
 		button_background->setSprite(sprite);
 		button_background->color() = oe::colors::grey;
 		addSubWidget(button_background);
 
 		auto button_text = new oe::gui::TextPanel(size.y * 0.8f);
-		button_text->align_parent() = oe::graphics::alignment::center_center;
-		button_text->align_render() = oe::graphics::alignment::center_center;
+		button_text->align_parent() = oe::alignments::center_center;
+		button_text->align_render() = oe::alignments::center_center;
 		button_text->string() = text;
 		button_background->addSubWidget(button_text);
 	}

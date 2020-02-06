@@ -24,9 +24,7 @@ namespace oe::gui {
 
 		// Inherited via Widget
 		virtual void render(oe::graphics::Renderer& renderer) override;
-		virtual void resize() override {}
-		virtual void cursor(int button, int action, const glm::vec2& cursor_window) override;
-		virtual void text(unsigned int character, int mods) override {}
+		virtual void cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) override;
 
 		inline void setCallback(void(*callback)(float value)) { m_callback = callback; }
 		inline glm::vec4& sliderColor() { return m_slider_color; }
