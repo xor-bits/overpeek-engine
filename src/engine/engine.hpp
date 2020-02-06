@@ -1,38 +1,38 @@
 #pragma once
 
 // Graphics
-#include "graphics/interface/window.h"
-#include "graphics/interface/shader.h"
-#include "graphics/interface/renderer.h"
-#include "graphics/interface/texture.h"
-#include "graphics/interface/framebuffer.h"
-#include "graphics/interface/instance.h"
-#include "graphics/font.h"
-#include "graphics/textLabel.h"
+#include "graphics/interface/window.hpp"
+#include "graphics/interface/shader.hpp"
+#include "graphics/interface/renderer.hpp"
+#include "graphics/interface/texture.hpp"
+#include "graphics/interface/framebuffer.hpp"
+#include "graphics/interface/instance.hpp"
+#include "graphics/font.hpp"
+#include "graphics/textLabel.hpp"
 
 // Audio
-#include "audio/audio.h"
+#include "audio/audio.hpp"
 
 // Logic
-#include "utility/zip.h"
-#include "utility/math.h"
-#include "utility/clock.h"
-#include "utility/debug.h"
-#include "utility/random.h"
-#include "utility/gameloop.h"
-#include "utility/filereader.h"
+#include "utility/zip.hpp"
+#include "utility/math.hpp"
+#include "utility/clock.hpp"
+#include "utility/debug.hpp"
+#include "utility/random.hpp"
+#include "utility/gameloop.hpp"
+#include "utility/filereader.hpp"
 
 // Gui
-#include "gui/gui_manager.h"
+#include "gui/gui_manager.hpp"
 
 // internal libs
-#include "internal_libs.h"
+#include "internal_libs.hpp"
 
 // Other
-#include "graphics/sprite.h"
-#include "graphics/spritePacker.h"
-#include "networking/client.h"
-#include "networking/server.h"
+#include "graphics/sprite.hpp"
+#include "graphics/spritePacker.hpp"
+#include "networking/client.hpp"
+#include "networking/server.hpp"
 #include "graphics/assets/default_shader.hpp"
 
 

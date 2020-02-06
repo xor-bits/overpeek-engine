@@ -1,13 +1,13 @@
-#include "window.h"
+#include "window.hpp"
 
 #include <string>
 #include <iostream>
 
 #include <GLFW/glfw3.h>
 
-#include "engine/internal_libs.h"
-#include "engine/utility/math.h"
-#include "engine/engine.h"
+#include "engine/internal_libs.hpp"
+#include "engine/utility/math.hpp"
+#include "engine/engine.hpp"
 
 
 

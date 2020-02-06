@@ -1,6 +1,6 @@
-#include "text_panel.h"
+#include "text_panel.hpp"
 
-#include "engine/graphics/textLabel.h"
+#include "engine/graphics/textLabel.hpp"
 
 
 

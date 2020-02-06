@@ -1,8 +1,8 @@
 #pragma once
 
-#include "engine/internal_libs.h"
+#include "engine/internal_libs.hpp"
 
-#include "opengl/buffers/vertexBuffer.h"
+#include "opengl/buffers/vertexBuffer.hpp"
 
 
 

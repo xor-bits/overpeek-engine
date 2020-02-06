@@ -1,7 +1,7 @@
 #pragma once
 
-#include "buffer.h"
-#include "engine/enum.h"
+#include "buffer.hpp"
+#include "engine/enum.hpp"
 
 
 

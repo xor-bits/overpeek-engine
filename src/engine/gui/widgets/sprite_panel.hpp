@@ -1,7 +1,7 @@
 #pragma once
 
-#include "widget.h"
-#include "engine/graphics/sprite.h"
+#include "widget.hpp"
+#include "engine/graphics/sprite.hpp"
 
 
 

@@ -1,8 +1,8 @@
-#include "text_input.h"
+#include "text_input.hpp"
 
-#include "engine/graphics/textLabel.h"
-#include "engine/engine.h"
-#include "engine/graphics/interface/window.h"
+#include "engine/graphics/textLabel.hpp"
+#include "engine/engine.hpp"
+#include "engine/graphics/interface/window.hpp"
 
 bool insertchars(std::string *obj, int i, char *chars, int n) {
 	obj->insert(i, chars, n);

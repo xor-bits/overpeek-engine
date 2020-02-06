@@ -1,9 +1,9 @@
 #pragma once
 
-#include "engine/utility/filereader.h"
-#include "engine/internal_libs.h"
-#include "sprite.h"
-#include "engine/graphics/opengl/gl_texture.h"
+#include "engine/utility/filereader.hpp"
+#include "engine/internal_libs.hpp"
+#include "sprite.hpp"
+#include "engine/graphics/opengl/gl_texture.hpp"
 
 
 

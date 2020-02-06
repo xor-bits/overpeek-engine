@@ -1,12 +1,12 @@
-#include "filereader.h"
+#include "filereader.hpp"
 
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <sstream>
 
-#include "engine/internal_libs.h"
-#include "engine/engine.h"
+#include "engine/internal_libs.hpp"
+#include "engine/engine.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -14,7 +14,6 @@
 #include <stb_image_write.h>
 
 #define MINIMP3_IMPLEMENTATION
-// #include "minimp3.h"
 #include "minimp3_ex.h"
 
 #include <al.h>

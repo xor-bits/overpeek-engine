@@ -3,8 +3,8 @@
 #include <string>
 #include <map>
 
-#include "engine/graphics/spritePacker.h"
-#include "engine/internal_libs.h"
+#include "engine/graphics/spritePacker.hpp"
+#include "engine/internal_libs.hpp"
 
 #ifdef WIN32
 #define __FONT_NAME		"Arial.ttf"

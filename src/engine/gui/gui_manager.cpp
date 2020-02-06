@@ -1,11 +1,11 @@
-#include "gui_manager.h"
+#include "gui_manager.hpp"
 
-#include "engine/graphics/interface/window.h"
-#include "engine/graphics/interface/renderer.h"
-#include "engine/graphics/font.h"
+#include "engine/graphics/interface/window.hpp"
+#include "engine/graphics/interface/renderer.hpp"
+#include "engine/graphics/font.hpp"
 #include "engine/graphics/assets/default_shader.hpp"
 
-#include "engine/engine.h"
+#include "engine/engine.hpp"
 
 
 

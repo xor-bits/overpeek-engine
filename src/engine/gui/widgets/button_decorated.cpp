@@ -1,4 +1,4 @@
-#include "button_decorated.h"
+#include "button_decorated.hpp"
 
 #if _DEBUG && 0
 #define _DEFAULT_COLOR glm::vec4(0.0f, 0.0f, 0.0f, 0.2f)

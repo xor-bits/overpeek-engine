@@ -2,10 +2,10 @@
 
 #include <string>
 
-#include "engine/utility/filereader.h"
-#include "engine/internal_libs.h"
+#include "engine/utility/filereader.hpp"
+#include "engine/internal_libs.hpp"
 
-#include "engine/graphics/interface/window.h"
+#include "engine/graphics/interface/window.hpp"
 
 
 

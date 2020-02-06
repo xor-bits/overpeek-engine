@@ -1,7 +1,7 @@
 #pragma once
 
-#include "engine/enum.h"
-#include "engine/graphics/interface/instance.h"
+#include "engine/enum.hpp"
+#include "engine/graphics/interface/instance.hpp"
 
 
 

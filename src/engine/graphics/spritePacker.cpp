@@ -1,5 +1,5 @@
-#include "spritePacker.h"
-#include "engine/engine.h"
+#include "spritePacker.hpp"
+#include "engine/engine.hpp"
 
 #include <finders_interface.h>
 

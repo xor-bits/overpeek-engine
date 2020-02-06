@@ -1,6 +1,6 @@
-#include "slider.h"
+#include "slider.hpp"
 
-#include "engine/engine.h"
+#include "engine/engine.hpp"
 
 
 

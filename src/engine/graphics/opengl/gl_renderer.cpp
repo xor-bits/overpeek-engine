@@ -1,8 +1,8 @@
-#include "gl_renderer.h"
+#include "gl_renderer.hpp"
 
-#include "engine/engine.h"
-#include "buffers/vertexArray.h"
-#include "buffers/buffer.h"
+#include "engine/engine.hpp"
+#include "buffers/vertexArray.hpp"
+#include "buffers/buffer.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>

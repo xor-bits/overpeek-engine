@@ -1,7 +1,7 @@
-#include "zip.h"
+#include "zip.hpp"
 
-#include "engine/internal_libs.h"
-#include "engine/engine.h"
+#include "engine/internal_libs.hpp"
+#include "engine/engine.hpp"
 
 
 

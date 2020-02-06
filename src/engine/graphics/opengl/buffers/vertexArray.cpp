@@ -1,9 +1,8 @@
-#include "vertexArray.h"
-
-#include "buffer.h"
+#include "vertexArray.hpp"
+#include "engine/internal_libs.hpp"
+#include "buffer.hpp"
 
 #include <glad/glad.h>
-#include <engine/internal_libs.h>
 
 
 
