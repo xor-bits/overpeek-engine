@@ -1,6 +1,3 @@
-[submodule "src/vendor/GLFW"]
-	path = src/vendor/GLFW
-	url = https://github.com/glfw/glfw.git
 [submodule "src/vendor/enet"]
 	path = src/vendor/enet
 	url = https://github.com/lsalzman/enet.git
