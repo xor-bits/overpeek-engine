@@ -12,7 +12,7 @@
 
 #include <entt/entt.hpp>
 
-#include "enum.h"
+#include "engine/enum.h"
 
 
 
@@ -71,7 +71,7 @@ struct fmt::formatter<glm::mat3> {
 	}
 };
 
-// (input) -> ("input: {}", input)
+// (input) -> ("input: {} line file", input)
 #define quickDebug(x) spdlog::debug(#x ## ": {} at line {} in file {}", x, __LINE__, __FILE__)
 
 #define oe_error_terminate(error_msg, ...) oe::Engine::__error(fmt::format(error_msg, ##__VA_ARGS__), __LINE__, __FILE__)

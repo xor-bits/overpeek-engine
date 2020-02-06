@@ -14,4 +14,5 @@ if(${BUILD_TESTS})
 	add_subdirectory(tests/gui) # executable
 	add_subdirectory(tests/entities) # executable
 	add_subdirectory(tests/networking) # executable
+	add_subdirectory(tests/vulkan) # executable
 endif()
