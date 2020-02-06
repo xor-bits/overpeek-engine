@@ -44,8 +44,8 @@ namespace oe::utils {
 
 	const image_data loadImage(fs::path path);
 	const audio_data loadAudio(fs::path path);
-	const image_data loadImageCopy(const unsigned char* data, int width, int height); // data is copied to image_data // can be freed and used with spritepack
-	const image_data loadImageMove(unsigned char* data, int width, int height);        // image_data will use data // do not free if used with spritepack
+	const image_data loadImageCopy(const unsigned char* data, int width, int height);  // data is copied to image_data // can be freed and used with spritepack
+	const image_data loadImageMove(unsigned char* data, int width, int height);        // image_data will use data     // do not free if used with spritepack
 	void freeImage(image_data& img);
 	void freeAudio(audio_data& aud);
 
