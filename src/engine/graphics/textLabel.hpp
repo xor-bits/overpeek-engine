@@ -2,10 +2,10 @@
 
 #include <string>
 
-#include "font.h"
-#include "engine/graphics/interface/renderer.h"
-#include "engine/graphics/interface/framebuffer.h"
-#include "engine/internal_libs.h"
+#include "font.hpp"
+#include "engine/graphics/interface/renderer.hpp"
+#include "engine/graphics/interface/framebuffer.hpp"
+#include "engine/internal_libs.hpp"
 
 
 

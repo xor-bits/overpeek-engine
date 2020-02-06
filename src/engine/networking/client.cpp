@@ -1,9 +1,9 @@
-#include "client.h"
+#include "client.hpp"
 
 #include <enet/enet.h>
 
-#include "engine/internal_libs.h"
-#include "server.h"
+#include "engine/internal_libs.hpp"
+#include "server.hpp"
 
 
 

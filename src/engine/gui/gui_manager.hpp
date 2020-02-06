@@ -1,17 +1,17 @@
 #pragma once
 
-#include "widgets/widget.h"
-#include "widgets/form.h"
-#include "widgets/text_panel.h"
-#include "widgets/text_input.h"
-#include "widgets/button.h"
-#include "widgets/button_decorated.h"
-#include "widgets/slider.h"
-#include "widgets/sprite_panel.h"
+#include "widgets/widget.hpp"
+#include "widgets/form.hpp"
+#include "widgets/text_panel.hpp"
+#include "widgets/text_input.hpp"
+#include "widgets/button.hpp"
+#include "widgets/button_decorated.hpp"
+#include "widgets/slider.hpp"
+#include "widgets/sprite_panel.hpp"
 
-#include "engine/graphics/interface/window.h"
-#include "engine/graphics/interface/renderer.h"
-#include "engine/graphics/interface/shader.h"
+#include "engine/graphics/interface/window.hpp"
+#include "engine/graphics/interface/renderer.hpp"
+#include "engine/graphics/interface/shader.hpp"
 
 #include "engine/graphics/assets/default_shader.hpp"
 

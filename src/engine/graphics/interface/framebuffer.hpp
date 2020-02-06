@@ -1,8 +1,8 @@
 #pragma once
 
-#include "engine/graphics/interface/instance.h"
-#include "engine/internal_libs.h"
-#include "engine/enum.h"
+#include "engine/graphics/interface/instance.hpp"
+#include "engine/internal_libs.hpp"
+#include "engine/enum.hpp"
 
 
 

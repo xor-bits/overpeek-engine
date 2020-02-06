@@ -1,12 +1,12 @@
-#include "gl_texture.h"
+#include "gl_texture.hpp"
 
 #include <glad/glad.h>
 
 #include <assert.h>
 #include <spdlog/spdlog.h>
 
-#include "engine/engine.h"
-#include "engine/internal_libs.h"
+#include "engine/engine.hpp"
+#include "engine/internal_libs.hpp"
 
 
 

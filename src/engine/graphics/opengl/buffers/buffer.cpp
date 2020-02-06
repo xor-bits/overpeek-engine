@@ -1,13 +1,13 @@
-#include "buffer.h"
+#include "buffer.hpp"
 
 #include <glad/glad.h>
 #include <iomanip>
 #include <sstream>
 #include <cstddef>
 
-#include "engine/graphics/interface/window.h"
-#include "engine/utility/debug.h"
-#include "engine/internal_libs.h"
+#include "engine/graphics/interface/window.hpp"
+#include "engine/utility/debug.hpp"
+#include "engine/internal_libs.hpp"
 
 
 namespace oe::graphics {

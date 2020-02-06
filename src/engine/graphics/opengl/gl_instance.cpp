@@ -1,9 +1,9 @@
-#include "gl_instance.h"
-#include "gl_window.h"
-#include "gl_renderer.h"
-#include "gl_shader.h"
-#include "gl_texture.h"
-#include "gl_framebuffer.h"
+#include "gl_instance.hpp"
+#include "gl_window.hpp"
+#include "gl_renderer.hpp"
+#include "gl_shader.hpp"
+#include "gl_texture.hpp"
+#include "gl_framebuffer.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>

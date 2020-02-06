@@ -12,7 +12,7 @@
 
 #include <entt/entt.hpp>
 
-#include "engine/enum.h"
+#include "engine/enum.hpp"
 
 
 

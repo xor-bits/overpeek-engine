@@ -1,5 +1,5 @@
-#include "engine/graphics/interface/instance.h"
-#include "engine/enum.h"
+#include "engine/graphics/interface/instance.hpp"
+#include "engine/enum.hpp"
 
 
 

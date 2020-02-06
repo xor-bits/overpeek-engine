@@ -1,9 +1,9 @@
 #pragma once
 
-#include "engine/internal_libs.h"
-#include "engine/graphics/vertexData.h"
-#include "engine/graphics/sprite.h"
-#include "engine/graphics/interface/instance.h"
+#include "engine/internal_libs.hpp"
+#include "engine/graphics/vertexData.hpp"
+#include "engine/graphics/sprite.hpp"
+#include "engine/graphics/interface/instance.hpp"
 
 
 

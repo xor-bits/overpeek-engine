@@ -1,10 +1,10 @@
 #pragma once
 
-#include "engine/graphics/interface/renderer.h"
+#include "engine/graphics/interface/renderer.hpp"
 
-#include "engine/graphics/opengl/buffers/vertexArray.h"
-#include "engine/graphics/opengl/buffers/vertexBuffer.h"
-#include "engine/graphics/opengl/buffers/indexBuffer.h"
+#include "engine/graphics/opengl/buffers/vertexArray.hpp"
+#include "engine/graphics/opengl/buffers/vertexBuffer.hpp"
+#include "engine/graphics/opengl/buffers/indexBuffer.hpp"
 
 
 

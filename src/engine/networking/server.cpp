@@ -1,8 +1,8 @@
-#include "server.h"
+#include "server.hpp"
 
 #include <enet/enet.h>
 
-#include "engine/internal_libs.h"
+#include "engine/internal_libs.hpp"
 
 
 

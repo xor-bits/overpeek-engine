@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vertexBuffer.h"
+#include "vertexBuffer.hpp"
 
 #include <vector>
 

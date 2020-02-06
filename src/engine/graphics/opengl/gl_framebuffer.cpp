@@ -1,5 +1,5 @@
-#include "gl_framebuffer.h"
-#include "engine/engine.h"
+#include "gl_framebuffer.hpp"
+#include "engine/engine.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>

@@ -1,6 +1,6 @@
-#include "debug.h"
-#include "clock.h"
-#include "engine/internal_libs.h"
+#include "debug.hpp"
+#include "clock.hpp"
+#include "engine/internal_libs.hpp"
 
 #include <string>
 

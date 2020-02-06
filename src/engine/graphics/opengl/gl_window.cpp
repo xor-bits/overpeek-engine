@@ -1,4 +1,4 @@
-#include "gl_window.h"
+#include "gl_window.hpp"
 
 #include <string>
 #include <iostream>
@@ -6,9 +6,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "engine/internal_libs.h"
-#include "engine/utility/math.h"
-#include "engine/engine.h"
+#include "engine/internal_libs.hpp"
+#include "engine/utility/math.hpp"
+#include "engine/engine.hpp"
 
 #define M_NUM_KEYS		2048
 #define M_NUM_BUTTONS	1024

@@ -1,6 +1,6 @@
-#include "engine.h"
+#include "engine.hpp"
 
-#include "graphics/opengl/gl_instance.h"
+#include "graphics/opengl/gl_instance.hpp"
 
 
 

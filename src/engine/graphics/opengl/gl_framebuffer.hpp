@@ -1,8 +1,8 @@
 #pragma once
 
-#include "engine/graphics/interface/framebuffer.h"
-#include "engine/graphics/opengl/gl_texture.h"
-#include "engine/internal_libs.h"
+#include "engine/graphics/interface/framebuffer.hpp"
+#include "engine/graphics/opengl/gl_texture.hpp"
+#include "engine/internal_libs.hpp"
 
 
 

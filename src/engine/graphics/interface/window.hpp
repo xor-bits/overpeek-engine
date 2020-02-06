@@ -2,9 +2,9 @@
 
 #include <string>
 
-#include "engine/graphics/interface/instance.h"
-#include "engine/utility/filereader.h"
-#include "engine/internal_libs.h"
+#include "engine/graphics/interface/instance.hpp"
+#include "engine/utility/filereader.hpp"
+#include "engine/internal_libs.hpp"
 
 
 #define M_NUM_KEYS		2048
