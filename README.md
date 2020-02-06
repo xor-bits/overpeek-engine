@@ -33,6 +33,6 @@ cmake -DBUILD_TESTS=TRUE ..
 - [ ] Vulkan
 - [ ] Texture packer - rework textures and renderer
 - [ ] Freetype -> stb_truetype
-- [ ] Optimized text rendering
+- [x] Optimized text rendering
 - [ ] ImGUI 
 - [ ] Easy to use mode
