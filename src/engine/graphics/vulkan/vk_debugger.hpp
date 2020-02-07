@@ -1,10 +1,42 @@
 #pragma once
 
 #include <vulkan/vulkan.hpp>
-
 #include <iostream>
 
-#include "../config.hpp"
+#include "engine/engine.hpp"
+
+
+
+static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, 
+	VkDebugUtilsMessageTypeFlagsEXT messageType, 
+	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, 
+	void* pUserData);
+
+namespace oe::graphics {
+
+	class Debugger {
+	public:
+		vk::DebugUtilsMessengerEXT m_debug_messenger;
+		vk::DispatchLoaderDynamic m_dldy;
+		
+		const vk::Instance* m_instance;
+
+	public:
+		Debugger(const vk::Instance* instance);
+		~Debugger();
+
+		static vk::DebugUtilsMessengerCreateInfoEXT* createInfo() {
+			vk::DebugUtilsMessengerCreateInfoEXT* createInfo = new vk::DebugUtilsMessengerCreateInfoEXT{};
+			createInfo->messageSeverity = vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose /*| VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT*/ | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError;
+			createInfo->messageType = vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance;
+			createInfo->pfnUserCallback = debugCallback;
+			return createInfo;
+		}
+
+	};
+
+}
 
 
 
@@ -46,40 +78,4 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityF
 	std::cout << std::endl;
 
 	return VK_FALSE;
-}
-
-namespace oe::vulkan {
-
-	class Debugger {
-	public:
-		vk::DebugUtilsMessengerEXT m_debug_messenger;
-		vk::DispatchLoaderDynamic m_dldy;
-		
-		const vk::Instance* m_instance;
-
-	public:
-		Debugger(const vk::Instance* instance) : m_instance(instance) {
-			m_dldy = {};
-			m_dldy.init(*m_instance, vkGetInstanceProcAddr);
-
-			auto create_info = createInfo();
-			m_debug_messenger = m_instance->createDebugUtilsMessengerEXT(*create_info, nullptr, m_dldy);
-			delete create_info;
-		}
-
-		~Debugger() {
-			m_instance->destroyDebugUtilsMessengerEXT(m_debug_messenger, nullptr, m_dldy);
-		}
-
-		static vk::DebugUtilsMessengerCreateInfoEXT* createInfo() {
-			vk::DebugUtilsMessengerCreateInfoEXT* createInfo = new vk::DebugUtilsMessengerCreateInfoEXT{};
-			createInfo->messageSeverity = vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose /*| VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT*/ | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError;
-			createInfo->messageType = vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance;
-			createInfo->pfnUserCallback = debugCallback;
-			return createInfo;
-		}
-
-	};
-
-
 }
