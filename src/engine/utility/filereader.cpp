@@ -23,7 +23,7 @@
 
 namespace oe::utils {
 
-	std::string oe::utils::readFile(fs::path path)
+	std::string readFile(fs::path path)
 	{
 		std::ifstream input_file_stream = std::ifstream(path);
 		std::stringstream buffer;
@@ -31,12 +31,12 @@ namespace oe::utils {
 		return buffer.str();
 	}
 
-	void oe::utils::saveImage(fs::path path, const image_data& image) 
+	void saveImage(fs::path path, const image_data& image)
 	{
 		stbi_write_png(path.string().c_str(), image.width, image.height, image.channels, image.data, image.width * image.channels * sizeof(char));
 	}
 
-	const image_data oe::utils::loadImage(fs::path path) {
+	const image_data loadImage(fs::path path) {
 		int width, height, channels;
 		unsigned char* image = stbi_load(path.string().c_str(), &width, &height, &channels, STBI_rgb_alpha);
 		
@@ -55,7 +55,7 @@ namespace oe::utils {
 		return returned;
 	}
 
-	const image_data oe::utils::loadImageCopy(const unsigned char* data, int width, int height) {
+	const image_data loadImageCopy(const unsigned char* data, int width, int height) {
 		size_t size = width * height * 4;
 		unsigned char* data_dest = new unsigned char[size];
 		std::memcpy(data_dest, data, size);
@@ -71,7 +71,7 @@ namespace oe::utils {
 		return returned;
 	}
 
-	const image_data oe::utils::loadImageMove(unsigned char* data, int width, int height) {
+	const image_data loadImageMove(unsigned char* data, int width, int height) {
 		// return
 		image_data returned = {};
 		returned.size = width * height * 4;
@@ -83,7 +83,7 @@ namespace oe::utils {
 		return returned;
 	}
 
-	const audio_data oe::utils::loadAudio(fs::path path) {
+	const audio_data loadAudio(fs::path path) {
 		mp3dec_t mp3d;
 		mp3dec_file_info_t info;
 		if (mp3dec_load(&mp3d, path.string().c_str(), &info, NULL, NULL)) {
@@ -113,11 +113,11 @@ namespace oe::utils {
 		return returned;
 	}
 
-	void oe::utils::freeImage(image_data& image) {
+	void freeImage(image_data& image) {
 		delete[] image.data;
 	}
 
-	void oe::utils::freeAudio(audio_data& audio) {
+	void freeAudio(audio_data& audio) {
 		delete[] audio.data;
 	}
 

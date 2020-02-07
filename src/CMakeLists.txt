@@ -93,4 +93,4 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${Vulkan_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${OPENAL_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENAL_LIBRARY})
 # opengl
-target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENGL_gl_LIBRARY})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENGL_gl_LIBRARY} ${OPENGL_LIBRARY})
