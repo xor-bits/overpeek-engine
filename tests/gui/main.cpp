@@ -285,6 +285,8 @@ int main() {
 	renderer_info.staticVBOBuffer_data = nullptr;
 	renderer = instance->createRenderer(renderer_info);
 
+	oe::utils::loadImage("");
+
 	// shader
 	shader = new oe::graphics::DefaultShader(instance);
 

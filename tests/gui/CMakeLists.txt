@@ -20,6 +20,4 @@ set_target_properties(${ProjectId} PROPERTIES FOLDER engine/demos)
 
 # add dependencies
 target_link_libraries(${ProjectId} PRIVATE engine)
-target_link_libraries(${ProjectId} PRIVATE ${engine_LIBS})
-target_link_libraries(${ProjectId} PRIVATE "stdc++fs")
 target_include_directories(${ProjectId} PRIVATE ${engine_INCLUDE_DIRS})
