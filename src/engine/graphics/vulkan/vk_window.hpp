@@ -1,24 +1,26 @@
 #pragma once
 
-#include <string>
-
 #include "engine/internal_libs.hpp"
 #include "engine/graphics/interface/window.hpp"
+#include "engine/graphics/vulkan/vk_instance.hpp"
 
+#include <vulkan/vulkan.hpp>
+#include <string>
 
 
 namespace oe::graphics {
-	
-	class GLWindow : public Window {
-	private:
+
+	class VKWindow : public Window {
+	public:
+		const VKInstance* m_instance;
+		vk::SurfaceKHR m_surface;
 		bool m_debugging;
 
 	public:
-		GLWindow(const Instance* instance, const WindowInfo& window_config);
-		~GLWindow();
+		VKWindow(const VKInstance* instance, const WindowInfo& window_config);
+		~VKWindow();
 
-		void glad(const Instance* instance);
-		void glfw(const Instance* instance);
+		void glfw();
 
 		// Inherited via Window
 		virtual void update() override;

@@ -261,6 +261,11 @@ int main() {
 	// instance_info.favored_gpu_vulkan = oe::gpu::dedicated;
 	instance = oe::Engine::createInstance(instance_info);
 
+	spdlog::info("API: {}", instance->getAPI());
+	spdlog::info("APIVersion: {}", instance->getAPIVersion());
+	spdlog::info("GPU: {}", instance->getGPU());
+	spdlog::info("GPUVendor: {}", instance->getGPUVendor());
+
 	// window
 	oe::WindowInfo window_config = {};
 	window_config.title = "Test 5 - Vulkan";

@@ -10,11 +10,6 @@
 #include "engine/utility/math.hpp"
 #include "engine/engine.hpp"
 
-#define M_NUM_KEYS		2048
-#define M_NUM_BUTTONS	1024
-
-
-
 
 
 void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {

@@ -78,7 +78,7 @@ namespace oe::vulkan {
 			// swap chain creation
 			vk::Result res = m_logical_device->m_logical_device.createSwapchainKHR(&createInfo, nullptr, &m_swap_chain);
 			if (res != vk::Result::eSuccess) {
-				errorLog("failed to create swap chain");
+				spdlog::error("failed to create swap chain");
 			}
 
 			// retrive handles to swapchain images

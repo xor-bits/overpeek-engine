@@ -57,7 +57,7 @@ namespace oe::vulkan {
 			// logical device creation
 			vk::Result vk_result = m_physical_device->m_physical_device.createDevice(&createInfo, nullptr, &m_logical_device);
 			if (vk_result != vk::Result::eSuccess) {
-				errorLog("Vulkan logical device creation failed ({})", vk_result);
+				spdlog::error("Vulkan logical device creation failed ({})", vk_result);
 			}
 
 			m_graphics_queue = m_logical_device.getQueue(indices.graphicsFamily.value(), 0);

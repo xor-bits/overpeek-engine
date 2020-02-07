@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../config.hpp"
+#include "config.hpp"
 
 #include <glm/glm.hpp>
 
@@ -89,7 +89,7 @@ namespace oe::vulkan {
 				}
 			}
 
-			errorLog("failed to find suitable memory type");
+			spdlog::error("failed to find suitable memory type");
 		}
 
 	};

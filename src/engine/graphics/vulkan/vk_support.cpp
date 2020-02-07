@@ -1,26 +1,15 @@
-#pragma once
+#include "vk_support.hpp"
 
-#include "../config.hpp"
-#include "vulkan_support.hpp"
+#include <GLFW/glfw3.h>
 
-#include <cpuinfo_x86.h>
-
-#include <vulkan/vulkan.hpp>
-
-#include <vector>
-#include <set>
+#include "engine/engine.hpp"
+#include "config.hpp"
 
 
 
-namespace oe::vulkan {
+namespace oe::graphics {
 
-	struct SwapChainSupportDetails {
-		vk::SurfaceCapabilitiesKHR capabilities;
-		std::vector<vk::SurfaceFormatKHR> formats;
-		std::vector<vk::PresentModeKHR> presentModes;
-	};
-
-	SwapChainSupportDetails querySwapChainSupport(const vk::PhysicalDevice& device, const vk::SurfaceKHR& surface) {
+	SwapChainSupportDetails oe::graphics::querySwapChainSupport(const vk::PhysicalDevice& device, const vk::SurfaceKHR& surface) {
 		SwapChainSupportDetails details;
 
 		device.getSurfaceCapabilitiesKHR(surface, &details.capabilities);
@@ -30,7 +19,7 @@ namespace oe::vulkan {
 		return details;
 	}
 
-	std::set<std::string> getRequredLayers(bool debugging) {
+	std::set<std::string> oe::graphics::getRequredLayers(bool debugging) {
 		std::set<std::string> requiredLayers(required_validation_layers.begin(), required_validation_layers.end());
 
 		if (debugging) {
@@ -40,7 +29,7 @@ namespace oe::vulkan {
 		return requiredLayers;
 	}
 
-	bool hasRequiredValidationLayers(bool debugging) {
+	bool oe::graphics::hasRequiredValidationLayers(bool debugging) {
 		auto available_validation_layers = vk::enumerateInstanceLayerProperties();
 		std::set<std::string> requiredLayers = getRequredLayers(debugging);
 
@@ -57,7 +46,7 @@ namespace oe::vulkan {
 				list_of_missing_layers.append("\n - " + layer);
 			}
 
-			errorLog("No required layer(s){}", list_of_missing_layers);
+			spdlog::error("No required layer(s){}", list_of_missing_layers);
 			return false;
 		}
 		else {
@@ -65,7 +54,7 @@ namespace oe::vulkan {
 		}
 	}
 
-	std::vector<const char*> getRequiredExtensions(bool debugging) {
+	std::vector<const char*> oe::graphics::getRequiredExtensions(bool debugging) {
 		uint32_t glfwExtensionCount = 0;
 		const char** glfwExtensions;
 		glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -80,15 +69,15 @@ namespace oe::vulkan {
 		return extensions;
 	}
 
-	bool hasRequiredProperties(const vk::PhysicalDevice& physical_device) {
+	bool oe::graphics::hasRequiredProperties(const vk::PhysicalDevice& physical_device) {
 		return true;
 	}
 
-	bool hasRequiredFeatures(const vk::PhysicalDevice& physical_device) {
+	bool oe::graphics::hasRequiredFeatures(const vk::PhysicalDevice& physical_device) {
 		return true;
 	}
 
-	bool hasRequiredExtensions(const vk::PhysicalDevice& physical_device, const vk::SurfaceKHR& surface) {
+	bool oe::graphics::hasRequiredExtensions(const vk::PhysicalDevice& physical_device, const vk::SurfaceKHR& surface) {
 		std::vector<vk::ExtensionProperties> available_extension_properties = physical_device.enumerateDeviceExtensionProperties();
 
 		// swap chain support
@@ -111,7 +100,7 @@ namespace oe::vulkan {
 				list_of_missing_extensions.append("\n - " + extension);
 			}
 
-			errorLog("No required extension(s){}", list_of_missing_extensions);
+			oe_error_terminate("No required extension(s){}", list_of_missing_extensions);
 			return false;
 		}
 		else {
@@ -119,7 +108,7 @@ namespace oe::vulkan {
 		}
 	}
 
-	vk::SurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats) {
+	vk::SurfaceFormatKHR oe::graphics::chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats) {
 		for (const auto& availableFormat : availableFormats) {
 			// choose color format BGRA 32 bit sRGB if it is available
 			if (availableFormat.format == vk::Format::eB8G8R8A8Unorm && availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear) {
@@ -131,7 +120,7 @@ namespace oe::vulkan {
 		return availableFormats[0];
 	}
 
-	vk::PresentModeKHR chooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes) {
+	vk::PresentModeKHR oe::graphics::chooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes) {
 		return vk::PresentModeKHR::eImmediate; // no v-sync for debugging purposes
 
 		for (const auto& availablePresentMode : availablePresentModes) {
@@ -145,13 +134,13 @@ namespace oe::vulkan {
 		return vk::PresentModeKHR::eFifo;
 	}
 
-	vk::Extent2D chooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities) {
+	vk::Extent2D oe::graphics::chooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities) {
 		// kind of like viewport in opengl
 		if (capabilities.currentExtent.width != UINT32_MAX) {
 			return capabilities.currentExtent;
 		}
 		else {
-			vk::Extent2D actualExtent = { width, height };
+			vk::Extent2D actualExtent = { actualExtent.width, actualExtent.height };
 
 			// clamp extent size to capabilities.xxxImageExtent
 			actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
@@ -161,7 +150,7 @@ namespace oe::vulkan {
 		}
 	}
 
-	vk::ShaderModule createShaderModule(vk::Device logical_device, const std::vector<char>& code) {
+	vk::ShaderModule oe::graphics::createShaderModule(vk::Device logical_device, const std::vector<char>& code) {
 		// create info, basic stuff
 		vk::ShaderModuleCreateInfo createInfo = {};
 		createInfo.codeSize = code.size();
