@@ -231,19 +231,23 @@ void setup_gui() {
 }
 
 void cursor_pos(const glm::vec2& cursor_window, const glm::vec2& cursor) {
+	// spdlog::debug("cursor_window {}, cursor {}", cursor_window, cursor);
 	gui->cursor(oe::mouse_buttons::none, oe::actions::none, cursor_window);
 }
 
 void button(oe::mouse_buttons button, oe::actions action) {
+	// spdlog::debug("button {}, action {}", button, action);
 	const glm::vec2& cursor = window->getCursorWindow();
 	gui->cursor(button, action, cursor);
 }
 
 void text(uint32_t character, oe::modifiers mods) {
+	// spdlog::debug("character {}, mods {}", character, mods);
 	gui->text(character, mods);
 }
 
 void keyboard(oe::keys key, oe::actions action, oe::modifiers mods) {
+	// spdlog::debug("key {}, action {}, mods {}", key, action, mods);
 	gui->key(key, action, mods);
 }
 
@@ -284,7 +288,7 @@ int main() {
 	renderer_info.max_quad_count = 10000;
 	renderer_info.staticVBOBuffer_data = nullptr;
 	renderer = instance->createRenderer(renderer_info);
-
+	
 	// shader
 	shader = new oe::graphics::DefaultShader(instance);
 
@@ -314,6 +318,8 @@ int main() {
 	instance->destroyWindow(window);
 	instance->destroyRenderer(renderer);
 	oe::Engine::deinit();
+
+	getchar(); // check for memory leaks
 
 	return 0;
 }

@@ -62,6 +62,10 @@ namespace oe::gui {
 		m_state = new STB_TexteditState();
 	}
 
+	TextInput::~TextInput() {
+		delete (STB_TexteditState*)m_state;
+	}
+
 	void TextInput::render(oe::graphics::Renderer& renderer) {
 		// bounding box
 		renderer.submit(m_render_position, m_size, m_sprite, m_color);

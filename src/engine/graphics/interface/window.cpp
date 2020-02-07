@@ -94,7 +94,7 @@ namespace oe::graphics {
 
 	Window::~Window() 
 	{
-		glfwDestroyWindow(m_window_handle);
+
 	}
 
 

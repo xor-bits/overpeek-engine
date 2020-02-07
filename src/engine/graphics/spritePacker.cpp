@@ -45,6 +45,7 @@ namespace oe::graphics {
 			}
 		}
 		if(m_texture) m_instance->destroyTexture(m_texture);
+		delete static_cast<__usr_data*>(m_usr_data);
 	}
 
 	const Sprite* SpritePack::addSprite(oe::utils::image_data sprite_texture) {

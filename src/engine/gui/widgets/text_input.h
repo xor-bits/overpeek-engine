@@ -24,6 +24,7 @@ namespace oe::gui {
 	public:
 		// window_handle is used for clipboard
 		TextInput(oe::graphics::Window* window_handle, const glm::vec2& bounding_box_size);
+		~TextInput();
 
 		// Inherited via Widget
 		virtual void render(oe::graphics::Renderer& renderer) override;

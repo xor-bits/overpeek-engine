@@ -50,27 +50,27 @@ namespace oe::graphics {
 
 	void GLInstance::destroyWindow(graphics::Window* window) const
 	{
-		delete window;
+		delete (graphics::GLWindow*)window;
 	}
 
 	void GLInstance::destroyRenderer(graphics::Renderer* renderer) const
 	{
-		delete renderer;
+		delete (graphics::GLRenderer*)renderer;
 	}
 
 	void GLInstance::destroyShader(graphics::Shader* shader) const
 	{
-		delete shader;
+		delete (graphics::GLShader*)shader;
 	}
 
 	void GLInstance::destroyTexture(graphics::Texture* texture) const
 	{
-		delete texture;
+		delete (graphics::GLTexture*)texture;
 	}
 
 	void GLInstance::destroyFrameBuffer(graphics::FrameBuffer* framebuffer) const
 	{
-		delete framebuffer;
+		delete (graphics::GLFrameBuffer*)framebuffer;
 	}
 
 

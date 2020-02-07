@@ -44,6 +44,8 @@ namespace oe::graphics {
 		m_ibo = new IndexBuffer(ib, max_indices * sizeof(unsigned short), renderer_info.indexRenderType);
 		m_vbo = new VertexBuffer(vb, (size_t)max_vertices * (size_t)VertexData::component_count * sizeof(float), VertexData::component_count, renderer_info.arrayRenderType);
 		VertexData::configVBO(m_vbo);
+
+		delete[] ib;
 	}
 
 	GLRenderer::~GLRenderer() {

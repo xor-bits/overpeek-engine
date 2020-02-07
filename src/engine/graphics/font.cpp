@@ -35,7 +35,7 @@ namespace oe::graphics {
 		// all glyphs
 		spdlog::debug("Loading {} glyphs", 256);
 		bb_max_height = 0; bb_min_height = 0;
-		for (int i = -128; i < 128; i++) {
+		for (int i = 0; i < 128; i++) {
 			unsigned char c = i;
 
 			//Load glyph
@@ -95,6 +95,9 @@ namespace oe::graphics {
 		m_glyphs.insert(std::make_pair(' ', glyph));
 
 		bb_height = bb_max_height - bb_min_height;
+
+		FT_Done_Face(face);
+		FT_Done_FreeType(ft);
 
 		spdlog::debug("Font loaded");
 	}

@@ -137,7 +137,9 @@ namespace oe::graphics {
 
 	GLWindow::~GLWindow() 
 	{
-
+		spdlog::info("window termination");
+		glfwDestroyWindow(m_window_handle);
+		glfwTerminate();
 	}
 
 
