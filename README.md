@@ -31,8 +31,8 @@ cmake -DBUILD_TESTS=TRUE ..
 
 ### TODO
 - [ ] Vulkan
-- [ ] Texture packer - rework textures and renderer
+- [x] Texture packer - rework textures and renderer
 - [ ] Freetype -> stb_truetype
-- [x] Optimized text rendering
+- [ ] Optimized text rendering
 - [ ] ImGUI 
 - [ ] Easy to use mode
