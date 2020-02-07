@@ -1,5 +1,8 @@
 # overpeek-engine
-Engine project
+Game engine project.
+ - Windows
+ - Linux
+ - OSX, possibly (not tested)
 
 ### Cloning
 ```
