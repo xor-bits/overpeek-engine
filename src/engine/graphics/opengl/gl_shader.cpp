@@ -68,9 +68,9 @@ namespace oe::graphics {
 		for (auto& stage : shader_info.shader_stages)
 		{
 			// sources
-			const char* source = stage.source.c_str();
+			std::string source = stage.source;
 			if (stage.source_is_filepath) {
-				source = oe::utils::readFile(source).c_str();
+				source = oe::utils::readFile(source);
 			}
 
 			// stage type

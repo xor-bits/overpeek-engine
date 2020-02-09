@@ -111,7 +111,7 @@ namespace oe::graphics {
 		auto usr_data = static_cast<__usr_data*>(m_usr_data);
 
 		// pack sprites
-		const auto max_side = 1000;
+		const auto max_side = 10000;
 		const auto discard_step = 1;
 
 		auto report_successful = [](rect_type&) { return rectpack2D::callback_result::CONTINUE_PACKING; };

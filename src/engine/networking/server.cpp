@@ -23,7 +23,6 @@ namespace oe::networking {
 	}
 
 	Server::Server() {
-		enet::initEnet();
 		m_address = new ENetAddress();
 	}
 

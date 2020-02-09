@@ -50,7 +50,7 @@ namespace oe::graphics {
 				if (this_class->m_cursor_callback) this_class->m_cursor_callback(this_class->m_cursor_window, this_class->m_cursor_transformed);
 			});
 		
-		glfwSetMouseButtonCallback(m_window_handle, [](GLFWwindow* window, int button, int action, int mods)               
+		glfwSetMouseButtonCallback(m_window_handle, [](GLFWwindow* window, int button, int action, int mods)
 			{
 				Window* this_class = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
 

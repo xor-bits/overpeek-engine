@@ -10,7 +10,6 @@
 namespace oe::networking {
 
 	Client::Client() {
-		enet::initEnet();
 		m_peer = nullptr;
 		m_event = new ENetEvent();
 		m_address = new ENetAddress();

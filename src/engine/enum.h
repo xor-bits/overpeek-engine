@@ -10,39 +10,66 @@
 namespace oe {
 
 	enum class formats {
-		rgba8, rgba16, rgb8, rgb16, mono8, mono16
+		rgba8, 
+		rgba16, 
+		rgb8, 
+		rgb16,
+		mono8, 
+		mono16
 	};
 	enum class modes {
-		enable, disable, keep
+		enable, 
+		disable, 
+		keep
 	};
 	enum class depth_functions {
-		always, never, less_than, greater_than, equal, less_than_or_equal, greater_than_or_equal, disable
+		always, 
+		never, 
+		less_than,
+		greater_than,
+		equal,
+		less_than_or_equal,
+		greater_than_or_equal,
+		disable
 	};
 	enum class culling_modes {
-		neither, both, front, back
+		neither, 
+		both,
+		front,
+		back
 	};
 	enum class polygon_mode {
-		fill, lines, points
+		fill, 
+		lines, 
+		points
 	};
 
 	// render types
 	enum class types {
-		staticrender, dynamicrender
+		staticrender, 
+		dynamicrender
 	};
 
 	// shader stages
 	enum class shader_stages {
-		vertex_shader, tesselation_shader, geometry_shader, fragment_shader, compute_shader
+		vertex_shader, 
+		tesselation_shader, 
+		geometry_shader, 
+		fragment_shader, 
+		compute_shader
 	};
 
 	// supported graphics apis
 	enum class graphics_api {
-		OpenGL, Vulkan
+		OpenGL, 
+		Vulkan, 
+		None    // can't use graphics
 	};
 
 	// gpu types
 	enum class gpu {
-		integrated, dedicated
+		integrated,
+		dedicated
 	};
 
 	// modifiers
@@ -324,7 +351,7 @@ namespace oe {
 	struct EngineInfo {
 		bool audio = false;
 		bool networking = false;
-		graphics_api api = oe::graphics_api::Vulkan;
+		graphics_api api = oe::graphics_api::OpenGL;
 	};
 
 	// instance create info
