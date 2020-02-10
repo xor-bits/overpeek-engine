@@ -12,7 +12,7 @@ namespace oe::gui {
 		glm::vec2 offset_position          = { 0, 0 };
 		glm::vec2 align_parent             = oe::alignments::center_center;
 		glm::vec2 align_render             = oe::alignments::center_center;
-		glm::vec4 color                    = oe::colors::transparent;
+		glm::vec4 color                    = oe::colors::white;
 		const oe::graphics::Sprite* sprite = nullptr; // must be set
 	};
 
