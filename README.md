@@ -32,6 +32,7 @@ cmake -DBUILD_TESTS=TRUE ..
 
 
 ### TODO
+- [ ] TextInput string holding allowed characters
 - [ ] ECS controlled GUI
 - [ ] Vulkan
 - [x] Texture packer - rework textures and renderer
