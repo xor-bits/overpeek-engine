@@ -31,7 +31,7 @@ namespace oe::networking {
 		close();
 	}
 
-	int Client::connect(std::string ip, int port) {
+	int Client::connect(std::string ip, int port, uint32_t timeout) {
 		enet_address_set_host(m_address, ip.c_str());
 		m_address->port = port;
 
@@ -42,14 +42,14 @@ namespace oe::networking {
 		}
 
 		/* Wait up to 5 seconds for the connection attempt to succeed. */
-		if (enet_host_service(m_client, m_event, 5000) > 0 && m_event->type == ENET_EVENT_TYPE_CONNECT) {
+		if (enet_host_service(m_client, m_event, timeout) > 0 && m_event->type == ENET_EVENT_TYPE_CONNECT) {
 			enet_host_flush(m_client);
 			spdlog::info("connected to {}:{}", ip, port);
 			m_connected = true;
 		}
 		else {
 			enet_peer_reset(m_peer);
-			spdlog::info("failed to connect to {}:{}", ip, port);
+			spdlog::critical("failed to connect to {}:{}", ip, port);
 			m_connected = false;
 			return -1;
 		}

@@ -6,33 +6,37 @@
 
 namespace oe::gui {
 
+	typedef std::function<void(float)> slider_callback;
+
+	struct SliderInfo {
+		slider_callback callback                   = nullptr;
+		float min_value                            = -1.0f;
+		float max_value                            = 1.0f;
+		float initial_value                        = 0.0f;
+		glm::ivec2 slider_size                     = { 50, 50 };
+		glm::ivec2 knob_size                       = { 50, 50 };
+		glm::vec4 knob_color                       = oe::colors::grey;
+		glm::vec4 slider_color                     = oe::colors::dark_grey;
+		const oe::graphics::Sprite* knob_sprite    = nullptr; // must be set
+		const oe::graphics::Sprite* slider_sprite  = nullptr; // must be set
+		glm::vec2 offset_position                  = { 0, 0 };
+		glm::vec2 align_parent                     = oe::alignments::center_center;
+		glm::vec2 align_render                     = oe::alignments::center_center;
+	};
+
 	class Slider : public Widget {
 	private:
-		void(*m_callback)(float val);
-		float m_min;
-		float m_max;
-		float m_value;
 		bool m_dragging;
-		glm::vec4 m_slider_color;
-		glm::vec4 m_bg_color;
-		glm::vec2 m_slider_size;
-
-		const oe::graphics::Sprite* m_sprite;
 
 	public:
-		Slider(glm::ivec2 size);
+		SliderInfo slider_info;
+
+	public:
+		Slider(const SliderInfo& slider_info);
 
 		// Inherited via Widget
 		virtual void render(oe::graphics::Renderer& renderer) override;
 		virtual void cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) override;
-
-		inline void setCallback(void(*callback)(float value)) { m_callback = callback; }
-		inline glm::vec4& sliderColor() { return m_slider_color; }
-		inline glm::vec4& bgColor() { return m_bg_color; }
-		inline glm::vec2& sliderSize() { return m_slider_size; }
-		inline void setSprite(const oe::graphics::Sprite* sprite) { m_sprite = sprite; }
-		inline float& min() { return m_min; }
-		inline float& max() { return m_max; }
 	};
 
 }

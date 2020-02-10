@@ -4,15 +4,15 @@
 
 namespace oe::gui {
 	
-	Widget::Widget(glm::ivec2 size) : 
-		m_size(size), 
-		m_offset_position({ 0, 0 }),
-		m_render_position({ 0, 0 }),
-		m_topleft_position({ 0, 0 }),
-		m_nodes(std::vector<Widget*>()), 
-		m_parent(nullptr), 
-		m_align_parent(oe::alignments::top_left),
-		m_align_render(oe::alignments::top_left)
+	Widget::Widget(const glm::vec2& _size, const glm::vec2& _align_parent, const glm::vec2& _align_render, const glm::vec2& _offset_position)
+		: size(_size)
+		, align_parent(_align_parent)
+		, align_render(_align_render)
+		, offset_position(_offset_position)
+		, render_position({ 0, 0 })
+		, topleft_position({ 0, 0 })
+		, m_nodes(std::vector<Widget*>()) 
+		, m_parent(nullptr)
 	{
 
 	}
@@ -42,8 +42,8 @@ namespace oe::gui {
 	}
 
 	void Widget::__resize() {
-		if (m_parent) m_render_position = m_offset_position + m_parent->m_render_position + oe::alignmentOffset(m_parent->m_size, m_align_parent) - oe::alignmentOffset(m_size, m_align_render);
-		else m_render_position = m_offset_position - oe::alignmentOffset(m_size, m_align_render);
+		if (m_parent) render_position = offset_position + m_parent->render_position + oe::alignmentOffset(m_parent->size, align_parent) - oe::alignmentOffset(size, align_render);
+		else render_position = offset_position - oe::alignmentOffset(size, align_render);
 		resize();
 
 		for (auto& w : m_nodes) {

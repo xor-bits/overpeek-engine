@@ -9,25 +9,44 @@
 
 namespace oe::gui {
 
-	DecoratedButton::DecoratedButton(glm::ivec2 size, const oe::graphics::Sprite* sprite, std::string text) :
-		Button::Button(size)
+	DecoratedButton::DecoratedButton(const DecoratedButtonInfo& _button_info)
+		: Widget(_button_info.size, _button_info.align_parent, _button_info.align_render, _button_info.offset_position)
+		, button_info(_button_info)
 	{
-		auto button_background = new oe::gui::SpritePanel(size);
-		button_background->align_parent() = oe::alignments::center_center;
-		button_background->align_render() = oe::alignments::center_center;
-		button_background->setSprite(sprite);
-		button_background->color() = oe::colors::grey;
-		addSubWidget(button_background);
+		ButtonInfo b_info = {};
+		b_info.size = _button_info.size;
+		b_info.align_parent = oe::alignments::center_center;
+		b_info.align_render = oe::alignments::center_center;
+		b_info.callback = _button_info.callback;
+		button = new Button(b_info);
+		addSubWidget(button);
 
-		auto button_text = new oe::gui::TextPanel(size.y * 0.8f);
-		button_text->align_parent() = oe::alignments::center_center;
-		button_text->align_render() = oe::alignments::center_center;
-		button_text->string() = text;
+		SpritePanelInfo sp_info = {};
+		sp_info.size = _button_info.size;
+		sp_info.align_parent = oe::alignments::center_center;
+		sp_info.align_render = oe::alignments::center_center;
+		sp_info.sprite = _button_info.sprite;
+		sp_info.color = _button_info.color;
+		button_background = new oe::gui::SpritePanel(sp_info);
+		button->addSubWidget(button_background);
+
+		TextPanelInfo tp_info = {};
+		tp_info.font_size = _button_info.size.y * 0.8f;
+		tp_info.text = _button_info.text;
+		tp_info.align_parent = oe::alignments::center_center;
+		tp_info.align_render = oe::alignments::center_center;
+		button_text = new oe::gui::TextPanel(tp_info);
 		button_background->addSubWidget(button_text);
 	}
 
+	DecoratedButton::~DecoratedButton() {
+		// delete button_background;
+		// delete button_text;
+		// delete button;
+	}
+
 	void DecoratedButton::render(oe::graphics::Renderer& renderer) {
-		Button::render(renderer);
+
 	}
 
 }

@@ -274,8 +274,11 @@ namespace oe {
 
 	// some predefined colors
 	struct colors {
+		static constexpr glm::vec4 transparent = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
 		static constexpr glm::vec4 white = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		static constexpr glm::vec4 light_grey = glm::vec4(0.75f, 0.75f, 0.75f, 1.0f);
 		static constexpr glm::vec4 grey = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+		static constexpr glm::vec4 dark_grey = glm::vec4(0.25f, 0.25f, 0.25f, 1.0f);
 		static constexpr glm::vec4 black = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 		static constexpr glm::vec4 red = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
 		static constexpr glm::vec4 green = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);

@@ -47,7 +47,7 @@ namespace oe::graphics {
 				y = oe::utils::map((double)y, (double)0.0, (double)this_class->m_window_info.size.y, (double)-1.0, (double)1.0);
 				this_class->m_cursor_transformed = { x, y };
 
-				if (this_class->m_cursor_callback) this_class->m_cursor_callback(this_class->m_cursor_window, this_class->m_cursor_transformed);
+				if (this_class->m_cursor_callback) this_class->m_cursor_callback(this_class->m_cursor_transformed, this_class->m_cursor_window);
 			});
 		
 		glfwSetMouseButtonCallback(m_window_handle, [](GLFWwindow* window, int button, int action, int mods)

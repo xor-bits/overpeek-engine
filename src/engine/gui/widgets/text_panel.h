@@ -6,21 +6,24 @@
 
 namespace oe::gui {
 
+	struct TextPanelInfo {
+		std::string text           = "";
+		int font_size              = 16;
+		glm::vec4 background_color = oe::colors::transparent;
+		glm::vec2 offset_position  = { 0, 0 };
+		glm::vec2 align_parent     = oe::alignments::center_center;
+		glm::vec2 align_render     = oe::alignments::center_center;
+	};
+
 	class TextPanel : public Widget {
-	private:
-		std::string m_string;
-		// baked text label
-		glm::vec4 m_bg_color;
-		int m_font_size;
+	public:
+		TextPanelInfo text_panel_info;
 
 	public:
-		TextPanel(int font_size);
+		TextPanel(const TextPanelInfo& text_panel_info);
 
 		// Inherited via Widget
 		virtual void render(oe::graphics::Renderer& renderer) override;
-
-		inline std::string& string() { return m_string; };
-		inline glm::vec4& bg_color() { return m_bg_color; };
 	};
 
 }

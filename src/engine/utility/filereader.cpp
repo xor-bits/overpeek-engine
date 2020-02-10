@@ -23,6 +23,10 @@
 std::string oe::utils::readFile(fs::path path)
 {
 	std::ifstream input_file_stream = std::ifstream(path);
+	if (!input_file_stream.is_open()) {
+		oe_error_terminate("Failed to load imagefile \"{}\"", std::string(path.string().c_str()));
+	}
+
 	std::stringstream buffer;
 	buffer << input_file_stream.rdbuf();
 	return buffer.str();

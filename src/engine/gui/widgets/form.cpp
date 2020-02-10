@@ -4,15 +4,17 @@
 
 namespace oe::gui {
 
-	Form::Form(glm::ivec2 size) : 
-		Widget::Widget(size),
-		m_color(0.0f, 0.0f, 0.0f, 0.2f)
-	{}
+	Form::Form(const FormInfo& _form_info) 
+		: Widget::Widget(_form_info.size, _form_info.align_parent, _form_info.align_render, _form_info.offset_position)
+		, form_info(_form_info)
+	{
+	
+	}
 
 	void Form::render(oe::graphics::Renderer& renderer) {
-#if _DEBUG
-		renderer.submit(m_render_position, m_size, 0, m_color);
-#endif // _DEBUG
+		if (form_info.color != oe::colors::transparent) {
+			renderer.submit(render_position, size, 0, form_info.color);
+		}
 	}
 
 }

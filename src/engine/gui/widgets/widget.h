@@ -12,13 +12,13 @@ namespace oe::gui {
 		Widget* m_parent;
 		std::vector<Widget*> m_nodes;
 		
-	protected:
-		glm::vec2 m_align_parent;
-		glm::vec2 m_align_render;
-		glm::vec2 m_offset_position;
-		glm::vec2 m_topleft_position;
-		glm::vec2 m_render_position;
-		glm::vec2 m_size;
+	public:
+		glm::vec2 size;
+		glm::vec2 offset_position;
+		glm::vec2 topleft_position;
+		glm::vec2 render_position;
+		glm::vec2 align_parent = oe::alignments::center_center;
+		glm::vec2 align_render = oe::alignments::center_center;
 
 	public:
 		// called from manager || __renderNodes
@@ -31,7 +31,7 @@ namespace oe::gui {
 		void __setParent(Widget* parent);
 
 	public:
-		Widget(glm::ivec2 size);
+		Widget(const glm::vec2& size, const glm::vec2& align_parent, const glm::vec2& align_render, const glm::vec2& offset_position);
 		~Widget();
 
 		virtual void addSubWidget(Widget* widget);
@@ -41,12 +41,6 @@ namespace oe::gui {
 		virtual void text(uint32_t codepoint, oe::modifiers mods) {}
 		virtual void key(oe::keys key, oe::actions action, oe::modifiers mods) {}
 
-	public:
-		glm::vec2& align_parent() { return m_align_parent; }
-		glm::vec2& align_render() { return m_align_render; }
-		glm::vec2& offset_position() { return m_offset_position; }
-		glm::vec2& render_position() { return m_render_position; }
-		glm::vec2& size() { return m_size; }
 	};
 
 }

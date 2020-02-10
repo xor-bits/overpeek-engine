@@ -29,8 +29,10 @@ namespace oe::gui {
 		// shader
 		m_shader = new oe::graphics::DefaultShader(instance);
 
-		auto form = new oe::gui::Form(m_window->getSize() - glm::vec2(2 * border));
-		form->size() = { border, border };
+		FormInfo form_info = {};
+		form_info.size = m_window->getSize() - glm::vec2(2 * border);
+		form_info.offset_position = { border, border };
+		auto form = new oe::gui::Form(form_info);
 		m_main_frame = std::unique_ptr<Form>(form);
 		resize();
 	}
@@ -41,6 +43,12 @@ namespace oe::gui {
 	}
 
 	void GUI::render() {
+		static int cooldown = 0;
+		if ((++cooldown) % 60 == 0) {
+			cooldown = 0;
+			resize();
+		}
+
 		m_renderer->begin();
 		m_renderer->clear();
 
@@ -56,8 +64,8 @@ namespace oe::gui {
 	}
 
 	void GUI::resize(const glm::vec2& window_size) {
-		m_main_frame->size() = window_size - glm::vec2(2 * border);
-		m_main_frame->offset_position() = { border, border };
+		m_main_frame->size = window_size - glm::vec2(2 * border);
+		m_main_frame->offset_position = { border, border };
 		m_main_frame->__resize();
 
 		/*

@@ -35,7 +35,8 @@ namespace oe::networking {
 		Client();
 		~Client();
 
-		int connect(std::string ip, int port);
+		// timeout in milliseconds
+		int connect(std::string ip, int port, uint32_t timeout = 3000);
 		int disconnect();
 		int close();
 		int send(const unsigned char* bytes, size_t count);

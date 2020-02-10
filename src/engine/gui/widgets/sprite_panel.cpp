@@ -9,16 +9,17 @@
 
 namespace oe::gui {
 
-	SpritePanel::SpritePanel(glm::ivec2 size) :
-		Widget::Widget(size),
-		m_color(_DEFAULT_COLOR),
-		m_sprite(nullptr)
-	{}
+	SpritePanel::SpritePanel(const SpritePanelInfo& _sprite_panel_info)
+		: Widget::Widget(_sprite_panel_info.size, _sprite_panel_info.align_parent, _sprite_panel_info.align_render, _sprite_panel_info.offset_position)
+		, sprite_panel_info(_sprite_panel_info)
+	{
+	
+	}
 
 	void SpritePanel::render(oe::graphics::Renderer& renderer) {
-		if (!m_sprite) oe_error_terminate("No sprite for SpritePanel");
+		if (!sprite_panel_info.sprite) spdlog::warn("No sprite for SpritePanel");
 
-		renderer.submit(m_render_position, m_size, m_sprite, m_color);
+		renderer.submit(render_position, size, sprite_panel_info.sprite, sprite_panel_info.color);
 	}
 
 }

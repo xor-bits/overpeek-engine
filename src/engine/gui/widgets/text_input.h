@@ -6,24 +6,33 @@
 
 namespace oe::gui {
 
+	typedef std::function<void(const std::string & string)> text_callback;
+
+	struct TextInputInfo {
+		text_callback callback_changed        = nullptr;
+		text_callback callback_newline        = nullptr;
+		glm::ivec2 size                       = { 100, 100 };
+		glm::vec2 offset_position             = { 0, 0 };
+		glm::vec2 align_parent                = oe::alignments::center_center;
+		glm::vec2 align_render                = oe::alignments::center_center;
+		std::string text                      = "";
+		int font_size                         = 16;
+		glm::vec4 color                       = oe::colors::dark_grey;
+		const oe::graphics::Sprite* sprite    = nullptr; // must be set
+		oe::graphics::Window* window_handle = nullptr; // must be set
+	};
+
 	class TextInput : public Widget {
+	public:
+		TextInputInfo text_input_info;
+	
 	private:
-		std::string m_string;
-		// baked text label
-		glm::vec4 m_color;
 		void* m_state;
 		bool m_selected;
-		oe::graphics::Window* m_window_handle;
-		const oe::graphics::Sprite* m_sprite;
-
-		void(*m_callback_changed)(std::string& string);
-		void(*m_callback_newline)(std::string& string);
-
-		int m_font_size;
 
 	public:
 		// window_handle is used for clipboard
-		TextInput(oe::graphics::Window* window_handle, const glm::vec2& bounding_box_size);
+		TextInput(const TextInputInfo& text_input_info);
 		~TextInput();
 
 		// Inherited via Widget
@@ -31,14 +40,6 @@ namespace oe::gui {
 		virtual void text(uint32_t codepoint, oe::modifiers mods) override;
 		virtual void key(oe::keys key, oe::actions action, oe::modifiers mods) override;
 		virtual void cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) override;
-
-		inline std::string& string() { return m_string; };
-		inline glm::vec4& color() { return m_color; };
-		inline int& font_size() { return m_font_size; };
-		inline void setSprite(const oe::graphics::Sprite* sprite) { m_sprite = sprite; }
-
-		inline void setChangeCallback(void(*callback_changed)(std::string& string)) { m_callback_changed = callback_changed; }
-		inline void setNewlineCallback(void(*callback_newline)(std::string& string)) { m_callback_newline = callback_newline; }
 	};
 
 }
