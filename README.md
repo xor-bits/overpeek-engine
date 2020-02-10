@@ -17,8 +17,6 @@ cmake -DBUILD_TESTS=TRUE ..
 ```
 
 #### Depends:
-- Freetype
-- GLFW3
 - OpenGL
 - OpenAL
 
