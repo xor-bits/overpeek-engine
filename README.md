@@ -17,6 +17,7 @@ cmake -DBUILD_TESTS=TRUE ..
 ```
 
 #### Depends:
+- Vulkan
 - OpenGL
 - OpenAL
 
