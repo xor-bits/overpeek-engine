@@ -32,9 +32,10 @@ cmake -DBUILD_TESTS=TRUE ..
 
 
 ### TODO
+- [ ] ECS controlled GUI
 - [ ] Vulkan
 - [x] Texture packer - rework textures and renderer
 - [ ] Freetype -> stb_truetype
-- [ ] Optimized text rendering
+- [ ] Optimized text rendering (draw text to framebuffer)
 - [ ] ImGUI 
 - [ ] Easy to use mode
