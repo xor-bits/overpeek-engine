@@ -90,6 +90,15 @@ namespace oe::graphics {
 		m_window_info = window_config;
 		m_window_info.size.y = std::max(m_window_info.size.y, 1.0f);
 		m_aspect_ratio = m_window_info.size.x / m_window_info.size.y;
+
+		for (size_t i = 0; i < M_NUM_KEYS; i++)
+		{
+			m_keys[i] = false;
+		}
+		for (size_t i = 0; i < M_NUM_BUTTONS; i++)
+		{
+			m_buttons[i] = false;
+		}
 	}
 
 	Window::~Window() 

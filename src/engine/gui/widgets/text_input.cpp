@@ -54,6 +54,7 @@ namespace oe::gui {
 		, m_selected(false)
 	{
 		m_state = new STB_TexteditState();
+		static_cast<STB_TexteditState*>(m_state)->cursor = _text_input_info.text.size();
 	}
 
 	TextInput::~TextInput() {
@@ -65,19 +66,21 @@ namespace oe::gui {
 		renderer.submit(render_position, size, text_input_info.sprite, text_input_info.color);
 
 		// text
-		oe::graphics::Text::submit(renderer, "<#000000>" + text_input_info.text, render_position, glm::vec2(text_input_info.font_size), oe::alignments::top_left);
+		glm::vec2 text_size = glm::vec2(text_input_info.font_size);
+		oe::graphics::Text::submit(renderer, "<#000000>" + text_input_info.text, render_position + oe::alignmentOffset(text_input_info.size, text_input_info.align_text), text_size, text_input_info.align_text);
 
 		// vertical bar
 		if (!m_selected) return;
-		float input_x_bar = oe::graphics::Text::width(text_input_info.text.substr(0, reinterpret_cast<STB_TexteditState*>(m_state)->cursor), glm::vec2(text_input_info.font_size));
+		float input_x_size = oe::graphics::Text::width(text_input_info.text, glm::vec2(text_input_info.font_size));
+		float input_x_bar = oe::graphics::Text::width(text_input_info.text.substr(0, reinterpret_cast<STB_TexteditState*>(m_state)->cursor), glm::vec2(text_input_info.font_size)) - input_x_size * text_input_info.align_text.x;
 		if (timer_key_pressed > oe::utils::Clock::getSessionMillisecond()) {
-			oe::graphics::Text::submit(renderer, "<#000000>|", render_position + glm::vec2(input_x_bar, 0.0f), glm::vec2(text_input_info.font_size), oe::alignments::top_left);
+			oe::graphics::Text::submit(renderer, "<#000000>|", render_position + oe::alignmentOffset(text_input_info.size, text_input_info.align_text) + glm::vec2(input_x_bar, 0.0f), text_size, text_input_info.align_text);
 			return;
 		}
 		else {
 			float time = oe::utils::Clock::getSessionMillisecond();
 			if ((int)floor(time) % 2000 > 1000)
-				oe::graphics::Text::submit(renderer, "<#000000>|", render_position + glm::vec2(input_x_bar, 0.0f), glm::vec2(text_input_info.font_size), oe::alignments::top_left);
+				oe::graphics::Text::submit(renderer, "<#000000>|", render_position + oe::alignmentOffset(text_input_info.size, text_input_info.align_text) + glm::vec2(input_x_bar, 0.0f), glm::vec2(text_input_info.font_size), text_input_info.align_text);
 			return;
 		}
 	}

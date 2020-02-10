@@ -6,6 +6,7 @@
 
 namespace oe::gui {
 
+#define TEXT_CALLBACK_WRAPPER(x) [&](const std::string & string) { x(string); }
 	typedef std::function<void(const std::string & string)> text_callback;
 
 	struct TextInputInfo {
@@ -15,6 +16,7 @@ namespace oe::gui {
 		glm::vec2 offset_position             = { 0, 0 };
 		glm::vec2 align_parent                = oe::alignments::center_center;
 		glm::vec2 align_render                = oe::alignments::center_center;
+		glm::vec2 align_text                  = oe::alignments::center_center;
 		std::string text                      = "";
 		int font_size                         = 16;
 		glm::vec4 color                       = oe::colors::dark_grey;
