@@ -1,5 +1,5 @@
 # overpeek-engine
-Game engine project.
+Minimal game engine/framework
  - Windows
  - Linux
  - OSX, possibly (not tested)
