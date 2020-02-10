@@ -8,9 +8,9 @@ using namespace std::chrono;
 
 namespace oe::utils {
 
-	long long Clock::m_start_time = getMicroseconds();
+	size_t Clock::m_start_time = getMicroseconds();
 
-	long long Clock::getMicroseconds() {
+	size_t Clock::getMicroseconds() {
 		auto now = system_clock::now();
 		auto now_ns = time_point_cast<microseconds>(now);
 		auto epoch = now_ns.time_since_epoch();
@@ -18,7 +18,7 @@ namespace oe::utils {
 		return value.count();
 	}
 
-	int Clock::getTimeAfterStart() {
+	size_t Clock::getTimeAfterStart() {
 		return getMicroseconds() - m_start_time;
 	}
 

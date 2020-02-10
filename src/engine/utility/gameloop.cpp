@@ -8,24 +8,24 @@ namespace oe::utils {
 	void(*GameLoop::p_callback_render)(float update_fraction) = nullptr;
 	void(*GameLoop::p_callback_update)() = nullptr;
 
-	int GameLoop::p_fps = 0, GameLoop::p_ups = 0;
-	int GameLoop::p_microsec_frame = 0, GameLoop::p_microsec_update = 0;
+	uint32_t GameLoop::p_fps = 0, GameLoop::p_ups = 0;
+	uint32_t GameLoop::p_microsec_frame = 0, GameLoop::p_microsec_update = 0;
 
-	long long update_start = 0;
-	long long update_previous = 0;
-	long long update_lag = 0;
+	size_t update_start = 0;
+	size_t update_previous = 0;
+	size_t update_lag = 0;
 
-	long long frame_lastTime = 0;
-	long long frame_startTime = 0;
+	size_t frame_lastTime = 0;
+	size_t frame_startTime = 0;
 
-	long long counter = 0;
+	size_t counter = 0;
 
-	int frames = 0, updates = 0;
+	uint32_t frames = 0, updates = 0;
 
-	long long ups_cap = 0;
+	size_t ups_cap = 0;
 	bool should_run = false;
 
-	void GameLoop::init(void(*callbackRender)(float update_fraction), void(*callbackUpdate)(), unsigned int updates_per_second) {
+	void GameLoop::init(void(*callbackRender)(float update_fraction), void(*callbackUpdate)(), uint32_t updates_per_second) {
 		ups_cap = 1000000 / updates_per_second;
 		p_callback_render = callbackRender;
 		p_callback_update = callbackUpdate;

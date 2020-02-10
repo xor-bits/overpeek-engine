@@ -1,13 +1,17 @@
 #pragma once
 
+#include <cstdint>
+
+
+
 namespace oe::utils {
 
 	class Clock {
 	private:
-		static long long m_start_time;
+		static size_t m_start_time;
 	public:
-		static long long getMicroseconds();
-		static int getTimeAfterStart();
+		static size_t getMicroseconds();
+		static size_t getTimeAfterStart();
 
 		static float getSessionMillisecond();
 	};
