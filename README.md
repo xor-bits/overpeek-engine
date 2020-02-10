@@ -32,6 +32,7 @@ cmake -DBUILD_TESTS=TRUE ..
 
 
 ### TODO
+- [ ] ECS controlled GUI
 - [ ] Vulkan
 - [x] Texture packer - rework textures and renderer
 - [ ] Freetype -> stb_truetype
