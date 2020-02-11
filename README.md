@@ -13,7 +13,17 @@ git clone --recursive https://github.com/Overpeek/overpeek-engine.git
 ```
 mkdir build
 cd build
+cmake ..
+```
+```
+mkdir build
+cd build
 cmake -DBUILD_TESTS=TRUE ..
+```
+```
+mkdir build
+cd build
+cmake -DBUILD_TESTS=TRUE -DBUILD_VULKAN=TRUE ..
 ```
 
 #### Depends:
