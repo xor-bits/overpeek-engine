@@ -1,6 +1,7 @@
-#include "engine.h"
+#include "engine.hpp"
 
-#include "graphics/opengl/gl_instance.h"
+#include "graphics/opengl/gl_instance.hpp"
+#include "graphics/vulkan/vk_instance.hpp"
 
 
 
@@ -51,7 +52,7 @@ namespace oe {
 
 	graphics::Instance* Engine::createInstance(const InstanceInfo& instance_config) {
 		if (engine_info.api == oe::graphics_api::Vulkan) {
-			// Vulkan instance
+			return new oe::graphics::VKInstance(instance_config);
 		}
 		else {
 			return new oe::graphics::GLInstance(instance_config);

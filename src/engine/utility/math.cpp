@@ -1,6 +1,6 @@
-#include "math.h"
+#include "math.hpp"
 
-#include "random.h"
+#include "random.hpp"
 
 
 

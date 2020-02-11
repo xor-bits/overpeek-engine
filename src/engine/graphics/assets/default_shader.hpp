@@ -1,7 +1,7 @@
 #pragma once
 
-#include "engine/graphics/interface/shader.h"
-#include "engine/graphics/interface/instance.h"
+#include "engine/graphics/interface/shader.hpp"
+#include "engine/graphics/interface/instance.hpp"
 
 
 

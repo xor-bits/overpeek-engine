@@ -1,6 +1,6 @@
-#include "gameloop.h"
+#include "gameloop.hpp"
 
-#include "clock.h"
+#include "clock.hpp"
 
 
 

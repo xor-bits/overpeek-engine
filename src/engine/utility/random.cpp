@@ -1,4 +1,4 @@
-#include "random.h"
+#include "random.hpp"
 
 #include <cstdlib>
 #include <ctime>

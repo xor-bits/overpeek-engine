@@ -1,10 +1,10 @@
-#include "instance.h"
+#include "instance.hpp"
 
-#include "engine/graphics/interface/window.h"
-#include "engine/graphics/interface/renderer.h"
-#include "engine/graphics/interface/shader.h"
-#include "engine/graphics/interface/texture.h"
-#include "engine/graphics/interface/framebuffer.h"
+#include "engine/graphics/interface/window.hpp"
+#include "engine/graphics/interface/renderer.hpp"
+#include "engine/graphics/interface/shader.hpp"
+#include "engine/graphics/interface/texture.hpp"
+#include "engine/graphics/interface/framebuffer.hpp"
 
 
 

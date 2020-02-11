@@ -1,12 +1,12 @@
-#include "gl_shader.h"
+#include "gl_shader.hpp"
 
 #include <iostream>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "engine/utility/filereader.h"
-#include "engine/engine.h"
+#include "engine/utility/filereader.hpp"
+#include "engine/engine.hpp"
 
 
 

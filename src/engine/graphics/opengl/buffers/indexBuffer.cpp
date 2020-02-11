@@ -1,6 +1,6 @@
-#include "indexBuffer.h"
+#include "indexBuffer.hpp"
 
-#include "../gl_renderer.h"
+#include "../gl_renderer.hpp"
 
 #include <glad/glad.h>
 

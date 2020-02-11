@@ -1,5 +1,5 @@
-#include "sprite_panel.h"
-#include "engine/engine.h"
+#include "sprite_panel.hpp"
+#include "engine/engine.hpp"
 
 
 

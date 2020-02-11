@@ -1,11 +1,11 @@
-#include "font.h"
+#include "font.hpp"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <freetype/ftstroke.h>
 
-#include "engine/internal_libs.h"
-#include "engine/engine.h"
+#include "engine/internal_libs.hpp"
+#include "engine/engine.hpp"
 
 
 
