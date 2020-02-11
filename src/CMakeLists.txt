@@ -37,7 +37,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/MP") # multicor
 target_link_libraries(${PROJECT_NAME} PRIVATE "Ws2_32") # required by enet
 target_link_libraries(${PROJECT_NAME} PRIVATE "Winmm")  # required by enet
 else()
-target_link_libraries(${ProjectId} PRIVATE "stdc++fs")
+target_link_libraries(${PROJECT_NAME} PRIVATE "stdc++fs")
 endif()
 
 
