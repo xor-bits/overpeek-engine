@@ -1,8 +1,8 @@
 #pragma once
 
-#include "button.hpp"
-#include "text_panel.hpp"
-#include "sprite_panel.hpp"
+#include "button.h"
+#include "text_panel.h"
+#include "sprite_panel.h"
 
 
 

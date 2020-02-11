@@ -1,9 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
-
-
 namespace oe::utils {
 
 	class Clock {
