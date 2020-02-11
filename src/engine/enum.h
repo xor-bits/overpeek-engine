@@ -62,7 +62,7 @@ namespace oe {
 	// supported graphics apis
 	enum class graphics_api {
 		OpenGL, 
-		Vulkan, 
+		Vulkan, // lacks implementation
 		None    // can't use graphics
 	};
 
