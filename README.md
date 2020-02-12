@@ -35,6 +35,7 @@ cmake -DBUILD_TESTS=TRUE -DBUILD_VULKAN=TRUE ..
 - Window creation (glfw) 
 - Audio (OpenAL) 
 - Rendering (OpenGL)
+    - Sprite rendering
     - Text rendering (Freetype) (basic) 
     - GUI (basic)
 - Networking (basic)
