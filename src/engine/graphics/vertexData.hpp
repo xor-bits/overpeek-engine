@@ -43,12 +43,6 @@ namespace oe::graphics {
 		VertexData(glm::fvec2 position, glm::fvec2 uv, glm::fvec4 color)
 			: VertexData_internal(position, uv, color)
 		{}
-
-		static void configVBO(VertexBuffer *vbo) {
-			vbo->attrib(0, 3, pos_offset);
-			vbo->attrib(1, 2, uv_offset);
-			vbo->attrib(2, 4, col_offset);
-		}
 	};
 
 }

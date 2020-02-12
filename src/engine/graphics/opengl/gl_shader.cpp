@@ -58,8 +58,8 @@ namespace oe::graphics {
 
 
 
-	GLShader::GLShader(const Instance* instance, const ShaderInfo& shader_info)
-		: Shader::Shader(instance, shader_info) 
+	GLShader::GLShader(const ShaderInfo& shader_info)
+		: Shader::Shader(shader_info) 
 	{
 		// Shader program
 		p_shader_program = glCreateProgram();

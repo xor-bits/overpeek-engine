@@ -9,13 +9,13 @@ namespace oe::graphics {
 
 	class DefaultShader {
 	private:
-		const Instance* m_instance;
+		const Window* m_window;
 	
 	public:
 		Shader *shader; // inheritance not possible
 
 	public:
-		DefaultShader(const Instance* instance);
+		DefaultShader(const Window* instance);
 		~DefaultShader();
 
 		inline void bind() { shader->bind(); }

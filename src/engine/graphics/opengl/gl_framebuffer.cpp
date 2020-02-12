@@ -8,8 +8,8 @@
 
 namespace oe::graphics {
 
-	GLFrameBuffer::GLFrameBuffer(const Instance* instance, const FrameBufferInfo& framebuffer_info)
-		: FrameBuffer(instance, framebuffer_info) 
+	GLFrameBuffer::GLFrameBuffer(const FrameBufferInfo& framebuffer_info)
+		: FrameBuffer(framebuffer_info) 
 	{
 		glGenFramebuffers(1, &m_id);
 		bind();
@@ -19,7 +19,7 @@ namespace oe::graphics {
 		texture_info.empty = true;
 		texture_info.width = framebuffer_info.width;
 		texture_info.height = framebuffer_info.height;
-		m_texture = new oe::graphics::GLTexture(instance, texture_info);
+		m_texture = new oe::graphics::GLTexture(texture_info);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture->getGLTexture(), 0);
 
 		// Render buffer object

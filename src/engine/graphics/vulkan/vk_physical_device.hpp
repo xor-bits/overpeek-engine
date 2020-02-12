@@ -1,6 +1,5 @@
 #pragma once
 
-#include "vk_window.hpp"
 #include "vk_instance.hpp"
 
 #include <vulkan/vulkan.hpp>
@@ -25,16 +24,16 @@ namespace oe::graphics {
 		vk::PhysicalDeviceProperties m_physical_device_properties;
 
 		const VKInstance* m_instance;
-		const vk::SurfaceKHR& m_surface;
+		const vk::SurfaceKHR* m_surface;
 
 	public:
-		PhysicalDevice(const VKInstance* instance, const vk::SurfaceKHR& surface);
+		PhysicalDevice(const VKInstance* instance, const vk::SurfaceKHR* surface);
 		~PhysicalDevice();
 
 		QueueFamilyIndices findQueueFamilies() const;
 
 	private:
-		static QueueFamilyIndices findQueueFamilies(vk::PhysicalDevice device, const vk::SurfaceKHR& window);
+		static QueueFamilyIndices findQueueFamilies(vk::PhysicalDevice device, const vk::SurfaceKHR* surface);
 		bool isDeviceSuitable(vk::PhysicalDevice device);
 		int rateDeviceSuitability(vk::PhysicalDevice device);
 		vk::PhysicalDevice bestPhysicalDevice(const std::vector<vk::PhysicalDevice>& devices);

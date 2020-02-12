@@ -49,8 +49,8 @@ namespace oe::graphics {
 			}
 		)shader";
 
-	DefaultShader::DefaultShader(const Instance* instance)
-		: m_instance(instance) {
+	DefaultShader::DefaultShader(const Window* window)
+		: m_window(window) {
 		ShaderStageInfo vertex = {};
 		vertex.source_is_filepath = false;
 		vertex.source = vertsource;
@@ -62,17 +62,17 @@ namespace oe::graphics {
 		fragment.stage = oe::shader_stages::fragment_shader;
 
 		ShaderInfo info = {};
-		info.name = "Asset:SingleTextureShader";
+		info.name = "Asset:SpriteShader";
 		info.shader_stages = {
 			vertex, fragment
 		};
 
-		shader = m_instance->createShader(info);
+		shader = m_window->createShader(info);
 	}
 
 	DefaultShader::~DefaultShader()
 	{
-		m_instance->destroyShader(shader);
+		m_window->destroyShader(shader);
 	}
 
 }

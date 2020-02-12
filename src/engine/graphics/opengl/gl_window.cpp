@@ -63,16 +63,9 @@ void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum seve
 	oe_error_terminate("OpenGL error");
 }
 
-void glfwError(int id, const char* description) {
-	oe_error_terminate("GLFW ({}): {}", id, description);
-}
-
 namespace oe::graphics {
 
 	void GLWindow::glfw(const Instance* instance) {
-		glfwSetErrorCallback(glfwError);
-		if (!glfwInit()) oe_error_terminate("Failed to initialize GLFW!");
-
 		// Window hints
 		glfwWindowHint(GLFW_SAMPLES, m_window_info.multisamples);
 		glfwWindowHint(GLFW_RESIZABLE, m_window_info.resizeable);
@@ -159,6 +152,70 @@ namespace oe::graphics {
 	void GLWindow::swapInterval(uint8_t frames) 
 	{
 		glfwSwapInterval(frames);
+	}
+
+
+
+	Renderer* GLWindow::createRenderer(const RendererInfo& renderer_info) const
+	{
+		return new GLRenderer(renderer_info);
+	}
+
+	Shader* GLWindow::createShader(const ShaderInfo& shader_info) const
+	{
+		return new GLShader(shader_info);
+	}
+
+	Texture* GLWindow::createTexture(const TextureInfo& texture_info) const
+	{
+		return new GLTexture(texture_info);
+	}
+
+	FrameBuffer* GLWindow::createFrameBuffer(const FrameBufferInfo& framebuffer_info) const
+	{
+		return new GLFrameBuffer(framebuffer_info);
+	}
+
+	void GLWindow::destroyRenderer(graphics::Renderer* renderer) const
+	{
+		delete (GLRenderer*)renderer;
+	}
+
+	void GLWindow::destroyShader(graphics::Shader* shader) const
+	{
+		delete (GLShader*)shader;
+	}
+
+	void GLWindow::destroyTexture(graphics::Texture* texture) const
+	{
+		delete (GLTexture*)texture;
+	}
+
+	void GLWindow::destroyFrameBuffer(graphics::FrameBuffer* framebuffer) const
+	{
+		delete (graphics::GLFrameBuffer*)framebuffer;
+	}
+
+
+
+	std::string GLWindow::getAPI() const
+	{
+		return "OpenGL";
+	}
+
+	std::string GLWindow::getAPIVersion() const
+	{
+		return std::string(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+	}
+
+	std::string GLWindow::getGPU() const
+	{
+		return std::string(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
+	}
+
+	std::string GLWindow::getGPUVendor() const
+	{
+		return std::string(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
 	}
 
 }

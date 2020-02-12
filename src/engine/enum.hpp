@@ -53,7 +53,8 @@ namespace oe {
 	// shader stages
 	enum class shader_stages {
 		vertex_shader, 
-		tesselation_shader, 
+		tesselation_control_shader, 
+		tesselation_evaluation_shader, 
 		geometry_shader, 
 		fragment_shader, 
 		compute_shader

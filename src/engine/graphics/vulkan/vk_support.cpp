@@ -4,17 +4,18 @@
 
 #include "engine/engine.hpp"
 #include "config.hpp"
+#include "shaderc/shaderc.hpp"
 
 
 
 namespace oe::graphics {
 
-	SwapChainSupportDetails oe::graphics::querySwapChainSupport(const vk::PhysicalDevice& device, const vk::SurfaceKHR& surface) {
+	SwapChainSupportDetails oe::graphics::querySwapChainSupport(const vk::PhysicalDevice& device, const vk::SurfaceKHR* surface) {
 		SwapChainSupportDetails details;
 
-		device.getSurfaceCapabilitiesKHR(surface, &details.capabilities);
-		details.formats = device.getSurfaceFormatsKHR(surface);
-		details.presentModes = device.getSurfacePresentModesKHR(surface);
+		device.getSurfaceCapabilitiesKHR(*surface, &details.capabilities);
+		details.formats = device.getSurfaceFormatsKHR(*surface);
+		details.presentModes = device.getSurfacePresentModesKHR(*surface);
 
 		return details;
 	}
@@ -77,7 +78,7 @@ namespace oe::graphics {
 		return true;
 	}
 
-	bool oe::graphics::hasRequiredExtensions(const vk::PhysicalDevice& physical_device, const vk::SurfaceKHR& surface) {
+	bool oe::graphics::hasRequiredExtensions(const vk::PhysicalDevice& physical_device, const vk::SurfaceKHR* surface) {
 		std::vector<vk::ExtensionProperties> available_extension_properties = physical_device.enumerateDeviceExtensionProperties();
 
 		// swap chain support
@@ -150,11 +151,48 @@ namespace oe::graphics {
 		}
 	}
 
-	vk::ShaderModule oe::graphics::createShaderModule(vk::Device logical_device, const std::vector<char>& code) {
+	vk::ShaderModule oe::graphics::createShaderModule(vk::Device logical_device, const std::string& name, const std::string& code, oe::shader_stages shader_type) {
+		shaderc_shader_kind kind;
+		switch (shader_type)
+		{
+		case oe::shader_stages::vertex_shader:
+			kind = shaderc_shader_kind::shaderc_vertex_shader;
+			break;
+		case oe::shader_stages::tesselation_control_shader:
+			kind = shaderc_shader_kind::shaderc_tess_control_shader;
+			break;
+		case oe::shader_stages::tesselation_evaluation_shader:
+			kind = shaderc_shader_kind::shaderc_tess_evaluation_shader;
+			break;
+		case oe::shader_stages::geometry_shader:
+			kind = shaderc_shader_kind::shaderc_geometry_shader;
+			break;
+		case oe::shader_stages::fragment_shader:
+			kind = shaderc_shader_kind::shaderc_fragment_shader;
+			break;
+		case oe::shader_stages::compute_shader:
+			kind = shaderc_shader_kind::shaderc_compute_shader;
+			break;
+		default:
+			break;
+		}
+		
+		// code string (glsl) to SPIR-V code
+		shaderc::Compiler compiler;
+		shaderc::CompileOptions options;
+		options.SetOptimizationLevel(shaderc_optimization_level::shaderc_optimization_level_performance);
+		shaderc::PreprocessedSourceCompilationResult result =
+			compiler.PreprocessGlsl(code, kind, name.c_str(), options);
+		if (result.GetCompilationStatus() != shaderc_compilation_status_success) {
+			oe_error_terminate("Shader compilation failed ({})", result.GetErrorMessage());
+		}
+
+		std::vector<char> compiled = { result.cbegin(), result.cend() };
+
 		// create info, basic stuff
 		vk::ShaderModuleCreateInfo createInfo = {};
-		createInfo.codeSize = code.size();
-		createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+		createInfo.codeSize = compiled.size();
+		createInfo.pCode = reinterpret_cast<const uint32_t*>(compiled.data());
 
 		vk::ShaderModule shader_module = logical_device.createShaderModule(createInfo);
 		return shader_module;

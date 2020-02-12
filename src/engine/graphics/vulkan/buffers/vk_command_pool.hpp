@@ -1,34 +1,44 @@
 #pragma once
 
-#include "swapchain.hpp"
-#include "shader.hpp"
+#include "engine/graphics/vulkan/config.hpp"
+#include "engine/graphics/vulkan/vk_shader.hpp"
+#include "engine/graphics/vulkan/vk_physical_device.hpp"
+#include "engine/graphics/vulkan/buffers/vk_vertex_buffer.hpp"
+#include "vk_buffer.hpp"
+#include "vk_command_buffer.hpp"
 
 
 
-namespace oe::vulkan {
+namespace oe::graphics {
 
-	class Commands {
+	class CommandBuffer : public Buffer {
 	public:
 		vk::CommandPool m_command_pool;
-		std::vector<vk::CommandBuffer> m_command_buffers;
-		
-		const LogicalDevice* m_logical_device;
+		std::vector<CommandBuffer> m_command_buffers;
+
 		const PhysicalDevice* m_physical_device;
-		const SwapChain* m_swap_chain;
+		const LogicalDevice* m_logical_device;
 
 	public:
-		Commands(const SwapChain* swap_chain, const vk::Pipeline* pipeline, const vk::Buffer* buffer) : m_swap_chain(swap_chain), m_logical_device(swap_chain->m_logical_device), m_physical_device(swap_chain->m_logical_device->m_physical_device) {
+		CommandBuffer(const PhysicalDevice* physical_device, const LogicalDevice* logical_device)
+			: m_physical_device(physical_device)
+			, m_logical_device(logical_device)
+		{
 			createCommandPool();
-			createCommandBuffers(pipeline, buffer);
+			createCommandBuffers();
 		}
 
-		~Commands() {
+		~CommandBuffer() {
 			m_logical_device->m_logical_device.destroyCommandPool(m_command_pool);
 		}
 
+		void bind();
+		void bind();
+		void draw();
+
 	private:
 		void createCommandPool() {
-			PhysicalDevice::QueueFamilyIndices queueFamilyIndices = m_physical_device->findQueueFamilies();
+			QueueFamilyIndices queueFamilyIndices = m_physical_device->findQueueFamilies();
 
 			// command pool create info
 			vk::CommandPoolCreateInfo poolInfo = {};
@@ -39,17 +49,15 @@ namespace oe::vulkan {
 			m_command_pool = m_logical_device->m_logical_device.createCommandPool(poolInfo);
 		}
 
-		void createCommandBuffers(const vk::Pipeline* pipeline, const vk::Buffer* buffer) {
-			m_command_buffers.resize(m_swap_chain->m_swap_chain_framebuffers.size());
-
+		void createCommandBuffers() {
 			// command buffer creation info
 			vk::CommandBufferAllocateInfo allocInfo = {};
 			allocInfo.commandPool = m_command_pool;
 			allocInfo.level = vk::CommandBufferLevel::ePrimary;
-			allocInfo.commandBufferCount = static_cast<uint32_t>(m_command_buffers.size());
+			allocInfo.commandBufferCount = 1;
 
 			// commandbuffer creation
-			m_command_buffers = m_logical_device->m_logical_device.allocateCommandBuffers(allocInfo);
+			m_command_buffer = m_logical_device->m_logical_device.allocateCommandBuffers(allocInfo);
 
 			// commandbuffer per framebuffer
 			for (size_t i = 0; i < m_command_buffers.size(); i++) {

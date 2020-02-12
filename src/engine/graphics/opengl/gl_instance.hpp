@@ -12,16 +12,7 @@ namespace oe::graphics {
 		
 		// Inherited via Instance
 		virtual graphics::Window* createWindow(const WindowInfo& window_config) const override;
-		virtual graphics::Renderer* createRenderer(const RendererInfo& renderer_info) const override;
-		virtual graphics::Shader* createShader(const ShaderInfo& shader_info) const override;
-		virtual graphics::Texture* createTexture(const TextureInfo& texture_info) const override;
-		virtual graphics::FrameBuffer* createFrameBuffer(const FrameBufferInfo& framebuffer_info) const override;
-
 		virtual void destroyWindow(graphics::Window* window) const override;
-		virtual void destroyRenderer(graphics::Renderer* renderer) const override;
-		virtual void destroyShader(graphics::Shader* shader) const override;
-		virtual void destroyTexture(graphics::Texture* texture) const override;
-		virtual void destroyFrameBuffer(graphics::FrameBuffer* framebuffer) const override;
 	
 	public:
 		virtual void blending(oe::modes mode = oe::modes::enable) const override;
@@ -31,11 +22,6 @@ namespace oe::graphics {
 		virtual void lineWidth(float w = 1.0f) const override;
 		virtual void pointRadius(float w = 1.0f) const override;
 		virtual void polygonMode(oe::polygon_mode p = oe::polygon_mode::fill) const override;
-		
-		virtual std::string getAPI() const override;
-		virtual std::string getAPIVersion() const override;
-		virtual std::string getGPU() const override;
-		virtual std::string getGPUVendor() const override;
 	};
 
 }

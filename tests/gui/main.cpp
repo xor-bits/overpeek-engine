@@ -268,6 +268,12 @@ int main() {
 	window->setCharmodCallback(text);
 	window->setKeyboardCallback(keyboard);
 
+	// print render info
+	spdlog::info("GPU: {}", window->getGPU());
+	spdlog::info("GPUVendor: {}", window->getGPUVendor());
+	spdlog::info("API: {}", window->getAPI());
+	spdlog::info("APIVersion: {}", window->getAPIVersion());
+
 	// instance settings
 	instance->swapInterval(1);
 	instance->culling(oe::culling_modes::neither);

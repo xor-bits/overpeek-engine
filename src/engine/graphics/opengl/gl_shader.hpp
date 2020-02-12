@@ -15,7 +15,7 @@ namespace oe::graphics {
 		void programLog(int program, unsigned int type) const;
 
 	public:
-		GLShader(const Instance* instance, const ShaderInfo& shader_info);
+		GLShader(const ShaderInfo& shader_info);
 		~GLShader();
 
 		virtual void bind() const override;

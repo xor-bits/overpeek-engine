@@ -10,7 +10,7 @@
 
 namespace oe::graphics {
 
-	PhysicalDevice::PhysicalDevice(const VKInstance* instance, const vk::SurfaceKHR& surface)
+	PhysicalDevice::PhysicalDevice(const VKInstance* instance, const vk::SurfaceKHR* surface)
 		: m_surface(surface), m_instance(instance)
 	{
 		pickPhysicalDevice();
@@ -24,7 +24,7 @@ namespace oe::graphics {
 		return findQueueFamilies(m_physical_device, m_surface);
 	}
 
-	QueueFamilyIndices PhysicalDevice::findQueueFamilies(vk::PhysicalDevice device, const vk::SurfaceKHR& surface) {
+	QueueFamilyIndices PhysicalDevice::findQueueFamilies(vk::PhysicalDevice device, const vk::SurfaceKHR* surface) {
 		QueueFamilyIndices queue_family_indices = {};
 
 		std::vector<vk::QueueFamilyProperties> available_queue_families = device.getQueueFamilyProperties();
@@ -36,7 +36,7 @@ namespace oe::graphics {
 
 			// surface support
 			vk::Bool32 presentSupport = false;
-			device.getSurfaceSupportKHR(i, surface, &presentSupport);
+			device.getSurfaceSupportKHR(i, *surface, &presentSupport);
 			if (presentSupport) {
 				queue_family_indices.presentFamily = i;
 			}
