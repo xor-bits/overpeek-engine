@@ -22,7 +22,10 @@ namespace oe::graphics {
 		const PhysicalDevice* m_physical_device;
 
 	public:
-		SwapChain(const VKWindow* window, const LogicalDevice* logical_device) : m_logical_device(logical_device), m_physical_device(logical_device->m_physical_device) {
+		SwapChain(const VKWindow* window, const LogicalDevice* logical_device)
+			: m_logical_device(logical_device)
+			, m_physical_device(logical_device->m_physical_device) 
+		{
 			// get swap chain support
 			SwapChainSupportDetails swapChainSupport = querySwapChainSupport(m_physical_device->m_physical_device, &window->m_surface);
 

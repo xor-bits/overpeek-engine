@@ -33,7 +33,6 @@
 #include "graphics/spritePacker.hpp"
 #include "networking/client.hpp"
 #include "networking/server.hpp"
-#include "graphics/assets/default_shader.hpp"
 
 
 

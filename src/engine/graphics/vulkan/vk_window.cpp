@@ -1,6 +1,11 @@
 #include "vk_window.hpp"
 #include "engine/engine.hpp"
 
+#include "engine/graphics/vulkan/vk_instance.hpp"
+#include "engine/graphics/vulkan/vk_physical_device.hpp"
+#include "engine/graphics/vulkan/vk_logical_device.hpp"
+#include "engine/graphics/vulkan/vk_swapchain.hpp"
+
 #include <GLFW/glfw3.h>
 #include <string>
 #include <sstream>

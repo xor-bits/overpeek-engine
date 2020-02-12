@@ -3,7 +3,6 @@
 #include "engine/graphics/interface/window.hpp"
 #include "engine/graphics/interface/renderer.hpp"
 #include "engine/graphics/font.hpp"
-#include "engine/graphics/assets/default_shader.hpp"
 
 #include "engine/engine.hpp"
 
@@ -14,9 +13,8 @@ namespace oe::gui {
 	constexpr int border = 5;
 
 	
-	GUI::GUI(oe::graphics::Instance* instance, oe::graphics::Window* window) 
-		: m_window(window) 
-		, m_instance(instance)
+	GUI::GUI(oe::graphics::Window* window) 
+		: m_window(window)
 	{
 		// renderer
 		oe::RendererInfo renderer_info = {};
@@ -24,10 +22,10 @@ namespace oe::gui {
 		renderer_info.indexRenderType = oe::types::staticrender;
 		renderer_info.max_quad_count = 10000;
 		renderer_info.staticVBOBuffer_data = nullptr;
-		m_renderer = m_instance->createRenderer(renderer_info);
+		m_renderer = m_window->createRenderer(renderer_info);
 
 		// shader
-		m_shader = new oe::graphics::DefaultShader(instance);
+		m_shader = m_window->createShader(ShaderInfo());
 
 		FormInfo form_info = {};
 		form_info.size = m_window->getSize() - glm::vec2(2 * border);
@@ -38,7 +36,7 @@ namespace oe::gui {
 	}
 
 	GUI::~GUI() {
-		m_instance->destroyRenderer(m_renderer);
+		m_window->destroyRenderer(m_renderer);
 		delete m_shader;
 	}
 
@@ -80,8 +78,8 @@ namespace oe::gui {
 
 		glm::mat4 pr_matrix = glm::ortho(0.0f, (float)window_size.x, (float)window_size.y, 0.0f);
 		m_shader->bind();
-		m_shader->useTexture(true);
-		m_shader->projectionMatrix(pr_matrix);
+		m_shader->setUniform1i("usetex", true);
+		m_shader->setUniformMat4("pr_matrix", pr_matrix);
 	}
 
 	void GUI::addSubWidget(Widget* widget) {

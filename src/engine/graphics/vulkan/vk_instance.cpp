@@ -1,6 +1,5 @@
 #include "vk_instance.hpp"
 
-#include "config.hpp"
 #include "vk_support.hpp"
 #include "vk_window.hpp"
 #include "vk_physical_device.hpp"

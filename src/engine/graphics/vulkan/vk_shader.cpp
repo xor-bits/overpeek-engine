@@ -1,7 +1,12 @@
 #include "vk_shader.hpp"
 #include "vk_support.hpp"
+#include "vk_window.hpp"
+#include "vk_swapchain.hpp"
 #include "buffers/vk_vertex_buffer.hpp"
 #include "engine/engine.hpp"
+
+#include "shader/vert.spv.h"
+#include "shader/frag.spv.h"
 
 
 
@@ -31,14 +36,19 @@ namespace oe::graphics {
 		: Shader::Shader(shader_info)
 		, m_window(window)
 	{
+		if (m_shader_info.name == asset_default_shader_name)
+			m_shader_info = default_shader_info();
+
 		std::vector<vk::ShaderModule> modules;
 		std::vector<vk::PipelineShaderStageCreateInfo> module_infos;
-		for (auto& stage : shader_info.shader_stages)
+		for (auto& stage : m_shader_info.shader_stages)
 		{
+			size_t source_bytes = stage.source_bytes;
+			std::string source = std::string(reinterpret_cast<const char*>(stage.source), source_bytes);
+
 			// sources
-			std::string source = stage.source;
 			if (stage.source_is_filepath) {
-				source = oe::utils::readFile(source);
+				source = oe::utils::readFile(source).c_str();
 			}
 
 			// stage type
@@ -66,16 +76,19 @@ namespace oe::graphics {
 			}
 
 			// shader module
-			vk::ShaderModule shaderModule = createShaderModule(m_logical_device->m_logical_device, shader_info.name, source, stage.stage);
+			vk::ShaderModuleCreateInfo createInfo = {};
+			createInfo.codeSize = source_bytes;
+			createInfo.pCode = reinterpret_cast<const uint32_t*>(source.c_str());
+			vk::ShaderModule shader_module = m_logical_device->m_logical_device.createShaderModule(createInfo);
 
 			// the actual pipeline stage info
 			vk::PipelineShaderStageCreateInfo shaderStageInfo = {};
 			shaderStageInfo.stage = stage_id;
-			shaderStageInfo.module = shaderModule;
+			shaderStageInfo.module = shader_module;
 			shaderStageInfo.pName = "main"; // starts at - int main() {....
 			shaderStageInfo.pSpecializationInfo = nullptr; // no defined constant values for optimization
 
-			modules.push_back(shaderModule);
+			modules.push_back(shader_module);
 			module_infos.push_back(shaderStageInfo);
 		}
 
@@ -205,9 +218,34 @@ namespace oe::graphics {
 			m_logical_device->m_logical_device.destroyShaderModule(shader_module);
 		}
 	}
+
 	VKShader::~VKShader() {
 		m_logical_device->m_logical_device.destroyPipeline(m_pipeline);
 		m_logical_device->m_logical_device.destroyPipelineLayout(m_pipeline_layout);
+	}
+
+
+
+	ShaderInfo VKShader::default_shader_info() {
+		ShaderStageInfo vertex = {};
+		vertex.source_is_filepath = false;
+		vertex.source = vert_spv;
+		vertex.source_bytes = sizeof(vert_spv);
+		vertex.stage = oe::shader_stages::vertex_shader;
+
+		ShaderStageInfo fragment = {};
+		fragment.source_is_filepath = false;
+		fragment.source = frag_spv;
+		fragment.source_bytes = sizeof(frag_spv);
+		fragment.stage = oe::shader_stages::fragment_shader;
+
+		ShaderInfo info = {};
+		info.name = asset_default_shader_name;
+		info.shader_stages = {
+			vertex, fragment
+		};
+
+		return info;
 	}
 
 }

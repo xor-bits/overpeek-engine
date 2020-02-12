@@ -2,8 +2,6 @@
 
 #include "engine/internal_libs.hpp"
 
-#include "opengl/buffers/vertexBuffer.hpp"
-
 
 
 namespace oe::graphics {

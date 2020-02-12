@@ -1,11 +1,7 @@
 #pragma once
 
-#include "engine/internal_libs.hpp"
 #include "engine/graphics/interface/window.hpp"
-#include "engine/graphics/vulkan/vk_instance.hpp"
-#include "engine/graphics/vulkan/vk_physical_device.hpp"
-#include "engine/graphics/vulkan/vk_logical_device.hpp"
-#include "engine/graphics/vulkan/vk_swapchain.hpp"
+#include "engine/internal_libs.hpp"
 
 #include <vulkan/vulkan.hpp>
 #include <string>
@@ -13,6 +9,10 @@
 
 namespace oe::graphics {
 
+	class SwapChain;
+	class LogicalDevice;
+	class PhysicalDevice;
+	class VKInstance;
 	class VKWindow : public Window {
 	public:
 		const VKInstance* m_instance;

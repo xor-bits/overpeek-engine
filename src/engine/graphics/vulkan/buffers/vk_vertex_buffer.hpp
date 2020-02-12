@@ -1,12 +1,14 @@
 #pragma once
 
-#include "engine/graphics/vulkan/vk_logical_device.hpp"
 #include "engine/graphics/vertexData.hpp"
+
+#include <vulkan/vulkan.hpp>
 
 
 
 namespace oe::graphics {
 
+	class LogicalDevice;
 	class VertexBuffer {
 	public:
 		vk::Buffer m_vertex_buffer;

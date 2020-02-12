@@ -21,6 +21,8 @@ namespace oe::graphics {
 		~VKShader();
 
 		// Inherited via Shader
+		virtual ShaderInfo default_shader_info() override;
+
 		virtual void bind() const override;
 		virtual void unbind() const override;
 

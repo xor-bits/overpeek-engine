@@ -8,6 +8,9 @@
 #include "engine/utility/filereader.hpp"
 #include "engine/engine.hpp"
 
+#include "shader/shader.vert.h"
+#include "shader/shader.frag.h"
+
 
 
 namespace oe::graphics {
@@ -61,16 +64,21 @@ namespace oe::graphics {
 	GLShader::GLShader(const ShaderInfo& shader_info)
 		: Shader::Shader(shader_info) 
 	{
+		if (m_shader_info.name == asset_default_shader_name)
+			m_shader_info = default_shader_info();
+
 		// Shader program
 		p_shader_program = glCreateProgram();
 
 		std::vector<GLuint> modules;
-		for (auto& stage : shader_info.shader_stages)
+		for (auto& stage : m_shader_info.shader_stages)
 		{
+			size_t source_bytes = stage.source_bytes;
+			std::string source = std::string(reinterpret_cast<const char*>(stage.source), source_bytes);
+
 			// sources
-			std::string source = stage.source;
 			if (stage.source_is_filepath) {
-				source = oe::utils::readFile(source);
+				source = oe::utils::readFile(source).c_str();
 			}
 
 			// stage type
@@ -80,8 +88,11 @@ namespace oe::graphics {
 			case oe::shader_stages::vertex_shader:
 				stage_id = GL_VERTEX_SHADER;
 				break;
-			case oe::shader_stages::tesselation_shader:
+			case oe::shader_stages::tesselation_control_shader:
 				stage_id = GL_TESS_CONTROL_SHADER;
+				break;
+			case oe::shader_stages::tesselation_evaluation_shader:
+				stage_id = GL_TESS_EVALUATION_SHADER;
 				break;
 			case oe::shader_stages::geometry_shader:
 				stage_id = GL_GEOMETRY_SHADER;
@@ -115,6 +126,30 @@ namespace oe::graphics {
 
 	GLShader::~GLShader() {
 		glDeleteProgram(p_shader_program);
+	}
+
+
+
+	ShaderInfo GLShader::default_shader_info() {
+		ShaderStageInfo vertex = {};
+		vertex.source_is_filepath = false;
+		vertex.source = shader_vert;
+		vertex.source_bytes = sizeof(shader_vert);
+		vertex.stage = oe::shader_stages::vertex_shader;
+
+		ShaderStageInfo fragment = {};
+		fragment.source_is_filepath = false;
+		fragment.source = shader_frag;
+		fragment.source_bytes = sizeof(shader_frag);
+		fragment.stage = oe::shader_stages::fragment_shader;
+
+		ShaderInfo info = {};
+		info.name = asset_default_shader_name;
+		info.shader_stages = {
+			vertex, fragment
+		};
+
+		return info;
 	}
 
 

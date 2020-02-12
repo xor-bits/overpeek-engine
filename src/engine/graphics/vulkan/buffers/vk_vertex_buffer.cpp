@@ -3,9 +3,11 @@
 
 
 
-namespace oe::graphics::vulkan {
+namespace oe::graphics {
 
-	VertexBuffer::VertexBuffer(vk::BufferUsageFlagBits usage, size_t size, const LogicalDevice* logical_device) : m_logical_device(logical_device), m_size(size) {
+	VertexBuffer::VertexBuffer(vk::BufferUsageFlagBits usage, size_t size, const LogicalDevice* logical_device)
+		: m_logical_device(logical_device), m_size(size) 
+	{
 		// vertex buffer
 		vk::BufferCreateInfo bufferInfo = {};
 		bufferInfo.size = size;

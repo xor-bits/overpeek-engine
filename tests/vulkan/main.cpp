@@ -285,14 +285,14 @@ int main() {
 	renderer_info.indexRenderType = oe::types::staticrender;
 	renderer_info.max_quad_count = 10000;
 	renderer_info.staticVBOBuffer_data = nullptr;
-	renderer = instance->createRenderer(renderer_info);
+	renderer = window->createRenderer(renderer_info);
 
 	// shader
-	shader = new oe::graphics::DefaultShader(instance);
+	shader = new oe::graphics::DefaultShader(window);
 
 	// spritepack
 	auto img = oe::utils::loadImageCopy(texture_png, 5, 5);
-	pack = new oe::graphics::SpritePack(instance);
+	pack = new oe::graphics::SpritePack(window);
 	sprite = pack->addSprite(img);
 
 	// font
@@ -301,7 +301,7 @@ int main() {
 	pack->construct();
 
 	// gui
-	gui = new oe::gui::GUI(instance, window);
+	gui = new oe::gui::GUI(window);
 	setup_gui();
 
 	// start
@@ -313,8 +313,8 @@ int main() {
 	delete font;
 	delete pack;
 	delete shader;
+	window->destroyRenderer(renderer);
 	instance->destroyWindow(window);
-	instance->destroyRenderer(renderer);
 	oe::Engine::deinit();
 
 	return 0;

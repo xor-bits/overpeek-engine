@@ -1,7 +1,7 @@
 #pragma	once
 
 #include "vk_physical_device.hpp"
-#include "config.hpp"
+#include "vk_support.hpp"
 
 #include <set>
 

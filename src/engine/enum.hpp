@@ -342,13 +342,15 @@ namespace oe {
 	struct ShaderStageInfo {
 		bool source_is_filepath = true;
 		shader_stages stage; // must be initialized
-		std::string source;  // must be initialized
+		const unsigned char* source;  // must be initialized
+		size_t source_bytes;  // must be initialized
 	};
 
+	const static std::string asset_default_shader_name = "asset:default_shader";
 	// shader create info
 	struct ShaderInfo {
-		std::string name = "default_shader";
-		std::vector<ShaderStageInfo> shader_stages;
+		std::string name = asset_default_shader_name;        // default shader will load if left unchanged
+		std::vector<ShaderStageInfo> shader_stages; // default shader will load if left unchanged
 	};
 
 	// engine create info

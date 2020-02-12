@@ -13,8 +13,6 @@
 #include "engine/graphics/interface/renderer.hpp"
 #include "engine/graphics/interface/shader.hpp"
 
-#include "engine/graphics/assets/default_shader.hpp"
-
 
 
 namespace oe::gui {
@@ -24,12 +22,11 @@ namespace oe::gui {
 		std::unique_ptr<Form> m_main_frame;
 		oe::graphics::Renderer* m_renderer;
 		oe::graphics::Renderer* m_font_renderer;
-		oe::graphics::DefaultShader* m_shader;
+		oe::graphics::Shader* m_shader;
 		oe::graphics::Window* m_window;
-		oe::graphics::Instance* m_instance;
 
 	public:
-		GUI(oe::graphics::Instance* instance, oe::graphics::Window* window);
+		GUI(oe::graphics::Window* window);
 		~GUI();
 		
 		// needs to be after every window resize
