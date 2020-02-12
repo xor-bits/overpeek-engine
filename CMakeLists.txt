@@ -7,6 +7,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 add_subdirectory(src) # static library (engine)
 
 option(BUILD_TESTS "build with tests" OFF)
+option(BUILD_VULKAN "build with vulkan test" OFF)
 if(${BUILD_TESTS})
 	# tests
 	add_subdirectory(tests/rendering) # executable
@@ -14,5 +15,8 @@ if(${BUILD_TESTS})
 	add_subdirectory(tests/gui) # executable
 	add_subdirectory(tests/entities) # executable
 	add_subdirectory(tests/networking) # executable
-	add_subdirectory(tests/vulkan) # executable
+	
+	if(${BUILD_VULKAN})
+		add_subdirectory(tests/vulkan) # 
+	endif()
 endif()

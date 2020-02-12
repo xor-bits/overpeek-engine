@@ -13,7 +13,17 @@ git clone --recursive https://github.com/Overpeek/overpeek-engine.git
 ```
 mkdir build
 cd build
+cmake ..
+```
+```
+mkdir build
+cd build
 cmake -DBUILD_TESTS=TRUE ..
+```
+```
+mkdir build
+cd build
+cmake -DBUILD_TESTS=TRUE -DBUILD_VULKAN=TRUE ..
 ```
 
 #### Depends:
@@ -25,6 +35,7 @@ cmake -DBUILD_TESTS=TRUE ..
 - Window creation (glfw) 
 - Audio (OpenAL) 
 - Rendering (OpenGL)
+    - Sprite rendering
     - Text rendering (Freetype) (basic) 
     - GUI (basic)
 - Networking (basic)
