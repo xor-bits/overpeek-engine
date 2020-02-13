@@ -44,6 +44,7 @@ cmake -DBUILD_TESTS=TRUE -DBUILD_VULKAN=TRUE ..
 
 
 ### TODO
+- [ ] Lua scripting
 - [ ] TextInput string holding allowed characters
 - [ ] ECS controlled GUI
 - [ ] Vulkan
