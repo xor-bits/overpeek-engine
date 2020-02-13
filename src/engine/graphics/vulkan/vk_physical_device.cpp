@@ -61,8 +61,15 @@ namespace oe::graphics {
 		if (!isDeviceSuitable(device)) return 0;
 
 		// Discrete GPUs have a significant performance advantage
-		if (device.getProperties().deviceType == vk::PhysicalDeviceType::eIntegratedGpu) { // prefer integrated for now
-			score += 1;
+		if (m_instance->m_instance_info.favored_gpu_vulkan == oe::gpu::integrated) {
+			if (device.getProperties().deviceType == vk::PhysicalDeviceType::eIntegratedGpu) {
+				score += 1;
+			}
+		}
+		else { // dedicated
+			if (device.getProperties().deviceType == vk::PhysicalDeviceType::eDiscreteGpu) {
+				score += 1;
+			}
 		}
 
 		return score;

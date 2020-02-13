@@ -69,13 +69,12 @@ namespace oe::graphics {
 
 
 	void VKWindow::update() {
-		// swap framebuffers
 		m_command_pool->endRecording();
-
-		m_logical_device->m_logical_device.waitForFences(m_sync_objects->m_in_flight_fences, true, UINT64_MAX);
 
 		uint32_t imageIndex;
 		imageIndex = m_logical_device->m_logical_device.acquireNextImageKHR(m_swapchain->m_swap_chain, UINT64_MAX, m_sync_objects->m_image_available_semaphores[m_sync_objects->currentFrame], nullptr).value;
+
+		m_logical_device->m_logical_device.waitForFences(m_sync_objects->m_in_flight_fences, true, UINT64_MAX);
 
 		// Check if a previous frame is using this image (i.e. there is its fence to wait on)
 		if (m_sync_objects->m_images_in_flight[imageIndex]) {
@@ -128,7 +127,6 @@ namespace oe::graphics {
 	}
 
 	void VKWindow::clear(const glm::vec4& color) {
-		// clear window framebuffer
 		m_logical_device->m_logical_device.waitIdle();
 		m_command_pool->beginRecording(color);
 	}

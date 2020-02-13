@@ -23,6 +23,7 @@ void render(float update_fraction) {
 	window->clear(oe::colors::rainbow(t));
 
 	// begin submitting
+	// shader->bind();
 	// renderer->begin();
 	// renderer->clear();
 	// 
@@ -69,19 +70,19 @@ void keyboard(oe::keys key, oe::actions action, oe::modifiers mods) {
 int main(int argc, char** argv) {
 	// engine
 	oe::EngineInfo engine_info = {};
-	engine_info.api = oe::graphics_api::Vulkan;
+	engine_info.api = oe::graphics_api::OpenGL;
 	oe::Engine::init(engine_info);
 
 	// instance
 	oe::InstanceInfo instance_info = {};
 	instance_info.debug_messages = true;
-	// instance_info.favored_gpu_vulkan = oe::gpu::dedicated;
+	instance_info.favored_gpu_vulkan = oe::gpu::dedicated;
 	instance = oe::Engine::createInstance(instance_info);
 
 	// window
 	oe::WindowInfo window_info;
 	window_info.title = "Test 1 - Renderer";
-	window_info.multisamples = 4;
+	window_info.multisamples = 1;
 	window = instance->createWindow(window_info);
 	window->setResizeCallback(resize);
 	window->setKeyboardCallback(keyboard);
@@ -90,6 +91,12 @@ int main(int argc, char** argv) {
 	instance->culling(oe::culling_modes::back);
 	instance->swapInterval(0);
 	instance->blending();
+
+	// print render info
+	spdlog::info("GPU: {}", window->getGPU());
+	spdlog::info("GPUVendor: {}", window->getGPUVendor());
+	spdlog::info("API: {}", window->getAPI());
+	spdlog::info("APIVersion: {}", window->getAPIVersion());
 
 	// renderer
 	oe::RendererInfo renderer_info = {};
