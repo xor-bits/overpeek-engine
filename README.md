@@ -1,5 +1,6 @@
 # overpeek-engine
 Minimal game engine/framework
+Primary focus on 2D side
  - Windows
  - Linux
  - OSX, possibly (not tested)
