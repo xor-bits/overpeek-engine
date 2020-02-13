@@ -7,7 +7,7 @@
 oe::graphics::Instance* instance;
 oe::graphics::Window* window;
 oe::graphics::SpritePack* pack;
-oe::graphics::DefaultShader* shader;
+oe::graphics::Shader* shader;
 oe::graphics::Renderer* renderer;
 oe::graphics::Font* font;
 
@@ -53,8 +53,8 @@ void update() {
 void resize(const glm::vec2& window_size) {
 	float aspect = window->aspect();
 	glm::mat4 pr_matrix = glm::ortho(-aspect, aspect, 1.0f, -1.0f);
-	shader->projectionMatrix(pr_matrix);
-	shader->useTexture(true);
+	shader->setUniformMat4("pr_matrix", pr_matrix);
+	shader->setUniform1i("usetex", true);
 }
 
 int main(int argc, char** argv) {
@@ -82,13 +82,13 @@ int main(int argc, char** argv) {
 	renderer_info.indexRenderType = oe::types::staticrender;
 	renderer_info.max_quad_count = 1000;
 	renderer_info.staticVBOBuffer_data = nullptr;
-	renderer = instance->createRenderer(renderer_info);
+	renderer = window->createRenderer(renderer_info);
 
 	// shader
-	shader = new oe::graphics::DefaultShader(instance);
+	shader = window->createShader(oe::ShaderInfo());
 
 	// sprites
-	pack = new oe::graphics::SpritePack(instance);
+	pack = new oe::graphics::SpritePack(window);
 	font = new oe::graphics::Font(pack);
 	oe::graphics::Text::setFont(*font);
 	pack->construct();
@@ -100,9 +100,9 @@ int main(int argc, char** argv) {
 	// closing
 	delete font;
 	delete pack;
-	delete shader;
+	window->destroyShader(shader);
+	window->destroyRenderer(renderer);
 	instance->destroyWindow(window);
-	instance->destroyRenderer(renderer);
 
 	return 0;
 }

@@ -14,7 +14,7 @@ const oe::graphics::Sprite* sprite;
 oe::graphics::Instance* instance;
 oe::graphics::Window* window;
 oe::graphics::SpritePack* pack;
-oe::graphics::DefaultShader* shader;
+oe::graphics::Shader* shader;
 oe::graphics::Renderer* renderer;
 oe::graphics::Font* font;
 
@@ -25,54 +25,54 @@ void cube() {
 	// begin submitting
 	renderer->begin();
 	renderer->clear();
-
+	
 	// front
 	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f }, oe::colors::orange));
 	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, oe::colors::orange));
 	renderer->submit(oe::graphics::VertexData({ 1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, oe::colors::orange));
 	renderer->submit(oe::graphics::VertexData({ 1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f }, oe::colors::orange));
 	renderer->quadCount()++;
-
+	
 	// back
 	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f }, oe::colors::orange));
 	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, oe::colors::orange));
 	renderer->submit(oe::graphics::VertexData({ 1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f }, oe::colors::orange));
 	renderer->submit(oe::graphics::VertexData({ 1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, oe::colors::orange));
 	renderer->quadCount()++;
-
+	
 	// top
 	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f }, oe::colors::orange));
 	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, oe::colors::orange));
 	renderer->submit(oe::graphics::VertexData({ 1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, oe::colors::orange));
 	renderer->submit(oe::graphics::VertexData({ 1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, oe::colors::orange));
 	renderer->quadCount()++;
-
+	
 	// bottom
 	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, oe::colors::orange));
 	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, oe::colors::orange));
 	renderer->submit(oe::graphics::VertexData({ 1.0f, -1.0f,  1.0f }, { 1.0f, 1.0f }, oe::colors::orange));
 	renderer->submit(oe::graphics::VertexData({ 1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, oe::colors::orange));
 	renderer->quadCount()++;
-
+	
 	// left
 	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, oe::colors::orange));
 	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, oe::colors::orange));
 	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, oe::colors::orange));
 	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, oe::colors::orange));
 	renderer->quadCount()++;
-
+	
 	// right
 	renderer->submit(oe::graphics::VertexData({ 1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, oe::colors::orange));
 	renderer->submit(oe::graphics::VertexData({ 1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, oe::colors::orange));
 	renderer->submit(oe::graphics::VertexData({ 1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, oe::colors::orange));
 	renderer->submit(oe::graphics::VertexData({ 1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, oe::colors::orange));
 	renderer->quadCount()++;
-
+	
 	// stop submitting and rendera
 	static glm::mat4 ml_matrix = glm::mat4(1.0f);
 	shader->bind();
 	ml_matrix = glm::rotate(ml_matrix, speed * -0.1f, rotate);
-	shader->modelMatrix(ml_matrix);
+	shader->setUniformMat4("ml_matrix", ml_matrix);
 	instance->polygonMode(oe::polygon_mode::lines);
 	renderer->end();
 	renderer->render();
@@ -84,11 +84,11 @@ void render(float update_fraction) {
 	window->clear();
 
 	// submitting
-	cube();
+	// cube();
 
 	// gui
-	pack->bind();
-	gui->render();
+	// pack->bind();
+	// gui->render();
 
 	// swap buffers and poll events
 	window->update();
@@ -101,11 +101,11 @@ void resize(const glm::vec2& window_size) {
 	gui->resize();
 
 	shader->bind();
-	shader->useTexture(false);
+	shader->setUniform1i("usetex", false);
 	glm::mat4 pr_matrix = glm::perspectiveFov(30.0f, (float)window_size.x, (float)window_size.y, 0.0f, 1000.0f);
-	shader->projectionMatrix(pr_matrix);
+	shader->setUniformMat4("pr_matrix", pr_matrix);
 	glm::mat4 vw_matrix = glm::lookAt(glm::vec3(0.0f, 0.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	shader->viewMatrix(vw_matrix);
+	shader->setUniformMat4("vw_matrix", vw_matrix);
 }
 
 void update() {
@@ -288,7 +288,7 @@ int main() {
 	renderer = window->createRenderer(renderer_info);
 
 	// shader
-	shader = new oe::graphics::DefaultShader(window);
+	shader = window->createShader(oe::ShaderInfo());
 
 	// spritepack
 	auto img = oe::utils::loadImageCopy(texture_png, 5, 5);

@@ -35,6 +35,7 @@ namespace oe::graphics {
 	VKShader::VKShader(const VKWindow* window, const ShaderInfo& shader_info)
 		: Shader::Shader(shader_info)
 		, m_window(window)
+		, m_logical_device(window->m_logical_device)
 	{
 		if (m_shader_info.name == asset_default_shader_name)
 			m_shader_info = default_shader_info();
@@ -101,9 +102,9 @@ namespace oe::graphics {
 		auto bindingDescription = VertexBuffer::getBindingDescription();
 		auto attributeDescriptions = VertexBuffer::getAttributeDescriptions();
 		vertexInputInfo.vertexBindingDescriptionCount = 1;
-		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription; // Optional
+		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
 		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data(); // Optional
+		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 #else
 		vertexInputInfo.vertexBindingDescriptionCount = 0;
 		vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
@@ -246,6 +247,47 @@ namespace oe::graphics {
 		};
 
 		return info;
+	}
+
+
+
+	// needs implementation/fixing
+	void VKShader::bind() const
+	{
+	}
+	void VKShader::unbind() const
+	{
+	}
+	int VKShader::getUniformLocation(std::string name) const
+	{
+		return 0;
+	}
+	void VKShader::setUniform1f(std::string name, float value) const	  
+	{
+	}
+	void VKShader::setUniform2f(std::string name, glm::fvec2& value) const
+	{
+	}
+	void VKShader::setUniform3f(std::string name, glm::fvec3& value) const
+	{
+	}
+	void VKShader::setUniform4f(std::string name, glm::fvec4& value) const
+	{
+	}
+	void VKShader::setUniform1i(std::string name, int value) const
+	{
+	}
+	void VKShader::setUniform2i(std::string name, glm::ivec2& value) const
+	{
+	}
+	void VKShader::setUniform3i(std::string name, glm::ivec3& value) const
+	{
+	}
+	void VKShader::setUniform4i(std::string name, glm::ivec4& value) const
+	{
+	}
+	void VKShader::setUniformMat4(std::string name, glm::mat4& value) const
+	{
 	}
 
 }

@@ -2,6 +2,7 @@
 #include "engine/engine.hpp"
 
 #include "engine/graphics/vulkan/vk_instance.hpp"
+#include "engine/graphics/vulkan/vk_shader.hpp"
 #include "engine/graphics/vulkan/vk_physical_device.hpp"
 #include "engine/graphics/vulkan/vk_logical_device.hpp"
 #include "engine/graphics/vulkan/vk_swapchain.hpp"
@@ -87,7 +88,7 @@ namespace oe::graphics {
 
 	Shader* VKWindow::createShader(const ShaderInfo& shader_info) const
 	{
-		return nullptr;
+		return new VKShader(this, shader_info);
 	}
 
 	Texture* VKWindow::createTexture(const TextureInfo& texture_info) const
@@ -102,22 +103,22 @@ namespace oe::graphics {
 
 	void VKWindow::destroyRenderer(Renderer* renderer) const
 	{
-		delete renderer;
+		// delete static_cast<VKRenderer*>(renderer);
 	}
 
 	void VKWindow::destroyShader(Shader* shader) const
 	{
-		delete shader;
+		delete static_cast<VKShader*>(shader);
 	}
 
 	void VKWindow::destroyTexture(Texture* texture) const
 	{
-		delete texture;
+		// delete static_cast<VKTexture*>(texture);
 	}
 
 	void VKWindow::destroyFrameBuffer(FrameBuffer* framebuffer) const
 	{
-		delete framebuffer;
+		// delete static_cast<VKFrameBuffer*>(framebuffer);
 	}
 
 

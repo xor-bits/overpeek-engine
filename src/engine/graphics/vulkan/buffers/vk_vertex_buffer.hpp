@@ -48,13 +48,13 @@ namespace oe::graphics {
 
 			// uv vec2
 			attributeDescriptions[1].binding = 0;
-			attributeDescriptions[1].location = 0;
+			attributeDescriptions[1].location = 1;
 			attributeDescriptions[1].format = vk::Format::eR32G32Sfloat;
 			attributeDescriptions[1].offset = offsetof(VertexData, position);
 
 			// color vec4
 			attributeDescriptions[2].binding = 0;
-			attributeDescriptions[2].location = 1;
+			attributeDescriptions[2].location = 2;
 			attributeDescriptions[2].format = vk::Format::eR32G32B32A32Sfloat;
 			attributeDescriptions[2].offset = offsetof(VertexData, color);
 

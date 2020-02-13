@@ -16,7 +16,7 @@ namespace oe::graphics {
 		vk::Extent2D m_extent;
 		vk::RenderPass m_render_pass;
 
-		std::vector<RenderTarget> m_swap_chain_render_targets;
+		std::vector<RenderTarget*> m_swap_chain_render_targets; // no destructors
 
 		const LogicalDevice* m_logical_device;
 		const PhysicalDevice* m_physical_device;
@@ -89,7 +89,7 @@ namespace oe::graphics {
 			createRenderPass();
 			for (auto& image : swap_chain_images)
 			{
-				m_swap_chain_render_targets.push_back(RenderTarget(m_logical_device, &m_render_pass, image, m_extent, m_format));
+				m_swap_chain_render_targets.push_back(new RenderTarget(m_logical_device, &m_render_pass, image, m_extent, m_format));
 			}
 		}
 
