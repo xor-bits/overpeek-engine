@@ -3,6 +3,8 @@
 #include <string>
 #include <fstream>
 
+#include "engine/enum.hpp"
+
 
 
 #ifndef __has_include
@@ -26,7 +28,8 @@ namespace oe::utils {
 
 	struct image_data {
 		const unsigned char* data;
-		int width, height, channels;
+		oe::formats format;
+		int width, height;
 		size_t size;
 	};
 
@@ -42,11 +45,14 @@ namespace oe::utils {
 	// Not tested
 	void saveImage(fs::path path, const image_data& image);
 
-	const image_data loadImage(fs::path path);
-	const audio_data loadAudio(fs::path path);
-	const image_data loadImageCopy(const unsigned char* data, int width, int height);  // data is copied to image_data // can be freed and used with spritepack
-	const image_data loadImageMove(unsigned char* data, int width, int height);        // image_data will use data     // do not free if used with spritepack
+	// image loading
+	const image_data loadImage(fs::path path, oe::formats format = oe::formats::rgba);
+	const image_data loadImageCopy(const unsigned char* data, int width, int height, oe::formats format = oe::formats::rgba);  // data is copied to image_data // can be freed and used with spritepack
+	const image_data loadImageMove(unsigned char* data, int width, int height, oe::formats format = oe::formats::rgba);        // image_data will use data     // do not free if used with spritepack
 	void freeImage(image_data& img);
+
+	// audio loading
+	const audio_data loadAudio(fs::path path);
 	void freeAudio(audio_data& aud);
 
 	// data size is count of T elements to write

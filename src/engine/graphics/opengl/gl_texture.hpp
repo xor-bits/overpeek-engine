@@ -10,8 +10,9 @@ namespace oe::graphics {
 	private:
 		uint32_t m_id;
 		int32_t m_target;
+		uint32_t m_gl_format;
+		uint32_t m_gl_internalformat;
 		
-
 	private:
 		void empty1D(size_t width);
 		void empty2D(size_t width, size_t height);

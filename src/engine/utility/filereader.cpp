@@ -20,6 +20,30 @@
 
 
 
+int stb_i_format(oe::formats format) {
+	switch (format)
+	{
+	case oe::formats::rgba:
+		return STBI_rgb_alpha;
+	case oe::formats::rgb:
+		return STBI_rgb;
+	case oe::formats::mono:
+		return STBI_grey;
+	}
+}
+
+int stb_i_channels(oe::formats format) {
+	switch (format)
+	{
+	case oe::formats::rgba:
+		return 4;
+	case oe::formats::rgb:
+		return 3;
+	case oe::formats::mono:
+		return 1;
+	}
+}
+
 std::string oe::utils::readFile(fs::path path)
 {
 	std::ifstream input_file_stream = std::ifstream(path);
@@ -34,12 +58,13 @@ std::string oe::utils::readFile(fs::path path)
 
 void oe::utils::saveImage(fs::path path, const oe::utils::image_data& image)
 {
-	stbi_write_png(path.string().c_str(), image.width, image.height, image.channels, image.data, image.width * image.channels * sizeof(char));
+	int channels = stb_i_channels(image.format);
+	stbi_write_png(path.string().c_str(), image.width, image.height, channels, image.data, image.width * channels);
 }
 
-const oe::utils::image_data oe::utils::loadImage(fs::path path) {
+const oe::utils::image_data oe::utils::loadImage(fs::path path, oe::formats format) {
 	int width, height, channels;
-	unsigned char* image = stbi_load(path.string().c_str(), &width, &height, &channels, STBI_rgb_alpha);
+	unsigned char* image = stbi_load(path.string().c_str(), &width, &height, &channels, stb_i_format(format));
 
 	if (!image) {
 		oe_error_terminate("Failed to load imagefile \"{}\"", std::string(path.string().c_str()));
@@ -47,17 +72,17 @@ const oe::utils::image_data oe::utils::loadImage(fs::path path) {
 
 	// return
 	image_data returned = {};
-	returned.size = width * height * channels;
+	returned.format = format;
+	returned.size = static_cast<size_t>(width) * static_cast<size_t>(height) * static_cast<size_t>(channels);
 	returned.data = image;
 	returned.width = width;
 	returned.height = height;
-	returned.channels = channels;
 
 	return returned;
 }
 
-const oe::utils::image_data oe::utils::loadImageCopy(const unsigned char* data, int width, int height) {
-	size_t size = width * height * 4;
+const oe::utils::image_data oe::utils::loadImageCopy(const unsigned char* data, int width, int height, oe::formats format) {
+	size_t size = static_cast<size_t>(width) * static_cast<size_t>(height) * static_cast<size_t>(4);
 	unsigned char* data_dest = new unsigned char[size];
 	std::memcpy(data_dest, data, size);
 
@@ -67,19 +92,19 @@ const oe::utils::image_data oe::utils::loadImageCopy(const unsigned char* data, 
 	returned.data = data_dest;
 	returned.width = width;
 	returned.height = height;
-	returned.channels = 4;
+	returned.format = format;
 
 	return returned;
 }
 
-const oe::utils::image_data oe::utils::loadImageMove(unsigned char* data, int width, int height) {
+const oe::utils::image_data oe::utils::loadImageMove(unsigned char* data, int width, int height, oe::formats format) {
 	// return
 	image_data returned = {};
-	returned.size = width * height * 4;
+	returned.size = static_cast<size_t>(width) * static_cast<size_t>(height) * static_cast<size_t>(4);
 	returned.data = data;
 	returned.width = width;
 	returned.height = height;
-	returned.channels = 4;
+	returned.format = format;
 
 	return returned;
 }

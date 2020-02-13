@@ -11,12 +11,11 @@
 namespace oe {
 
 	enum class formats {
-		rgba8, 
-		rgba16, 
-		rgb8, 
-		rgb16,
-		mono8, 
-		mono16
+		// all channels are one byte wide
+
+		rgba, // red channel byte 0, green channel byte 2, blue channel byte 3, alpha channel byte 4, repeat
+		rgb, // red channel byte 0, green channel byte 2, blue channel byte 3, repeat
+		mono // white channel byte 0, repeat
 	};
 	enum class modes {
 		enable, 
@@ -373,7 +372,7 @@ namespace oe {
 	struct TextureInfo {
 		bool empty = false;
 		const uint8_t* data;
-		oe::formats data_format = oe::formats::rgba8;
+		oe::formats data_format = oe::formats::rgba;
 		bool generate_mipmaps = false;
 
 		uint8_t dimensions = 2;
