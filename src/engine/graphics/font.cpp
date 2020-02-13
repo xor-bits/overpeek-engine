@@ -12,7 +12,6 @@
 namespace oe::graphics {
 
 	Font::Font(oe::graphics::SpritePack* sprite_packer, int resolution, std::string font_path) {
-		spdlog::info("Loading font {} with resolution {}", font_path, resolution);
 		m_resolution = resolution;
 
 		// Freetype library
@@ -33,7 +32,6 @@ namespace oe::graphics {
 		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
 
 		// all glyphs
-		spdlog::debug("Loading {} glyphs", 256);
 		bb_max_height = 0; bb_min_height = 0;
 		for (int i = 0; i < 128; i++) {
 			unsigned char c = i;
@@ -98,8 +96,6 @@ namespace oe::graphics {
 
 		FT_Done_Face(face);
 		FT_Done_FreeType(ft);
-
-		spdlog::debug("Font loaded");
 	}
 
 	Font::~Font() {
