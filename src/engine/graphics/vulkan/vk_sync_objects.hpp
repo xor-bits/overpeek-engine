@@ -1,12 +1,16 @@
 #pragma once
 
-#include "swapchain.hpp"
+#include <vector>
+#include <vulkan/vulkan.hpp>
+
+#include "vk_logical_device.hpp"
+#include "vk_swapchain.hpp"
 
 
 
-namespace oe::vulkan {
+namespace oe::graphics {
 
-	class SyncObjects {
+	class VKSyncObjects {
 	public:
 		std::vector<vk::Semaphore> m_image_available_semaphores;
 		std::vector<vk::Semaphore> m_render_finished_semaphores;
@@ -14,15 +18,15 @@ namespace oe::vulkan {
 		std::vector<vk::Fence> m_images_in_flight;
 		size_t currentFrame = 0;
 
-		const LogicalDevice* m_logical_device;
-		const SwapChain* m_swap_chain;
+		const VKLogicalDevice* m_logical_device;
+		const VKSwapChain* m_swap_chain;
 
 	public:
-		SyncObjects(const SwapChain* swap_chain) : m_swap_chain(swap_chain), m_logical_device(swap_chain->m_logical_device) {
+		VKSyncObjects(const VKSwapChain* swap_chain, const VKLogicalDevice* logical_device) : m_swap_chain(swap_chain), m_logical_device(logical_device) {
 			m_image_available_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
 			m_render_finished_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
 			m_in_flight_fences.resize(MAX_FRAMES_IN_FLIGHT);
-			m_images_in_flight.resize(m_swap_chain->m_swap_chain_images.size(), nullptr);
+			m_images_in_flight.resize(m_swap_chain->m_swap_chain_render_targets.size(), nullptr);
 
 			vk::SemaphoreCreateInfo semaphoreInfo = {};
 
@@ -37,7 +41,7 @@ namespace oe::vulkan {
 			}
 		}
 
-		~SyncObjects() {
+		~VKSyncObjects() {
 			// semaphores
 			for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 				m_logical_device->m_logical_device.destroySemaphore(m_image_available_semaphores[i]);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 #include <string>
 #include <array>
 #include <vector>
@@ -53,7 +54,8 @@ namespace oe {
 	// shader stages
 	enum class shader_stages {
 		vertex_shader, 
-		tesselation_shader, 
+		tesselation_control_shader, 
+		tesselation_evaluation_shader, 
 		geometry_shader, 
 		fragment_shader, 
 		compute_shader
@@ -300,6 +302,9 @@ namespace oe {
 		static constexpr glm::vec4 sky = glm::vec4(0.0f, 0.5f, 1.0f, 1.0f);
 
 		static constexpr glm::vec4 clear_color = glm::vec4(0.18f, 0.18f, 0.2f, 1.0f);
+
+		static constexpr glm::vec4 rainbow_bright(float t) { return (rainbow_bright(t) + 1.0f) * 0.5f; };
+		static constexpr glm::vec4 rainbow(float t) { return glm::vec4(glm::vec4(sin(t), sin(t + (5.0f / 8.0f) * glm::pi<float>()), sin(t + (10.0f / 8.0f) * glm::pi<float>()), 1.0f)); };
 	};
 
 	struct alignments {
@@ -341,13 +346,15 @@ namespace oe {
 	struct ShaderStageInfo {
 		bool source_is_filepath = true;
 		shader_stages stage; // must be initialized
-		std::string source;  // must be initialized
+		const unsigned char* source;  // must be initialized
+		size_t source_bytes;  // must be initialized
 	};
 
+	const static std::string asset_default_shader_name = "asset:default_shader";
 	// shader create info
 	struct ShaderInfo {
-		std::string name = "default_shader";
-		std::vector<ShaderStageInfo> shader_stages;
+		std::string name = asset_default_shader_name;        // default shader will load if left unchanged
+		std::vector<ShaderStageInfo> shader_stages; // default shader will load if left unchanged
 	};
 
 	// engine create info

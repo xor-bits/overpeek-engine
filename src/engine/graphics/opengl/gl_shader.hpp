@@ -15,12 +15,13 @@ namespace oe::graphics {
 		void programLog(int program, unsigned int type) const;
 
 	public:
-		GLShader(const Instance* instance, const ShaderInfo& shader_info);
+		GLShader(const ShaderInfo& shader_info);
 		~GLShader();
+
+		virtual ShaderInfo default_shader_info() override;
 
 		virtual void bind() const override;
 		virtual void unbind() const override;
-
 
 		virtual int getUniformLocation(std::string name) const override;
 

@@ -20,8 +20,8 @@ namespace oe::graphics {
 
 
 
-	SpritePack::SpritePack(Instance* instance, int border) 
-		: m_instance(instance)
+	SpritePack::SpritePack(const Window* window, int border)
+		: m_window(window)
 	{
 		m_texture = nullptr;
 		m_usr_data = new __usr_data();
@@ -44,7 +44,7 @@ namespace oe::graphics {
 				delete m_sprites.at(i).at(j);
 			}
 		}
-		if(m_texture) m_instance->destroyTexture(m_texture);
+		if(m_texture) m_window->destroyTexture(m_texture);
 		delete static_cast<__usr_data*>(m_usr_data);
 	}
 
@@ -160,7 +160,7 @@ namespace oe::graphics {
 		texture_info.width = pack_width;
 		texture_info.height = pack_height;
 
-		m_texture = m_instance->createTexture(texture_info);
+		m_texture = m_window->createTexture(texture_info);
 		
 		delete[] data;
 	}

@@ -9,7 +9,7 @@ constexpr float inverse_ups = 1.0f / updates_per_second;
 
 oe::graphics::Instance* instance;
 oe::graphics::Window* window;
-oe::graphics::DefaultShader* shader;
+oe::graphics::Shader* shader;
 const oe::graphics::Sprite* sprite;
 oe::graphics::SpritePack* pack;
 oe::graphics::Renderer* renderer;
@@ -70,10 +70,10 @@ void render(float update_fraction) {
 void resize(const glm::vec2& window_size) {
 	float aspect = window->aspect();
 
-	shader->bind();
-	shader->useTexture(false);
 	glm::mat4 pr_matrix = glm::ortho(-20.0f * aspect, 20.0f * aspect, 20.0f, -20.0f);
-	shader->projectionMatrix(pr_matrix);
+	shader->bind();
+	shader->setUniformMat4("pr_matrix", pr_matrix);
+	shader->setUniform1i("usetex", false);
 }
 
 void update() {
@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
 	instance->swapInterval(1);
 	instance->culling(oe::culling_modes::back);
 
-	pack = new oe::graphics::SpritePack(instance);
+	pack = new oe::graphics::SpritePack(window);
 	sprite = pack->empty_sprite();
 	pack->construct();
 
@@ -115,18 +115,18 @@ int main(int argc, char* argv[]) {
 	renderer_info.indexRenderType = oe::types::staticrender;
 	renderer_info.max_quad_count = 6;
 	renderer_info.staticVBOBuffer_data = nullptr;
-	renderer = instance->createRenderer(renderer_info);
+	renderer = window->createRenderer(renderer_info);
 
 	// shader
-	shader = new oe::graphics::DefaultShader(instance);
+	shader = window->createShader(oe::ShaderInfo());
 
 	// start
 	oe::utils::GameLoop::init(render, update, updates_per_second);
 
 	// closing
-	delete shader;
 	delete pack;
-	instance->destroyRenderer(renderer);
+	window->destroyShader(shader);
+	window->destroyRenderer(renderer);
 	instance->destroyWindow(window);
 
 	return 0;

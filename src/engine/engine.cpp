@@ -3,7 +3,13 @@
 #include "graphics/opengl/gl_instance.hpp"
 #include "graphics/vulkan/vk_instance.hpp"
 
+#include <GLFW/glfw3.h>
 
+
+
+static void glfw_error_func(int code, const char* desc) {
+	spdlog::error("GLFW ({}): {}", code, desc);
+}
 
 namespace oe {
 
@@ -14,6 +20,9 @@ namespace oe {
 		spdlog::set_level(spdlog::level::level_enum::trace);
 
 		engine_info = _engine_info;
+
+		glfwSetErrorCallback(glfw_error_func);
+		if (!glfwInit()) oe_error_terminate("Failed to initialize GLFW!");
 		
 		if (engine_info.audio) {
 			spdlog::debug("Initializing audio");

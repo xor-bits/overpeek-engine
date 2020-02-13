@@ -19,7 +19,7 @@ namespace oe::graphics {
 		size_t m_max_quad_count;
 
 	public:
-		Renderer(const Instance* instance, const RendererInfo& renderer_info);
+		Renderer(const RendererInfo& renderer_info);
 		~Renderer();
 
 		virtual void begin() = 0;

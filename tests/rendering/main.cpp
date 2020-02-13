@@ -11,7 +11,7 @@ const oe::graphics::Sprite* sprite_white;
 oe::graphics::Instance* instance;
 oe::graphics::Window* window;
 oe::graphics::SpritePack* pack;
-oe::graphics::DefaultShader* shader;
+oe::graphics::Shader* shader;
 oe::graphics::Renderer* renderer;
 
 float t = 0;
@@ -50,9 +50,8 @@ void update() {
 void resize(const glm::vec2& window_size) {
 	float aspect = window->aspect();
 	glm::mat4 pr = glm::ortho(-aspect, aspect, 1.0f, -1.0f);
-	spdlog::info(aspect);
-	shader->projectionMatrix(pr);
-	shader->useTexture(true);
+	shader->setUniformMat4("pr_matrix", pr);
+	shader->setUniform1i("usetex", true);
 }
 
 void keyboard(oe::keys key, oe::actions action, oe::modifiers mods) {
@@ -97,14 +96,14 @@ int main(int argc, char** argv) {
 	renderer_info.indexRenderType = oe::types::staticrender;
 	renderer_info.max_quad_count = 6;
 	renderer_info.staticVBOBuffer_data = nullptr;
-	renderer = instance->createRenderer(renderer_info);
+	renderer = window->createRenderer(renderer_info);
 
 	// shader
-	shader = new oe::graphics::DefaultShader(instance);
+	shader = window->createShader(oe::ShaderInfo());
 	
 	// sprites
 	auto img = oe::utils::loadImageCopy(texture_png, 5, 5);
-	pack = new oe::graphics::SpritePack(instance);
+	pack = new oe::graphics::SpritePack(window);
 	sprite = pack->addSprite(img);
 	sprite_white = pack->empty_sprite();
 	pack->construct();
@@ -115,8 +114,8 @@ int main(int argc, char** argv) {
 
 	// closing
 	delete pack;
-	delete shader;
-	instance->destroyRenderer(renderer);
+	window->destroyShader(shader);
+	window->destroyRenderer(renderer);
 	instance->destroyWindow(window);
 
 	return 0;

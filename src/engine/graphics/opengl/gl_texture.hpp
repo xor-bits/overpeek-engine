@@ -26,7 +26,7 @@ namespace oe::graphics {
 		void data3D(const uint8_t* data, size_t width, size_t x_offset, size_t height, size_t y_offset, size_t depth, size_t z_offset);
 
 	public:
-		GLTexture(const Instance* instance, const TextureInfo& texture_info);
+		GLTexture(const TextureInfo& texture_info);
 		~GLTexture();
 
 		virtual void setData(const TextureInfo& texture_info) override;

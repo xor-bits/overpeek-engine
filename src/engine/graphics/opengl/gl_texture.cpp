@@ -12,8 +12,8 @@
 
 namespace oe::graphics {
 
-	GLTexture::GLTexture(const Instance* instance, const TextureInfo& texture_info)
-		: Texture(instance, texture_info)
+	GLTexture::GLTexture(const TextureInfo& texture_info)
+		: Texture(texture_info)
 	{
 		// generate texture
 		m_target = 0;

@@ -14,8 +14,10 @@ namespace oe::graphics {
 		ShaderInfo m_shader_info;
 
 	public:
-		Shader(const Instance* instance, const ShaderInfo& shader_info);
+		Shader(const ShaderInfo& shader_info);
 		~Shader();
+
+		virtual ShaderInfo default_shader_info() = 0;
 
 		virtual void bind() const = 0;
 		virtual void unbind() const = 0;

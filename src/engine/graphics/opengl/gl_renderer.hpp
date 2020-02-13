@@ -20,7 +20,7 @@ namespace oe::graphics {
 		size_t m_buffer_pos;
 
 	public:
-		GLRenderer(const Instance* instance, const RendererInfo& renderer_info);
+		GLRenderer(const RendererInfo& renderer_info);
 		~GLRenderer();
 
 		// Inherited via Renderer

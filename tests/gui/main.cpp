@@ -14,7 +14,7 @@ const oe::graphics::Sprite* sprite;
 oe::graphics::Instance* instance;
 oe::graphics::Window* window;
 oe::graphics::SpritePack* pack;
-oe::graphics::DefaultShader* shader;
+oe::graphics::Shader* shader;
 oe::graphics::Renderer* renderer;
 oe::graphics::Font* font;
 
@@ -72,7 +72,7 @@ void cube() {
 	static glm::mat4 ml_matrix = glm::mat4(1.0f);
 	shader->bind();
 	ml_matrix = glm::rotate(ml_matrix, speed * -0.1f, rotate);
-	shader->modelMatrix(ml_matrix);
+	shader->setUniformMat4("ml_matrix", ml_matrix);
 	instance->polygonMode(oe::polygon_mode::lines);
 	renderer->end();
 	renderer->render();
@@ -101,11 +101,11 @@ void resize(const glm::vec2& window_size) {
 	gui->resize();
 
 	shader->bind();
-	shader->useTexture(false);
+	shader->setUniform1i("usetex", false);
 	glm::mat4 pr_matrix = glm::perspectiveFov(30.0f, (float)window_size.x, (float)window_size.y, 0.0f, 1000.0f);
-	shader->projectionMatrix(pr_matrix);
+	shader->setUniformMat4("pr_matrix", pr_matrix);
 	glm::mat4 vw_matrix = glm::lookAt(glm::vec3(0.0f, 0.0f,-5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	shader->viewMatrix(vw_matrix);
+	shader->setUniformMat4("vw_matrix", vw_matrix);
 }
 
 void update() {
@@ -268,6 +268,12 @@ int main() {
 	window->setCharmodCallback(text);
 	window->setKeyboardCallback(keyboard);
 
+	// print render info
+	spdlog::info("GPU: {}", window->getGPU());
+	spdlog::info("GPUVendor: {}", window->getGPUVendor());
+	spdlog::info("API: {}", window->getAPI());
+	spdlog::info("APIVersion: {}", window->getAPIVersion());
+
 	// instance settings
 	instance->swapInterval(1);
 	instance->culling(oe::culling_modes::neither);
@@ -279,14 +285,14 @@ int main() {
 	renderer_info.indexRenderType = oe::types::staticrender;
 	renderer_info.max_quad_count = 10000;
 	renderer_info.staticVBOBuffer_data = nullptr;
-	renderer = instance->createRenderer(renderer_info);
+	renderer = window->createRenderer(renderer_info);
 	
 	// shader
-	shader = new oe::graphics::DefaultShader(instance);
+	shader = window->createShader(oe::ShaderInfo());
 
 	// spritepack
 	auto img = oe::utils::loadImageCopy(texture_png, 5, 5);
-	pack = new oe::graphics::SpritePack(instance);
+	pack = new oe::graphics::SpritePack(window);
 	sprite = pack->addSprite(img);
 
 	// font
@@ -295,7 +301,7 @@ int main() {
 	pack->construct();
 
 	// gui
-	gui = new oe::gui::GUI(instance, window);
+	gui = new oe::gui::GUI(window);
 	setup_gui();
 
 	// start
@@ -307,8 +313,8 @@ int main() {
 	delete font;
 	delete pack;
 	delete shader;
+	window->destroyRenderer(renderer);
 	instance->destroyWindow(window);
-	instance->destroyRenderer(renderer);
 	oe::Engine::deinit();
 
 	return 0;

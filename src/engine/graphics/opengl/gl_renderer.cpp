@@ -12,7 +12,9 @@
 
 namespace oe::graphics {
 
-	GLRenderer::GLRenderer(const Instance* instance, const RendererInfo& renderer_info) : Renderer(instance, renderer_info) {
+	GLRenderer::GLRenderer(const RendererInfo& renderer_info)
+		: Renderer(renderer_info) 
+	{
 		m_buffer_pos = 0;
 		m_mapped_buffer = nullptr;
 
@@ -43,7 +45,7 @@ namespace oe::graphics {
 		m_vao = new VertexArray();
 		m_ibo = new IndexBuffer(ib, max_indices * sizeof(unsigned short), renderer_info.indexRenderType);
 		m_vbo = new VertexBuffer(vb, (size_t)max_vertices * (size_t)VertexData::component_count * sizeof(float), VertexData::component_count, renderer_info.arrayRenderType);
-		VertexData::configVBO(m_vbo);
+		m_vbo->config();
 
 		delete[] ib;
 	}

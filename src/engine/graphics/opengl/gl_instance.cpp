@@ -28,49 +28,9 @@ namespace oe::graphics {
 		return new GLWindow(this, window_config);
 	}
 
-	Renderer* GLInstance::createRenderer(const RendererInfo& renderer_info) const
-	{
-		return new GLRenderer(this, renderer_info);
-	}
-
-	Shader* GLInstance::createShader(const ShaderInfo& shader_info) const
-	{
-		return new GLShader(this, shader_info);
-	}
-
-	Texture* GLInstance::createTexture(const TextureInfo& texture_info) const
-	{
-		return new GLTexture(this, texture_info);
-	}
-
-	FrameBuffer* GLInstance::createFrameBuffer(const FrameBufferInfo& framebuffer_info) const
-	{
-		return new GLFrameBuffer(this, framebuffer_info);
-	}
-
 	void GLInstance::destroyWindow(graphics::Window* window) const
 	{
 		delete (graphics::GLWindow*)window;
-	}
-
-	void GLInstance::destroyRenderer(graphics::Renderer* renderer) const
-	{
-		delete (graphics::GLRenderer*)renderer;
-	}
-
-	void GLInstance::destroyShader(graphics::Shader* shader) const
-	{
-		delete (graphics::GLShader*)shader;
-	}
-
-	void GLInstance::destroyTexture(graphics::Texture* texture) const
-	{
-		delete (graphics::GLTexture*)texture;
-	}
-
-	void GLInstance::destroyFrameBuffer(graphics::FrameBuffer* framebuffer) const
-	{
-		delete (graphics::GLFrameBuffer*)framebuffer;
 	}
 
 
@@ -178,26 +138,6 @@ namespace oe::graphics {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 			break;
 		}
-	}
-
-	std::string GLInstance::getAPI() const
-	{
-		return "OpenGL";
-	}
-
-	std::string GLInstance::getAPIVersion() const
-	{
-		return std::string(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
-	}
-
-	std::string GLInstance::getGPU() const
-	{
-		return std::string(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
-	}
-
-	std::string GLInstance::getGPUVendor() const
-	{
-		return std::string(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
 	}
 
 }
