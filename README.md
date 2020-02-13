@@ -1,6 +1,7 @@
 # overpeek-engine
 Minimal game engine/framework.
 Primary focus on 2D side.
+Should be easy to use.
  - Windows
  - Linux
  - OSX, possibly (not tested)
