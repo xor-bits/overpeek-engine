@@ -74,11 +74,14 @@ namespace oe::graphics {
 		for (auto& stage : m_shader_info.shader_stages)
 		{
 			size_t source_bytes = stage.source_bytes;
-			std::string source = std::string(reinterpret_cast<const char*>(stage.source), source_bytes);
+			std::string source;
 
 			// sources
 			if (stage.source_is_filepath) {
-				source = oe::utils::readFile(source).c_str();
+				source = oe::utils::readFile(reinterpret_cast<const char*>(stage.source)).c_str();
+			}
+			else {
+				source = reinterpret_cast<const char*>(stage.source);
 			}
 
 			// stage type
