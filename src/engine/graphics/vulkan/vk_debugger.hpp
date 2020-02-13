@@ -75,6 +75,9 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityF
 		break;
 	}
 
+	if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+		oe_error_terminate("vulkan error");
+	
 	std::cout << std::endl;
 
 	return VK_FALSE;

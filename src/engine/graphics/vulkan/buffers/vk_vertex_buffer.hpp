@@ -8,8 +8,8 @@
 
 namespace oe::graphics {
 
-	class LogicalDevice;
-	class VertexBuffer {
+	class VKLogicalDevice;
+	class VKVertexBuffer {
 	public:
 		vk::Buffer m_vertex_buffer;
 		vk::DeviceMemory m_vertex_buffer_memory;
@@ -17,11 +17,11 @@ namespace oe::graphics {
 		size_t m_size;
 		void* mapped_buffer;
 
-		const LogicalDevice* m_logical_device;
+		const VKLogicalDevice* m_logical_device;
 
 	public:
-		VertexBuffer(vk::BufferUsageFlagBits usage, size_t size, const LogicalDevice* logical_device);
-		~VertexBuffer();
+		VKVertexBuffer(vk::BufferUsageFlagBits usage, size_t size, const VKLogicalDevice* logical_device);
+		~VKVertexBuffer();
 
 		void map();
 		void unmap();

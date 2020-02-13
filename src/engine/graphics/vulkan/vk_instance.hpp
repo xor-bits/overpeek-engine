@@ -11,14 +11,14 @@
 
 namespace oe::graphics {
 
-	class PhysicalDevice; class Debugger;
+	class VKPhysicalDevice; class Debugger;
 
 	class VKInstance : public Instance {
 	public:
 		vk::Instance m_vk_instance;
 		std::vector<vk::LayerProperties> m_available_validation_layers;
 		Debugger *m_debugger;
-		PhysicalDevice *m_physical_device;
+		VKPhysicalDevice *m_physical_device;
 
 	public:
 		VKInstance(const InstanceInfo& instance_info);

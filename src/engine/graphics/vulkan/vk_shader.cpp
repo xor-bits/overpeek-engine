@@ -3,6 +3,7 @@
 #include "vk_window.hpp"
 #include "vk_swapchain.hpp"
 #include "buffers/vk_vertex_buffer.hpp"
+#include "buffers/vk_command_pool.hpp"
 #include "engine/engine.hpp"
 
 #include "shader/vert.spv.h"
@@ -99,8 +100,8 @@ namespace oe::graphics {
 		// pipeline input
 		vk::PipelineVertexInputStateCreateInfo vertexInputInfo = {};
 #if true
-		auto bindingDescription = VertexBuffer::getBindingDescription();
-		auto attributeDescriptions = VertexBuffer::getAttributeDescriptions();
+		auto bindingDescription = VKVertexBuffer::getBindingDescription();
+		auto attributeDescriptions = VKVertexBuffer::getAttributeDescriptions();
 		vertexInputInfo.vertexBindingDescriptionCount = 1;
 		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
 		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
@@ -254,6 +255,7 @@ namespace oe::graphics {
 	// needs implementation/fixing
 	void VKShader::bind() const
 	{
+		m_window->m_command_pool->submitBind(this);
 	}
 	void VKShader::unbind() const
 	{

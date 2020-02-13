@@ -1,11 +1,13 @@
 #include "vk_window.hpp"
 #include "engine/engine.hpp"
 
-#include "engine/graphics/vulkan/vk_instance.hpp"
-#include "engine/graphics/vulkan/vk_shader.hpp"
-#include "engine/graphics/vulkan/vk_physical_device.hpp"
-#include "engine/graphics/vulkan/vk_logical_device.hpp"
-#include "engine/graphics/vulkan/vk_swapchain.hpp"
+#include "vk_instance.hpp"
+#include "vk_shader.hpp"
+#include "vk_physical_device.hpp"
+#include "vk_logical_device.hpp"
+#include "vk_swapchain.hpp"
+#include "vk_sync_objects.hpp"
+#include "buffers/vk_command_pool.hpp"
 
 #include <GLFW/glfw3.h>
 #include <string>
@@ -46,9 +48,12 @@ namespace oe::graphics {
 
 		glfw();
 
-		m_physical_device = new PhysicalDevice(m_instance, &m_surface);
-		m_logical_device = new LogicalDevice(m_instance, m_physical_device);
-		m_swapchain = new SwapChain(this, m_logical_device);
+		m_physical_device = new VKPhysicalDevice(m_instance, &m_surface);
+		m_logical_device = new VKLogicalDevice(m_instance, m_physical_device);
+		m_swapchain = new VKSwapChain(this, m_logical_device);
+		m_command_pool = new VKCommandPool(m_physical_device, m_logical_device);
+		m_command_pool->createCommandBuffersSwapChain(m_swapchain);
+		m_sync_objects = new VKSyncObjects(m_swapchain, m_logical_device);
 	}
 
 	VKWindow::~VKWindow() {
@@ -65,10 +70,67 @@ namespace oe::graphics {
 
 	void VKWindow::update() {
 		// swap framebuffers
+		m_command_pool->endRecording();
+
+		m_logical_device->m_logical_device.waitForFences(m_sync_objects->m_in_flight_fences, true, UINT64_MAX);
+
+		uint32_t imageIndex;
+		imageIndex = m_logical_device->m_logical_device.acquireNextImageKHR(m_swapchain->m_swap_chain, UINT64_MAX, m_sync_objects->m_image_available_semaphores[m_sync_objects->currentFrame], nullptr).value;
+
+		// Check if a previous frame is using this image (i.e. there is its fence to wait on)
+		if (m_sync_objects->m_images_in_flight[imageIndex]) {
+			m_sync_objects->m_logical_device->m_logical_device.waitForFences(m_sync_objects->m_images_in_flight[imageIndex], true, UINT64_MAX);
+		}
+		// Mark the image as now being in use by this frame
+		m_sync_objects->m_images_in_flight[imageIndex] = m_sync_objects->m_images_in_flight[m_sync_objects->currentFrame];
+
+		// submit info
+		vk::SubmitInfo submitInfo = {};
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &m_command_pool->m_command_buffers.at(imageIndex)->m_command_buffer;
+
+		// waiting for semaphores
+		vk::Semaphore waitSemaphores[] = { m_sync_objects->m_image_available_semaphores[m_sync_objects->currentFrame] };
+		vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
+		submitInfo.waitSemaphoreCount = 1;
+		submitInfo.pWaitSemaphores = waitSemaphores;
+		submitInfo.pWaitDstStageMask = waitStages;
+
+		// semaphores
+		vk::Semaphore signalSemaphores[] = { m_sync_objects->m_render_finished_semaphores[m_sync_objects->currentFrame] };
+		submitInfo.signalSemaphoreCount = 1;
+		submitInfo.pSignalSemaphores = signalSemaphores;
+
+		m_logical_device->m_logical_device.resetFences(m_sync_objects->m_in_flight_fences[m_sync_objects->currentFrame]);
+
+		// submitting queue
+		m_logical_device->m_graphics_queue.submit(submitInfo, m_sync_objects->m_in_flight_fences[m_sync_objects->currentFrame]);
+
+		// presentation
+		vk::PresentInfoKHR presentInfo = {};
+		presentInfo.waitSemaphoreCount = 1;
+		presentInfo.pWaitSemaphores = signalSemaphores;
+
+		vk::SwapchainKHR swapChains[] = { m_swapchain->m_swap_chain };
+		presentInfo.swapchainCount = 1;
+		presentInfo.pSwapchains = swapChains;
+		presentInfo.pImageIndices = &imageIndex;
+
+		presentInfo.pResults = nullptr; // Optional
+
+		// present
+		m_sync_objects->m_logical_device->m_present_queue.presentKHR(presentInfo);
+
+		m_sync_objects->currentFrame = (m_sync_objects->currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+
+		// input
+		glfwPollEvents();
 	}
 
 	void VKWindow::clear(const glm::vec4& color) {
 		// clear window framebuffer
+		m_logical_device->m_logical_device.waitIdle();
+		m_command_pool->beginRecording(color);
 	}
 	
 	void VKWindow::viewport() {

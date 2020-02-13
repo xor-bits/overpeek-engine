@@ -18,7 +18,7 @@ namespace oe::graphics {
 		}
 	};
 
-	class PhysicalDevice {
+	class VKPhysicalDevice {
 	public:
 		vk::PhysicalDevice m_physical_device;
 		vk::PhysicalDeviceProperties m_physical_device_properties;
@@ -27,8 +27,8 @@ namespace oe::graphics {
 		const vk::SurfaceKHR* m_surface;
 
 	public:
-		PhysicalDevice(const VKInstance* instance, const vk::SurfaceKHR* surface);
-		~PhysicalDevice();
+		VKPhysicalDevice(const VKInstance* instance, const vk::SurfaceKHR* surface);
+		~VKPhysicalDevice();
 
 		QueueFamilyIndices findQueueFamilies() const;
 

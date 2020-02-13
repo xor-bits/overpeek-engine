@@ -9,20 +9,20 @@
 
 namespace oe::graphics {
 
-	class SwapChain {
+	class VKSwapChain {
 	public:
 		vk::SwapchainKHR m_swap_chain;
 		vk::Format m_format;
 		vk::Extent2D m_extent;
 		vk::RenderPass m_render_pass;
 
-		std::vector<RenderTarget*> m_swap_chain_render_targets; // no destructors
+		std::vector<VKRenderTarget*> m_swap_chain_render_targets; // no destructors
 
-		const LogicalDevice* m_logical_device;
-		const PhysicalDevice* m_physical_device;
+		const VKLogicalDevice* m_logical_device;
+		const VKPhysicalDevice* m_physical_device;
 
 	public:
-		SwapChain(const VKWindow* window, const LogicalDevice* logical_device)
+		VKSwapChain(const VKWindow* window, const VKLogicalDevice* logical_device)
 			: m_logical_device(logical_device)
 			, m_physical_device(logical_device->m_physical_device) 
 		{
@@ -33,6 +33,7 @@ namespace oe::graphics {
 			vk::SurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
 			vk::PresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
 			m_extent = chooseSwapExtent(swapChainSupport.capabilities);
+			m_format = surfaceFormat.format;
 
 			// set swap chain
 			uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
@@ -79,18 +80,18 @@ namespace oe::graphics {
 			// swap chain creation
 			vk::Result res = m_logical_device->m_logical_device.createSwapchainKHR(&createInfo, nullptr, &m_swap_chain);
 			if (res != vk::Result::eSuccess) {
-				spdlog::error("failed to create swap chain");
+				spdlog::error("failed to create a swap chain");
 			}
 
 			// retrive handles to swapchain images
-			m_format = surfaceFormat.format;
 			auto swap_chain_images = m_logical_device->m_logical_device.getSwapchainImagesKHR(m_swap_chain);
-			
+
 			createRenderPass();
 			for (auto& image : swap_chain_images)
 			{
-				m_swap_chain_render_targets.push_back(new RenderTarget(m_logical_device, &m_render_pass, image, m_extent, m_format));
+				m_swap_chain_render_targets.push_back(new VKRenderTarget(m_logical_device, &m_render_pass, &image, m_extent, m_format));
 			}
+
 		}
 
 		void createRenderPass() {

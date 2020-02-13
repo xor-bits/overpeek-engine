@@ -9,17 +9,17 @@
 
 namespace oe::graphics {
 
-	class LogicalDevice {
+	class VKLogicalDevice {
 	public:
 		vk::Device m_logical_device;
 
 		vk::Queue m_graphics_queue;
 		vk::Queue m_present_queue;
 		
-		const PhysicalDevice* m_physical_device;
+		const VKPhysicalDevice* m_physical_device;
 
 	public:
-		LogicalDevice(const Instance* instance, const PhysicalDevice* physical_device)
+		VKLogicalDevice(const Instance* instance, const VKPhysicalDevice* physical_device)
 			: m_physical_device(physical_device) 
 		{
 			auto indices = m_physical_device->findQueueFamilies();
@@ -69,7 +69,7 @@ namespace oe::graphics {
 			m_present_queue = m_logical_device.getQueue(indices.presentFamily.value(), 0);
 		}
 
-		~LogicalDevice() {
+		~VKLogicalDevice() {
 			m_logical_device.destroy();
 		}
 

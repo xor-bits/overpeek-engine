@@ -13,7 +13,7 @@ namespace oe::graphics {
 		vk::PipelineLayout m_pipeline_layout;
 		vk::Pipeline m_pipeline;
 		
-		const LogicalDevice* m_logical_device;
+		const VKLogicalDevice* m_logical_device;
 		const VKWindow* m_window;
 
 	public:

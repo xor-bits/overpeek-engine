@@ -9,21 +9,21 @@
 
 namespace oe::graphics {
 
-	class RenderTarget {
+	class VKRenderTarget {
 	public:
 		vk::Extent2D m_extent;
 		vk::Format m_format;
 		vk::RenderPass* m_render_pass;
 		bool external_render_pass;
 
-		vk::Image m_image;
+		const vk::Image* m_image;
 		vk::ImageView m_image_view;
 		vk::Framebuffer m_frame_buffer;
 
-		const LogicalDevice* m_logical_device;
+		const VKLogicalDevice* m_logical_device;
 
 	public:
-		RenderTarget(const LogicalDevice* logical_device, const glm::vec2& size)
+		VKRenderTarget(const VKLogicalDevice* logical_device, const glm::vec2& size)
 			: m_logical_device(logical_device)
 			, m_extent(size.x, size.y)
 			, m_format(vk::Format::eR8G8B8A8Srgb)
@@ -37,7 +37,7 @@ namespace oe::graphics {
 
 		// this will take the controll over vk:Image image
 		// and will destroy it when needed to
-		RenderTarget(const LogicalDevice* logical_device, vk::RenderPass* render_pass, vk::Image image, vk::Extent2D extent, vk::Format format)
+		VKRenderTarget(const VKLogicalDevice* logical_device, vk::RenderPass* render_pass, const vk::Image* image, vk::Extent2D extent, vk::Format format)
 			: m_logical_device(logical_device)
 			, m_image(image)
 			, m_extent(extent)
@@ -49,11 +49,11 @@ namespace oe::graphics {
 			createFramebuffer();
 		}
 
-		~RenderTarget() {
+		~VKRenderTarget() {
 			m_logical_device->m_logical_device.destroyFramebuffer(m_frame_buffer);
 			if (!external_render_pass) m_logical_device->m_logical_device.destroyRenderPass(*m_render_pass);
 			m_logical_device->m_logical_device.destroyImageView(m_image_view);
-			m_logical_device->m_logical_device.destroyImage(m_image);
+			m_logical_device->m_logical_device.destroyImage(*m_image);
 		}
 
 		void createImage() {
@@ -66,13 +66,13 @@ namespace oe::graphics {
 			image_info.arrayLayers = 1;
 			image_info.format = m_format;
 
-			m_image = m_logical_device->m_logical_device.createImage(image_info);
+			m_image = &m_logical_device->m_logical_device.createImage(image_info);
 		}
 
 		void createImageView() {
 			// basic image view create info
 			vk::ImageViewCreateInfo createInfo = {};
-			createInfo.image = m_image;
+			createInfo.image = *m_image;
 
 			// 2d images
 			createInfo.viewType = vk::ImageViewType::e2D;

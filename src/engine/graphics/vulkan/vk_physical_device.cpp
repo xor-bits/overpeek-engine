@@ -9,21 +9,21 @@
 
 namespace oe::graphics {
 
-	PhysicalDevice::PhysicalDevice(const VKInstance* instance, const vk::SurfaceKHR* surface)
+	VKPhysicalDevice::VKPhysicalDevice(const VKInstance* instance, const vk::SurfaceKHR* surface)
 		: m_surface(surface), m_instance(instance)
 	{
 		pickPhysicalDevice();
 	}
 
-	PhysicalDevice::~PhysicalDevice() {
+	VKPhysicalDevice::~VKPhysicalDevice() {
 
 	}
 
-	QueueFamilyIndices PhysicalDevice::findQueueFamilies() const {
+	QueueFamilyIndices VKPhysicalDevice::findQueueFamilies() const {
 		return findQueueFamilies(m_physical_device, m_surface);
 	}
 
-	QueueFamilyIndices PhysicalDevice::findQueueFamilies(vk::PhysicalDevice device, const vk::SurfaceKHR* surface) {
+	QueueFamilyIndices VKPhysicalDevice::findQueueFamilies(vk::PhysicalDevice device, const vk::SurfaceKHR* surface) {
 		QueueFamilyIndices queue_family_indices = {};
 
 		std::vector<vk::QueueFamilyProperties> available_queue_families = device.getQueueFamilyProperties();
@@ -44,7 +44,7 @@ namespace oe::graphics {
 		return queue_family_indices;
 	}
 
-	bool PhysicalDevice::isDeviceSuitable(vk::PhysicalDevice device) {
+	bool VKPhysicalDevice::isDeviceSuitable(vk::PhysicalDevice device) {
 		QueueFamilyIndices queue_family_indices = findQueueFamilies(device, m_surface);
 
 		bool features = hasRequiredFeatures(device);
@@ -54,7 +54,7 @@ namespace oe::graphics {
 		return queue_family_indices.isComplete() && extensions && features;
 	}
 
-	int PhysicalDevice::rateDeviceSuitability(vk::PhysicalDevice device) {
+	int VKPhysicalDevice::rateDeviceSuitability(vk::PhysicalDevice device) {
 		// assign score to all GPUs
 		int score = 1;
 
@@ -68,7 +68,7 @@ namespace oe::graphics {
 		return score;
 	}
 
-	vk::PhysicalDevice PhysicalDevice::bestPhysicalDevice(const std::vector<vk::PhysicalDevice>& devices) {
+	vk::PhysicalDevice VKPhysicalDevice::bestPhysicalDevice(const std::vector<vk::PhysicalDevice>& devices) {
 		// Use an ordered map to automatically sort candidates by increasing score
 		std::multimap<int, VkPhysicalDevice> candidates;
 		for (const auto& device : devices) {
@@ -94,7 +94,7 @@ namespace oe::graphics {
 		}
 	}
 
-	void PhysicalDevice::pickPhysicalDevice() {
+	void VKPhysicalDevice::pickPhysicalDevice() {
 		// all GPUs with Vulkan support
 		uint32_t deviceCount = 0;
 

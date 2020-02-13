@@ -9,9 +9,11 @@
 
 namespace oe::graphics {
 
-	class SwapChain;
-	class LogicalDevice;
-	class PhysicalDevice;
+	class VKSwapChain;
+	class VKSyncObjects;
+	class VKCommandPool;
+	class VKLogicalDevice;
+	class VKPhysicalDevice;
 	class VKInstance;
 	class VKWindow : public Window {
 	public:
@@ -19,9 +21,11 @@ namespace oe::graphics {
 		vk::SurfaceKHR m_surface;
 		bool m_debugging;
 
-		PhysicalDevice* m_physical_device;
-		LogicalDevice* m_logical_device;
-		SwapChain* m_swapchain;
+		VKPhysicalDevice* m_physical_device;
+		VKLogicalDevice* m_logical_device;
+		VKSwapChain* m_swapchain;
+		VKCommandPool* m_command_pool;
+		VKSyncObjects* m_sync_objects;
 
 	public:
 		VKWindow(const VKInstance* instance, const WindowInfo& window_config);
