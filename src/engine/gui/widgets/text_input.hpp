@@ -9,6 +9,12 @@ namespace oe::gui {
 #define TEXT_CALLBACK_WRAPPER(x) [&](const std::string & string) { x(string); }
 	typedef std::function<void(const std::string & string)> text_callback;
 
+	const static std::string filter_none = "";
+	const static std::string filter_letters_upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	const static std::string filter_letters_lower = "abcdefghijklmnopqrstuvwxyz";
+	const static std::string filter_numbers       = "0123456789";
+	const static std::string filter_symbols       = "-_.:,;<>|^¨~'*´`?\\/()[]{}&%¤#\"!@£$§=";
+
 	struct TextInputInfo {
 		text_callback callback_changed        = nullptr;
 		text_callback callback_newline        = nullptr;
@@ -18,6 +24,7 @@ namespace oe::gui {
 		glm::vec2 align_render                = oe::alignments::center_center;
 		glm::vec2 align_text                  = oe::alignments::center_center;
 		std::string text                      = "";
+		std::string filter                    = filter_none;
 		int font_size                         = 16;
 		glm::vec4 color                       = oe::colors::dark_grey;
 		const oe::graphics::Sprite* sprite    = nullptr; // must be set
@@ -31,6 +38,7 @@ namespace oe::gui {
 	private:
 		void* m_state;
 		bool m_selected;
+		bool m_filtering;
 
 	public:
 		// window_handle is used for clipboard

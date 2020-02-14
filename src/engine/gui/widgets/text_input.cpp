@@ -52,6 +52,7 @@ namespace oe::gui {
 		: Widget(_text_input_info.size, _text_input_info.align_parent, _text_input_info.align_render, _text_input_info.offset_position)
 		, text_input_info(_text_input_info)
 		, m_selected(false)
+		, m_filtering(_text_input_info.filter != filter_none)
 	{
 		m_state = new STB_TexteditState();
 		static_cast<STB_TexteditState*>(m_state)->cursor = _text_input_info.text.size();
@@ -87,8 +88,17 @@ namespace oe::gui {
 
 	void TextInput::text(uint32_t codepoint, oe::modifiers mods) {
 		if (!m_selected) return;
+		char character = codepoint;
 
-		stb_textedit_key(&text_input_info.text, reinterpret_cast<STB_TexteditState*>(m_state), codepoint);
+		if (m_filtering) {
+			if (text_input_info.filter.find(character) == text_input_info.filter.npos) {
+				spdlog::info("{} filtered out", character);
+				spdlog::info("filter: {}", text_input_info.filter);
+				return;
+			}
+		}
+
+		stb_textedit_key(&text_input_info.text, reinterpret_cast<STB_TexteditState*>(m_state), character);
 		resetTimer();
 
 		if (text_input_info.callback_changed) text_input_info.callback_changed(text_input_info.text);

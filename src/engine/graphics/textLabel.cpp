@@ -143,8 +143,8 @@ namespace oe::graphics {
 		for (size_t i = 0; i < renderData.size(); i++) {
 			unsigned char c = renderData.at(i).first;
 			auto glyph = font->getGlyph(c);
-			auto sprite = glyph->sprite;
 			if (!glyph) continue;
+			auto sprite = glyph->sprite;
 
 			// first
 			if (i == 0) {
@@ -181,8 +181,8 @@ namespace oe::graphics {
 		for (pairData& pd : renderData) {
 			unsigned char i = pd.first;
 			auto glyph = font->getGlyph(i);
-			auto sprite = glyph->sprite;
 			if (!glyph) continue;
+			auto sprite = glyph->sprite;
 
 			renderer.submit(pos + advance + glyph->top_left * size + glm::vec2{ 0.0, line }, glyph->size * size, sprite, pd.second);
 			advance += glm::vec2(glyph->advance.x, 0.0f) * size;
