@@ -25,24 +25,18 @@ namespace oe {
 		if (!glfwInit()) oe_error_terminate("Failed to initialize GLFW!");
 		
 		if (engine_info.audio) {
-			spdlog::debug("Initializing audio");
 			audio::Audio::init();
 		}
 		if (engine_info.networking) {
-			spdlog::debug("Initializing networking");
 			networking::enet::initEnet();
 		}
-
-		spdlog::debug("Engine initialized");
 	}
 
 	void Engine::deinit() {
 		if (engine_info.audio) {
-			spdlog::debug("Deinitializing audio");
 			audio::Audio::deinit();
 		}
 		if (engine_info.networking) {
-			spdlog::debug("Deinitializing networking");
 			networking::enet::deinitEnet();
 		}
 	}

@@ -91,9 +91,8 @@ namespace oe::gui {
 		char character = codepoint;
 
 		if (m_filtering) {
-			if (text_input_info.filter.find(character) == text_input_info.filter.npos) {
+			if (text_input_info.filter.find(character) == text_input_info.filter.npos)
 				return;
-			}
 		}
 
 		stb_textedit_key(&text_input_info.text, reinterpret_cast<STB_TexteditState*>(m_state), character);
