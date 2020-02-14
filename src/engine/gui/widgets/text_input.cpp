@@ -92,8 +92,6 @@ namespace oe::gui {
 
 		if (m_filtering) {
 			if (text_input_info.filter.find(character) == text_input_info.filter.npos) {
-				spdlog::info("{} filtered out", character);
-				spdlog::info("filter: {}", text_input_info.filter);
 				return;
 			}
 		}
