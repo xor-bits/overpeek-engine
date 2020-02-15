@@ -1,0 +1,38 @@
+#pragma once
+
+#include "widget.hpp"
+#include "button.hpp"
+
+
+
+namespace oe::gui {
+
+#define CHECKBOX_CALLBACK_WRAPPER(x) [&](oe::modes new_mode) { x(new_mode); }
+	typedef std::function<void(bool toggled)> checkbox_callback;
+
+	struct CheckboxInfo {
+		checkbox_callback callback              = nullptr;
+		glm::ivec2 size                         = { 10, 10 };
+		glm::vec2 offset_position               = { 0, 0 };
+		glm::vec2 align_parent                  = oe::alignments::center_center;
+		glm::vec2 align_render                  = oe::alignments::center_center;
+		glm::vec4 color_back                    = oe::colors::dark_grey;
+		glm::vec4 color_mark                    = oe::colors::lime;
+		const oe::graphics::Sprite* sprite      = nullptr; // must be set
+	};
+
+	class Checkbox : public Widget {
+	public:
+		CheckboxInfo m_checkbox_info;
+		bool m_toggled;
+		oe::gui::Button* m_button;
+
+	public:
+		Checkbox(const CheckboxInfo& checkbox_info);
+
+		// Inherited via Widget
+		virtual void cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) override;
+		virtual void render(oe::graphics::Renderer& renderer) override;
+	};
+
+}
