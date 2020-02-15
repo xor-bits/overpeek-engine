@@ -4,29 +4,36 @@
 
 namespace oe::gui {
 
-	void checkbox_action() {
-
+	void Checkbox::checkbox_action(oe::mouse_buttons button, oe::actions action) {
+		if (button == oe::mouse_buttons::button_left && action == oe::actions::release) {
+			m_toggled = !m_toggled;
+			if (m_checkbox_info.callback)
+				m_checkbox_info.callback(m_toggled);
+		}
 	}
 
 	Checkbox::Checkbox(const CheckboxInfo& _checkbox_info)
 		: Widget(_checkbox_info.size, _checkbox_info.align_parent, _checkbox_info.align_render, _checkbox_info.offset_position)
 		, m_checkbox_info(_checkbox_info)
+		, m_toggled(_checkbox_info.initial)
 	{
 		ButtonInfo button_info;
-		button_info.callback = [&](oe::mouse_buttons button, oe::actions action) { m_toggled = !m_toggled; if (m_checkbox_info.callback) m_checkbox_info.callback(m_toggled); };
+		button_info.callback = BUTTON_CALLBACK_WRAPPER(checkbox_action);
 		button_info.size = _checkbox_info.size;
-		button_info.offset_position = _checkbox_info.offset_position;
-		button_info.align_parent = _checkbox_info.align_parent;
-		button_info.align_render = _checkbox_info.align_render;
+		button_info.offset_position = { 0, 0 };
+		button_info.align_parent = oe::alignments::center_center;
+		button_info.align_render = oe::alignments::center_center;
 		m_button = new Button(button_info);
-	}
-
-	void Checkbox::cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) {
-		m_button->cursor(button, action, cursor_window);
+		addSubWidget(m_button);
 	}
 
 	void Checkbox::render(oe::graphics::Renderer& renderer) {
-		renderer.submit(render_position, size, sprite_panel_info.sprite, sprite_panel_info.color);
+		renderer.submit(render_position, size, m_checkbox_info.sprite, m_checkbox_info.color_back);
+
+		if (m_toggled) {
+			glm::vec2 pos = render_position + size * 0.5f;
+			renderer.submit(pos, size * 0.7f, m_checkbox_info.sprite, m_checkbox_info.color_mark, oe::alignments::center_center);
+		}
 	}
 
 }

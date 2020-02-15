@@ -8,6 +8,7 @@
 #include "widgets/button_decorated.hpp"
 #include "widgets/slider.hpp"
 #include "widgets/sprite_panel.hpp"
+#include "widgets/checkbox.hpp"
 
 #include "engine/graphics/interface/window.hpp"
 #include "engine/graphics/interface/renderer.hpp"

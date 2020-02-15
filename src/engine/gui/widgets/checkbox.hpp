@@ -12,7 +12,8 @@ namespace oe::gui {
 
 	struct CheckboxInfo {
 		checkbox_callback callback              = nullptr;
-		glm::ivec2 size                         = { 10, 10 };
+		bool initial                            = false;
+		glm::ivec2 size                         = { 24, 24 };
 		glm::vec2 offset_position               = { 0, 0 };
 		glm::vec2 align_parent                  = oe::alignments::center_center;
 		glm::vec2 align_render                  = oe::alignments::center_center;
@@ -27,11 +28,12 @@ namespace oe::gui {
 		bool m_toggled;
 		oe::gui::Button* m_button;
 
+		void checkbox_action(oe::mouse_buttons button, oe::actions action);
+
 	public:
 		Checkbox(const CheckboxInfo& checkbox_info);
 
 		// Inherited via Widget
-		virtual void cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) override;
 		virtual void render(oe::graphics::Renderer& renderer) override;
 	};
 

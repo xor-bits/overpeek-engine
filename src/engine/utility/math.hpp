@@ -7,11 +7,6 @@
 
 namespace oe::utils {
 
-	template<class T> 
-	T min(T a, T b) { return ((a) > (b) ? (b) : (a)); }
-	template<class T>
-	T max(T a, T b) { return ((a) > (b) ? (a) : (b)); }
-
 	glm::vec2 randomVec2(float min = -1.0f, float max = 1.0f);
 	glm::vec3 randomVec3(float min = -1.0f, float max = 1.0f);
 	glm::vec4 randomVec4(float min = -1.0f, float max = 1.0f);
@@ -21,7 +16,7 @@ namespace oe::utils {
 
 	template<class T>
 	T clamp(const T _val, const T _min, const T _max) {
-		return max(min(_val, _max), _min);
+		return std::max(std::min(_val, _max), _min);
 	}
 
 	template<class T>
