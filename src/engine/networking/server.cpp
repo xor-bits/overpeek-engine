@@ -117,4 +117,16 @@ namespace oe::networking {
 		}
 	}
 
+	std::string Server::getClientIP(size_t client_id) {
+		std::string ip;
+		ip.resize(100);
+		enet_address_get_host_ip(&m_peers.at(client_id)->address, ip.data(), 100);
+		ip = std::string(ip.data());
+		return ip;
+	}
+
+	int Server::getClientPort(size_t client_id) {
+		return m_peers.at(client_id)->address.port;
+	}
+
 }

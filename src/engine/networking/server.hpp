@@ -53,6 +53,9 @@ namespace oe::networking {
 		void setDisconnectCallback(func_disconnect callback_disconnect) { m_callback_disconnect = callback_disconnect; }
 		void setReciveCallback(func_recieve callback_recieve) { m_callback_recieve = callback_recieve; }
 
+		std::string getClientIP(size_t client_id);
+		int getClientPort(size_t client_id);
+
 	};
 
 }
