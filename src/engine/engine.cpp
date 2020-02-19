@@ -30,6 +30,8 @@ namespace oe {
 		if (engine_info.networking) {
 			networking::enet::initEnet();
 		}
+
+		srand(oe::utils::Clock::getMicroseconds());
 	}
 
 	void Engine::deinit() {

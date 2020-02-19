@@ -63,6 +63,10 @@ namespace oe::networking {
 	int Client::disconnect() {
 		if (!m_connected) return -1;
 
+		// wait for event service to stop
+		m_keep_running = false;
+		if (m_thread.joinable()) m_thread.join();
+
 		enet_peer_disconnect(m_peer, 0);
 		while (enet_host_service(m_client, m_event, 1000) > 0)
 		{
@@ -81,11 +85,9 @@ namespace oe::networking {
 	}
 
 	int Client::close() {
-		if (!m_connected) return -1;
-
-		// wait for event service to stop
-		m_keep_running = false;
-		if (m_thread.joinable()) m_thread.join();
+		if (m_connected) {
+			disconnect();
+		}
 
 		// close the server
 		if (m_client) enet_host_destroy(m_client);

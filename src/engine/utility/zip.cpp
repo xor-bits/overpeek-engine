@@ -33,7 +33,7 @@ namespace oe::utils {
 		mz_ulong uncompressedSize = output_size;
 		uint8_t* uncompressedData = new uint8_t[output_size]();
 		int state = mz_uncompress(uncompressedData, &uncompressedSize, compressedData, compressedSize);
-		if (state != MZ_OK) oe_error_terminate("Error compressing data");
+		if (state != MZ_OK) oe_error_terminate("Error uncompressing data");
 
 		return uncompressedData;
 	}
