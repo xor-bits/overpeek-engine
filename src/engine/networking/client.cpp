@@ -16,11 +16,11 @@ namespace oe::networking {
 		m_keep_running = false;
 
 		m_client = enet_host_create(
-			NULL /* create a client host */,
-			1 /* only allow 1 outgoing connection */,
-			2 /* allow up 2 channels to be used, 0 and 1 */,
-			0 /* assume any amount of incoming bandwidth */,
-			0 /* assume any amount of outgoing bandwidth */
+			NULL,
+			4,
+			4,
+			0,
+			0
 		);
 		if (!m_client) {
 			spdlog::error("Could not create ENet client");
@@ -32,6 +32,8 @@ namespace oe::networking {
 	}
 
 	int Client::connect(std::string ip, int port, uint32_t timeout) {
+		disconnect();
+
 		enet_address_set_host(m_address, ip.c_str());
 		m_address->port = port;
 
@@ -61,7 +63,9 @@ namespace oe::networking {
 	}
 
 	int Client::disconnect() {
-		if (!m_connected) return -1;
+		if (!m_connected) {
+			return -1;
+		}
 
 		// wait for event service to stop
 		m_keep_running = false;
@@ -106,7 +110,6 @@ namespace oe::networking {
 		ENetEvent event;
 
 		while (m_keep_running && enet_host_service(m_client, &event, 500) >= 0) {
-
 			if (event.type == ENET_EVENT_TYPE_NONE) {}
 			else if (event.type == ENET_EVENT_TYPE_CONNECT) {
 				if (m_callback_connect) m_callback_connect();
