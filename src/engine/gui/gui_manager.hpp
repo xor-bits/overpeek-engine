@@ -26,6 +26,8 @@ namespace oe::gui {
 		oe::graphics::Shader* m_shader;
 		oe::graphics::Window* m_window;
 
+		glm::vec2 m_offset;
+
 	public:
 		GUI(oe::graphics::Window* window);
 		~GUI();
@@ -46,6 +48,9 @@ namespace oe::gui {
 		
 		// bind SpritePacker that you used to create Font and all Sprites for StaticTextureViews
 		void render();
+
+		// move the whole gui system
+		void offset(const glm::vec2& offset);
 		
 	};
 

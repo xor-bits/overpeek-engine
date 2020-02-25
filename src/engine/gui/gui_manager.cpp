@@ -40,6 +40,14 @@ namespace oe::gui {
 		delete m_shader;
 	}
 
+	void GUI::offset(const glm::vec2& offset) {
+		m_offset = offset;
+
+		glm::mat4 ml_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(offset, 0.0f));
+		m_shader->bind();
+		m_shader->setUniformMat4("ml_matrix", ml_matrix);
+	}
+
 	void GUI::render() {
 		static int cooldown = 0;
 		if ((++cooldown) % 60 == 0) {
@@ -87,7 +95,9 @@ namespace oe::gui {
 	}
 
 	void GUI::cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) {
-		m_main_frame->__cursor(button, action, cursor_window);
+		glm::vec2 cursor_window_final = cursor_window - m_offset;
+
+		m_main_frame->__cursor(button, action, cursor_window_final);
 	}
 
 	void GUI::text(uint32_t codepoint, oe::modifiers mods) {
