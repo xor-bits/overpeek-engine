@@ -28,6 +28,17 @@ struct fmt::formatter<glm::vec2> {
 };
 
 template <>
+struct fmt::formatter<glm::ivec2> {
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx) { return ctx.begin(); }
+
+	template <typename FormatContext>
+	auto format(const glm::ivec2& d, FormatContext& ctx) {
+		return format_to(ctx.out(), "[ {}, {} ]", d.x, d.y);
+	}
+};
+
+template <>
 struct fmt::formatter<glm::vec3> {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& ctx) { return ctx.begin(); }
@@ -39,12 +50,34 @@ struct fmt::formatter<glm::vec3> {
 };
 
 template <>
+struct fmt::formatter<glm::ivec3> {
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx) { return ctx.begin(); }
+
+	template <typename FormatContext>
+	auto format(const glm::ivec3& d, FormatContext& ctx) {
+		return format_to(ctx.out(), "[ {}, {}, {} ]", d.x, d.y, d.z);
+	}
+};
+
+template <>
 struct fmt::formatter<glm::vec4> {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& ctx) { return ctx.begin(); }
 
 	template <typename FormatContext>
 	auto format(const glm::vec4& d, FormatContext& ctx) {
+		return format_to(ctx.out(), "[ {}, {}, {}, {} ]", d.x, d.y, d.z, d.w);
+	}
+};
+
+template <>
+struct fmt::formatter<glm::ivec4> {
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx) { return ctx.begin(); }
+
+	template <typename FormatContext>
+	auto format(const glm::ivec4& d, FormatContext& ctx) {
 		return format_to(ctx.out(), "[ {}, {}, {}, {} ]", d.x, d.y, d.z, d.w);
 	}
 };

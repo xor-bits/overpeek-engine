@@ -82,6 +82,7 @@ namespace oe::graphics {
 			});
 
 		// to call resize func initially
+		glfwSetWindowSizeLimits(m_window_handle, 1, 1, INT16_MAX, INT16_MAX);
 		glfwSetWindowSize(m_window_handle, m_window_info.size.x, m_window_info.size.y);
 	}
 
