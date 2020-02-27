@@ -5,6 +5,7 @@
 #include <thread>
 #include <functional>
 #include <unordered_map>
+#include <mutex>
 
 
 
@@ -24,9 +25,14 @@ namespace oe::networking {
 	private:
 		_ENetAddress* m_address = nullptr;
 		_ENetHost* m_server = nullptr;
+
+		std::mutex mtx;
+
 		std::atomic<bool> m_keep_running = false;
 		std::thread m_thread;
 		std::unordered_map<size_t, _ENetPeer*> m_peers = std::unordered_map<size_t, _ENetPeer*>();
+
+		uint8_t m_channel_id;
 
 		typedef std::function<void(size_t client_id)> func_connect;
 		typedef func_connect func_disconnect;
@@ -55,6 +61,7 @@ namespace oe::networking {
 
 		std::string getClientIP(size_t client_id);
 		int getClientPort(size_t client_id);
+		float getPacketLoss(size_t client_id);
 
 	};
 

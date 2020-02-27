@@ -42,9 +42,10 @@ namespace oe::graphics {
 		, m_debugging(instance->m_instance_info.debug_messages)
 		, m_instance(instance)
 	{
-		spdlog::info("Opening window with Vulkan context");
-		if (m_debugging)
+		if (m_debugging) {
 			spdlog::warn("Debugger enabled");
+			spdlog::info("Opening window with Vulkan context");
+		}
 
 		glfw();
 

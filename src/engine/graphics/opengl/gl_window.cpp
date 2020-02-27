@@ -113,9 +113,10 @@ namespace oe::graphics {
 		: Window::Window(instance, window_config)
 		, m_debugging(instance->m_instance_info.debug_messages) 
 	{
-		spdlog::info("Opening window with OpenGL context");
-		if (m_debugging)
+		if (m_debugging) {
 			spdlog::warn("Debugger enabled");
+			spdlog::info("Opening window with OpenGL context");
+		}
 
 		glfw(instance);
 		glad(instance);

@@ -4,6 +4,7 @@
 #include <atomic>
 #include <thread>
 #include <functional>
+#include <mutex>
 
 
 
@@ -14,10 +15,14 @@ namespace oe::networking {
 	private:
 		_ENetPeer* m_peer = nullptr;
 		_ENetAddress* m_address = nullptr;
-		_ENetEvent* m_event = nullptr;
 		_ENetHost* m_client = nullptr;
+		
+		std::mutex mtx;
+
 		std::atomic<bool> m_keep_running = false;
 		std::thread m_thread;
+
+		uint8_t m_channel_id;
 
 		typedef std::function<void()> func_connect;
 		typedef func_connect func_disconnect;
@@ -44,6 +49,8 @@ namespace oe::networking {
 		void setConnectCallback(func_connect callback_connect) { m_callback_connect = callback_connect; }
 		void setDisconnectCallback(func_disconnect callback_disconnect) { m_callback_disconnect = callback_disconnect; }
 		void setReciveCallback(func_recieve callback_recieve) { m_callback_recieve = callback_recieve; }
+
+		float getPacketLoss();
 
 	};
 

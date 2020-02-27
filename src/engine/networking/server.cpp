@@ -8,7 +8,11 @@
 
 namespace oe::networking {
 
+	const uint8_t channel_count = 16;
+
 	bool enet::initialized = false;
+
+
 
 	void enet::initEnet() {
 		if (!initialized) {
@@ -24,6 +28,7 @@ namespace oe::networking {
 
 	Server::Server() {
 		m_address = new ENetAddress();
+		m_channel_id = 0;
 	}
 
 	Server::~Server() {
@@ -36,20 +41,22 @@ namespace oe::networking {
 		m_address->port = port;
 		m_address->host = ENET_HOST_ANY;
 
+		mtx.lock();
 		m_server = enet_host_create(
-			m_address /* the address to bind the server host to */,
-			32        /* allow up to 32 clients and/or outgoing connections */,
-			2		  /* allow up to 2 channels to be used, 0 and 1 */,
-			0		  /* assume any amount of incoming bandwidth */,
-			0		  /* assume any amount of outgoing bandwidth */
+			m_address,
+			32,
+			channel_count,
+			0,
+			0
 		);
 
 		if (!m_server) {
 			spdlog::critical("Failed to create ENet server at port {}", port);
 			m_opened = false;
+			mtx.unlock();
 			return -1;
 		}
-		spdlog::info("ENet server opened at port {}", port);
+		mtx.unlock();
 		m_opened = true;
 
 		m_keep_running = true;
@@ -66,33 +73,45 @@ namespace oe::networking {
 		if (m_thread.joinable()) m_thread.join();
 
 		// close the server
+		mtx.lock();
 		if (m_server) enet_host_destroy(m_server);
 		m_server = nullptr;
+		mtx.unlock();
 		return 0;
 	}
 
 	int Server::send(const unsigned char* bytes, size_t count, size_t client_id) {
+		m_channel_id++; if (m_channel_id >= channel_count) m_channel_id = 0;
+
 		ENetPacket* packet = enet_packet_create(bytes, count, ENET_PACKET_FLAG_RELIABLE);
-
-		enet_peer_send(m_peers.at(client_id), 0, packet);
+		enet_peer_send(m_peers.at(client_id), m_channel_id, packet);
+		mtx.lock();
 		enet_host_flush(m_server);
-
+		mtx.unlock();
 		return 0;
 	}
 
 	int Server::send(const unsigned char* bytes, size_t count) {
+		m_channel_id++; if (m_channel_id >= channel_count) m_channel_id = 0;
+		
 		ENetPacket* packet = enet_packet_create(bytes, count, ENET_PACKET_FLAG_RELIABLE);
-		
-		enet_host_broadcast(m_server, 0, packet);
+		mtx.lock();
+		enet_host_broadcast(m_server, m_channel_id, packet);
 		enet_host_flush(m_server);
-		
+		mtx.unlock();
 		return 0;
 	}
 
 	void Server::operate() {
 		ENetEvent event;
 
-		while (m_keep_running && enet_host_service(m_server, &event, 500) >= 0) {
+		while (m_keep_running) {
+			mtx.lock();
+			if (enet_host_service(m_server, &event, 0) <= 0) {
+				mtx.unlock();
+				continue;
+			}
+			mtx.unlock();
 
 			if (event.type == ENET_EVENT_TYPE_NONE) {}
 			else if (event.type == ENET_EVENT_TYPE_CONNECT) {
@@ -110,10 +129,6 @@ namespace oe::networking {
 				if (m_callback_recieve) m_callback_recieve((size_t)event.peer->data, event.packet->data, event.packet->dataLength);
 				enet_packet_destroy(event.packet);
 			}
-
-			if (!m_keep_running) {
-				break;
-			}
 		}
 	}
 
@@ -127,6 +142,10 @@ namespace oe::networking {
 
 	int Server::getClientPort(size_t client_id) {
 		return m_peers.at(client_id)->address.port;
+	}
+
+	float Server::getPacketLoss(size_t client_id) {
+		return static_cast<float>(m_peers.at(client_id)->packetLoss) / static_cast<float>(ENET_PEER_PACKET_LOSS_SCALE);
 	}
 
 }
