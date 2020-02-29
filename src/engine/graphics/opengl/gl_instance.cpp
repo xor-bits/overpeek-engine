@@ -51,6 +51,7 @@ namespace oe::graphics {
 
 	void GLInstance::depth(oe::depth_functions func) const
 	{
+		glDepthMask(GL_TRUE);
 		switch (func)
 		{
 		case oe::depth_functions::always:

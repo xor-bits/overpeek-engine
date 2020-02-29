@@ -28,8 +28,8 @@ namespace oe::graphics {
 		virtual void end() override;
 
 		virtual void submit(const VertexData& position) override;
-		virtual void submit(const glm::vec2& position, const glm::vec2& size, const Sprite* sprite, const glm::vec4& color = glm::vec4(1.0f), glm::vec2 align = alignments::top_left, float angle = 0.0f, int quad_index = -1) override;
-		virtual void submit(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color = glm::vec4(1.0f), glm::vec2 align = alignments::top_left, float angle = 0.0f, int quad_index = -1) override;
+		virtual void submit(const glm::vec3& position, const glm::vec2& size, const Sprite* sprite, const glm::vec4& color = glm::vec4(1.0f), glm::vec2 align = alignments::top_left, float angle = 0.0f, int quad_index = -1) override;
+		virtual void submit(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color = glm::vec4(1.0f), glm::vec2 align = alignments::top_left, float angle = 0.0f, int quad_index = -1) override;
 		
 		virtual void clear() override;
 		virtual void render(int quad_count = -1) const override;

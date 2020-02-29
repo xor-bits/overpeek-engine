@@ -7,6 +7,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/gtx/matrix_transform_2d.hpp>
+#include <glm/gtx/vec_swizzle.hpp>
 
 
 
@@ -99,13 +100,13 @@ namespace oe::graphics {
 		m_buffer_pos++;
 	}
 
-	void GLRenderer::submit(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, glm::vec2 align, float angle, int quad_index)
+	void GLRenderer::submit(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, glm::vec2 align, float angle, int quad_index)
 	{
 		Sprite sprite(nullptr);
 		submit(position, size, &sprite, color, align, angle, quad_index);
 	}
 
-	void GLRenderer::submit(const glm::vec2& position, const glm::vec2& size, const Sprite* sprite, const glm::vec4& color, glm::vec2 align, float angle, int quad_index)
+	void GLRenderer::submit(const glm::vec3& position, const glm::vec2& size, const Sprite* sprite, const glm::vec4& color, glm::vec2 align, float angle, int quad_index)
 	{
 		if (!sprite) return;
 
@@ -118,10 +119,10 @@ namespace oe::graphics {
 			m_buffer_pos = quad_index;
 		}
 
-		submit(VertexData(pointA, sprite->position + sprite->size * glm::vec2(0.0f, 0.0f), color));
-		submit(VertexData(pointB, sprite->position + sprite->size * glm::vec2(0.0f, 1.0f), color));
-		submit(VertexData(pointC, sprite->position + sprite->size * glm::vec2(1.0f, 1.0f), color));
-		submit(VertexData(pointD, sprite->position + sprite->size * glm::vec2(1.0f, 0.0f), color));
+		submit(VertexData(glm::vec3(pointA, position.z), sprite->position + sprite->size * glm::vec2(0.0f, 0.0f), color));
+		submit(VertexData(glm::vec3(pointB, position.z), sprite->position + sprite->size * glm::vec2(0.0f, 1.0f), color));
+		submit(VertexData(glm::vec3(pointC, position.z), sprite->position + sprite->size * glm::vec2(1.0f, 1.0f), color));
+		submit(VertexData(glm::vec3(pointD, position.z), sprite->position + sprite->size * glm::vec2(1.0f, 0.0f), color));
 
 		if (quad_index != -1) {
 			before = m_buffer_pos;
