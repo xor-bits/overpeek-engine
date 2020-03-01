@@ -10,20 +10,24 @@ namespace oe {
 		srand(static_cast<float>(seed));
 	}
 
-	float Random::random(float min, float max) {
+	float Random::randomf(float min, float max) {
 		return min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - min)));
 	}
 
+	int Random::randomi(int min, int max) {
+		return min + rand() % (max - min);
+	}
+
 	glm::vec2 Random::randomVec2(float min, float max) {
-		return glm::vec2(random(min, max), random(min, max));
+		return glm::vec2(randomf(min, max), randomf(min, max));
 	}
 
 	glm::vec3 Random::randomVec3(float min, float max) {
-		return glm::vec3(random(min, max), random(min, max), random(min, max));
+		return glm::vec3(randomf(min, max), randomf(min, max), randomf(min, max));
 	}
 
 	glm::vec4 Random::randomVec4(float min, float max) {
-		return glm::vec4(random(min, max), random(min, max), random(min, max), random(min, max));
+		return glm::vec4(randomf(min, max), randomf(min, max), randomf(min, max), randomf(min, max));
 	}
 
 }

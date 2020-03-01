@@ -6,18 +6,6 @@
 
 namespace oe::utils {
 
-	glm::vec2 randomVec2(float min, float max) {
-		return glm::vec2(oe::Random::random(min, max), oe::Random::random(min, max));
-	}
-
-	glm::vec3 randomVec3(float min, float max) {
-		return glm::vec3(oe::Random::random(min, max), oe::Random::random(min, max), oe::Random::random(min, max));
-	}
-	
-	glm::vec4 randomVec4(float min, float max) {
-		return glm::vec4(oe::Random::random(min, max), oe::Random::random(min, max), oe::Random::random(min, max), oe::Random::random(min, max));
-	}
-
 	void rotatePoint(glm::vec2 center, float angle, glm::vec2& p) {
 		float s = sin(angle);
 		float c = cos(angle);

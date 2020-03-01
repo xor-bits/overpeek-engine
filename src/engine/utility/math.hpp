@@ -7,10 +7,6 @@
 
 namespace oe::utils {
 
-	glm::vec2 randomVec2(float min = -1.0f, float max = 1.0f);
-	glm::vec3 randomVec3(float min = -1.0f, float max = 1.0f);
-	glm::vec4 randomVec4(float min = -1.0f, float max = 1.0f);
-
 	void rotatePoint(glm::vec2 center, float angle, glm::vec2 &p);
 	void rotatePoint(float angle, glm::vec2& p);
 

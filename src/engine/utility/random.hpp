@@ -11,7 +11,8 @@ namespace oe {
 	public:
 		//Seed = 0 is time
 		static void seed(int seed = 0);
-		static float random(float min, float max);
+		static float randomf(float min, float max);
+		static int randomi(int min, int max);
 		static glm::vec2 randomVec2(float min, float max);
 		static glm::vec3 randomVec3(float min, float max);
 		static glm::vec4 randomVec4(float min, float max);
