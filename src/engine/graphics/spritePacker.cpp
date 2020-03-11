@@ -52,7 +52,7 @@ namespace oe::graphics {
 		auto usr_data = static_cast<__usr_data*>(m_usr_data);
 
 		std::vector<Sprite*> vect;
-		Sprite* sprite = new Sprite(this);
+		Sprite* sprite = new Sprite(m_texture);
 		sprite->position = { 0, 0 };
 		sprite->size = { 1, 1 };
 		vect.push_back(sprite);
@@ -75,7 +75,7 @@ namespace oe::graphics {
 		std::vector<Sprite*> vect;
 		for (size_t x = 0; x < sprite_count.x; x++) {
 			for (size_t y = 0; y < sprite_count.y; y++) {
-				Sprite* sprite = new Sprite(this);
+				Sprite* sprite = new Sprite(m_texture);
 				sprite->position = { x, y };
 				sprite->size = sprite_count;
 				vect.push_back(sprite);

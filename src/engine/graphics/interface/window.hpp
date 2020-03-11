@@ -48,7 +48,7 @@ namespace oe::graphics {
 
 	public:
 		Window(const Instance* instance, const WindowInfo& window_config);
-		~Window();
+		virtual ~Window();
 
 		virtual void update() = 0;
 		virtual void clear(const glm::vec4& color = oe::colors::clear_color) = 0;

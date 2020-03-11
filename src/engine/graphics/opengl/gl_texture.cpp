@@ -138,7 +138,7 @@ namespace oe::graphics {
 		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-		glTexStorage2D(m_target, 1, m_gl_format, width, height);
+		glTexStorage2D(m_target, 1, m_gl_internalformat, width, height);
 	}
 
 	void GLTexture::empty3D(size_t width, size_t height, size_t depth) {

@@ -20,7 +20,7 @@ namespace oe::graphics {
 
 	public:
 		Renderer(const RendererInfo& renderer_info);
-		~Renderer();
+		virtual ~Renderer();
 
 		virtual void begin() = 0;
 		virtual void end() = 0;
