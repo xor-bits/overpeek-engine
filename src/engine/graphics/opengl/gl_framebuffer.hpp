@@ -14,6 +14,7 @@ namespace oe::graphics {
 		unsigned int m_id;
 
 		GLTexture *m_texture;
+		Sprite* m_sprite;
 
 	public:
 		GLFrameBuffer(const FrameBufferInfo& framebuffer_info);
@@ -23,6 +24,11 @@ namespace oe::graphics {
 		virtual void unbind() override;
 
 		virtual void clear(const glm::vec4& color = oe::colors::clear_color) override;
+
+		virtual void bind_texture() override;
+		virtual void unbind_texture() override;
+
+		virtual const Sprite* get_sprite() override;
 	
 	};
 
