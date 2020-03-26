@@ -31,9 +31,12 @@ namespace oe::gui {
 
 		void __setParent(Widget* parent);
 
+	protected:
+		void __delete_nodes();
+
 	public:
 		Widget(const glm::vec2& size, const glm::vec2& align_parent, const glm::vec2& align_render, const glm::vec2& offset_position);
-		~Widget();
+		virtual ~Widget();
 
 		virtual void addSubWidget(Widget* widget);
 		virtual void render(oe::graphics::Renderer& renderer) {}

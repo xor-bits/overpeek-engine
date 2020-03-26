@@ -7,7 +7,7 @@
 
 namespace oe::gui {
 
-#define CHECKBOX_CALLBACK_WRAPPER(x) [&](oe::modes new_mode) { x(new_mode); }
+#define CHECKBOX_CALLBACK_WRAPPER(x) [&](bool toggled) { x(toggled); }
 	typedef std::function<void(bool toggled)> checkbox_callback;
 
 	struct CheckboxInfo {

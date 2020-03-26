@@ -25,11 +25,12 @@ void render(float update_fraction) {
 	oe::graphics::Text::submit(*renderer, "1234567890 =+-/*", { 0.0f, 0.0f }, 0.14f, oe::graphics::alignment::center_center);
 	oe::graphics::Text::submit(*renderer, "The quick brown fox jumps over the lazy dog.", { 0.0f, 0.4f }, 0.14f, oe::graphics::alignment::center_center);
 #else
-	oe::graphics::Text::submit(*renderer, "blue:<#0000ff> test", { 0.0f, -0.2f }, 0.14f, oe::alignments::center_center);
-	oe::graphics::Text::submit(*renderer, "incomplete:<#542> test", { 0.0f, 0.0f }, 0.14f, oe::alignments::center_center);
-	oe::graphics::Text::submit(*renderer, "faulty:<#5f>>>>>>>>> test", { 0.0f, 0.2f }, 0.14f, oe::alignments::center_center);
-	oe::graphics::Text::submit(*renderer, "with 0x:<#0x4354> test", { 0.0f, 0.4f }, 0.14f, oe::alignments::center_center);
-	oe::graphics::Text::submit(*renderer, "negative:<#-43531> test", { 0.0f, 0.6f }, 0.14f, oe::alignments::center_center);
+	oe::graphics::Text::submit(*renderer, "blue:<#0000ff> test", { 0.0f, -0.4f }, 0.14f, oe::alignments::center_center);
+	oe::graphics::Text::submit(*renderer, "incomplete:<#542> test", { 0.0f, -0.2f }, 0.14f, oe::alignments::center_center);
+	oe::graphics::Text::submit(*renderer, "faulty:<#5f>>>>>>>>> test", { 0.0f, 0.0f }, 0.14f, oe::alignments::center_center);
+	oe::graphics::Text::submit(*renderer, "with 0x:<#0x4354> test", { 0.0f, 0.2f }, 0.14f, oe::alignments::center_center);
+	oe::graphics::Text::submit(*renderer, "negative:<#-43531> test", { 0.0f, 0.4f }, 0.14f, oe::alignments::center_center);
+	oe::graphics::Text::submit(*renderer, "multiline:\ntest", { 0.0f, 0.6f }, 0.14f, oe::alignments::center_center);
 #endif
 
 	// bind texture with font and bind shader

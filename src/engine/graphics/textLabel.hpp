@@ -38,7 +38,7 @@ namespace oe::graphics {
 		static const Font* s_font;
 
 	public:
-		static float width(const std::string& text, const glm::vec2& size, const Font* font = nullptr);
+		static glm::vec2 size(const std::string& text, const glm::vec2& size, const Font* font = nullptr);
 		static void setFont(const Font& font);
 		static const Font* getFont();
 		static void submit(Renderer& renderer, const std::string& text, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align = alignments::top_left, const glm::vec4& bg_color = glm::vec4(0.0f), const Font* font = nullptr);

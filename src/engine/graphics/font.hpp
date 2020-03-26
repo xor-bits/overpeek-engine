@@ -24,10 +24,9 @@ namespace oe::graphics {
 	class Font {
 	public:
 		struct Glyph {
-			unsigned char character;
-			glm::vec2 size;
-			glm::vec2 top_left;
-			glm::vec2 advance;
+			char character;
+			float aspect;
+			float advance;
 
 			const Sprite* sprite;
 		};
@@ -35,10 +34,6 @@ namespace oe::graphics {
 	public:
 		std::unordered_map<char, Glyph*> m_glyphs;
 		int m_resolution;
-
-		float bb_max_height;
-		float bb_min_height;
-		float bb_height;
 	
 	public:
 		/*

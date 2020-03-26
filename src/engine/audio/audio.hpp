@@ -11,7 +11,7 @@ namespace oe::audio {
 		unsigned int buffer_id;
 
 	public:
-		static void init();
+		static bool init();
 		static void deinit();
 		static void checkALErrors();
 

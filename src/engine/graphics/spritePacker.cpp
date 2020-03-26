@@ -161,6 +161,8 @@ namespace oe::graphics {
 		texture_info.height = pack_height;
 
 		m_texture = m_window->createTexture(texture_info);
+
+		oe::utils::saveImage("output.png", oe::utils::loadImageMove(data, pack_width, pack_height));
 		
 		delete[] data;
 	}

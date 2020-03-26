@@ -108,8 +108,10 @@ void resize(const glm::vec2& window_size) {
 	shader->setUniformMat4("vw_matrix", vw_matrix);
 }
 
+static int n;
 void update() {
-	textpanel->text_panel_info.text = fmt::format("FPS: {}", oe::utils::GameLoop::getFPS());
+	textpanel->text_panel_info.text = fmt::format("{}", static_cast<char>(++n%128));
+	spdlog::info("{}", static_cast<char>(++n % 128));
 }
 
 void setup_gui() {
@@ -216,9 +218,46 @@ void setup_gui() {
 		text_panel_info.font_size = 20;
 		text_panel_info.align_parent = oe::alignments::top_left;
 		text_panel_info.align_render = oe::alignments::top_left;
-		text_panel_info.text = "FPS:";
+		text_panel_info.text = "FPS:\nUPS:";
+		text_panel_info.background_color = oe::colors::black;
 		textpanel = new oe::gui::TextPanel(text_panel_info);
 		gui->addSubWidget(textpanel);
+	}
+	{
+		/*
+		   H
+		    O
+		     H
+		*/
+
+		oe::gui::TextPanelInfo text_panel_info = {};
+		text_panel_info.font_size = 20;
+		text_panel_info.align_parent = oe::alignments::center_center;
+		text_panel_info.align_render = oe::alignments::center_center;
+		text_panel_info.text = "O";
+		oe::gui::TextPanel* textpanel = new oe::gui::TextPanel(text_panel_info);
+		gui->addSubWidget(textpanel);
+
+		{
+			oe::gui::SpritePanelInfo sprite_panel_info = {};
+			sprite_panel_info.size = { 20, 20 };
+			sprite_panel_info.align_parent = oe::alignments::top_left;
+			sprite_panel_info.align_render = oe::alignments::bottom_right;
+			sprite_panel_info.offset_position = { 0, 0 };
+			sprite_panel_info.sprite = sprite;
+			auto box = new oe::gui::SpritePanel(sprite_panel_info);
+			textpanel->addSubWidget(box);
+		}
+		{
+			oe::gui::SpritePanelInfo sprite_panel_info = {};
+			sprite_panel_info.size = { 20, 20 };
+			sprite_panel_info.align_parent = oe::alignments::bottom_right;
+			sprite_panel_info.align_render = oe::alignments::top_left;
+			sprite_panel_info.offset_position = { 0, 0 };
+			sprite_panel_info.sprite = sprite;
+			auto box = new oe::gui::SpritePanel(sprite_panel_info);
+			textpanel->addSubWidget(box);
+		}
 	}
 }
 
@@ -306,7 +345,7 @@ int main() {
 
 	// start
 	resize(window->getSize());
-	oe::utils::GameLoop::init(render, update, 1);
+	oe::utils::GameLoop::init(render, update, 5);
 
 	// cleanup
 	delete gui;

@@ -20,11 +20,10 @@ namespace oe::gui {
 
 	class GUI {
 	private:
-		std::unique_ptr<Form> m_main_frame;
 		oe::graphics::Renderer* m_renderer;
-		oe::graphics::Renderer* m_font_renderer;
 		oe::graphics::Shader* m_shader;
 		oe::graphics::Window* m_window;
+		Form* m_main_frame;
 
 		glm::vec2 m_offset;
 

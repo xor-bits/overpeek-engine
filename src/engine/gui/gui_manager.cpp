@@ -15,6 +15,7 @@ namespace oe::gui {
 	
 	GUI::GUI(oe::graphics::Window* window) 
 		: m_window(window)
+		, m_offset(0.0f, 0.0f)
 	{
 		// renderer
 		oe::RendererInfo renderer_info = {};
@@ -30,14 +31,15 @@ namespace oe::gui {
 		FormInfo form_info = {};
 		form_info.size = m_window->getSize() - glm::vec2(2 * border);
 		form_info.offset_position = { border, border };
-		auto form = new oe::gui::Form(form_info);
-		m_main_frame = std::unique_ptr<Form>(form);
+		m_main_frame = new oe::gui::Form(form_info);
 		resize();
 	}
 
 	GUI::~GUI() {
 		m_window->destroyRenderer(m_renderer);
-		delete m_shader;
+		m_window->destroyShader(m_shader);
+
+		delete m_main_frame;
 	}
 
 	void GUI::offset(const glm::vec2& offset) {
