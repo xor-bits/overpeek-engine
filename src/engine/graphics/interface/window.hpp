@@ -3,8 +3,9 @@
 #include <string>
 
 #include "engine/graphics/interface/instance.hpp"
-#include "engine/utility/filereader.hpp"
 #include "engine/internal_libs.hpp"
+#include "engine/enum.hpp"
+#include "engine/utility/fileio.hpp"
 
 
 #define M_NUM_KEYS		2048
@@ -16,14 +17,6 @@ class GLFWwindow;
 namespace oe::graphics {
 
 	class Window {
-	public:
-		typedef std::function<void(oe::keys key, oe::actions action, oe::modifiers mods)> key_callback;
-		typedef std::function<void(oe::mouse_buttons button, oe::actions action)> button_callback;
-		typedef std::function<void(float delta)> scroll_callback;
-		typedef std::function<void(const glm::vec2 & framebuffer_size)> resize_callback;
-		typedef std::function<void(uint32_t codepoint, oe::modifiers mods)> text_callback;
-		typedef std::function<void(const glm::vec2 & transformed, const glm::vec2 & window)> cursor_callback;
-
 	public:
 		WindowInfo m_window_info;
 
@@ -48,7 +41,7 @@ namespace oe::graphics {
 
 	public:
 		Window(const Instance* instance, const WindowInfo& window_config);
-		virtual ~Window();
+		~Window();
 
 		virtual void update() = 0;
 		virtual void clear(const glm::vec4& color = oe::colors::clear_color) = 0;
@@ -60,13 +53,6 @@ namespace oe::graphics {
 		bool shouldClose();
 		void setIcon(const oe::utils::image_data& image);
 		void showCursor(bool show);
-
-		void setKeyboardCallback(key_callback);
-		void setButtonCallback(button_callback);
-		void setScrollCallback(scroll_callback);
-		void setResizeCallback(resize_callback);
-		void setCharmodCallback(text_callback);
-		void setCursorPositionCallback(cursor_callback);
 
 		virtual Renderer* createRenderer(const RendererInfo& renderer_info) const = 0;
 		virtual Shader* createShader(const ShaderInfo& shader_info) const = 0;

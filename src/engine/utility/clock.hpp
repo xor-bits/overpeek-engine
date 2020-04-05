@@ -6,12 +6,23 @@ namespace oe::utils {
 
 	class Clock {
 	private:
-		static size_t m_start_time;
-	public:
-		static size_t getMicroseconds();
-		static size_t getTimeAfterStart();
+		size_t m_start_time;
 
-		static float getSessionMillisecond();
+	public:
+		size_t getMicroseconds();
+		size_t getTimeAfterStart();
+		float getSessionMillisecond();
+
+	private:
+		static Clock* singleton;
+		Clock();
+
+	public:
+		Clock(const Clock&) = delete;
+		static Clock& getSingleton() {
+			if (!singleton) singleton = new Clock();
+			return *singleton;
+		}
 	};
 
 }

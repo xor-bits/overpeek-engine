@@ -12,7 +12,12 @@
 
 #include <entt/entt.hpp>
 
+#ifdef BUILD_VULKAN
+#include <shaderc/shaderc.hpp>
+#endif
+
 #include "engine/enum.hpp"
+
 
 
 
@@ -107,5 +112,5 @@ struct fmt::formatter<glm::mat3> {
 // (input) -> ("input: {} line file", input)
 #define quickDebug(x) spdlog::debug(#x ## ": {} at line {} in file {}", x, __LINE__, __FILE__)
 
-#define oe_error_terminate(error_msg, ...) oe::Engine::__error(fmt::format(error_msg, ##__VA_ARGS__), __LINE__, __FILE__)
-#define oe_terminate() oe::Engine::terminate()
+#define oe_error_terminate(error_msg, ...) oe::Engine::getSingleton().__error(fmt::format(error_msg, ##__VA_ARGS__), __LINE__, __FILE__)
+#define oe_terminate() oe::Engine::getSingleton().terminate()

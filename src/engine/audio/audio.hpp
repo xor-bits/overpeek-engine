@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/utility/filereader.hpp"
+#include "engine/utility/fileio.hpp"
 #include "engine/internal_libs.hpp"
 
 namespace oe::audio {
@@ -11,7 +11,7 @@ namespace oe::audio {
 		unsigned int buffer_id;
 
 	public:
-		static bool init();
+		static void init();
 		static void deinit();
 		static void checkALErrors();
 

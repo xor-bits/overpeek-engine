@@ -19,12 +19,9 @@ namespace oe::graphics {
 		texture_info.empty = true;
 		texture_info.width = framebuffer_info.width;
 		texture_info.height = framebuffer_info.height;
+		texture_info.dimensions = 2;
 		m_texture = new oe::graphics::GLTexture(texture_info);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture->getGLTexture(), 0);
-
-		m_sprite = new Sprite(nullptr);
-		m_sprite->position = { 0.0f, 0.0f };
-		m_sprite->size = { 1.0f, 1.0f };
 
 		// Render buffer object
 		glGenRenderbuffers(1, &m_rbo);
@@ -48,7 +45,6 @@ namespace oe::graphics {
 		glDeleteFramebuffers(1, &m_id);
 		glDeleteRenderbuffers(1, &m_rbo);
 		delete m_texture;
-		delete m_sprite;
 	}
 
 	void GLFrameBuffer::clear(const glm::vec4& color) {
@@ -62,18 +58,6 @@ namespace oe::graphics {
 
 	void GLFrameBuffer::unbind() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
-
-	void GLFrameBuffer::bind_texture() {
-		m_texture->bind();
-	}
-	
-	void GLFrameBuffer::unbind_texture() {
-		m_texture->unbind();
-	}
-
-	const Sprite* GLFrameBuffer::get_sprite() {
-		return m_sprite;
 	}
 
 }

@@ -6,7 +6,6 @@
 #include <cstddef>
 
 #include "engine/graphics/interface/window.hpp"
-#include "engine/utility/debug.hpp"
 #include "engine/internal_libs.hpp"
 
 

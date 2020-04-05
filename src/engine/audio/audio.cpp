@@ -13,23 +13,20 @@ namespace oe::audio {
 
 
 
-	bool Audio::init() {
+	void Audio::init() {
 		// audio device
 		const char* device_name = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
 		device = alcOpenDevice(device_name);
 		if (device == NULL) {
-			spdlog::critical("Cannot open audio device");
-			return false;
+			oe_error_terminate("Cannot open audio device");
 		}
 
 		// audio context
 		context = alcCreateContext(device, NULL);
 		if (context == NULL) {
-			spdlog::critical("Cannot create OpenAL context");
-			return false;
+			oe_error_terminate("Cannot create OpenAL context");
 		}
 		alcMakeContextCurrent(context);
-		return true;
 	}
 
 	void Audio::deinit() {

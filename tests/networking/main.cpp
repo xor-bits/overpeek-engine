@@ -5,9 +5,20 @@
 
 
 
+/*
+
+	Simple ping/pong with unnecessary compression
+
+*/
+
 int main(int argc, char* argv[]) {
+	// engine
+	oe::EngineInfo engine_info = {};
+	engine_info.networking = true;
+	oe::Engine::getSingleton().init(engine_info);
 
 	int port = 12221;
+	auto& compression = oe::utils::Compression::getSingleton();
 
 	// open the server
 	auto server = new oe::networking::Server(); 
@@ -16,38 +27,36 @@ int main(int argc, char* argv[]) {
 	server->setDisconnectCallback([&](size_t client_id) { spdlog::info("{} disconnected", client_id); });
 	server->setReciveCallback([&](size_t client_id, const unsigned char* data, size_t size) {
 		// decompress recieved message
-		size_t uncompressedSize;
-		uint8_t* uncompressed = oe::utils::uncompress(uncompressedSize, data, size);
-		spdlog::info("recieved {}", reinterpret_cast<const char*>(uncompressed));
+		std::vector<uint8_t> uncompressed = compression.uncompress(data, size);
+		spdlog::info("server recieved message: {}", compression.data_to_string(uncompressed));
 
 		// compress message
-		size_t compressedSize;
-		uint8_t* compressed = oe::utils::compress(compressedSize, reinterpret_cast<const uint8_t*>("ping (server)"), 14);
-		server->send(compressed, compressedSize, client_id);
+		const std::string message = "ping (from server)";
+		std::vector<uint8_t> compressed = compression.compress(compression.string_to_data(message));
+		server->send(compressed.data(), compressed.size(), client_id);
 	});
 	
 	// connect to it with client
 	auto client = new oe::networking::Client();
 	client->connect("localhost", port);
-	client->setReciveCallback([&](const uint8_t* data, size_t size) { 
+	client->setReciveCallback([&](const uint8_t* data, size_t size) {
 		// decompress recieved message
-		size_t uncompressedSize;
-		uint8_t* uncompressed = oe::utils::uncompress(uncompressedSize, data, size);
-		spdlog::info("recieved {}", reinterpret_cast<const char*>(uncompressed));
+		std::vector<uint8_t> uncompressed = compression.uncompress(data, size);
+		spdlog::info("client recieved message: {}", compression.data_to_string(uncompressed));
 
 		// compress message
-		size_t compressedSize;
-		uint8_t* compressed = oe::utils::compress(compressedSize, reinterpret_cast<const uint8_t*>("pong (client)"), 14);
-		client->send(compressed, compressedSize);
+		const std::string message = "pong (from client)";
+		std::vector<uint8_t> compressed = compression.compress(compression.string_to_data(message));
+		client->send(compressed.data(), compressed.size());
 	});
 
 	// compress initial message
-	size_t compressedSize;
-	uint8_t* compressed = oe::utils::compress(compressedSize, reinterpret_cast<const uint8_t*>("invoke (client)"), 16);
-	client->send(compressed, compressedSize);
+	const std::string message = "invoke (from server)";
+	std::vector<uint8_t> compressed = compression.compress(compression.string_to_data(message));
+	server->send(compressed.data(), compressed.size());
 
 	// wait for messages to get recieved
-	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	std::this_thread::sleep_for(std::chrono::milliseconds(5000000));
 
 	// close the client
 	client->disconnect();

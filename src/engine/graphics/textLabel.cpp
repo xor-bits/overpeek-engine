@@ -125,9 +125,19 @@ namespace oe::graphics {
 		return s_font;
 	}
 
-	glm::vec2 calculate_final_size(const textrenderData& renderData, const glm::vec2& size, const Font* font) {
-		glm::vec2 top_left_corner = { 0.0f, 0.0f };
-		glm::vec2 bottom_right_corner = { 0.0f, 0.0f };
+	std::ostream& operator<<(std::ostream& os, const glm::vec2& vec) {
+		os << "[" << vec.x << ',' << vec.y << ']';
+		return os;
+	}
+
+	std::ostream& operator<<(std::ostream& os, const glm::vec3& vec) {
+		os << "[" << vec.x << ',' << vec.y << ',' << vec.z << ']';
+		return os;
+	}
+
+	float calculate_final_size(const textrenderData& renderData, const glm::vec2& size, const Font* font) {
+		float first = 0.0f;
+		float last = 0.0f;
 
 		glm::vec2 advance = { 0.0f, 0.0f };
 		for (size_t i = 0; i < renderData.size(); i++) {
@@ -136,25 +146,21 @@ namespace oe::graphics {
 			if (!glyph) continue;
 			auto sprite = glyph->sprite;
 
-			if (c == '\n') {
-				advance.x = 0.0f;
-				advance.y += size.y;
+			// first
+			if (i == 0) {
+				first = advance.x + glyph->top_left.x * size.x;
 			}
-			else {
-				top_left_corner.x = std::min(top_left_corner.x, advance.x);
-				top_left_corner.y = std::min(top_left_corner.y, advance.y + size.y);
-
-				bottom_right_corner.x = std::max(bottom_right_corner.x, advance.x + glyph->aspect * size.x);
-				bottom_right_corner.y = std::max(bottom_right_corner.y, advance.y);
-
-				advance.x += glyph->advance * size.x;
+			if (i == renderData.size() - 1) {
+				last = advance.x + glyph->top_left.x * size.x + glyph->size.x * size.x;
 			}
+
+			advance += glm::vec2(glyph->advance.x, 0.0f) * size;
 		}
 
-		return glm::abs(top_left_corner - bottom_right_corner);
+		return last - first;
 	}
 
-	glm::vec2 Text::size(const std::string& text, const glm::vec2& size, const Font* font) {
+	float Text::width(const std::string& text, const glm::vec2& size, const Font* font) {
 		if (!font) font = s_font;
 		if (!font) oe_error_terminate("No font!");
 
@@ -167,28 +173,19 @@ namespace oe::graphics {
 		if (!font) oe_error_terminate("No font!");
 
 		textrenderData renderData = textTorenderData(text);
-		glm::vec2 final_size = calculate_final_size(renderData, size, font);
-		const glm::vec2 advance_initial = alignmentOffset(-final_size, align);
-		glm::vec2 advance = advance_initial;
-
-		if (bg_color.a > 0.0f) {
-			renderer.submit(advance_initial, final_size, font->getGlyph(0)->sprite, bg_color);
-		}
-
+		float line = font->bb_max_height * size.y;
+		float final_size = calculate_final_size(renderData, size, font);
+		
+		// get width
+		glm::vec2 advance = alignmentOffset({ -final_size, -size.y }, align);
 		for (pairData& pd : renderData) {
 			unsigned char i = pd.first;
 			auto glyph = font->getGlyph(i);
 			if (!glyph) continue;
 			auto sprite = glyph->sprite;
 
-			if (i == '\n') {
-				advance.x = advance_initial.x;
-				advance.y += size.y;
-			}
-			else {
-				renderer.submit(pos + advance, { size.x * glyph->aspect, size.y }, sprite, pd.second, oe::alignments::bottom_left);
-				advance.x += glyph->advance * size.x;
-			}
+			renderer.submit(pos + advance + glyph->top_left * size + glm::vec2{ 0.0, line }, glyph->size * size, sprite, pd.second);
+			advance += glm::vec2(glyph->advance.x, 0.0f) * size;
 		}
 	}
 

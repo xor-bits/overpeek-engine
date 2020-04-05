@@ -9,10 +9,11 @@
 #include "widgets/slider.hpp"
 #include "widgets/sprite_panel.hpp"
 #include "widgets/checkbox.hpp"
+#include "widgets/color_picker.hpp"
 
 #include "engine/graphics/interface/window.hpp"
 #include "engine/graphics/interface/renderer.hpp"
-#include "engine/graphics/interface/shader.hpp"
+#include "engine/assets/default_shader/default_shader.hpp"
 
 
 
@@ -20,10 +21,11 @@ namespace oe::gui {
 
 	class GUI {
 	private:
+		std::unique_ptr<Form> m_main_frame;
 		oe::graphics::Renderer* m_renderer;
-		oe::graphics::Shader* m_shader;
+		oe::graphics::Renderer* m_font_renderer;
 		oe::graphics::Window* m_window;
-		Form* m_main_frame;
+		oe::assets::DefaultShader* m_shader;
 
 		glm::vec2 m_offset;
 

@@ -8,9 +8,11 @@ set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
 # packages
 set(OpenGL_GL_PREFERENCE GLVND) # required
-find_package(Vulkan REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
+if(BUILD_VULKAN)
+find_package(Vulkan REQUIRED)
+endif()
 
 # sources
 set(_src_root_path "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -91,8 +93,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE vendor/minimp3/include)
 # rectpack2D
 target_include_directories(${PROJECT_NAME} PRIVATE vendor/rectpack2D/include)
 # vulkan
+if(BUILD_VULKAN)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Vulkan_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${Vulkan_LIBRARIES})
+add_subdirectory(vendor/shaderc/src)
+target_link_libraries(${PROJECT_NAME} PRIVATE shaderc)
+endif()
 # openal
 target_include_directories(${PROJECT_NAME} PRIVATE ${OPENAL_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENAL_LIBRARY})

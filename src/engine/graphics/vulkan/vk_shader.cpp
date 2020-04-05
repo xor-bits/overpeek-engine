@@ -6,9 +6,6 @@
 #include "buffers/vk_command_pool.hpp"
 #include "engine/engine.hpp"
 
-#include "shader/vert.spv.h"
-#include "shader/frag.spv.h"
-
 
 
 namespace oe::graphics {
@@ -33,54 +30,104 @@ namespace oe::graphics {
 		return buffer;
 	}
 
+	shaderc_shader_kind shader_kind(oe::shader_stages stage) {
+		switch (stage)
+		{
+		case oe::shader_stages::vertex_shader:
+			return shaderc_shader_kind::shaderc_vertex_shader;
+			break;
+		case oe::shader_stages::tesselation_control_shader:
+			return shaderc_shader_kind::shaderc_tess_control_shader;
+			break;
+		case oe::shader_stages::tesselation_evaluation_shader:
+			return shaderc_shader_kind::shaderc_tess_evaluation_shader;
+			break;
+		case oe::shader_stages::geometry_shader:
+			return shaderc_shader_kind::shaderc_geometry_shader;
+			break;
+		case oe::shader_stages::fragment_shader:
+			return shaderc_shader_kind::shaderc_fragment_shader;
+			break;
+		case oe::shader_stages::compute_shader:
+			return shaderc_shader_kind::shaderc_compute_shader;
+			break;
+		}
+	}
+
+	vk::ShaderStageFlagBits shader_flagbits(oe::shader_stages stage) {
+		switch (stage)
+		{
+		case oe::shader_stages::vertex_shader:
+			return vk::ShaderStageFlagBits::eVertex;
+			break;
+		case oe::shader_stages::tesselation_control_shader:
+			return vk::ShaderStageFlagBits::eTessellationControl;
+			break;
+		case oe::shader_stages::tesselation_evaluation_shader:
+			return vk::ShaderStageFlagBits::eTessellationEvaluation;
+			break;
+		case oe::shader_stages::geometry_shader:
+			return vk::ShaderStageFlagBits::eGeometry;
+			break;
+		case oe::shader_stages::fragment_shader:
+			return vk::ShaderStageFlagBits::eFragment;
+			break;
+		case oe::shader_stages::compute_shader:
+			return vk::ShaderStageFlagBits::eCompute;
+			break;
+		}
+	}
+
+	std::string shader_module_name(std::string name, oe::shader_stages stage) {
+		switch (stage)
+		{
+		case oe::shader_stages::vertex_shader:
+			return name + "." + "vertex";
+			break;
+		case oe::shader_stages::tesselation_control_shader:
+			return name + "." + "tess_control";
+			break;
+		case oe::shader_stages::tesselation_evaluation_shader:
+			return name + "." + "tess_evaluation";
+			break;
+		case oe::shader_stages::geometry_shader:
+			return name + "." + "geometry";
+			break;
+		case oe::shader_stages::fragment_shader:
+			return name + "." + "fragment";
+			break;
+		case oe::shader_stages::compute_shader:
+			return name + "." + "compute";
+			break;
+		}
+	}
+
 	VKShader::VKShader(const VKWindow* window, const ShaderInfo& shader_info)
 		: Shader::Shader(shader_info)
 		, m_window(window)
 		, m_logical_device(window->m_logical_device)
 	{
-		if (m_shader_info.name == asset_default_shader_name)
-			m_shader_info = default_shader_info();
-
 		std::vector<vk::ShaderModule> modules;
 		std::vector<vk::PipelineShaderStageCreateInfo> module_infos;
 		for (auto& stage : m_shader_info.shader_stages)
 		{
-			size_t source_bytes = stage.source_bytes;
-			std::string source = std::string(reinterpret_cast<const char*>(stage.source), source_bytes);
+			shaderc::Compiler compiler = shaderc::Compiler();
+			shaderc::CompileOptions options = shaderc::CompileOptions();
+			options.SetOptimizationLevel(shaderc_optimization_level::shaderc_optimization_level_performance);
+			auto result = compiler.CompileGlslToSpv(stage.source, shader_kind(stage.stage), shader_module_name(shader_info.name, stage.stage).c_str(), options);
+			size_t code_size = (result.end() - result.begin()) * sizeof(uint32_t);
 
-			// sources
-			if (stage.source_is_filepath) {
-				source = oe::utils::readFile(source).c_str();
+			if (result.GetNumErrors() != 0) {
+				oe_error_terminate("Shader ({}) compilation failed: {}", shader_info.name, result.GetErrorMessage());
 			}
 
 			// stage type
-			vk::ShaderStageFlagBits stage_id;
-			switch (stage.stage)
-			{
-			case oe::shader_stages::vertex_shader:
-				stage_id = vk::ShaderStageFlagBits::eVertex;
-				break;
-			case oe::shader_stages::tesselation_control_shader:
-				stage_id = vk::ShaderStageFlagBits::eTessellationControl;
-				break;
-			case oe::shader_stages::tesselation_evaluation_shader:
-				stage_id = vk::ShaderStageFlagBits::eTessellationEvaluation;
-				break;
-			case oe::shader_stages::geometry_shader:
-				stage_id = vk::ShaderStageFlagBits::eGeometry;
-				break;
-			case oe::shader_stages::fragment_shader:
-				stage_id = vk::ShaderStageFlagBits::eFragment;
-				break;
-			case oe::shader_stages::compute_shader:
-				stage_id = vk::ShaderStageFlagBits::eCompute;
-				break;
-			}
+			vk::ShaderStageFlagBits stage_id = shader_flagbits(stage.stage);
 
 			// shader module
 			vk::ShaderModuleCreateInfo createInfo = {};
-			createInfo.codeSize = source_bytes;
-			createInfo.pCode = reinterpret_cast<const uint32_t*>(source.c_str());
+			createInfo.codeSize = code_size;
+			createInfo.pCode = result.begin();
 			vk::ShaderModule shader_module = m_logical_device->m_logical_device.createShaderModule(createInfo);
 
 			// the actual pipeline stage info
@@ -224,30 +271,6 @@ namespace oe::graphics {
 	VKShader::~VKShader() {
 		m_logical_device->m_logical_device.destroyPipeline(m_pipeline);
 		m_logical_device->m_logical_device.destroyPipelineLayout(m_pipeline_layout);
-	}
-
-
-
-	ShaderInfo VKShader::default_shader_info() {
-		ShaderStageInfo vertex = {};
-		vertex.source_is_filepath = false;
-		vertex.source = vert_spv;
-		vertex.source_bytes = sizeof(vert_spv);
-		vertex.stage = oe::shader_stages::vertex_shader;
-
-		ShaderStageInfo fragment = {};
-		fragment.source_is_filepath = false;
-		fragment.source = frag_spv;
-		fragment.source_bytes = sizeof(frag_spv);
-		fragment.stage = oe::shader_stages::fragment_shader;
-
-		ShaderInfo info = {};
-		info.name = asset_default_shader_name;
-		info.shader_stages = {
-			vertex, fragment
-		};
-
-		return info;
 	}
 
 

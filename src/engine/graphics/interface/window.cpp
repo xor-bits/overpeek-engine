@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 
 #include "engine/internal_libs.hpp"
-#include "engine/utility/math.hpp"
+#include "engine/utility/extra.hpp"
 #include "engine/engine.hpp"
 
 
@@ -37,14 +37,14 @@ namespace oe::graphics {
 				if (this_class->m_resize_callback) this_class->m_resize_callback(this_class->m_window_info.size);
 			});
 		
-		glfwSetCursorPosCallback(m_window_handle, [](GLFWwindow* window, double x, double y)                             
+		glfwSetCursorPosCallback(m_window_handle, [](GLFWwindow* window, double x, double y)
 			{
 				Window* this_class = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
 
 				this_class->m_cursor_window = { x, y };
 
-				x = oe::utils::map((double)x, (double)0.0, (double)this_class->m_window_info.size.x, (double)-this_class->m_aspect_ratio, (double)this_class->m_aspect_ratio);
-				y = oe::utils::map((double)y, (double)0.0, (double)this_class->m_window_info.size.y, (double)-1.0, (double)1.0);
+				x = oe::utils::map(static_cast<float>(x), 0.0f, this_class->m_window_info.size.x, -this_class->m_aspect_ratio, this_class->m_aspect_ratio);
+				y = oe::utils::map(static_cast<float>(y), 0.0f, this_class->m_window_info.size.y, -1.0f, 1.0f);
 				this_class->m_cursor_transformed = { x, y };
 
 				if (this_class->m_cursor_callback) this_class->m_cursor_callback(this_class->m_cursor_transformed, this_class->m_cursor_window);
@@ -74,7 +74,7 @@ namespace oe::graphics {
 				if (this_class->m_key_callback) this_class->m_key_callback(static_cast<oe::keys>(key), static_cast<oe::actions>(action), static_cast<oe::modifiers>(mods));
 			});
 		
-		glfwSetScrollCallback(m_window_handle, [](GLFWwindow* window, double xoffset, double yoffset)                 
+		glfwSetScrollCallback(m_window_handle, [](GLFWwindow* window, double xoffset, double yoffset)
 			{
 				Window* this_class = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
 
@@ -84,6 +84,15 @@ namespace oe::graphics {
 		// to call resize func initially
 		glfwSetWindowSizeLimits(m_window_handle, 1, 1, INT16_MAX, INT16_MAX);
 		glfwSetWindowSize(m_window_handle, m_window_info.size.x, m_window_info.size.y);
+
+		m_key_callback = m_window_info.key_callback;
+		m_button_callback = m_window_info.button_callback;
+		m_scroll_callback = m_window_info.scroll_callback;
+		m_resize_callback = m_window_info.resize_callback;
+		m_text_callback = m_window_info.text_callback;
+		m_cursor_callback = m_window_info.cursor_callback;
+
+		swapInterval(m_window_info.swap_interval);
 	}
 
 	Window::Window(const Instance* instance, const WindowInfo& window_config) 
@@ -129,15 +138,6 @@ namespace oe::graphics {
 
 
 
-	void Window::setKeyboardCallback(key_callback callback) { m_key_callback = callback; }
-	void Window::setButtonCallback(button_callback callback) { m_button_callback = callback; }
-	void Window::setScrollCallback(scroll_callback callback) { m_scroll_callback = callback; }
-	void Window::setResizeCallback(resize_callback callback) { m_resize_callback = callback; }
-	void Window::setCharmodCallback(text_callback callback) { m_text_callback = callback; }
-	void Window::setCursorPositionCallback(cursor_callback callback) { m_cursor_callback = callback; }
-
-
-
 	void makeFullscreen(GLFWwindow* window_handle, const WindowInfo& window) 
 	{
 		glfwSetWindowMonitor(window_handle, glfwGetPrimaryMonitor(), window.position.x, window.position.y, window.size.x, window.size.y, 0);
@@ -180,8 +180,8 @@ namespace oe::graphics {
 	void Window::setCursorTransformed(const glm::vec2& cursor_at_world_space) 
 	{
 		m_cursor_transformed = cursor_at_world_space;
-		m_cursor_transformed.x = oe::utils::map((double)m_cursor_transformed.x, (double)-m_aspect_ratio, (double)m_aspect_ratio, (double)0.0, (double)m_window_info.size.x);
-		m_cursor_transformed.y = oe::utils::map((double)m_cursor_transformed.y, (double)-1.0, (double)1.0, (double)0.0, (double)m_window_info.size.y);
+		m_cursor_transformed.x = oe::utils::map((float)m_cursor_transformed.x, (float)-m_aspect_ratio, (float)m_aspect_ratio, (float)0.0, (float)m_window_info.size.x);
+		m_cursor_transformed.y = oe::utils::map((float)m_cursor_transformed.y, (float)-1.0, (float)1.0, (float)0.0, (float)m_window_info.size.y);
 		glfwSetCursorPos(m_window_handle, m_cursor_transformed.x, m_cursor_transformed.y);
 	}
 

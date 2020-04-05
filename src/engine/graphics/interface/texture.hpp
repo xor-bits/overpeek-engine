@@ -13,7 +13,7 @@ namespace oe::graphics {
 
 	public:
 		Texture(const TextureInfo& texture_info);
-		virtual ~Texture();
+		~Texture();
 
 		virtual void setData(const TextureInfo& texture_info) = 0;
 

@@ -14,7 +14,6 @@ namespace oe::gui {
 	const static std::string filter_letters_lower = "abcdefghijklmnopqrstuvwxyz";
 	const static std::string filter_numbers       = "0123456789";
 	const static std::string filter_symbols       = "-_.:,;<>|^¨~'*´`?\\/()[]{}&%¤#\"!@£$§=";
-	const static std::string filter_newline       = "\n";
 
 	struct TextInputInfo {
 		text_callback callback_changed        = nullptr;
@@ -44,7 +43,7 @@ namespace oe::gui {
 	public:
 		// window_handle is used for clipboard
 		TextInput(const TextInputInfo& text_input_info);
-		virtual ~TextInput() override;
+		~TextInput();
 
 		// Inherited via Widget
 		virtual void render(oe::graphics::Renderer& renderer) override;

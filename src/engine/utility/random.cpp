@@ -3,11 +3,12 @@
 #include <cstdlib>
 #include <ctime>
 
-namespace oe {
+namespace oe::utils {
 
-	void Random::seed(int seed) {
-		if (seed == 0) seed = time(0);
-		srand(static_cast<float>(seed));
+	Random* Random::singleton = nullptr;
+
+	void Random::seed(uint32_t seed) {
+		srand(seed);
 	}
 
 	float Random::randomf(float min, float max) {

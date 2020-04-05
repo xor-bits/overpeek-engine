@@ -18,11 +18,7 @@ namespace oe::gui {
 	}
 
 	Widget::~Widget() {
-		__delete_nodes();
-	}
-
-	void Widget::__delete_nodes() {
-		for (auto w : m_nodes) {
+		for (auto& w : m_nodes) {
 			delete w;
 		}
 	}

@@ -14,10 +14,11 @@ const oe::graphics::Sprite* sprite;
 oe::graphics::Instance* instance;
 oe::graphics::Window* window;
 oe::graphics::SpritePack* pack;
-oe::graphics::Shader* shader;
 oe::graphics::Renderer* renderer;
 oe::graphics::Font* font;
+oe::assets::DefaultShader* shader;
 
+glm::vec4 color = oe::colors::orange;
 glm::vec3 rotate(0.0f, 1.0f, 0.0f);
 float speed = 0.0f;
 
@@ -27,52 +28,52 @@ void cube() {
 	renderer->clear();
 
 	// front
-	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f }, oe::colors::orange));
-	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, oe::colors::orange));
-	renderer->submit(oe::graphics::VertexData({  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, oe::colors::orange));
-	renderer->submit(oe::graphics::VertexData({  1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f }, color));
+	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, color));
+	renderer->submit(oe::graphics::VertexData({  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, color));
+	renderer->submit(oe::graphics::VertexData({  1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f }, color));
 	renderer->quadCount()++;
 
 	// back
-	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f }, oe::colors::orange));
-	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, oe::colors::orange));
-	renderer->submit(oe::graphics::VertexData({  1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f }, oe::colors::orange));
-	renderer->submit(oe::graphics::VertexData({  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f }, color));
+	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, color));
+	renderer->submit(oe::graphics::VertexData({  1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f }, color));
+	renderer->submit(oe::graphics::VertexData({  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, color));
 	renderer->quadCount()++;
 
 	// top
-	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f }, oe::colors::orange));
-	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, oe::colors::orange));
-	renderer->submit(oe::graphics::VertexData({  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, oe::colors::orange));
-	renderer->submit(oe::graphics::VertexData({  1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f }, color));
+	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, color));
+	renderer->submit(oe::graphics::VertexData({  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, color));
+	renderer->submit(oe::graphics::VertexData({  1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, color));
 	renderer->quadCount()++;
 
 	// bottom
-	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, oe::colors::orange));
-	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, oe::colors::orange));
-	renderer->submit(oe::graphics::VertexData({  1.0f, -1.0f,  1.0f }, { 1.0f, 1.0f }, oe::colors::orange));
-	renderer->submit(oe::graphics::VertexData({  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, color));
+	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, color));
+	renderer->submit(oe::graphics::VertexData({  1.0f, -1.0f,  1.0f }, { 1.0f, 1.0f }, color));
+	renderer->submit(oe::graphics::VertexData({  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, color));
 	renderer->quadCount()++;
 
 	// left
-	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, oe::colors::orange));
-	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, oe::colors::orange));
-	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, oe::colors::orange));
-	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, color));
+	renderer->submit(oe::graphics::VertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, color));
+	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, color));
+	renderer->submit(oe::graphics::VertexData({ -1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, color));
 	renderer->quadCount()++;
 
 	// right
-	renderer->submit(oe::graphics::VertexData({  1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, oe::colors::orange));
-	renderer->submit(oe::graphics::VertexData({  1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, oe::colors::orange));
-	renderer->submit(oe::graphics::VertexData({  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, oe::colors::orange));
-	renderer->submit(oe::graphics::VertexData({  1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, oe::colors::orange));
+	renderer->submit(oe::graphics::VertexData({  1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, color));
+	renderer->submit(oe::graphics::VertexData({  1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, color));
+	renderer->submit(oe::graphics::VertexData({  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, color));
+	renderer->submit(oe::graphics::VertexData({  1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, color));
 	renderer->quadCount()++;
 
-	// stop submitting and rendera
+	// stop submitting and render
 	static glm::mat4 ml_matrix = glm::mat4(1.0f);
-	shader->bind();
 	ml_matrix = glm::rotate(ml_matrix, speed * -0.1f, rotate);
-	shader->setUniformMat4("ml_matrix", ml_matrix);
+	shader->bind();
+	shader->setModelMatrix(ml_matrix);
 	instance->polygonMode(oe::polygon_mode::lines);
 	renderer->end();
 	renderer->render();
@@ -94,24 +95,23 @@ void render(float update_fraction) {
 	window->update();
 
 	// check if needs to close
-	if (window->shouldClose()) oe::utils::GameLoop::stop();
+	if (window->shouldClose()) oe::utils::GameLoop::getSingleton().stop();
 }
 
 void resize(const glm::vec2& window_size) {
 	gui->resize();
 
+	glm::mat4 pr_matrix = glm::perspectiveFov(30.0f, window_size.x, window_size.y, 0.0f, 1000.0f);
+	glm::mat4 vw_matrix = glm::lookAt(glm::vec3(0.0f, 0.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
 	shader->bind();
-	shader->setUniform1i("usetex", false);
-	glm::mat4 pr_matrix = glm::perspectiveFov(30.0f, (float)window_size.x, (float)window_size.y, 0.0f, 1000.0f);
-	shader->setUniformMat4("pr_matrix", pr_matrix);
-	glm::mat4 vw_matrix = glm::lookAt(glm::vec3(0.0f, 0.0f,-5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	shader->setUniformMat4("vw_matrix", vw_matrix);
+	shader->useTexture(false);
+	shader->setProjectionMatrix(pr_matrix);
+	shader->setViewMatrix(vw_matrix);
 }
 
-static int n;
 void update() {
-	textpanel->text_panel_info.text = fmt::format("{}", static_cast<char>(++n%128));
-	spdlog::info("{}", static_cast<char>(++n % 128));
+	textpanel->text_panel_info.text = fmt::format("FPS: {}", oe::utils::GameLoop::getSingleton().getFPS());
 }
 
 void setup_gui() {
@@ -209,7 +209,7 @@ void setup_gui() {
 		slider_info.min_value = -1.0f;
 		slider_info.max_value =  1.0f;
 		slider_info.initial_value = 0.5f;
-		slider_info.callback = [](float val) { speed = val; };
+		slider_info.callback = [](double val) { speed = val; };
 		auto slider = new oe::gui::Slider(slider_info);
 		gui->addSubWidget(slider);
 	}
@@ -218,46 +218,19 @@ void setup_gui() {
 		text_panel_info.font_size = 20;
 		text_panel_info.align_parent = oe::alignments::top_left;
 		text_panel_info.align_render = oe::alignments::top_left;
-		text_panel_info.text = "FPS:\nUPS:";
-		text_panel_info.background_color = oe::colors::black;
+		text_panel_info.text = "FPS:";
 		textpanel = new oe::gui::TextPanel(text_panel_info);
 		gui->addSubWidget(textpanel);
 	}
 	{
-		/*
-		   H
-		    O
-		     H
-		*/
-
-		oe::gui::TextPanelInfo text_panel_info = {};
-		text_panel_info.font_size = 20;
-		text_panel_info.align_parent = oe::alignments::center_center;
-		text_panel_info.align_render = oe::alignments::center_center;
-		text_panel_info.text = "O";
-		oe::gui::TextPanel* textpanel = new oe::gui::TextPanel(text_panel_info);
-		gui->addSubWidget(textpanel);
-
-		{
-			oe::gui::SpritePanelInfo sprite_panel_info = {};
-			sprite_panel_info.size = { 20, 20 };
-			sprite_panel_info.align_parent = oe::alignments::top_left;
-			sprite_panel_info.align_render = oe::alignments::bottom_right;
-			sprite_panel_info.offset_position = { 0, 0 };
-			sprite_panel_info.sprite = sprite;
-			auto box = new oe::gui::SpritePanel(sprite_panel_info);
-			textpanel->addSubWidget(box);
-		}
-		{
-			oe::gui::SpritePanelInfo sprite_panel_info = {};
-			sprite_panel_info.size = { 20, 20 };
-			sprite_panel_info.align_parent = oe::alignments::bottom_right;
-			sprite_panel_info.align_render = oe::alignments::top_left;
-			sprite_panel_info.offset_position = { 0, 0 };
-			sprite_panel_info.sprite = sprite;
-			auto box = new oe::gui::SpritePanel(sprite_panel_info);
-			textpanel->addSubWidget(box);
-		}
+		oe::gui::ColorPickerInfo color_picker_info;
+		color_picker_info.size = { 200, 100 };
+		color_picker_info.align_parent = oe::alignments::center_left;
+		color_picker_info.align_render = oe::alignments::center_left;
+		color_picker_info.callback = [&](glm::vec4 value) { color = value; };
+		color_picker_info.sprite = pack->empty_sprite();
+		auto color_picker = new oe::gui::ColorPicker(color_picker_info);
+		gui->addSubWidget(color_picker);
 	}
 }
 
@@ -288,30 +261,24 @@ int main() {
 	engine_info.api = oe::graphics_api::OpenGL;
 	engine_info.networking = false;
 	engine_info.audio = false;
-	oe::Engine::init(engine_info);
+	oe::Engine::getSingleton().init(engine_info);
 
 	// instance
 	oe::InstanceInfo instance_info = {};
 	instance_info.debug_messages = true;
 	// instance_info.favored_gpu_vulkan = oe::gpu::dedicated;
-	instance = oe::Engine::createInstance(instance_info);
+	instance = oe::Engine::getSingleton().createInstance(instance_info);
 
 	// window
 	oe::WindowInfo window_config = {};
 	window_config.title = "Test 3 - GUIs";
 	window_config.multisamples = 4;
+	window_config.cursor_callback = cursor_pos;
+	window_config.resize_callback = resize;
+	window_config.button_callback = button;
+	window_config.text_callback = text;
+	window_config.key_callback = keyboard;
 	window = instance->createWindow(window_config);
-	window->setCursorPositionCallback(cursor_pos);
-	window->setResizeCallback(resize);
-	window->setButtonCallback(button);
-	window->setCharmodCallback(text);
-	window->setKeyboardCallback(keyboard);
-
-	// print render info
-	spdlog::info("GPU: {}", window->getGPU());
-	spdlog::info("GPUVendor: {}", window->getGPUVendor());
-	spdlog::info("API: {}", window->getAPI());
-	spdlog::info("APIVersion: {}", window->getAPIVersion());
 
 	// instance settings
 	instance->swapInterval(1);
@@ -322,15 +289,15 @@ int main() {
 	oe::RendererInfo renderer_info = {};
 	renderer_info.arrayRenderType = oe::types::dynamicrender;
 	renderer_info.indexRenderType = oe::types::staticrender;
-	renderer_info.max_quad_count = 10000;
+	renderer_info.max_quad_count = 6;
 	renderer_info.staticVBOBuffer_data = nullptr;
 	renderer = window->createRenderer(renderer_info);
 	
 	// shader
-	shader = window->createShader(oe::ShaderInfo());
+	shader = new oe::assets::DefaultShader(window);
 
 	// spritepack
-	auto img = oe::utils::loadImageCopy(texture_png, 5, 5);
+	auto img = oe::utils::image_data(texture_png, oe::formats::rgba, 5, 5);
 	pack = new oe::graphics::SpritePack(window);
 	sprite = pack->addSprite(img);
 
@@ -345,7 +312,7 @@ int main() {
 
 	// start
 	resize(window->getSize());
-	oe::utils::GameLoop::init(render, update, 5);
+	oe::utils::GameLoop::getSingleton().start(render, update, 1);
 
 	// cleanup
 	delete gui;
@@ -354,7 +321,6 @@ int main() {
 	delete shader;
 	window->destroyRenderer(renderer);
 	instance->destroyWindow(window);
-	oe::Engine::deinit();
 
 	return 0;
 }

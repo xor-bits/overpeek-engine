@@ -19,6 +19,10 @@ namespace oe::gui {
 
 		glm::vec2 slider_pos = glm::vec2(oe::utils::map(slider_info.initial_value, slider_info.min_value, slider_info.max_value, 0.0f, size.x - slider_info.knob_size.x), 0.0f);
 		renderer.submit(render_position + slider_pos + glm::vec2(slider_info.knob_size.x, slider_info.slider_size.y) * 0.5f, slider_info.knob_size, slider_info.knob_sprite, slider_info.knob_color, oe::alignments::center_center);
+
+		if (slider_info.draw_value) {
+			oe::graphics::Text::submit(renderer, fmt::format("{:.2f}", slider_info.initial_value), render_position + size * 0.5f, size.y * 0.6f, oe::alignments::center_center);
+		}
 	}
 
 	void Slider::cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) {

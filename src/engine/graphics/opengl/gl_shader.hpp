@@ -18,8 +18,6 @@ namespace oe::graphics {
 		GLShader(const ShaderInfo& shader_info);
 		~GLShader();
 
-		virtual ShaderInfo default_shader_info() override;
-
 		virtual void bind() const override;
 		virtual void unbind() const override;
 

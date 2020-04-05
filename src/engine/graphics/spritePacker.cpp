@@ -35,7 +35,7 @@ namespace oe::graphics {
 		size_t img_size = 4ul * (size_t)1 * (size_t)1;
 		unsigned char* data = new unsigned char[img_size];
 		std::memset(data, (unsigned char)255, img_size);
-		addSprite(oe::utils::loadImageMove(data, 1, 1));
+		addSprite(oe::utils::image_data::image_data(data, oe::formats::rgba, 1, 1));
 	}
 
 	SpritePack::~SpritePack() {
@@ -48,11 +48,11 @@ namespace oe::graphics {
 		delete static_cast<__usr_data*>(m_usr_data);
 	}
 
-	const Sprite* SpritePack::addSprite(oe::utils::image_data sprite_texture) {
+	const Sprite* SpritePack::addSprite(const oe::utils::image_data& sprite_texture) {
 		auto usr_data = static_cast<__usr_data*>(m_usr_data);
 
 		std::vector<Sprite*> vect;
-		Sprite* sprite = new Sprite(m_texture);
+		Sprite* sprite = new Sprite(this);
 		sprite->position = { 0, 0 };
 		sprite->size = { 1, 1 };
 		vect.push_back(sprite);
@@ -65,8 +65,7 @@ namespace oe::graphics {
 	}
 
 	const Sprite* SpritePack::addSprite(fs::path sprite_texture) {
-		auto img = oe::utils::loadImage(sprite_texture);
-		return addSprite(img);
+		return addSprite(oe::utils::image_data(sprite_texture));
 	}
 
 	std::vector<std::vector<const Sprite*>> SpritePack::addMultiSprite(oe::utils::image_data sprite_texture, const glm::vec2& sprite_count) {
@@ -75,7 +74,7 @@ namespace oe::graphics {
 		std::vector<Sprite*> vect;
 		for (size_t x = 0; x < sprite_count.x; x++) {
 			for (size_t y = 0; y < sprite_count.y; y++) {
-				Sprite* sprite = new Sprite(m_texture);
+				Sprite* sprite = new Sprite(this);
 				sprite->position = { x, y };
 				sprite->size = sprite_count;
 				vect.push_back(sprite);
@@ -99,8 +98,7 @@ namespace oe::graphics {
 	}
 
 	std::vector<std::vector<const Sprite*>> SpritePack::addMultiSprite(fs::path sprite_texture, const glm::vec2& sprite_count) {
-		auto img = oe::utils::loadImage(sprite_texture);
-		return addMultiSprite(img, sprite_count);
+		return addMultiSprite(oe::utils::image_data(sprite_texture), sprite_count);
 	}
 
 	size_t coordsToIndex(size_t x, size_t y, size_t c, size_t width, size_t channels) {
@@ -161,20 +159,15 @@ namespace oe::graphics {
 		texture_info.height = pack_height;
 
 		m_texture = m_window->createTexture(texture_info);
-
-		oe::utils::saveImage("output.png", oe::utils::loadImageMove(data, pack_width, pack_height));
 		
 		delete[] data;
 	}
 
 	void SpritePack::construct() {
-		auto usr_data = static_cast<__usr_data*>(m_usr_data);
-
 		constructRepeat();
 
-		for (size_t i = 0; i < usr_data->m_images.size(); i++) {
-			oe::utils::freeImage(usr_data->m_images.at(i));
-		}
+		auto usr_data = static_cast<__usr_data*>(m_usr_data);
+		usr_data->m_images.clear();
 	}
 
 	void SpritePack::bind() const {

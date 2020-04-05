@@ -27,7 +27,7 @@ namespace oe::networking {
 			0
 		);
 		if (!m_client) {
-			spdlog::error("Could not create ENet client");
+			spdlog::critical("Could not create ENet client");
 		}
 	}
 

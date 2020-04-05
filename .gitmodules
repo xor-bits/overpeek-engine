@@ -1,12 +1,3 @@
-[submodule "src/vendor/enet"]
-	path = src/vendor/enet
-	url = https://github.com/lsalzman/enet.git
 [submodule "src/vendor/entt"]
 	path = src/vendor/entt
 	url = https://github.com/skypjack/entt.git
-[submodule "src/vendor/freetype"]
-	path = src/vendor/freetype
-	url = https://git.savannah.nongnu.org/git/freetype/freetype2.git
-[submodule "src/vendor/flecs"]
-	path = src/vendor/flecs
-	url = https://github.com/SanderMertens/flecs.git

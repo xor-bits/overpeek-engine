@@ -16,11 +16,10 @@ namespace oe::graphics {
 
 	protected:
 		size_t m_quad_count;
-		size_t m_max_quad_count;
 
 	public:
 		Renderer(const RendererInfo& renderer_info);
-		virtual ~Renderer();
+		~Renderer();
 
 		virtual void begin() = 0;
 		virtual void end() = 0;
@@ -36,7 +35,7 @@ namespace oe::graphics {
 		virtual void render(int quad_count = -1) const = 0;
 
 		size_t& quadCount() { return m_quad_count; }
-		size_t maxQuadCount() const { return m_max_quad_count; }
+		size_t maxQuadCount() const { return m_renderer_info.max_quad_count; }
 	};
 
 }

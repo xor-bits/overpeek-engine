@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/utility/filereader.hpp"
+#include "engine/utility/fileio.hpp"
 #include "engine/internal_libs.hpp"
 #include "sprite.hpp"
 #include "engine/graphics/opengl/gl_texture.hpp"
@@ -30,7 +30,7 @@ namespace oe::graphics {
 		~SpritePack();
 
 		// void construct(); will delete all data in these sprite images
-		const Sprite* addSprite(oe::utils::image_data sprite_texture);
+		const Sprite* addSprite(const oe::utils::image_data& sprite_texture);
 		const Sprite* addSprite(fs::path sprite_texture);
 
 		// void construct(); will delete all data in these sprite images

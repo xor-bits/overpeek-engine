@@ -8,7 +8,11 @@ using namespace std::chrono;
 
 namespace oe::utils {
 
-	size_t Clock::m_start_time = getMicroseconds();
+	Clock* Clock::singleton = nullptr;
+
+	Clock::Clock() {
+		m_start_time = getMicroseconds();
+	}
 
 	size_t Clock::getMicroseconds() {
 		auto now = system_clock::now();
@@ -23,7 +27,7 @@ namespace oe::utils {
 	}
 
 	float Clock::getSessionMillisecond() {
-		return getTimeAfterStart() * 0.001f;
+		return getTimeAfterStart() / 1000.0;
 	}
 
 }

@@ -13,7 +13,12 @@ static void glfw_error_func(int code, const char* desc) {
 
 namespace oe {
 
-	EngineInfo Engine::engine_info;
+	Engine* Engine::singleton = nullptr;
+
+	Engine::Engine() {
+		// init to start the timer and seed the randomizer
+		utils::Random::getSingleton().seed(utils::Clock::getSingleton().getMicroseconds());
+	}
 
 	void Engine::init(EngineInfo _engine_info) {
 		spdlog::set_pattern("%^[%T] [%l]:%$ %v");
@@ -31,7 +36,7 @@ namespace oe {
 			networking::enet::initEnet();
 		}
 
-		srand(oe::utils::Clock::getMicroseconds());
+		srand(oe::utils::Clock::getSingleton().getMicroseconds());
 	}
 
 	void Engine::deinit() {
@@ -66,6 +71,20 @@ namespace oe {
 
 	void Engine::destroyInstance(graphics::Instance* instance) {
 		delete instance;
+	}
+
+	void Engine::multipass(graphics::FrameBuffer& fb_0, graphics::FrameBuffer& fb_1, const graphics::Renderer& renderer, size_t count) {
+		for (int i = 0; i < count; i++) {
+			fb_1.bind();
+			fb_0.getTexture()->bind();
+			renderer.render(1);
+			fb_1.unbind();
+
+			fb_0.bind();
+			fb_1.getTexture()->bind();
+			renderer.render(1);
+			fb_0.unbind();
+		}
 	}
 
 }

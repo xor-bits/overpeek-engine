@@ -5,17 +5,29 @@
 
 
 
-namespace oe {
+namespace oe::utils {
 
 	class Random {
+	private:
+		static Random* singleton;
+		Random() { seed(0);  }
+
 	public:
-		//Seed = 0 is time
-		static void seed(int seed = 0);
-		static float randomf(float min, float max);
-		static int randomi(int min, int max);
-		static glm::vec2 randomVec2(float min, float max);
-		static glm::vec3 randomVec3(float min, float max);
-		static glm::vec4 randomVec4(float min, float max);
+		Random(const Random&) = delete;
+		static Random& getSingleton() {
+			if (!singleton) singleton = new Random();
+			return *singleton;
+		}
+
+	public:
+		void seed(uint32_t seed = 0);
+		
+		float randomf(float min, float max);
+		int randomi(int min, int max);
+
+		glm::vec2 randomVec2(float min, float max);
+		glm::vec3 randomVec3(float min, float max);
+		glm::vec4 randomVec4(float min, float max);
 	};
 
 }

@@ -45,7 +45,8 @@ namespace oe::gui {
 
 	float timer_key_pressed = 0;
 	void resetTimer() {
-		timer_key_pressed = oe::utils::Clock::getSessionMillisecond() + 1000.0f;
+		auto& clock = oe::utils::Clock::getSingleton();
+		timer_key_pressed = clock.getSessionMillisecond() + 1000.0f;
 	}
 	
 	TextInput::TextInput(const TextInputInfo& _text_input_info)
@@ -66,18 +67,25 @@ namespace oe::gui {
 		// bounding box
 		renderer.submit(render_position, size, text_input_info.sprite, text_input_info.color);
 
-		std::string tmp = text_input_info.text;
-		float time = oe::utils::Clock::getSessionMillisecond();
-		if ((timer_key_pressed > oe::utils::Clock::getSessionMillisecond()) || ((int)floor(time) % 2000 > 1000)) {
-			tmp.insert(reinterpret_cast<STB_TexteditState*>(m_state)->cursor, "|");
-		}
-		else {
-			tmp.insert(reinterpret_cast<STB_TexteditState*>(m_state)->cursor, " ");
-		}
-
 		// text
 		glm::vec2 text_size = glm::vec2(text_input_info.font_size);
-		oe::graphics::Text::submit(renderer, "<#000000>" + tmp, render_position + oe::alignmentOffset(text_input_info.size, text_input_info.align_text), text_size, text_input_info.align_text);
+		oe::graphics::Text::submit(renderer, "<#000000>" + text_input_info.text, render_position + oe::alignmentOffset(text_input_info.size, text_input_info.align_text), text_size, text_input_info.align_text);
+
+		// vertical bar
+		if (!m_selected) return;
+		float input_x_size = oe::graphics::Text::width(text_input_info.text, glm::vec2(text_input_info.font_size));
+		float input_x_bar = oe::graphics::Text::width(text_input_info.text.substr(0, reinterpret_cast<STB_TexteditState*>(m_state)->cursor), glm::vec2(text_input_info.font_size)) - input_x_size * text_input_info.align_text.x;
+		auto& clock = oe::utils::Clock::getSingleton();
+		if (timer_key_pressed > clock.getSessionMillisecond()) {
+			oe::graphics::Text::submit(renderer, "<#000000>|", render_position + oe::alignmentOffset(text_input_info.size, text_input_info.align_text) + glm::vec2(input_x_bar, 0.0f), text_size, text_input_info.align_text);
+			return;
+		}
+		else {
+			float time = clock.getSessionMillisecond();
+			if ((int)floor(time) % 2000 > 1000)
+				oe::graphics::Text::submit(renderer, "<#000000>|", render_position + oe::alignmentOffset(text_input_info.size, text_input_info.align_text) + glm::vec2(input_x_bar, 0.0f), glm::vec2(text_input_info.font_size), text_input_info.align_text);
+			return;
+		}
 	}
 
 	void TextInput::text(uint32_t codepoint, oe::modifiers mods) {
@@ -110,8 +118,6 @@ namespace oe::gui {
 		if (!m_selected) return;
 
 		if (action != oe::actions::release) {
-			if (key == oe::keys::key_enter)
-				text('\n', mods);
 			if (key == oe::keys::key_backspace)
 				stb_textedit_key(&text_input_info.text, reinterpret_cast<STB_TexteditState*>(m_state), STB_TEXTEDIT_K_BACKSPACE);
 			else if (key == oe::keys::key_delete)

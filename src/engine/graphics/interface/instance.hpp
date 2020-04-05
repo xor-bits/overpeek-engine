@@ -15,7 +15,7 @@ namespace oe::graphics {
 
 	public:
 		Instance(const InstanceInfo& instance_info);
-		virtual ~Instance();
+		~Instance();
 
 		virtual Window* createWindow(const WindowInfo& window_config) const = 0;
 		virtual void destroyWindow(Window* window) const = 0;

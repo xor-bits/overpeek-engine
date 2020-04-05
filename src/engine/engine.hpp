@@ -15,12 +15,11 @@
 
 // Logic
 #include "utility/zip.hpp"
-#include "utility/math.hpp"
 #include "utility/clock.hpp"
-#include "utility/debug.hpp"
 #include "utility/random.hpp"
 #include "utility/gameloop.hpp"
-#include "utility/filereader.hpp"
+#include "utility/fileio.hpp"
+#include "utility/extra.hpp"
 
 // Gui
 #include "gui/gui_manager.hpp"
@@ -34,24 +33,39 @@
 #include "networking/client.hpp"
 #include "networking/server.hpp"
 
+// Asset
+#include "assets/default_shader/default_shader.hpp"
+
 
 
 namespace oe {
 
 	class Engine {
 	public:
-		static EngineInfo engine_info;
+		EngineInfo engine_info;
+
+	private:
+		static Engine* singleton;
+		Engine();
 
 	public:
-		static void init(EngineInfo engine_info);
-		static void deinit();
+		Engine(const Engine&) = delete;
+		static Engine& getSingleton() {
+			if (!singleton) singleton = new Engine();
+			return *singleton;
+		}
 
-		static void terminate();
-		static void __error(std::string error_msg, int line, std::string file);
+		void init(EngineInfo engine_info);
+		void deinit();
 
-		static graphics::Instance* createInstance(const InstanceInfo& instance_config);
-		static void destroyInstance(graphics::Instance* instance);
+		void terminate();
+		void __error(std::string error_msg, int line, std::string file);
+		void multipass(graphics::FrameBuffer& fb_0, graphics::FrameBuffer& fb_1, const graphics::Renderer& renderer, size_t count);
+
+		graphics::Instance* createInstance(const InstanceInfo& instance_config);
+		void destroyInstance(graphics::Instance* instance);
+
 	
-};
+	};
 
 }

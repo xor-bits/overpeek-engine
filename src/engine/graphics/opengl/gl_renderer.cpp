@@ -19,20 +19,24 @@ namespace oe::graphics {
 		m_buffer_pos = 0;
 		m_mapped_buffer = nullptr;
 
-		int max_vertices = m_max_quad_count * 4;
-		int max_indices = m_max_quad_count * 6; // 0 1 2, 0 2 3
+		int max_vertices = m_renderer_info.max_quad_count * 4;
+		int max_indices = m_renderer_info.max_quad_count * 6; // 0 1 2, 0 2 3
 
 		// Vertex buffer
 		float *vb;
-		if (renderer_info.staticVBOBuffer_data == nullptr)
+		size_t size = (size_t)max_vertices * (size_t)VertexData::component_count * sizeof(float);
+		if (renderer_info.staticVBOBuffer_data == nullptr) {
 			vb = nullptr;
-		else
-			vb = (float*)renderer_info.staticVBOBuffer_data;
+		}
+		else {
+			vb = new float[size];
+			std::memcpy(vb, renderer_info.staticVBOBuffer_data, size);
+		}
 
 		// Index buffer
 		unsigned short *ib = new unsigned short[max_indices];
 		int index_counter = 0;
-		for (int i = 0; i < m_max_quad_count; i++) {
+		for (int i = 0; i < m_renderer_info.max_quad_count; i++) {
 			ib[i * 6 + 0] = index_counter + 0;
 			ib[i * 6 + 1] = index_counter + 1;
 			ib[i * 6 + 2] = index_counter + 2;
@@ -45,7 +49,7 @@ namespace oe::graphics {
 		// Shader buffers and attributes
 		m_vao = new VertexArray();
 		m_ibo = new IndexBuffer(ib, max_indices * sizeof(unsigned short), renderer_info.indexRenderType);
-		m_vbo = new VertexBuffer(vb, (size_t)max_vertices * (size_t)VertexData::component_count * sizeof(float), VertexData::component_count, renderer_info.arrayRenderType);
+		m_vbo = new VertexBuffer(vb, size, VertexData::component_count, renderer_info.arrayRenderType);
 		m_vbo->config();
 
 		delete[] ib;

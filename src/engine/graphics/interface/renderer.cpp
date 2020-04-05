@@ -5,8 +5,8 @@
 namespace oe::graphics {
 
 	Renderer::Renderer(const RendererInfo& renderer_info)
+		: m_renderer_info(renderer_info)
 	{
-		m_max_quad_count = renderer_info.max_quad_count;
 		m_quad_count = 0;
 	}
 

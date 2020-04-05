@@ -12,22 +12,16 @@ namespace oe::graphics {
 	// 2D only
 	class Sprite {
 	private:
-		Texture* m_texture;
+		SpritePack* m_sprite_pack;
 
 	public:
 		glm::vec2 position = { 0, 0 }; // position in packed texture
 		glm::vec2 size = { 1, 1 };     // size in packed texture
 
-		Sprite(Texture* texture)
-			: m_texture(texture) {}
 
-		void bind_texture() {
-			m_texture->bind();
-		}
 
-		void unbind_texture() {
-			m_texture->unbind();
-		}
+		Sprite(SpritePack* sprite_pack)
+			: m_sprite_pack(sprite_pack) {}
 	};
 
 }

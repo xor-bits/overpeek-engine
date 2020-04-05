@@ -5,6 +5,7 @@
 #include <string>
 #include <array>
 #include <vector>
+#include <functional>
 
 
 
@@ -321,6 +322,13 @@ namespace oe {
 		return size * alignment;
 	}
 
+	typedef std::function<void(oe::keys key, oe::actions action, oe::modifiers mods)> key_callback;
+	typedef std::function<void(oe::mouse_buttons button, oe::actions action)> button_callback;
+	typedef std::function<void(float delta)> scroll_callback;
+	typedef std::function<void(const glm::vec2 & framebuffer_size)> resize_callback;
+	typedef std::function<void(uint32_t codepoint, oe::modifiers mods)> text_callback;
+	typedef std::function<void(const glm::vec2 & transformed, const glm::vec2 & window)> cursor_callback;
+
 	// window open info
 	struct WindowInfo {
 		glm::vec2 position = { 0, 0 };
@@ -331,6 +339,13 @@ namespace oe {
 		bool resizeable = true;
 		bool transparent = false;
 		bool fullscreen = false;
+		uint32_t swap_interval = 1;
+		key_callback key_callback = nullptr;
+		button_callback button_callback = nullptr;
+		scroll_callback scroll_callback = nullptr;
+		resize_callback resize_callback = nullptr;
+		text_callback text_callback = nullptr;
+		cursor_callback cursor_callback = nullptr;
 	};
 
 	// renderer create info
@@ -343,17 +358,14 @@ namespace oe {
 
 	// shader per stage create info
 	struct ShaderStageInfo {
-		bool source_is_filepath = true;
-		shader_stages stage; // must be initialized
-		const unsigned char* source;  // must be initialized
-		size_t source_bytes;  // must be initialized
+		shader_stages stage;
+		std::string source;
 	};
 
-	const static std::string asset_default_shader_name = "asset:default_shader";
 	// shader create info
 	struct ShaderInfo {
-		std::string name = asset_default_shader_name;        // default shader will load if left unchanged
-		std::vector<ShaderStageInfo> shader_stages; // default shader will load if left unchanged
+		std::string name;
+		std::vector<ShaderStageInfo> shader_stages;
 	};
 
 	// engine create info
