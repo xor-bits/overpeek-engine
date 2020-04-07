@@ -28,10 +28,10 @@ cd build
 cmake -DBUILD_TESTS=TRUE -DBUILD_VULKAN=TRUE ..
 ```
 
-#### Depends:
-- Vulkan
+#### Depends on:
 - OpenGL
 - OpenAL
+- Vulkan (if BUILD_VULKAN=TRUE)
 
 ### Features
 - Window creation (glfw) 
