@@ -1,4 +1,5 @@
 #pragma once
+#ifdef BUILD_VULKAN
 
 #include "vk_logical_device.hpp"
 #include "vk_window.hpp"
@@ -146,3 +147,4 @@ namespace oe::graphics {
 	};
 
 }
+#endif

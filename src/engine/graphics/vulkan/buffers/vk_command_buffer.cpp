@@ -1,4 +1,5 @@
 #include "vk_command_buffer.hpp"
+#ifdef BUILD_VULKAN
 
 
 
@@ -47,18 +48,27 @@ namespace oe::graphics {
 		m_command_buffer.end();
 	}
 
-	void VKCommandBuffer::submitBind(const VKShader* shader) {
+	void VKCommandBuffer::bindShader(const VKShader* shader) {
 		m_command_buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, shader->m_pipeline); // TODO: make pipeline bind point defined in shader itself
 	}
 	
-	void VKCommandBuffer::submitBind(const VKVertexBuffer* vertex_buffer) {
-		vk::Buffer vertexBuffers[] = { vertex_buffer->m_vertex_buffer };
+	void VKCommandBuffer::bindVertexBuffer(const VKBuffer* vertex_buffer) {
+		vk::Buffer vertexBuffers[] = { vertex_buffer->m_buffer };
 		vk::DeviceSize offsets[] = { 0 };
 		m_command_buffer.bindVertexBuffers(0, 1, vertexBuffers, offsets);
 	}
+
+	void VKCommandBuffer::bindIndexBuffer(const VKBuffer* index_buffer) {
+		m_command_buffer.bindIndexBuffer(index_buffer->m_buffer, 0, vk::IndexType::eUint16);
+	}
 	
-	void VKCommandBuffer::submitDrawVertices(size_t vertex_conunt) {
+	void VKCommandBuffer::drawVertices(size_t vertex_conunt) {
 		m_command_buffer.draw(vertex_conunt, 1, 0, 0);
 	}
 
+	void VKCommandBuffer::drawIndices(size_t index_conunt) {
+		m_command_buffer.drawIndexed(index_conunt, 1, 0, 0, 0);
+	}
+
 }
+#endif

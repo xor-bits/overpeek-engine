@@ -1,4 +1,5 @@
 #include "vk_command_pool.hpp"
+#ifdef BUILD_VULKAN
 
 
 
@@ -56,25 +57,40 @@ namespace oe::graphics {
 		}
 	}
 
-	void VKCommandPool::submitBind(const VKShader* shader) {
+	void VKCommandPool::bindShader(const VKShader* shader) {
 		for (auto& buffer : m_command_buffers)
 		{
-			buffer->submitBind(shader);
+			buffer->bindShader(shader);
 		}
 	}
 
-	void VKCommandPool::submitBind(const VKVertexBuffer* vertex_buffer) {
+	void VKCommandPool::bindVertexBuffer(const VKBuffer* vertex_buffer) {
 		for (auto& buffer : m_command_buffers)
 		{
-			buffer->submitBind(vertex_buffer);
+			buffer->bindVertexBuffer(vertex_buffer);
+		}
+	}
+
+	void VKCommandPool::bindIndexBuffer(const VKBuffer* index_buffer) {
+		for (auto& buffer : m_command_buffers)
+		{
+			buffer->bindIndexBuffer(index_buffer);
 		}
 	}
 	
-	void VKCommandPool::submitDrawVertices(size_t vertex_conunt) {
+	void VKCommandPool::drawVertices(size_t vertex_conunt) {
 		for (auto& buffer : m_command_buffers)
 		{
-			buffer->submitDrawVertices(vertex_conunt);
+			buffer->drawVertices(vertex_conunt);
+		}
+	}
+
+	void VKCommandPool::drawIndices(size_t index_conunt) {
+		for (auto& buffer : m_command_buffers)
+		{
+			buffer->drawIndices(index_conunt);
 		}
 	}
 
 }
+#endif

@@ -1,4 +1,5 @@
 #pragma once
+#ifdef BUILD_VULKAN
 
 #include "engine/graphics/vulkan/vk_swapchain.hpp"
 #include "vk_command_buffer.hpp"
@@ -28,11 +29,13 @@ namespace oe::graphics {
 		void beginRecording(glm::vec4 clear_color = oe::colors::clear_color);
 		void endRecording();
 
-		void submitBind(const VKShader* shader);
-		void submitBind(const VKVertexBuffer* vertex_buffer);
-		void submitDrawVertices(size_t vertex_conunt);
-		/*void submitDrawIndices(const VKVertexBuffer* vertex_buffer);*/
+		void bindShader(const VKShader* shader);
+		void bindVertexBuffer(const VKBuffer* vertex_buffer);
+		void bindIndexBuffer(const VKBuffer* index_buffer);
+		void drawVertices(size_t vertex_conunt);
+		void drawIndices(size_t index_conunt);
 
 	};
 
 }
+#endif

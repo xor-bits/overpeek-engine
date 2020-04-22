@@ -1,4 +1,5 @@
 #pragma once
+#ifdef BUILD_VULKAN
 
 #include "engine/graphics/vertexData.hpp"
 
@@ -8,24 +9,27 @@
 
 namespace oe::graphics {
 
-	class VKLogicalDevice;
-	class VKVertexBuffer {
+	class VKLogicalDevice; class VKWindow;
+	class VKBuffer {
 	public:
-		vk::Buffer m_vertex_buffer;
-		vk::DeviceMemory m_vertex_buffer_memory;
+		vk::Buffer m_staging_buffer;
+		vk::DeviceMemory m_staging_buffer_memory;
+		vk::Buffer m_buffer;
+		vk::DeviceMemory m_buffer_memory;
+		vk::BufferUsageFlagBits m_usage;
 
 		size_t m_size;
-		void* mapped_buffer;
 
 		const VKLogicalDevice* m_logical_device;
+		const VKWindow* m_window;
 
 	public:
-		VKVertexBuffer(vk::BufferUsageFlagBits usage, size_t size, const VKLogicalDevice* logical_device);
-		~VKVertexBuffer();
+		VKBuffer(vk::BufferUsageFlagBits usage, size_t size, const VKLogicalDevice* logical_device, const VKWindow* window);
+		~VKBuffer();
 
-		void map();
+		void* map();
 		void unmap();
-		void submit(const VertexData& vertex_data);
+		void bind();
 
 
 
@@ -67,3 +71,4 @@ namespace oe::graphics {
 	};
 
 }
+#endif

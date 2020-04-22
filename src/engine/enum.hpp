@@ -47,6 +47,7 @@ namespace oe {
 
 	// render types
 	enum class types {
+		none,
 		staticrender, 
 		dynamicrender
 	};
@@ -63,8 +64,8 @@ namespace oe {
 
 	// supported graphics apis
 	enum class graphics_api {
-		OpenGL, 
-		Vulkan, // lacks implementation
+		OpenGL,
+		Vulkan, // lacks proper implementation
 		None    // can't use graphics
 	};
 

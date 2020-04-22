@@ -19,7 +19,7 @@ void render(float update_fraction) {
 	t += oe::utils::GameLoop::getSingleton().getFrameUpdateScale();
 
 	// clear framebuffer
-	window->clear(oe::colors::rainbow(t));
+	window->clear();
 
 	// begin submitting
 	renderer->begin();
@@ -32,7 +32,7 @@ void render(float update_fraction) {
 	renderer->submit(glm::vec2( 0.5f, 0.5f), glm::vec2(0.4f), sprite,       oe::colors::white, oe::alignments::center_center, std::pow(std::sin(t * 5.0f), 11.0f));
 
 	// stop submitting and render
-	pack->bind();
+	// pack->bind();
 	shader->bind();
 	renderer->end();
 	renderer->render();
@@ -69,7 +69,7 @@ void keyboard(oe::keys key, oe::actions action, oe::modifiers mods) {
 int main(int argc, char** argv) {
 	// engine
 	oe::EngineInfo engine_info = {};
-	engine_info.api = oe::graphics_api::OpenGL;
+	engine_info.api = oe::graphics_api::Vulkan;
 	oe::Engine::getSingleton().init(engine_info);
 
 	// instance

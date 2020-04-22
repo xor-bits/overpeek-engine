@@ -1,12 +1,15 @@
 #include "vk_window.hpp"
+#ifdef BUILD_VULKAN
+
 #include "engine/engine.hpp"
 
-#include "vk_instance.hpp"
 #include "vk_shader.hpp"
-#include "vk_physical_device.hpp"
-#include "vk_logical_device.hpp"
+#include "vk_renderer.hpp"
+#include "vk_instance.hpp"
 #include "vk_swapchain.hpp"
 #include "vk_sync_objects.hpp"
+#include "vk_logical_device.hpp"
+#include "vk_physical_device.hpp"
 #include "buffers/vk_command_pool.hpp"
 
 #include <GLFW/glfw3.h>
@@ -58,6 +61,8 @@ namespace oe::graphics {
 	}
 
 	VKWindow::~VKWindow() {
+		m_logical_device->m_logical_device.waitIdle();
+
 		delete m_swapchain;
 		delete m_logical_device;
 		delete m_physical_device;
@@ -144,7 +149,7 @@ namespace oe::graphics {
 
 	Renderer* VKWindow::createRenderer(const RendererInfo& renderer_info) const
 	{
-		return nullptr;
+		return new VKRenderer(this, renderer_info);
 	}
 
 	Shader* VKWindow::createShader(const ShaderInfo& shader_info) const
@@ -222,3 +227,4 @@ namespace oe::graphics {
 	}
 
 }
+#endif

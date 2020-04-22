@@ -1,4 +1,5 @@
 #include "vk_support.hpp"
+#ifdef BUILD_VULKAN
 
 #include <GLFW/glfw3.h>
 #include <shaderc/shaderc.hpp>
@@ -64,6 +65,7 @@ namespace oe::graphics {
 
 		if (debugging) {
 			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+			// extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 		}
 
 		return extensions;
@@ -151,3 +153,4 @@ namespace oe::graphics {
 	}
 
 }
+#endif

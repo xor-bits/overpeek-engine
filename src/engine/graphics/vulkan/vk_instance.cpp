@@ -1,4 +1,5 @@
 #include "vk_instance.hpp"
+#ifdef BUILD_VULKAN
 
 #include "vk_support.hpp"
 #include "vk_window.hpp"
@@ -70,6 +71,7 @@ namespace oe::graphics {
 		if (m_instance_info.debug_messages) {
 			m_debugger = new Debugger(&m_vk_instance);
 		}
+
 	}
 
 
@@ -113,3 +115,4 @@ namespace oe::graphics {
 	}
 
 }
+#endif

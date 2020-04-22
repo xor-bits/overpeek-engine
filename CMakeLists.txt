@@ -17,6 +17,7 @@ if(${BUILD_TESTS})
 	add_subdirectory(tests/networking) # executable
 	
 	if(${BUILD_VULKAN})
+		target_compile_definitions(engine PRIVATE BUILD_VULKAN)
 		add_subdirectory(tests/vulkan) # 
 	endif()
 endif()

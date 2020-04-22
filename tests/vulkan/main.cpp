@@ -19,22 +19,20 @@ void render(float update_fraction) {
 	t += oe::utils::GameLoop::getSingleton().getFrameUpdateScale();
 
 	// clear framebuffer
-	window->clear(oe::colors::rainbow(t));
+	window->clear();
 
-	/*// begin submitting
+	// begin submitting
 	renderer->begin();
 	renderer->clear();
 
 	// submitting
-	renderer->submit(glm::vec2(-0.5f, 0.5f), glm::vec2(0.4f), sprite_white, oe::colors::blue, oe::alignments::center_center, std::sin(t));
-	renderer->submit(glm::vec2(-0.5f, -0.5f), glm::vec2(0.4f), sprite_white, oe::colors::red, oe::alignments::center_center, std::tan(t));
-	renderer->submit(glm::vec2(0.5f, -0.5f), glm::vec2(0.4f), sprite_white, oe::colors::green, oe::alignments::center_center, t * 100.0f);
-	renderer->submit(glm::vec2(0.5f, 0.5f), glm::vec2(0.4f), sprite, oe::colors::white, oe::alignments::center_center, std::pow(std::sin(t * 5.0f), 11.0f));
+	renderer->submit(glm::vec2(0.0f, 0.0f),  glm::vec2(1.0f, 1.0f), oe::colors::rainbow(t), oe::alignments::center_center);
 
 	// stop submitting and render
-	pack->bind();
+	// pack->bind();
+	shader->bind();
 	renderer->end();
-	renderer->render();*/
+	renderer->render();
 
 	// swap buffers and poll events
 	window->update();
@@ -74,7 +72,7 @@ int main(int argc, char** argv) {
 	// instance
 	oe::InstanceInfo instance_info = {};
 	instance_info.debug_messages = true;
-	// instance_info.favored_gpu_vulkan = oe::gpu::dedicated;
+	instance_info.favored_gpu_vulkan = oe::gpu::dedicated;
 	instance = oe::Engine::getSingleton().createInstance(instance_info);
 
 	// window
@@ -117,6 +115,7 @@ int main(int argc, char** argv) {
 	delete shader;
 	window->destroyRenderer(renderer);
 	instance->destroyWindow(window);
+	oe::Engine::getSingleton().destroyInstance(instance);
 
 	return 0;
 }

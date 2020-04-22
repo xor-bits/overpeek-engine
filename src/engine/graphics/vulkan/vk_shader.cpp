@@ -1,8 +1,8 @@
 #include "vk_shader.hpp"
+#ifdef BUILD_VULKAN
 #include "vk_support.hpp"
 #include "vk_window.hpp"
 #include "vk_swapchain.hpp"
-#include "buffers/vk_vertex_buffer.hpp"
 #include "buffers/vk_command_pool.hpp"
 #include "engine/engine.hpp"
 
@@ -147,8 +147,8 @@ namespace oe::graphics {
 		// pipeline input
 		vk::PipelineVertexInputStateCreateInfo vertexInputInfo = {};
 #if true
-		auto bindingDescription = VKVertexBuffer::getBindingDescription();
-		auto attributeDescriptions = VKVertexBuffer::getAttributeDescriptions();
+		auto bindingDescription = VKBuffer::getBindingDescription();
+		auto attributeDescriptions = VKBuffer::getAttributeDescriptions();
 		vertexInputInfo.vertexBindingDescriptionCount = 1;
 		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
 		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
@@ -192,7 +192,7 @@ namespace oe::graphics {
 		rasterizer.rasterizerDiscardEnable = VK_FALSE; // would discard any output to framebuffer
 		rasterizer.polygonMode = vk::PolygonMode::eFill; // glPolygonMode()
 		rasterizer.lineWidth = 1.0f; // over 1.0f, would need wideLines GPU feature
-		rasterizer.cullMode = vk::CullModeFlagBits::eBack;
+		rasterizer.cullMode = vk::CullModeFlagBits::eNone;
 		rasterizer.frontFace = vk::FrontFace::eClockwise;
 		rasterizer.depthBiasEnable = VK_FALSE;
 		rasterizer.depthBiasConstantFactor = 0.0f; // Optional
@@ -269,6 +269,7 @@ namespace oe::graphics {
 	}
 
 	VKShader::~VKShader() {
+		m_logical_device->m_logical_device.waitIdle();
 		m_logical_device->m_logical_device.destroyPipeline(m_pipeline);
 		m_logical_device->m_logical_device.destroyPipelineLayout(m_pipeline_layout);
 	}
@@ -278,7 +279,7 @@ namespace oe::graphics {
 	// needs implementation/fixing
 	void VKShader::bind() const
 	{
-		m_window->m_command_pool->submitBind(this);
+		m_window->m_command_pool->bindShader(this);
 	}
 	void VKShader::unbind() const
 	{
@@ -316,3 +317,4 @@ namespace oe::graphics {
 	}
 
 }
+#endif

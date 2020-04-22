@@ -1,4 +1,5 @@
 #pragma once
+#ifdef BUILD_VULKAN
 
 #include "engine/graphics/interface/shader.hpp"
 #include "vk_logical_device.hpp"
@@ -39,3 +40,4 @@ namespace oe::graphics {
 	};
 
 }
+#endif

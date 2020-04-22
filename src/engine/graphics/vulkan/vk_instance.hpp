@@ -1,4 +1,5 @@
 #pragma once
+#ifdef BUILD_VULKAN
 
 #include "engine/graphics/interface/instance.hpp"
 
@@ -43,3 +44,4 @@ namespace oe::graphics {
 	};
 
 }
+#endif

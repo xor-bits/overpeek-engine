@@ -1,4 +1,5 @@
 #pragma once
+#ifdef BUILD_VULKAN
 
 #include "engine/engine.hpp"
 
@@ -19,7 +20,10 @@ namespace oe::graphics {
 	};
 
 	const std::vector<const char*> required_device_extensions = {
-		VK_KHR_SWAPCHAIN_EXTENSION_NAME
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+		// VK_KHR_MAINTENANCE3_EXTENSION_NAME,
+		// VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+		// VK_NV_RAY_TRACING_EXTENSION_NAME,
 	};
 
 	struct SwapChainSupportDetails {
@@ -45,3 +49,4 @@ namespace oe::graphics {
 	vk::Extent2D chooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities);
 
 }
+#endif

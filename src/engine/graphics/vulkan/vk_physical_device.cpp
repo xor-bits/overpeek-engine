@@ -1,9 +1,11 @@
 #include "vk_physical_device.hpp"
+#ifdef BUILD_VULKAN
 #include "vk_support.hpp"
 #include "engine/engine.hpp"
 
 #include <map>
 #include <set>
+#include <iostream>
 
 
 
@@ -113,6 +115,8 @@ namespace oe::graphics {
 		// select GPU
 		m_physical_device = bestPhysicalDevice(devices);
 		m_physical_device_properties = m_physical_device.getProperties();
+		spdlog::debug("selected gpu = {}", m_physical_device_properties.deviceName);
 	}
 
 }
+#endif

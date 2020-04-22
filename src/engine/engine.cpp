@@ -61,11 +61,15 @@ namespace oe {
 	}
 
 	graphics::Instance* Engine::createInstance(const InstanceInfo& instance_config) {
-		if (engine_info.api == oe::graphics_api::Vulkan) {
-			return new oe::graphics::VKInstance(instance_config);
+		if (engine_info.api == oe::graphics_api::OpenGL) {
+			return new oe::graphics::GLInstance(instance_config);
 		}
 		else {
-			return new oe::graphics::GLInstance(instance_config);
+#ifdef BUILD_VULKAN
+			return new oe::graphics::VKInstance(instance_config);
+#else
+			return nullptr;
+#endif
 		}
 	}
 

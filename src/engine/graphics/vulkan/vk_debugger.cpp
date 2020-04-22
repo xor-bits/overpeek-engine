@@ -1,4 +1,5 @@
 #include "vk_debugger.hpp"
+#ifdef BUILD_VULKAN
 
 #include <vulkan/vulkan.hpp>
 
@@ -20,3 +21,4 @@ namespace oe::graphics {
 	}
 
 }
+#endif

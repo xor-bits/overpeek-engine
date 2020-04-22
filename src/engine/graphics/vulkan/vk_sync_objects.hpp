@@ -1,4 +1,5 @@
 #pragma once
+#ifdef BUILD_VULKAN
 
 #include <vector>
 #include <vulkan/vulkan.hpp>
@@ -42,6 +43,7 @@ namespace oe::graphics {
 		}
 
 		~VKSyncObjects() {
+			m_logical_device->m_logical_device.waitIdle();
 			// semaphores
 			for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 				m_logical_device->m_logical_device.destroySemaphore(m_image_available_semaphores[i]);
@@ -52,3 +54,4 @@ namespace oe::graphics {
 	};
 
 }
+#endif
