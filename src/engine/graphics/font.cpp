@@ -12,6 +12,8 @@
 namespace oe::graphics {
 
 	Font::Font(oe::graphics::SpritePack* sprite_packer, int resolution, std::string font_path) {
+		oe_debug_call("font");
+
 		m_resolution = resolution;
 
 		// Freetype library

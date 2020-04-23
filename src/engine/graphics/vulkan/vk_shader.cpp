@@ -78,7 +78,7 @@ namespace oe::graphics {
 		}
 	}
 
-	std::string shader_module_name(std::string name, oe::shader_stages stage) {
+	std::string shader_module_name(const std::string& name, oe::shader_stages stage) {
 		switch (stage)
 		{
 		case oe::shader_stages::vertex_shader:
@@ -107,6 +107,8 @@ namespace oe::graphics {
 		, m_window(window)
 		, m_logical_device(window->m_logical_device)
 	{
+		oe_debug_call("vk_shader");
+
 		std::vector<vk::ShaderModule> modules;
 		std::vector<vk::PipelineShaderStageCreateInfo> module_infos;
 		for (auto& stage : m_shader_info.shader_stages)
@@ -284,35 +286,35 @@ namespace oe::graphics {
 	void VKShader::unbind() const
 	{
 	}
-	int VKShader::getUniformLocation(std::string name) const
+	int VKShader::getUniformLocation(const std::string& name) const
 	{
 		return 0;
 	}
-	void VKShader::setUniform1f(std::string name, float value) const	  
+	void VKShader::setUniform1f(const std::string& name, float value) const	  
 	{
 	}
-	void VKShader::setUniform2f(std::string name, glm::fvec2& value) const
+	void VKShader::setUniform2f(const std::string& name, const glm::fvec2& value) const
 	{
 	}
-	void VKShader::setUniform3f(std::string name, glm::fvec3& value) const
+	void VKShader::setUniform3f(const std::string& name, const glm::fvec3& value) const
 	{
 	}
-	void VKShader::setUniform4f(std::string name, glm::fvec4& value) const
+	void VKShader::setUniform4f(const std::string& name, const glm::fvec4& value) const
 	{
 	}
-	void VKShader::setUniform1i(std::string name, int value) const
+	void VKShader::setUniform1i(const std::string& name, int value) const
 	{
 	}
-	void VKShader::setUniform2i(std::string name, glm::ivec2& value) const
+	void VKShader::setUniform2i(const std::string& name, const glm::ivec2& value) const
 	{
 	}
-	void VKShader::setUniform3i(std::string name, glm::ivec3& value) const
+	void VKShader::setUniform3i(const std::string& name, const glm::ivec3& value) const
 	{
 	}
-	void VKShader::setUniform4i(std::string name, glm::ivec4& value) const
+	void VKShader::setUniform4i(const std::string& name, const glm::ivec4& value) const
 	{
 	}
-	void VKShader::setUniformMat4(std::string name, glm::mat4& value) const
+	void VKShader::setUniformMat4(const std::string& name, const glm::mat4& value) const
 	{
 	}
 

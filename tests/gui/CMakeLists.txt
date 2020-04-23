@@ -21,3 +21,9 @@ set_target_properties(${ProjectId} PROPERTIES FOLDER engine/demos)
 # add dependencies
 target_link_libraries(${ProjectId} PRIVATE engine)
 target_include_directories(${ProjectId} PRIVATE ${engine_INCLUDE_DIRS})
+
+if(MSVC)
+  target_compile_options(${ProjectId} PRIVATE /W4 /WX)
+else()
+  target_compile_options(${ProjectId} PRIVATE -Wall -Wextra)
+endif()

@@ -7,7 +7,11 @@
 
 namespace oe::graphics {
 
-	Debugger::Debugger(const vk::Instance* instance) : m_instance(instance) {
+	Debugger::Debugger(const vk::Instance* instance) 
+		: m_instance(instance) 
+	{
+		oe_debug_call("vk_debugger");
+		
 		m_dldy = {};
 		m_dldy.init(*m_instance, vkGetInstanceProcAddr);
 

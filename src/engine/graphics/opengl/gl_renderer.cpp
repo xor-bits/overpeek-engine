@@ -16,6 +16,8 @@ namespace oe::graphics {
 	GLRenderer::GLRenderer(const RendererInfo& renderer_info)
 		: Renderer(renderer_info) 
 	{
+		oe_debug_call("gl_renderer");
+
 		m_mapped_buffer = nullptr;
 
 		int max_vertices = m_renderer_info.max_quad_count * 4;

@@ -1,5 +1,6 @@
 const std::string shader_frag_gl = R"shader(
-#version 330
+#version 140
+#extension GL_ARB_explicit_attrib_location : enable
 		
 in vec2 shader_uv;
 in vec4 shader_color;
@@ -17,7 +18,7 @@ void main()
 )shader";
 
 const std::string shader_frag_vk = R"shader(
-#version 450
+#version 140
 #extension GL_ARB_separate_shader_objects : enable
 		
 layout(location = 0) in vec2 shader_uv;

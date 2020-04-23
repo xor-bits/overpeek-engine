@@ -36,6 +36,12 @@
 // Asset
 #include "assets/default_shader/default_shader.hpp"
 
+// #define OE_DEBUGGING
+#ifdef OE_DEBUGGING
+#define oe_debug_call(a) spdlog::debug("oe_debug_call: {}, file: {}", a, __FILE__)
+#else
+#define oe_debug_call(a)
+#endif
 
 
 namespace oe {

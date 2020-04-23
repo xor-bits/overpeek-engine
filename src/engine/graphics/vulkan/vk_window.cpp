@@ -45,6 +45,8 @@ namespace oe::graphics {
 		, m_debugging(instance->m_instance_info.debug_messages)
 		, m_instance(instance)
 	{
+		oe_debug_call("vk_window");
+
 		if (m_debugging) {
 			spdlog::warn("Debugger enabled");
 			spdlog::info("Opening window with Vulkan context");

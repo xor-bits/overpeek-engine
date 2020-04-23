@@ -61,6 +61,8 @@ namespace oe::graphics {
 	GLShader::GLShader(const ShaderInfo& shader_info)
 		: Shader::Shader(shader_info) 
 	{
+		oe_debug_call("gl_shader");
+
 		// Shader program
 		p_shader_program = glCreateProgram();
 
@@ -119,15 +121,24 @@ namespace oe::graphics {
 	void GLShader::bind() const { glUseProgram(p_shader_program); }
 	void GLShader::unbind() const { glUseProgram(0); }
 
-	int GLShader::getUniformLocation(std::string name) const { return glGetUniformLocation(p_shader_program, name.c_str()); }
+	int GLShader::getUniformLocation(const std::string& name) const { return glGetUniformLocation(p_shader_program, name.c_str()); }
+	int location(const GLShader* shader, const std::string& name) {
+		shader->bind();
+		
+		int location = shader->getUniformLocation(name); 
+		if (location == -1)
+			oe_error_terminate("uniform {} was not found", name);
 
-	void GLShader::setUniform1f(std::string name, float value) const { bind(); glUniform1f(getUniformLocation(name), value); }
-	void GLShader::setUniform2f(std::string name, glm::fvec2& value) const { bind(); glUniform2f(getUniformLocation(name), value.x, value.y); }
-	void GLShader::setUniform3f(std::string name, glm::fvec3& value) const { bind(); glUniform3f(getUniformLocation(name), value.x, value.y, value.z); }
-	void GLShader::setUniform4f(std::string name, glm::fvec4& value) const { bind(); glUniform4f(getUniformLocation(name), value.x, value.y, value.z, value.w); }
-	void GLShader::setUniform1i(std::string name, int value) const { bind(); glUniform1i(getUniformLocation(name), value); }
-	void GLShader::setUniform2i(std::string name, glm::ivec2& value) const { bind(); glUniform2i(getUniformLocation(name), value.x, value.y); }
-	void GLShader::setUniform3i(std::string name, glm::ivec3& value) const { bind(); glUniform3i(getUniformLocation(name), value.x, value.y, value.z); }
-	void GLShader::setUniform4i(std::string name, glm::ivec4& value) const { bind(); glUniform4i(getUniformLocation(name), value.x, value.y, value.z, value.w); }
-	void GLShader::setUniformMat4(std::string name, glm::mat4& value) const { bind(); glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(value)); }
+		return location;
+	}
+
+	void GLShader::setUniform1f(const std::string& name, float value) const { glUniform1f(location(this, name), value); }
+	void GLShader::setUniform2f(const std::string& name, const glm::fvec2& value) const { glUniform2f(location(this, name), value.x, value.y); }
+	void GLShader::setUniform3f(const std::string& name, const glm::fvec3& value) const { glUniform3f(location(this, name), value.x, value.y, value.z); }
+	void GLShader::setUniform4f(const std::string& name, const glm::fvec4& value) const { glUniform4f(location(this, name), value.x, value.y, value.z, value.w); }
+	void GLShader::setUniform1i(const std::string& name, int value) const { glUniform1i(location(this, name), value); }
+	void GLShader::setUniform2i(const std::string& name, const glm::ivec2& value) const { glUniform2i(location(this, name), value.x, value.y); }
+	void GLShader::setUniform3i(const std::string& name, const glm::ivec3& value) const { glUniform3i(location(this, name), value.x, value.y, value.z); }
+	void GLShader::setUniform4i(const std::string& name, const glm::ivec4& value) const { glUniform4i(location(this, name), value.x, value.y, value.z, value.w); }
+	void GLShader::setUniformMat4(const std::string& name, const glm::mat4& value) const { glUniformMatrix4fv(location(this, name), 1, GL_FALSE, glm::value_ptr(value)); }
 }

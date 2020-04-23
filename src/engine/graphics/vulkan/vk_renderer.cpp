@@ -15,6 +15,8 @@ namespace oe::graphics {
 		: Renderer(renderer_info)
 		, m_window(window)
 	{
+		oe_debug_call("vk_renderer");
+
 		m_mapped_buffer = nullptr;
 
 		int max_vertices = m_renderer_info.max_quad_count * 4;

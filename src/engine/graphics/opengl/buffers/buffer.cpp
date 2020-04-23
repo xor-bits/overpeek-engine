@@ -5,13 +5,15 @@
 #include <sstream>
 #include <cstddef>
 
-#include "engine/graphics/interface/window.hpp"
-#include "engine/internal_libs.hpp"
+#include "engine/engine.hpp"
 
 
 namespace oe::graphics {
 
-	Buffer::Buffer(const void* data, size_t size, int target, unsigned int usage) {
+	Buffer::Buffer(const void* data, size_t size, int target, unsigned int usage) 
+	{
+		oe_debug_call("gl_buffer");
+
 		p_target = target;
 		p_size = size;
 

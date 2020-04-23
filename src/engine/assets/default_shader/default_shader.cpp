@@ -36,15 +36,15 @@ namespace oe::assets {
 		shader->unbind();
 	}
 
-	void DefaultShader::setProjectionMatrix(glm::mat4& pr_mat) const {
+	void DefaultShader::setProjectionMatrix(const glm::mat4& pr_mat) const {
 		shader->setUniformMat4("pr_matrix", pr_mat);
 	}
 
-	void DefaultShader::setViewMatrix(glm::mat4& vw_mat) const {
+	void DefaultShader::setViewMatrix(const glm::mat4& vw_mat) const {
 		shader->setUniformMat4("vw_matrix", vw_mat);
 	}
 		
-	void DefaultShader::setModelMatrix(glm::mat4& ml_mat) const {
+	void DefaultShader::setModelMatrix(const glm::mat4& ml_mat) const {
 		shader->setUniformMat4("ml_matrix", ml_mat);
 	}
 

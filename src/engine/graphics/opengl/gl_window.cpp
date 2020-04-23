@@ -91,13 +91,22 @@ namespace oe::graphics {
 		// Init glad
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) oe_error_terminate("Failed to init glad");
 
+		int gl_v_major, gl_v_minor;
+		glGetIntegerv(GL_MAJOR_VERSION, &gl_v_major);
+		glGetIntegerv(GL_MINOR_VERSION, &gl_v_minor);
+
 		// GL config
 		if (m_window_info.multisamples) glEnable(GL_MULTISAMPLE);
 		if (m_debugging) {
-			glEnable(GL_DEBUG_OUTPUT);
-			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-			glDebugMessageCallback(glDebugOutput, nullptr);
-			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+			if (((gl_v_major == 4 && gl_v_minor >= 3) || gl_v_major > 4)) {
+				glEnable(GL_DEBUG_OUTPUT);
+				glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+				glDebugMessageCallback(glDebugOutput, nullptr);
+				glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+			} else {
+				spdlog::critical("OpenGL {}.{} does not support glDebugMessageCallback", gl_v_major, gl_v_minor);
+			}
+
 		}
 
 		// GL
@@ -113,6 +122,8 @@ namespace oe::graphics {
 		: Window::Window(instance, window_config)
 		, m_debugging(instance->m_instance_info.debug_messages) 
 	{
+		oe_debug_call("gl_window");
+
 		if (m_debugging) {
 			spdlog::warn("Debugger enabled");
 			spdlog::info("Opening window with OpenGL context");

@@ -5,6 +5,8 @@
 #include "gl_texture.hpp"
 #include "gl_framebuffer.hpp"
 
+#include "engine/engine.hpp"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -13,11 +15,13 @@
 namespace oe::graphics {
 
 	GLInstance::GLInstance(const InstanceInfo& instance_info) 
-		: Instance(instance_info) {
-
+		: Instance(instance_info) 
+	{
+		oe_debug_call("gl_instance");
 	}
 
-	GLInstance::~GLInstance() {
+	GLInstance::~GLInstance()
+	{
 
 	}
 

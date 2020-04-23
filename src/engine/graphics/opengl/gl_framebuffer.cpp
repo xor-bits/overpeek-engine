@@ -11,6 +11,8 @@ namespace oe::graphics {
 	GLFrameBuffer::GLFrameBuffer(const FrameBufferInfo& framebuffer_info)
 		: FrameBuffer(framebuffer_info) 
 	{
+		oe_debug_call("gl_framebuffer");
+
 		glGenFramebuffers(1, &m_id);
 		bind();
 

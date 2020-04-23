@@ -2,6 +2,8 @@
 
 #include "clock.hpp"
 
+#include "engine/engine.hpp"
+
 
 
 namespace oe::utils {
@@ -11,6 +13,8 @@ namespace oe::utils {
 	
 	
 	void GameLoop::start(std::function<void(float)> callback_render, std::function<void()> callback_update, uint32_t target_ups) {
+		oe_debug_call("gameloop");
+
 		m_ups_cap = 1000000 / target_ups;
 		m_callback_render = callback_render;
 		m_callback_update = callback_update;
@@ -38,6 +42,7 @@ namespace oe::utils {
 		//Updates
 		while (m_update_lag >= m_ups_cap) {
 			long long timeupdate = clock.getMicroseconds();
+			oe_debug_call("callback_update");
 			m_callback_update();
 			m_microsec_update = clock.getMicroseconds() - timeupdate;
 			
@@ -50,6 +55,7 @@ namespace oe::utils {
 		long long timeframe = clock.getMicroseconds();
 
 		//m_window->clear();
+		oe_debug_call("callback_render");
 		m_callback_render((float)m_update_lag / (float)m_ups_cap);
 		//m_window->update();
 		//m_window->input();

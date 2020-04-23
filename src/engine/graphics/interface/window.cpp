@@ -85,12 +85,12 @@ namespace oe::graphics {
 		glfwSetWindowSizeLimits(m_window_handle, 1, 1, INT16_MAX, INT16_MAX);
 		glfwSetWindowSize(m_window_handle, m_window_info.size.x, m_window_info.size.y);
 
-		m_key_callback = m_window_info.key_callback;
-		m_button_callback = m_window_info.button_callback;
-		m_scroll_callback = m_window_info.scroll_callback;
-		m_resize_callback = m_window_info.resize_callback;
-		m_text_callback = m_window_info.text_callback;
-		m_cursor_callback = m_window_info.cursor_callback;
+		m_key_callback = m_window_info.m_key_callback;
+		m_button_callback = m_window_info.m_button_callback;
+		m_scroll_callback = m_window_info.m_scroll_callback;
+		m_resize_callback = m_window_info.m_resize_callback;
+		m_text_callback = m_window_info.m_text_callback;
+		m_cursor_callback = m_window_info.m_cursor_callback;
 
 		swapInterval(m_window_info.swap_interval);
 	}

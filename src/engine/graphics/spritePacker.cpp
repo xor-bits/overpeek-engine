@@ -23,6 +23,8 @@ namespace oe::graphics {
 	SpritePack::SpritePack(const Window* window, int border)
 		: m_window(window)
 	{
+		oe_debug_call("spritepack");
+
 		m_texture = nullptr;
 		m_usr_data = new __usr_data();
 		auto usr_data = static_cast<__usr_data*>(m_usr_data);
@@ -35,7 +37,9 @@ namespace oe::graphics {
 		size_t img_size = 4ul * (size_t)1 * (size_t)1;
 		unsigned char* data = new unsigned char[img_size];
 		std::memset(data, (unsigned char)255, img_size);
-		addSprite(oe::utils::image_data::image_data(data, oe::formats::rgba, 1, 1));
+		oe::utils::image_data empty_img(data, oe::formats::rgba, 1, 1);
+		addSprite(empty_img);
+		delete[] data;
 	}
 
 	SpritePack::~SpritePack() {

@@ -13,6 +13,8 @@ namespace oe::graphics {
 	VKInstance::VKInstance(const InstanceInfo& instance_info) 
 		: Instance(instance_info)
 	{
+		oe_debug_call("vk_instance");
+
 		vulkanInstance();
 	}
 

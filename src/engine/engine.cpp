@@ -21,6 +21,8 @@ namespace oe {
 	}
 
 	void Engine::init(EngineInfo _engine_info) {
+		oe_debug_call("engine");
+
 		spdlog::set_pattern("%^[%T] [%l]:%$ %v");
 		spdlog::set_level(spdlog::level::level_enum::trace);
 

@@ -43,6 +43,8 @@ namespace oe::graphics {
 		, m_gl_format(gl_format(texture_info.data_format))
 		, m_gl_internalformat(gl_internalformat(texture_info.data_format))
 	{
+		oe_debug_call("gl_texture");
+
 		// generate texture
 		m_target = 0;
 		glGenTextures(1, &m_id);

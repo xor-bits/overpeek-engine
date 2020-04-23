@@ -341,12 +341,12 @@ namespace oe {
 		bool transparent = false;
 		bool fullscreen = false;
 		uint32_t swap_interval = 1;
-		key_callback key_callback = nullptr;
-		button_callback button_callback = nullptr;
-		scroll_callback scroll_callback = nullptr;
-		resize_callback resize_callback = nullptr;
-		text_callback text_callback = nullptr;
-		cursor_callback cursor_callback = nullptr;
+		key_callback m_key_callback = nullptr;
+		button_callback m_button_callback = nullptr;
+		scroll_callback m_scroll_callback = nullptr;
+		resize_callback m_resize_callback = nullptr;
+		text_callback m_text_callback = nullptr;
+		cursor_callback m_cursor_callback = nullptr;
 	};
 
 	// renderer create info

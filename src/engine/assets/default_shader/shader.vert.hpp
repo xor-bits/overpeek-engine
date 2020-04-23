@@ -1,5 +1,6 @@
 const std::string shader_vert_gl = R"shader(
-#version 330
+#version 140
+#extension GL_ARB_explicit_attrib_location : enable
 
 layout(location = 0) in vec3 vertex_pos;
 layout(location = 1) in vec2 texture_uv;
@@ -9,8 +10,8 @@ out vec2 shader_uv;
 out vec4 shader_color;
 
 uniform mat4 pr_matrix = mat4(1.0);
-uniform mat4 ml_matrix = mat4(1.0);
 uniform mat4 vw_matrix = mat4(1.0);
+uniform mat4 ml_matrix = mat4(1.0);
 
 void main()
 {
@@ -23,7 +24,7 @@ void main()
 )shader";
 
 const std::string shader_vert_vk = R"shader(
-#version 450
+#version 140
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) in vec3 vertex_pos;

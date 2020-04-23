@@ -39,7 +39,7 @@ bool oe::utils::isInRange(int input, int min, int max) {
 }
 
 int oe::utils::sign(float n) {
-    return signbit(n) ? -1 : 1;
+    return n < 0 ? -1 : 1;
 }
 glm::vec3 oe::utils::rgb_to_hsv(glm::vec3 in) {
     glm::vec3   out;

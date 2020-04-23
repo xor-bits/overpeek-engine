@@ -19,9 +19,9 @@ namespace oe::assets {
 		void bind() const;
 		void unbind() const;
 
-		void setProjectionMatrix(glm::mat4& pr_mat = glm::mat4(1.0)) const;
-		void setViewMatrix(glm::mat4& vw_mat = glm::mat4(1.0)) const;
-		void setModelMatrix(glm::mat4& ml_mat = glm::mat4(1.0)) const;
+		void setProjectionMatrix(const glm::mat4& pr_mat = glm::mat4(1.0)) const;
+		void setViewMatrix(const glm::mat4& vw_mat = glm::mat4(1.0)) const;
+		void setModelMatrix(const glm::mat4& ml_mat = glm::mat4(1.0)) const;
 		void useTexture(bool use = true) const;
 
 		oe::graphics::Shader& getShader() { return *shader; }
