@@ -7,7 +7,7 @@
 namespace oe::gui {
 
 #define TEXT_CALLBACK_WRAPPER(x) [&](const std::string & string) { x(string); }
-	typedef std::function<void(const std::string & string)> text_callback;
+	typedef std::function<void(const std::string & string)> textbox_callback;
 
 	const static std::string filter_none = "";
 	const static std::string filter_letters_upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -16,8 +16,8 @@ namespace oe::gui {
 	const static std::string filter_symbols       = "-_.:,;<>|^¨~'*´`?\\/()[]{}&%¤#\"!@£$§=";
 
 	struct TextInputInfo {
-		text_callback callback_changed        = nullptr;
-		text_callback callback_newline        = nullptr;
+		textbox_callback callback_changed        = nullptr;
+		textbox_callback callback_newline        = nullptr;
 		glm::ivec2 size                       = { 100, 100 };
 		glm::vec2 offset_position             = { 0, 0 };
 		glm::vec2 align_parent                = oe::alignments::center_center;

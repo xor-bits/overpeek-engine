@@ -1,6 +1,7 @@
 #pragma	once
 #ifdef BUILD_VULKAN
 
+#include "vk_logical_device.hpp"
 #include "vk_physical_device.hpp"
 #include "vk_support.hpp"
 

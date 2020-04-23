@@ -26,13 +26,6 @@ namespace oe::graphics {
 		bool m_keys[M_NUM_KEYS];
 		bool m_buttons[M_NUM_BUTTONS];
 
-		key_callback m_key_callback;
-		button_callback m_button_callback;
-		scroll_callback m_scroll_callback;
-		resize_callback m_resize_callback;
-		text_callback m_text_callback;
-		cursor_callback m_cursor_callback;
-
 		glm::vec2 m_cursor_transformed = { 0.0f, 0.0f };
 		glm::vec2 m_cursor_window = { 0, 0 };
 		float m_aspect_ratio = 0;

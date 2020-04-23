@@ -9,7 +9,7 @@
 namespace oe::gui {
 
 	struct DecoratedButtonInfo {
-		button_callback callback           = nullptr;
+		fun_button_callback callback           = nullptr;
 		glm::ivec2 size                    = { 50, 50 };
 		glm::vec2 offset_position          = { 0, 0 };
 		std::string text                   = "";

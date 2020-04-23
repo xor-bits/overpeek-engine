@@ -35,6 +35,11 @@ namespace oe::graphics {
 		pointD += position;
 	}
 
+	void Renderer::submitVertex(const VertexData& vertex) {
+		submitVertex(vertex, m_buffer_pos);
+		m_buffer_pos++;
+	}
+
 	void Renderer::submit(const glm::vec2& position, const glm::vec2& size, const Sprite* sprite, const glm::vec4& color, glm::vec2 align, float angle)
 	{
 		submit(glm::vec3(position, 0.0f), size, sprite, color, align, angle);

@@ -323,12 +323,12 @@ namespace oe {
 		return size * alignment;
 	}
 
-	typedef std::function<void(oe::keys key, oe::actions action, oe::modifiers mods)> key_callback;
-	typedef std::function<void(oe::mouse_buttons button, oe::actions action)> button_callback;
-	typedef std::function<void(float delta)> scroll_callback;
-	typedef std::function<void(const glm::vec2 & framebuffer_size)> resize_callback;
-	typedef std::function<void(uint32_t codepoint, oe::modifiers mods)> text_callback;
-	typedef std::function<void(const glm::vec2 & transformed, const glm::vec2 & window)> cursor_callback;
+	typedef std::function<void(oe::keys key, oe::actions action, oe::modifiers mods)> fun_key_callback;
+	typedef std::function<void(oe::mouse_buttons button, oe::actions action)> fun_button_callback;
+	typedef std::function<void(float delta)> fun_scroll_callback;
+	typedef std::function<void(const glm::vec2 & framebuffer_size)> fun_resize_callback;
+	typedef std::function<void(uint32_t codepoint, oe::modifiers mods)> fun_text_callback;
+	typedef std::function<void(const glm::vec2 & transformed, const glm::vec2 & window)> fun_cursor_callback;
 
 	// window open info
 	struct WindowInfo {
@@ -341,12 +341,12 @@ namespace oe {
 		bool transparent = false;
 		bool fullscreen = false;
 		uint32_t swap_interval = 1;
-		key_callback m_key_callback = nullptr;
-		button_callback m_button_callback = nullptr;
-		scroll_callback m_scroll_callback = nullptr;
-		resize_callback m_resize_callback = nullptr;
-		text_callback m_text_callback = nullptr;
-		cursor_callback m_cursor_callback = nullptr;
+		fun_key_callback key_callback = nullptr;
+		fun_button_callback button_callback = nullptr;
+		fun_scroll_callback scroll_callback = nullptr;
+		fun_resize_callback resize_callback = nullptr;
+		fun_text_callback text_callback = nullptr;
+		fun_cursor_callback cursor_callback = nullptr;
 	};
 
 	// renderer create info

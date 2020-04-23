@@ -21,7 +21,7 @@ namespace oe::graphics {
 			{
 				Window* this_class = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
 
-				if (this_class->m_text_callback) this_class->m_text_callback(static_cast<uint32_t>(codepoint), static_cast<oe::modifiers>(mods));
+				if (this_class->m_window_info.text_callback) this_class->m_window_info.text_callback(static_cast<uint32_t>(codepoint), static_cast<oe::modifiers>(mods));
 			});
 		
 		glfwSetFramebufferSizeCallback(m_window_handle, [](GLFWwindow* window, int width, int height)                          
@@ -34,7 +34,7 @@ namespace oe::graphics {
 				this_class->m_aspect_ratio = (float)width / (float)height;
 				glViewport(0, 0, this_class->m_window_info.size.x, this_class->m_window_info.size.y);
 
-				if (this_class->m_resize_callback) this_class->m_resize_callback(this_class->m_window_info.size);
+				if (this_class->m_window_info.resize_callback) this_class->m_window_info.resize_callback(this_class->m_window_info.size);
 			});
 		
 		glfwSetCursorPosCallback(m_window_handle, [](GLFWwindow* window, double x, double y)
@@ -47,7 +47,7 @@ namespace oe::graphics {
 				y = oe::utils::map(static_cast<float>(y), 0.0f, this_class->m_window_info.size.y, -1.0f, 1.0f);
 				this_class->m_cursor_transformed = { x, y };
 
-				if (this_class->m_cursor_callback) this_class->m_cursor_callback(this_class->m_cursor_transformed, this_class->m_cursor_window);
+				if (this_class->m_window_info.cursor_callback) this_class->m_window_info.cursor_callback(this_class->m_cursor_transformed, this_class->m_cursor_window);
 			});
 		
 		glfwSetMouseButtonCallback(m_window_handle, [](GLFWwindow* window, int button, int action, int mods)
@@ -59,7 +59,7 @@ namespace oe::graphics {
 				if (action == GLFW_PRESS) this_class->m_buttons[button] = true;
 				else if (action == GLFW_RELEASE) this_class->m_buttons[button] = false;
 
-				if (this_class->m_button_callback) this_class->m_button_callback(static_cast<oe::mouse_buttons>(button), static_cast<oe::actions>(action));
+				if (this_class->m_window_info.button_callback) this_class->m_window_info.button_callback(static_cast<oe::mouse_buttons>(button), static_cast<oe::actions>(action));
 			});
 		
 		glfwSetKeyCallback(m_window_handle, [](GLFWwindow* window, int key, int scancode, int action, int mods)    
@@ -71,26 +71,19 @@ namespace oe::graphics {
 				if (action == GLFW_PRESS) this_class->m_keys[key] = true;
 				else if (action == GLFW_RELEASE) this_class->m_keys[key] = false;
 
-				if (this_class->m_key_callback) this_class->m_key_callback(static_cast<oe::keys>(key), static_cast<oe::actions>(action), static_cast<oe::modifiers>(mods));
+				if (this_class->m_window_info.key_callback) this_class->m_window_info.key_callback(static_cast<oe::keys>(key), static_cast<oe::actions>(action), static_cast<oe::modifiers>(mods));
 			});
 		
 		glfwSetScrollCallback(m_window_handle, [](GLFWwindow* window, double xoffset, double yoffset)
 			{
 				Window* this_class = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
 
-				if (this_class->m_scroll_callback) this_class->m_scroll_callback(yoffset);
+				if (this_class->m_window_info.scroll_callback) this_class->m_window_info.scroll_callback(yoffset);
 			});
 
 		// to call resize func initially
 		glfwSetWindowSizeLimits(m_window_handle, 1, 1, INT16_MAX, INT16_MAX);
 		glfwSetWindowSize(m_window_handle, m_window_info.size.x, m_window_info.size.y);
-
-		m_key_callback = m_window_info.m_key_callback;
-		m_button_callback = m_window_info.m_button_callback;
-		m_scroll_callback = m_window_info.m_scroll_callback;
-		m_resize_callback = m_window_info.m_resize_callback;
-		m_text_callback = m_window_info.m_text_callback;
-		m_cursor_callback = m_window_info.m_cursor_callback;
 
 		swapInterval(m_window_info.swap_interval);
 	}

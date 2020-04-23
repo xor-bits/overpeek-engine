@@ -25,6 +25,7 @@ namespace oe::graphics {
 		virtual void begin() = 0;
 		virtual void end() = 0;
 
+		void submitVertex(const VertexData& vertex);
 		virtual void submitVertex(const VertexData& vertex, int index) = 0;
 
 		// nullptr sprite will submit nothing
