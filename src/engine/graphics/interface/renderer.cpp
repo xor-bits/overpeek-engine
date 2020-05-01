@@ -119,31 +119,59 @@ namespace oe::graphics {
 		}
 	}
 
-	void Renderer::assign_new_quad(Quad* quad)
+	void SubRenderer::assign_new_quad(Quad* quad)
 	{
-		auto quad_index = quad->getQuadIndex();
 		auto vertex_array = quad->gen_vertices();
 
-		auto selected = select_subrenderer(quad);
 		quad->m_assigned = true;
-		quad->m_current_subrenderer = select_subrenderer(quad);
-		quad->m_quad_index = selected->m_quad_index;
+		quad->m_current_subrenderer = this;
+		quad->m_quad_index = m_quad_index;
 		
 		// submit the quad to the selected subrenderer
-		selected->attempt_map();
-		selected->m_primitive_renderer->submitVertex(vertex_array.data(), vertex_array.size(), selected->m_quad_index * 4);
-		selected->m_primitive_renderer->vertexCount() += 4;
-		selected->m_quad_index++;
+		attempt_map();
+		m_primitive_renderer->submitVertex(vertex_array.data(), vertex_array.size(), m_quad_index * 4);
+		m_primitive_renderer->vertexCount() += 4;
+		m_quad_index++;
 	}
 
-	void Renderer::reassign_quad(Quad* quad)
+	void SubRenderer::reassign_quad(Quad* quad)
 	{
-		// quad->m_last_subrenderer->
+		quad->m_current_subrenderer->remove_quad(quad);
+		assign_new_quad(quad);
 	}
 	
-	void Renderer::modify_quad(Quad* quad)
+	void SubRenderer::modify_quad(Quad* quad)
 	{
-		// ä
+		auto vertex_array = quad->gen_vertices();
+
+		attempt_map();
+		m_primitive_renderer->submitVertex(vertex_array.data(), vertex_array.size(), quad->m_quad_index * 4);
+	}
+	
+	void SubRenderer::remove_quad(Quad* quad)
+	{
+		quad->m_current_subrenderer = nullptr;
+		quad->m_assigned = false;
+		
+		// if last quad
+		if (quad->m_quad_index == m_quad_index)
+		{
+			// reduce drawn vertices
+			m_primitive_renderer->vertexCount() -= 4;
+		}
+		else
+		{
+			// else fill with empty data
+			const static std::array<VertexData, 4> empty_filler = {
+				VertexData({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }),
+				VertexData({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }),
+				VertexData({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }),
+				VertexData({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f })
+			}; // this could just be array of 0 bytes, but this looks nicer
+
+			attempt_map();
+			m_primitive_renderer->submitVertex(empty_filler.data(), empty_filler.size(), quad->m_quad_index * 4);
+		}
 	}
 
 
@@ -170,6 +198,30 @@ namespace oe::graphics {
 	
 	void Renderer::updateQuad(Quad* quad)
 	{
+		if (!quad->m_current_subrenderer)
+		{
+			// new quad
+			auto new_subrenderer = select_subrenderer(quad);
+			if (new_subrenderer->m_quad_index >= m_renderer_info.max_primitive_count)
+			{
+				spdlog::error("subrenderer primitive overflow!");
+				return;
+			}
+			new_subrenderer->assign_new_quad(quad);
+		}
+		else if (quad->m_sprite_updated)
+		{
+			// move quad to another subrenderer
+			quad->m_sprite_updated = false;
+			auto new_subrenderer = select_subrenderer(quad);
+			new_subrenderer->reassign_quad(quad);
+		}
+		else
+		{
+			// modified quad vertices
+			quad->m_current_subrenderer->modify_quad(quad);
+		}
+
 		/*
 		auto quad_index = quad->getQuadIndex();
 		auto vertex_array = quad->gen_vertices();
@@ -199,12 +251,6 @@ namespace oe::graphics {
 		else
 		{
 			selected_subrenderer = find_iter->second;
-		}
-
-		if (selected_subrenderer->m_quad_index >= m_renderer_info.max_primitive_count)
-		{
-			spdlog::error("subrenderer primitive overflow!");
-			return;
 		}
 		
 		// add new quad

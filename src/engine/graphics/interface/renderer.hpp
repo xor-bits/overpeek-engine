@@ -21,12 +21,12 @@ namespace oe::graphics {
 		glm::vec2 m_rotation_alignment = { 0.0f, 0.0f };
 		glm::vec4 m_color = { 1.0f, 1.0f, 1.0f, 1.0f };
 		const Sprite* m_sprite = nullptr;
+		bool m_sprite_updated = false;
 		float m_rotation = 0.0f;
 		size_t m_quad_index = 0;
 		bool m_assigned = false;
 
 		Renderer* m_renderer;
-		SubRenderer* m_last_subrenderer = nullptr;
 		SubRenderer* m_current_subrenderer = nullptr;
 		
 		Quad(Renderer* host) {
@@ -39,6 +39,7 @@ namespace oe::graphics {
 		}
 
 		friend class Renderer;
+		friend struct SubRenderer;
 
 	public:
 		void setPosition(const glm::vec3& position) { m_position = position; }
@@ -54,7 +55,7 @@ namespace oe::graphics {
 		void setColor(const glm::vec4& color) { m_color = color; }
 		const glm::vec4& getColor() const { return m_color; }
 
-		void setSprite(const Sprite* sprite) { m_sprite = sprite; }
+		void setSprite(const Sprite* sprite) { m_sprite = sprite; m_sprite_updated = true; }
 		const Sprite* getSprite() const { return m_sprite; }
 
 		void setRotation(float rotation) { m_rotation = rotation; }
@@ -69,11 +70,17 @@ namespace oe::graphics {
 	struct SubRenderer {
 		PrimitiveRenderer* m_primitive_renderer;
 		size_t m_quad_index;
+		std::unordered_set<size_t> m_quad_index_free_spots;
 		bool m_buffer_bound;
 
 		void attempt_map();
 		void attempt_unmap();
 		void render();
+
+		void assign_new_quad(Quad* quad);
+		void reassign_quad(Quad* quad);
+		void modify_quad(Quad* quad);
+		void remove_quad(Quad* quad);
 	};
 
 	class Renderer {
@@ -83,9 +90,6 @@ namespace oe::graphics {
 		std::unordered_set<Quad*> m_quads;
 
 		SubRenderer* select_subrenderer(Quad* quad);
-		void assign_new_quad(Quad* quad);
-		void reassign_quad(Quad* quad);
-		void modify_quad(Quad* quad);
 	
 	public:
 		Renderer(const RendererInfo& renderer_info);
