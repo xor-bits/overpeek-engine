@@ -1,4 +1,4 @@
-![](/github/logo.png =250x250)
+![Logo](/github/oe_logo.png){:height="200px" width="200px"}
 # overpeek-engine
 Minimal game engine/framework.
 Primary focus on 2D side.
