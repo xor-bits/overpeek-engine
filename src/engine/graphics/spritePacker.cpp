@@ -1,5 +1,6 @@
 #include "spritePacker.hpp"
 #include "engine/engine.hpp"
+#include "engine/graphics/interface/window.hpp"
 
 #include <finders_interface.h>
 
@@ -20,8 +21,7 @@ namespace oe::graphics {
 
 
 
-	SpritePack::SpritePack(const Window* window, int border)
-		: m_window(window)
+	SpritePack::SpritePack(int border)
 	{
 		oe_debug_call("spritepack");
 
@@ -48,7 +48,7 @@ namespace oe::graphics {
 				delete m_sprites.at(i).at(j);
 			}
 		}
-		if(m_texture) m_window->destroyTexture(m_texture);
+		if(m_texture) oe::Engine::getSingleton().destroyTexture(m_texture);
 		delete static_cast<__usr_data*>(m_usr_data);
 	}
 
@@ -56,7 +56,7 @@ namespace oe::graphics {
 		auto usr_data = static_cast<__usr_data*>(m_usr_data);
 
 		std::vector<Sprite*> vect;
-		Sprite* sprite = new Sprite(this);
+		Sprite* sprite = new Sprite(nullptr);
 		sprite->position = { 0, 0 };
 		sprite->size = { 1, 1 };
 		vect.push_back(sprite);
@@ -78,7 +78,7 @@ namespace oe::graphics {
 		std::vector<Sprite*> vect;
 		for (size_t x = 0; x < sprite_count.x; x++) {
 			for (size_t y = 0; y < sprite_count.y; y++) {
-				Sprite* sprite = new Sprite(this);
+				Sprite* sprite = new Sprite(nullptr);
 				sprite->position = { x, y };
 				sprite->size = sprite_count;
 				vect.push_back(sprite);
@@ -162,7 +162,15 @@ namespace oe::graphics {
 		texture_info.width = pack_width;
 		texture_info.height = pack_height;
 
-		m_texture = m_window->createTexture(texture_info);
+		m_texture = oe::Engine::getSingleton().createTexture(texture_info);
+		for (auto sprite : m_sprites)
+		{
+			for (auto subsprite : sprite)
+			{
+				subsprite->m_owner = m_texture;
+			}
+		}
+		
 		
 		delete[] data;
 	}

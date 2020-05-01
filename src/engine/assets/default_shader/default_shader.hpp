@@ -10,10 +10,9 @@ namespace oe::assets {
 	class DefaultShader {
 	private:
 		oe::graphics::Shader* shader;
-		const oe::graphics::Window* window;
 
 	public:
-		DefaultShader(const graphics::Window* _window);
+		DefaultShader();
 		~DefaultShader();
 
 		void bind() const;

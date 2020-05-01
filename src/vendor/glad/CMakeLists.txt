@@ -6,14 +6,13 @@ set(CMAKE_USE_RELATIVE_PATHS TRUE)
 # https://glad.dav1d.de/
 #
 
-project(glad C)
-
 # glad
-add_library(${PROJECT_NAME} STATIC src/glad.c include/glad/glad.h include/KHR/khrplatform.h)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
+set(target_name "glad")
+add_library(${target_name} STATIC src/glad.c include/glad/glad.h include/KHR/khrplatform.h)
+target_include_directories(${target_name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # glad_INCLUDE_DIRS
-set(${PROJECT_NAME}_INCLUDE_DIRS
-	${PROJECT_SOURCE_DIR}/include
-    CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE
+set(${target_name}_INCLUDE_DIRS
+	${CMAKE_CURRENT_SOURCE_DIR}/include
+    CACHE INTERNAL "${target_name}: Include Directories" FORCE
 )

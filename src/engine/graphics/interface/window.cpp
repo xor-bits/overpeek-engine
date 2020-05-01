@@ -27,6 +27,7 @@ namespace oe::graphics {
 		glfwSetFramebufferSizeCallback(m_window_handle, [](GLFWwindow* window, int width, int height)                          
 			{
 				Window* this_class = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+				this_class->active_context();
 
 				if (height < 1) height = 1;
 
@@ -89,8 +90,17 @@ namespace oe::graphics {
 	}
 
 	Window::Window(const Instance* instance, const WindowInfo& window_config) 
+		: m_instance(instance)
+		, m_window_info(window_config)
+		, m_window_gameloop(window_config.render_callback, window_config.update_callback, this)
 	{
-		m_window_info = window_config;
+		if (oe::Engine::getSingleton().engine_info.debug_messages) {
+			if (!window_config.render_callback)
+				oe_error_terminate("oe::WindowInfo::render_callback is not optional");
+			if (!window_config.update_callback)
+				oe_error_terminate("oe::WindowInfo::update_callback is not optional");
+		}
+
 		m_window_info.size.y = std::max(m_window_info.size.y, 1.0f);
 		m_aspect_ratio = m_window_info.size.x / m_window_info.size.y;
 

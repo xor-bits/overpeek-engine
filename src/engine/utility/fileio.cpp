@@ -6,6 +6,7 @@
 #include <sstream>
 
 #include "engine/internal_libs.hpp"
+#include "engine/utility/clock.hpp"
 #include "engine/engine.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION

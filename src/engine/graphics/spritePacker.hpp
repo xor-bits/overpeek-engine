@@ -22,11 +22,10 @@ namespace oe::graphics {
 		std::vector<std::vector<Sprite*>> m_sprites;
 
 		Texture* m_texture;
-		const Window* m_window;
 
 	public:
 		// padding between textures
-		SpritePack(const Window* window, int border = 3);
+		SpritePack(int border = 3);
 		~SpritePack();
 
 		// void construct(); will delete all data in these sprite images

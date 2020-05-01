@@ -1,4 +1,4 @@
-#include <engine/engine.hpp>
+#include <engine/include.hpp>
 
 #include <string>
 
@@ -11,7 +11,6 @@ oe::gui::TextInput* textbox;
 oe::gui::TextPanel* textpanel;
 
 const oe::graphics::Sprite* sprite;
-oe::graphics::Instance* instance;
 oe::graphics::Window* window;
 oe::graphics::SpritePack* pack;
 oe::graphics::Renderer* renderer;
@@ -68,10 +67,10 @@ void cube() {
 	ml_matrix = glm::rotate(ml_matrix, speed * -0.1f, rotate);
 	shader->bind();
 	shader->setModelMatrix(ml_matrix);
-	instance->polygonMode(oe::polygon_mode::lines);
+	oe::Engine::getSingleton().polygonMode(oe::polygon_mode::lines);
 	renderer->end();
 	renderer->render(24);
-	instance->polygonMode(oe::polygon_mode::fill);
+	oe::Engine::getSingleton().polygonMode(oe::polygon_mode::fill);
 }
 
 void render(float update_fraction) {
@@ -250,18 +249,15 @@ void keyboard(oe::keys key, oe::actions action, oe::modifiers mods) {
 }
 
 int main() {
+	auto& engine = oe::Engine::getSingleton();
+
 	// engine
 	oe::EngineInfo engine_info = {};
 	engine_info.api = oe::graphics_api::OpenGL;
 	engine_info.networking = false;
 	engine_info.audio = false;
-	oe::Engine::getSingleton().init(engine_info);
-
-	// instance
-	oe::InstanceInfo instance_info = {};
-	instance_info.debug_messages = true;
-	// instance_info.favored_gpu_vulkan = oe::gpu::dedicated;
-	instance = oe::Engine::getSingleton().createInstance(instance_info);
+	engine_info.debug_messages = true;
+	engine.init(engine_info);
 
 	// window
 	oe::WindowInfo window_config = {};
@@ -272,27 +268,27 @@ int main() {
 	window_config.button_callback = button;
 	window_config.text_callback = text;
 	window_config.key_callback = keyboard;
-	window = instance->createWindow(window_config);
+	window = engine.createWindow(window_config);
 
 	// instance settings
-	instance->swapInterval(1);
-	instance->culling(oe::culling_modes::neither);
-	instance->blending(oe::modes::enable);
+	engine.swapInterval(1);
+	engine.culling(oe::culling_modes::neither);
+	engine.blending(oe::modes::enable);
 
 	// renderer
 	oe::RendererInfo renderer_info = {};
 	renderer_info.arrayRenderType = oe::types::dynamicrender;
 	renderer_info.indexRenderType = oe::types::staticrender;
-	renderer_info.max_quad_count = 6;
+	renderer_info.max_primitive_count = 6;
 	renderer_info.staticVBOBuffer_data = nullptr;
 	renderer = window->createRenderer(renderer_info);
 	
 	// shader
-	shader = new oe::assets::DefaultShader(window);
+	shader = new oe::assets::DefaultShader();
 
 	// spritepack
 	auto img = oe::utils::image_data(texture_png, oe::formats::rgba, 5, 5);
-	pack = new oe::graphics::SpritePack(window);
+	pack = new oe::graphics::SpritePack();
 	sprite = pack->addSprite(img);
 
 	// font
@@ -314,7 +310,7 @@ int main() {
 	delete pack;
 	delete shader;
 	window->destroyRenderer(renderer);
-	instance->destroyWindow(window);
+	engine.destroyWindow(window);
 
 	return 0;
 }

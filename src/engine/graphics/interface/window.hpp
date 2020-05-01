@@ -3,9 +3,14 @@
 #include <string>
 
 #include "engine/graphics/interface/instance.hpp"
+#include "engine/graphics/interface/renderer.hpp"
+#include "engine/graphics/interface/shader.hpp"
+#include "engine/graphics/interface/texture.hpp"
+#include "engine/graphics/interface/framebuffer.hpp"
 #include "engine/internal_libs.hpp"
 #include "engine/enum.hpp"
 #include "engine/utility/fileio.hpp"
+#include "engine/utility/gameloop.hpp"
 
 
 #define M_NUM_KEYS		2048
@@ -19,6 +24,7 @@ namespace oe::graphics {
 	class Window {
 	public:
 		WindowInfo m_window_info;
+		const Instance* m_instance;
 
 	protected:
 		GLFWwindow* m_window_handle = nullptr;
@@ -29,6 +35,8 @@ namespace oe::graphics {
 		glm::vec2 m_cursor_transformed = { 0.0f, 0.0f };
 		glm::vec2 m_cursor_window = { 0, 0 };
 		float m_aspect_ratio = 0;
+
+		oe::utils::GameLoop m_window_gameloop;
 
 		void postglfw();
 
@@ -47,18 +55,13 @@ namespace oe::graphics {
 		void setIcon(const oe::utils::image_data& image);
 		void showCursor(bool show);
 
-		virtual Renderer* createRenderer(const RendererInfo& renderer_info) const = 0;
-		virtual Shader* createShader(const ShaderInfo& shader_info) const = 0;
-		virtual Texture* createTexture(const TextureInfo& texture_info) const = 0;
-		virtual FrameBuffer* createFrameBuffer(const FrameBufferInfo& framebuffer_info) const = 0;
-		
-		virtual void destroyRenderer(Renderer* renderer) const = 0;
-		virtual void destroyShader(Shader* shader) const = 0;
-		virtual void destroyTexture(Texture* texture) const = 0;
-		virtual void destroyFrameBuffer(FrameBuffer* framebuffer) const = 0;
+		// for multiwindow setups
+		// active window while rendering needs to be specified first
+		virtual void active_context() const = 0;
 
 	public:
 		inline const WindowInfo& getWindowInfo() { return m_window_info; }
+		inline oe::utils::GameLoop& getGameloop() {return m_window_gameloop; }
 
 		float aspect();
 		float button(oe::mouse_buttons button);

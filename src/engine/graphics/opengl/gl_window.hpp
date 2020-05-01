@@ -6,7 +6,6 @@
 #include "engine/graphics/interface/window.hpp"
 
 #include "engine/graphics/opengl/gl_framebuffer.hpp"
-#include "engine/graphics/opengl/gl_renderer.hpp"
 #include "engine/graphics/opengl/gl_shader.hpp"
 #include "engine/graphics/opengl/gl_texture.hpp"
 
@@ -31,15 +30,7 @@ namespace oe::graphics {
 		virtual void viewport() override;
 		virtual void swapInterval(uint8_t frames) override;
 
-		virtual graphics::Renderer* createRenderer(const RendererInfo& renderer_info) const override;
-		virtual graphics::Shader* createShader(const ShaderInfo& shader_info) const override;
-		virtual graphics::Texture* createTexture(const TextureInfo& texture_info) const override;
-		virtual graphics::FrameBuffer* createFrameBuffer(const FrameBufferInfo& framebuffer_info) const override;
-
-		virtual void destroyRenderer(graphics::Renderer* renderer) const override;
-		virtual void destroyShader(graphics::Shader* shader) const override;
-		virtual void destroyTexture(graphics::Texture* texture) const override;
-		virtual void destroyFrameBuffer(graphics::FrameBuffer* framebuffer) const override;
+		virtual void active_context() const override;
 
 		virtual std::string getAPI() const override;
 		virtual std::string getAPIVersion() const override;

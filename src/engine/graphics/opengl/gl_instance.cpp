@@ -1,6 +1,5 @@
 #include "gl_instance.hpp"
 #include "gl_window.hpp"
-#include "gl_renderer.hpp"
 #include "gl_shader.hpp"
 #include "gl_texture.hpp"
 #include "gl_framebuffer.hpp"
@@ -14,16 +13,12 @@
 
 namespace oe::graphics {
 
-	GLInstance::GLInstance(const InstanceInfo& instance_info) 
-		: Instance(instance_info) 
-	{
-		oe_debug_call("gl_instance");
-	}
+	GLInstance::GLInstance() 
+		: Instance() 
+	{}
 
 	GLInstance::~GLInstance()
-	{
-
-	}
+	{}
 
 
 
@@ -32,9 +27,39 @@ namespace oe::graphics {
 		return new GLWindow(this, window_config);
 	}
 
-	void GLInstance::destroyWindow(graphics::Window* window) const
+	Shader* GLInstance::createShader(const ShaderInfo& shader_info) const
 	{
-		delete (graphics::GLWindow*)window;
+		return new GLShader(shader_info);
+	}
+
+	Texture* GLInstance::createTexture(const TextureInfo& texture_info) const
+	{
+		return new GLTexture(texture_info);
+	}
+
+	FrameBuffer* GLInstance::createFrameBuffer(const FrameBufferInfo& framebuffer_info) const
+	{
+		return new GLFrameBuffer(framebuffer_info);
+	}
+
+	void GLInstance::destroyWindow(Window* window) const
+	{
+		delete (GLWindow*)window;
+	}
+
+	void GLInstance::destroyShader(Shader* shader) const
+	{
+		delete (GLShader*)shader;
+	}
+
+	void GLInstance::destroyTexture(Texture* texture) const
+	{
+		delete (GLTexture*)texture;
+	}
+
+	void GLInstance::destroyFrameBuffer(FrameBuffer* framebuffer) const
+	{
+		delete (GLFrameBuffer*)framebuffer;
 	}
 
 

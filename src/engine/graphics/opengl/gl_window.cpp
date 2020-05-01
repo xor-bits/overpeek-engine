@@ -74,7 +74,8 @@ namespace oe::graphics {
 		if (m_debugging) glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 
 		// Window creation
-		m_window_handle = glfwCreateWindow(m_window_info.size.x, m_window_info.size.y, m_window_info.title.c_str(), m_window_info.fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
+		GLFWwindow* share_handle = m_window_info.share_handle != nullptr ? ((GLWindow*)m_window_info.share_handle)->m_window_handle : nullptr;
+		m_window_handle = glfwCreateWindow(m_window_info.size.x, m_window_info.size.y, m_window_info.title.c_str(), m_window_info.fullscreen ? glfwGetPrimaryMonitor() : NULL, share_handle);
 		if (!m_window_handle) oe_error_terminate("Failed to create window!");
 
 		//Center the window
@@ -84,7 +85,7 @@ namespace oe::graphics {
 		glfwSetWindowPos(m_window_handle, m_window_info.position.x, m_window_info.position.y);
 
 		// set context for opengl
-		glfwMakeContextCurrent(m_window_handle);
+		active_context();
 	}
 
 	void GLWindow::glad(const Instance* instance) {
@@ -120,7 +121,7 @@ namespace oe::graphics {
 
 	GLWindow::GLWindow(const Instance* instance, const WindowInfo& window_config) 
 		: Window::Window(instance, window_config)
-		, m_debugging(instance->m_instance_info.debug_messages) 
+		, m_debugging(oe::Engine::getSingleton().engine_info.debug_messages)
 	{
 		oe_debug_call("gl_window");
 
@@ -166,46 +167,9 @@ namespace oe::graphics {
 		glfwSwapInterval(frames);
 	}
 
-
-
-	Renderer* GLWindow::createRenderer(const RendererInfo& renderer_info) const
-	{
-		return new GLRenderer(renderer_info);
-	}
-
-	Shader* GLWindow::createShader(const ShaderInfo& shader_info) const
-	{
-		return new GLShader(shader_info);
-	}
-
-	Texture* GLWindow::createTexture(const TextureInfo& texture_info) const
-	{
-		return new GLTexture(texture_info);
-	}
-
-	FrameBuffer* GLWindow::createFrameBuffer(const FrameBufferInfo& framebuffer_info) const
-	{
-		return new GLFrameBuffer(framebuffer_info);
-	}
-
-	void GLWindow::destroyRenderer(graphics::Renderer* renderer) const
-	{
-		delete (GLRenderer*)renderer;
-	}
-
-	void GLWindow::destroyShader(graphics::Shader* shader) const
-	{
-		delete (GLShader*)shader;
-	}
-
-	void GLWindow::destroyTexture(graphics::Texture* texture) const
-	{
-		delete (GLTexture*)texture;
-	}
-
-	void GLWindow::destroyFrameBuffer(graphics::FrameBuffer* framebuffer) const
-	{
-		delete (graphics::GLFrameBuffer*)framebuffer;
+	void GLWindow::active_context() const {
+		// set context for opengl
+		glfwMakeContextCurrent(m_window_handle);
 	}
 
 

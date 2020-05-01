@@ -7,6 +7,9 @@
 #include <vector>
 #include <functional>
 
+#include "engine/graphics/interface/index_buffer_gen.hpp"
+#include "engine/graphics/vertexData.hpp"
+
 
 
 namespace oe {
@@ -329,6 +332,8 @@ namespace oe {
 	typedef std::function<void(const glm::vec2 & framebuffer_size)> fun_resize_callback;
 	typedef std::function<void(uint32_t codepoint, oe::modifiers mods)> fun_text_callback;
 	typedef std::function<void(const glm::vec2 & transformed, const glm::vec2 & window)> fun_cursor_callback;
+	typedef std::function<void(float)> fun_window_render;
+	typedef std::function<void()> fun_window_update;
 
 	// window open info
 	struct WindowInfo {
@@ -340,6 +345,7 @@ namespace oe {
 		bool resizeable = true;
 		bool transparent = false;
 		bool fullscreen = false;
+		void* share_handle = nullptr; // pointer to the first window obj for multiwindow setups
 		uint32_t swap_interval = 1;
 		fun_key_callback key_callback = nullptr;
 		fun_button_callback button_callback = nullptr;
@@ -347,11 +353,13 @@ namespace oe {
 		fun_resize_callback resize_callback = nullptr;
 		fun_text_callback text_callback = nullptr;
 		fun_cursor_callback cursor_callback = nullptr;
+		fun_window_render render_callback = nullptr;
+		fun_window_update update_callback = nullptr;
 	};
 
 	// renderer create info
 	struct RendererInfo {
-		int max_quad_count = 10000;
+		int max_primitive_count = 10000;
 		oe::types arrayRenderType = oe::types::dynamicrender;
 		oe::types indexRenderType = oe::types::staticrender;
 		void* staticVBOBuffer_data = nullptr;
@@ -374,10 +382,6 @@ namespace oe {
 		bool audio = false;
 		bool networking = false;
 		graphics_api api = oe::graphics_api::OpenGL;
-	};
-
-	// instance create info
-	struct InstanceInfo {
 		gpu favored_gpu_vulkan = gpu::dedicated;
 		bool debug_messages = false;
 	};

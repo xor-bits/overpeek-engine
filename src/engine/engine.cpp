@@ -1,7 +1,15 @@
 #include "engine.hpp"
 
-#include "graphics/opengl/gl_instance.hpp"
-#include "graphics/vulkan/vk_instance.hpp"
+#include "engine/graphics/interface/instance.hpp"
+#include "engine/graphics/opengl/gl_instance.hpp"
+#include "engine/utility/random.hpp"
+#include "engine/utility/clock.hpp"
+#include "engine/audio/audio.hpp"
+#include "engine/networking/server.hpp"
+
+#if defined(BUILD_VULKAN)
+#include "engine/graphics/vulkan/vk_instance.hpp"
+#endif
 
 #include <GLFW/glfw3.h>
 
@@ -39,6 +47,22 @@ namespace oe {
 		}
 
 		srand(oe::utils::Clock::getSingleton().getMicroseconds());
+
+
+		switch (engine_info.api)
+		{
+		case graphics_api::OpenGL:
+			instance = new oe::graphics::GLInstance();
+			break;
+#ifdef BUILD_VULKAN
+		case graphics_api::Vulkan:
+			instance = new oe::graphics::VKInstance();
+			break;
+#endif
+		default:
+			instance = nullptr;
+			break;
+		}
 	}
 
 	void Engine::deinit() {
@@ -48,6 +72,7 @@ namespace oe {
 		if (engine_info.networking) {
 			networking::enet::deinitEnet();
 		}
+		if (instance) delete instance;
 	}
 
 	void Engine::terminate() {
@@ -60,37 +85,6 @@ namespace oe {
 	void Engine::__error(std::string error_msg, int line, std::string file) {
 		spdlog::error("error: {}\nline: {}\nfile: {}", error_msg, line, file);
 		oe::Engine::terminate();
-	}
-
-	graphics::Instance* Engine::createInstance(const InstanceInfo& instance_config) {
-		if (engine_info.api == oe::graphics_api::OpenGL) {
-			return new oe::graphics::GLInstance(instance_config);
-		}
-		else {
-#ifdef BUILD_VULKAN
-			return new oe::graphics::VKInstance(instance_config);
-#else
-			return nullptr;
-#endif
-		}
-	}
-
-	void Engine::destroyInstance(graphics::Instance* instance) {
-		delete instance;
-	}
-
-	void Engine::multipass(graphics::FrameBuffer& fb_0, graphics::FrameBuffer& fb_1, const graphics::Renderer& renderer, size_t count) {
-		for (int i = 0; i < count; i++) {
-			fb_1.bind();
-			fb_0.getTexture()->bind();
-			renderer.render(1);
-			fb_1.unbind();
-
-			fb_0.bind();
-			fb_1.getTexture()->bind();
-			renderer.render(1);
-			fb_0.unbind();
-		}
 	}
 
 }

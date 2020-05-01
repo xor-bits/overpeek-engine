@@ -1,6 +1,5 @@
 #include "vertexBuffer.hpp"
 
-#include "engine/graphics/opengl/gl_renderer.hpp"
 #include "engine/internal_libs.hpp"
 
 #include <glad/glad.h>

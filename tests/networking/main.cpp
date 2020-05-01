@@ -1,4 +1,4 @@
-#include <engine/engine.hpp>
+#include <engine/include.hpp>
 
 #include <string>
 #include <thread>
@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
 	server->send(compressed.data(), compressed.size());
 
 	// wait for messages to get recieved
-	std::this_thread::sleep_for(std::chrono::milliseconds(5000000));
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
 	// close the client
 	client->disconnect();

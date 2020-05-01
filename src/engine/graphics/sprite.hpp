@@ -6,22 +6,18 @@
 
 namespace oe::graphics {
 
-	class SpritePack;
+	class Texture;
 
 	// Higher level texture
 	// 2D only
 	class Sprite {
-	private:
-		SpritePack* m_sprite_pack;
-
 	public:
+		Texture* m_owner;
 		glm::vec2 position = { 0, 0 }; // position in packed texture
 		glm::vec2 size = { 1, 1 };     // size in packed texture
 
-
-
-		Sprite(SpritePack* sprite_pack)
-			: m_sprite_pack(sprite_pack) {}
+		Sprite(Texture* texture)
+			: m_owner(texture) {}
 	};
 
 }

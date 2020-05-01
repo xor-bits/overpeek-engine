@@ -6,19 +6,22 @@
 
 namespace oe::graphics {
 
-	class Window; class Renderer; class Shader; class Texture; class FrameBuffer;
+	class Window; class Shader; class Texture; class FrameBuffer; class Renderer;
 
 	// note: OpenGL supports only one instance
 	class Instance {
 	public:
-		InstanceInfo m_instance_info;
-
-	public:
-		Instance(const InstanceInfo& instance_info);
-		~Instance();
-
 		virtual Window* createWindow(const WindowInfo& window_config) const = 0;
+		virtual Shader* createShader(const ShaderInfo& shader_info) const = 0;
+		virtual Texture* createTexture(const TextureInfo& texture_info) const = 0;
+		virtual FrameBuffer* createFrameBuffer(const FrameBufferInfo& framebuffer_info) const = 0;
+		graphics::Renderer* createRenderer(const RendererInfo& renderer_info) const;
+
 		virtual void destroyWindow(Window* window) const = 0;
+		virtual void destroyShader(Shader* shader) const = 0;
+		virtual void destroyTexture(Texture* texture) const = 0;
+		virtual void destroyFrameBuffer(FrameBuffer* framebuffer) const = 0;
+		void destroyRenderer(graphics::Renderer* renderer) const;
 
 	public:
 		// set blending mode

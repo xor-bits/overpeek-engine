@@ -1,25 +1,19 @@
 #include "instance.hpp"
 
-#include "engine/graphics/interface/window.hpp"
-#include "engine/graphics/interface/renderer.hpp"
-#include "engine/graphics/interface/shader.hpp"
-#include "engine/graphics/interface/texture.hpp"
-#include "engine/graphics/interface/framebuffer.hpp"
+#include "renderer.hpp"
 
 
 
 namespace oe::graphics {
+    
+    graphics::Renderer* Instance::createRenderer(const RendererInfo& renderer_info) const
+    {
+        return new Renderer(renderer_info);
+    }
 
-
-	Instance::Instance(const InstanceInfo& instance_info) 
-		: m_instance_info(instance_info)
-	{
-
-	}
-
-	Instance::~Instance()
-	{
-
-	}
+    void Instance::destroyRenderer(graphics::Renderer* renderer) const 
+    {
+        delete renderer;
+    }
 
 }

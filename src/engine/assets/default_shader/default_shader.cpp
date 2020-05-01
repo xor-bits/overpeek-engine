@@ -13,19 +13,18 @@ namespace oe::assets {
 	const ShaderInfo default_shader_info_vk = ShaderInfo{ default_shader_name, { ShaderStageInfo{ shader_stages::vertex_shader, shader_vert_vk }, ShaderStageInfo{ shader_stages::fragment_shader, shader_frag_vk } } };
 	const ShaderInfo default_shader_info_gl = ShaderInfo{ default_shader_name, { ShaderStageInfo{ shader_stages::vertex_shader, shader_vert_gl }, ShaderStageInfo{ shader_stages::fragment_shader, shader_frag_gl } } };
 
-	DefaultShader::DefaultShader(const graphics::Window* _window)
-		: window(_window)
+	DefaultShader::DefaultShader()
 	{
 		if (oe::Engine::getSingleton().engine_info.api == oe::graphics_api::OpenGL) {
-			shader = window->createShader(default_shader_info_gl);
+			shader = oe::Engine::getSingleton().createShader(default_shader_info_gl);
 		}
 		else {
-			shader = window->createShader(default_shader_info_vk);
+			shader = oe::Engine::getSingleton().createShader(default_shader_info_vk);
 		}
 	}
 
 	DefaultShader::~DefaultShader() {
-		window->destroyShader(shader);
+		oe::Engine::getSingleton().destroyShader(shader);
 	}
 
 	void DefaultShader::bind() const {
