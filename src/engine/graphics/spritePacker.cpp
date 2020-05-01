@@ -143,14 +143,42 @@ namespace oe::graphics {
 				sprite.at(i)->position = glm::vec2(rectangle.x / (float)pack_width, rectangle.y / (float)pack_height) + sprite.at(i)->position * sprite.at(i)->size;
 			}
 
-			// print sprite img to final texture
-			for (size_t y = 0; y < image.height; y++) {
-				for (size_t x = 0; x < image.width; x++) {
-					data[coordsToIndex(rectangle.x + x, rectangle.y + y, 0, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, image.width, 4)];
-					data[coordsToIndex(rectangle.x + x, rectangle.y + y, 1, pack_width, 4)] = image.data[coordsToIndex(x, y, 1, image.width, 4)];
-					data[coordsToIndex(rectangle.x + x, rectangle.y + y, 2, pack_width, 4)] = image.data[coordsToIndex(x, y, 2, image.width, 4)];
-					data[coordsToIndex(rectangle.x + x, rectangle.y + y, 3, pack_width, 4)] = image.data[coordsToIndex(x, y, 3, image.width, 4)];
+			// conversions
+			switch (image.format)
+			{
+			case oe::formats::mono:
+				// mono format to rgba
+				for (size_t y = 0; y < image.height; y++) {
+					for (size_t x = 0; x < image.width; x++) {
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 0, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, image.width, 1)];
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 1, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, image.width, 1)];
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 2, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, image.width, 1)];
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 3, pack_width, 4)] = 255;
+					}
 				}
+				break;
+			case oe::formats::rgb:
+				// rgb format to rgba
+				for (size_t y = 0; y < image.height; y++) {
+					for (size_t x = 0; x < image.width; x++) {
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 0, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, image.width, 3)];
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 1, pack_width, 4)] = image.data[coordsToIndex(x, y, 1, image.width, 3)];
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 2, pack_width, 4)] = image.data[coordsToIndex(x, y, 2, image.width, 3)];
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 3, pack_width, 4)] = 255;
+					}
+				}
+				break;
+			case oe::formats::rgba:
+				// no conversion
+				for (size_t y = 0; y < image.height; y++) {
+					for (size_t x = 0; x < image.width; x++) {
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 0, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, image.width, 4)];
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 1, pack_width, 4)] = image.data[coordsToIndex(x, y, 1, image.width, 4)];
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 2, pack_width, 4)] = image.data[coordsToIndex(x, y, 2, image.width, 4)];
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 3, pack_width, 4)] = image.data[coordsToIndex(x, y, 3, image.width, 4)];
+					}
+				}
+				break;
 			}
 		}
 

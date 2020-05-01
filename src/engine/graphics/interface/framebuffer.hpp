@@ -15,11 +15,10 @@ namespace oe::graphics {
 		FrameBufferInfo m_framebuffer_info;
 
 	public:
-		FrameBuffer(const FrameBufferInfo& framebuffer_info);
+		FrameBuffer(const FrameBufferInfo& framebuffer_info, Window* window);
 		~FrameBuffer();
 
 		virtual void bind() = 0; // will bind corresponding texture
-		virtual void unbind() = 0;
 
 		virtual void clear(const glm::vec4& color = oe::colors::clear_color) = 0;
 
@@ -27,7 +26,7 @@ namespace oe::graphics {
 		static void multipass(graphics::FrameBuffer& fb_0, graphics::FrameBuffer& fb_1, graphics::Renderer* renderer, size_t count);
 
 	public:
-		virtual Texture* getTexture() = 0;
+		virtual const Texture* getTexture() const = 0;
 		inline const FrameBufferInfo& getFrameBufferInfo() { return m_framebuffer_info; }
 
 	};

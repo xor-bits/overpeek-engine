@@ -11,14 +11,9 @@ oe::graphics::Renderer* renderer;
 oe::graphics::Font* font;
 oe::graphics::TextLabel* label;
 
-void render(float update_fraction) {
-	// bind texture with font and bind shader
+void render(float update_fraction)
+{
 	shader->bind();
-	pack->bind();
-
-	
-
-	// stop submitting and render
 	renderer->render();
 }
 
@@ -76,22 +71,23 @@ int main(int argc, char** argv) {
 	
 	// submitting
 	label = new oe::graphics::TextLabel(font);
-	label->generate("test text");
+	label->generate("AÄäääääj testteets", window);
 	auto quad = renderer->createQuad();
-	quad->setPosition({ 0.0f, 0.0f });
-	quad->setSize({ 1.0f, 1.0f, });
+	quad->setPosition({ -1.0f, 0.0f });
+	quad->setSize({ 0.1f * label->getAspect(), 0.1f, });
 	quad->setColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-	quad->setSprite()
+	quad->setSprite(label->getSprite());
+	quad->update();
 #if 0
 	oe::graphics::Text::submit(renderer, "0@#%()[]{}<>,.;:?!|/\\", { 0.0f, -0.2f }, 0.14f, oe::graphics::alignment::center_center);
 	oe::graphics::Text::submit(renderer, "1234567890 =+-/*", { 0.0f, 0.0f }, 0.14f, oe::graphics::alignment::center_center);
 	oe::graphics::Text::submit(renderer, "The quick brown fox jumps over the lazy dog.", { 0.0f, 0.4f }, 0.14f, oe::graphics::alignment::center_center);
 #else
-	oe::graphics::Text::submit(renderer, "blue:<#0000ff> test", { 0.0f, -0.2f }, 0.14f, oe::alignments::center_center);
-	oe::graphics::Text::submit(renderer, "incomplete:<#542> test", { 0.0f, 0.0f }, 0.14f, oe::alignments::center_center);
-	oe::graphics::Text::submit(renderer, "faulty:<#5f>>>>>>>>> test", { 0.0f, 0.2f }, 0.14f, oe::alignments::center_center);
-	oe::graphics::Text::submit(renderer, "with 0x:<#0x4354> test", { 0.0f, 0.4f }, 0.14f, oe::alignments::center_center);
-	oe::graphics::Text::submit(renderer, "negative:<#-43531> test", { 0.0f, 0.6f }, 0.14f, oe::alignments::center_center);
+	// oe::graphics::Text::submit(renderer, "blue:<#0000ff> test", { 0.0f, -0.2f }, 0.14f, oe::alignments::center_center);
+	// oe::graphics::Text::submit(renderer, "incomplete:<#542> test", { 0.0f, 0.0f }, 0.14f, oe::alignments::center_center);
+	// oe::graphics::Text::submit(renderer, "faulty:<#5f>>>>>>>>> test", { 0.0f, 0.2f }, 0.14f, oe::alignments::center_center);
+	// oe::graphics::Text::submit(renderer, "with 0x:<#0x4354> test", { 0.0f, 0.4f }, 0.14f, oe::alignments::center_center);
+	// oe::graphics::Text::submit(renderer, "negative:<#-43531> test", { 0.0f, 0.6f }, 0.14f, oe::alignments::center_center);
 #endif
 
 	

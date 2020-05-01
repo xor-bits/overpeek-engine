@@ -4,9 +4,10 @@
 
 
 
-const oe::graphics::Sprite* sprite;
-const oe::graphics::Sprite* sprite_white;
-oe::graphics::SpritePack* pack;
+const oe::graphics::Sprite* sprite; // from pack 0
+const oe::graphics::Sprite* sprite_white; // from pack 1
+oe::graphics::SpritePack* pack_0;
+oe::graphics::SpritePack* pack_1;
 oe::graphics::Window* window;
 oe::assets::DefaultShader* shader;
 oe::graphics::Renderer* renderer;
@@ -50,7 +51,6 @@ void render(float update_fraction) {
 
 	// render scene
 	shader->bind();
-	pack->bind();
 	renderer->render();
 }
 
@@ -107,11 +107,13 @@ void init() {
 	shader = new oe::assets::DefaultShader();
 	
 	// sprites
-	auto img = oe::utils::image_data(oe::assets::TextureSet::oe_logo, oe::formats::rgba, 5, 5);
-	pack = new oe::graphics::SpritePack();
-	sprite = pack->addSprite(img);
-	sprite_white = pack->empty_sprite();
-	pack->construct();
+	auto img = oe::assets::TextureSet::oe_logo_img;
+	pack_0 = new oe::graphics::SpritePack();
+	pack_1 = new oe::graphics::SpritePack();
+	sprite = pack_0->addSprite(img);
+	sprite_white = pack_1->empty_sprite();
+	pack_0->construct();
+	pack_1->construct();
 	
 	// start
 	create_scene();
@@ -119,7 +121,8 @@ void init() {
 	window->getGameloop().start(30); // print the average frametime 30 times in a second
 
 	// closing
-	delete pack;
+	delete pack_0;
+	delete pack_1;
 	delete shader;
 	delete renderer;
 	delete window;
@@ -128,12 +131,10 @@ void init() {
 int main(int argc, char** argv) {
 	try {
 		init();
-		__debugbreak();
 		return 0;
 	} catch (const std::exception& e) {
 		spdlog::error(e.what());
 		assert(e.what());
-		__debugbreak();
 		return -1;
 	}
 }

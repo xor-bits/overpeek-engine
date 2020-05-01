@@ -16,15 +16,14 @@ namespace oe::graphics {
 		GLTexture *m_texture;
 
 	public:
-		GLFrameBuffer(const FrameBufferInfo& framebuffer_info);
+		GLFrameBuffer(const FrameBufferInfo& framebuffer_info, Window* window);
 		~GLFrameBuffer();
 
 		virtual void bind() override;
-		virtual void unbind() override;
 
 		virtual void clear(const glm::vec4& color = oe::colors::clear_color) override;
 
-		virtual Texture* getTexture() override {
+		virtual const Texture* getTexture() const override {
 			return m_texture;
 		}
 	

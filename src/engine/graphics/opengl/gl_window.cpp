@@ -157,7 +157,7 @@ namespace oe::graphics {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	void GLWindow::viewport() 
+	void GLWindow::viewport()
 	{
 		glViewport(0, 0, m_window_info.size.x, m_window_info.size.y);
 	}
@@ -170,6 +170,12 @@ namespace oe::graphics {
 	void GLWindow::active_context() const {
 		// set context for opengl
 		glfwMakeContextCurrent(m_window_handle);
+	}
+	
+	void GLWindow::bind()
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		viewport();
 	}
 
 

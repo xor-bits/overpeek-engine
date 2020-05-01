@@ -17,8 +17,8 @@ namespace oe::graphics {
 
 		virtual void setData(const TextureInfo& texture_info) = 0;
 
-		virtual void bind() = 0;
-		virtual void unbind() = 0;
+		virtual void bind() const = 0;
+		virtual void unbind() const = 0;
 
 	public:
 		inline const TextureInfo& getTextureInfo() { return m_texture_info; }

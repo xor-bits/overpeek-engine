@@ -47,6 +47,7 @@ namespace oe::graphics {
 		virtual void update() = 0;
 		virtual void clear(const glm::vec4& color = oe::colors::clear_color) = 0;
 		virtual void viewport() = 0;
+		virtual void bind() = 0;
 
 		/*Also known as VSync*/
 		virtual void swapInterval(uint8_t frames) = 0;

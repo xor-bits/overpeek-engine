@@ -6,7 +6,7 @@
 
 namespace oe::graphics {
 
-	FrameBuffer::FrameBuffer(const FrameBufferInfo& framebuffer_info)
+	FrameBuffer::FrameBuffer(const FrameBufferInfo& framebuffer_info, Window* window)
 		: m_framebuffer_info(framebuffer_info) 
 	{
 

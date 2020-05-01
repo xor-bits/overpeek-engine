@@ -12,11 +12,11 @@ namespace oe::graphics {
 	// 2D only
 	class Sprite {
 	public:
-		Texture* m_owner;
+		const Texture* m_owner;
 		glm::vec2 position = { 0, 0 }; // position in packed texture
 		glm::vec2 size = { 1, 1 };     // size in packed texture
 
-		Sprite(Texture* texture)
+		Sprite(const Texture* texture)
 			: m_owner(texture) {}
 	};
 

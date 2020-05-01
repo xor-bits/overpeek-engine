@@ -29,6 +29,7 @@ namespace oe::graphics {
 		virtual void clear(const glm::vec4& color = glm::vec4(0.18f, 0.18f, 0.20f, 1.0f)) override;
 		virtual void viewport() override;
 		virtual void swapInterval(uint8_t frames) override;
+		virtual void bind() override;
 
 		virtual void active_context() const override;
 

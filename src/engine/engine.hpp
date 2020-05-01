@@ -33,7 +33,7 @@ namespace oe {
 		graphics::Window* createWindow(const WindowInfo& window_config) const { return instance->createWindow(window_config); }
 		graphics::Shader* createShader(const ShaderInfo& shader_info) const { return instance->createShader(shader_info); }
 		graphics::Texture* createTexture(const TextureInfo& texture_info) const { return instance->createTexture(texture_info); }
-		graphics::FrameBuffer* createFrameBuffer(const FrameBufferInfo& framebuffer_info) const { return instance->createFrameBuffer(framebuffer_info); }
+		graphics::FrameBuffer* createFrameBuffer(const FrameBufferInfo& framebuffer_info, graphics::Window* window) const { return instance->createFrameBuffer(framebuffer_info, window); }
 		graphics::Renderer* createRenderer(const RendererInfo& renderer_info) { return instance->createRenderer(renderer_info); }
 
 		void destroyWindow(graphics::Window* window) const { instance->destroyWindow(window); }

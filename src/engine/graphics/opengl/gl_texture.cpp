@@ -85,11 +85,11 @@ namespace oe::graphics {
 		glDeleteTextures(1, &m_id);
 	}
 
-	void GLTexture::bind() {
+	void GLTexture::bind() const {
 		glBindTexture(m_target, m_id);
 	}
 
-	void GLTexture::unbind() {
+	void GLTexture::unbind() const {
 		glBindTexture(m_target, 0);
 	}
 

@@ -86,7 +86,7 @@ namespace oe::graphics {
 	class Renderer {
 	private:
 		RendererInfo m_renderer_info;
-		std::unordered_map<Texture*, SubRenderer*> m_renderers;
+		std::unordered_map<const Texture*, SubRenderer*> m_renderers;
 		std::unordered_set<Quad*> m_quads;
 
 		SubRenderer* select_subrenderer(Quad* quad);

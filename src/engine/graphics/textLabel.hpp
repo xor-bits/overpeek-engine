@@ -28,15 +28,18 @@ namespace oe::graphics {
 		Sprite m_sprite;
 
 		std::string m_text;
+		float m_aspect;
 		
 	public:
 		TextLabel(const Font* font);
 
 		// Generate framebuffer and render text to it
-		void generate(const std::string& text);
-		void regenerate(const std::string& text);
+		void generate(const std::string& text, Window* window);
+		void regenerate(const std::string& text, Window* window);
 
-		inline const FrameBuffer* getFB() { return m_framebuffer; }
+		inline const FrameBuffer* getFB() const { return m_framebuffer; }
+		inline const Sprite* getSprite() const { return &m_sprite; }
+		inline float getAspect() const { return m_aspect; }
 		inline std::string getText() const { return m_text; }
 
 	};

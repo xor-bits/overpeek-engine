@@ -86,7 +86,7 @@ namespace oe::graphics {
 
 		// whitespace
 		Glyph* glyph = new Glyph{
-			32,
+			' ',
 			glm::vec2(0.0f),
 			glm::vec2(0.0f),
 			glm::vec2(0.3f),

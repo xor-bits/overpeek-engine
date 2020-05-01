@@ -5,6 +5,9 @@
 #include "engine/graphics/interface/window.hpp"
 
 
+#include "engine/graphics/opengl/gl_texture.hpp"
+
+
 
 namespace oe::graphics {
 	
@@ -289,6 +292,7 @@ namespace oe::graphics {
 		for (auto subrenderer : m_renderers)
 		{
 			// spdlog::info("subrenderer_{} vertex count: {}", n, subrenderer.second->m_primitive_renderer->vertexCount());
+			subrenderer.first->bind();
 			subrenderer.second->render();
 			n++;
 		}

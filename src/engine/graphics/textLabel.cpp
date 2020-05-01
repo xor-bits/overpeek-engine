@@ -106,43 +106,54 @@ namespace oe::graphics {
 		m_framebuffer = nullptr;
 	}
 
-	void TextLabel::generate(const std::string& text)
+	void TextLabel::generate(const std::string& text, Window* window)
 	{
 		if (m_text == text) return; // why render the same image again?
-		regenerate(text);
+		regenerate(text, window);
 	}
 	
-	void TextLabel::regenerate(const std::string& text)
+	void TextLabel::regenerate(const std::string& text, Window* window)
 	{
 		m_text = text;
 
+		// size of the framebuffer
 		float width = Text::width(text, glm::vec2(m_font->m_resolution), m_font);
-		glm::vec2 fb_size = { width, m_font->bb_height * m_font->m_resolution };
-		spdlog::info("size of {} framebuffer is {}", text, fb_size);
+		glm::ivec2 fb_size = { width, m_font->m_resolution };
+		if (fb_size.x == 0 || fb_size.y == 0)
+		{
+			spdlog::error("TextLabel with framebuffer size of 0");
+			return;
+		}
 
+		// create the framebuffer
 		oe::FrameBufferInfo fb_info = {};
-		fb_info.width = static_cast<size_t>(ceil(fb_size.x));
-		fb_info.height = static_cast<size_t>(ceil(fb_size.y));
-		m_framebuffer = oe::Engine::getSingleton().createFrameBuffer(fb_info);
+		fb_info.width = fb_size.x;
+		fb_info.height = fb_size.y;
+		m_framebuffer = oe::Engine::getSingleton().createFrameBuffer(fb_info, window);
 
 		m_framebuffer->bind();
-		m_framebuffer->clear({ 0.0f, 0.0f, 0.0f, 0.0f });
+		m_framebuffer->clear({ 0.0f, 0.0f, 0.0f, 0.2f });
 
-		Text::submit(getFBRenderer(), text, { 0.0f, 0.0f }, m_font->m_resolution, alignments::top_left, glm::vec4(0.0f), m_font);
-
-		glm::mat4 pr_matrix = glm::ortho(0.0f, fb_size.x, fb_size.y, 0.0f);
+		// render to the framebuffer
+		auto fb_renderer = getFBRenderer();
+		auto fb_shader = getFBShader();
+		Text::submit(fb_renderer, text, { 0.0f, 0.0f }, m_font->m_resolution, alignments::top_left, glm::vec4(1.0f), m_font);
+		glm::mat4 pr_matrix = glm::ortho(0.0f, (float)fb_size.x, (float)fb_size.y, 0.0f);
 		fb_shader->setProjectionMatrix(pr_matrix);
-		getFBShader()->bind();
-		getFBRenderer()->render();
-		getFBRenderer()->destroyQuads();
+		fb_shader->bind();
+		fb_renderer->render();
+		fb_renderer->destroyQuads();
 		
-		getFBShader()->unbind(); // just so the user couldnt accidentally modify this shader
+		fb_shader->unbind(); // just so the user couldnt accidentally modify this shader
 
-		m_framebuffer->unbind();
+		// bind window framebuffer
+		window->bind();
 
+		// generate the sprite for user
 		m_sprite = Sprite(m_framebuffer->getTexture());
-		m_sprite.position = { 0.0f, 0.0f };
-		m_sprite.size = { 1.0f, 1.0f };
+		m_sprite.position = { 0.0f, 1.0f };
+		m_sprite.size = { 1.0f, -1.0f };
+		m_aspect = fb_size.x / fb_size.y;
 	}
 	
 
@@ -165,7 +176,7 @@ namespace oe::graphics {
 		for (size_t i = 0; i < renderData.size(); i++) {
 			unsigned char c = renderData.at(i).first;
 			auto glyph = font->getGlyph(c);
-			if (!glyph) continue;
+			if (!glyph) glyph = font->getGlyph(0);
 
 			// first
 			if (i == 0) {
@@ -202,7 +213,7 @@ namespace oe::graphics {
 		for (pairData& pd : renderData) {
 			unsigned char i = pd.first;
 			auto glyph = font->getGlyph(i);
-			if (!glyph) continue;
+			if (!glyph) glyph = font->getGlyph(0);
 			auto sprite = glyph->sprite;
 
 			auto quad = renderer->createQuad();

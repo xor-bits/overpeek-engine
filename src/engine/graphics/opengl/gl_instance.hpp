@@ -15,7 +15,7 @@ namespace oe::graphics {
 		virtual graphics::Window* createWindow(const WindowInfo& window_config) const override;
 		virtual graphics::Shader* createShader(const ShaderInfo& shader_info) const override;
 		virtual graphics::Texture* createTexture(const TextureInfo& texture_info) const override;
-		virtual graphics::FrameBuffer* createFrameBuffer(const FrameBufferInfo& framebuffer_info) const override;
+		virtual graphics::FrameBuffer* createFrameBuffer(const FrameBufferInfo& framebuffer_info, Window* window) const override;
 
 		virtual void destroyWindow(graphics::Window* window) const override;
 		virtual void destroyShader(graphics::Shader* shader) const override;

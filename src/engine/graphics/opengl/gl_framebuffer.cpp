@@ -1,5 +1,6 @@
 #include "gl_framebuffer.hpp"
 #include "engine/engine.hpp"
+#include "engine/graphics/interface/window.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -8,8 +9,8 @@
 
 namespace oe::graphics {
 
-	GLFrameBuffer::GLFrameBuffer(const FrameBufferInfo& framebuffer_info)
-		: FrameBuffer(framebuffer_info) 
+	GLFrameBuffer::GLFrameBuffer(const FrameBufferInfo& framebuffer_info, Window* window)
+		: FrameBuffer(framebuffer_info, window) 
 	{
 		oe_debug_call("gl_framebuffer");
 
@@ -40,7 +41,7 @@ namespace oe::graphics {
 			oe_error_terminate("Framebuffer not complete {}", fboStatus);
 
 		clear();
-		unbind();
+		window->bind();
 	}
 
 	GLFrameBuffer::~GLFrameBuffer() {
@@ -56,10 +57,7 @@ namespace oe::graphics {
 
 	void GLFrameBuffer::bind() {
 		glBindFramebuffer(GL_FRAMEBUFFER, m_id);
-	}
-
-	void GLFrameBuffer::unbind() {
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, m_framebuffer_info.width, m_framebuffer_info.height);
 	}
 
 }

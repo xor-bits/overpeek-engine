@@ -37,9 +37,9 @@ namespace oe::graphics {
 		return new GLTexture(texture_info);
 	}
 
-	FrameBuffer* GLInstance::createFrameBuffer(const FrameBufferInfo& framebuffer_info) const
+	FrameBuffer* GLInstance::createFrameBuffer(const FrameBufferInfo& framebuffer_info, Window* window) const
 	{
-		return new GLFrameBuffer(framebuffer_info);
+		return new GLFrameBuffer(framebuffer_info, window);
 	}
 
 	void GLInstance::destroyWindow(Window* window) const

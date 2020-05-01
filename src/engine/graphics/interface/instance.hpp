@@ -14,7 +14,7 @@ namespace oe::graphics {
 		virtual Window* createWindow(const WindowInfo& window_config) const = 0;
 		virtual Shader* createShader(const ShaderInfo& shader_info) const = 0;
 		virtual Texture* createTexture(const TextureInfo& texture_info) const = 0;
-		virtual FrameBuffer* createFrameBuffer(const FrameBufferInfo& framebuffer_info) const = 0;
+		virtual FrameBuffer* createFrameBuffer(const FrameBufferInfo& framebuffer_info, Window* window) const = 0;
 		graphics::Renderer* createRenderer(const RendererInfo& renderer_info) const;
 
 		virtual void destroyWindow(Window* window) const = 0;

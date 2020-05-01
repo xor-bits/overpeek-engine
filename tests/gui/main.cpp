@@ -2,8 +2,6 @@
 
 #include <string>
 
-#include "texture.png.hpp"
-
 
 
 oe::gui::GUI* gui;
