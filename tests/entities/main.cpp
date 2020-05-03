@@ -1,4 +1,4 @@
-#include <engine/engine.hpp>
+#include <engine/include.hpp>
 
 #include <string>
 
@@ -8,12 +8,13 @@ constexpr unsigned int updates_per_second = 60;
 constexpr float inverse_ups = 1.0f / updates_per_second;
 
 const oe::graphics::Sprite* sprite;
-oe::graphics::Instance* instance;
 oe::graphics::Window* window;
 oe::graphics::SpritePack* pack;
 oe::graphics::Renderer* renderer;
 oe::assets::DefaultShader* shader;
 entt::registry registry;
+const int entities = 1000;
+std::unordered_map<entt::entity, oe::graphics::Quad*> quads;
 
 
 
@@ -21,41 +22,34 @@ struct position : public glm::vec2 {};
 struct velocity : public glm::vec2 {};
 
 void ecsSetup(int argc, char* argv[]) {
-	for (auto i = 0; i < 100; ++i) {
-		glm::vec2 pos = oe::utils::Random::getSingleton().randomVec2(-17.5f, 17.5);
-		glm::vec2 vel = oe::utils::Random::getSingleton().randomVec2(-5.0f, 5.0);
+	for (auto i = 0; i < entities; ++i) {
+
+		auto& random = oe::utils::Random::getSingleton();
+		glm::vec2 pos = random.randomVec2(-17.5f, 17.5);
+		glm::vec2 vel = random.randomVec2(-5.0f, 5.0);
 
 		auto entity = registry.create();
 		registry.assign<position>(entity, pos);
-		if (i % 2 == 0) { registry.assign<velocity>(entity, vel); }
+		registry.assign<velocity>(entity, vel);
+		quads.insert(std::make_pair(entity, renderer->createQuad()));
 	}
 }
 
 void render(float update_fraction) {
-	// clear framebuffer
-	window->clear();
-
-	// begin submitting
-	renderer->begin();
-	renderer->clear();
-
 	// submitting
-	registry.view<position>().each([&](position& pos) {
+	registry.view<position>().each([&](entt::entity entity, position& pos) {
+		auto quad = quads[entity];
+
 		// rendering
-		renderer->submit(pos, { 0.2f, 0.2f }, sprite);
-		});
+		quad->setPosition(pos);
+		quad->setSize({ 0.2f, 0.2f });
+		quad->setSprite(sprite);
+		quad->update();
+	});
 
 	// stop submitting and render
-	pack->bind();
 	shader->bind();
-	renderer->end();
 	renderer->render();
-
-	// swap buffers and poll events
-	window->update();
-
-	// check if needs to close
-	if (window->shouldClose()) oe::utils::GameLoop::getSingleton().stop();
 }
 
 void resize(const glm::vec2& window_size) {
@@ -70,62 +64,58 @@ void resize(const glm::vec2& window_size) {
 void update() {
 	registry.view<position, velocity>().each([&](position& pos, velocity& vel) {
 		pos += vel * inverse_ups;
-		});
-	registry.view<velocity>().each([](velocity& vel) {
-		// vel.value = { 0.0f, 0.0f };
 	});
 }
 
 int main(int argc, char* argv[]) {
+	auto& engine = oe::Engine::getSingleton();
+
 	// engine
 	oe::EngineInfo engine_info = {};
 	engine_info.api = oe::graphics_api::OpenGL;
-	oe::Engine::getSingleton().init(engine_info);
-	ecsSetup(argc, argv);
-
-	// instance
-	oe::InstanceInfo instance_info = {};
-	instance_info.debug_messages = true;
-	// instance_info.favored_gpu_vulkan = oe::gpu::dedicated;
-	instance = oe::Engine::getSingleton().createInstance(instance_info);
+	engine_info.debug_messages = true;
+	engine.init(engine_info);
 
 	// window
 	oe::WindowInfo window_info;
 	window_info.title = "Test 1 - Renderer";
 	window_info.multisamples = 4;
 	window_info.resize_callback = resize;
-	window = instance->createWindow(window_info);
+	window_info.render_callback = render;
+	window_info.update_callback = update;
+	window = engine.createWindow(window_info);
 
 	// instance settings
-	instance->culling(oe::culling_modes::back);
-	instance->swapInterval(1);
-	instance->blending();
+	engine.culling(oe::culling_modes::back);
+	engine.swapInterval(1);
+	engine.blending();
 
 	// renderer
 	oe::RendererInfo renderer_info = {};
 	renderer_info.arrayRenderType = oe::types::dynamicrender;
 	renderer_info.indexRenderType = oe::types::staticrender;
-	renderer_info.max_quad_count = 100;
+	renderer_info.max_primitive_count = entities;
 	renderer_info.staticVBOBuffer_data = nullptr;
-	renderer = window->createRenderer(renderer_info);
+	renderer = engine.createRenderer(renderer_info);
+	ecsSetup(argc, argv);
 
 	// shader
-	shader = new oe::assets::DefaultShader(window);
+	shader = new oe::assets::DefaultShader();
 
 	// sprites
-	pack = new oe::graphics::SpritePack(window);
+	pack = new oe::graphics::SpritePack();
 	sprite = pack->empty_sprite();
 	pack->construct();
 
 	// start
 	resize(window->getSize());
-	oe::utils::GameLoop::getSingleton().start(render, update, 60);
+	window->getGameloop().start(60);
 
 	// closing
 	delete pack;
 	delete shader;
-	window->destroyRenderer(renderer);
-	instance->destroyWindow(window);
+	engine.destroyRenderer(renderer);
+	engine.destroyWindow(window);
 
 	return 0;
 }
