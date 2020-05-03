@@ -4,8 +4,8 @@
 
 namespace oe::gui {
 
-	Button::Button(const ButtonInfo& _button_info)
-		: Widget(_button_info.size, _button_info.align_parent, _button_info.align_render, _button_info.offset_position)
+	Button::Button(GUI* gui_manager, const ButtonInfo& _button_info)
+		: Widget(gui_manager, _button_info.size, _button_info.align_parent, _button_info.align_render, _button_info.offset_position)
 		, button_info(_button_info)
 	{}
 

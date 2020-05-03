@@ -30,7 +30,7 @@ namespace oe::gui {
 		ColorPickerInfo color_picker_info;
 
 	public:
-		ColorPicker(const ColorPickerInfo& color_picker_info);
+		ColorPicker(GUI* gui_manager, const ColorPickerInfo& color_picker_info);
 
 		inline const glm::vec4& get() const { return color_picker_info.initial_color; }
 		inline void set(const glm::vec4& color) { color_picker_info.initial_color = color; update(); }

@@ -148,12 +148,15 @@ information on what to include when reporting a bug.
    (#1623)
  - [Cocoa] Added support for `VK_EXT_metal_surface` (#1619)
  - [Cocoa] Added locating the Vulkan loader at runtime in an application bundle
+ - [Cocoa] Moved main menu creation to GLFW initialization time (#1649)
  - [Cocoa] Removed dependency on the CoreVideo framework
  - [Cocoa] Bugfix: `glfwSetWindowSize` used a bottom-left anchor point (#1553)
  - [Cocoa] Bugfix: Window remained on screen after destruction until event poll
    (#1412)
  - [Cocoa] Bugfix: Event processing before window creation would assert (#1543)
  - [Cocoa] Bugfix: Undecorated windows could not be iconified on recent macOS
+ - [Cocoa] Bugfix: Touching event queue from secondary thread before main thread
+   would abort (#1649)
  - [X11] Bugfix: The CMake files did not check for the XInput headers (#1480)
  - [X11] Bugfix: Key names were not updated when the keyboard layout changed
    (#1462,#1528)
@@ -167,6 +170,16 @@ information on what to include when reporting a bug.
  - [X11] Bugfix: Window position events were not emitted during resizing (#1613)
  - [X11] Bugfix: `glfwFocusWindow` could terminate on older WMs or without a WM
  - [X11] Bugfix: Querying a disconnected monitor could segfault (#1602)
+ - [X11] Bugfix: IME input of CJK was broken for "C" locale (#1587,#1636)
+ - [X11] Bugfix: Termination would segfault if the IM had been destroyed
+ - [X11] Bugfix: Any IM started after initialization would not be detected
+ - [X11] Bugfix: Xlib errors caused by other parts of the application could be
+   reported as GLFW errors
+ - [X11] Bugfix: A handle race condition could cause a `BadWindow` error (#1633)
+ - [X11] Bugfix: XKB path used keysyms instead of physical locations for
+   non-printable keys (#1598)
+ - [X11] Bugfix: Function keys were mapped to `GLFW_KEY_UNKNOWN` for some layout
+   combinaitons (#1598)
  - [Wayland] Removed support for `wl_shell` (#1443)
  - [Wayland] Bugfix: The `GLFW_HAND_CURSOR` shape used the wrong image (#1432)
  - [Wayland] Bugfix: `CLOCK_MONOTONIC` was not correctly enabled
@@ -346,6 +359,7 @@ skills.
  - Matt Sealey
  - Steve Sexton
  - Arkady Shapkin
+ - Ali Sherief
  - Yoshiki Shibukawa
  - Dmitri Shuralyov
  - Daniel Skorupski

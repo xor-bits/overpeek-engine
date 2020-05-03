@@ -35,14 +35,8 @@ namespace oe::graphics {
 		glm::vec2 pointA, pointB, pointC, pointD;
 		gen_points(m_position, m_size, m_rotation_alignment, m_rotation, pointA, pointB, pointC, pointD);
 
-		glm::vec2 sprite_pos = { 0.0f, 0.0f };
-		glm::vec2 sprite_size = { 0.0f, 0.0f };
-
-		if (m_sprite) 
-		{
-			sprite_pos = m_sprite->position;
-			sprite_size = m_sprite->size;
-		}
+		glm::vec2 sprite_pos = m_sprite.position;
+		glm::vec2 sprite_size = m_sprite.size;
 
 		std::array<VertexData, 4> vertex_array = {
 			VertexData(glm::vec3(pointA, m_position.z), sprite_pos + sprite_size * glm::vec2(0.0f, 0.0f), m_color),
@@ -95,7 +89,7 @@ namespace oe::graphics {
 	
 	SubRenderer* Renderer::select_subrenderer(Quad* quad)
 	{
-		auto find_iter = m_renderers.find(quad->m_sprite->m_owner);
+		auto find_iter = m_renderers.find(quad->m_sprite.m_owner);
 		if (find_iter == m_renderers.end())
 		{
 			SubRenderer* subrenderer = new SubRenderer();
@@ -111,9 +105,10 @@ namespace oe::graphics {
 			}
 			subrenderer->m_quad_index = 0;
 			subrenderer->m_buffer_bound = false;
+			subrenderer->m_texture = quad->m_sprite.m_owner;
 
 			// create new subrenderer
-			m_renderers.insert(std::make_pair(quad->m_sprite->m_owner, subrenderer));
+			m_renderers.insert(std::make_pair(quad->m_sprite.m_owner, subrenderer));
 			return subrenderer;
 		}
 		else
@@ -157,10 +152,11 @@ namespace oe::graphics {
 		quad->m_assigned = false;
 		
 		// if last quad
-		if (quad->m_quad_index == m_quad_index)
+		if (quad->m_quad_index + 1 == m_quad_index)
 		{
 			// reduce drawn vertices
 			m_primitive_renderer->vertexCount() -= 4;
+			m_quad_index--;
 		}
 		else
 		{
@@ -190,12 +186,14 @@ namespace oe::graphics {
 		{
 			delete quad;
 		}
-		m_quads.clear();
 		
 		for (auto subrenderer : m_renderers)
 		{
 			delete subrenderer.second->m_primitive_renderer;
+			delete subrenderer.second;
 		}
+		
+		m_quads.clear();
 		m_renderers.clear();
 	}
 	
@@ -204,6 +202,8 @@ namespace oe::graphics {
 		if (!quad->m_current_subrenderer)
 		{
 			// new quad
+			quad->m_updated = false;
+			quad->m_sprite_updated = false;
 			auto new_subrenderer = select_subrenderer(quad);
 			if (new_subrenderer->m_quad_index >= m_renderer_info.max_primitive_count)
 			{
@@ -217,57 +217,49 @@ namespace oe::graphics {
 			// move quad to another subrenderer
 			quad->m_sprite_updated = false;
 			auto new_subrenderer = select_subrenderer(quad);
-			new_subrenderer->reassign_quad(quad);
+			auto old_subrenderer = quad->m_current_subrenderer;
+
+			if (old_subrenderer == new_subrenderer)
+			{
+				// modified quad vertices
+				quad->m_updated = false;
+				quad->m_current_subrenderer->modify_quad(quad);
+			}
+
+			quad->m_current_subrenderer->remove_quad(quad);
+			if (old_subrenderer->m_quad_index == 0)
+			{
+				removeSubrendererWithTexture(old_subrenderer->m_texture);
+			}
+			
+			if (new_subrenderer->m_quad_index >= m_renderer_info.max_primitive_count)
+			{
+				spdlog::error("subrenderer primitive overflow!");
+				return;
+			}
+			new_subrenderer->assign_new_quad(quad);
 		}
-		else
+		else if (quad->m_updated)
 		{
 			// modified quad vertices
+			quad->m_updated = false;
 			quad->m_current_subrenderer->modify_quad(quad);
-		}
-
-		/*
-		auto quad_index = quad->getQuadIndex();
-		auto vertex_array = quad->gen_vertices();
-
-		SubRenderer* selected_subrenderer;
-		auto find_iter = m_renderers.find(quad->m_sprite->m_owner);
-		if (find_iter == m_renderers.end())
-		{
-			SubRenderer* subrenderer = new SubRenderer();
-			switch (oe::Engine::getSingleton().engine_info.api)
-			{
-			case oe::graphics_api::OpenGL:
-				subrenderer->m_primitive_renderer = new GLPrimitiveRenderer(m_renderer_info);
-				break;
-			case oe::graphics_api::Vulkan:
-				// TODO:
-				subrenderer->m_primitive_renderer = new GLPrimitiveRenderer(m_renderer_info);
-				break;
-			}
-			subrenderer->m_quad_index = 0;
-			subrenderer->m_buffer_bound = false;
-
-			// create new subrenderer
-			m_renderers.insert(std::make_pair(quad->m_sprite->m_owner, subrenderer));
-			selected_subrenderer = subrenderer;
 		}
 		else
 		{
-			selected_subrenderer = find_iter->second;
+			// nothing has changed
 		}
-		
-		// add new quad
-		quad->m_assigned = true;
-		quad->m_current_subrenderer = selected_subrenderer;
-		selected_subrenderer->attempt_map();
-		selected_subrenderer->m_primitive_renderer->submitVertex(vertex_array.data(), vertex_array.size(), selected_subrenderer->m_quad_index * 4);
-		selected_subrenderer->m_primitive_renderer->vertexCount() += 4;
-		quad->m_quad_index = selected_subrenderer->m_quad_index;
-		selected_subrenderer->m_quad_index++;
+	}
 
-		// TODO: - just update the quad if it is in the same subrenderer
-		//       - remove the quad from the last subrenderer
-		*/
+	void Renderer::removeSubrendererWithTexture(const Texture* texture)
+	{
+		auto iter = m_renderers.find(texture);
+		if (iter != m_renderers.end())
+		{
+			delete iter->second->m_primitive_renderer;
+			delete iter->second;
+			m_renderers.erase(iter);
+		}
 	}
 
 	Quad* Renderer::createQuad()
@@ -280,88 +272,29 @@ namespace oe::graphics {
 
 	void Renderer::destroyQuad(Quad* quad)
 	{
-		auto iter = m_quads.find(quad);
+		auto old_subrenderer = quad->m_current_subrenderer;
+		if (old_subrenderer)
+		{
+			quad->m_current_subrenderer->remove_quad(quad);
+			if (old_subrenderer->m_quad_index == 0)
+			{
+				removeSubrendererWithTexture(old_subrenderer->m_texture);
+			}
+		}
+
 		m_quads.erase(quad);
 		delete quad;
 	}
 	
 	void Renderer::render()
 	{
-		// spdlog::info("subrenderer count: {}", m_renderers.size());
-		int n = 0;
+		// spdlog::debug("subrenderer count: {}", m_renderers.size());
 		for (auto subrenderer : m_renderers)
 		{
-			// spdlog::info("subrenderer_{} vertex count: {}", n, subrenderer.second->m_primitive_renderer->vertexCount());
+			// spdlog::debug("primitive count: {}", subrenderer.second->m_quad_index);
 			subrenderer.first->bind();
 			subrenderer.second->render();
-			n++;
 		}
 	}
-
-	/*
-	Renderer::Renderer(const RendererInfo& renderer_info)
-		: m_renderer_info(renderer_info)
-		, m_vertex_count(0)
-		, m_buffer_pos(0)
-	{
-	}
-
-	Renderer::~Renderer() {}
-
-	void gen_points(const glm::vec2& position, const glm::vec2& size, const glm::vec2& align, float angle, glm::vec2& pointA, glm::vec2& pointB, glm::vec2& pointC, glm::vec2& pointD) {
-		glm::vec2 alignment = alignmentOffset(size, align);
-		pointA = size * glm::vec2(0.0f, 0.0f) - alignment;
-		pointB = size * glm::vec2(0.0f, 1.0f) - alignment;
-		pointC = size * glm::vec2(1.0f, 1.0f) - alignment;
-		pointD = size * glm::vec2(1.0f, 0.0f) - alignment;
-
-		if (angle != 0.0f) { // with rotation
-			oe::utils::rotatePoint(angle, pointA);
-			oe::utils::rotatePoint(angle, pointB);
-			oe::utils::rotatePoint(angle, pointC);
-			oe::utils::rotatePoint(angle, pointD);
-		}
-
-		pointA += position;
-		pointB += position;
-		pointC += position;
-		pointD += position;
-	}
-
-	void Renderer::submitVertex(const VertexData& vertex) {
-		submitVertex(vertex, m_buffer_pos);
-		m_buffer_pos++;
-	}
-
-	void Renderer::submit(const glm::vec2& position, const glm::vec2& size, const Sprite* sprite, const glm::vec4& color, glm::vec2 align, float angle)
-	{
-		submit(glm::vec3(position, 0.0f), size, sprite, color, align, angle);
-	}
-
-	void Renderer::submit(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, glm::vec2 align, float angle)
-	{
-		submit(glm::vec3(position, 0.0f), size, color, align, angle);
-	}
-
-	void Renderer::submit(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, glm::vec2 align, float angle)
-	{
-		Sprite sprite(nullptr);
-		submit(position, size, &sprite, color, align, angle);
-	}
-
-	void Renderer::submit(const glm::vec3& position, const glm::vec2& size, const Sprite* sprite, const glm::vec4& color, glm::vec2 align, float angle)
-	{
-		if (!sprite) return;
-
-		glm::vec2 pointA, pointB, pointC, pointD;
-		gen_points(position, size, align, angle, pointA, pointB, pointC, pointD);
-
-		submitVertex(VertexData(glm::vec3(pointA, position.z), sprite->position + sprite->size * glm::vec2(0.0f, 0.0f), color), m_buffer_pos++);
-		submitVertex(VertexData(glm::vec3(pointB, position.z), sprite->position + sprite->size * glm::vec2(0.0f, 1.0f), color), m_buffer_pos++);
-		submitVertex(VertexData(glm::vec3(pointC, position.z), sprite->position + sprite->size * glm::vec2(1.0f, 1.0f), color), m_buffer_pos++);
-		submitVertex(VertexData(glm::vec3(pointD, position.z), sprite->position + sprite->size * glm::vec2(1.0f, 0.0f), color), m_buffer_pos++);
-		m_vertex_count += 4;
-	}
-	*/
 
 }

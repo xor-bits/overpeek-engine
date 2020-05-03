@@ -41,6 +41,9 @@ namespace oe {
 		void destroyTexture(graphics::Texture* texture) const { instance->destroyTexture(texture); }
 		void destroyFrameBuffer(graphics::FrameBuffer* framebuffer) const { instance->destroyFrameBuffer(framebuffer); }
 		void destroyRenderer(graphics::Renderer* renderer) const { instance->destroyRenderer(renderer); }
+		
+		void* createPrimitiveRenderer(const RendererInfo& renderer_info);
+		void destroyPrimitiveRenderer(void* renderer);
 
 		// set blending mode
 		void blending(oe::modes mode = oe::modes::enable) const { instance->blending(mode); }

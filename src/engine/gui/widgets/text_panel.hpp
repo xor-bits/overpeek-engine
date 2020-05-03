@@ -4,6 +4,7 @@
 
 
 
+namespace oe::graphics { class Quad; class TextLabel; }
 namespace oe::gui {
 
 	struct TextPanelInfo {
@@ -15,15 +16,22 @@ namespace oe::gui {
 		glm::vec2 align_render     = oe::alignments::center_center;
 	};
 
+	class GUI;
 	class TextPanel : public Widget {
+	private:
+		oe::graphics::TextLabel* label;
+		oe::graphics::Quad* quad;
+		oe::graphics::Quad* text_quad;
+
 	public:
 		TextPanelInfo text_panel_info;
 
 	public:
-		TextPanel(const TextPanelInfo& text_panel_info);
+		TextPanel(GUI* gui_manager, const TextPanelInfo& text_panel_info);
+		~TextPanel();
 
 		// Inherited via Widget
-		virtual void render(oe::graphics::Renderer& renderer) override;
+		virtual void render(float& z, oe::graphics::Renderer* renderer) override;
 	};
 
 }

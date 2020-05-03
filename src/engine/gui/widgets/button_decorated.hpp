@@ -19,6 +19,7 @@ namespace oe::gui {
 		const oe::graphics::Sprite* sprite = nullptr; // must be set
 	};
 
+	class GUI;
 	class DecoratedButton : public Widget {
 	public:
 		DecoratedButtonInfo button_info;
@@ -28,11 +29,9 @@ namespace oe::gui {
 		oe::gui::Button* button;
 
 	public:
-		DecoratedButton(const DecoratedButtonInfo& button_info);
+		DecoratedButton(GUI* gui_manager, const DecoratedButtonInfo& button_info);
 		~DecoratedButton();
-
-		// Inherited via Widget
-		virtual void render(oe::graphics::Renderer& renderer) override;
+		
 	};
 
 }

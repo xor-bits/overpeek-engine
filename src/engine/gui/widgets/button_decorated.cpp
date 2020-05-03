@@ -9,8 +9,8 @@
 
 namespace oe::gui {
 
-	DecoratedButton::DecoratedButton(const DecoratedButtonInfo& _button_info)
-		: Widget(_button_info.size, _button_info.align_parent, _button_info.align_render, _button_info.offset_position)
+	DecoratedButton::DecoratedButton(GUI* gui_manager, const DecoratedButtonInfo& _button_info)
+		: Widget(gui_manager, _button_info.size, _button_info.align_parent, _button_info.align_render, _button_info.offset_position)
 		, button_info(_button_info)
 	{
 		ButtonInfo b_info = {};
@@ -18,7 +18,7 @@ namespace oe::gui {
 		b_info.align_parent = oe::alignments::center_center;
 		b_info.align_render = oe::alignments::center_center;
 		b_info.callback = _button_info.callback;
-		button = new Button(b_info);
+		button = new Button(gui_manager, b_info);
 		addSubWidget(button);
 
 		SpritePanelInfo sp_info = {};
@@ -27,7 +27,7 @@ namespace oe::gui {
 		sp_info.align_render = oe::alignments::center_center;
 		sp_info.sprite = _button_info.sprite;
 		sp_info.color = _button_info.color;
-		button_background = new oe::gui::SpritePanel(sp_info);
+		button_background = new oe::gui::SpritePanel(gui_manager, sp_info);
 		button->addSubWidget(button_background);
 
 		TextPanelInfo tp_info = {};
@@ -35,7 +35,7 @@ namespace oe::gui {
 		tp_info.text = _button_info.text;
 		tp_info.align_parent = oe::alignments::center_center;
 		tp_info.align_render = oe::alignments::center_center;
-		button_text = new oe::gui::TextPanel(tp_info);
+		button_text = new oe::gui::TextPanel(gui_manager, tp_info);
 		button_background->addSubWidget(button_text);
 	}
 
@@ -43,10 +43,6 @@ namespace oe::gui {
 		// delete button_background;
 		// delete button_text;
 		// delete button;
-	}
-
-	void DecoratedButton::render(oe::graphics::Renderer& renderer) {
-
 	}
 
 }

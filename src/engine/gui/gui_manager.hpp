@@ -1,16 +1,5 @@
 #pragma once
 
-#include "widgets/widget.hpp"
-#include "widgets/form.hpp"
-#include "widgets/text_panel.hpp"
-#include "widgets/text_input.hpp"
-#include "widgets/button.hpp"
-#include "widgets/button_decorated.hpp"
-#include "widgets/slider.hpp"
-#include "widgets/sprite_panel.hpp"
-#include "widgets/checkbox.hpp"
-#include "widgets/color_picker.hpp"
-
 #include "engine/graphics/interface/window.hpp"
 #include "engine/graphics/interface/renderer.hpp"
 #include "engine/assets/default_shader/default_shader.hpp"
@@ -19,11 +8,12 @@
 
 namespace oe::gui {
 
+	class Widget;
+	class Form;
 	class GUI {
 	private:
 		std::unique_ptr<Form> m_main_frame;
 		oe::graphics::Renderer* m_renderer;
-		oe::graphics::Renderer* m_font_renderer;
 		oe::graphics::Window* m_window;
 		oe::assets::DefaultShader* m_shader;
 
@@ -52,6 +42,16 @@ namespace oe::gui {
 
 		// move the whole gui system
 		void offset(const glm::vec2& offset);
+
+		oe::graphics::Renderer* getRenderer()
+		{
+			return m_renderer;
+		}
+
+		oe::graphics::Window* getWindow()
+		{
+			return m_window;
+		}
 		
 	};
 

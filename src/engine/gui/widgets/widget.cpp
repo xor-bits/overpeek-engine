@@ -1,10 +1,11 @@
 #include "widget.hpp"
+#include "engine/gui/gui_manager.hpp"
 
 
 
 namespace oe::gui {
 	
-	Widget::Widget(const glm::vec2& _size, const glm::vec2& _align_parent, const glm::vec2& _align_render, const glm::vec2& _offset_position)
+	Widget::Widget(GUI* gui_manager, const glm::vec2& _size, const glm::vec2& _align_parent, const glm::vec2& _align_render, const glm::vec2& _offset_position)
 		: size(_size)
 		, align_parent(_align_parent)
 		, align_render(_align_render)
@@ -13,8 +14,8 @@ namespace oe::gui {
 		, topleft_position({ 0, 0 })
 		, m_nodes(std::vector<Widget*>()) 
 		, m_parent(nullptr)
+		, m_gui_manager(gui_manager)
 	{
-
 	}
 
 	Widget::~Widget() {
@@ -33,11 +34,13 @@ namespace oe::gui {
 		__resize();
 	}
 
-	void Widget::__render(oe::graphics::Renderer& renderer) {
-		render(renderer);
+	void Widget::__render(float& z, oe::graphics::Renderer* renderer) {
+		z += 1.0f;
+		render(z, renderer);
 
 		for (auto& w : m_nodes) {
-			w->__render(renderer);
+			z += 1.0f;
+			w->__render(z, renderer);
 		}
 	}
 

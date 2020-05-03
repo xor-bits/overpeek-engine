@@ -1,6 +1,6 @@
 add_subdirectory(rendering) # executable
 add_subdirectory(text) # executable
-add_subdirectory(gui) # executable
+add_subdirectory(guis) # executable
 add_subdirectory(entities) # executable
 add_subdirectory(networking) # executable
 

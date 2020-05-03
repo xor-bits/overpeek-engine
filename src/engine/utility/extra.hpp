@@ -27,7 +27,17 @@ namespace oe::utils {
     // rgb/hsv algorthms by
     // https://stackoverflow.com/a/6930407/12147216
 
-	extern glm::vec3 rgb_to_hsv(glm::vec3 in);
-	extern glm::vec3 hsv_to_rgb(glm::vec3 in);
+	extern glm::vec3 rgbToHSV(glm::vec3 in);
+	extern glm::vec3 hsvToRGB(glm::vec3 in);
+
+	// hex conversions
+	extern glm::ivec3 hexToRGB(unsigned long hex);
+	extern unsigned long RGBtoHex(glm::ivec3 rgb);
+	extern unsigned long stringToHex(const std::string& str);
+	extern std::string hexToString(unsigned long hex);
+
+	// string checks
+	extern bool checkChar(const std::string& text, char character, int position);
+	extern bool isNumber(const char* input);
 
 }

@@ -23,6 +23,15 @@
 
 // Gui
 #include "gui/gui_manager.hpp"
+#include "gui/widgets/widget.hpp"
+#include "gui/widgets/text_panel.hpp"
+#include "gui/widgets/text_input.hpp"
+#include "gui/widgets/button.hpp"
+#include "gui/widgets/button_decorated.hpp"
+#include "gui/widgets/slider.hpp"
+#include "gui/widgets/sprite_panel.hpp"
+#include "gui/widgets/checkbox.hpp"
+#include "gui/widgets/color_picker.hpp"
 
 // Other
 #include "engine/enum.hpp"

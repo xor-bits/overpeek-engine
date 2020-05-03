@@ -4,6 +4,7 @@
 
 
 
+namespace oe::graphics { class Quad; class TextLabel; }
 namespace oe::gui {
 
 	typedef std::function<void(float)> slider_callback;
@@ -25,7 +26,14 @@ namespace oe::gui {
 		glm::vec2 align_render                     = oe::alignments::center_center;
 	};
 
+	class GUI;
 	class Slider : public Widget {
+	private:
+		oe::graphics::TextLabel* value_label;
+		oe::graphics::Quad* label_quad;
+		oe::graphics::Quad* quad_knob;
+		oe::graphics::Quad* quad_slider;
+
 	private:
 		bool m_dragging;
 
@@ -33,10 +41,11 @@ namespace oe::gui {
 		SliderInfo slider_info;
 
 	public:
-		Slider(const SliderInfo& slider_info);
+		Slider(GUI* gui_manager, const SliderInfo& slider_info);
+		~Slider();
 
 		// Inherited via Widget
-		virtual void render(oe::graphics::Renderer& renderer) override;
+		virtual void render(float& z, oe::graphics::Renderer* renderer) override;
 		virtual void cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) override;
 	};
 

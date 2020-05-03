@@ -2,6 +2,7 @@
 
 #include "extra.hpp"
 #include <string>
+#include <sstream>
 
 
 
@@ -41,7 +42,8 @@ bool oe::utils::isInRange(int input, int min, int max) {
 int oe::utils::sign(float n) {
     return n < 0 ? -1 : 1;
 }
-glm::vec3 oe::utils::rgb_to_hsv(glm::vec3 in) {
+
+glm::vec3 oe::utils::rgbToHSV(glm::vec3 in) {
     glm::vec3   out;
     float      min, max, delta;
 
@@ -85,7 +87,7 @@ glm::vec3 oe::utils::rgb_to_hsv(glm::vec3 in) {
     return out;
 }
 
-glm::vec3 oe::utils::hsv_to_rgb(glm::vec3 in) {
+glm::vec3 oe::utils::hsvToRGB(glm::vec3 in) {
     float      hh, p, q, t, ff;
     long        i;
     glm::vec3   out;
@@ -140,4 +142,57 @@ glm::vec3 oe::utils::hsv_to_rgb(glm::vec3 in) {
         break;
     }
     return out;
+}
+
+
+glm::ivec3 oe::utils::hexToRGB(unsigned long hex)
+{
+    return glm::vec3(
+        (hex & 0xff0000) >> 16,
+        (hex & 0x00ff00) >> 8,
+        (hex & 0x0000ff) >> 0
+    );
+}
+
+unsigned long oe::utils::RGBtoHex(glm::ivec3 rgb) {
+    return rgb.x << 16 + rgb.y << 8 + rgb.z << 0;
+}
+
+bool oe::utils::checkChar(const std::string& text, char character, int position) {
+    if (position >= text.size() || position < 0) {
+        return false;
+    }
+    
+    if (text[position] == character) {
+        return true;
+    }
+
+    return false;
+}
+
+bool oe::utils::isNumber(const char* input) {
+    if (strchr(input, 'x')) return false; // no
+    if (strchr(input, 'b')) return false; // hex
+    if (strchr(input, 'o')) return false; // or oct or bin
+
+    char* p = nullptr;
+    long hex = strtol(input, &p, 16);
+    return !*p;
+}
+
+unsigned long oe::utils::stringToHex(const std::string& str)
+{
+    if (!checkChar(str, '#', 0)) return -1; // not a hexcode
+
+    std::stringstream hex_str;
+    hex_str << std::hex << str.substr(1, 6);
+    long hex = std::stol(hex_str.str().c_str(), nullptr, 16);
+    if (!isNumber(hex_str.str().c_str()) || hex < 0) return -1; // not a hexcode
+
+    return hex;
+}
+
+std::string oe::utils::hexToString(unsigned long hex)
+{
+    return fmt::format("{0:x}", hex);
 }

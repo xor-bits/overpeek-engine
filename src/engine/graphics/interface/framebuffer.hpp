@@ -16,7 +16,7 @@ namespace oe::graphics {
 
 	public:
 		FrameBuffer(const FrameBufferInfo& framebuffer_info, Window* window);
-		~FrameBuffer();
+		virtual ~FrameBuffer();
 
 		virtual void bind() = 0; // will bind corresponding texture
 

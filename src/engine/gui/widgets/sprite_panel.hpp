@@ -5,6 +5,7 @@
 
 
 
+namespace oe::graphics { class Quad; }
 namespace oe::gui {
 
 	struct SpritePanelInfo {
@@ -16,15 +17,20 @@ namespace oe::gui {
 		const oe::graphics::Sprite* sprite = nullptr; // must be set
 	};
 
+	class GUI;
 	class SpritePanel : public Widget {
+	private:
+		oe::graphics::Quad* quad;
+		
 	public:
 		SpritePanelInfo sprite_panel_info;
 
 	public:
-		SpritePanel(const SpritePanelInfo& sprite_panel_info);
+		SpritePanel(GUI* gui_manager, const SpritePanelInfo& sprite_panel_info);
+		~SpritePanel();
 
 		// Inherited via Widget
-		virtual void render(oe::graphics::Renderer& renderer) override;
+		virtual void render(float& z, oe::graphics::Renderer* renderer) override;
 	};
 
 }

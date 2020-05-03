@@ -4,6 +4,7 @@
 
 
 
+namespace oe::graphics { class Quad; class TextLabel; }
 namespace oe::gui {
 
 #define TEXT_CALLBACK_WRAPPER(x) [&](const std::string & string) { x(string); }
@@ -13,7 +14,7 @@ namespace oe::gui {
 	const static std::string filter_letters_upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	const static std::string filter_letters_lower = "abcdefghijklmnopqrstuvwxyz";
 	const static std::string filter_numbers       = "0123456789";
-	const static std::string filter_symbols       = "-_.:,;<>|^¨~'*´`?\\/()[]{}&%¤#\"!@£$§=";
+	const static std::string filter_symbols       = "-_.:,;<>|^ï¿½~'*ï¿½`?\\/()[]{}&%ï¿½#\"!@ï¿½$ï¿½=";
 
 	struct TextInputInfo {
 		textbox_callback callback_changed        = nullptr;
@@ -31,7 +32,13 @@ namespace oe::gui {
 		oe::graphics::Window* window_handle = nullptr; // must be set
 	};
 
+	class GUI;
 	class TextInput : public Widget {
+	private:
+		oe::graphics::TextLabel* label;
+		oe::graphics::Quad* quad;
+		oe::graphics::Quad* text_quad;
+
 	public:
 		TextInputInfo text_input_info;
 	
@@ -42,11 +49,11 @@ namespace oe::gui {
 
 	public:
 		// window_handle is used for clipboard
-		TextInput(const TextInputInfo& text_input_info);
+		TextInput(GUI* gui_manager, const TextInputInfo& text_input_info);
 		~TextInput();
 
 		// Inherited via Widget
-		virtual void render(oe::graphics::Renderer& renderer) override;
+		virtual void render(float& z, oe::graphics::Renderer* renderer) override;
 		virtual void text(uint32_t codepoint, oe::modifiers mods) override;
 		virtual void key(oe::keys key, oe::actions action, oe::modifiers mods) override;
 		virtual void cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) override;

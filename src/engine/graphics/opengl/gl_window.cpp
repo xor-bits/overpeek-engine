@@ -75,7 +75,10 @@ namespace oe::graphics {
 
 		// Window creation
 		GLFWwindow* share_handle = m_window_info.share_handle != nullptr ? ((GLWindow*)m_window_info.share_handle)->m_window_handle : nullptr;
+		// spdlog::debug("opening window");
+		// __debugbreak();
 		m_window_handle = glfwCreateWindow(m_window_info.size.x, m_window_info.size.y, m_window_info.title.c_str(), m_window_info.fullscreen ? glfwGetPrimaryMonitor() : NULL, share_handle);
+		// spdlog::debug("done opening window");
 		if (!m_window_handle) oe_error_terminate("Failed to create window!");
 
 		//Center the window

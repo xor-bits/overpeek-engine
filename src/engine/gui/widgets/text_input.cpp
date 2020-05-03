@@ -1,8 +1,9 @@
 #include "text_input.hpp"
 
 #include "engine/graphics/textLabel.hpp"
-#include "engine/engine.hpp"
+#include "engine/include.hpp"
 #include "engine/graphics/interface/window.hpp"
+#include "engine/gui/gui_manager.hpp"
 
 bool insertchars(std::string *obj, int i, char *chars, int n) {
 	obj->insert(i, chars, n);
@@ -49,43 +50,55 @@ namespace oe::gui {
 		timer_key_pressed = clock.getSessionMillisecond() + 1000.0f;
 	}
 	
-	TextInput::TextInput(const TextInputInfo& _text_input_info)
-		: Widget(_text_input_info.size, _text_input_info.align_parent, _text_input_info.align_render, _text_input_info.offset_position)
+	TextInput::TextInput(GUI* gui_manager, const TextInputInfo& _text_input_info)
+		: Widget(gui_manager, _text_input_info.size, _text_input_info.align_parent, _text_input_info.align_render, _text_input_info.offset_position)
 		, text_input_info(_text_input_info)
 		, m_selected(false)
 		, m_filtering(_text_input_info.filter != filter_none)
 	{
 		m_state = new STB_TexteditState();
 		static_cast<STB_TexteditState*>(m_state)->cursor = _text_input_info.text.size();
+
+		quad = m_gui_manager->getRenderer()->createQuad();
+		text_quad = m_gui_manager->getRenderer()->createQuad();
+		label = new oe::graphics::TextLabel();
 	}
 
 	TextInput::~TextInput() {
+		m_gui_manager->getRenderer()->destroyQuad(quad);
+		m_gui_manager->getRenderer()->destroyQuad(text_quad);
 		delete m_state;
+		delete label;
 	}
 
-	void TextInput::render(oe::graphics::Renderer& renderer) {
+	void TextInput::render(float& z, oe::graphics::Renderer* renderer) {
 		// bounding box
-		renderer.submit(render_position, size, text_input_info.sprite, text_input_info.color);
-
-		// text
-		glm::vec2 text_size = glm::vec2(text_input_info.font_size);
-		oe::graphics::Text::submit(renderer, "<#000000>" + text_input_info.text, render_position + oe::alignmentOffset(text_input_info.size, text_input_info.align_text), text_size, text_input_info.align_text);
+		quad->setPosition(render_position);
+		quad->setZ(z);
+		quad->setSize(size);
+		quad->setSprite(text_input_info.sprite);
+		quad->setColor(text_input_info.color);
+		quad->update();
 
 		// vertical bar
-		if (!m_selected) return;
-		float input_x_size = oe::graphics::Text::width(text_input_info.text, glm::vec2(text_input_info.font_size));
-		float input_x_bar = oe::graphics::Text::width(text_input_info.text.substr(0, reinterpret_cast<STB_TexteditState*>(m_state)->cursor), glm::vec2(text_input_info.font_size)) - input_x_size * text_input_info.align_text.x;
+		std::string bar = "";
 		auto& clock = oe::utils::Clock::getSingleton();
-		if (timer_key_pressed > clock.getSessionMillisecond()) {
-			oe::graphics::Text::submit(renderer, "<#000000>|", render_position + oe::alignmentOffset(text_input_info.size, text_input_info.align_text) + glm::vec2(input_x_bar, 0.0f), text_size, text_input_info.align_text);
-			return;
+		float time = clock.getSessionMillisecond();
+		if (timer_key_pressed > clock.getSessionMillisecond() || (int)floor(time) % 2000 > 1000)
+		{
+			bar = "|";
 		}
-		else {
-			float time = clock.getSessionMillisecond();
-			if ((int)floor(time) % 2000 > 1000)
-				oe::graphics::Text::submit(renderer, "<#000000>|", render_position + oe::alignmentOffset(text_input_info.size, text_input_info.align_text) + glm::vec2(input_x_bar, 0.0f), glm::vec2(text_input_info.font_size), text_input_info.align_text);
-			return;
-		}
+
+		// text
+		z += 1.0f;
+		glm::vec2 text_size = glm::vec2(text_input_info.font_size);
+		label->generate(fmt::format("<#000000>{}", text_input_info.text), m_gui_manager->getWindow());
+		text_quad->setPosition(render_position + oe::alignmentOffset({ text_size.x * label->getAspect(), text_size.y }, text_input_info.align_text));
+		text_quad->setZ(z);
+		text_quad->setSize({ text_size.x * label->getAspect(), text_size.y });
+		text_quad->setSprite(label->getSprite());
+		text_quad->setColor(oe::colors::white);
+		text_quad->update();
 	}
 
 	void TextInput::text(uint32_t codepoint, oe::modifiers mods) {

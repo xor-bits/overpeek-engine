@@ -22,7 +22,7 @@ namespace oe::gui {
 		ButtonInfo button_info;
 
 	public:
-		Button(const ButtonInfo& button_info);
+		Button(GUI* gui_manager, const ButtonInfo& button_info);
 
 		// Inherited via Widget
 		virtual void cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) override;

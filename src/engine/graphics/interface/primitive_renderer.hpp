@@ -50,7 +50,7 @@ namespace oe::graphics {
 			, m_buffer_pos(0)
 		{}
 
-		~BasicPrimitiveRenderer()
+		virtual ~BasicPrimitiveRenderer()
 		{}
 
 		virtual void submitVertex(const vertex_type& vertex, size_t index) = 0;

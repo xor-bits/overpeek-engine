@@ -10,40 +10,6 @@
 
 namespace oe::graphics {
 
-	glm::ivec3 hexToRGB(unsigned long hex) {
-		return glm::vec3(
-			(hex & 0xff0000) >> 16,
-			(hex & 0x00ff00) >> 8,
-			(hex & 0x0000ff) >> 0
-		);
-	}
-
-	unsigned long RGBtoHex(glm::ivec3 rgb) {
-		return rgb.x << 16 + rgb.y << 8 + rgb.z << 0;
-	}
-
-	bool checkChar(const std::string& text, char character, int position) {
-		if (position >= text.size() || position < 0) {
-			return false;
-		}
-		
-		if (text[position] == character) {
-			return true;
-		}
-
-		return false;
-	}
-
-	bool is_number(const char* input) {
-		if (strchr(input, 'x')) return false; // no
-		if (strchr(input, 'b')) return false; // hex
-		if (strchr(input, 'o')) return false; // or oct or bin
-
-		char* p = nullptr;
-		long hex = strtol(input, &p, 16);
-		return !*p;
-	}
-
 	textrenderData textTorenderData(const std::string& text) {
 		textrenderData renderData = textrenderData();
 
@@ -55,19 +21,20 @@ namespace oe::graphics {
 
 			// "blablabla<#00ff00>"
 			// check if there's upcoming colorcode
-			if (checkChar(text, '<', i) && checkChar(text, '#', i + 1) && checkChar(text, '>', i + 8)) {
-				std::stringstream hex_str;
-				hex_str << std::hex << text.substr(i + 2, 6);
-
-				long hex = std::stol(hex_str.str().c_str(), nullptr, 16);
-				if (is_number(hex_str.str().c_str()) && hex >= 0) {
-					glm::vec3 rgb = hexToRGB(hex);
+			if (oe::utils::checkChar(text, '<', i) && oe::utils::checkChar(text, '>', i + 8)) {
+				long hex = oe::utils::stringToHex(text.substr(i + 1));
+				if (hex != -1)
+				{
+					glm::vec3 rgb = oe::utils::hexToRGB(hex);
 					curColor = glm::vec4(rgb / 255.0f, 1.0f); // alpha 1.0
 
 					i += 8;
 					continue;
 				}
-				// Invalid hex code
+				else
+				{
+					// Invalid hex code
+				}
 			}
 			
 			renderData.push_back(std::pair(c, curColor));
@@ -101,30 +68,36 @@ namespace oe::graphics {
 
 	TextLabel::TextLabel(const Font* font)
 		: m_sprite(nullptr)
-	{
-		m_font = font;
-		m_framebuffer = nullptr;
-	}
+		, m_text("")
+		, m_font(font)
+		, m_framebuffer(nullptr)
+	{}
 
-	void TextLabel::generate(const std::string& text, Window* window)
+	TextLabel::TextLabel()
+		: m_sprite(nullptr)
+		, m_text("")
+		, m_font(Text::getFont())
+		, m_framebuffer(nullptr)
+	{}
+
+	void TextLabel::generate(const std::string& text, Window* window, const glm::vec4& color)
 	{
-		if (m_text == text) return; // why render the same image again?
-		regenerate(text, window);
+		if (m_text == text && initial_generated) return; // why render the same image again?
+		regenerate(text, window, color);
 	}
 	
-	void TextLabel::regenerate(const std::string& text, Window* window)
+	void TextLabel::regenerate(const std::string& text, Window* window, const glm::vec4& color)
 	{
 		m_text = text;
+		initial_generated = true;
 
 		// size of the framebuffer
 		float width = Text::width(text, glm::vec2(m_font->m_resolution), m_font);
 		glm::ivec2 fb_size = { width, m_font->m_resolution };
-		if (fb_size.x == 0 || fb_size.y == 0)
-		{
-			spdlog::error("TextLabel with framebuffer size of 0");
-			return;
-		}
+		fb_size.x = std::max(fb_size.x, 1);
+		fb_size.y = std::max(fb_size.y, 1);
 
+		if (m_framebuffer) oe::Engine::getSingleton().destroyFrameBuffer(m_framebuffer);
 		// create the framebuffer
 		oe::FrameBufferInfo fb_info = {};
 		fb_info.width = fb_size.x;
@@ -132,7 +105,7 @@ namespace oe::graphics {
 		m_framebuffer = oe::Engine::getSingleton().createFrameBuffer(fb_info, window);
 
 		m_framebuffer->bind();
-		m_framebuffer->clear({ 0.0f, 0.0f, 0.0f, 0.2f });
+		m_framebuffer->clear(color);
 
 		// render to the framebuffer
 		auto fb_renderer = getFBRenderer();
@@ -142,7 +115,7 @@ namespace oe::graphics {
 		fb_shader->setProjectionMatrix(pr_matrix);
 		fb_shader->bind();
 		fb_renderer->render();
-		fb_renderer->destroyQuads();
+		fb_renderer->clear();
 		
 		fb_shader->unbind(); // just so the user couldnt accidentally modify this shader
 

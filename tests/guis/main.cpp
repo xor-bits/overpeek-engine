@@ -11,7 +11,7 @@ oe::gui::TextPanel* textpanel;
 const oe::graphics::Sprite* sprite;
 oe::graphics::Window* window;
 oe::graphics::SpritePack* pack;
-oe::graphics::Renderer* renderer;
+oe::graphics::PrimitiveRenderer* renderer;
 oe::graphics::Font* font;
 oe::assets::DefaultShader* shader;
 
@@ -19,50 +19,52 @@ glm::vec4 color = oe::colors::orange;
 glm::vec3 rotate(0.0f, 1.0f, 0.0f);
 float speed = 0.0f;
 
+
+
 void cube() {
 	// begin submitting
 	renderer->begin();
 	renderer->clear();
-
+	
 	// front
 	renderer->submitVertex(oe::graphics::VertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f }, color));
 	renderer->submitVertex(oe::graphics::VertexData({ -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, color));
 	renderer->submitVertex(oe::graphics::VertexData({  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, color));
 	renderer->submitVertex(oe::graphics::VertexData({  1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f }, color));
-
+	
 	// back
 	renderer->submitVertex(oe::graphics::VertexData({ -1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f }, color));
 	renderer->submitVertex(oe::graphics::VertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, color));
 	renderer->submitVertex(oe::graphics::VertexData({  1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f }, color));
 	renderer->submitVertex(oe::graphics::VertexData({  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, color));
-
+	
 	// top
 	renderer->submitVertex(oe::graphics::VertexData({ -1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f }, color));
 	renderer->submitVertex(oe::graphics::VertexData({ -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, color));
 	renderer->submitVertex(oe::graphics::VertexData({  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, color));
 	renderer->submitVertex(oe::graphics::VertexData({  1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, color));
-
+	
 	// bottom
 	renderer->submitVertex(oe::graphics::VertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, color));
 	renderer->submitVertex(oe::graphics::VertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, color));
 	renderer->submitVertex(oe::graphics::VertexData({  1.0f, -1.0f,  1.0f }, { 1.0f, 1.0f }, color));
 	renderer->submitVertex(oe::graphics::VertexData({  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, color));
-
+	
 	// left
 	renderer->submitVertex(oe::graphics::VertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, color));
 	renderer->submitVertex(oe::graphics::VertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, color));
 	renderer->submitVertex(oe::graphics::VertexData({ -1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, color));
 	renderer->submitVertex(oe::graphics::VertexData({ -1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, color));
-
+	
 	// right
 	renderer->submitVertex(oe::graphics::VertexData({  1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, color));
 	renderer->submitVertex(oe::graphics::VertexData({  1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, color));
 	renderer->submitVertex(oe::graphics::VertexData({  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, color));
 	renderer->submitVertex(oe::graphics::VertexData({  1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, color));
-
+	
 	// stop submitting and render
 	static glm::mat4 ml_matrix = glm::mat4(1.0f);
-	ml_matrix = glm::rotate(ml_matrix, speed * -0.1f, rotate);
+	ml_matrix = glm::rotate(ml_matrix, speed * -0.02f * window->getGameloop().getFrametimeMS(), rotate);
 	shader->bind();
 	shader->setModelMatrix(ml_matrix);
 	oe::Engine::getSingleton().polygonMode(oe::polygon_mode::lines);
@@ -72,29 +74,19 @@ void cube() {
 }
 
 void render(float update_fraction) {
-	// clear framebuffer
-	window->clear();
-
 	// submitting
 	cube();
 
 	// gui
-	pack->bind();
 	gui->render();
-
-	// swap buffers and poll events
-	window->update();
-
-	// check if needs to close
-	if (window->shouldClose()) oe::utils::GameLoop::getSingleton().stop();
 }
 
 void resize(const glm::vec2& window_size) {
 	gui->resize();
-
+	
 	glm::mat4 pr_matrix = glm::perspectiveFov(30.0f, window_size.x, window_size.y, 0.0f, 1000.0f);
 	glm::mat4 vw_matrix = glm::lookAt(glm::vec3(0.0f, 0.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
+	
 	shader->bind();
 	shader->useTexture(false);
 	shader->setProjectionMatrix(pr_matrix);
@@ -102,7 +94,10 @@ void resize(const glm::vec2& window_size) {
 }
 
 void update() {
-	textpanel->text_panel_info.text = fmt::format("FPS: {}", oe::utils::GameLoop::getSingleton().getFPS());
+	auto& gameloop = window->getGameloop();
+	std::string frametime_text = fmt::format("frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
+	// spdlog::debug(frametime_text);
+	textpanel->text_panel_info.text = frametime_text;
 }
 
 void setup_gui() {
@@ -124,7 +119,7 @@ void setup_gui() {
 				// spdlog::info("Button hovered");
 			}
 		};
-		auto button = new oe::gui::DecoratedButton(button_info);
+		auto button = new oe::gui::DecoratedButton(gui, button_info);
 		gui->addSubWidget(button);
 	}
 	{
@@ -144,7 +139,7 @@ void setup_gui() {
 				// spdlog::info("Button hovered");
 			}
 		};
-		auto button = new oe::gui::DecoratedButton(button_info);
+		auto button = new oe::gui::DecoratedButton(gui, button_info);
 		gui->addSubWidget(button);
 	}
 	{
@@ -154,41 +149,40 @@ void setup_gui() {
 		sprite_panel_info.align_render = oe::alignments::bottom_left;
 		sprite_panel_info.offset_position = { 10, -10 };
 		sprite_panel_info.sprite = sprite;
-		auto box = new oe::gui::SpritePanel(sprite_panel_info);
+		auto box = new oe::gui::SpritePanel(gui, sprite_panel_info);
 		gui->addSubWidget(box);
 	}
-	{
-		oe::gui::TextInputInfo text_input_info = {};
-		text_input_info.size = { 200, 80 };
-		text_input_info.window_handle = window;
-		text_input_info.align_parent = oe::alignments::bottom_right;
-		text_input_info.align_render = oe::alignments::bottom_right;
-		text_input_info.font_size = 14;
-		text_input_info.sprite = pack->empty_sprite();
-		textbox = new oe::gui::TextInput(text_input_info);
-		gui->addSubWidget(textbox);
-
-		{
-			oe::gui::DecoratedButtonInfo button_info = {};
-			button_info.size = { 175, 50 };
-			button_info.offset_position = { 0, -10 };
-			button_info.align_parent = oe::alignments::top_center;
-			button_info.align_render = oe::alignments::bottom_center;
-			button_info.sprite = pack->empty_sprite();
-			button_info.text = "log";
-			button_info.callback = [](oe::mouse_buttons button, oe::actions action) {
-				if (action == oe::actions::release && button == oe::mouse_buttons::button_left) {
-					spdlog::info(textbox->text_input_info.text);
-					textbox->text_input_info.text = "";
-				}
-				else if (action == oe::actions::none || button == oe::mouse_buttons::none) {
-					// spdlog::info("Button hovered");
-				}
-			};
-			auto button = new oe::gui::DecoratedButton(button_info);
-			textbox->addSubWidget(button);
-		}
-	}
+	// {
+	// 	oe::gui::TextInputInfo text_input_info = {};
+	// 	text_input_info.size = { 200, 80 };
+	// 	text_input_info.window_handle = window;
+	// 	text_input_info.align_parent = oe::alignments::bottom_right;
+	// 	text_input_info.align_render = oe::alignments::bottom_right;
+	// 	text_input_info.font_size = 14;
+	// 	text_input_info.sprite = pack->empty_sprite();
+	// 	textbox = new oe::gui::TextInput(gui, text_input_info);
+	// 	gui->addSubWidget(textbox);
+    // 
+	// {
+	// 	oe::gui::DecoratedButtonInfo button_info = {};
+	// 	button_info.size = { 175, 50 };
+	// 	button_info.offset_position = { 0, -10 };
+	// 	button_info.align_parent = oe::alignments::top_center;
+	// 	button_info.align_render = oe::alignments::bottom_center;
+	// 	button_info.sprite = pack->empty_sprite();
+	// 	button_info.text = "log";
+	// 	button_info.callback = [](oe::mouse_buttons button, oe::actions action) {
+	// 		if (action == oe::actions::release && button == oe::mouse_buttons::button_left) {
+	// 			spdlog::info(textbox->text_input_info.text);
+	// 			textbox->text_input_info.text = "";
+	// 		}
+	// 		else if (action == oe::actions::none || button == oe::mouse_buttons::none) {
+	// 			// spdlog::info("Button hovered");
+	// 		}
+	// 	};
+	// 	auto button = new oe::gui::DecoratedButton(gui, button_info);
+	// 	textbox->addSubWidget(button);
+	// }
 	{
 		oe::gui::SliderInfo slider_info = {};
 		slider_info.slider_size = { 400, 30 };
@@ -200,8 +194,9 @@ void setup_gui() {
 		slider_info.min_value = -1.0f;
 		slider_info.max_value =  1.0f;
 		slider_info.initial_value = 0.5f;
-		slider_info.callback = [](double val) { speed = val; };
-		auto slider = new oe::gui::Slider(slider_info);
+		slider_info.callback = [](float val) { speed = val; };
+		slider_info.draw_value = true;
+		auto slider = new oe::gui::Slider(gui, slider_info);
 		gui->addSubWidget(slider);
 	}
 	{
@@ -209,8 +204,8 @@ void setup_gui() {
 		text_panel_info.font_size = 20;
 		text_panel_info.align_parent = oe::alignments::top_left;
 		text_panel_info.align_render = oe::alignments::top_left;
-		text_panel_info.text = "FPS:";
-		textpanel = new oe::gui::TextPanel(text_panel_info);
+		text_panel_info.text = "placeholder";
+		textpanel = new oe::gui::TextPanel(gui, text_panel_info);
 		gui->addSubWidget(textpanel);
 	}
 	{
@@ -220,7 +215,7 @@ void setup_gui() {
 		color_picker_info.align_render = oe::alignments::center_left;
 		color_picker_info.callback = [&](glm::vec4 value) { color = value; };
 		color_picker_info.sprite = pack->empty_sprite();
-		auto color_picker = new oe::gui::ColorPicker(color_picker_info);
+		auto color_picker = new oe::gui::ColorPicker(gui, color_picker_info);
 		gui->addSubWidget(color_picker);
 	}
 }
@@ -246,14 +241,13 @@ void keyboard(oe::keys key, oe::actions action, oe::modifiers mods) {
 	gui->key(key, action, mods);
 }
 
-int main() {
+void init()
+{
 	auto& engine = oe::Engine::getSingleton();
 
 	// engine
 	oe::EngineInfo engine_info = {};
 	engine_info.api = oe::graphics_api::OpenGL;
-	engine_info.networking = false;
-	engine_info.audio = false;
 	engine_info.debug_messages = true;
 	engine.init(engine_info);
 
@@ -266,10 +260,12 @@ int main() {
 	window_config.button_callback = button;
 	window_config.text_callback = text;
 	window_config.key_callback = keyboard;
+	window_config.render_callback = render;
+	window_config.update_callback = update;
 	window = engine.createWindow(window_config);
 
 	// instance settings
-	engine.swapInterval(1);
+	engine.swapInterval(0);
 	engine.culling(oe::culling_modes::neither);
 	engine.blending(oe::modes::enable);
 
@@ -279,13 +275,13 @@ int main() {
 	renderer_info.indexRenderType = oe::types::staticrender;
 	renderer_info.max_primitive_count = 6;
 	renderer_info.staticVBOBuffer_data = nullptr;
-	renderer = window->createRenderer(renderer_info);
+	renderer = (oe::graphics::PrimitiveRenderer*)engine.createPrimitiveRenderer(renderer_info);
 	
 	// shader
 	shader = new oe::assets::DefaultShader();
 
 	// spritepack
-	auto img = oe::utils::image_data(texture_png, oe::formats::rgba, 5, 5);
+	auto img = oe::assets::TextureSet::oe_logo_img;
 	pack = new oe::graphics::SpritePack();
 	sprite = pack->addSprite(img);
 
@@ -300,15 +296,27 @@ int main() {
 
 	// start
 	resize(window->getSize());
-	oe::utils::GameLoop::getSingleton().start(render, update, 1);
+	window->getGameloop().start(30);  // print the average frametime 30 times in a second
 
 	// cleanup
 	delete gui;
 	delete font;
 	delete pack;
 	delete shader;
-	window->destroyRenderer(renderer);
+	engine.destroyPrimitiveRenderer(renderer);
 	engine.destroyWindow(window);
+}
 
-	return 0;
+int main() {
+	try
+	{
+		init();
+		return 0;
+	}
+	catch (const std::exception& e)
+	{
+		spdlog::error(e.what());
+		assert(e.what());
+		return -1;
+	}
 }

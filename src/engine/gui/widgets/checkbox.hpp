@@ -22,7 +22,12 @@ namespace oe::gui {
 		const oe::graphics::Sprite* sprite      = nullptr; // must be set
 	};
 
+	class GUI;
 	class Checkbox : public Widget {
+	private:
+		oe::graphics::Quad* quad_check;
+		oe::graphics::Quad* quad_box; // hehe
+
 	public:
 		CheckboxInfo m_checkbox_info;
 		bool m_toggled;
@@ -31,10 +36,11 @@ namespace oe::gui {
 		void checkbox_action(oe::mouse_buttons button, oe::actions action);
 
 	public:
-		Checkbox(const CheckboxInfo& checkbox_info);
+		Checkbox(GUI* gui_manager, const CheckboxInfo& checkbox_info);
+		~Checkbox();
 
 		// Inherited via Widget
-		virtual void render(oe::graphics::Renderer& renderer) override;
+		virtual void render(float& z, oe::graphics::Renderer* renderer) override;
 	};
 
 }

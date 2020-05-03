@@ -24,18 +24,20 @@ namespace oe::graphics {
 		static oe::graphics::Renderer* getFBRenderer();
 
 		const Font* m_font;
-		FrameBuffer* m_framebuffer;
+		FrameBuffer* m_framebuffer = nullptr;
 		Sprite m_sprite;
 
 		std::string m_text;
 		float m_aspect;
+		bool initial_generated = false;
 		
 	public:
 		TextLabel(const Font* font);
+		TextLabel();
 
 		// Generate framebuffer and render text to it
-		void generate(const std::string& text, Window* window);
-		void regenerate(const std::string& text, Window* window);
+		void generate(const std::string& text, Window* window, const glm::vec4& color = oe::colors::transparent);
+		void regenerate(const std::string& text, Window* window, const glm::vec4& color = oe::colors::transparent);
 
 		inline const FrameBuffer* getFB() const { return m_framebuffer; }
 		inline const Sprite* getSprite() const { return &m_sprite; }

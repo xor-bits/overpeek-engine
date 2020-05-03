@@ -91,7 +91,7 @@ void init() {
 	window = engine.createWindow(window_info);
 	
 	// instance settings
-	engine.culling(oe::culling_modes::back);
+	engine.culling(oe::culling_modes::neither);
 	engine.swapInterval(0);
 	engine.blending();
 

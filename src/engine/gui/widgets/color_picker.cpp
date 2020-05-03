@@ -1,12 +1,13 @@
 #include "color_picker.hpp"
 
 #include "engine/engine.hpp"
+#include "slider.hpp"
 
 
 
 namespace oe::gui {
 
-	Slider* color_channel(Widget* parent, const glm::vec2& offset, const glm::vec2& size, const std::string& text, const glm::vec4& color, const oe::graphics::Sprite* sprite, std::function<void(float)> update, float initial) {
+	Slider* color_channel(Widget* parent, GUI* gui_manager, const glm::vec2& offset, const glm::vec2& size, const std::string& text, const glm::vec4& color, const oe::graphics::Sprite* sprite, std::function<void(float)> update, float initial) {
 		oe::gui::SliderInfo slider_info;
 		slider_info.slider_size = size;
 		slider_info.knob_size = { 25, size.y };
@@ -21,14 +22,14 @@ namespace oe::gui {
 		slider_info.min_value = 0.0f;
 		slider_info.max_value = 1.0f;
 		slider_info.draw_value = true;
-		auto slider = new oe::gui::Slider(slider_info);
+		auto slider = new oe::gui::Slider(gui_manager, slider_info);
 		parent->addSubWidget(slider);
 
 		return slider;
 	}
 
-	ColorPicker::ColorPicker(const ColorPickerInfo& _color_picker_info)
-		: Widget(_color_picker_info.size, _color_picker_info.align_parent, _color_picker_info.align_render, _color_picker_info.offset_position)
+	ColorPicker::ColorPicker(GUI* gui_manager, const ColorPickerInfo& _color_picker_info)
+		: Widget(gui_manager, _color_picker_info.size, _color_picker_info.align_parent, _color_picker_info.align_render, _color_picker_info.offset_position)
 		, color_picker_info(_color_picker_info)
 	{
 		if (color_picker_info.callback) color_picker_info.callback(get());
@@ -39,7 +40,7 @@ namespace oe::gui {
 		sprite_panel_info.align_render = color_picker_info.align_render;
 		sprite_panel_info.sprite = color_picker_info.sprite;
 		sprite_panel_info.color = color_picker_info.background_color;
-		auto box = new oe::gui::SpritePanel(sprite_panel_info);
+		auto box = new oe::gui::SpritePanel(gui_manager, sprite_panel_info);
 		addSubWidget(box);
 
 		SpritePanelInfo preview_panel_info;
@@ -49,16 +50,16 @@ namespace oe::gui {
 		preview_panel_info.offset_position = { -5, 5 };
 		preview_panel_info.color = color_picker_info.initial_color;
 		preview_panel_info.sprite = color_picker_info.sprite;
-		preview_panel = new SpritePanel(preview_panel_info);
+		preview_panel = new SpritePanel(gui_manager, preview_panel_info);
 		addSubWidget(preview_panel);
 
 		int slider_height = static_cast<int>((color_picker_info.size.y - 25) / 4.0f);
 		int slider_width = color_picker_info.size.x - 55;
 
-		auto red =   color_channel(this, { 5, 0 * slider_height + 5  }, { slider_width, slider_height }, "R", oe::colors::red, color_picker_info.sprite, [&](float value) { color_picker_info.initial_color.r = value; update(); }, color_picker_info.initial_color.r);
-		auto green = color_channel(this, { 5, 1 * slider_height + 10 }, { slider_width, slider_height }, "G", oe::colors::green, color_picker_info.sprite, [&](float value) { color_picker_info.initial_color.g = value; update(); }, color_picker_info.initial_color.g);
-		auto blue =  color_channel(this, { 5, 2 * slider_height + 15 }, { slider_width, slider_height }, "B", oe::colors::blue, color_picker_info.sprite, [&](float value) { color_picker_info.initial_color.b = value; update(); }, color_picker_info.initial_color.b);
-		auto alpha = color_channel(this, { 5, 3 * slider_height + 20 }, { slider_width, slider_height }, "A", oe::colors::black, color_picker_info.sprite, [&](float value) { color_picker_info.initial_color.a = value; update(); }, color_picker_info.initial_color.a);
+		auto red =   color_channel(this, gui_manager, { 5, 0 * slider_height + 5  }, { slider_width, slider_height }, "R", oe::colors::red, color_picker_info.sprite, [&](float value) { color_picker_info.initial_color.r = value; update(); }, color_picker_info.initial_color.r);
+		auto green = color_channel(this, gui_manager, { 5, 1 * slider_height + 10 }, { slider_width, slider_height }, "G", oe::colors::green, color_picker_info.sprite, [&](float value) { color_picker_info.initial_color.g = value; update(); }, color_picker_info.initial_color.g);
+		auto blue =  color_channel(this, gui_manager, { 5, 2 * slider_height + 15 }, { slider_width, slider_height }, "B", oe::colors::blue, color_picker_info.sprite, [&](float value) { color_picker_info.initial_color.b = value; update(); }, color_picker_info.initial_color.b);
+		auto alpha = color_channel(this, gui_manager, { 5, 3 * slider_height + 20 }, { slider_width, slider_height }, "A", oe::colors::black, color_picker_info.sprite, [&](float value) { color_picker_info.initial_color.a = value; update(); }, color_picker_info.initial_color.a);
 		
 	}
 

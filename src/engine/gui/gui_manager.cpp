@@ -3,8 +3,8 @@
 #include "engine/graphics/interface/window.hpp"
 #include "engine/graphics/interface/renderer.hpp"
 #include "engine/graphics/font.hpp"
-
-#include "engine/engine.hpp"
+#include "widgets/form.hpp"
+#include "engine/include.hpp"
 
 
 
@@ -20,24 +20,24 @@ namespace oe::gui {
 		oe::RendererInfo renderer_info = {};
 		renderer_info.arrayRenderType = oe::types::dynamicrender;
 		renderer_info.indexRenderType = oe::types::staticrender;
-		renderer_info.max_quad_count = 10000;
+		renderer_info.max_primitive_count = 10000;
 		renderer_info.staticVBOBuffer_data = nullptr;
-		m_renderer = m_window->createRenderer(renderer_info);
+		m_renderer = oe::Engine::getSingleton().createRenderer(renderer_info);
 
 		// shader
-		m_shader = new oe::assets::DefaultShader(m_window);
+		m_shader = new oe::assets::DefaultShader();
 
 		FormInfo form_info = {};
 		form_info.size = m_window->getSize() - glm::vec2(2 * border);
 		form_info.offset_position = { border, border };
-		auto form = new oe::gui::Form(form_info);
+		auto form = new oe::gui::Form(this, form_info);
 		m_main_frame = std::unique_ptr<Form>(form);
 		resize();
 		m_offset = { 0, 0 };
 	}
 
 	GUI::~GUI() {
-		m_window->destroyRenderer(m_renderer);
+		oe::Engine::getSingleton().destroyRenderer(m_renderer);
 		delete m_shader;
 	}
 
@@ -56,13 +56,9 @@ namespace oe::gui {
 			resize();
 		}
 
-		m_renderer->begin();
-		m_renderer->clear();
-
-		if (m_main_frame) m_main_frame->__render(*m_renderer);
-		
+		float z = 0.0f;
+		if (m_main_frame) m_main_frame->__render(z, m_renderer);
 		m_shader->bind();
-		m_renderer->end();
 		m_renderer->render();
 	}
 
@@ -85,7 +81,9 @@ namespace oe::gui {
 		    h                  h
 		*/
 
-		glm::mat4 pr_matrix = glm::ortho(0.0f, (float)window_size.x, (float)window_size.y, 0.0f);
+		glm::mat4 pr_matrix = glm::ortho(0.0f, (float)window_size.x, (float)window_size.y, 0.0f, -100000.0f, 10.0f);
+		// glm::mat4 pr_matrix = glm::perspectiveFov(60.0f, (float)window_size.x, (float)window_size.y, 0.0f, 1000.0f);
+		// pr_matrix = glm::lookAt(glm::vec3{ 0.0f, 0.0f, 50.0f }, glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, -1.0f, 0.0f}) * pr_matrix;
 		m_shader->bind();
 		m_shader->useTexture(true);
 		m_shader->setProjectionMatrix(pr_matrix);
