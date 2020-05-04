@@ -195,48 +195,52 @@ set(GLFW_INSTALL FALSE)
 set(GLFW_BUILD_DOCS FALSE)
 
 # add dependencies
+# box2d
+add_subdirectory("vendor/box2d")
+target_include_directories(${target_name} PUBLIC "vendor/box2d/include")
+target_link_libraries(${target_name} PRIVATE box2d)
 # glfw
-add_subdirectory(vendor/glfw)
-set_target_properties(glfw PROPERTIES FOLDER engine/vendor)
+add_subdirectory("vendor/glfw")
+set_target_properties(glfw PROPERTIES FOLDER "engine/vendor")
 target_include_directories(${target_name} PRIVATE ${glfw_INCLUDE_DIRS})
 target_link_libraries(${target_name} PRIVATE glfw)
 # glad
-add_subdirectory(vendor/glad)
-set_target_properties(glad PROPERTIES FOLDER engine/vendor)
+add_subdirectory("vendor/glad")
+set_target_properties(glad PROPERTIES FOLDER "engine/vendor")
 target_include_directories(${target_name} PRIVATE ${glad_INCLUDE_DIRS})
 target_link_libraries(${target_name} PRIVATE glad)
 # enet
-add_subdirectory(vendor/enet)
-set_target_properties(enet PROPERTIES FOLDER engine/vendor)
-target_include_directories(${target_name} PRIVATE vendor/enet/include)
+add_subdirectory("vendor/enet")
+set_target_properties(enet PROPERTIES FOLDER "engine/vendor")
+target_include_directories(${target_name} PRIVATE "vendor/enet/include")
 target_link_libraries(${target_name} PRIVATE enet)
 # miniz
-add_subdirectory(vendor/miniz)
-set_target_properties(miniz PROPERTIES FOLDER engine/vendor)
+add_subdirectory("vendor/miniz")
+set_target_properties(miniz PROPERTIES FOLDER "engine/vendor")
 target_include_directories(${target_name} PUBLIC ${miniz_INCLUDE_DIRS})
 target_link_libraries(${target_name} PRIVATE miniz)
 # freetype
-add_subdirectory(vendor/freetype)
-set_target_properties(freetype PROPERTIES FOLDER engine/vendor)
+add_subdirectory("vendor/freetype")
+set_target_properties(freetype PROPERTIES FOLDER "engine/vendor")
 target_include_directories(${target_name} PRIVATE ${freetype_INCLUDE_DIRS})
 target_link_libraries(${target_name} PRIVATE freetype)
 # glm
-target_include_directories(${target_name} PUBLIC vendor/glm/include)
+target_include_directories(${target_name} PUBLIC "vendor/glm/include")
 # stb
-target_include_directories(${target_name} PRIVATE vendor/stb/include)
+target_include_directories(${target_name} PRIVATE "vendor/stb/include")
 # entt
-target_include_directories(${target_name} PUBLIC vendor/entt/include)
+target_include_directories(${target_name} PUBLIC "vendor/entt/include")
 # spdlog
-target_include_directories(${target_name} PUBLIC vendor/spdlog/include)
+target_include_directories(${target_name} PUBLIC "vendor/spdlog/include")
 # minimp3
-target_include_directories(${target_name} PRIVATE vendor/minimp3/include)
+target_include_directories(${target_name} PRIVATE "vendor/minimp3/include")
 # rectpack2D
-target_include_directories(${target_name} PRIVATE vendor/rectpack2D/include)
+target_include_directories(${target_name} PRIVATE "vendor/rectpack2D/include")
 # vulkan
 if(BUILD_VULKAN)
 target_include_directories(${target_name} PRIVATE ${Vulkan_INCLUDE_DIRS})
 target_link_libraries(${target_name} PRIVATE ${Vulkan_LIBRARIES})
-add_subdirectory(vendor/shaderc/src)
+add_subdirectory("vendor/shaderc/src")
 target_link_libraries(${target_name} PRIVATE shaderc)
 set_target_properties(shaderc PROPERTIES FOLDER "engine/vendor")
 endif()

@@ -1,0 +1,39 @@
+buildType:
+  default: debug
+  choices:
+    debug:
+      short: Debug
+      long: Emit debug information
+      buildType: Debug
+    release:
+      short: Release
+      long: Optimize generated code
+      buildType: Release
+
+use_vulkan:
+  default: 'no'
+  choices:
+    'yes':
+      short: OpenGL + Vulkan
+      long: OpenGL + Vulkan rendering
+      settings:
+        BUILD_VULKAN: yes
+    'no':
+      short: OpenGL
+      long: OpenGL rendering
+      settings:
+        BUILD_VULKAN: no
+
+tests:
+  default: 'no'
+  choices:
+    'yes':
+      short: Tests
+      long: Building engine test projects
+      settings:
+        BUILD_TESTS: yes
+    'no':
+      short: No Tests
+      long: Not building engine test projects
+      settings:
+        BUILD_TESTS: no

@@ -253,7 +253,7 @@ void init()
 
 	// window
 	oe::WindowInfo window_config = {};
-	window_config.title = "Test 3 - GUIs";
+	window_config.title = "GUIs";
 	window_config.multisamples = 4;
 	window_config.cursor_callback = cursor_pos;
 	window_config.resize_callback = resize;

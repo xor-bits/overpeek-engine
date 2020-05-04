@@ -60,13 +60,13 @@ namespace oe::gui {
 		static_cast<STB_TexteditState*>(m_state)->cursor = _text_input_info.text.size();
 
 		quad = m_gui_manager->getRenderer()->createQuad();
-		text_quad = m_gui_manager->getRenderer()->createQuad();
+		text_quad = m_gui_manager->getLateRenderer()->createQuad();
 		label = new oe::graphics::TextLabel();
 	}
 
 	TextInput::~TextInput() {
 		m_gui_manager->getRenderer()->destroyQuad(quad);
-		m_gui_manager->getRenderer()->destroyQuad(text_quad);
+		m_gui_manager->getLateRenderer()->destroyQuad(text_quad);
 		delete m_state;
 		delete label;
 	}

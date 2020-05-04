@@ -11,6 +11,7 @@
 #include <miniz.h>
 
 #include <entt/entt.hpp>
+#include <box2d/box2d.h>
 
 #ifdef BUILD_VULKAN
 #include <shaderc/shaderc.hpp>

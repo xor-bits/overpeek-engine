@@ -14,8 +14,7 @@ namespace oe::graphics {
 	class Window; class Renderer; struct SubRenderer;
 
 
-	class Quad {
-	private:
+	struct Quad {
 		glm::vec3 m_position = { 0.0f, 0.0f, 0.0f };
 		glm::vec2 m_size = { 0.0f, 0.0f };
 		glm::vec2 m_rotation_alignment = { 0.0f, 0.0f };
@@ -38,11 +37,9 @@ namespace oe::graphics {
 		size_t getQuadIndex() const {
 			return m_quad_index;
 		}
+		
 
-		friend class Renderer;
-		friend struct SubRenderer;
-
-	public:
+		
 		void setPosition(const glm::vec3& position) { if (m_position != position) { m_updated = true; } m_position = position; }
 		void setPosition(const glm::vec2& position) { if (m_position != glm::vec3(position, 0.0f)) { m_updated = true; } m_position = glm::vec3(position, 0.0f); }
 		void setX(float x) { if (m_position.x != x) { m_updated = true; } m_position.x = x; }
@@ -55,10 +52,11 @@ namespace oe::graphics {
 
 		void setRotationAlignment(const glm::vec2& align) { if (m_rotation_alignment != align) { m_updated = true; } m_rotation_alignment = align; }
 		const glm::vec2& getRotationAlignment() const { return m_rotation_alignment; }
-		void setColor(const glm::vec4& color) { if (m_color != color) { m_updated = true; } m_color = color; }
 
+		void setColor(const glm::vec4& color) { if (m_color != color) { m_updated = true; } m_color = color; }
 		const glm::vec4& getColor() const { return m_color; }
 
+		void expandSprite() { m_updated = true; m_sprite.position = { 0.0f, 0.0f }; m_sprite.size = { 1.0f, 1.0f }; }
 		void setSprite(const Sprite sprite) { if (m_sprite.m_owner != sprite.m_owner) { m_sprite_updated = true; } m_sprite = sprite; }
 		void setSprite(const Sprite* sprite) { setSprite(*sprite); }
 		const Sprite* getSprite() const { return &m_sprite; }

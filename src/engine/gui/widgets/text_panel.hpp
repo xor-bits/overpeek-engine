@@ -20,7 +20,6 @@ namespace oe::gui {
 	class TextPanel : public Widget {
 	private:
 		oe::graphics::TextLabel* label;
-		oe::graphics::Quad* quad;
 		oe::graphics::Quad* text_quad;
 
 	public:

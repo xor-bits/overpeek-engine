@@ -139,7 +139,7 @@ namespace oe::graphics {
 		
 		int location = shader->getUniformLocation(name); 
 		if (location == -1)
-			oe_error_terminate("uniform {} was not found", name);
+			spdlog::warn("uniform {} was not found", name);
 
 		return location;
 	}

@@ -292,7 +292,7 @@ namespace oe::graphics {
 		for (auto subrenderer : m_renderers)
 		{
 			// spdlog::debug("primitive count: {}", subrenderer.second->m_quad_index);
-			subrenderer.first->bind();
+			if (subrenderer.first) subrenderer.first->bind();
 			subrenderer.second->render();
 		}
 	}

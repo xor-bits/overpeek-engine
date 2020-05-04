@@ -81,7 +81,7 @@ void init() {
 
 	// window
 	oe::WindowInfo window_info;
-	window_info.title = "Test 1 - Renderer";
+	window_info.title = "Renderer";
 	window_info.multisamples = 4;
 	window_info.resize_callback = resize;
 	window_info.key_callback = keyboard;

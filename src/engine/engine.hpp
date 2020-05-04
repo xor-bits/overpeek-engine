@@ -12,6 +12,7 @@ namespace oe {
 	public:
 		EngineInfo engine_info;
 		oe::graphics::Instance* instance;
+		depth_functions current_depth;
 
 	private:
 		static Engine* singleton;
@@ -49,7 +50,8 @@ namespace oe {
 		void blending(oe::modes mode = oe::modes::enable) const { instance->blending(mode); }
 
 		// set depth function or disable it
-		void depth(depth_functions func = depth_functions::always) const { instance->depth(func); }
+		void depth(depth_functions func = depth_functions::always) { current_depth = func; instance->depth(func); }
+		depth_functions getDepth() const { return current_depth; }
 
 		// also known as vertical sync
 		void swapInterval(unsigned int interval = 0) const { instance->swapInterval(interval); }

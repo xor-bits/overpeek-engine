@@ -23,6 +23,7 @@ namespace oe::gui {
 		renderer_info.max_primitive_count = 10000;
 		renderer_info.staticVBOBuffer_data = nullptr;
 		m_renderer = oe::Engine::getSingleton().createRenderer(renderer_info);
+		m_late_renderer = oe::Engine::getSingleton().createRenderer(renderer_info);
 
 		// shader
 		m_shader = new oe::assets::DefaultShader();
@@ -46,7 +47,7 @@ namespace oe::gui {
 
 		glm::mat4 ml_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(offset, 0.0f));
 		m_shader->bind();
-		m_shader->setProjectionMatrix(ml_matrix);
+		m_shader->setModelMatrix(ml_matrix);
 	}
 
 	void GUI::render() {
@@ -56,10 +57,17 @@ namespace oe::gui {
 			resize();
 		}
 
+		auto& engine = oe::Engine::getSingleton();
+		auto old_depth = engine.getDepth();
+		engine.depth(oe::depth_functions::always);
+
 		float z = 0.0f;
 		if (m_main_frame) m_main_frame->__render(z, m_renderer);
 		m_shader->bind();
 		m_renderer->render();
+		m_late_renderer->render();
+		
+		engine.depth(old_depth);
 	}
 
 	void GUI::resize() {

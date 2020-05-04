@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
 
 	// window
 	oe::WindowInfo window_info;
-	window_info.title = "Test 2 - Colored Text";
+	window_info.title = "Colored Text";
 	window_info.multisamples = 4;
 	window_info.resize_callback = resize;
 	window_info.update_callback = update;

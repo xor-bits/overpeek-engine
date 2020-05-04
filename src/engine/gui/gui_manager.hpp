@@ -14,6 +14,7 @@ namespace oe::gui {
 	private:
 		std::unique_ptr<Form> m_main_frame;
 		oe::graphics::Renderer* m_renderer;
+		oe::graphics::Renderer* m_late_renderer;
 		oe::graphics::Window* m_window;
 		oe::assets::DefaultShader* m_shader;
 
@@ -46,6 +47,11 @@ namespace oe::gui {
 		oe::graphics::Renderer* getRenderer()
 		{
 			return m_renderer;
+		}
+
+		oe::graphics::Renderer* getLateRenderer()
+		{
+			return m_late_renderer;
 		}
 
 		oe::graphics::Window* getWindow()

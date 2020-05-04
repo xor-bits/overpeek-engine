@@ -12,13 +12,11 @@ namespace oe::gui {
 		, text_panel_info(_text_panel_info)
 	{
 		label = new oe::graphics::TextLabel();
-		quad = m_gui_manager->getRenderer()->createQuad();
-		text_quad = m_gui_manager->getRenderer()->createQuad();
+		text_quad = m_gui_manager->getLateRenderer()->createQuad();
 	}
 
 	TextPanel::~TextPanel()
 	{
-		m_gui_manager->getRenderer()->destroyQuad(quad);
 		m_gui_manager->getRenderer()->destroyQuad(text_quad);
 		delete label;
 	}
