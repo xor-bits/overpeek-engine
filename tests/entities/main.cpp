@@ -75,10 +75,9 @@ b2RevoluteJoint* joint(b2Body* a, b2Body* b)
 	b2RevoluteJointDef jointDef = {};
 	jointDef.bodyA = a;
 	jointDef.bodyB = b;
-	jointDef.localAnchorA = a->GetLocalCenter();
 	jointDef.enableMotor = true;
 	jointDef.motorSpeed = 3.0f;
-	jointDef.maxMotorTorque = 1000000.0f;
+	jointDef.maxMotorTorque = 1e50;
 	
 	return static_cast<b2RevoluteJoint*>(box2d_world.CreateJoint(&jointDef));
 }

@@ -276,10 +276,6 @@ namespace oe::graphics {
 		if (old_subrenderer)
 		{
 			quad->m_current_subrenderer->remove_quad(quad);
-			if (old_subrenderer->m_quad_index == 0)
-			{
-				removeSubrendererWithTexture(old_subrenderer->m_texture);
-			}
 		}
 
 		m_quads.erase(quad);

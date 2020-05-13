@@ -140,17 +140,33 @@ namespace oe::utils { // just to make the code look prettier
 	}
 
 
+	bool FileIO::fileExists(fs::path path)
+	{
+		return fs::exists(path);
+	}
 
-	void FileIO::loadString(std::string& string, fs::path path)
+	void FileIO::readString(std::string& string, fs::path path)
 	{
 		std::ifstream input_file_stream = std::ifstream(path);
 		if (!input_file_stream.is_open()) {
-			oe_error_terminate("Failed to load imagefile \"{}\"", std::string(path.string().c_str()));
+			oe_error_terminate("Failed to open file \"{}\"", std::string(path.string().c_str()));
 		}
 
 		std::stringstream buffer;
 		buffer << input_file_stream.rdbuf();
+		input_file_stream.close();
 		string = buffer.str();
+	}
+		
+	void FileIO::writeString(const std::string& string, fs::path path)
+	{
+		std::ofstream output_file_stream = std::ofstream(path);
+		if (!output_file_stream.is_open()) {
+			oe_error_terminate("Failed to open file \"{}\"", std::string(path.string().c_str()));
+		}
+
+		output_file_stream << string;
+		output_file_stream.close();
 	}
 
 	void FileIO::saveImage(fs::path path, const image_data& image)

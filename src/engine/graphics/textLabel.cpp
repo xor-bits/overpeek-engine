@@ -126,7 +126,7 @@ namespace oe::graphics {
 		m_sprite = Sprite(m_framebuffer->getTexture());
 		m_sprite.position = { 0.0f, 1.0f };
 		m_sprite.size = { 1.0f, -1.0f };
-		m_aspect = fb_size.x / fb_size.y;
+		m_aspect = width / m_font->m_resolution;
 	}
 	
 

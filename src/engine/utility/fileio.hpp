@@ -61,6 +61,8 @@ namespace oe::utils {
 		}
 
 	public:
+		bool fileExists(fs::path path);
+
 		// save image to file
 		void saveImage(fs::path path, const image_data& image);
 
@@ -72,7 +74,8 @@ namespace oe::utils {
 		audio_data loadAudio(fs::path path);
 
 		// read contents of a file to string
-		void loadString(std::string& string, fs::path path);
+		void readString(std::string& string, fs::path path);
+		void writeString(const std::string& string, fs::path path);
 
 		// data size is count of T elements to write
 		template<class T> static void write(std::string name, const T* data, size_t data_size) {
