@@ -57,7 +57,7 @@ namespace oe::gui {
 			value_label->generate(fmt::format("{:.2f}", slider_info.initial_value), m_gui_manager->getWindow());
 			label_quad->setPosition(render_position + size * 0.5f);
 			label_quad->setZ(z);
-			label_quad->setSize({ text_size.x * value_label->getAspect(), text_size.y });
+			label_quad->setSize(text_size * value_label->getSize());
 			label_quad->setSprite(value_label->getSprite());
 			label_quad->setColor(oe::colors::white);
 			label_quad->setRotationAlignment(oe::alignments::center_center);

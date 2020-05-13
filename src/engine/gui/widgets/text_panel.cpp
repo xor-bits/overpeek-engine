@@ -23,14 +23,16 @@ namespace oe::gui {
 
 	void TextPanel::render(float& z, oe::graphics::Renderer* renderer) {
 		glm::vec2 text_size = glm::vec2(static_cast<float>(text_panel_info.font_size));
-		label->generate(text_panel_info.text, m_gui_manager->getWindow());
+		label->generate(text_panel_info.text, m_gui_manager->getWindow(), text_panel_info.background_color);
+		size = text_size * label->getSize();
 		text_quad->setPosition(render_position + oe::alignmentOffset(size, align_render));
 		text_quad->setZ(z);
-		text_quad->setSize({ text_size.x * label->getAspect(), text_size.y });
+		text_quad->setSize(size);
 		text_quad->setSprite(label->getSprite());
 		text_quad->setColor(oe::colors::white);
 		text_quad->setRotationAlignment(align_render);
 		text_quad->update();
+
 	}
 
 }

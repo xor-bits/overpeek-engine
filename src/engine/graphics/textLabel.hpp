@@ -28,7 +28,7 @@ namespace oe::graphics {
 		Sprite m_sprite;
 
 		std::string m_text;
-		float m_aspect;
+		glm::vec2 m_size;
 		bool initial_generated = false;
 		
 	public:
@@ -41,7 +41,7 @@ namespace oe::graphics {
 
 		inline const FrameBuffer* getFB() const { return m_framebuffer; }
 		inline const Sprite* getSprite() const { return &m_sprite; }
-		inline float getAspect() const { return m_aspect; }
+		inline glm::vec2 getSize() const { return m_size; }
 		inline std::string getText() const { return m_text; }
 
 	};
@@ -51,7 +51,7 @@ namespace oe::graphics {
 		static const Font* s_font;
 
 	public:
-		static float width(const std::string& text, const glm::vec2& size, const Font* font = nullptr);
+		static glm::vec2 size(const std::string& text, const glm::vec2& size, const Font* font = nullptr);
 		static void setFont(const Font& font);
 		static const Font* getFont();
 		static void submit(Renderer* renderer, const std::string& text, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align = alignments::top_left, const glm::vec4& bg_color = glm::vec4(0.0f), const Font* font = nullptr);

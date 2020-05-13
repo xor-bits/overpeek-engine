@@ -73,9 +73,9 @@ namespace oe::gui {
 
 	void TextInput::render(float& z, oe::graphics::Renderer* renderer) {
 		// bounding box
-		quad->setPosition(render_position);
+		quad->setPosition(render_position - text_input_info.padding);
 		quad->setZ(z);
-		quad->setSize(size);
+		quad->setSize(size + text_input_info.padding * 2.0f);
 		quad->setSprite(text_input_info.sprite);
 		quad->setColor(text_input_info.color);
 		quad->update();
@@ -84,7 +84,7 @@ namespace oe::gui {
 		std::string bar = "";
 		auto& clock = oe::utils::Clock::getSingleton();
 		float time = clock.getSessionMillisecond();
-		if (timer_key_pressed > clock.getSessionMillisecond() || (int)floor(time) % 2000 > 1000)
+		if (m_selected && (timer_key_pressed > clock.getSessionMillisecond() || (int)floor(time) % 2000 > 1000))
 		{
 			bar = "|";
 		}
@@ -92,10 +92,11 @@ namespace oe::gui {
 		// text
 		z += 1.0f;
 		glm::vec2 text_size = glm::vec2(text_input_info.font_size);
-		label->generate(fmt::format("<#000000>{}", text_input_info.text), m_gui_manager->getWindow());
-		text_quad->setPosition(render_position + oe::alignmentOffset({ text_size.x * label->getAspect(), text_size.y }, text_input_info.align_text));
+		// label->generate(fmt::format("<#000000>{}", text_input_info.text), m_gui_manager->getWindow(), oe::colors::pink);
+		label->generate(fmt::format("<#000000>{}{}", text_input_info.text, bar), m_gui_manager->getWindow());
+		text_quad->setPosition(render_position + oe::alignmentOffset(size, text_input_info.align_text) - oe::alignmentOffset(text_size * label->getSize(), text_input_info.align_text));
 		text_quad->setZ(z);
-		text_quad->setSize({ text_size.x * label->getAspect(), text_size.y });
+		text_quad->setSize(text_size * label->getSize());
 		text_quad->setSprite(label->getSprite());
 		text_quad->setColor(oe::colors::white);
 		text_quad->update();
@@ -122,8 +123,15 @@ namespace oe::gui {
 				cursor_window.x < render_position.x + size.x &&
 				cursor_window.y >= render_position.y &&
 				cursor_window.y < render_position.y + size.y
-			/*if (*/ ) m_selected = true;
-			else m_selected = false;
+			/*if (*/ )
+			{
+				m_selected = true;
+				resetTimer();
+			}
+			else
+			{
+				m_selected = false;
+			}
 		}
 	}
 

@@ -92,16 +92,15 @@ namespace oe::graphics {
 		initial_generated = true;
 
 		// size of the framebuffer
-		float width = Text::width(text, glm::vec2(m_font->m_resolution), m_font);
-		glm::ivec2 fb_size = { width, m_font->m_resolution };
-		fb_size.x = std::max(fb_size.x, 1);
-		fb_size.y = std::max(fb_size.y, 1);
+		m_size = Text::size(text, glm::vec2(m_font->m_resolution), m_font);
+		m_size.x = std::max(m_size.x, 1.0f);
+		m_size.y = std::max(m_size.y, 1.0f);
 
 		if (m_framebuffer) oe::Engine::getSingleton().destroyFrameBuffer(m_framebuffer);
 		// create the framebuffer
 		oe::FrameBufferInfo fb_info = {};
-		fb_info.width = fb_size.x;
-		fb_info.height = fb_size.y;
+		fb_info.width = m_size.x;
+		fb_info.height = m_size.y;
 		m_framebuffer = oe::Engine::getSingleton().createFrameBuffer(fb_info, window);
 
 		m_framebuffer->bind();
@@ -111,7 +110,7 @@ namespace oe::graphics {
 		auto fb_renderer = getFBRenderer();
 		auto fb_shader = getFBShader();
 		Text::submit(fb_renderer, text, { 0.0f, 0.0f }, m_font->m_resolution, alignments::top_left, glm::vec4(1.0f), m_font);
-		glm::mat4 pr_matrix = glm::ortho(0.0f, (float)fb_size.x, (float)fb_size.y, 0.0f);
+		glm::mat4 pr_matrix = glm::ortho(0.0f, m_size.x, m_size.y, 0.0f);
 		fb_shader->setProjectionMatrix(pr_matrix);
 		fb_shader->bind();
 		fb_renderer->render();
@@ -126,46 +125,69 @@ namespace oe::graphics {
 		m_sprite = Sprite(m_framebuffer->getTexture());
 		m_sprite.position = { 0.0f, 1.0f };
 		m_sprite.size = { 1.0f, -1.0f };
-		m_aspect = width / m_font->m_resolution;
+		m_size /= m_font->m_resolution;
 	}
 	
 
 
 	const Font* Text::s_font;
 
-	void Text::setFont(const Font& font) {
+	void Text::setFont(const Font& font)
+	{
 		s_font = &font;
 	}
 
-	const Font* Text::getFont() {
+	const Font* Text::getFont()
+	{
 		return s_font;
 	}
 
-	float calculate_final_size(const textrenderData& renderData, const glm::vec2& size, const Font* font) {
-		float first = 0.0f;
-		float last = 0.0f;
+	bool index_to_char(size_t i, unsigned char& c, oe::graphics::Font::Glyph const *& glyph, const textrenderData& renderData, glm::vec2& advance, const glm::vec2& size, const Font* font)
+	{
+		c = renderData.at(i).first;
+		glyph = font->getGlyph(c);
+		if (!glyph) glyph = font->getGlyph(0);
+
+		if(c == '\n') // new line
+		{
+			advance.x = 0.0f;
+			advance.y += size.y;
+			return true;
+		}
+		if(c == '\t') // tab
+		{
+			advance.x = std::ceil(advance.x / size.x) * size.x;
+			return true;
+		}
+		return false;
+	}
+
+	glm::vec2 calculate_final_size(const textrenderData& renderData, const glm::vec2& size, const Font* font)
+	{
+		float left(0.0f);
+		float right(0.0f);
 
 		glm::vec2 advance = { 0.0f, 0.0f };
+		const oe::graphics::Font::Glyph* glyph;
 		for (size_t i = 0; i < renderData.size(); i++) {
-			unsigned char c = renderData.at(i).first;
-			auto glyph = font->getGlyph(c);
-			if (!glyph) glyph = font->getGlyph(0);
+			unsigned char c;
+			if (index_to_char(i, c, glyph, renderData, advance, size, font))
+			{
+				continue;
+			}
 
-			// first
-			if (i == 0) {
-				first = advance.x + glyph->top_left.x * size.x;
-			}
-			if (i == renderData.size() - 1) {
-				last = advance.x + glyph->top_left.x * size.x + glyph->size.x * size.x;
-			}
+			const glm::vec2 glyph_top_left = advance + glyph->top_left * size;
+			left = std::min(left, glyph_top_left.x);
+			right = std::max(right, glyph_top_left.x + glyph->size.x * size.x);
 
 			advance += glm::vec2(glyph->advance.x, 0.0f) * size;
 		}
 
-		return last - first;
+		return { right - left, advance.y + size.y };
 	}
 
-	float Text::width(const std::string& text, const glm::vec2& size, const Font* font) {
+	glm::vec2 Text::size(const std::string& text, const glm::vec2& size, const Font* font)
+	{
 		if (!font) font = s_font;
 		if (!font) oe_error_terminate("No font!");
 
@@ -173,27 +195,30 @@ namespace oe::graphics {
 		return calculate_final_size(renderData, size, font);
 	}
 
-	void Text::submit(Renderer* renderer, const std::string& text, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align, const glm::vec4& bg_color, const Font* font) {
+	void Text::submit(Renderer* renderer, const std::string& text, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align, const glm::vec4& bg_color, const Font* font)
+	{
 		if (!font) font = s_font;
 		if (!font) oe_error_terminate("No font!");
 
 		textrenderData renderData = textTorenderData(text);
 		float line = font->bb_max_height * size.y;
-		float final_size = calculate_final_size(renderData, size, font);
+		const glm::vec2 final_size = calculate_final_size(renderData, size, font);
 		
 		// get width
-		glm::vec2 advance = alignmentOffset({ -final_size, -size.y }, align);
-		for (pairData& pd : renderData) {
-			unsigned char i = pd.first;
-			auto glyph = font->getGlyph(i);
-			if (!glyph) glyph = font->getGlyph(0);
-			auto sprite = glyph->sprite;
+		glm::vec2 advance = alignmentOffset(-final_size, align);
+		const oe::graphics::Font::Glyph* glyph;
+		for (size_t i = 0; i < renderData.size(); i++) {
+			unsigned char c;
+			if (index_to_char(i, c, glyph, renderData, advance, size, font))
+			{
+				continue;
+			}
 
 			auto quad = renderer->createQuad();
 			quad->setPosition(pos + advance + glyph->top_left * size + glm::vec2{ 0.0, line });
 			quad->setSize(glyph->size * size);
-			quad->setSprite(sprite);
-			quad->setColor(pd.second);
+			quad->setSprite(glyph->sprite);
+			quad->setColor(renderData[i].second);
 			quad->update();
 			advance += glm::vec2(glyph->advance.x, 0.0f) * size;
 		}

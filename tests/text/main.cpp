@@ -19,7 +19,7 @@ void render(float update_fraction)
 
 void update() {
 	auto& gameloop = window->getGameloop();
-	spdlog::info("frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
+	// spdlog::debug("frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
 }
 
 void resize(const glm::vec2& window_size) {
@@ -71,12 +71,22 @@ int main(int argc, char** argv) {
 	
 	// submitting
 	label = new oe::graphics::TextLabel(font);
-	label->generate("<#1020ff>The quick brown fox <#ff2020>jumps <#ffffff>over the lazy dog.", window);
+	// label->generate("<#1020ff>The quick brown fox <#ff2020>jumps <#ffffff>over the lazy dog.", window);
+	label->generate("The quick brown fox", window, oe::colors::pink);
 	auto quad = renderer->createQuad();
-	quad->setPosition({ -1.0f, 0.0f });
-	quad->setSize({ 0.1f * label->getAspect(), 0.1f, });
-	quad->setColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+	quad->setPosition({ label->getSize().x * -0.05, 0.25f });
+	quad->setSize(label->getSize() * 0.1f);
+	quad->setColor(oe::colors::white);
 	quad->setSprite(label->getSprite());
+	quad->update();
+	spdlog::info(label->getSize());
+	
+	oe::graphics::Sprite sprite(pack->getTexture());
+	quad = renderer->createQuad();
+	quad->setPosition({ -0.5f, -1.0f });
+	quad->setSize({ 1.0f, 1.0f });
+	quad->setColor(oe::colors::white);
+	quad->setSprite(sprite);
 	quad->update();
 	
 	// blue: <#0000ff>

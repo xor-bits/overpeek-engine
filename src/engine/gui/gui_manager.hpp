@@ -19,6 +19,7 @@ namespace oe::gui {
 		oe::assets::DefaultShader* m_shader;
 
 		glm::vec2 m_offset;
+		glm::vec2 m_old_window_size;
 
 	public:
 		GUI(oe::graphics::Window* window);

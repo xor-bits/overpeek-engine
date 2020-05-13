@@ -35,6 +35,7 @@ namespace oe::gui {
 		m_main_frame = std::unique_ptr<Form>(form);
 		resize();
 		m_offset = { 0, 0 };
+		m_old_window_size = { 0, 0 };
 	}
 
 	GUI::~GUI() {
@@ -51,11 +52,7 @@ namespace oe::gui {
 	}
 
 	void GUI::render() {
-		static int cooldown = 0;
-		if ((++cooldown) % 60 == 0) {
-			cooldown = 0;
-			resize();
-		}
+		resize();
 
 		auto& engine = oe::Engine::getSingleton();
 		auto old_depth = engine.getDepth();
@@ -89,12 +86,14 @@ namespace oe::gui {
 		    h                  h
 		*/
 
+		if (m_old_window_size == window_size) return;
 		glm::mat4 pr_matrix = glm::ortho(0.0f, (float)window_size.x, (float)window_size.y, 0.0f, -100000.0f, 10.0f);
 		// glm::mat4 pr_matrix = glm::perspectiveFov(60.0f, (float)window_size.x, (float)window_size.y, 0.0f, 1000.0f);
 		// pr_matrix = glm::lookAt(glm::vec3{ 0.0f, 0.0f, 50.0f }, glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, -1.0f, 0.0f}) * pr_matrix;
 		m_shader->bind();
 		m_shader->useTexture(true);
 		m_shader->setProjectionMatrix(pr_matrix);
+		m_old_window_size = window_size;
 	}
 
 	void GUI::addSubWidget(Widget* widget) {

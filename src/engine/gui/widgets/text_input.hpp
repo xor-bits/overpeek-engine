@@ -20,6 +20,7 @@ namespace oe::gui {
 		textbox_callback callback_changed        = nullptr;
 		textbox_callback callback_newline        = nullptr;
 		glm::ivec2 size                       = { 100, 100 };
+		glm::vec2 padding                     = { 3, 3 };
 		glm::vec2 offset_position             = { 0, 0 };
 		glm::vec2 align_parent                = oe::alignments::center_center;
 		glm::vec2 align_render                = oe::alignments::center_center;
