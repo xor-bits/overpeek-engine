@@ -34,6 +34,10 @@ namespace oe::utils {
 		float m_cached_average_updatetime;
 		size_t m_total_frame_count;
 		size_t m_total_update_count;
+		size_t m_periodical_frame_count = 0;
+		size_t m_periodical_update_count = 0;
+		size_t m_fps = 0;
+		size_t m_ups = 0;
 
 		// frame and update balancing
 		size_t m_update_start = 0;
@@ -53,11 +57,15 @@ namespace oe::utils {
 		void stop();
 
 	public:
-		inline uint32_t getAverageFPS() { 
-			return (m_cached_average_frametime != 0) ? static_cast<uint32_t>(1000000.0f / m_cached_average_frametime) : 0;
+		inline uint32_t getAverageFPS()
+		{
+			return m_fps;
+			// return (m_cached_average_frametime != 0) ? static_cast<uint32_t>(1000000.0f / m_cached_average_frametime) : 0;
 		}
-		inline uint32_t getAverageUPS() { 
-			return (m_cached_average_updatetime != 0) ? static_cast<uint32_t>(1000000.0f / m_cached_average_updatetime) : 0;
+		inline uint32_t getAverageUPS()
+		{ 
+			return m_ups;
+			// return (m_cached_average_updatetime != 0) ? static_cast<uint32_t>(1000000.0f / m_cached_average_updatetime) : 0;
 		}
 
 		// frametime in microseconds

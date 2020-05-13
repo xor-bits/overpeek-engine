@@ -30,6 +30,8 @@ namespace oe::utils {
 		m_update_previous = current;
 		m_update_lag += elapsed;
 
+		size_t frame_counter_start = clock.getSessionMillisecond();
+
 		//Updates
 		while (m_update_lag >= m_ups_cap) {
 			// start profiling the update
@@ -42,6 +44,7 @@ namespace oe::utils {
 			// time used on the update
 			size_t update_time = clock.getMicroseconds() - timeupdate;
 			m_total_update_count++;
+			m_periodical_update_count++;
 			m_average_updatetime[m_total_update_count % mc_average_size] = update_time;
 			
 			m_cached_average_updatetime = 0;
@@ -64,11 +67,20 @@ namespace oe::utils {
 		// time used on the frame
 		size_t frame_time = clock.getMicroseconds() - timeframe;
 		m_total_frame_count++;
+		m_periodical_frame_count++;
 		m_average_frametime[m_total_frame_count % mc_average_size] = frame_time;
 
 		m_cached_average_frametime = 0;
 		for(int i = 0; i < mc_average_size; i++) m_cached_average_frametime += m_average_frametime[i];
 		m_cached_average_frametime /= mc_average_size;
+
+		// frame counter
+		if (frame_counter_start + 1000000 < clock.getMicroseconds()) {
+			m_fps = m_periodical_frame_count;
+			m_ups = m_periodical_update_count;
+			m_periodical_update_count = 0;
+			m_periodical_frame_count = 0;
+		}
 	}
 
 	void GameLoop::stop() {
