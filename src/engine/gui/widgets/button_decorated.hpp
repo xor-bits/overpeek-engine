@@ -11,6 +11,7 @@ namespace oe::gui {
 	struct DecoratedButtonInfo {
 		fun_button_callback callback           = nullptr;
 		glm::ivec2 size                    = { 50, 50 };
+		glm::vec2 padding                  = { 8, 8 };
 		glm::vec2 offset_position          = { 0, 0 };
 		std::string text                   = "";
 		glm::vec2 align_parent             = oe::alignments::center_center;
@@ -32,6 +33,7 @@ namespace oe::gui {
 		DecoratedButton(GUI* gui_manager, const DecoratedButtonInfo& button_info);
 		~DecoratedButton();
 		
+		virtual void resize() override;
 	};
 
 }

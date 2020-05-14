@@ -17,7 +17,7 @@ namespace oe::gui {
 
 	TextPanel::~TextPanel()
 	{
-		m_gui_manager->getRenderer()->destroyQuad(text_quad);
+		m_gui_manager->getLateRenderer()->destroyQuad(text_quad);
 		delete label;
 	}
 

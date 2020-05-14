@@ -17,7 +17,7 @@ namespace oe::gui {
 		
 		if (slider_info.draw_value) {
 			value_label = new oe::graphics::TextLabel();
-			label_quad = m_gui_manager->getRenderer()->createQuad();
+			label_quad = m_gui_manager->getLateRenderer()->createQuad();
 		}
 		quad_knob = m_gui_manager->getRenderer()->createQuad();
 		quad_slider = m_gui_manager->getRenderer()->createQuad();
@@ -27,7 +27,7 @@ namespace oe::gui {
 	{
 		if (slider_info.draw_value) {
 			delete value_label;
-			m_gui_manager->getRenderer()->destroyQuad(label_quad);
+			m_gui_manager->getLateRenderer()->destroyQuad(label_quad);
 		}
 		m_gui_manager->getRenderer()->destroyQuad(quad_knob);
 		m_gui_manager->getRenderer()->destroyQuad(quad_slider);
@@ -54,7 +54,7 @@ namespace oe::gui {
 		if (slider_info.draw_value) {
 			z += 1.0f;
 			glm::vec2 text_size = glm::vec2(size.y * 0.6f);
-			value_label->generate(fmt::format("{:.2f}", slider_info.initial_value), m_gui_manager->getWindow());
+			value_label->generate(fmt::format("{:.2f}", slider_info.initial_value), m_gui_manager->getWindow(), { 0.0f, 0.0f, 0.0f, 0.2f });
 			label_quad->setPosition(render_position + size * 0.5f);
 			label_quad->setZ(z);
 			label_quad->setSize(text_size * value_label->getSize());

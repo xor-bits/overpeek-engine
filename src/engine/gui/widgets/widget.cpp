@@ -31,7 +31,6 @@ namespace oe::gui {
 	void Widget::addSubWidget(Widget* widget) {
 		widget->__setParent(this);
 		m_nodes.push_back(widget);
-		__resize();
 	}
 
 	void Widget::__render(float& z, oe::graphics::Renderer* renderer) {
