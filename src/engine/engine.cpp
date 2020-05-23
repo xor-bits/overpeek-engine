@@ -24,6 +24,7 @@ static void glfw_error_func(int code, const char* desc) {
 namespace oe {
 
 	Engine* Engine::singleton = nullptr;
+	size_t Engine::draw_calls = 0;
 
 	Engine::Engine() {
 		// init to start the timer and seed the randomizer

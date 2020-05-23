@@ -13,6 +13,7 @@ namespace oe {
 		EngineInfo engine_info;
 		oe::graphics::Instance* instance;
 		depth_functions current_depth;
+		static size_t draw_calls;
 
 	private:
 		static Engine* singleton;

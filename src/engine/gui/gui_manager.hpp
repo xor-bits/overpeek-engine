@@ -12,7 +12,7 @@ namespace oe::gui {
 	class Form;
 	class GUI {
 	private:
-		std::unique_ptr<Form> m_main_frame;
+		oe::gui::Form* m_main_frame;
 		oe::graphics::Renderer* m_renderer;
 		oe::graphics::Renderer* m_late_renderer;
 		oe::graphics::Window* m_window;

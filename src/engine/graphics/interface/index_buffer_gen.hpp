@@ -157,7 +157,7 @@ namespace oe::graphics {
 			}
 			else {
 				vb = new float[size];
-				std::memcpy(vb, copied, size);
+				memcpy(vb, copied, size);
 			}
 			return { vb, sizeof(float) * size };
 		}

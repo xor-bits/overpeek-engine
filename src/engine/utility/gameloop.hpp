@@ -38,6 +38,7 @@ namespace oe::utils {
 		size_t m_periodical_update_count = 0;
 		size_t m_fps = 0;
 		size_t m_ups = 0;
+		float m_frame_counter_start = 0;
 
 		// frame and update balancing
 		size_t m_update_start = 0;

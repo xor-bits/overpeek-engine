@@ -30,8 +30,6 @@ namespace oe::utils {
 		m_update_previous = current;
 		m_update_lag += elapsed;
 
-		size_t frame_counter_start = clock.getSessionMillisecond();
-
 		//Updates
 		while (m_update_lag >= m_ups_cap) {
 			// start profiling the update
@@ -61,11 +59,14 @@ namespace oe::utils {
 		// render callback
 		m_host_window->clear();
 		m_callback_render((float)m_update_lag / (float)m_ups_cap);
-		m_host_window->update();
-		if (m_host_window->shouldClose()) stop();
 
 		// time used on the frame
 		size_t frame_time = clock.getMicroseconds() - timeframe;
+
+		// swap the framebuffers out of the timer
+		m_host_window->update();
+		if (m_host_window->shouldClose()) stop();
+
 		m_total_frame_count++;
 		m_periodical_frame_count++;
 		m_average_frametime[m_total_frame_count % mc_average_size] = frame_time;
@@ -75,11 +76,13 @@ namespace oe::utils {
 		m_cached_average_frametime /= mc_average_size;
 
 		// frame counter
-		if (frame_counter_start + 1000000 < clock.getMicroseconds()) {
+		float frame_counter_now = clock.getSessionMillisecond();
+		if (m_frame_counter_start < frame_counter_now) {
 			m_fps = m_periodical_frame_count;
 			m_ups = m_periodical_update_count;
 			m_periodical_update_count = 0;
 			m_periodical_frame_count = 0;
+			m_frame_counter_start = frame_counter_now + 1000.0f;
 		}
 	}
 

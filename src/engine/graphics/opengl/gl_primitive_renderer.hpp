@@ -36,11 +36,11 @@ namespace oe::graphics {
 			oe_debug_call("gl_basic_primitive_renderer");
 			m_mapped_buffer = nullptr;
 			buffer_gen generator(renderer_info.max_primitive_count);
-			m_index_per_primitive = generator.index_per_primitive();
-			m_vertex_per_primitive = generator.vertex_per_primitive();
+			this->m_index_per_primitive = generator.index_per_primitive();
+			this->m_vertex_per_primitive = generator.vertex_per_primitive();
 
 			// Buffers
-			auto vertex_buffer_data = generator.optional_vertex_gen<vertex_type>(renderer_info.staticVBOBuffer_data);
+			auto vertex_buffer_data = generator.template optional_vertex_gen<vertex_type>(renderer_info.staticVBOBuffer_data);
 			auto index_buffer_data = generator.gen();
 
 			// Shader buffers and attributes
@@ -98,7 +98,7 @@ namespace oe::graphics {
 		virtual void render(size_t override_primitive_count) const override {
 			if (override_primitive_count > 0) {
 				m_vao->bind();
-				native_glDrawElementsPrimitive(override_primitive_count * m_index_per_primitive);
+				native_glDrawElementsPrimitive(override_primitive_count * this->m_index_per_primitive);
 			}
 		}
 	};

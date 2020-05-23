@@ -71,6 +71,7 @@ namespace oe::graphics {
 		, m_text("")
 		, m_font(font)
 		, m_framebuffer(nullptr)
+		, m_fb_size(0.0f, 0.0f)
 	{}
 
 	TextLabel::TextLabel()
@@ -78,6 +79,7 @@ namespace oe::graphics {
 		, m_text("")
 		, m_font(Text::getFont())
 		, m_framebuffer(nullptr)
+		, m_fb_size(0.0f, 0.0f)
 	{}
 
 	void TextLabel::generate(const std::string& text, Window* window, const glm::vec4& color)
@@ -96,12 +98,26 @@ namespace oe::graphics {
 		m_size.x = std::max(m_size.x, 1.0f);
 		m_size.y = std::max(m_size.y, 1.0f);
 
-		if (m_framebuffer) oe::Engine::getSingleton().destroyFrameBuffer(m_framebuffer);
 		// create the framebuffer
 		oe::FrameBufferInfo fb_info = {};
-		fb_info.width = m_size.x;
-		fb_info.height = m_size.y;
-		m_framebuffer = oe::Engine::getSingleton().createFrameBuffer(fb_info, window);
+		fb_info.width = static_cast<size_t>(m_size.x) * 2; // double the required size, to make room for future reuse
+		fb_info.height = static_cast<size_t>(m_size.y) * 2; // ^^
+		if (m_framebuffer && m_fb_size.x >= m_size.x && m_fb_size.y >= m_size.y)
+		{
+			// reuse the old framebuffer
+		}
+		else if (m_framebuffer)
+		{
+			// regen framebuffer
+			oe::Engine::getSingleton().destroyFrameBuffer(m_framebuffer);
+			m_framebuffer = oe::Engine::getSingleton().createFrameBuffer(fb_info, window);
+		}
+		else
+		{
+			// create new framebuffer
+			m_framebuffer = oe::Engine::getSingleton().createFrameBuffer(fb_info, window);
+		}
+		m_fb_size = m_size * 2.0f;
 
 		m_framebuffer->bind();
 		m_framebuffer->clear(color);

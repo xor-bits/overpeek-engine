@@ -25,6 +25,7 @@ namespace oe::graphics {
 
 		const Font* m_font;
 		FrameBuffer* m_framebuffer = nullptr;
+		glm::vec2 m_fb_size;
 		Sprite m_sprite;
 
 		std::string m_text;

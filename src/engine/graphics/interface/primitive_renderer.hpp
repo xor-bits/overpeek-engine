@@ -92,6 +92,7 @@ namespace oe::graphics {
 		void render() 
 		{
 			size_t primitive_count = m_vertex_count / m_vertex_per_primitive;
+			Engine::draw_calls++;
 			render(primitive_count);
 		}
 

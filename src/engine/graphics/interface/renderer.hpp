@@ -41,7 +41,7 @@ namespace oe::graphics {
 
 		
 		void setPosition(const glm::vec3& position) { if (m_position != position) { m_updated = true; } m_position = position; }
-		void setPosition(const glm::vec2& position) { if (m_position != glm::vec3(position, 0.0f)) { m_updated = true; } m_position = glm::vec3(position, 0.0f); }
+		void setPosition(const glm::vec2& position) { if (m_position.x != position.x || m_position.y != position.y) { m_updated = true; } m_position.x = position.x; m_position.y = position.y; }
 		void setX(float x) { if (m_position.x != x) { m_updated = true; } m_position.x = x; }
 		void setY(float y) { if (m_position.y != y) { m_updated = true; } m_position.y = y; }
 		void setZ(float z) { if (m_position.z != z) { m_updated = true; } m_position.z = z; }
@@ -67,7 +67,6 @@ namespace oe::graphics {
 		void update();
 
 		std::array<VertexData, 4> gen_vertices() const;
-
 	};
 
 	struct SubRenderer {
@@ -111,4 +110,15 @@ namespace oe::graphics {
 
 	};
 
+};
+
+template <>
+struct fmt::formatter<oe::graphics::Quad> {
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx) { return ctx.begin(); }
+
+	template <typename FormatContext>
+	auto format(const oe::graphics::Quad& d, FormatContext& ctx) {
+		return format_to(ctx.out(), "[ xyz: {}, wh: {}, c: {}, ud: {}, uds: {}, as?: {} ]", d.m_position, d.m_size, d.m_color, d.m_updated, d.m_sprite_updated, d.m_assigned);
+	}
 };

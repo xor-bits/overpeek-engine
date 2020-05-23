@@ -31,14 +31,14 @@ namespace oe::gui {
 		FormInfo form_info = {};
 		form_info.size = m_window->getSize() - glm::vec2(2 * border);
 		form_info.offset_position = { border, border };
-		auto form = new oe::gui::Form(this, form_info);
-		m_main_frame = std::unique_ptr<Form>(form);
+		m_main_frame = new oe::gui::Form(this, form_info);
 		resize();
 		m_offset = { 0, 0 };
 		m_old_window_size = { 0, 0 };
 	}
 
 	GUI::~GUI() {
+		delete m_main_frame;
 		oe::Engine::getSingleton().destroyRenderer(m_renderer);
 		delete m_shader;
 	}
