@@ -32,9 +32,9 @@ namespace oe::gui {
 		form_info.size = m_window->getSize() - glm::vec2(2 * border);
 		form_info.offset_position = { border, border };
 		m_main_frame = new oe::gui::Form(this, form_info);
-		resize();
 		m_offset = { 0, 0 };
 		m_old_window_size = { 0, 0 };
+		resize();
 	}
 
 	GUI::~GUI() {
@@ -65,6 +65,13 @@ namespace oe::gui {
 		m_late_renderer->render();
 		
 		engine.depth(old_depth);
+	}
+
+	void GUI::render_empty()
+	{
+		resize();
+		float z = 0.0f;
+		if (m_main_frame) m_main_frame->__render(z, m_renderer);
 	}
 
 	void GUI::resize() {
@@ -98,6 +105,7 @@ namespace oe::gui {
 
 	void GUI::addSubWidget(Widget* widget) {
 		m_main_frame->addSubWidget(widget);
+		render_empty();
 	}
 
 	void GUI::cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) {

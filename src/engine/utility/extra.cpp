@@ -180,6 +180,10 @@ bool oe::utils::isNumber(const char* input) {
     return !*p;
 }
 
+bool oe::utils::isNumber(const std::string& input) {
+    return isNumber(input.c_str());
+}
+
 unsigned long oe::utils::stringToHex(const std::string& str)
 {
     if (!checkChar(str, '#', 0)) return -1; // not a hexcode

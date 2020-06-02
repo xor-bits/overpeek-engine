@@ -8,16 +8,15 @@ namespace oe::gui {
 
 	void Checkbox::checkbox_action(oe::mouse_buttons button, oe::actions action) {
 		if (button == oe::mouse_buttons::button_left && action == oe::actions::release) {
-			m_toggled = !m_toggled;
+			m_checkbox_info.initial = !m_checkbox_info.initial;
 			if (m_checkbox_info.callback)
-				m_checkbox_info.callback(m_toggled);
+				m_checkbox_info.callback(m_checkbox_info.initial);
 		}
 	}
 
 	Checkbox::Checkbox(GUI* gui_manager, const CheckboxInfo& _checkbox_info)
 		: Widget(gui_manager, _checkbox_info.size, _checkbox_info.align_parent, _checkbox_info.align_render, _checkbox_info.offset_position)
 		, m_checkbox_info(_checkbox_info)
-		, m_toggled(_checkbox_info.initial)
 	{
 		ButtonInfo button_info;
 		button_info.callback = BUTTON_CALLBACK_WRAPPER(checkbox_action);
@@ -46,7 +45,7 @@ namespace oe::gui {
 		quad_box->setSprite(m_checkbox_info.sprite);
 		quad_box->update();
 
-		if (m_toggled) {
+		if (m_checkbox_info.initial) {
 			z += 1.0f;
 			quad_check->setPosition(render_position + size * 0.5f);
 			quad_check->setZ(z);

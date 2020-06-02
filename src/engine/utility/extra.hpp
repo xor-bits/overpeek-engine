@@ -39,5 +39,6 @@ namespace oe::utils {
 	// string checks
 	extern bool checkChar(const std::string& text, char character, int position);
 	extern bool isNumber(const char* input);
+	extern bool isNumber(const std::string& input);
 
 }

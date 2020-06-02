@@ -56,11 +56,33 @@ namespace oe::gui {
 		int slider_height = static_cast<int>((color_picker_info.size.y - 25) / 4.0f);
 		int slider_width = color_picker_info.size.x - 55;
 
-		auto red =   color_channel(this, gui_manager, { 5, 0 * slider_height + 5  }, { slider_width, slider_height }, "R", oe::colors::red, color_picker_info.sprite, [&](float value) { color_picker_info.initial_color.r = value; update(); }, color_picker_info.initial_color.r);
-		auto green = color_channel(this, gui_manager, { 5, 1 * slider_height + 10 }, { slider_width, slider_height }, "G", oe::colors::green, color_picker_info.sprite, [&](float value) { color_picker_info.initial_color.g = value; update(); }, color_picker_info.initial_color.g);
-		auto blue =  color_channel(this, gui_manager, { 5, 2 * slider_height + 15 }, { slider_width, slider_height }, "B", oe::colors::blue, color_picker_info.sprite, [&](float value) { color_picker_info.initial_color.b = value; update(); }, color_picker_info.initial_color.b);
-		auto alpha = color_channel(this, gui_manager, { 5, 3 * slider_height + 20 }, { slider_width, slider_height }, "A", oe::colors::black, color_picker_info.sprite, [&](float value) { color_picker_info.initial_color.a = value; update(); }, color_picker_info.initial_color.a);
-		
+		slider_r = color_channel(this, gui_manager, { 5, 0 * slider_height + 5  }, { slider_width, slider_height }, "R", oe::colors::red, color_picker_info.sprite, [&](float value) { color_picker_info.initial_color.r = value; update(); }, color_picker_info.initial_color.r);
+		slider_g = color_channel(this, gui_manager, { 5, 1 * slider_height + 10 }, { slider_width, slider_height }, "G", oe::colors::green, color_picker_info.sprite, [&](float value) { color_picker_info.initial_color.g = value; update(); }, color_picker_info.initial_color.g);
+		slider_b = color_channel(this, gui_manager, { 5, 2 * slider_height + 15 }, { slider_width, slider_height }, "B", oe::colors::blue, color_picker_info.sprite, [&](float value) { color_picker_info.initial_color.b = value; update(); }, color_picker_info.initial_color.b);
+		slider_a = color_channel(this, gui_manager, { 5, 3 * slider_height + 20 }, { slider_width, slider_height }, "A", oe::colors::black, color_picker_info.sprite, [&](float value) { color_picker_info.initial_color.a = value; update(); }, color_picker_info.initial_color.a);
+	}
+	
+	const glm::vec4& ColorPicker::get() const
+	{ 
+		return color_picker_info.initial_color;
+	}
+
+	void ColorPicker::set(const glm::vec4& color)
+	{
+		color_picker_info.initial_color = color; 
+		update();
+			
+		slider_r->slider_info.initial_value = color_picker_info.initial_color.r;
+		slider_g->slider_info.initial_value = color_picker_info.initial_color.g;
+		slider_b->slider_info.initial_value = color_picker_info.initial_color.b;
+		slider_a->slider_info.initial_value = color_picker_info.initial_color.a;
+	}
+
+	void ColorPicker::update()
+	{
+		preview_panel->sprite_panel_info.color = color_picker_info.initial_color;
+		if(color_picker_info.callback)
+			color_picker_info.callback(color_picker_info.initial_color);
 	}
 
 }

@@ -22,19 +22,24 @@ namespace oe::gui {
 		glm::vec2 align_render                     = oe::alignments::center_center;
 	};
 
+	class Slider;
 	class ColorPicker : public Widget {
 	private:
 		SpritePanel* preview_panel = nullptr;
 	
 	public:
 		ColorPickerInfo color_picker_info;
+		Slider* slider_r;
+		Slider* slider_g;
+		Slider* slider_b;
+		Slider* slider_a;
 
 	public:
 		ColorPicker(GUI* gui_manager, const ColorPickerInfo& color_picker_info);
 
-		inline const glm::vec4& get() const { return color_picker_info.initial_color; }
-		inline void set(const glm::vec4& color) { color_picker_info.initial_color = color; update(); }
-		inline void update() { preview_panel->sprite_panel_info.color = color_picker_info.initial_color; if(color_picker_info.callback) color_picker_info.callback(color_picker_info.initial_color); }
+		const glm::vec4& get() const;
+		void set(const glm::vec4& color);
+		void update();
 	};
 
 }

@@ -30,7 +30,6 @@ namespace oe::gui {
 
 	public:
 		CheckboxInfo m_checkbox_info;
-		bool m_toggled;
 		oe::gui::Button* m_button;
 
 		void checkbox_action(oe::mouse_buttons button, oe::actions action);
