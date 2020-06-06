@@ -19,7 +19,7 @@ b2World box2d_world(b2Vec2(0.0f, 9.81f));
 b2RevoluteJoint* motor_joint;
 
 
-
+// <<<<----- box2d stuff
 struct component_renderable {
 	oe::graphics::Quad* quad;
 
@@ -77,11 +77,13 @@ b2RevoluteJoint* joint(b2Body* a, b2Body* b)
 	jointDef.bodyB = b;
 	jointDef.enableMotor = true;
 	jointDef.motorSpeed = 3.0f;
-	jointDef.maxMotorTorque = 1e50;
+	jointDef.maxMotorTorque = 1e20f;
 	
 	return static_cast<b2RevoluteJoint*>(box2d_world.CreateJoint(&jointDef));
 }
+// box2d stuff ----->>>>
 
+// scene setup
 void setup() {
 	auto& random = oe::utils::Random::getSingleton();
 
@@ -102,6 +104,7 @@ void setup() {
 
 }
 
+// render func
 void render(float update_fraction) {
 	window->clear(oe::colors::transparent);
 
@@ -126,18 +129,22 @@ void render(float update_fraction) {
 	renderer->render();
 }
 
-void resize(const glm::vec2& window_size) {
-	float aspect = window->aspect();
-
-	glm::mat4 pr_matrix = glm::ortho(-20.0f * aspect, 20.0f * aspect, 20.0f, -20.0f);
+// framebuffer resize
+void resize(const oe::ResizeEvent& event) {
+	glm::mat4 pr_matrix = glm::ortho(-20.0f * event.aspect, 20.0f * event.aspect, 20.0f, -20.0f);
 	shader->bind();
 	shader->setProjectionMatrix(pr_matrix);
 	shader->useTexture(true);
 }
 
-void update() {
-	static int n = 0;
-	if (++n % 10 == 0) { auto gameloop = window->getGameloop(); spdlog::info("frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS()); n = 0; }
+// update 2 times per second
+void update_2() {
+	auto& gameloop = window->getGameloop(); 
+	spdlog::info("frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
+}
+
+// update 60 times per second
+void update_60() {
 	entity_registry.view<component_body>().each([&](entt::entity entity, component_body& body)
 	{
 		// rendering
@@ -150,6 +157,8 @@ void update() {
 
 	box2d_world.Step(inverse_ups, 8, 8);
 }
+
+
 
 int main(int argc, char* argv[]) {
 	auto& engine = oe::Engine::getSingleton();
@@ -164,12 +173,15 @@ int main(int argc, char* argv[]) {
 	oe::WindowInfo window_info;
 	window_info.title = "Entities";
 	window_info.multisamples = 4;
-	window_info.resize_callback = resize;
-	window_info.render_callback = render;
-	window_info.update_callback = update;
 	window_info.transparent = true;
 	// window_info.borderless = true;
 	window = engine.createWindow(window_info);
+
+	// connect events
+	window->connect_listener<oe::ResizeEvent, &resize>();
+	window->connect_render_listener<&render>();
+	window->connect_update_listener<2, &update_2>();
+	window->connect_update_listener<updates_per_second, &update_60>();
 
 	// instance settings
 	engine.culling(oe::culling_modes::back);
@@ -194,9 +206,7 @@ int main(int argc, char* argv[]) {
 	pack->construct();
 
 	// start
-	resize(window->getSize());
-	window->getGameloop().start(updates_per_second);
-	// world.
+	window->getGameloop().start();
 
 	// closing
 	delete pack;

@@ -93,8 +93,10 @@ namespace oe::graphics {
 		m_text = text;
 		initial_generated = true;
 
+		float multisamples = static_cast<float>(window->m_window_info.multisamples); // should I make this function arg or keep like this
+
 		// size of the framebuffer
-		m_size = Text::size(text, glm::vec2(m_font->m_resolution), m_font);
+		m_size = Text::size(text, glm::vec2(m_font->m_resolution * multisamples), m_font);
 		m_size.x = std::max(m_size.x, 1.0f);
 		m_size.y = std::max(m_size.y, 1.0f);
 
@@ -125,7 +127,7 @@ namespace oe::graphics {
 		// render to the framebuffer
 		auto fb_renderer = getFBRenderer();
 		auto fb_shader = getFBShader();
-		Text::submit(fb_renderer, text, { 0.0f, 0.0f }, m_font->m_resolution, alignments::top_left, glm::vec4(1.0f), m_font);
+		Text::submit(fb_renderer, text, { 0.0f, 0.0f }, m_font->m_resolution * multisamples, alignments::top_left, glm::vec4(1.0f), m_font);
 		glm::mat4 pr_matrix = glm::ortho(0.0f, m_size.x, m_size.y, 0.0f);
 		fb_shader->setProjectionMatrix(pr_matrix);
 		fb_shader->bind();
@@ -141,7 +143,7 @@ namespace oe::graphics {
 		m_sprite = Sprite(m_framebuffer->getTexture());
 		m_sprite.position = { 0.0f, 1.0f };
 		m_sprite.size = { 1.0f, -1.0f };
-		m_size /= m_font->m_resolution;
+		m_size /= m_font->m_resolution * multisamples;
 	}
 	
 

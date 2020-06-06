@@ -53,9 +53,9 @@ namespace oe::graphics {
 		virtual ~BasicPrimitiveRenderer()
 		{}
 
-		virtual void submitVertex(const vertex_type& vertex, size_t index) = 0;
-		virtual void submitVertex(const std::vector<vertex_type>& vertices, size_t first_index) = 0;
-		virtual void submitVertex(const vertex_type* first_vertex, size_t vertex_count, size_t first_index) = 0;
+		virtual void submitVertex(const vertex_type& vertex, size_t index = 0) = 0;
+		virtual void submitVertex(const std::vector<vertex_type>& vertices, size_t first_index = 0) = 0;
+		virtual void submitVertex(const vertex_type* first_vertex, size_t vertex_count, size_t first_index = 0) = 0;
 		
 		virtual void begin() = 0;
 		virtual void end() = 0;

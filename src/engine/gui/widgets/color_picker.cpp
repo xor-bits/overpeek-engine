@@ -14,7 +14,8 @@ namespace oe::gui {
 		slider_info.offset_position = offset;
 		slider_info.align_parent = oe::alignments::top_left;
 		slider_info.align_render = oe::alignments::top_left;
-		slider_info.slider_color = color;
+		slider_info.slider_lcolor = color;
+		// slider_info.slider_rcolor = default;
 		slider_info.slider_sprite = sprite;
 		slider_info.knob_sprite = sprite;
 		slider_info.callback = update;

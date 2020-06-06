@@ -18,7 +18,8 @@ namespace oe::gui {
 		glm::ivec2 slider_size                     = { 50, 50 };
 		glm::ivec2 knob_size                       = { 50, 50 };
 		glm::vec4 knob_color                       = oe::colors::grey;
-		glm::vec4 slider_color                     = oe::colors::dark_grey;
+		glm::vec4 slider_lcolor                    = oe::colors::dark_grey;
+		glm::vec4 slider_rcolor                    = oe::colors::darker_grey;
 		const oe::graphics::Sprite* knob_sprite    = nullptr; // must be set
 		const oe::graphics::Sprite* slider_sprite  = nullptr; // must be set
 		glm::vec2 offset_position                  = { 0, 0 };
@@ -32,7 +33,8 @@ namespace oe::gui {
 		oe::graphics::TextLabel* value_label;
 		oe::graphics::Quad* label_quad;
 		oe::graphics::Quad* quad_knob;
-		oe::graphics::Quad* quad_slider;
+		oe::graphics::Quad* quad_lslider;
+		oe::graphics::Quad* quad_rslider;
 
 	private:
 		bool m_dragging;

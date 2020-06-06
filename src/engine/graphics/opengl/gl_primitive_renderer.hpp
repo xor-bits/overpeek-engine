@@ -70,16 +70,19 @@ namespace oe::graphics {
 		virtual void submitVertex(const vertex_type& vertex, size_t index) override {
 			if (!m_mapped_buffer) oe_error_terminate("Buffer not mapped!");
 			m_mapped_buffer[index] = vertex;
+			m_vertex_count = std::max(m_vertex_count, index + 1);
 		}
 
 		virtual void submitVertex(const std::vector<vertex_type>& vertices, size_t first_index) override {
 			if (!m_mapped_buffer) oe_error_terminate("Buffer not mapped!");
 			std::memcpy(m_mapped_buffer + first_index, vertices.data(), vertices.size() * sizeof(vertex_type));
+			m_vertex_count = std::max(m_vertex_count, first_index + vertices.size());
 		}
 		
 		virtual void submitVertex(const vertex_type* first_vertex, size_t vertex_count, size_t first_index) override {
 			if (!m_mapped_buffer) oe_error_terminate("Buffer not mapped!");
 			std::memcpy(m_mapped_buffer + first_index, first_vertex, vertex_count * sizeof(vertex_type));
+			m_vertex_count = std::max(m_vertex_count, first_index + vertex_count);
 		}
 
 		virtual void begin() override {

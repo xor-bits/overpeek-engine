@@ -20,7 +20,8 @@ namespace oe::gui {
 			label_quad = m_gui_manager->getLateRenderer()->createQuad();
 		}
 		quad_knob = m_gui_manager->getRenderer()->createQuad();
-		quad_slider = m_gui_manager->getRenderer()->createQuad();
+		quad_lslider = m_gui_manager->getRenderer()->createQuad();
+		quad_rslider = m_gui_manager->getRenderer()->createQuad();
 	}
 
 	Slider::~Slider()
@@ -30,19 +31,33 @@ namespace oe::gui {
 			m_gui_manager->getLateRenderer()->destroyQuad(label_quad);
 		}
 		m_gui_manager->getRenderer()->destroyQuad(quad_knob);
-		m_gui_manager->getRenderer()->destroyQuad(quad_slider);
+		m_gui_manager->getRenderer()->destroyQuad(quad_lslider);
+		m_gui_manager->getRenderer()->destroyQuad(quad_rslider);
 	}
 
 	void Slider::render(float& z, oe::graphics::Renderer* renderer) {
-		quad_slider->setPosition(render_position);
-		quad_slider->setZ(z);
-		quad_slider->setSize(size);
-		quad_slider->setColor(slider_info.slider_color);
-		quad_slider->setSprite(slider_info.slider_sprite);
-		quad_slider->update();
+		glm::vec2 slider_pos = glm::vec2(oe::utils::map(slider_info.initial_value, slider_info.min_value, slider_info.max_value, 0.0f, size.x - slider_info.knob_size.x), 0.0f);
+		
+		{
+			z += 1.0f;
+			quad_lslider->setPosition(render_position);
+			quad_lslider->setZ(z);
+			quad_lslider->setSize({ slider_pos.x, size.y });
+			quad_lslider->setColor(slider_info.slider_lcolor);
+			quad_lslider->setSprite(slider_info.slider_sprite);
+			quad_lslider->update();
+		}
+		{
+			z += 1.0f;
+			quad_rslider->setPosition({ render_position.x + slider_pos.x, render_position.y });
+			quad_rslider->setZ(z);
+			quad_rslider->setSize({ size.x - slider_pos.x, size.y });
+			quad_rslider->setColor(slider_info.slider_rcolor);
+			quad_rslider->setSprite(slider_info.slider_sprite);
+			quad_rslider->update();
+		}
 
 		z += 1.0f;
-		glm::vec2 slider_pos = glm::vec2(oe::utils::map(slider_info.initial_value, slider_info.min_value, slider_info.max_value, 0.0f, size.x - slider_info.knob_size.x), 0.0f);
 		quad_knob->setPosition(render_position + slider_pos + glm::vec2(slider_info.knob_size.x, slider_info.slider_size.y) * 0.5f);
 		quad_knob->setZ(z);
 		quad_knob->setSize(slider_info.knob_size);

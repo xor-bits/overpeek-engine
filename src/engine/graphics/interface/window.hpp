@@ -25,6 +25,7 @@ namespace oe::graphics {
 	public:
 		WindowInfo m_window_info;
 		const Instance* m_instance;
+		entt::dispatcher dispatcher{};
 
 	protected:
 		GLFWwindow* m_window_handle = nullptr;
@@ -94,6 +95,74 @@ namespace oe::graphics {
 
 		const std::string getClipboard();
 		void setClipboard(const std::string& str);
+
+		// -- events --
+		// connect events
+		template<class Event, auto Listener, class ... Args>
+		void connect_listener(Args&&... args)
+		{
+			dispatcher.sink<Event>().connect<Listener>(std::forward(args)...);
+		}
+		template<class Event, auto Listener>
+		void connect_listener()
+		{
+			dispatcher.sink<Event>().connect<Listener>();
+		}
+		// disconenct events
+		template<class Event, auto Listener, class ... Args>
+		void disconnect_listener(Args&&... args)
+		{
+			dispatcher.sink<Event>().disconnect<Listener>(std::forward(args)...);
+		}
+		template<class Event, auto Listener>
+		void disconnect_listener()
+		{
+			dispatcher.sink<Event>().disconnect<Listener>();
+		}
+		// connect update
+		template<size_t ups, auto F, class ... Args>
+		void connect_update_listener(Args&&... args)
+		{
+			m_window_gameloop.connect_update_listener<ups, F>(std::forward(args)...);
+		}
+		template<size_t ups, auto F>
+		void connect_update_listener()
+		{
+			m_window_gameloop.connect_update_listener<ups, F>();
+		}
+		// disconnect update
+		template<size_t ups, auto F, class ... Args>
+		void disconnect_update_listener(Args&&... args)
+		{
+			m_window_gameloop.disconnect_update_listener<ups, F>(std::forward(args)...);
+		}
+		template<size_t ups, auto F>
+		void disconnect_update_listener()
+		{
+			m_window_gameloop.disconnect_update_listener<ups, F>();
+		}
+		// connect render
+		template<auto F, class ... Args>
+		void connect_render_listener(Args&&... args)
+		{
+			m_window_gameloop.connect_render_listener<F>(std::forward(args)...);
+		}
+		template<auto F>
+		void connect_render_listener()
+		{
+			m_window_gameloop.connect_render_listener<F>();
+		}
+		// disconnect render
+		template<auto F, class ... Args>
+		void disconnect_render_listener(Args&&... args)
+		{
+			m_window_gameloop.disconnect_render_listener<F>(std::forward(args)...)
+		}
+		template<auto F>
+		void disconnect_render_listener()
+		{
+			m_window_gameloop.disconnect_render_listener<F>()
+		}
 
 
 

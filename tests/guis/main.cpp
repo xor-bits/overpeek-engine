@@ -22,54 +22,61 @@ float speed = 0.0f;
 
 
 void cube() {
-	// begin submitting
+	// vertices
+	const std::vector<oe::graphics::VertexData> box_vertices = 
+	{
+		// front
+		{ { -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f }, color },
+		{ { -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, color },
+		{ {  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, color },
+		{ {  1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f }, color },
+		
+		// back
+		{ { -1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f }, color },
+		{ { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, color },
+		{ {  1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f }, color },
+		{ {  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, color },
+		
+		// top
+		{ { -1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f }, color },
+		{ { -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, color },
+		{ {  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, color },
+		{ {  1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, color },
+		
+		// bottom
+		{ { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, color },
+		{ { -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, color },
+		{ {  1.0f, -1.0f,  1.0f }, { 1.0f, 1.0f }, color },
+		{ {  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, color },
+		
+		// left
+		{ { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, color },
+		{ { -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, color },
+		{ { -1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, color },
+		{ { -1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, color },
+		
+		// right
+		{ {  1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, color },
+		{ {  1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, color },
+		{ {  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, color },
+		{ {  1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, color },
+	};
+
+	// submit
 	renderer->begin();
 	renderer->clear();
+	renderer->submitVertex(box_vertices);
+	renderer->end();
 	
-	// front
-	renderer->submitVertex(oe::graphics::VertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f }, color));
-	renderer->submitVertex(oe::graphics::VertexData({ -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, color));
-	renderer->submitVertex(oe::graphics::VertexData({  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, color));
-	renderer->submitVertex(oe::graphics::VertexData({  1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f }, color));
-	
-	// back
-	renderer->submitVertex(oe::graphics::VertexData({ -1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f }, color));
-	renderer->submitVertex(oe::graphics::VertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, color));
-	renderer->submitVertex(oe::graphics::VertexData({  1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f }, color));
-	renderer->submitVertex(oe::graphics::VertexData({  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, color));
-	
-	// top
-	renderer->submitVertex(oe::graphics::VertexData({ -1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f }, color));
-	renderer->submitVertex(oe::graphics::VertexData({ -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, color));
-	renderer->submitVertex(oe::graphics::VertexData({  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, color));
-	renderer->submitVertex(oe::graphics::VertexData({  1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, color));
-	
-	// bottom
-	renderer->submitVertex(oe::graphics::VertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, color));
-	renderer->submitVertex(oe::graphics::VertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, color));
-	renderer->submitVertex(oe::graphics::VertexData({  1.0f, -1.0f,  1.0f }, { 1.0f, 1.0f }, color));
-	renderer->submitVertex(oe::graphics::VertexData({  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, color));
-	
-	// left
-	renderer->submitVertex(oe::graphics::VertexData({ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, color));
-	renderer->submitVertex(oe::graphics::VertexData({ -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, color));
-	renderer->submitVertex(oe::graphics::VertexData({ -1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, color));
-	renderer->submitVertex(oe::graphics::VertexData({ -1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, color));
-	
-	// right
-	renderer->submitVertex(oe::graphics::VertexData({  1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, color));
-	renderer->submitVertex(oe::graphics::VertexData({  1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, color));
-	renderer->submitVertex(oe::graphics::VertexData({  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, color));
-	renderer->submitVertex(oe::graphics::VertexData({  1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, color));
-	
-	// stop submitting and render
+	// shader and model matrix
 	static glm::mat4 ml_matrix = glm::mat4(1.0f);
 	ml_matrix = glm::rotate(ml_matrix, speed * -0.02f * window->getGameloop().getFrametimeMS(), rotate);
 	shader->bind();
 	shader->setModelMatrix(ml_matrix);
+
+	// render
 	oe::Engine::getSingleton().polygonMode(oe::polygon_mode::lines);
-	renderer->end();
-	renderer->render(24);
+	renderer->render();
 	oe::Engine::getSingleton().polygonMode(oe::polygon_mode::fill);
 }
 

@@ -285,6 +285,8 @@ namespace oe {
 		static constexpr glm::vec4 light_grey = glm::vec4(0.75f, 0.75f, 0.75f, 1.0f);
 		static constexpr glm::vec4 grey = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
 		static constexpr glm::vec4 dark_grey = glm::vec4(0.25f, 0.25f, 0.25f, 1.0f);
+		static constexpr glm::vec4 darker_grey = glm::vec4(0.125f, 0.125f, 0.125f, 1.0f);
+		static constexpr glm::vec4 darkest_grey = glm::vec4(0.0625f, 0.0625f, 0.0625f, 1.0f);
 		static constexpr glm::vec4 black = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 		static constexpr glm::vec4 red = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
 		static constexpr glm::vec4 green = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
@@ -347,14 +349,7 @@ namespace oe {
 		bool fullscreen = false;
 		void* share_handle = nullptr; // pointer to the first window obj for multiwindow setups
 		uint32_t swap_interval = 1;
-		fun_key_callback key_callback = nullptr;
-		fun_button_callback button_callback = nullptr;
-		fun_scroll_callback scroll_callback = nullptr;
-		fun_resize_callback resize_callback = nullptr;
-		fun_text_callback text_callback = nullptr;
-		fun_cursor_callback cursor_callback = nullptr;
-		fun_window_render render_callback = nullptr;
-		fun_window_update update_callback = nullptr;
+		size_t main_updatesystem_ups = 60;
 	};
 
 	// renderer create info
@@ -406,4 +401,42 @@ namespace oe {
 		size_t height = 1;
 	};
 
+	// events
+    struct CursorPosEvent
+    {
+        glm::vec2 cursor_windowspace = { 0.0f, 0.0f };
+        glm::vec2 cursor_worldspace = { 0.0f, 0.0f };
+    };
+
+	struct ScrollEvent
+    {
+        glm::vec2 scroll_delta = { 0.0f, 0.0f };
+    };
+
+	struct MouseButtonEvent
+	{
+        oe::mouse_buttons button = oe::mouse_buttons::none;
+        oe::actions action = oe::actions::none;
+        oe::modifiers mods = oe::modifiers::none;
+	};
+
+    struct KeyboardEvent
+    {
+        oe::keys key = oe::keys::none;
+        oe::actions action = oe::actions::none;
+        oe::modifiers mods = oe::modifiers::none;
+    };
+
+	struct CodepointEvent
+	{
+        // unicode text input
+        uint32_t codepoint = 0;
+	};
+
+	struct ResizeEvent
+	{
+        glm::ivec2 framebuffer_size = { 0, 0 };
+        glm::ivec2 framebuffer_size_old = { 0, 0 };
+		float aspect = 0.0f;
+	};
 }
