@@ -1,6 +1,6 @@
 ![Logo](/github/oe_logo.png)
 # overpeek-engine
-Minimal game engine/framework.
+Minimal game engine/library.
 Primary focus on 2D side.
 Should be easy to use.
  - Windows
