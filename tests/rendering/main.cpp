@@ -17,7 +17,7 @@ std::array<oe::graphics::Quad*, 2> quads;
 
 void create_scene() {
 	quads[0] = renderer->createQuad();
-	quads[0]->setPosition({ 0.0f, 0.0f });
+	quads[0]->setPosition({ 0.0f, 0.0f, 0.0f });
 	quads[0]->setSize({ 1.0f, 1.0f });
 	quads[0]->setRotationAlignment(oe::alignments::center_center);
 	quads[0]->setSprite(sprite_white);
@@ -25,7 +25,7 @@ void create_scene() {
 	quads[0]->update();
 	
 	quads[1] = renderer->createQuad();
-	quads[1]->setPosition({ 0.0f, 0.0f });
+	quads[1]->setPosition({ 0.0f, 0.0f, 1.0f });
 	quads[1]->setSize({ 0.75f, 0.75f });
 	quads[1]->setRotationAlignment(oe::alignments::center_center);
 	quads[1]->setSprite(sprite);
@@ -33,9 +33,9 @@ void create_scene() {
 	quads[1]->update();
 }
 
-void resize(const glm::vec2& window_size) {
+void resize(const oe::ResizeEvent& event) {
 	window->active_context();
-	float aspect = window->aspect();
+	float aspect = event.aspect;
 	glm::mat4 pr = glm::ortho(-aspect, aspect, 1.0f, -1.0f);
 	shader->setProjectionMatrix(pr);
 	shader->useTexture(true);
@@ -54,17 +54,17 @@ void render(float update_fraction) {
 	renderer->render();
 }
 
-void update() {
+void update_2() {
 	auto& gameloop = window->getGameloop();
 	spdlog::info("frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
 }
 
-void keyboard(oe::keys key, oe::actions action, oe::modifiers mods) {
-	if (action == oe::actions::press) {
-		if (key == oe::keys::key_escape) {
+void keyboard(const oe::KeyboardEvent& event) {
+	if (event.action == oe::actions::press) {
+		if (event.key == oe::keys::key_escape) {
 			window->getGameloop().stop();
 		}
-		else if (key == oe::keys::key_enter) {
+		else if (event.key == oe::keys::key_enter) {
 			window->setFullscreen(!window->getFullscreen());
 		}
 	}
@@ -83,12 +83,13 @@ void init() {
 	oe::WindowInfo window_info;
 	window_info.title = "Renderer";
 	window_info.multisamples = 4;
-	window_info.resize_callback = resize;
-	window_info.key_callback = keyboard;
-	window_info.update_callback = update;
-	window_info.render_callback = render;
 	window_info.size = { 900, 600 };
 	window = engine.createWindow(window_info);
+
+	// connect events
+	window->connect_listener<oe::ResizeEvent, &resize>();
+	window->connect_render_listener<&render>();
+	window->connect_update_listener<2, &update_2>();
 	
 	// instance settings
 	engine.culling(oe::culling_modes::neither);
@@ -117,8 +118,7 @@ void init() {
 	
 	// start
 	create_scene();
-	resize(window->getSize());
-	window->getGameloop().start(30); // print the average frametime 30 times in a second
+	window->getGameloop().start(); // print the average frametime 30 times in a second
 
 	// closing
 	delete pack_0;

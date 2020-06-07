@@ -17,13 +17,13 @@ void render(float update_fraction)
 	renderer->render();
 }
 
-void update() {
+void update_2() {
 	auto& gameloop = window->getGameloop();
-	// spdlog::debug("frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
+	spdlog::debug("frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
 }
 
-void resize(const glm::vec2& window_size) {
-	float aspect = window->aspect();
+void resize(const oe::ResizeEvent& event) {
+	float aspect = event.aspect;
 	glm::mat4 pr_matrix = glm::ortho(-aspect, aspect, 1.0f, -1.0f);
 	shader->setProjectionMatrix(pr_matrix);
 	shader->useTexture(true);
@@ -41,10 +41,12 @@ int main(int argc, char** argv) {
 	oe::WindowInfo window_info;
 	window_info.title = "Colored Text";
 	window_info.multisamples = 4;
-	window_info.resize_callback = resize;
-	window_info.update_callback = update;
-	window_info.render_callback = render;
 	window = engine.createWindow(window_info);
+
+	// connect events
+	window->connect_listener<oe::ResizeEvent, &resize>();
+	window->connect_render_listener<&render>();
+	window->connect_update_listener<2, &update_2>();
 	
 	// instance settings
 	engine.culling(oe::culling_modes::back);
@@ -97,8 +99,7 @@ int main(int argc, char** argv) {
 
 	
 	// start
-	resize(window->getSize());
-	window->getGameloop().start(30); // print the average frametime 30 times in a second
+	window->getGameloop().start(); // print the average frametime 30 times in a second
 
 	// closing
 	delete font;
