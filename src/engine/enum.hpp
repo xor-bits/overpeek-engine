@@ -415,6 +415,8 @@ namespace oe {
 
 	struct MouseButtonEvent
 	{
+		CursorPosEvent cursor_pos;
+
         oe::mouse_buttons button = oe::mouse_buttons::none;
         oe::actions action = oe::actions::none;
         oe::modifiers mods = oe::modifiers::none;

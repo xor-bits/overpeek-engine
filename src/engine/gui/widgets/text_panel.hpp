@@ -16,6 +16,7 @@ namespace oe::gui {
 		glm::vec2 align_render     = oe::alignments::center_center;
 	};
 
+	struct GUIRenderEvent;
 	class GUI;
 	class TextPanel : public Widget {
 	private:
@@ -29,8 +30,8 @@ namespace oe::gui {
 		TextPanel(GUI* gui_manager, const TextPanelInfo& text_panel_info);
 		~TextPanel();
 
-		// Inherited via Widget
-		virtual void render(float& z, oe::graphics::Renderer* renderer) override;
+		// events
+		void on_render(const GUIRenderEvent& event);
 	};
 
 }

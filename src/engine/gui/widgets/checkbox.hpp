@@ -22,6 +22,7 @@ namespace oe::gui {
 		const oe::graphics::Sprite* sprite      = nullptr; // must be set
 	};
 
+	struct GUIRenderEvent;
 	class GUI;
 	class Checkbox : public Widget {
 	private:
@@ -38,8 +39,8 @@ namespace oe::gui {
 		Checkbox(GUI* gui_manager, const CheckboxInfo& checkbox_info);
 		~Checkbox();
 
-		// Inherited via Widget
-		virtual void render(float& z, oe::graphics::Renderer* renderer) override;
+		// events
+		void on_render(const GUIRenderEvent& event);
 	};
 
 }

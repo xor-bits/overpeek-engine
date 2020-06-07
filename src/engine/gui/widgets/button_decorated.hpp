@@ -20,6 +20,7 @@ namespace oe::gui {
 		const oe::graphics::Sprite* sprite = nullptr; // must be set
 	};
 
+	struct GUIRenderEvent;
 	class GUI;
 	class DecoratedButton : public Widget {
 	public:
@@ -33,7 +34,8 @@ namespace oe::gui {
 		DecoratedButton(GUI* gui_manager, const DecoratedButtonInfo& button_info);
 		~DecoratedButton();
 		
-		virtual void resize() override;
+		// events
+		void on_render(const GUIRenderEvent& event);
 	};
 
 }

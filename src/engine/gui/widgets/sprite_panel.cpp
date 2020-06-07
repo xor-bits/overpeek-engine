@@ -4,7 +4,6 @@
 
 
 
-namespace oe::graphics { class Quad; }
 namespace oe::gui {
 
 	SpritePanel::SpritePanel(GUI* gui_manager, const SpritePanelInfo& _sprite_panel_info)
@@ -12,22 +11,30 @@ namespace oe::gui {
 		, sprite_panel_info(_sprite_panel_info)
 	{
 		quad = m_gui_manager->getRenderer()->createQuad();
+
+		// event listeners
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&SpritePanel::on_render>(this);
 	}
 	
 	SpritePanel::~SpritePanel()
 	{
 		m_gui_manager->getRenderer()->destroyQuad(quad);
+
+		// event listeners
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&SpritePanel::on_render>(this);
 	}
 
-	void SpritePanel::render(float& z, oe::graphics::Renderer* renderer) {
+	void SpritePanel::on_render(const GUIRenderEvent& event)
+	{
 		if (!sprite_panel_info.sprite)
 		{
 			spdlog::warn("No sprite for SpritePanel");
 			return;
 		}
 
+		*event.z += 1.0f;
 		quad->setPosition(render_position);
-		quad->setZ(z);
+		quad->setZ(*event.z);
 		quad->setSize(size);
 		quad->setColor(sprite_panel_info.color);
 		quad->setSprite(sprite_panel_info.sprite);

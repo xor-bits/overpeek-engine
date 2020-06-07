@@ -21,6 +21,7 @@ float speed = 0.0f;
 
 
 
+// render cube
 void cube() {
 	// vertices
 	const std::vector<oe::graphics::VertexData> box_vertices = 
@@ -80,6 +81,7 @@ void cube() {
 	oe::Engine::getSingleton().polygonMode(oe::polygon_mode::fill);
 }
 
+// render event
 void render(float update_fraction) {
 	// submitting
 	cube();
@@ -88,10 +90,9 @@ void render(float update_fraction) {
 	gui->render();
 }
 
-void resize(const glm::vec2& window_size) {
-	gui->resize();
-	
-	glm::mat4 pr_matrix = glm::perspectiveFov(30.0f, window_size.x, window_size.y, 0.0f, 1000.0f);
+// framebuffer resize
+void resize(const oe::ResizeEvent& event) {
+	glm::mat4 pr_matrix = glm::perspectiveFov(30.0f, (float)event.framebuffer_size.x, (float)event.framebuffer_size.y, 0.0f, 1000.0f);
 	glm::mat4 vw_matrix = glm::lookAt(glm::vec3(0.0f, 0.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	
 	shader->bind();
@@ -100,13 +101,15 @@ void resize(const glm::vec2& window_size) {
 	shader->setViewMatrix(vw_matrix);
 }
 
-void update() {
-	auto& gameloop = window->getGameloop();
-	std::string frametime_text = fmt::format("frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
-	// spdlog::debug(frametime_text);
-	textpanel->text_panel_info.text = frametime_text;
+// update 30 times per second
+void update_30() {
+	auto& gameloop = window->getGameloop(); 
+	std::string str = fmt::format("frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
+	textpanel->text_panel_info.text = str;
+	// spdlog::info(str);
 }
 
+// gui
 void setup_gui() {
 	{
 		oe::gui::DecoratedButtonInfo button_info = {};
@@ -211,7 +214,7 @@ void setup_gui() {
 		text_panel_info.font_size = 20;
 		text_panel_info.align_parent = oe::alignments::top_left;
 		text_panel_info.align_render = oe::alignments::top_left;
-		text_panel_info.text = "placeholder";
+		text_panel_info.text = "";
 		textpanel = new oe::gui::TextPanel(gui, text_panel_info);
 		gui->addSubWidget(textpanel);
 	}
@@ -227,28 +230,7 @@ void setup_gui() {
 	}
 }
 
-void cursor_pos(const glm::vec2& cursor, const glm::vec2& cursor_window) {
-	// spdlog::debug("cursor_window {}, cursor {}", cursor_window, cursor);
-	gui->cursor(oe::mouse_buttons::none, oe::actions::none, cursor_window);
-}
-
-void button(oe::mouse_buttons button, oe::actions action) {
-	// spdlog::debug("button {}, action {}", button, action);
-	const glm::vec2& cursor = window->getCursorWindow();
-	gui->cursor(button, action, cursor);
-}
-
-void text(uint32_t character, oe::modifiers mods) {
-	// spdlog::debug("character {}, mods {}", character, mods);
-	gui->text(character, mods);
-}
-
-void keyboard(oe::keys key, oe::actions action, oe::modifiers mods) {
-	// spdlog::debug("key {}, action {}, mods {}", key, action, mods);
-	gui->key(key, action, mods);
-}
-
-void init()
+void main()
 {
 	auto& engine = oe::Engine::getSingleton();
 
@@ -262,14 +244,12 @@ void init()
 	oe::WindowInfo window_config = {};
 	window_config.title = "GUIs";
 	window_config.multisamples = 4;
-	window_config.cursor_callback = cursor_pos;
-	window_config.resize_callback = resize;
-	window_config.button_callback = button;
-	window_config.text_callback = text;
-	window_config.key_callback = keyboard;
-	window_config.render_callback = render;
-	window_config.update_callback = update;
 	window = engine.createWindow(window_config);
+
+	// connect events
+	window->connect_listener<oe::ResizeEvent, &resize>();
+	window->connect_render_listener<&render>();
+	window->connect_update_listener<30, &update_30>();
 
 	// instance settings
 	engine.swapInterval(0);
@@ -302,8 +282,7 @@ void init()
 	setup_gui();
 
 	// start
-	resize(window->getSize());
-	window->getGameloop().start(30);  // print the average frametime 30 times in a second
+	window->getGameloop().start();
 
 	// cleanup
 	delete gui;
@@ -312,18 +291,4 @@ void init()
 	delete shader;
 	engine.destroyPrimitiveRenderer(renderer);
 	engine.destroyWindow(window);
-}
-
-int main() {
-	try
-	{
-		init();
-		return 0;
-	}
-	catch (const std::exception& e)
-	{
-		spdlog::error(e.what());
-		assert(e.what());
-		return -1;
-	}
 }

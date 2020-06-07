@@ -104,7 +104,7 @@ void setup() {
 
 }
 
-// render func
+// render event
 void render(float update_fraction) {
 	window->clear(oe::colors::transparent);
 
@@ -137,14 +137,14 @@ void resize(const oe::ResizeEvent& event) {
 	shader->useTexture(true);
 }
 
-// update 2 times per second
+// update event 2 times per second
 void update_2() {
 	auto& gameloop = window->getGameloop(); 
 	spdlog::info("frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
 }
 
-// update 60 times per second
-void update_60() {
+// update event 60 times per second
+void update() {
 	entity_registry.view<component_body>().each([&](entt::entity entity, component_body& body)
 	{
 		// rendering
@@ -181,7 +181,7 @@ int main(int argc, char* argv[]) {
 	window->connect_listener<oe::ResizeEvent, &resize>();
 	window->connect_render_listener<&render>();
 	window->connect_update_listener<2, &update_2>();
-	window->connect_update_listener<updates_per_second, &update_60>();
+	window->connect_update_listener<updates_per_second, &update>();
 
 	// instance settings
 	engine.culling(oe::culling_modes::back);

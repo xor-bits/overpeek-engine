@@ -98,10 +98,10 @@ namespace oe::graphics {
 
 		// -- events --
 		// connect events
-		template<class Event, auto Listener, class ... Args>
-		void connect_listener(Args&&... args)
+		template<class Event, auto Listener, class Instance>
+		void connect_listener(const Instance& instance)
 		{
-			dispatcher.sink<Event>().connect<Listener>(std::forward(args)...);
+			dispatcher.sink<Event>().connect<Listener>(instance);
 		}
 		template<class Event, auto Listener>
 		void connect_listener()
@@ -109,10 +109,10 @@ namespace oe::graphics {
 			dispatcher.sink<Event>().connect<Listener>();
 		}
 		// disconenct events
-		template<class Event, auto Listener, class ... Args>
-		void disconnect_listener(Args&&... args)
+		template<class Event, auto Listener, class Instance>
+		void disconnect_listener(Instance&& instance)
 		{
-			dispatcher.sink<Event>().disconnect<Listener>(std::forward(args)...);
+			dispatcher.sink<Event>().disconnect<Listener>(instance);
 		}
 		template<class Event, auto Listener>
 		void disconnect_listener()
@@ -120,10 +120,10 @@ namespace oe::graphics {
 			dispatcher.sink<Event>().disconnect<Listener>();
 		}
 		// connect update
-		template<size_t ups, auto F, class ... Args>
-		void connect_update_listener(Args&&... args)
+		template<size_t ups, auto F, class Instance>
+		void connect_update_listener(Instance&& instance)
 		{
-			m_window_gameloop.connect_update_listener<ups, F>(std::forward(args)...);
+			m_window_gameloop.connect_update_listener<ups, F>(instance);
 		}
 		template<size_t ups, auto F>
 		void connect_update_listener()
@@ -131,10 +131,10 @@ namespace oe::graphics {
 			m_window_gameloop.connect_update_listener<ups, F>();
 		}
 		// disconnect update
-		template<size_t ups, auto F, class ... Args>
-		void disconnect_update_listener(Args&&... args)
+		template<size_t ups, auto F, class Instance>
+		void disconnect_update_listener(Instance&& instance)
 		{
-			m_window_gameloop.disconnect_update_listener<ups, F>(std::forward(args)...);
+			m_window_gameloop.disconnect_update_listener<ups, F>(instance);
 		}
 		template<size_t ups, auto F>
 		void disconnect_update_listener()
@@ -142,10 +142,10 @@ namespace oe::graphics {
 			m_window_gameloop.disconnect_update_listener<ups, F>();
 		}
 		// connect render
-		template<auto F, class ... Args>
-		void connect_render_listener(Args&&... args)
+		template<auto F, class Instance>
+		void connect_render_listener(Instance&& instance)
 		{
-			m_window_gameloop.connect_render_listener<F>(std::forward(args)...);
+			m_window_gameloop.connect_render_listener<F>(instance);
 		}
 		template<auto F>
 		void connect_render_listener()
@@ -153,10 +153,10 @@ namespace oe::graphics {
 			m_window_gameloop.connect_render_listener<F>();
 		}
 		// disconnect render
-		template<auto F, class ... Args>
-		void disconnect_render_listener(Args&&... args)
+		template<auto F, class Instance>
+		void disconnect_render_listener(Instance&& instance)
 		{
-			m_window_gameloop.disconnect_render_listener<F>(std::forward(args)...)
+			m_window_gameloop.disconnect_render_listener<F>(instance)
 		}
 		template<auto F>
 		void disconnect_render_listener()

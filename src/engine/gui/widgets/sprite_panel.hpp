@@ -17,6 +17,7 @@ namespace oe::gui {
 		const oe::graphics::Sprite* sprite = nullptr; // must be set
 	};
 
+	struct GUIRenderEvent;
 	class GUI;
 	class SpritePanel : public Widget {
 	private:
@@ -29,8 +30,8 @@ namespace oe::gui {
 		SpritePanel(GUI* gui_manager, const SpritePanelInfo& sprite_panel_info);
 		~SpritePanel();
 
-		// Inherited via Widget
-		virtual void render(float& z, oe::graphics::Renderer* renderer) override;
+		// events
+		void on_render(const GUIRenderEvent& event);
 	};
 
 }

@@ -1,10 +1,12 @@
 #include "button_decorated.hpp"
+#include "engine/gui/gui_manager.hpp"
 
 #if _DEBUG && 0
 #define _DEFAULT_COLOR glm::vec4(0.0f, 0.0f, 0.0f, 0.2f)
 #else
 #define _DEFAULT_COLOR glm::vec4(0.0f, 0.0f, 0.0f, 0.0f)
 #endif // _DEBUG
+
 
 
 namespace oe::gui {
@@ -37,15 +39,17 @@ namespace oe::gui {
 		tp_info.align_render = oe::alignments::center_center;
 		button_text = new oe::gui::TextPanel(gui_manager, tp_info);
 		button_background->addSubWidget(button_text);
+		
+		// event listeners
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&DecoratedButton::on_render>(this);
 	}
 
 	DecoratedButton::~DecoratedButton() {
-		// delete button_background;
-		// delete button_text;
-		// delete button;
+		// event listeners
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&DecoratedButton::on_render>(this);
 	}
 
-	void DecoratedButton::resize()
+	void DecoratedButton::on_render(const GUIRenderEvent& event)
 	{
 		const glm::ivec2 new_size = button_text->size + button_info.padding * 2.0f;
 		button_background->size = new_size;

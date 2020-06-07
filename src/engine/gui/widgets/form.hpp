@@ -22,7 +22,6 @@ namespace oe::gui {
 	public:
 		Form(GUI* gui_manager, const FormInfo& form_info);
 		~Form();
-		
 	};
 
 }

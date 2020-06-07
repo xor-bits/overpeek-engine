@@ -33,6 +33,7 @@ namespace oe::gui {
 		oe::graphics::Window* window_handle = nullptr; // must be set
 	};
 
+	struct GUIRenderEvent;
 	class GUI;
 	class TextInput : public Widget {
 	private:
@@ -53,11 +54,11 @@ namespace oe::gui {
 		TextInput(GUI* gui_manager, const TextInputInfo& text_input_info);
 		~TextInput();
 
-		// Inherited via Widget
-		virtual void render(float& z, oe::graphics::Renderer* renderer) override;
-		virtual void text(uint32_t codepoint, oe::modifiers mods) override;
-		virtual void key(oe::keys key, oe::actions action, oe::modifiers mods) override;
-		virtual void cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) override;
+		// events
+		void on_render(const GUIRenderEvent& event);
+		void on_codepoint(const CodepointEvent& event);
+		void on_key(const KeyboardEvent& event);
+		void on_button(const MouseButtonEvent& event);
 	};
 
 }

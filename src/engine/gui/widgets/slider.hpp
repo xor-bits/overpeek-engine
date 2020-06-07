@@ -27,6 +27,7 @@ namespace oe::gui {
 		glm::vec2 align_render                     = oe::alignments::center_center;
 	};
 
+	struct GUIRenderEvent;
 	class GUI;
 	class Slider : public Widget {
 	private:
@@ -46,9 +47,10 @@ namespace oe::gui {
 		Slider(GUI* gui_manager, const SliderInfo& slider_info);
 		~Slider();
 
-		// Inherited via Widget
-		virtual void render(float& z, oe::graphics::Renderer* renderer) override;
-		virtual void cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) override;
+		// events
+		void on_render(const GUIRenderEvent& event);
+		void on_cursor(const CursorPosEvent& event);
+		void on_button(const MouseButtonEvent& event);
 	};
 
 }

@@ -34,13 +34,21 @@ namespace oe::gui {
 		m_main_frame = new oe::gui::Form(this, form_info);
 		m_offset = { 0, 0 };
 		m_old_window_size = { 0, 0 };
-		resize();
+
+		// initial resize
+		short_resize();
+		
+		// event listeners
+		m_window->connect_listener<oe::ResizeEvent, &GUI::on_resize>(this);
 	}
 
 	GUI::~GUI() {
 		delete m_main_frame;
 		oe::Engine::getSingleton().destroyRenderer(m_renderer);
 		delete m_shader;
+		
+		// event listeners
+		m_window->disconnect_listener<oe::ResizeEvent, &GUI::on_resize>(this);
 	}
 
 	void GUI::offset(const glm::vec2& offset) {
@@ -52,14 +60,12 @@ namespace oe::gui {
 	}
 
 	void GUI::render() {
-		resize();
-
 		auto& engine = oe::Engine::getSingleton();
 		auto old_depth = engine.getDepth();
 		engine.depth(oe::depth_functions::always);
 
-		float z = 0.0f;
-		if (m_main_frame) m_main_frame->__render(z, m_renderer);
+		render_empty();
+
 		m_shader->bind();
 		m_renderer->render();
 		m_late_renderer->render();
@@ -69,19 +75,24 @@ namespace oe::gui {
 
 	void GUI::render_empty()
 	{
-		resize();
+		short_resize();
 		float z = 0.0f;
-		if (m_main_frame) m_main_frame->__render(z, m_renderer);
+		GUIRenderEvent event;
+		event.z = &z;
+		event.renderer = m_renderer;
+		dispatcher.trigger(event);
 	}
 
-	void GUI::resize() {
-		resize(m_window->getSize());
+	void GUI::short_resize() {
+		oe::ResizeEvent event;
+		event.framebuffer_size = m_window->getSize();
+		event.framebuffer_size_old = event.framebuffer_size;
+		on_resize(event);
 	}
 
-	void GUI::resize(const glm::vec2& window_size) {
-		m_main_frame->size = window_size - glm::vec2(2 * border);
+	void GUI::on_resize(const oe::ResizeEvent& event) {
+		m_main_frame->size = static_cast<glm::vec2>(event.framebuffer_size) - glm::vec2(2 * border);
 		m_main_frame->offset_position = { border, border };
-		m_main_frame->__resize();
 
 		/*
 		    0                  0
@@ -93,14 +104,12 @@ namespace oe::gui {
 		    h                  h
 		*/
 
-		if (m_old_window_size == window_size) return;
-		glm::mat4 pr_matrix = glm::ortho(0.0f, (float)window_size.x, (float)window_size.y, 0.0f, -100000.0f, 10.0f);
-		// glm::mat4 pr_matrix = glm::perspectiveFov(60.0f, (float)window_size.x, (float)window_size.y, 0.0f, 1000.0f);
-		// pr_matrix = glm::lookAt(glm::vec3{ 0.0f, 0.0f, 50.0f }, glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, -1.0f, 0.0f}) * pr_matrix;
+		if (m_old_window_size == event.framebuffer_size) return;
+		glm::mat4 pr_matrix = glm::ortho(0.0f, (float)event.framebuffer_size.x, (float)event.framebuffer_size.y, 0.0f, -100000.0f, 10.0f);
 		m_shader->bind();
 		m_shader->useTexture(true);
 		m_shader->setProjectionMatrix(pr_matrix);
-		m_old_window_size = window_size;
+		m_old_window_size = event.framebuffer_size;
 	}
 
 	void GUI::addSubWidget(Widget* widget) {
@@ -108,19 +117,4 @@ namespace oe::gui {
 		render_empty();
 	}
 
-	void GUI::cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) {
-		glm::vec2 cursor_window_final = cursor_window - m_offset;
-
-		m_main_frame->__cursor(button, action, cursor_window_final);
-	}
-
-	void GUI::text(uint32_t codepoint, oe::modifiers mods) {
-		m_main_frame->__text(codepoint, mods);
-	}
-
-	void GUI::key(oe::keys key, oe::actions action, oe::modifiers mods) {
-		m_main_frame->__key(key, action, mods);
-	}
-
 }
-

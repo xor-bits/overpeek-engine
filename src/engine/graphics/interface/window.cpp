@@ -78,6 +78,8 @@ namespace oe::graphics {
 				event.button = static_cast<oe::mouse_buttons>(button);
 				event.action = static_cast<oe::actions>(action);
 				event.mods = static_cast<oe::modifiers>(mods);
+				event.cursor_pos.cursor_windowspace = this_class->m_cursor_window;
+				event.cursor_pos.cursor_worldspace = this_class->m_cursor_transformed;
 				this_class->dispatcher.trigger(event);
 				// if (this_class->m_window_info.button_callback) this_class->m_window_info.button_callback(static_cast<oe::mouse_buttons>(button), static_cast<oe::actions>(action));
 			});

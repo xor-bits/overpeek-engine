@@ -28,27 +28,35 @@ namespace oe::gui {
 		addSubWidget(m_button);
 		
 		quad_check = m_gui_manager->getRenderer()->createQuad();
-		quad_box = m_gui_manager->getRenderer()->createQuad(); // hehe
+		quad_box = m_gui_manager->getRenderer()->createQuad(); // check - box, hehe
+
+		// event listeners
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&Checkbox::on_render>(this);
 	}
 
 	Checkbox::~Checkbox()
 	{
 		m_gui_manager->getRenderer()->destroyQuad(quad_check);
-		m_gui_manager->getRenderer()->destroyQuad(quad_box); // hehe
+		m_gui_manager->getRenderer()->destroyQuad(quad_box);
+
+		// event listeners
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&Checkbox::on_render>(this);
 	}
 
-	void Checkbox::render(float& z, oe::graphics::Renderer* renderer) {
+	void Checkbox::on_render(const GUIRenderEvent& event)
+	{
+		*event.z += 1.0f;
 		quad_box->setPosition(render_position);
-		quad_box->setZ(z);
+		quad_box->setZ(*event.z);
 		quad_box->setSize(size);
 		quad_box->setColor(m_checkbox_info.color_back);
 		quad_box->setSprite(m_checkbox_info.sprite);
 		quad_box->update();
 
 		if (m_checkbox_info.initial) {
-			z += 1.0f;
+			*event.z += 1.0f;
 			quad_check->setPosition(render_position + size * 0.5f);
-			quad_check->setZ(z);
+			quad_check->setZ(*event.z);
 			quad_check->setSize(size * 0.7f);
 			quad_check->setColor(m_checkbox_info.color_mark);
 			quad_check->setSprite(m_checkbox_info.sprite);
