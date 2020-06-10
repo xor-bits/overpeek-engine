@@ -14,6 +14,9 @@ namespace oe::gui {
 		label = new oe::graphics::TextLabel();
 		text_quad = m_gui_manager->getLateRenderer()->createQuad();
 
+		_text_panel_info.font_size;
+		size;
+
 		// event listeners
 		m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&TextPanel::on_render>(this);
 	}

@@ -115,7 +115,7 @@ void init() {
 	sprite_white = pack_1->empty_sprite();
 	pack_0->construct();
 	pack_1->construct();
-	
+
 	// start
 	create_scene();
 	window->getGameloop().start(); // print the average frametime 30 times in a second

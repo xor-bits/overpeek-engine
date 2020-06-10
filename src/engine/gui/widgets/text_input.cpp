@@ -106,13 +106,15 @@ namespace oe::gui
 		// text
 		*event.z += 1.0f;
 		glm::vec2 text_size = glm::vec2(text_input_info.font_size);
-		label->generate(fmt::format("<#000000>{}{}", text_input_info.text, bar), m_gui_manager->getWindow());
+		const std::string drawn_str = fmt::format("<#000000>{}{}", text_input_info.text, bar);
+		label->generate(drawn_str, m_gui_manager->getWindow());
 		text_quad->setPosition(render_position + oe::alignmentOffset(size, text_input_info.align_text) - oe::alignmentOffset(text_size * label->getSize(), text_input_info.align_text));
 		text_quad->setZ(*event.z);
 		text_quad->setSize(text_size * label->getSize());
 		text_quad->setSprite(label->getSprite());
 		text_quad->setColor(oe::colors::white);
 		text_quad->update();
+		// spdlog::info(drawn_str);
 	}
 
 	void TextInput::on_codepoint(const CodepointEvent& event)

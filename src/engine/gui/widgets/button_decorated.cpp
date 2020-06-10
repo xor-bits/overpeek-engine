@@ -51,6 +51,8 @@ namespace oe::gui {
 
 	void DecoratedButton::on_render(const GUIRenderEvent& event)
 	{
+		if (!button_info.autoresize) return;
+
 		const glm::ivec2 new_size = button_text->size + button_info.padding * 2.0f;
 		button_background->size = new_size;
 		button->size = new_size;

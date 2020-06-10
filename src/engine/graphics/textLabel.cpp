@@ -72,6 +72,7 @@ namespace oe::graphics {
 		, m_font(font)
 		, m_framebuffer(nullptr)
 		, m_fb_size(0.0f, 0.0f)
+		, m_size(0.0f, 0.0f)
 	{}
 
 	TextLabel::TextLabel()
@@ -80,6 +81,7 @@ namespace oe::graphics {
 		, m_font(Text::getFont())
 		, m_framebuffer(nullptr)
 		, m_fb_size(0.0f, 0.0f)
+		, m_size(0.0f, 0.0f)
 	{}
 
 	void TextLabel::generate(const std::string& text, Window* window, const glm::vec4& color)
@@ -93,9 +95,10 @@ namespace oe::graphics {
 		m_text = text;
 		initial_generated = true;
 
-		float multisamples = static_cast<float>(window->m_window_info.multisamples); // should I make this function arg or keep like this
+		float multisamples = std::max(static_cast<float>(window->m_window_info.multisamples), 1.0f); // should I make this function arg or keep like this
 
 		// size of the framebuffer
+		if (!m_font) { oe_error_terminate("No font"); }
 		m_size = Text::size(text, glm::vec2(m_font->m_resolution * multisamples), m_font);
 		m_size.x = std::max(m_size.x, 1.0f);
 		m_size.y = std::max(m_size.y, 1.0f);

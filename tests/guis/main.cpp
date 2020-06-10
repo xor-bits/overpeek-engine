@@ -162,37 +162,37 @@ void setup_gui() {
 		auto box = new oe::gui::SpritePanel(gui, sprite_panel_info);
 		gui->addSubWidget(box);
 	}
-	// {
-	// 	oe::gui::TextInputInfo text_input_info = {};
-	// 	text_input_info.size = { 200, 80 };
-	// 	text_input_info.window_handle = window;
-	// 	text_input_info.align_parent = oe::alignments::bottom_right;
-	// 	text_input_info.align_render = oe::alignments::bottom_right;
-	// 	text_input_info.font_size = 14;
-	// 	text_input_info.sprite = pack->empty_sprite();
-	// 	textbox = new oe::gui::TextInput(gui, text_input_info);
-	// 	gui->addSubWidget(textbox);
-    // 
-	// {
-	// 	oe::gui::DecoratedButtonInfo button_info = {};
-	// 	button_info.size = { 175, 50 };
-	// 	button_info.offset_position = { 0, -10 };
-	// 	button_info.align_parent = oe::alignments::top_center;
-	// 	button_info.align_render = oe::alignments::bottom_center;
-	// 	button_info.sprite = pack->empty_sprite();
-	// 	button_info.text = "log";
-	// 	button_info.callback = [](oe::mouse_buttons button, oe::actions action) {
-	// 		if (action == oe::actions::release && button == oe::mouse_buttons::button_left) {
-	// 			spdlog::info(textbox->text_input_info.text);
-	// 			textbox->text_input_info.text = "";
-	// 		}
-	// 		else if (action == oe::actions::none || button == oe::mouse_buttons::none) {
-	// 			// spdlog::info("Button hovered");
-	// 		}
-	// 	};
-	// 	auto button = new oe::gui::DecoratedButton(gui, button_info);
-	// 	textbox->addSubWidget(button);
-	// }
+	{
+		oe::gui::TextInputInfo text_input_info = {};
+		text_input_info.size = { 200, 80 };
+		text_input_info.window_handle = window;
+		text_input_info.align_parent = oe::alignments::bottom_right;
+		text_input_info.align_render = oe::alignments::bottom_right;
+		text_input_info.font_size = 14;
+		text_input_info.sprite = pack->empty_sprite();
+		textbox = new oe::gui::TextInput(gui, text_input_info);
+		gui->addSubWidget(textbox);
+	}
+	{
+		oe::gui::DecoratedButtonInfo button_info = {};
+		button_info.size = { 175, 50 };
+		button_info.offset_position = { 0, -10 };
+		button_info.align_parent = oe::alignments::top_center;
+		button_info.align_render = oe::alignments::bottom_center;
+		button_info.sprite = pack->empty_sprite();
+		button_info.text = "log";
+		button_info.callback = [](oe::mouse_buttons button, oe::actions action) {
+			if (action == oe::actions::release && button == oe::mouse_buttons::button_left) {
+				spdlog::info(textbox->text_input_info.text);
+				textbox->text_input_info.text = "";
+			}
+			else if (action == oe::actions::none || button == oe::mouse_buttons::none) {
+				// spdlog::info("Button hovered");
+			}
+		};
+		auto button = new oe::gui::DecoratedButton(gui, button_info);
+		textbox->addSubWidget(button);
+	}
 	{
 		oe::gui::SliderInfo slider_info = {};
 		slider_info.slider_size = { 400, 30 };

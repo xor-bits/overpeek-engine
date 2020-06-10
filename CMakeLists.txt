@@ -14,17 +14,17 @@ if(${BUILD_TESTS})
 endif()
 
 
-set(str "")
-macro(print_dirs target)
-	get_property(dirs TARGET ${target} PROPERTY INCLUDE_DIRECTORIES)
-	foreach(dir ${dirs})
-	set(str "${str} --include-path=\"${dir}\"")
-	endforeach()
-endmacro()
-
-print_dirs("engine")
-print_dirs("entities")
-print_dirs("box2d")
-print_dirs("glfw")
-
-message("${str}")
+# set(str "")
+# macro(print_dirs target)
+# 	get_property(dirs TARGET ${target} PROPERTY INCLUDE_DIRECTORIES)
+# 	foreach(dir ${dirs})
+# 	set(str "${str} --include-path=\"${dir}\"")
+# 	endforeach()
+# endmacro()
+# 
+# print_dirs("engine")
+# print_dirs("entities")
+# print_dirs("box2d")
+# print_dirs("glfw")
+# 
+# message("${str}")

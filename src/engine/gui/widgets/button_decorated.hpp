@@ -14,6 +14,7 @@ namespace oe::gui {
 		glm::vec2 padding                  = { 8, 8 };
 		glm::vec2 offset_position          = { 0, 0 };
 		std::string text                   = "";
+		bool autoresize                    = false;
 		glm::vec2 align_parent             = oe::alignments::center_center;
 		glm::vec2 align_render             = oe::alignments::center_center;
 		glm::vec4 color                    = oe::colors::dark_grey;
