@@ -48,11 +48,11 @@ namespace oe {
 		points
 	};
 
-	// render types
+	// opengl GL_STATIC_.. and GL_DYNAMIC_..
 	enum class types {
 		none,
-		staticrender, 
-		dynamicrender
+		static_type, 
+		dynamic_type
 	};
 
 	// shader stages
@@ -355,8 +355,8 @@ namespace oe {
 	// renderer create info
 	struct RendererInfo {
 		int max_primitive_count = 10000;
-		oe::types arrayRenderType = oe::types::dynamicrender;
-		oe::types indexRenderType = oe::types::staticrender;
+		oe::types arrayRenderType = oe::types::dynamic_type;
+		oe::types indexRenderType = oe::types::static_type;
 		void* staticVBOBuffer_data = nullptr;
 	};
 
@@ -364,6 +364,7 @@ namespace oe {
 	struct ShaderStageInfo {
 		shader_stages stage;
 		std::string source;
+		std::string include_path; // optional
 	};
 
 	// shader create info
@@ -379,6 +380,7 @@ namespace oe {
 		graphics_api api = oe::graphics_api::OpenGL;
 		gpu favored_gpu_vulkan = gpu::dedicated;
 		bool debug_messages = false;
+		bool ignore_errors = true;
 	};
 
 	struct TextureInfo {
@@ -387,13 +389,8 @@ namespace oe {
 		oe::formats data_format = oe::formats::rgba;
 		bool generate_mipmaps = false;
 
-		uint8_t dimensions = 2;
-		size_t width = 1;
-		size_t x_offset = 0;
-		size_t height = 0;
-		size_t y_offset = 0;
-		size_t depth = 0;
-		size_t z_offset = 0;
+		std::vector<size_t> size = { 1 };   // must have the same size as (std::vector<size_t> offset)
+		std::vector<size_t> offset = { 0 }; // must have the same size as (std::vector<size_t> size)
 	};
 
 	struct FrameBufferInfo {

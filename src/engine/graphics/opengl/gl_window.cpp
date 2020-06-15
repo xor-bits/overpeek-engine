@@ -60,7 +60,10 @@ void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum seve
 	std::cout << fmt::format("Description   :   {}", log_type) << std::endl;
 	std::cout << fmt::format("Line          :   {}", log_severity) << std::endl;
 	std::cout << std::endl;
-	oe_error_terminate("OpenGL error");
+	if (oe::Engine::getSingleton().engine_info.ignore_errors)
+		spdlog::error("OpenGL error");
+	else
+		oe_error_terminate("OpenGL error");
 }
 
 namespace oe::graphics {

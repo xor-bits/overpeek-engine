@@ -35,6 +35,10 @@ namespace oe::graphics {
 		virtual void bind() const override;
 		virtual void unbind() const override;
 
+		// compute shader only
+		virtual void bindCompute() const override;
+		virtual void unbindCompute() const override;
+
 	public:
 		uint32_t getGLTexture() { return m_id; }
 		int32_t getGLTarget() { return m_target; }

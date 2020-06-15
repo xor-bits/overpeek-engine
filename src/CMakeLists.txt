@@ -56,6 +56,7 @@ set(source_list ${source_list}
 	"engine/graphics/interface/primitive_renderer.hpp"
 	"engine/graphics/interface/shader.cpp"
 	"engine/graphics/interface/shader.hpp"
+	"engine/graphics/interface/shader_common.hpp"
 	"engine/graphics/interface/texture.cpp"
 	"engine/graphics/interface/texture.hpp"
 	"engine/graphics/interface/window.cpp"
@@ -80,6 +81,8 @@ set(source_list ${source_list}
 	"engine/graphics/opengl/buffers/indexBuffer.hpp"
 	"engine/graphics/opengl/buffers/vertexBuffer.cpp"
 	"engine/graphics/opengl/buffers/vertexBuffer.hpp"
+	"engine/graphics/opengl/buffers/storageBuffer.cpp"
+	"engine/graphics/opengl/buffers/storageBuffer.hpp"
 	"engine/graphics/opengl/buffers/vertexArray.cpp"
 	"engine/graphics/opengl/buffers/vertexArray.hpp"
 )
@@ -240,12 +243,15 @@ target_include_directories(${target_name} PRIVATE "vendor/rectpack2D/include")
 if(BUILD_VULKAN)
 target_include_directories(${target_name} PRIVATE ${Vulkan_INCLUDE_DIRS})
 target_link_libraries(${target_name} PRIVATE ${Vulkan_LIBRARIES})
-add_subdirectory("vendor/shaderc/src")
-target_link_libraries(${target_name} PRIVATE shaderc)
-set_target_properties(shaderc PROPERTIES FOLDER "engine/vendor")
 endif()
 # openal
 target_include_directories(${target_name} PRIVATE ${OPENAL_INCLUDE_DIR})
 target_link_libraries(${target_name} PRIVATE ${OPENAL_LIBRARY})
 # opengl
 target_link_libraries(${target_name} PRIVATE ${OPENGL_LIBRARY})
+# shaderc
+
+add_subdirectory("vendor/shaderc/src")
+target_link_libraries(${target_name} PRIVATE shaderc)
+target_include_directories(${target_name} PRIVATE "vendor/shaderc/src/libshaderc/include")
+set_target_properties(shaderc PROPERTIES FOLDER "engine/vendor")

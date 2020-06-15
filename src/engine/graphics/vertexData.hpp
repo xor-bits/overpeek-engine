@@ -41,6 +41,13 @@ namespace oe::graphics {
 		VertexData(glm::fvec2 position, glm::fvec2 uv, glm::fvec4 color)
 			: VertexData_internal(position, uv, color)
 		{}
+
+		static void config(std::function<void(int, int, size_t)> attrib_fn)
+		{
+			attrib_fn(0, 3, pos_offset);
+			attrib_fn(1, 2, uv_offset);
+			attrib_fn(2, 4, col_offset);
+		}
 	};
 
 }

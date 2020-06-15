@@ -10,6 +10,7 @@
 
 namespace oe::graphics {
 
+	class StorageBuffer;
 	class GLShader : public Shader {
 	private:
 		uint32_t p_shader_program;
@@ -26,6 +27,14 @@ namespace oe::graphics {
 		virtual void bind() const override;
 		virtual void unbind() const override;
 
+		// compute shader only
+		void dispatchCompute(glm::vec<3, size_t> work_group_count);
+		glm::vec<3, size_t> workGroupSize();
+
+		void bindSSBO(const std::string& block_name, const StorageBuffer* buffer, size_t binding);
+		void unbindSSBO(const std::string& block_name, const StorageBuffer* buffer, size_t binding);
+
+		// uniforms
 		virtual int32_t getUniformLocation(const std::string& name) override;
 
 		virtual void setUniform1f(const std::string& name, float value) override;

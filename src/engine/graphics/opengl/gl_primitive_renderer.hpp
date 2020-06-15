@@ -25,7 +25,7 @@ namespace oe::graphics {
 		VertexBuffer* m_vbo;
 		IndexBuffer* m_ibo;
 
-		VertexData* m_mapped_buffer;
+		vertex_type* m_mapped_buffer;
 
 		std::function<void(size_t)> native_glDrawElementsPrimitive;
 
@@ -47,7 +47,8 @@ namespace oe::graphics {
 			m_vao = new VertexArray();
 			m_ibo = new IndexBuffer(index_buffer_data.ptr(), index_buffer_data.size(), renderer_info.indexRenderType);
 			m_vbo = new VertexBuffer(vertex_buffer_data.ptr(), vertex_buffer_data.size(), vertex_type::component_count, renderer_info.arrayRenderType);
-			m_vbo->config();
+			std::function<void(int, int, size_t)> fn = std::bind(&VertexBuffer::attrib, m_vbo, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+			vertex_type::config(fn);
 
 			switch (generator.render_primitive())
 			{
@@ -103,6 +104,16 @@ namespace oe::graphics {
 				m_vao->bind();
 				native_glDrawElementsPrimitive(override_primitive_count * this->m_index_per_primitive);
 			}
+		}
+
+		const VertexBuffer* getVBO() const
+		{
+			return m_vbo;
+		}
+
+		const IndexBuffer* getIBO() const
+		{
+			return m_ibo;
 		}
 	};
 

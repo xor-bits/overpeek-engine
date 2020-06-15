@@ -18,8 +18,8 @@ namespace oe::gui {
 	{
 		// renderer
 		oe::RendererInfo renderer_info = {};
-		renderer_info.arrayRenderType = oe::types::dynamicrender;
-		renderer_info.indexRenderType = oe::types::staticrender;
+		renderer_info.arrayRenderType = oe::types::dynamic_type;
+		renderer_info.indexRenderType = oe::types::static_type;
 		renderer_info.max_primitive_count = 10000;
 		renderer_info.staticVBOBuffer_data = nullptr;
 		m_renderer = oe::Engine::getSingleton().createRenderer(renderer_info);

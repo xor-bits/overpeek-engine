@@ -5,6 +5,7 @@
 #include "vk_swapchain.hpp"
 #include "buffers/vk_command_pool.hpp"
 #include "engine/engine.hpp"
+#include "engine/graphics/interface/shader_common.hpp"
 
 
 
@@ -54,30 +55,6 @@ namespace oe::graphics {
 		}
 	}
 
-	vk::ShaderStageFlagBits shader_flagbits(oe::shader_stages stage) {
-		switch (stage)
-		{
-		case oe::shader_stages::vertex_shader:
-			return vk::ShaderStageFlagBits::eVertex;
-			break;
-		case oe::shader_stages::tesselation_control_shader:
-			return vk::ShaderStageFlagBits::eTessellationControl;
-			break;
-		case oe::shader_stages::tesselation_evaluation_shader:
-			return vk::ShaderStageFlagBits::eTessellationEvaluation;
-			break;
-		case oe::shader_stages::geometry_shader:
-			return vk::ShaderStageFlagBits::eGeometry;
-			break;
-		case oe::shader_stages::fragment_shader:
-			return vk::ShaderStageFlagBits::eFragment;
-			break;
-		case oe::shader_stages::compute_shader:
-			return vk::ShaderStageFlagBits::eCompute;
-			break;
-		}
-	}
-
 	std::string shader_module_name(const std::string& name, oe::shader_stages stage) {
 		switch (stage)
 		{
@@ -98,6 +75,30 @@ namespace oe::graphics {
 			break;
 		case oe::shader_stages::compute_shader:
 			return name + "." + "compute";
+			break;
+		}
+	}
+
+	vk::ShaderStageFlagBits shader_flagbits(oe::shader_stages stage) {
+		switch (stage)
+		{
+		case oe::shader_stages::vertex_shader:
+			return vk::ShaderStageFlagBits::eVertex;
+			break;
+		case oe::shader_stages::tesselation_control_shader:
+			return vk::ShaderStageFlagBits::eTessellationControl;
+			break;
+		case oe::shader_stages::tesselation_evaluation_shader:
+			return vk::ShaderStageFlagBits::eTessellationEvaluation;
+			break;
+		case oe::shader_stages::geometry_shader:
+			return vk::ShaderStageFlagBits::eGeometry;
+			break;
+		case oe::shader_stages::fragment_shader:
+			return vk::ShaderStageFlagBits::eFragment;
+			break;
+		case oe::shader_stages::compute_shader:
+			return vk::ShaderStageFlagBits::eCompute;
 			break;
 		}
 	}

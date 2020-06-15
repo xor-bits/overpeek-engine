@@ -184,11 +184,10 @@ namespace oe::graphics {
 
 
 		oe::TextureInfo texture_info = {};
-		texture_info.dimensions = 2;
 		texture_info.generate_mipmaps = true;
 		texture_info.data = data;
-		texture_info.width = pack_width;
-		texture_info.height = pack_height;
+		texture_info.size = { pack_width, pack_height };
+		texture_info.offset = { 0, 0 };
 
 		m_texture = oe::Engine::getSingleton().createTexture(texture_info);
 		for (auto sprite : m_sprites)

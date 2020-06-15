@@ -4,9 +4,12 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <shaderc/shaderc.hpp>
+#include "engine/graphics/interface/shader_common.hpp"
 
 #include "engine/utility/fileio.hpp"
 #include "engine/engine.hpp"
+#include "engine/graphics/opengl/buffers/storageBuffer.hpp"
 
 
 
@@ -42,7 +45,7 @@ namespace oe::graphics {
 	}
 
 	void GLShader::programLog(int program, unsigned int type) const {
-		int success;
+		int success = false;
 		glGetProgramiv(program, type, &success);
 		if (!success)
 		{
@@ -69,6 +72,22 @@ namespace oe::graphics {
 		std::vector<GLuint> modules;
 		for (auto& stage : m_shader_info.shader_stages)
 		{
+			// optimization and <#include>:s
+			std::unique_ptr<Includer> includer = std::make_unique<Includer>(stage.include_path);
+
+			shaderc::Compiler compiler = shaderc::Compiler();
+			shaderc::CompileOptions options = shaderc::CompileOptions();
+			options.SetOptimizationLevel(shaderc_optimization_level::shaderc_optimization_level_performance);
+			options.SetIncluder(std::move(includer));
+			auto result = compiler.PreprocessGlsl(stage.source, shader_kind(stage.stage), shader_module_name(shader_info.name, stage.stage).c_str(), options);
+			size_t code_size = (result.end() - result.begin()) * sizeof(uint32_t);
+
+			if (result.GetNumErrors() != 0) {
+				oe_error_terminate("Shader ({}) compilation failed: {}", shader_info.name, result.GetErrorMessage());
+			}
+			std::string preprocessed_glsl = result.begin(); // i know, its stupid to copy large c string to string instead of just using the c string
+
+
 			// stage type
 			uint32_t stage_id;
 			switch (stage.stage)
@@ -94,7 +113,7 @@ namespace oe::graphics {
 			}
 
 			// shader compilation
-			GLuint shader_module = loadShader(stage.source, stage_id);
+			GLuint shader_module = loadShader(preprocessed_glsl, stage_id);
 			modules.push_back(shader_module);
 
 			// attach shader stage
@@ -120,6 +139,33 @@ namespace oe::graphics {
 
 	void GLShader::bind() const { glUseProgram(p_shader_program); }
 	void GLShader::unbind() const { glUseProgram(0); }
+	
+	void GLShader::dispatchCompute(glm::vec<3, size_t> work_groups)
+	{
+		glDispatchCompute(work_groups.x, work_groups.y, work_groups.z);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	}
+
+	glm::vec<3, size_t> GLShader::workGroupSize()
+	{
+		std::array<int32_t, 3> max_work_group_size;
+		glGetProgramiv(p_shader_program, GL_COMPUTE_WORK_GROUP_SIZE, max_work_group_size.data());
+		return { max_work_group_size[0], max_work_group_size[1], max_work_group_size[2] };
+	}
+
+	void GLShader::bindSSBO(const std::string& block_name, const StorageBuffer* buffer, size_t binding)
+	{
+		buffer->bind();
+		buffer->compute(binding);
+		uint32_t block_index = 0;
+		block_index = glGetProgramResourceIndex(p_shader_program, GL_SHADER_STORAGE_BLOCK, block_name.c_str());
+		glShaderStorageBlockBinding(p_shader_program, block_index, binding);
+	}
+
+	void GLShader::unbindSSBO(const std::string& block_name, const StorageBuffer* buffer, size_t binding)
+	{
+		buffer->unbind();
+	}
 
 	int32_t GLShader::getUniformLocation(const std::string& name) {
 		auto iterator = m_uniform_lookup_table.find(name);

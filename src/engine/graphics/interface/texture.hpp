@@ -20,6 +20,10 @@ namespace oe::graphics {
 		virtual void bind() const = 0;
 		virtual void unbind() const = 0;
 
+		// compute shader only
+		virtual void bindCompute() const = 0;
+		virtual void unbindCompute() const = 0;
+
 	public:
 		inline const TextureInfo& getTextureInfo() { return m_texture_info; }
 

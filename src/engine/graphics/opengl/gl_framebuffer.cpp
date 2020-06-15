@@ -20,9 +20,8 @@ namespace oe::graphics {
 		// Texture
 		TextureInfo texture_info = {};
 		texture_info.empty = true;
-		texture_info.width = framebuffer_info.width;
-		texture_info.height = framebuffer_info.height;
-		texture_info.dimensions = 2;
+		texture_info.size = { framebuffer_info.width, framebuffer_info.height };
+		texture_info.offset = { 0, 0 };
 		m_texture = new oe::graphics::GLTexture(texture_info);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture->getGLTexture(), 0);
 
