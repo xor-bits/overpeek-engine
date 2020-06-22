@@ -8,10 +8,10 @@ namespace oe::graphics { class Quad; class TextLabel; }
 namespace oe::gui {
 
 	struct TextPanelInfo {
-		std::string text           = "";
+		std::wstring text          = L"";
 		int font_size              = 16;
 		glm::vec4 background_color = oe::colors::transparent;
-		glm::vec2 offset_position  = { 0, 0 };
+		glm::ivec2 offset_position = { 0, 0 };
 		glm::vec2 align_parent     = oe::alignments::center_center;
 		glm::vec2 align_render     = oe::alignments::center_center;
 	};
@@ -27,8 +27,11 @@ namespace oe::gui {
 		TextPanelInfo text_panel_info;
 
 	public:
-		TextPanel(GUI* gui_manager, const TextPanelInfo& text_panel_info);
+		TextPanel(const TextPanelInfo& text_panel_info);
 		~TextPanel();
+
+		virtual void managerAssigned(GUI* gui_manager) override;
+		virtual void managerUnassigned(GUI* gui_manager) override;
 
 		// events
 		void on_render(const GUIRenderEvent& event);

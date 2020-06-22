@@ -1,7 +1,6 @@
 #pragma once
 
 #include "engine/internal_libs.hpp"
-#include "engine/graphics/sprite.hpp"
 
 #include "engine/enum.hpp"
 #include "engine/graphics/interface/index_buffer_gen.hpp"
@@ -13,7 +12,7 @@
 namespace oe::graphics {
 
 	template<primitive_types type, typename buffer_gen, typename vertex_type>
-	class BasicPrimitiveRenderer {
+	class IBasicPrimitiveRenderer {
 	public:
 		RendererInfo m_renderer_info;
 
@@ -44,13 +43,13 @@ namespace oe::graphics {
 		}
 
 	public:
-		BasicPrimitiveRenderer(const RendererInfo& renderer_info)
+		IBasicPrimitiveRenderer(const RendererInfo& renderer_info)
 			: m_renderer_info(renderer_info)
 			, m_vertex_count(0)
 			, m_buffer_pos(0)
 		{}
 
-		virtual ~BasicPrimitiveRenderer()
+		virtual ~IBasicPrimitiveRenderer()
 		{}
 
 		virtual void submitVertex(const vertex_type& vertex, size_t index = 0) = 0;
@@ -98,6 +97,7 @@ namespace oe::graphics {
 
 	};
 
-	typedef BasicPrimitiveRenderer<primitive_types::quads, BasicBufferGen<primitive_types::quads>, VertexData> PrimitiveRenderer;
+	// typedef IBasicPrimitiveRenderer<primitive_types::quads, BasicBufferGen<primitive_types::quads>, VertexData> IPrimitiveRenderer;
+	using IPrimitiveRenderer = IBasicPrimitiveRenderer<primitive_types::quads, BasicBufferGen<primitive_types::quads>, VertexData>;
 
 };

@@ -9,7 +9,7 @@
 const oe::graphics::Sprite* sprite;
 const oe::graphics::Sprite* sprite_white;
 oe::graphics::Instance* instance;
-oe::graphics::Window* window;
+oe::graphics::IWindow* window;
 oe::graphics::SpritePack* pack;
 oe::graphics::Renderer* renderer;
 oe::assets::DefaultShader* shader;

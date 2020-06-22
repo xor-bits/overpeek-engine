@@ -8,7 +8,7 @@ const oe::graphics::Sprite* sprite; // from pack 0
 const oe::graphics::Sprite* sprite_white; // from pack 1
 oe::graphics::SpritePack* pack_0;
 oe::graphics::SpritePack* pack_1;
-oe::graphics::Window* window;
+oe::graphics::Window window;
 oe::assets::DefaultShader* shader;
 oe::graphics::Renderer* renderer;
 std::array<oe::graphics::Quad*, 2> quads;
@@ -84,7 +84,7 @@ void init() {
 	window_info.title = "Renderer";
 	window_info.multisamples = 4;
 	window_info.size = { 900, 600 };
-	window = engine.createWindow(window_info);
+	window = oe::graphics::Window(window_info);
 
 	// connect events
 	window->connect_listener<oe::ResizeEvent, &resize>();
@@ -98,11 +98,11 @@ void init() {
 
 	// renderer
 	oe::RendererInfo renderer_info = {};
-	renderer_info.arrayRenderType = oe::types::dynamicrender;
-	renderer_info.indexRenderType = oe::types::staticrender;
+	renderer_info.arrayRenderType = oe::types::dynamic_type;
+	renderer_info.indexRenderType = oe::types::static_type;
 	renderer_info.max_primitive_count = 100;
 	renderer_info.staticVBOBuffer_data = nullptr;
-	renderer = engine.createRenderer(renderer_info);
+	renderer = new oe::graphics::Renderer(renderer_info);
 
 	// shader
 	shader = new oe::assets::DefaultShader();
@@ -125,7 +125,6 @@ void init() {
 	delete pack_1;
 	delete shader;
 	delete renderer;
-	delete window;
 }
 
 int main(int argc, char** argv) {

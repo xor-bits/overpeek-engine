@@ -11,15 +11,15 @@ namespace oe::gui {
 	typedef std::function<void(bool toggled)> checkbox_callback;
 
 	struct CheckboxInfo {
-		checkbox_callback callback              = nullptr;
-		bool initial                            = false;
-		glm::ivec2 size                         = { 24, 24 };
-		glm::vec2 offset_position               = { 0, 0 };
-		glm::vec2 align_parent                  = oe::alignments::center_center;
-		glm::vec2 align_render                  = oe::alignments::center_center;
-		glm::vec4 color_back                    = oe::colors::dark_grey;
-		glm::vec4 color_mark                    = oe::colors::lime;
-		const oe::graphics::Sprite* sprite      = nullptr; // must be set
+		checkbox_callback callback         = nullptr;
+		bool initial                       = false;
+		glm::ivec2 size                    = { 24, 24 };
+		glm::ivec2 offset_position         = { 0, 0 };
+		glm::vec2 align_parent             = oe::alignments::center_center;
+		glm::vec2 align_render             = oe::alignments::center_center;
+		glm::vec4 color_back               = oe::colors::dark_grey;
+		glm::vec4 color_mark               = oe::colors::lime;
+		const oe::graphics::Sprite* sprite = nullptr; // must be set
 	};
 
 	struct GUIRenderEvent;
@@ -36,8 +36,11 @@ namespace oe::gui {
 		void checkbox_action(oe::mouse_buttons button, oe::actions action);
 
 	public:
-		Checkbox(GUI* gui_manager, const CheckboxInfo& checkbox_info);
+		Checkbox(const CheckboxInfo& checkbox_info);
 		~Checkbox();
+
+		virtual void managerAssigned(GUI* gui_manager) override;
+		virtual void managerUnassigned(GUI* gui_manager) override;
 
 		// events
 		void on_render(const GUIRenderEvent& event);

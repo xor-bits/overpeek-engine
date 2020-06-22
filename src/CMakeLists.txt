@@ -21,6 +21,8 @@ set(source_list ${source_list}
 	"engine/enum.hpp"
 	"engine/internal_libs.hpp"
 	"engine/include.hpp"
+	"engine/interfacegen.hpp"
+	"engine/interfacegen.cpp"
 )
 set(source_list ${source_list} 
 	"engine/assets/default_shader/default_shader.cpp"
@@ -138,6 +140,8 @@ set(source_list ${source_list}
 	"engine/gui/widgets/text_panel.hpp"
 	"engine/gui/widgets/widget.cpp"
 	"engine/gui/widgets/widget.hpp"
+	"engine/gui/widgets/list.cpp"
+	"engine/gui/widgets/list.hpp"
 )
 set(source_list ${source_list} 
 	"engine/networking/client.cpp"

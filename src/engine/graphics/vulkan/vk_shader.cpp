@@ -104,7 +104,7 @@ namespace oe::graphics {
 	}
 
 	VKShader::VKShader(const VKWindow* window, const ShaderInfo& shader_info)
-		: Shader::Shader(shader_info)
+		: IShader::IShader(shader_info)
 		, m_window(window)
 		, m_logical_device(window->m_logical_device)
 	{
@@ -121,7 +121,7 @@ namespace oe::graphics {
 			size_t code_size = (result.end() - result.begin()) * sizeof(uint32_t);
 
 			if (result.GetNumErrors() != 0) {
-				oe_error_terminate("Shader ({}) compilation failed: {}", shader_info.name, result.GetErrorMessage());
+				oe_error_terminate("IShader ({}) compilation failed: {}", shader_info.name, result.GetErrorMessage());
 			}
 
 			// stage type

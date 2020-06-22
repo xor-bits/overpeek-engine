@@ -6,7 +6,7 @@
 
 namespace oe::graphics {
 
-	class GLTexture : public Texture {
+	class GLTexture : public ITexture {
 	private:
 		uint32_t m_id;
 		int32_t m_target;

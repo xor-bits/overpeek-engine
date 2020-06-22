@@ -1,11 +1,10 @@
 #pragma once
 
 #include "engine/enum.hpp"
-#include "engine/graphics/interface/instance.hpp"
 
 
 
-namespace oe::graphics { class Window; class Shader; class Texture; class FrameBuffer; class Renderer; }
+namespace oe::graphics { class Instance; }
 namespace oe {
 
 	class Engine {
@@ -32,45 +31,29 @@ namespace oe {
 		void terminate();
 		void __error(std::string error_msg, int line, std::string file);
 
-		graphics::Window* createWindow(const WindowInfo& window_config) const { return instance->createWindow(window_config); }
-		graphics::Shader* createShader(const ShaderInfo& shader_info) const { return instance->createShader(shader_info); }
-		graphics::Texture* createTexture(const TextureInfo& texture_info) const { return instance->createTexture(texture_info); }
-		graphics::FrameBuffer* createFrameBuffer(const FrameBufferInfo& framebuffer_info, graphics::Window* window) const { return instance->createFrameBuffer(framebuffer_info, window); }
-		graphics::Renderer* createRenderer(const RendererInfo& renderer_info) { return instance->createRenderer(renderer_info); }
-
-		void destroyWindow(graphics::Window* window) const { instance->destroyWindow(window); }
-		void destroyShader(graphics::Shader* shader) const { instance->destroyShader(shader); }
-		void destroyTexture(graphics::Texture* texture) const { instance->destroyTexture(texture); }
-		void destroyFrameBuffer(graphics::FrameBuffer* framebuffer) const { instance->destroyFrameBuffer(framebuffer); }
-		void destroyRenderer(graphics::Renderer* renderer) const { instance->destroyRenderer(renderer); }
-		
-		void* createPrimitiveRenderer(const RendererInfo& renderer_info);
-		void destroyPrimitiveRenderer(void* renderer);
-
 		// set blending mode
-		void blending(oe::modes mode = oe::modes::enable) const { instance->blending(mode); }
+		void blending(oe::modes mode = oe::modes::enable) const;
 
 		// set depth function or disable it
-		void depth(depth_functions func = depth_functions::always) { current_depth = func; instance->depth(func); }
-		depth_functions getDepth() const { return current_depth; }
+		void depth(depth_functions func = depth_functions::always);
+		depth_functions getDepth() const;
 
 		// also known as vertical sync
-		void swapInterval(unsigned int interval = 0) const { instance->swapInterval(interval); }
+		void swapInterval(unsigned int interval = 0) const;
 
 		// stop drawing any side of primitives
-		void culling(culling_modes c = culling_modes::neither) const { instance->culling(c); }
+		void culling(culling_modes c = culling_modes::neither) const;
 
 		// width of all lines in pixels
-		void lineWidth(float w = 1.0f) const { instance->lineWidth(w); }
+		void lineWidth(float w = 1.0f) const;
 
 		// radius of all points in pixels
-		void pointRadius(float w = 1.0f) const { instance->pointRadius(w); }
+		void pointRadius(float w = 1.0f) const;
 
 		// primitive draw mode
-		void polygonMode(polygon_mode p = polygon_mode::fill) const { instance->polygonMode(p); }
+		void polygonMode(polygon_mode p = polygon_mode::fill) const;
 	
 	};
-
 }
 
 

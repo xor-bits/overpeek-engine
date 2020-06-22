@@ -18,10 +18,11 @@ namespace oe::graphics {
 	private:
 		glm::vec2 m_size;     // size of the packed texture
 		int m_border;
+		bool m_constructed;
 
 		std::vector<std::vector<Sprite*>> m_sprites;
 
-		Texture* m_texture;
+		Texture m_texture;
 
 	public:
 		// padding between textures
@@ -42,8 +43,8 @@ namespace oe::graphics {
 		// may be called multiple times, but increases memory usage
 		void constructRepeat();
 
-		void bind() const;
-		Texture* getTexture() { return m_texture; }
+		void bind();
+		Texture getTexture() { return m_texture; }
 
 		const Sprite* empty_sprite() const { return m_sprites.at(0).at(0); }
 	};

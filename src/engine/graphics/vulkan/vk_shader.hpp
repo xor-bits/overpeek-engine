@@ -9,7 +9,7 @@
 
 namespace oe::graphics {
 
-	class VKShader : public Shader {
+	class VKShader : public IShader {
 	public:
 		vk::PipelineLayout m_pipeline_layout;
 		vk::Pipeline m_pipeline;
@@ -21,7 +21,7 @@ namespace oe::graphics {
 		VKShader(const VKWindow* window, const ShaderInfo& shader_info);
 		~VKShader();
 
-		// Inherited via Shader
+		// Inherited via IShader
 		virtual void bind() const override;
 		virtual void unbind() const override;
 

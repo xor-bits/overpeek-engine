@@ -22,48 +22,6 @@ namespace oe::graphics {
 
 
 
-	Window* GLInstance::createWindow(const WindowInfo& window_config) const
-	{
-		return new GLWindow(this, window_config);
-	}
-
-	Shader* GLInstance::createShader(const ShaderInfo& shader_info) const
-	{
-		return new GLShader(shader_info);
-	}
-
-	Texture* GLInstance::createTexture(const TextureInfo& texture_info) const
-	{
-		return new GLTexture(texture_info);
-	}
-
-	FrameBuffer* GLInstance::createFrameBuffer(const FrameBufferInfo& framebuffer_info, Window* window) const
-	{
-		return new GLFrameBuffer(framebuffer_info, window);
-	}
-
-	void GLInstance::destroyWindow(Window* window) const
-	{
-		delete (GLWindow*)window;
-	}
-
-	void GLInstance::destroyShader(Shader* shader) const
-	{
-		delete (GLShader*)shader;
-	}
-
-	void GLInstance::destroyTexture(Texture* texture) const
-	{
-		delete (GLTexture*)texture;
-	}
-
-	void GLInstance::destroyFrameBuffer(FrameBuffer* framebuffer) const
-	{
-		delete (GLFrameBuffer*)framebuffer;
-	}
-
-
-
 	void GLInstance::blending(oe::modes mode) const
 	{
 		switch (mode)

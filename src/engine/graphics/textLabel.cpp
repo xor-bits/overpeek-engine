@@ -10,19 +10,18 @@
 
 namespace oe::graphics {
 
-	textrenderData textTorenderData(const std::string& text) {
+	textrenderData textTorenderData(const std::wstring& text) {
 		textrenderData renderData = textrenderData();
 
 		bool nextIsColor = false;
 		glm::vec4 curColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		std::stringstream ss;
 		for (int i = 0; i < text.size(); i++) {
-			char c = text[i];
+			char32_t c = text[i];
 
 			// "blablabla<#00ff00>"
 			// check if there's upcoming colorcode
-			if (oe::utils::checkChar(text, '<', i) && oe::utils::checkChar(text, '>', i + 8)) {
-				long hex = oe::utils::stringToHex(text.substr(i + 1));
+			if (oe::utils::checkChar(text, L'<', i) && oe::utils::checkChar(text, L'>', i + 8)) {
+				long hex = oe::utils::stringToHex(text.substr(i + 1, 6));
 				if (hex != -1)
 				{
 					glm::vec3 rgb = oe::utils::hexToRGB(hex);
@@ -61,36 +60,32 @@ namespace oe::graphics {
 		{
 			oe::RendererInfo r_info = {};
 			r_info.max_primitive_count = 2048;
-			fb_renderer = oe::Engine::getSingleton().createRenderer(r_info); 
+			fb_renderer = new Renderer(r_info);
 		}
 		return fb_renderer; 
 	}
 
-	TextLabel::TextLabel(const Font* font)
-		: m_sprite(nullptr)
-		, m_text("")
+	TextLabel::TextLabel(Font* font)
+		: m_text(L"")
 		, m_font(font)
-		, m_framebuffer(nullptr)
 		, m_fb_size(0.0f, 0.0f)
 		, m_size(0.0f, 0.0f)
 	{}
 
 	TextLabel::TextLabel()
-		: m_sprite(nullptr)
-		, m_text("")
+		: m_text(L"")
 		, m_font(Text::getFont())
-		, m_framebuffer(nullptr)
 		, m_fb_size(0.0f, 0.0f)
 		, m_size(0.0f, 0.0f)
 	{}
 
-	void TextLabel::generate(const std::string& text, Window* window, const glm::vec4& color)
+	void TextLabel::generate(const std::wstring& text, Window& window, const glm::vec4& color)
 	{
 		if (m_text == text && initial_generated) return; // why render the same image again?
 		regenerate(text, window, color);
 	}
 	
-	void TextLabel::regenerate(const std::string& text, Window* window, const glm::vec4& color)
+	void TextLabel::regenerate(const std::wstring& text, Window& window, const glm::vec4& color)
 	{
 		m_text = text;
 		initial_generated = true;
@@ -99,14 +94,13 @@ namespace oe::graphics {
 
 		// size of the framebuffer
 		if (!m_font) { oe_error_terminate("No font"); }
-		m_size = Text::size(text, glm::vec2(m_font->m_resolution * multisamples), m_font);
+		m_size = Text::size(text, glm::vec2(m_font->getResolution() * multisamples), m_font);
 		m_size.x = std::max(m_size.x, 1.0f);
 		m_size.y = std::max(m_size.y, 1.0f);
 
 		// create the framebuffer
 		oe::FrameBufferInfo fb_info = {};
-		fb_info.width = static_cast<size_t>(m_size.x) * 2; // double the required size, to make room for future reuse
-		fb_info.height = static_cast<size_t>(m_size.y) * 2; // ^^
+		fb_info.size = static_cast<glm::ivec2>(m_size) * 2; // double the required size, to make room for future reuse
 		if (m_framebuffer && m_fb_size.x >= m_size.x && m_fb_size.y >= m_size.y)
 		{
 			// reuse the old framebuffer
@@ -114,13 +108,12 @@ namespace oe::graphics {
 		else if (m_framebuffer)
 		{
 			// regen framebuffer
-			oe::Engine::getSingleton().destroyFrameBuffer(m_framebuffer);
-			m_framebuffer = oe::Engine::getSingleton().createFrameBuffer(fb_info, window);
+			m_framebuffer = FrameBuffer(fb_info, window);
 		}
 		else
 		{
 			// create new framebuffer
-			m_framebuffer = oe::Engine::getSingleton().createFrameBuffer(fb_info, window);
+			m_framebuffer = FrameBuffer(fb_info, window);
 		}
 		m_fb_size = m_size * 2.0f;
 
@@ -130,7 +123,7 @@ namespace oe::graphics {
 		// render to the framebuffer
 		auto fb_renderer = getFBRenderer();
 		auto fb_shader = getFBShader();
-		Text::submit(fb_renderer, text, { 0.0f, 0.0f }, m_font->m_resolution * multisamples, alignments::top_left, glm::vec4(1.0f), m_font);
+		Text::submit(fb_renderer, text, { 0.0f, 0.0f }, m_font->getResolution() * multisamples, alignments::top_left, glm::vec4(1.0f), m_font);
 		glm::mat4 pr_matrix = glm::ortho(0.0f, m_size.x, m_size.y, 0.0f);
 		fb_shader->setProjectionMatrix(pr_matrix);
 		fb_shader->bind();
@@ -143,27 +136,27 @@ namespace oe::graphics {
 		window->bind();
 
 		// generate the sprite for user
-		m_sprite = Sprite(m_framebuffer->getTexture());
+		m_sprite.m_owner = m_framebuffer->getTexture();
 		m_sprite.position = { 0.0f, 1.0f };
 		m_sprite.size = { 1.0f, -1.0f };
-		m_size /= m_font->m_resolution * multisamples;
+		m_size /= m_font->getResolution() * multisamples;
 	}
 	
 
 
-	const Font* Text::s_font;
+	Font* Text::s_font;
 
-	void Text::setFont(const Font& font)
+	void Text::setFont(Font* font)
 	{
-		s_font = &font;
+		s_font = font;
 	}
 
-	const Font* Text::getFont()
+	Font* Text::getFont()
 	{
 		return s_font;
 	}
 
-	bool index_to_char(size_t i, unsigned char& c, oe::graphics::Font::Glyph const *& glyph, const textrenderData& renderData, glm::vec2& advance, const glm::vec2& size, const Font* font)
+	bool index_to_char(size_t i, unsigned char& c, oe::graphics::Font::Glyph const *& glyph, const textrenderData& renderData, glm::vec2& advance, const glm::vec2& size, Font* font)
 	{
 		c = renderData.at(i).first;
 		glyph = font->getGlyph(c);
@@ -183,7 +176,7 @@ namespace oe::graphics {
 		return false;
 	}
 
-	glm::vec2 calculate_final_size(const textrenderData& renderData, const glm::vec2& size, const Font* font)
+	glm::vec2 calculate_final_size(const textrenderData& renderData, const glm::vec2& size, Font* font)
 	{
 		float left(0.0f);
 		float right(0.0f);
@@ -207,7 +200,7 @@ namespace oe::graphics {
 		return { right - left, advance.y + size.y };
 	}
 
-	glm::vec2 Text::size(const std::string& text, const glm::vec2& size, const Font* font)
+	glm::vec2 Text::size(const std::wstring& text, const glm::vec2& size, Font* font)
 	{
 		if (!font) font = s_font;
 		if (!font) oe_error_terminate("No font!");
@@ -216,14 +209,15 @@ namespace oe::graphics {
 		return calculate_final_size(renderData, size, font);
 	}
 
-	void Text::submit(Renderer* renderer, const std::string& text, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align, const glm::vec4& bg_color, const Font* font)
+	void Text::submit(Renderer* renderer, const std::wstring& text, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align, const glm::vec4& bg_color, Font* font)
 	{
 		if (!font) font = s_font;
 		if (!font) oe_error_terminate("No font!");
 
 		textrenderData renderData = textTorenderData(text);
-		float line = font->bb_max_height * size.y;
 		const glm::vec2 final_size = calculate_final_size(renderData, size, font);
+
+		float avg_top = font->getGlyph('|')->top_left.y;
 		
 		// get width
 		glm::vec2 advance = alignmentOffset(-final_size, align);
@@ -236,7 +230,7 @@ namespace oe::graphics {
 			}
 
 			auto quad = renderer->createQuad();
-			quad->setPosition(pos + advance + glyph->top_left * size + glm::vec2{ 0.0, line });
+			quad->setPosition(pos + advance + glyph->top_left * size - glm::vec2(0.0f, avg_top * size.y));
 			quad->setSize(glyph->size * size);
 			quad->setSprite(glyph->sprite);
 			quad->setColor(renderData[i].second);

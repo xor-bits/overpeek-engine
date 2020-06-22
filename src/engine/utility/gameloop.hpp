@@ -6,7 +6,7 @@
 #include <entt/entt.hpp>
 
 
-namespace oe::graphics { class Window; }
+namespace oe::graphics { class IWindow; }
 namespace oe::utils {
 
 	static const size_t mc_average_size = 200;
@@ -51,14 +51,14 @@ namespace oe::utils {
 		std::unordered_map<size_t, UpdateSystem*> m_update_systems;
 		size_t m_main_updatesystem_ups;
 
-		oe::graphics::Window* m_host_window;
+		oe::graphics::IWindow* m_host_window;
 		bool m_should_run = false;
 
 	private:
 		void loop();
 
 	public:
-		GameLoop(oe::graphics::Window* window, size_t main_updatesystem_ups);
+		GameLoop(oe::graphics::IWindow* window, size_t main_updatesystem_ups);
 		GameLoop(const GameLoop&) = delete;
 		~GameLoop();
 

@@ -59,7 +59,7 @@ namespace oe::utils {
 		}
 	}
 
-	GameLoop::GameLoop(oe::graphics::Window* window, size_t main_updatesystem_ups)
+	GameLoop::GameLoop(oe::graphics::IWindow* window, size_t main_updatesystem_ups)
 	{
 		m_host_window = window;
 		m_main_updatesystem_ups = main_updatesystem_ups;

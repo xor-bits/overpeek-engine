@@ -39,7 +39,7 @@ namespace oe::graphics {
 
 
 	GLTexture::GLTexture(const TextureInfo& texture_info)
-		: Texture(texture_info)
+		: ITexture(texture_info)
 		, m_gl_format(gl_format(texture_info.data_format))
 		, m_gl_internalformat(gl_internalformat(texture_info.data_format))
 	{

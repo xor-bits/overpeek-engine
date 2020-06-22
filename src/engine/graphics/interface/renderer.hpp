@@ -11,7 +11,7 @@
 
 namespace oe::graphics {
 
-	class Window; class Renderer; struct SubRenderer;
+	class IWindow; class Renderer; struct SubRenderer;
 
 
 	struct Quad {
@@ -19,7 +19,7 @@ namespace oe::graphics {
 		glm::vec2 m_size = { 0.0f, 0.0f };
 		glm::vec2 m_rotation_alignment = { 0.0f, 0.0f };
 		glm::vec4 m_color = { 1.0f, 1.0f, 1.0f, 1.0f };
-		Sprite m_sprite = { nullptr };
+		Sprite m_sprite;
 		bool m_sprite_updated = false;
 		bool m_updated = false;
 		float m_rotation = 0.0f;
@@ -57,7 +57,7 @@ namespace oe::graphics {
 		const glm::vec4& getColor() const { return m_color; }
 
 		void expandSprite() { m_updated = true; m_sprite.position = { 0.0f, 0.0f }; m_sprite.size = { 1.0f, 1.0f }; }
-		void setSprite(const Sprite sprite) { if (m_sprite.m_owner != sprite.m_owner) { m_sprite_updated = true; } m_sprite = sprite; }
+		void setSprite(const Sprite& sprite) { if (m_sprite.m_owner != sprite.m_owner) { m_sprite_updated = true; } m_sprite = sprite; }
 		void setSprite(const Sprite* sprite) { setSprite(*sprite); }
 		const Sprite* getSprite() const { return &m_sprite; }
 
@@ -70,11 +70,11 @@ namespace oe::graphics {
 	};
 
 	struct SubRenderer {
-		PrimitiveRenderer* m_primitive_renderer;
+		PrimitiveRenderer m_primitive_renderer;
 		size_t m_quad_index = 0;
 		std::unordered_set<size_t> m_quad_index_free_spots;
-		bool m_buffer_bound;
-		const Texture* m_texture;
+		bool m_buffer_bound = false;
+		Texture m_texture;
 
 		void attempt_map();
 		void attempt_unmap();
@@ -89,7 +89,7 @@ namespace oe::graphics {
 	class Renderer {
 	private:
 		RendererInfo m_renderer_info;
-		std::unordered_map<const Texture*, SubRenderer*> m_renderers;
+		std::unordered_map<size_t, SubRenderer*> m_renderers; // size_t being pointer to texture
 		std::unordered_set<Quad*> m_quads;
 
 		SubRenderer* select_subrenderer(Quad* quad);
@@ -98,7 +98,7 @@ namespace oe::graphics {
 		Renderer(const RendererInfo& renderer_info);
 		virtual ~Renderer();
 
-		void removeSubrendererWithTexture(const Texture* texture);
+		void removeSubrendererWithTexture(size_t texture);
 		void updateQuad(Quad* quad);
 
 		Quad* createQuad();

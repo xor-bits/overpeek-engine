@@ -14,8 +14,8 @@ namespace oe::gui {
 		}
 	}
 
-	Checkbox::Checkbox(GUI* gui_manager, const CheckboxInfo& _checkbox_info)
-		: Widget(gui_manager, _checkbox_info.size, _checkbox_info.align_parent, _checkbox_info.align_render, _checkbox_info.offset_position)
+	Checkbox::Checkbox(const CheckboxInfo& _checkbox_info)
+		: Widget(_checkbox_info.size, _checkbox_info.align_parent, _checkbox_info.align_render, _checkbox_info.offset_position)
 		, m_checkbox_info(_checkbox_info)
 	{
 		ButtonInfo button_info;
@@ -24,23 +24,33 @@ namespace oe::gui {
 		button_info.offset_position = { 0, 0 };
 		button_info.align_parent = oe::alignments::center_center;
 		button_info.align_render = oe::alignments::center_center;
-		m_button = new Button(gui_manager, button_info);
+		m_button = new Button(button_info);
 		addSubWidget(m_button);
-		
-		quad_check = m_gui_manager->getRenderer()->createQuad();
-		quad_box = m_gui_manager->getRenderer()->createQuad(); // check - box, hehe
-
-		// event listeners
-		m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&Checkbox::on_render>(this);
 	}
 
 	Checkbox::~Checkbox()
+	{}
+
+	void Checkbox::managerAssigned(GUI* gui_manager)
 	{
-		m_gui_manager->getRenderer()->destroyQuad(quad_check);
-		m_gui_manager->getRenderer()->destroyQuad(quad_box);
+		quad_check = gui_manager->getRenderer()->createQuad();
+		quad_box = gui_manager->getRenderer()->createQuad(); // check - box, hehe
 
 		// event listeners
-		m_gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&Checkbox::on_render>(this);
+		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&Checkbox::on_render>(this);
+
+		Widget::managerAssigned(gui_manager);
+	}
+
+	void Checkbox::managerUnassigned(GUI* gui_manager)
+	{
+		gui_manager->getRenderer()->destroyQuad(quad_check);
+		gui_manager->getRenderer()->destroyQuad(quad_box);
+
+		// event listeners
+		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&Checkbox::on_render>(this);
+
+		Widget::managerUnassigned(gui_manager);
 	}
 
 	void Checkbox::on_render(const GUIRenderEvent& event)
@@ -55,9 +65,9 @@ namespace oe::gui {
 
 		if (m_checkbox_info.initial) {
 			*event.z += 1.0f;
-			quad_check->setPosition(render_position + size * 0.5f);
+			quad_check->setPosition(static_cast<glm::vec2>(render_position + size / 2));
 			quad_check->setZ(*event.z);
-			quad_check->setSize(size * 0.7f);
+			quad_check->setSize(static_cast<glm::vec2>(size) * 0.7f);
 			quad_check->setColor(m_checkbox_info.color_mark);
 			quad_check->setSprite(m_checkbox_info.sprite);
 			quad_check->setRotationAlignment(oe::alignments::center_center);

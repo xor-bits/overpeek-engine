@@ -16,15 +16,11 @@ namespace oe::assets {
 	DefaultShader::DefaultShader()
 	{
 		if (oe::Engine::getSingleton().engine_info.api == oe::graphics_api::OpenGL) {
-			shader = oe::Engine::getSingleton().createShader(default_shader_info_gl);
+			shader = oe::graphics::Shader(default_shader_info_gl);
 		}
 		else {
-			shader = oe::Engine::getSingleton().createShader(default_shader_info_vk);
+			shader = oe::graphics::Shader(default_shader_info_vk);
 		}
-	}
-
-	DefaultShader::~DefaultShader() {
-		oe::Engine::getSingleton().destroyShader(shader);
 	}
 
 	void DefaultShader::bind() const {

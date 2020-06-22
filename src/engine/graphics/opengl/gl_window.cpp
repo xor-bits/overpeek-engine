@@ -28,7 +28,7 @@ void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum seve
 	switch (source) {
 	case GL_DEBUG_SOURCE_API:             log_source = "API"; break;
 	case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   log_source = "Window System"; break;
-	case GL_DEBUG_SOURCE_SHADER_COMPILER: log_source = "Shader Compiler"; break;
+	case GL_DEBUG_SOURCE_SHADER_COMPILER: log_source = "IShader Compiler"; break;
 	case GL_DEBUG_SOURCE_THIRD_PARTY:     log_source = "Third Party"; break;
 	case GL_DEBUG_SOURCE_APPLICATION:     log_source = "Application"; break;
 	case GL_DEBUG_SOURCE_OTHER:           log_source = "Other"; break;
@@ -60,6 +60,7 @@ void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum seve
 	std::cout << fmt::format("Description   :   {}", log_type) << std::endl;
 	std::cout << fmt::format("Line          :   {}", log_severity) << std::endl;
 	std::cout << std::endl;
+
 	if (oe::Engine::getSingleton().engine_info.ignore_errors)
 		spdlog::error("OpenGL error");
 	else
@@ -126,7 +127,7 @@ namespace oe::graphics {
 	}
 
 	GLWindow::GLWindow(const Instance* instance, const WindowInfo& window_config) 
-		: Window::Window(instance, window_config)
+		: IWindow::IWindow(instance, window_config)
 		, m_debugging(oe::Engine::getSingleton().engine_info.debug_messages)
 	{
 		oe_debug_call("gl_window");
@@ -139,7 +140,7 @@ namespace oe::graphics {
 		glfw(instance);
 		glad(instance);
 
-		Window::postglfw();
+		IWindow::postglfw();
 	}
 
 	GLWindow::~GLWindow() 

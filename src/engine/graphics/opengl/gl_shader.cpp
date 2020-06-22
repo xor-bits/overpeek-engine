@@ -62,11 +62,11 @@ namespace oe::graphics {
 
 
 	GLShader::GLShader(const ShaderInfo& shader_info)
-		: Shader::Shader(shader_info) 
+		: IShader::IShader(shader_info) 
 	{
 		oe_debug_call("gl_shader");
 
-		// Shader program
+		// IShader program
 		p_shader_program = glCreateProgram();
 
 		std::vector<GLuint> modules;
@@ -83,7 +83,7 @@ namespace oe::graphics {
 			size_t code_size = (result.end() - result.begin()) * sizeof(uint32_t);
 
 			if (result.GetNumErrors() != 0) {
-				oe_error_terminate("Shader ({}) compilation failed: {}", shader_info.name, result.GetErrorMessage());
+				oe_error_terminate("IShader ({}) compilation failed: {}", shader_info.name, result.GetErrorMessage());
 			}
 			std::string preprocessed_glsl = result.begin(); // i know, its stupid to copy large c string to string instead of just using the c string
 

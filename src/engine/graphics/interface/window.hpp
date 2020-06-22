@@ -21,10 +21,9 @@
 class GLFWwindow;
 namespace oe::graphics {
 
-	class Window {
+	class IWindow {
 	public:
 		WindowInfo m_window_info;
-		const Instance* m_instance;
 		entt::dispatcher dispatcher{};
 
 	protected:
@@ -34,7 +33,7 @@ namespace oe::graphics {
 		bool m_buttons[M_NUM_BUTTONS];
 
 		glm::vec2 m_cursor_transformed = { 0.0f, 0.0f };
-		glm::vec2 m_cursor_window = { 0, 0 };
+		glm::ivec2 m_cursor_window = { 0, 0 };
 		float m_aspect_ratio = 0;
 
 		oe::utils::GameLoop m_window_gameloop;
@@ -42,8 +41,8 @@ namespace oe::graphics {
 		void postglfw();
 
 	public:
-		Window(const Instance* instance, const WindowInfo& window_config);
-		virtual ~Window();
+		IWindow(const Instance* instance, const WindowInfo& window_config);
+		virtual ~IWindow();
 
 		virtual void update() = 0;
 		virtual void clear(const glm::vec4& color = oe::colors::clear_color) = 0;
@@ -69,11 +68,11 @@ namespace oe::graphics {
 		float button(oe::mouse_buttons button);
 		float key(oe::keys key);
 
-		const glm::vec2& getPosition();
-		void setPosition(const glm::vec2& pos);
+		const glm::ivec2& getPosition();
+		void setPosition(const glm::ivec2& pos);
 
-		const glm::vec2& getSize();
-		void setSize(const glm::vec2& size);
+		const glm::ivec2& getSize();
+		void setSize(const glm::ivec2& size);
 
 		const std::string& getTitle();
 		void setTitle(const std::string& title);
@@ -87,14 +86,14 @@ namespace oe::graphics {
 		bool getFullscreen();
 		void setFullscreen(bool fullscreen);
 
-		const glm::vec2& getCursorWindow();
-		void setCursorWindow(const glm::vec2& cursor_at_window);
+		const glm::ivec2& getCursorWindow();
+		void setCursorWindow(const glm::ivec2& cursor_at_window);
 
 		const glm::vec2& getCursorTransformed();
 		void setCursorTransformed(const glm::vec2& cursor_at_world_space);
 
-		const std::string getClipboard();
-		void setClipboard(const std::string& str);
+		const std::wstring getClipboard();
+		void setClipboard(const std::wstring& str);
 
 		// -- events --
 		// connect events

@@ -16,6 +16,7 @@ namespace oe::graphics {
 
 		p_target = target;
 		p_size = size;
+		p_mapped = false;
 
 		glGenBuffers(1, &p_id);
 		bind();
@@ -38,12 +39,15 @@ namespace oe::graphics {
 	void* Buffer::mapBuffer() {
 		bind();
 		void* buffer = glMapBuffer(p_target, GL_WRITE_ONLY);
+		p_mapped = true;
 		return buffer;
 	}
 
 	void Buffer::unmapBuffer() {
+		if (!p_mapped) oe_error_terminate("buffer was not mapped");
 		bind();
 		glUnmapBuffer(p_target);
+		p_mapped = false;
 	}
 
 	void Buffer::setBufferData(const void *data, size_t size) {

@@ -9,8 +9,8 @@
 
 namespace oe::graphics {
 
-	GLFrameBuffer::GLFrameBuffer(const FrameBufferInfo& framebuffer_info, Window* window)
-		: FrameBuffer(framebuffer_info, window) 
+	GLFrameBuffer::GLFrameBuffer(const FrameBufferInfo& framebuffer_info, Window& window)
+		: IFrameBuffer(framebuffer_info, window) 
 	{
 		oe_debug_call("gl_framebuffer");
 
@@ -20,17 +20,17 @@ namespace oe::graphics {
 		// Texture
 		TextureInfo texture_info = {};
 		texture_info.empty = true;
-		texture_info.size = { framebuffer_info.width, framebuffer_info.height };
+		texture_info.size = { static_cast<size_t>(framebuffer_info.size.x), static_cast<size_t>(framebuffer_info.size.y) };
 		texture_info.offset = { 0, 0 };
-		m_texture = new oe::graphics::GLTexture(texture_info);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture->getGLTexture(), 0);
+		m_texture = Texture(texture_info);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, reinterpret_cast<GLTexture*>(m_texture.get())->getGLTexture(), 0);
 
 		// Render buffer object
 		glGenRenderbuffers(1, &m_rbo);
 		glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, framebuffer_info.width, framebuffer_info.height);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, framebuffer_info.size.x, framebuffer_info.size.y);
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbo);
 
@@ -41,12 +41,15 @@ namespace oe::graphics {
 
 		clear();
 		window->bind();
+		
+		sprite.m_owner = m_texture;
+		sprite.position = { 0.0f, 1.0f };
+		sprite.size = { 1.0f, -1.0f };
 	}
 
 	GLFrameBuffer::~GLFrameBuffer() {
 		glDeleteFramebuffers(1, &m_id);
 		glDeleteRenderbuffers(1, &m_rbo);
-		delete m_texture;
 	}
 
 	void GLFrameBuffer::clear(const glm::vec4& color) {
@@ -56,7 +59,7 @@ namespace oe::graphics {
 
 	void GLFrameBuffer::bind() {
 		glBindFramebuffer(GL_FRAMEBUFFER, m_id);
-		glViewport(0, 0, m_framebuffer_info.width, m_framebuffer_info.height);
+		glViewport(0, 0, m_framebuffer_info.size.x, m_framebuffer_info.size.y);
 	}
 
 }

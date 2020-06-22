@@ -10,21 +10,22 @@ namespace oe::gui {
 	typedef std::function<void(float)> slider_callback;
 
 	struct SliderInfo {
-		slider_callback callback                   = nullptr;
-		float min_value                            = -1.0f;
-		float max_value                            = 1.0f;
-		float initial_value                        = 0.0f;
-		bool draw_value                            = false;
-		glm::ivec2 slider_size                     = { 50, 50 };
-		glm::ivec2 knob_size                       = { 50, 50 };
-		glm::vec4 knob_color                       = oe::colors::grey;
-		glm::vec4 slider_lcolor                    = oe::colors::dark_grey;
-		glm::vec4 slider_rcolor                    = oe::colors::darker_grey;
-		const oe::graphics::Sprite* knob_sprite    = nullptr; // must be set
-		const oe::graphics::Sprite* slider_sprite  = nullptr; // must be set
-		glm::vec2 offset_position                  = { 0, 0 };
-		glm::vec2 align_parent                     = oe::alignments::center_center;
-		glm::vec2 align_render                     = oe::alignments::center_center;
+		slider_callback callback                  = nullptr;
+		float min_value                           = -1.0f;
+		float max_value                           = 1.0f;
+		float initial_value                       = 0.0f;
+		bool draw_value                           = false;
+		bool scroll                               = false;
+		glm::ivec2 slider_size                    = { 50, 50 };
+		glm::ivec2 knob_size                      = { 50, 50 };
+		glm::vec4 knob_color                      = oe::colors::grey;
+		glm::vec4 slider_lcolor                   = oe::colors::dark_grey;
+		glm::vec4 slider_rcolor                   = oe::colors::darker_grey;
+		const oe::graphics::Sprite* knob_sprite   = nullptr; // must be set
+		const oe::graphics::Sprite* slider_sprite = nullptr; // must be set
+		glm::ivec2 offset_position                = { 0, 0 };
+		glm::vec2 align_parent                    = oe::alignments::center_center;
+		glm::vec2 align_render                    = oe::alignments::center_center;
 	};
 
 	struct GUIRenderEvent;
@@ -40,17 +41,23 @@ namespace oe::gui {
 	private:
 		bool m_dragging;
 
+		void clamp();
+
 	public:
 		SliderInfo slider_info;
 
 	public:
-		Slider(GUI* gui_manager, const SliderInfo& slider_info);
+		Slider(const SliderInfo& slider_info);
 		~Slider();
+
+		virtual void managerAssigned(GUI* gui_manager) override;
+		virtual void managerUnassigned(GUI* gui_manager) override;
 
 		// events
 		void on_render(const GUIRenderEvent& event);
 		void on_cursor(const CursorPosEvent& event);
 		void on_button(const MouseButtonEvent& event);
+		void on_scroll(const ScrollEvent& event);
 	};
 
 }

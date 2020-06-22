@@ -41,14 +41,14 @@ namespace oe::graphics {
 		virtual void swapInterval(uint8_t frames) override;
 
 		virtual Renderer* createRenderer(const RendererInfo& renderer_info) const override;
-		virtual Shader* createShader(const ShaderInfo& shader_info) const override;
-		virtual Texture* createTexture(const TextureInfo& texture_info) const override;
-		virtual FrameBuffer* createFrameBuffer(const FrameBufferInfo& framebuffer_info) const override;
+		virtual IShader* createShader(const ShaderInfo& shader_info) const override;
+		virtual ITexture* createTexture(const TextureInfo& texture_info) const override;
+		virtual IFrameBuffer* createFrameBuffer(const FrameBufferInfo& framebuffer_info) const override;
 		
 		virtual void destroyRenderer(Renderer* renderer) const override;
-		virtual void destroyShader(Shader* shader) const override;
-		virtual void destroyTexture(Texture* texture) const override;
-		virtual void destroyFrameBuffer(FrameBuffer* framebuffer) const override;
+		virtual void destroyShader(IShader* shader) const override;
+		virtual void destroyTexture(ITexture* texture) const override;
+		virtual void destroyFrameBuffer(IFrameBuffer* framebuffer) const override;
 
 		// Inherited via Instance
 		virtual std::string getAPI() const override;

@@ -5,13 +5,13 @@
 #include "engine/graphics/interface/window.hpp"
 #include "engine/gui/gui_manager.hpp"
 
-bool insertchars(std::string *obj, int i, char *chars, int n) {
+bool insertchars(std::wstring *obj, int i, wchar_t *chars, int n) {
 	obj->insert(i, chars, n);
 	return true;
 }
 
-#define STB_TEXTEDIT_STRING						std::string
-#define STB_TEXTEDIT_CHARTYPE					char
+#define STB_TEXTEDIT_STRING						std::wstring
+#define STB_TEXTEDIT_CHARTYPE					wchar_t
 
 #define STB_TEXTEDIT_STRINGLEN(obj)				obj->size()
 #define STB_TEXTEDIT_LAYOUTROW(r,obj,n)			NULL
@@ -50,37 +50,50 @@ namespace oe::gui
 		timer_key_pressed = clock.getSessionMillisecond() + 1000.0f;
 	}
 	
-	TextInput::TextInput(GUI* gui_manager, const TextInputInfo& _text_input_info)
-		: Widget(gui_manager, _text_input_info.size, _text_input_info.align_parent, _text_input_info.align_render, _text_input_info.offset_position)
+	TextInput::TextInput(const TextInputInfo& _text_input_info)
+		: Widget(_text_input_info.size, _text_input_info.align_parent, _text_input_info.align_render, _text_input_info.offset_position)
 		, text_input_info(_text_input_info)
 		, m_selected(false)
 		, m_filtering(_text_input_info.filter != filter_none)
 	{
 		m_state = new STB_TexteditState();
-		static_cast<STB_TexteditState*>(m_state)->cursor = _text_input_info.text.size();
-
-		quad = m_gui_manager->getRenderer()->createQuad();
-		text_quad = m_gui_manager->getLateRenderer()->createQuad();
+		static_cast<STB_TexteditState*>(m_state)->cursor = text_input_info.text.size();
+		
 		label = new oe::graphics::TextLabel();
-
-		// event listeners
-		m_gui_manager->getWindow()->connect_listener<oe::MouseButtonEvent, &TextInput::on_button>(this);
-		m_gui_manager->getWindow()->connect_listener<oe::CodepointEvent, &TextInput::on_codepoint>(this);
-		m_gui_manager->getWindow()->connect_listener<oe::KeyboardEvent, &TextInput::on_key>(this);
-		m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&TextInput::on_render>(this);
 	}
 
-	TextInput::~TextInput() {
-		m_gui_manager->getRenderer()->destroyQuad(quad);
-		m_gui_manager->getLateRenderer()->destroyQuad(text_quad);
+	TextInput::~TextInput()
+	{
 		delete m_state;
 		delete label;
+	}
+
+	void TextInput::managerAssigned(GUI* gui_manager)
+	{
+		quad = gui_manager->getRenderer()->createQuad();
+		text_quad = gui_manager->getLateRenderer()->createQuad();
 
 		// event listeners
-		m_gui_manager->getWindow()->disconnect_listener<oe::MouseButtonEvent, &TextInput::on_button>(this);
-		m_gui_manager->getWindow()->disconnect_listener<oe::CodepointEvent, &TextInput::on_codepoint>(this);
-		m_gui_manager->getWindow()->disconnect_listener<oe::KeyboardEvent, &TextInput::on_key>(this);
-		m_gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&TextInput::on_render>(this);
+		gui_manager->getWindow()->connect_listener<oe::MouseButtonEvent, &TextInput::on_button>(this);
+		gui_manager->getWindow()->connect_listener<oe::CodepointEvent, &TextInput::on_codepoint>(this);
+		gui_manager->getWindow()->connect_listener<oe::KeyboardEvent, &TextInput::on_key>(this);
+		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&TextInput::on_render>(this);
+
+		Widget::managerAssigned(gui_manager);
+	}
+
+	void TextInput::managerUnassigned(GUI* gui_manager)
+	{
+		gui_manager->getRenderer()->destroyQuad(quad);
+		gui_manager->getLateRenderer()->destroyQuad(text_quad);
+
+		// event listeners
+		gui_manager->getWindow()->disconnect_listener<oe::MouseButtonEvent, &TextInput::on_button>(this);
+		gui_manager->getWindow()->disconnect_listener<oe::CodepointEvent, &TextInput::on_codepoint>(this);
+		gui_manager->getWindow()->disconnect_listener<oe::KeyboardEvent, &TextInput::on_key>(this);
+		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&TextInput::on_render>(this);
+
+		Widget::managerUnassigned(gui_manager);
 	}
 	
 	void TextInput::on_render(const GUIRenderEvent& event)
@@ -89,38 +102,37 @@ namespace oe::gui
 		*event.z += 1.0f;
 		quad->setPosition(render_position - text_input_info.padding);
 		quad->setZ(*event.z);
-		quad->setSize(size + text_input_info.padding * 2.0f);
+		quad->setSize(static_cast<glm::vec2>(size + text_input_info.padding * 2));
 		quad->setSprite(text_input_info.sprite);
 		quad->setColor(text_input_info.color);
 		quad->update();
 
 		// vertical bar
-		std::string bar = "";
+		std::wstring bar = L"";
 		auto& clock = oe::utils::Clock::getSingleton();
 		float time = clock.getSessionMillisecond();
 		if (m_selected && (timer_key_pressed > clock.getSessionMillisecond() || (int)floor(time) % 2000 > 1000))
 		{
-			bar = "|";
+			bar = L"|";
 		}
 
 		// text
 		*event.z += 1.0f;
 		glm::vec2 text_size = glm::vec2(text_input_info.font_size);
-		const std::string drawn_str = fmt::format("<#000000>{}{}", text_input_info.text, bar);
+		const std::wstring drawn_str = fmt::format(L"<#000000>{}{}", text_input_info.text, bar);
 		label->generate(drawn_str, m_gui_manager->getWindow());
-		text_quad->setPosition(render_position + oe::alignmentOffset(size, text_input_info.align_text) - oe::alignmentOffset(text_size * label->getSize(), text_input_info.align_text));
+		text_quad->setPosition(static_cast<glm::vec2>(render_position + oe::alignmentOffset(size, text_input_info.align_text) - oe::alignmentOffset(static_cast<glm::ivec2>(text_size * label->getSize()), text_input_info.align_text)));
 		text_quad->setZ(*event.z);
 		text_quad->setSize(text_size * label->getSize());
 		text_quad->setSprite(label->getSprite());
 		text_quad->setColor(oe::colors::white);
 		text_quad->update();
-		// spdlog::info(drawn_str);
 	}
 
 	void TextInput::on_codepoint(const CodepointEvent& event)
 	{
 		if (!m_selected) return;
-		char character = event.codepoint;
+		wchar_t character = event.codepoint;
 
 		if (m_filtering) {
 			if (text_input_info.filter.find(character) == text_input_info.filter.npos)
@@ -151,17 +163,20 @@ namespace oe::gui
 			else if (event.key == oe::keys::key_right && event.mods == oe::modifiers::control)
 				stb_textedit_key(&text_input_info.text, reinterpret_cast<STB_TexteditState*>(m_state), STB_TEXTEDIT_K_WORDRIGHT);
 			else if (event.key == oe::keys::key_v && event.mods == oe::modifiers::control) { // ctrl + v
-				std::string cb = text_input_info.window_handle->getClipboard();
+				std::wstring cb = m_gui_manager->getWindow()->getClipboard();
 				stb_textedit_paste(&text_input_info.text, reinterpret_cast<STB_TexteditState*>(m_state), cb.c_str(), cb.size());
 			}
 			else if (event.key == oe::keys::key_c && event.mods == oe::modifiers::control) { // ctrl + c
-				std::string copied = text_input_info.text.substr(reinterpret_cast<STB_TexteditState*>(m_state)->select_start, reinterpret_cast<STB_TexteditState*>(m_state)->select_end - reinterpret_cast<STB_TexteditState*>(m_state)->select_start);
-				spdlog::info(copied);
-				text_input_info.window_handle->setClipboard(copied);
+				std::wstring copied = text_input_info.text.substr(reinterpret_cast<STB_TexteditState*>(m_state)->select_start, reinterpret_cast<STB_TexteditState*>(m_state)->select_end - reinterpret_cast<STB_TexteditState*>(m_state)->select_start);
+				m_gui_manager->getWindow()->setClipboard(copied);
 				stb_textedit_cut(&text_input_info.text, reinterpret_cast<STB_TexteditState*>(m_state));
 			}
 			else if (event.key == oe::keys::key_enter) {
 				if (text_input_info.callback_newline) text_input_info.callback_newline(text_input_info.text);
+
+				CodepointEvent e;
+				e.codepoint = L'\n';
+				on_codepoint(e);
 			}
 
 			resetTimer();

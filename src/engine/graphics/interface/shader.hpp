@@ -9,13 +9,13 @@
 
 namespace oe::graphics {
 
-	class Shader {
+	class IShader {
 	protected:
 		ShaderInfo m_shader_info;
 
 	public:
-		Shader(const ShaderInfo& shader_info);
-		virtual ~Shader();
+		IShader(const ShaderInfo& shader_info);
+		virtual ~IShader();
 
 		virtual void bind() const = 0;
 		virtual void unbind() const = 0;

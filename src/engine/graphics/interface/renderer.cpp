@@ -89,27 +89,19 @@ namespace oe::graphics {
 	
 	SubRenderer* Renderer::select_subrenderer(Quad* quad)
 	{
-		auto find_iter = m_renderers.find(quad->m_sprite.m_owner);
+		auto find_iter = m_renderers.find((size_t)quad->m_sprite.m_owner.get());
 		if (find_iter == m_renderers.end())
 		{
-			SubRenderer* subrenderer = new SubRenderer();
-			switch (oe::Engine::getSingleton().engine_info.api)
-			{
-			case oe::graphics_api::OpenGL:
-				subrenderer->m_primitive_renderer = new GLPrimitiveRenderer(m_renderer_info);
-				break;
-			case oe::graphics_api::Vulkan:
-				// TODO:
-				subrenderer->m_primitive_renderer = new GLPrimitiveRenderer(m_renderer_info);
-				break;
-			}
-			subrenderer->m_quad_index = 0;
-			subrenderer->m_buffer_bound = false;
-			subrenderer->m_texture = quad->m_sprite.m_owner;
+			SubRenderer* sr = new SubRenderer();
+			sr->m_primitive_renderer = PrimitiveRenderer(m_renderer_info);
+			sr->m_quad_index = 0;
+			sr->m_buffer_bound = false;
+			sr->m_texture = quad->m_sprite.m_owner;
 
 			// create new subrenderer
-			m_renderers.insert(std::make_pair(quad->m_sprite.m_owner, subrenderer));
-			return subrenderer;
+			m_renderers.insert(std::make_pair((size_t)quad->m_sprite.m_owner.get(), sr));
+
+			return sr;
 		}
 		else
 		{
@@ -182,17 +174,6 @@ namespace oe::graphics {
 
 	void Renderer::clear()
 	{
-		for(auto quad : m_quads) 
-		{
-			delete quad;
-		}
-		
-		for (auto subrenderer : m_renderers)
-		{
-			delete subrenderer.second->m_primitive_renderer;
-			delete subrenderer.second;
-		}
-		
 		m_quads.clear();
 		m_renderers.clear();
 	}
@@ -229,7 +210,7 @@ namespace oe::graphics {
 			quad->m_current_subrenderer->remove_quad(quad);
 			if (old_subrenderer->m_quad_index == 0)
 			{
-				removeSubrendererWithTexture(old_subrenderer->m_texture);
+				removeSubrendererWithTexture((size_t)old_subrenderer->m_texture.get());
 			}
 			
 			if (new_subrenderer->m_quad_index >= m_renderer_info.max_primitive_count)
@@ -251,12 +232,11 @@ namespace oe::graphics {
 		}
 	}
 
-	void Renderer::removeSubrendererWithTexture(const Texture* texture)
+	void Renderer::removeSubrendererWithTexture(size_t texture)
 	{
-		auto iter = m_renderers.find(texture);
+		auto iter = m_renderers.find((size_t)texture);
 		if (iter != m_renderers.end())
 		{
-			delete iter->second->m_primitive_renderer;
 			delete iter->second;
 			m_renderers.erase(iter);
 		}
@@ -266,7 +246,6 @@ namespace oe::graphics {
 	{
 		auto quad = new Quad(this);
 		m_quads.insert(quad);
-
 		return quad;
 	}
 
@@ -284,11 +263,10 @@ namespace oe::graphics {
 	
 	void Renderer::render()
 	{
-		// spdlog::debug("subrenderer count: {}", m_renderers.size());
 		for (auto subrenderer : m_renderers)
 		{
 			// spdlog::debug("primitive count: {}", subrenderer.second->m_quad_index);
-			if (subrenderer.first) subrenderer.first->bind();
+			subrenderer.second->m_texture->bind();
 			subrenderer.second->render();
 		}
 	}

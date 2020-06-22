@@ -9,6 +9,7 @@ namespace oe::graphics {
 		unsigned int p_id;
 		size_t p_size;
 		int p_target;
+		bool p_mapped;
 
 		// size_t size (in bytes)
 		Buffer(const void* data, size_t size, int target, unsigned int usage);

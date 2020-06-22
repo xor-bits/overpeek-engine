@@ -4,11 +4,12 @@
 
 
 
-oe::graphics::Window* window;
-oe::graphics::SpritePack* pack;
-oe::assets::DefaultShader* shader;
+oe::graphics::Window window;
 oe::graphics::Renderer* renderer;
+oe::assets::DefaultShader* shader;
+oe::graphics::SpritePack* pack;
 oe::graphics::Font* font;
+
 oe::graphics::TextLabel* label;
 
 void render(float update_fraction)
@@ -41,7 +42,7 @@ int main(int argc, char** argv) {
 	oe::WindowInfo window_info;
 	window_info.title = "Colored Text";
 	window_info.multisamples = 4;
-	window = engine.createWindow(window_info);
+	window = oe::graphics::Window(window_info);
 
 	// connect events
 	window->connect_listener<oe::ResizeEvent, &resize>();
@@ -55,11 +56,11 @@ int main(int argc, char** argv) {
 
 	// renderer
 	oe::RendererInfo renderer_info = {};
-	renderer_info.arrayRenderType = oe::types::dynamicrender;
-	renderer_info.indexRenderType = oe::types::staticrender;
+	renderer_info.arrayRenderType = oe::types::dynamic_type;
+	renderer_info.indexRenderType = oe::types::static_type;
 	renderer_info.max_primitive_count = 1000;
 	renderer_info.staticVBOBuffer_data = nullptr;
-	renderer = engine.createRenderer(renderer_info);
+	renderer = new oe::graphics::Renderer(renderer_info);
 
 	// shader
 	shader = new oe::assets::DefaultShader();
@@ -67,14 +68,14 @@ int main(int argc, char** argv) {
 	// sprites
 	pack = new oe::graphics::SpritePack();
 	font = new oe::graphics::Font(pack);
-	oe::graphics::Text::setFont(*font);
+	oe::graphics::Text::setFont(font);
 	pack->construct();
 
 	
 	// submitting
 	label = new oe::graphics::TextLabel(font);
 	// label->generate("<#1020ff>The quick brown fox <#ff2020>jumps <#ffffff>over the lazy dog.", window);
-	label->generate("The quick brown fox", window, oe::colors::pink);
+	label->generate(L"The quick brown fox", window, oe::colors::pink);
 	auto quad = renderer->createQuad();
 	quad->setPosition({ label->getSize().x * -0.05, 0.25f });
 	quad->setSize(label->getSize() * 0.1f);
@@ -83,7 +84,8 @@ int main(int argc, char** argv) {
 	quad->update();
 	spdlog::info(label->getSize());
 	
-	oe::graphics::Sprite sprite(pack->getTexture());
+	oe::graphics::Sprite sprite;
+	sprite.m_owner = pack->getTexture();
 	quad = renderer->createQuad();
 	quad->setPosition({ -0.5f, -1.0f });
 	quad->setSize({ 1.0f, 1.0f });
@@ -105,8 +107,6 @@ int main(int argc, char** argv) {
 	delete font;
 	delete pack;
 	delete shader;
-	engine.destroyRenderer(renderer);
-	engine.destroyWindow(window);
 
 	return 0;
 }

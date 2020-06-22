@@ -25,7 +25,7 @@ namespace oe::graphics {
 	{
 		oe_debug_call("spritepack");
 
-		m_texture = nullptr;
+		m_constructed = false;
 		m_usr_data = new __usr_data();
 		auto usr_data = static_cast<__usr_data*>(m_usr_data);
 
@@ -42,21 +42,23 @@ namespace oe::graphics {
 		delete[] data;
 	}
 
-	SpritePack::~SpritePack() {
+	SpritePack::~SpritePack()
+	{
 		for (size_t i = 0; i < m_sprites.size(); i++) {
 			for (size_t j = 0; j < m_sprites.at(i).size(); j++) {
 				delete m_sprites.at(i).at(j);
 			}
 		}
-		if(m_texture) oe::Engine::getSingleton().destroyTexture(m_texture);
+		// m_texture
 		delete static_cast<__usr_data*>(m_usr_data);
 	}
 
-	const Sprite* SpritePack::addSprite(const oe::utils::image_data& sprite_texture) {
+	const Sprite* SpritePack::addSprite(const oe::utils::image_data& sprite_texture)
+	{
 		auto usr_data = static_cast<__usr_data*>(m_usr_data);
 
 		std::vector<Sprite*> vect;
-		Sprite* sprite = new Sprite(nullptr);
+		Sprite* sprite = new Sprite();
 		sprite->position = { 0, 0 };
 		sprite->size = { 1, 1 };
 		vect.push_back(sprite);
@@ -68,17 +70,19 @@ namespace oe::graphics {
 		return vect.at(0);
 	}
 
-	const Sprite* SpritePack::addSprite(fs::path sprite_texture) {
+	const Sprite* SpritePack::addSprite(fs::path sprite_texture)
+	{
 		return addSprite(oe::utils::image_data(sprite_texture));
 	}
 
-	std::vector<std::vector<const Sprite*>> SpritePack::addMultiSprite(oe::utils::image_data sprite_texture, const glm::vec2& sprite_count) {
+	std::vector<std::vector<const Sprite*>> SpritePack::addMultiSprite(oe::utils::image_data sprite_texture, const glm::vec2& sprite_count)
+	{
 		auto usr_data = static_cast<__usr_data*>(m_usr_data);
 
 		std::vector<Sprite*> vect;
 		for (size_t x = 0; x < sprite_count.x; x++) {
 			for (size_t y = 0; y < sprite_count.y; y++) {
-				Sprite* sprite = new Sprite(nullptr);
+				Sprite* sprite = new Sprite();
 				sprite->position = { x, y };
 				sprite->size = sprite_count;
 				vect.push_back(sprite);
@@ -101,15 +105,18 @@ namespace oe::graphics {
 		return returned;
 	}
 
-	std::vector<std::vector<const Sprite*>> SpritePack::addMultiSprite(fs::path sprite_texture, const glm::vec2& sprite_count) {
+	std::vector<std::vector<const Sprite*>> SpritePack::addMultiSprite(fs::path sprite_texture, const glm::vec2& sprite_count)
+	{
 		return addMultiSprite(oe::utils::image_data(sprite_texture), sprite_count);
 	}
 
-	size_t coordsToIndex(size_t x, size_t y, size_t c, size_t width, size_t channels) {
+	size_t coordsToIndex(size_t x, size_t y, size_t c, size_t width, size_t channels)
+	{
 		return channels * (x + y * width) + c;
 	}
 
-	void SpritePack::constructRepeat() {
+	void SpritePack::constructRepeat()
+	{
 		auto usr_data = static_cast<__usr_data*>(m_usr_data);
 
 		// pack sprites
@@ -189,7 +196,7 @@ namespace oe::graphics {
 		texture_info.size = { pack_width, pack_height };
 		texture_info.offset = { 0, 0 };
 
-		m_texture = oe::Engine::getSingleton().createTexture(texture_info);
+		m_texture = Texture(texture_info);
 		for (auto sprite : m_sprites)
 		{
 			for (auto subsprite : sprite)
@@ -197,20 +204,22 @@ namespace oe::graphics {
 				subsprite->m_owner = m_texture;
 			}
 		}
-		
+		m_constructed = true;
 		
 		delete[] data;
 	}
 
-	void SpritePack::construct() {
+	void SpritePack::construct()
+	{
 		constructRepeat();
 
 		auto usr_data = static_cast<__usr_data*>(m_usr_data);
 		usr_data->m_images.clear();
 	}
 
-	void SpritePack::bind() const {
-		if (!m_texture) { oe_error_terminate("SpritePack was not constructed"); }
+	void SpritePack::bind()
+	{
+		if (!m_constructed) { spdlog::warn("SpritePack was not constructed"); constructRepeat(); }
 		m_texture->bind();
 	}
 

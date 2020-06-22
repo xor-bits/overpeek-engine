@@ -6,7 +6,7 @@
 #include "engine/graphics/opengl/buffers/vertexBuffer.hpp"
 #include "engine/graphics/opengl/buffers/indexBuffer.hpp"
 
-#include "engine/engine.hpp"
+// #include "engine/engine.hpp"
 
 
 
@@ -19,7 +19,7 @@ namespace oe::graphics {
 
 
 	template<oe::primitive_types type, typename buffer_gen, typename vertex_type>
-	class GLBasicPrimitiveRenderer : public BasicPrimitiveRenderer<type, buffer_gen, vertex_type> {
+	class GLBasicPrimitiveRenderer : public IBasicPrimitiveRenderer<type, buffer_gen, vertex_type> {
 	private:
 		VertexArray* m_vao;
 		VertexBuffer* m_vbo;
@@ -31,7 +31,7 @@ namespace oe::graphics {
 
 	public:
 		GLBasicPrimitiveRenderer(const RendererInfo& renderer_info)
-			: BasicPrimitiveRenderer<type, buffer_gen, vertex_type>(renderer_info)
+			: IBasicPrimitiveRenderer<type, buffer_gen, vertex_type>(renderer_info)
 		{
 			oe_debug_call("gl_basic_primitive_renderer");
 			m_mapped_buffer = nullptr;
@@ -43,7 +43,7 @@ namespace oe::graphics {
 			auto vertex_buffer_data = generator.template optional_vertex_gen<vertex_type>(renderer_info.staticVBOBuffer_data);
 			auto index_buffer_data = generator.gen();
 
-			// Shader buffers and attributes
+			// IShader buffers and attributes
 			m_vao = new VertexArray();
 			m_ibo = new IndexBuffer(index_buffer_data.ptr(), index_buffer_data.size(), renderer_info.indexRenderType);
 			m_vbo = new VertexBuffer(vertex_buffer_data.ptr(), vertex_buffer_data.size(), vertex_type::component_count, renderer_info.arrayRenderType);
@@ -96,7 +96,7 @@ namespace oe::graphics {
 		virtual void end() override {
 			m_vao->bind();
 			m_vbo->bind();
-			m_vbo->unmapBuffer();
+			if (m_mapped_buffer) m_vbo->unmapBuffer();
 		}
 
 		virtual void render(size_t override_primitive_count) const override {

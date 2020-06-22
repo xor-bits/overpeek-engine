@@ -8,7 +8,7 @@ constexpr unsigned int updates_per_second = 60;
 constexpr float inverse_ups = 1.0f / updates_per_second;
 
 const oe::graphics::Sprite* sprite;
-oe::graphics::Window* window;
+oe::graphics::IWindow* window;
 oe::graphics::SpritePack* pack;
 oe::graphics::Renderer* renderer;
 oe::assets::DefaultShader* shader;

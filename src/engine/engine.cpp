@@ -1,16 +1,15 @@
 #include "engine.hpp"
 
 #include "engine/graphics/interface/instance.hpp"
-#include "engine/graphics/opengl/gl_instance.hpp"
-#include "engine/graphics/opengl/gl_primitive_renderer.hpp"
 #include "engine/utility/random.hpp"
 #include "engine/utility/clock.hpp"
 #include "engine/audio/audio.hpp"
 #include "engine/networking/server.hpp"
 
+
+#include "engine/graphics/opengl/gl_instance.hpp"
 #if defined(BUILD_VULKAN)
 #include "engine/graphics/vulkan/vk_instance.hpp"
-#include "engine/graphics/vulkan/vk_primitive_renderer.hpp"
 #endif
 
 #include <GLFW/glfw3.h>
@@ -90,25 +89,13 @@ namespace oe {
 		oe::Engine::terminate();
 	}
 
-	void* Engine::createPrimitiveRenderer(const RendererInfo& renderer_info)
-	{
-		switch (engine_info.api)
-		{
-		case graphics_api::OpenGL:
-			return new oe::graphics::GLPrimitiveRenderer(renderer_info);
-#ifdef BUILD_VULKAN
-		case graphics_api::Vulkan:
-			return new oe::graphics::VKPrimitiveRenderer(renderer_info);
-#endif
-		default:
-			return nullptr;
-		}
-	}
 
-	void Engine::destroyPrimitiveRenderer(void* renderer)
-	{
-		delete (graphics::PrimitiveRenderer*)renderer;
-	}
-
-
+	void Engine::blending(oe::modes mode) const { instance->blending(mode); }
+	void Engine::depth(depth_functions func) { current_depth = func; instance->depth(func); }
+	depth_functions Engine::getDepth() const { return current_depth; }
+	void Engine::swapInterval(unsigned int interval) const { instance->swapInterval(interval); }
+	void Engine::culling(culling_modes c) const { instance->culling(c); }
+	void Engine::lineWidth(float w) const { instance->lineWidth(w); }
+	void Engine::pointRadius(float w) const { instance->pointRadius(w); }
+	void Engine::polygonMode(polygon_mode p) const { instance->polygonMode(p); }
 }

@@ -6,22 +6,32 @@
 
 namespace oe::gui {
 
-	SpritePanel::SpritePanel(GUI* gui_manager, const SpritePanelInfo& _sprite_panel_info)
-		: Widget::Widget(gui_manager, _sprite_panel_info.size, _sprite_panel_info.align_parent, _sprite_panel_info.align_render, _sprite_panel_info.offset_position)
+	SpritePanel::SpritePanel(const SpritePanelInfo& _sprite_panel_info)
+		: Widget::Widget(_sprite_panel_info.size, _sprite_panel_info.align_parent, _sprite_panel_info.align_render, _sprite_panel_info.offset_position)
 		, sprite_panel_info(_sprite_panel_info)
-	{
-		quad = m_gui_manager->getRenderer()->createQuad();
-
-		// event listeners
-		m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&SpritePanel::on_render>(this);
-	}
+	{}
 	
 	SpritePanel::~SpritePanel()
+	{}
+
+	void SpritePanel::managerAssigned(GUI* gui_manager)
 	{
-		m_gui_manager->getRenderer()->destroyQuad(quad);
+		quad = gui_manager->getRenderer()->createQuad();
 
 		// event listeners
-		m_gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&SpritePanel::on_render>(this);
+		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&SpritePanel::on_render>(this);
+
+		Widget::managerAssigned(gui_manager);
+	}
+
+	void SpritePanel::managerUnassigned(GUI* gui_manager)
+	{
+		gui_manager->getRenderer()->destroyQuad(quad);
+
+		// event listeners
+		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&SpritePanel::on_render>(this);
+
+		Widget::managerUnassigned(gui_manager);
 	}
 
 	void SpritePanel::on_render(const GUIRenderEvent& event)

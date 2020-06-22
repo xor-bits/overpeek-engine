@@ -6,7 +6,8 @@
 
 
 
-void oe::utils::rotatePoint(glm::vec2 center, float angle, glm::vec2& p) {
+void oe::utils::rotatePoint(glm::vec2 center, float angle, glm::vec2& p)
+{
     float s = sin(angle);
     float c = cos(angle);
 
@@ -23,7 +24,8 @@ void oe::utils::rotatePoint(glm::vec2 center, float angle, glm::vec2& p) {
     p.y = ynew + center.y;
 }
 
-void oe::utils::rotatePoint(float angle, glm::vec2& p) {
+void oe::utils::rotatePoint(float angle, glm::vec2& p)
+{
     float s = sin(angle);
     float c = cos(angle);
 
@@ -31,19 +33,23 @@ void oe::utils::rotatePoint(float angle, glm::vec2& p) {
     p = { (p.x * c - p.y * s), (p.x * s + p.y * c) };
 }
 
-std::string oe::utils::boolToString(bool b) {
+std::string oe::utils::boolToString(bool b)
+{
     return b ? "true" : "false";
 }
 
-bool oe::utils::isInRange(int input, int min, int max) {
+bool oe::utils::isInRange(int input, int min, int max)
+{
     return (input >= min) && (input <= max);
 }
 
-int oe::utils::sign(float n) {
+int oe::utils::sign(float n)
+{
     return n < 0 ? -1 : 1;
 }
 
-glm::vec3 oe::utils::rgbToHSV(glm::vec3 in) {
+glm::vec3 oe::utils::rgbToHSV(glm::vec3 in)
+{
     glm::vec3   out;
     float      min, max, delta;
 
@@ -87,7 +93,8 @@ glm::vec3 oe::utils::rgbToHSV(glm::vec3 in) {
     return out;
 }
 
-glm::vec3 oe::utils::hsvToRGB(glm::vec3 in) {
+glm::vec3 oe::utils::hsvToRGB(glm::vec3 in)
+{
     float      hh, p, q, t, ff;
     long        i;
     glm::vec3   out;
@@ -154,49 +161,24 @@ glm::ivec3 oe::utils::hexToRGB(unsigned long hex)
     );
 }
 
-unsigned long oe::utils::RGBtoHex(glm::ivec3 rgb) {
-    return rgb.x << 16 + rgb.y << 8 + rgb.z << 0;
-}
-
-bool oe::utils::checkChar(const std::string& text, char character, int position) {
-    if (position >= text.size() || position < 0) {
-        return false;
-    }
-    
-    if (text[position] == character) {
-        return true;
-    }
-
-    return false;
-}
-
-bool oe::utils::isNumber(const char* input) {
-    if (strchr(input, 'x')) return false; // no
-    if (strchr(input, 'b')) return false; // hex
-    if (strchr(input, 'o')) return false; // or oct or bin
-
-    char* p = nullptr;
-    long hex = strtol(input, &p, 16);
-    return !*p;
-}
-
-bool oe::utils::isNumber(const std::string& input) {
-    return isNumber(input.c_str());
-}
-
-unsigned long oe::utils::stringToHex(const std::string& str)
+unsigned long oe::utils::RGBtoHex(glm::ivec3 rgb)
 {
-    if (!checkChar(str, '#', 0)) return -1; // not a hexcode
-
-    std::stringstream hex_str;
-    hex_str << std::hex << str.substr(1, 6);
-    long hex = std::stol(hex_str.str().c_str(), nullptr, 16);
-    if (!isNumber(hex_str.str().c_str()) || hex < 0) return -1; // not a hexcode
-
-    return hex;
+    return rgb.x << 16 + rgb.y << 8 + rgb.z << 0;
 }
 
 std::string oe::utils::hexToString(unsigned long hex)
 {
     return fmt::format("{0:x}", hex);
+}
+
+std::string oe::utils::convertUTF(const std::wstring &s)
+{
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> conv;
+    return conv.to_bytes(s);
+}
+
+std::wstring oe::utils::convertUTF(const std::string &s)
+{
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> conv;
+    return conv.from_bytes(s);
 }

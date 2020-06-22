@@ -280,6 +280,7 @@ namespace oe {
 
 	// some predefined colors
 	struct colors {
+		static constexpr glm::vec4 translucent_black = glm::vec4(0.0f, 0.0f, 0.0f, 0.25f);
 		static constexpr glm::vec4 transparent = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
 		static constexpr glm::vec4 white = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		static constexpr glm::vec4 light_grey = glm::vec4(0.75f, 0.75f, 0.75f, 1.0f);
@@ -327,6 +328,9 @@ namespace oe {
 	static glm::vec2 alignmentOffset(const glm::vec2& size, const glm::vec2& alignment) {
 		return size * alignment;
 	}
+	static glm::ivec2 alignmentOffset(const glm::ivec2& size, const glm::vec2& alignment) {
+		return static_cast<glm::ivec2>(static_cast<glm::vec2>(size) * alignment);
+	}
 
 	typedef std::function<void(oe::keys key, oe::actions action, oe::modifiers mods)> fun_key_callback;
 	typedef std::function<void(oe::mouse_buttons button, oe::actions action)> fun_button_callback;
@@ -339,8 +343,8 @@ namespace oe {
 
 	// window open info
 	struct WindowInfo {
-		glm::vec2 position = { 0, 0 };
-		glm::vec2 size = { 900, 600 };
+		glm::ivec2 position = { 0, 0 };
+		glm::ivec2 size = { 900, 600 };
 		std::string title = "Overpeek Engine";
 		unsigned char multisamples = 0;
 		bool borderless = false;
@@ -394,14 +398,13 @@ namespace oe {
 	};
 
 	struct FrameBufferInfo {
-		size_t width = 1;
-		size_t height = 1;
+		glm::ivec2 size = { 1, 1 };
 	};
 
 	// events
     struct CursorPosEvent
     {
-        glm::vec2 cursor_windowspace = { 0.0f, 0.0f };
+        glm::ivec2 cursor_windowspace = { 0.0f, 0.0f };
         glm::vec2 cursor_worldspace = { 0.0f, 0.0f };
     };
 
@@ -429,7 +432,7 @@ namespace oe {
 	struct CodepointEvent
 	{
         // unicode text input
-        uint32_t codepoint = 0;
+        wchar_t codepoint = 0;
 	};
 
 	struct ResizeEvent

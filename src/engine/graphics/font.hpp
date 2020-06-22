@@ -18,13 +18,13 @@
 #endif
 
 
-
+struct FT_LibraryRec_; struct FT_FaceRec_;
 namespace oe::graphics {
 
 	class Font {
 	public:
 		struct Glyph {
-			unsigned char character;
+			wchar_t codepoint;
 			glm::vec2 size;
 			glm::vec2 top_left;
 			glm::vec2 advance;
@@ -32,13 +32,14 @@ namespace oe::graphics {
 			const Sprite* sprite;
 		};
 
-	public:
-		std::unordered_map<char, Glyph*> m_glyphs;
+	private:
+		oe::graphics::SpritePack* sprite_pack;
+		std::unordered_map<wchar_t, Glyph*> m_glyphs;
 		int m_resolution;
+		FT_LibraryRec_* ft;
+		FT_FaceRec_* face;
 
-		float bb_max_height;
-		float bb_min_height;
-		float bb_height;
+		bool gen_codepoint_glyph(wchar_t codepoint);
 	
 	public:
 		/*
@@ -50,7 +51,8 @@ namespace oe::graphics {
 		Font(oe::graphics::SpritePack* sprite_packer, int resolution = 64, std::string font_path = DEFAULT_FONT);
 		~Font();
 
-		const Glyph* getGlyph(char c) const { if (m_glyphs.find(c) != m_glyphs.end()) return m_glyphs.at(c); else return nullptr; }
+		const Glyph* getGlyph(wchar_t c);
+		int getResolution() const { return m_resolution; }
 	};
 
 }

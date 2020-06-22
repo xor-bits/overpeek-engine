@@ -10,7 +10,7 @@ namespace oe::gui {
 
 	struct SpritePanelInfo {
 		glm::ivec2 size                    = { 50, 50 };
-		glm::vec2 offset_position          = { 0, 0 };
+		glm::ivec2 offset_position         = { 0, 0 };
 		glm::vec2 align_parent             = oe::alignments::center_center;
 		glm::vec2 align_render             = oe::alignments::center_center;
 		glm::vec4 color                    = oe::colors::white;
@@ -27,8 +27,11 @@ namespace oe::gui {
 		SpritePanelInfo sprite_panel_info;
 
 	public:
-		SpritePanel(GUI* gui_manager, const SpritePanelInfo& sprite_panel_info);
+		SpritePanel(const SpritePanelInfo& sprite_panel_info);
 		~SpritePanel();
+
+		virtual void managerAssigned(GUI* gui_manager) override;
+		virtual void managerUnassigned(GUI* gui_manager) override;
 
 		// events
 		void on_render(const GUIRenderEvent& event);

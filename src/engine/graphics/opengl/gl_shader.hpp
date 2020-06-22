@@ -11,7 +11,7 @@
 namespace oe::graphics {
 
 	class StorageBuffer;
-	class GLShader : public Shader {
+	class GLShader : public IShader {
 	private:
 		uint32_t p_shader_program;
 		std::unordered_map<std::string, int32_t> m_uniform_lookup_table;

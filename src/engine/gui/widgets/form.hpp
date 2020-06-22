@@ -8,10 +8,10 @@ namespace oe::graphics { class Quad; }
 namespace oe::gui {
 
 	struct FormInfo {
-		glm::ivec2 size           = { 50, 50 };
-		glm::vec2 offset_position = { 0, 0 };
-		glm::vec2 align_parent    = oe::alignments::top_left;
-		glm::vec2 align_render    = oe::alignments::top_left;
+		glm::ivec2 size            = { 50, 50 };
+		glm::ivec2 offset_position = { 0, 0 };
+		glm::vec2 align_parent     = oe::alignments::top_left;
+		glm::vec2 align_render     = oe::alignments::top_left;
 	};
 
 	class GUI;
@@ -20,7 +20,7 @@ namespace oe::gui {
 		FormInfo form_info;
 
 	public:
-		Form(GUI* gui_manager, const FormInfo& form_info);
+		Form(const FormInfo& form_info);
 		~Form();
 	};
 

@@ -7,13 +7,13 @@
 
 namespace oe::graphics {
 
-	class Texture {
+	class ITexture {
 	protected:
 		TextureInfo m_texture_info;
 
 	public:
-		Texture(const TextureInfo& texture_info);
-		virtual ~Texture();
+		ITexture(const TextureInfo& texture_info);
+		virtual ~ITexture();
 
 		virtual void setData(const TextureInfo& texture_info) = 0;
 

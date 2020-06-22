@@ -11,31 +11,25 @@
 
 namespace oe::graphics {
 
-	class Window;
-	class FrameBuffer {
+	class IWindow;
+	class IFrameBuffer {
 	protected:
 		FrameBufferInfo m_framebuffer_info;
+		Sprite sprite;
 
 	public:
-		FrameBuffer(const FrameBufferInfo& framebuffer_info, Window* window);
-		virtual ~FrameBuffer();
+		IFrameBuffer(const FrameBufferInfo& framebuffer_info, Window& window);
+		virtual ~IFrameBuffer();
 
 		virtual void bind() = 0; // will bind corresponding texture
-
 		virtual void clear(const glm::vec4& color = oe::colors::clear_color) = 0;
 
-		static void multipass(FrameBuffer& fb_0, FrameBuffer& fb_1, Window* window, const std::array<VertexData, 4>& vertices, size_t count);
+		static void multipass(FrameBuffer& fb_0, FrameBuffer& fb_1, Window& window, const std::array<VertexData, 4>& vertices, size_t count);
 
-		Sprite getSprite()
-		{
-			auto sprite = Sprite(getTexture());
-			sprite.position = { 0.0f, 1.0f };
-			sprite.size = { 1.0f, -1.0f };
-			return sprite;
-		}
+		const Sprite& getSprite() { return sprite; }
 
 	public:
-		virtual const Texture* getTexture() const = 0;
+		virtual Texture& getTexture() = 0;
 		inline const FrameBufferInfo& getFrameBufferInfo() { return m_framebuffer_info; }
 
 	};
@@ -53,7 +47,7 @@ namespace oe::graphics {
 			return *fb_multipasser;
 		}
 
-		void multipass(FrameBuffer& fb_0, FrameBuffer& fb_1, Window* window, const std::array<VertexData, 4>& vertices, size_t count);
+		void multipass(FrameBuffer& fb_0, FrameBuffer& fb_1, Window& window, const std::array<VertexData, 4>& vertices, size_t count);
 
 	private:
 		void* m_primitive_renderer;

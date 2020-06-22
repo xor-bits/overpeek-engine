@@ -13,13 +13,13 @@
 
 namespace oe::graphics {
 
-	void Window::postglfw() 
+	void IWindow::postglfw() 
 	{
 		glfwSetWindowUserPointer(m_window_handle, this);
 
 		glfwSetCharModsCallback(m_window_handle, [](GLFWwindow* window, unsigned int codepoint, int mods) 
 			{
-				Window* this_class = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+				IWindow* this_class = reinterpret_cast<IWindow*>(glfwGetWindowUserPointer(window));
 
 				oe::CodepointEvent event;
 				event.codepoint = codepoint;
@@ -29,7 +29,7 @@ namespace oe::graphics {
 		
 		glfwSetFramebufferSizeCallback(m_window_handle, [](GLFWwindow* window, int width, int height)                          
 			{
-				Window* this_class = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+				IWindow* this_class = reinterpret_cast<IWindow*>(glfwGetWindowUserPointer(window));
 				this_class->active_context();
 
 				if (height < 1) height = 1;
@@ -50,13 +50,13 @@ namespace oe::graphics {
 		
 		glfwSetCursorPosCallback(m_window_handle, [](GLFWwindow* window, double x, double y)
 			{
-				Window* this_class = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+				IWindow* this_class = reinterpret_cast<IWindow*>(glfwGetWindowUserPointer(window));
 
 				this_class->m_cursor_window = { x, y };
 
-				x = oe::utils::map(static_cast<float>(x), 0.0f, this_class->m_window_info.size.x, -this_class->m_aspect_ratio, this_class->m_aspect_ratio);
-				y = oe::utils::map(static_cast<float>(y), 0.0f, this_class->m_window_info.size.y, -1.0f, 1.0f);
-				this_class->m_cursor_transformed = { x, y };
+				float fx = oe::utils::map(static_cast<float>(x), 0.0f, static_cast<float>(this_class->m_window_info.size.x), -this_class->m_aspect_ratio, this_class->m_aspect_ratio);
+				float fy = oe::utils::map(static_cast<float>(y), 0.0f, static_cast<float>(this_class->m_window_info.size.y), -1.0f, 1.0f);
+				this_class->m_cursor_transformed = { fx, fy };
 
 				oe::CursorPosEvent event;
 				event.cursor_windowspace = this_class->m_cursor_window;
@@ -67,7 +67,7 @@ namespace oe::graphics {
 		
 		glfwSetMouseButtonCallback(m_window_handle, [](GLFWwindow* window, int button, int action, int mods)
 			{
-				Window* this_class = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+				IWindow* this_class = reinterpret_cast<IWindow*>(glfwGetWindowUserPointer(window));
 
 				if (button >= M_NUM_BUTTONS || button < 0) return;
 
@@ -86,7 +86,7 @@ namespace oe::graphics {
 		
 		glfwSetKeyCallback(m_window_handle, [](GLFWwindow* window, int key, int scancode, int action, int mods)    
 			{
-				Window* this_class = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+				IWindow* this_class = reinterpret_cast<IWindow*>(glfwGetWindowUserPointer(window));
 
 				if (key >= M_NUM_KEYS || key < 0) return;
 
@@ -103,7 +103,7 @@ namespace oe::graphics {
 		
 		glfwSetScrollCallback(m_window_handle, [](GLFWwindow* window, double xoffset, double yoffset)
 			{
-				Window* this_class = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+				IWindow* this_class = reinterpret_cast<IWindow*>(glfwGetWindowUserPointer(window));
 
 				oe::ScrollEvent event;
 				event.scroll_delta = { xoffset, yoffset };
@@ -118,13 +118,12 @@ namespace oe::graphics {
 		swapInterval(m_window_info.swap_interval);
 	}
 
-	Window::Window(const Instance* instance, const WindowInfo& window_config) 
-		: m_instance(instance)
-		, m_window_info(window_config)
+	IWindow::IWindow(const Instance* instance, const WindowInfo& window_config) 
+		: m_window_info(window_config)
 		, m_window_gameloop(this, m_window_info.main_updatesystem_ups)
 	{
-		m_window_info.size.y = std::max(m_window_info.size.y, 1.0f);
-		m_aspect_ratio = m_window_info.size.x / m_window_info.size.y;
+		m_window_info.size.y = std::max(m_window_info.size.y, 1);
+		m_aspect_ratio = static_cast<float>(m_window_info.size.x) / static_cast<float>(m_window_info.size.y);
 
 		for (size_t i = 0; i < M_NUM_KEYS; i++)
 		{
@@ -136,26 +135,26 @@ namespace oe::graphics {
 		}
 	}
 
-	Window::~Window() 
+	IWindow::~IWindow() 
 	{
 
 	}
 
 
 
-	bool Window::shouldClose() 
+	bool IWindow::shouldClose() 
 	{
 		return glfwWindowShouldClose(m_window_handle);
 	}
 
-	void Window::setIcon(const oe::utils::image_data& image) 
+	void IWindow::setIcon(const oe::utils::image_data& image) 
 	{
 		GLFWimage glfwicon; 
 		glfwicon.height = image.height; glfwicon.width = image.width; glfwicon.pixels = const_cast<unsigned char*>(image.data);
 		glfwSetWindowIcon(m_window_handle, 1, &glfwicon);
 	}
 
-	void Window::showCursor(bool show) 
+	void IWindow::showCursor(bool show) 
 	{
 		if (!show) glfwSetInputMode(m_window_handle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 		else glfwSetInputMode(m_window_handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -176,33 +175,33 @@ namespace oe::graphics {
 
 
 	// getters/setters
-	float Window::aspect() { return m_aspect_ratio; };
-	float Window::button(oe::mouse_buttons button) { int32_t num = static_cast<int32_t>(button); if (num >= M_NUM_BUTTONS || num < 0) oe_error_terminate("Invalid button {}", button); else return m_buttons[num]; }
-	float Window::key(oe::keys key) { int32_t num = static_cast<int32_t>(key); if (num >= M_NUM_KEYS || num < 0) oe_error_terminate("Invalid key {}", key); else return m_keys[num]; }
+	float IWindow::aspect() { return m_aspect_ratio; };
+	float IWindow::button(oe::mouse_buttons button) { int32_t num = static_cast<int32_t>(button); if (num >= M_NUM_BUTTONS || num < 0) oe_error_terminate("Invalid button {}", button); else return m_buttons[num]; }
+	float IWindow::key(oe::keys key) { int32_t num = static_cast<int32_t>(key); if (num >= M_NUM_KEYS || num < 0) oe_error_terminate("Invalid key {}", key); else return m_keys[num]; }
 
-	const glm::vec2& Window::getPosition() { return m_window_info.position; }
-	void Window::setPosition(const glm::vec2& pos) { m_window_info.position = pos; glfwSetWindowPos(m_window_handle, m_window_info.position.x, m_window_info.position.y); }
+	const glm::ivec2& IWindow::getPosition() { return m_window_info.position; }
+	void IWindow::setPosition(const glm::ivec2& pos) { m_window_info.position = pos; glfwSetWindowPos(m_window_handle, m_window_info.position.x, m_window_info.position.y); }
 
-	const glm::vec2& Window::getSize() { return m_window_info.size; }
-	void Window::setSize(const glm::vec2& size) { m_window_info.size = size; glfwSetWindowSize(m_window_handle, size.x, size.y); }
+	const glm::ivec2& IWindow::getSize() { return m_window_info.size; }
+	void IWindow::setSize(const glm::ivec2& size) { m_window_info.size = size; glfwSetWindowSize(m_window_handle, size.x, size.y); }
 
-	const std::string& Window::getTitle() { return m_window_info.title; }
-	void Window::setTitle(const std::string& title) { m_window_info.title = title; glfwSetWindowTitle(m_window_handle, title.c_str()); }
+	const std::string& IWindow::getTitle() { return m_window_info.title; }
+	void IWindow::setTitle(const std::string& title) { m_window_info.title = title; glfwSetWindowTitle(m_window_handle, title.c_str()); }
 
-	bool Window::getBorderless() { return m_window_info.borderless; }
-	void Window::setBorderless(bool borderless) { m_window_info.borderless = borderless; glfwSetWindowAttrib(m_window_handle, GLFW_DECORATED, !m_window_info.resizeable); }
+	bool IWindow::getBorderless() { return m_window_info.borderless; }
+	void IWindow::setBorderless(bool borderless) { m_window_info.borderless = borderless; glfwSetWindowAttrib(m_window_handle, GLFW_DECORATED, !m_window_info.resizeable); }
 
-	bool Window::getResizeable() { return m_window_info.resizeable; }
-	void Window::setResizeable(bool resizeable) { m_window_info.resizeable = resizeable; glfwSetWindowAttrib(m_window_handle, GLFW_RESIZABLE, m_window_info.resizeable); }
+	bool IWindow::getResizeable() { return m_window_info.resizeable; }
+	void IWindow::setResizeable(bool resizeable) { m_window_info.resizeable = resizeable; glfwSetWindowAttrib(m_window_handle, GLFW_RESIZABLE, m_window_info.resizeable); }
 
-	bool Window::getFullscreen() { return m_window_info.fullscreen; }
-	void Window::setFullscreen(bool fullscreen) { m_window_info.fullscreen = fullscreen; m_window_info.fullscreen ? makeFullscreen(m_window_handle, m_window_info) : makeWindowed(m_window_handle, m_window_info); }
+	bool IWindow::getFullscreen() { return m_window_info.fullscreen; }
+	void IWindow::setFullscreen(bool fullscreen) { m_window_info.fullscreen = fullscreen; m_window_info.fullscreen ? makeFullscreen(m_window_handle, m_window_info) : makeWindowed(m_window_handle, m_window_info); }
 
-	const glm::vec2& Window::getCursorWindow() { return m_cursor_window; }
-	void Window::setCursorWindow(const glm::vec2& cursor_at_window) { m_cursor_window = cursor_at_window; glfwSetCursorPos(m_window_handle, m_cursor_window.x, m_cursor_window.y); }
+	const glm::ivec2& IWindow::getCursorWindow() { return m_cursor_window; }
+	void IWindow::setCursorWindow(const glm::ivec2& cursor_at_window) { m_cursor_window = cursor_at_window; glfwSetCursorPos(m_window_handle, m_cursor_window.x, m_cursor_window.y); }
 
-	const glm::vec2& Window::getCursorTransformed() { return m_cursor_transformed; }
-	void Window::setCursorTransformed(const glm::vec2& cursor_at_world_space) 
+	const glm::vec2& IWindow::getCursorTransformed() { return m_cursor_transformed; }
+	void IWindow::setCursorTransformed(const glm::vec2& cursor_at_world_space) 
 	{
 		m_cursor_transformed = cursor_at_world_space;
 		m_cursor_transformed.x = oe::utils::map((float)m_cursor_transformed.x, (float)-m_aspect_ratio, (float)m_aspect_ratio, (float)0.0, (float)m_window_info.size.x);
@@ -210,8 +209,8 @@ namespace oe::graphics {
 		glfwSetCursorPos(m_window_handle, m_cursor_transformed.x, m_cursor_transformed.y);
 	}
 
-	const std::string Window::getClipboard() { return glfwGetClipboardString(m_window_handle); }
+	const std::wstring IWindow::getClipboard() { return oe::utils::convertUTF(glfwGetClipboardString(m_window_handle)); }
 	
-	void Window::setClipboard(const std::string& str) {	glfwSetClipboardString(m_window_handle, str.c_str()); }
+	void IWindow::setClipboard(const std::wstring& str) { glfwSetClipboardString(m_window_handle, oe::utils::convertUTF(str).c_str()); }
 
 }
