@@ -21,8 +21,6 @@ const oe::graphics::Sprite* sprite;
 oe::graphics::Font* font;
 
 glm::vec4 color = oe::colors::orange;
-glm::vec3 rotate(0.0f, 1.0f, 0.0f);
-float speed = 0.0f;
 glm::quat cube_rotation;
 
 
@@ -174,47 +172,6 @@ void append_list(const glm::quat& quat)
 // gui
 void setup_gui() {
 	{
-		oe::gui::DecoratedButtonInfo button_info = {};
-		button_info.size = { 175, 50 };
-		button_info.offset_position = { 0, 10 };
-		button_info.align_parent = oe::alignments::top_center;
-		button_info.align_render = oe::alignments::top_center;
-		button_info.sprite = pack->empty_sprite();
-		button_info.text = L"new dir";
-		button_info.callback = [](oe::mouse_buttons button, oe::actions action) {
-			if (action == oe::actions::release && button == oe::mouse_buttons::button_left) {
-				// spdlog::info("Button pressed"); 
-				std::swap(rotate.x, rotate.y);
-				std::swap(rotate.y, rotate.z);
-			}
-			else if (action == oe::actions::none || button == oe::mouse_buttons::none) {
-				// spdlog::info("Button hovered");
-			}
-		};
-		auto button = new oe::gui::DecoratedButton(button_info);
-		gui->addSubWidget(button);
-	}
-	{
-		oe::gui::DecoratedButtonInfo button_info = {};
-		button_info.size = { 175, 50 };
-		button_info.offset_position = { 0, 70 };
-		button_info.align_parent = oe::alignments::top_center;
-		button_info.align_render = oe::alignments::top_center;
-		button_info.sprite = pack->empty_sprite();
-		button_info.text = L"reverse";
-		button_info.callback = [](oe::mouse_buttons button, oe::actions action) {
-			if (action == oe::actions::release && button == oe::mouse_buttons::button_left) {
-				// spdlog::info("Button pressed"); 
-				rotate *= -1;
-			}
-			else if (action == oe::actions::none || button == oe::mouse_buttons::none) {
-				// spdlog::info("Button hovered");
-			}
-		};
-		auto button = new oe::gui::DecoratedButton(button_info);
-		gui->addSubWidget(button);
-	}
-	{
 		oe::gui::SpritePanelInfo sprite_panel_info = {};
 		sprite_panel_info.size = { 150, 150 };
 		sprite_panel_info.align_parent = oe::alignments::bottom_left;
@@ -237,9 +194,8 @@ void setup_gui() {
 	{
 		oe::gui::DecoratedButtonInfo button_info = {};
 		button_info.size = { 175, 50 };
-		button_info.offset_position = { 150, -40 };
-		button_info.align_parent = oe::alignments::bottom_center;
-		button_info.align_render = oe::alignments::bottom_center;
+		button_info.align_parent = oe::alignments::top_center;
+		button_info.align_render = oe::alignments::top_center;
 		button_info.sprite = pack->empty_sprite();
 		button_info.text = L"log";
 		button_info.callback = [](oe::mouse_buttons button, oe::actions action) {
@@ -252,7 +208,7 @@ void setup_gui() {
 			}
 		};
 		auto button = new oe::gui::DecoratedButton(button_info);
-		textbox->addSubWidget(button);
+		gui->addSubWidget(button);
 	}
 	{
 		oe::gui::VecSliderInfo vecslider_info = {};
@@ -265,7 +221,6 @@ void setup_gui() {
 		vecslider_info.min_values = { -glm::pi<float>(), -1.0f, -1.0f, -1.0f };
 		vecslider_info.max_values = { glm::pi<float>(), 1.0f, 1.0f, 1.0f };
 		vecslider_info.initial_values = { 0.0f, 1.0f, 1.0f, 1.0f };
-		vecslider_info.callback = [](float val) { speed = val; };
 		vecslider_info.draw_value = true;
 		quat_slider = new oe::gui::VecSlider<4>(vecslider_info);
 		gui->addSubWidget(quat_slider);
