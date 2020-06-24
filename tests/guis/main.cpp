@@ -34,10 +34,10 @@ class Checkpoint : public oe::gui::TextPanel
 public:
 	glm::quat quaternion;
 
-	Checkpoint(const glm::mat4& point)
+	Checkpoint(const glm::quat& quat)
 		: TextPanel(tpi)
 	{
-		quaternion = glm::quat_cast(point);
+		quaternion = quat;
 		text_panel_info.text = fmt::format(L"{:.1f}", quaternion);
 	}
 };
@@ -118,7 +118,6 @@ void cube() {
 
 			size_t index = t;
 			float modt = std::fmodf(t, 1.0f);
-			spdlog::debug("t: {}, modt: {}, index: {}", t, modt, index);
 			
 			const glm::quat& a = reinterpret_cast<Checkpoint*>(points.at(index))->quaternion;
 			const glm::quat& b = reinterpret_cast<Checkpoint*>(points.at(index + 1))->quaternion;
@@ -166,9 +165,9 @@ void update_30() {
 	// spdlog::info(str);
 }
 
-void append_list(const std::wstring& str)
+void append_list(const glm::quat& quat)
 {
-	Checkpoint* checkpoint = new Checkpoint(ml_matrix);
+	Checkpoint* checkpoint = new Checkpoint(quat);
 	list->add(checkpoint);
 }
 
@@ -238,16 +237,15 @@ void setup_gui() {
 	{
 		oe::gui::DecoratedButtonInfo button_info = {};
 		button_info.size = { 175, 50 };
-		button_info.offset_position = { 0, -10 };
-		button_info.align_parent = oe::alignments::top_center;
+		button_info.offset_position = { 150, -40 };
+		button_info.align_parent = oe::alignments::bottom_center;
 		button_info.align_render = oe::alignments::bottom_center;
 		button_info.sprite = pack->empty_sprite();
 		button_info.text = L"log";
 		button_info.callback = [](oe::mouse_buttons button, oe::actions action) {
 			if (action == oe::actions::release && button == oe::mouse_buttons::button_left) {
-				spdlog::info(oe::utils::convertUTF(textbox->text_input_info.text));
-				append_list(textbox->text_input_info.text);
-				textbox->text_input_info.text = L"";
+				glm::vec4 quat_slider_val = quat_slider->getGLM();
+				append_list(glm::angleAxis(quat_slider_val.w, glm::normalize(glm::vec3(quat_slider_val.x, quat_slider_val.y, quat_slider_val.z))));
 			}
 			else if (action == oe::actions::none || button == oe::mouse_buttons::none) {
 				// spdlog::info("Button hovered");
@@ -276,7 +274,7 @@ void setup_gui() {
 		oe::gui::CheckboxInfo ci = {};
 		ci.align_parent = oe::alignments::bottom_center;
 		ci.align_render = oe::alignments::bottom_center;
-		ci.offset_position = { 0, -35 };
+		ci.offset_position = { 0, -40 };
 		ci.sprite = pack->empty_sprite();
 		checkbox = new oe::gui::Checkbox(ci);
 		gui->addSubWidget(checkbox);
@@ -317,6 +315,9 @@ void setup_gui() {
 	tpi.align_parent = oe::alignments::top_left;
 	tpi.align_render = oe::alignments::top_left;
 	tpi.text = L"placeholder";
+	
+	auto& random = oe::utils::Random::getSingleton();
+	for(int i = 0; i < 5; i++) append_list(glm::angleAxis(random.randomf(-glm::pi<float>(), glm::pi<float>()), glm::normalize(random.randomVec3(-1.0f, 1.0f))));
 }
 
 void main()
