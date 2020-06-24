@@ -1,6 +1,7 @@
 #include "list.hpp"
 
 #include "sprite_panel.hpp"
+#include "slider.hpp"
 #include "text_panel.hpp"
 #include "engine/gui/gui_manager.hpp"
 
@@ -44,6 +45,25 @@ namespace oe::gui
             auto* title = new TextPanel(text_panel_info);
             title_bg->addSubWidget(title);
         }
+
+        if (list_info.scrollable)
+        {
+            SliderInfo slider_info;
+            slider_info.slider_size = { 20, list_info.size.y };
+            slider_info.offset_position = list_info.offset_position;
+            slider_info.align_parent = oe::alignments::top_right;
+            slider_info.align_render = oe::alignments::top_right;
+            slider_info.slider_sprite = list_info.sprite;
+            slider_info.knob_sprite = list_info.sprite;
+            slider_info.knob_size = { 16, 16 };
+            slider_info.slider_lcolor = slider_info.slider_rcolor;
+            slider_info.vertical = true;
+            slider_info.min_value = 0.0f;
+            slider_info.max_value = 1.0f;
+            slider = new Slider(slider_info);
+            slider->toggled = false;
+            addSubWidget(slider);
+        }
     }
 
     List::~List()
@@ -86,6 +106,14 @@ namespace oe::gui
         fb_sprite = fb->getSprite();
         fb_sprite.size = static_cast<glm::vec2>(size) / static_cast<glm::vec2>(m_gui_manager->getWindow()->getSize());
         fb_sprite.size.y *= -1.0f;
+
+        if(offset_accumulator.size() > 0 && offset_accumulator.at(offset_accumulator.size() - 1) + m_list_info.element_borders >= size.y)
+        {
+            slider->toggled = true;
+            float overflow_size = static_cast<float>(offset_accumulator.at(offset_accumulator.size() - 1) + m_list_info.element_borders - size.y) / static_cast<float>(size.y);
+            fb_sprite.position.y -= slider->slider_info.initial_value * overflow_size;
+            spdlog::info(overflow_size);
+        }
     }
 
     void List::add(size_t pos, Widget* widget)

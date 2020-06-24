@@ -1,4 +1,5 @@
 #include <engine/include.hpp>
+#include <spdlog/fmt/bundled/format.h>
 
 #include <string>
 
@@ -22,6 +23,22 @@ glm::vec3 rotate(0.0f, 1.0f, 0.0f);
 float speed = 0.0f;
 
 
+
+static glm::mat4 ml_matrix = glm::mat4(1.0f);
+static oe::gui::TextPanelInfo tpi;
+class Checkpoint : public oe::gui::TextPanel
+{
+public:
+	glm::quat quaternion;
+
+	Checkpoint(const glm::mat4& point)
+		: TextPanel(tpi)
+	{
+		quaternion = glm::quat_cast(point);
+		text_panel_info.text = fmt::format(L"{:.1f}", quaternion);
+		spdlog::info("mat: {}", glm::vec4(1.0f));
+	}
+};
 
 // render cube
 void cube() {
@@ -72,7 +89,6 @@ void cube() {
 	renderer->end();
 	
 	// shader and model matrix
-	static glm::mat4 ml_matrix = glm::mat4(1.0f);
 	ml_matrix = glm::rotate(ml_matrix, speed * -0.02f * window->getGameloop().getFrametimeMS(), rotate);
 	shader->bind();
 	shader->setModelMatrix(ml_matrix);
@@ -109,6 +125,12 @@ void update_30() {
 	std::wstring str = fmt::format(L"frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
 	textpanel->text_panel_info.text = str;
 	// spdlog::info(str);
+}
+
+void append_list(const std::wstring& str)
+{
+	Checkpoint* checkpoint = new Checkpoint(ml_matrix);
+	list->add(checkpoint);
 }
 
 // gui
@@ -185,18 +207,7 @@ void setup_gui() {
 		button_info.callback = [](oe::mouse_buttons button, oe::actions action) {
 			if (action == oe::actions::release && button == oe::mouse_buttons::button_left) {
 				spdlog::info(oe::utils::convertUTF(textbox->text_input_info.text));
-
-				// add to the list
-				oe::gui::TextPanelInfo text_panel_info = {};
-				text_panel_info.font_size = 20;
-				text_panel_info.align_parent = oe::alignments::top_left;
-				text_panel_info.align_render = oe::alignments::top_left;
-				text_panel_info.text = textbox->text_input_info.text;
-				auto* list_element = new oe::gui::TextPanel(text_panel_info);
-
-				list->add(list_element);
-				
-				// reset input box
+				append_list(textbox->text_input_info.text);
 				textbox->text_input_info.text = L"";
 			}
 			else if (action == oe::actions::none || button == oe::mouse_buttons::none) {
@@ -238,7 +249,6 @@ void setup_gui() {
 		color_picker_info.align_render = oe::alignments::center_left;
 		color_picker_info.callback = [&](glm::vec4 value) { color = value; };
 		color_picker_info.sprite = pack->empty_sprite();
-		color_picker_info.background_color = oe::colors::translucent_black;
 		auto color_picker = new oe::gui::ColorPicker(color_picker_info);
 		gui->addSubWidget(color_picker);
 	}
@@ -253,6 +263,14 @@ void setup_gui() {
 		list = new oe::gui::List(list_info);
 		gui->addSubWidget(list);
 	}
+
+	tpi = {};
+	tpi.font_size = 14;
+	tpi.align_parent = oe::alignments::top_left;
+	tpi.align_render = oe::alignments::top_left;
+	tpi.text = L"placeholder";
+
+	append_list(L"xyz");
 }
 
 void main()

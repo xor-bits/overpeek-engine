@@ -55,18 +55,18 @@ namespace oe::gui {
 
 	void Checkbox::on_render(const GUIRenderEvent& event)
 	{
-		*event.z += 1.0f;
+		if (!toggled) { quad_check->reset(); quad_box->reset(); return; }
+
 		quad_box->setPosition(render_position);
-		quad_box->setZ(*event.z);
+		quad_box->setZ(z);
 		quad_box->setSize(size);
 		quad_box->setColor(m_checkbox_info.color_back);
 		quad_box->setSprite(m_checkbox_info.sprite);
 		quad_box->update();
 
 		if (m_checkbox_info.initial) {
-			*event.z += 1.0f;
 			quad_check->setPosition(static_cast<glm::vec2>(render_position + size / 2));
-			quad_check->setZ(*event.z);
+			quad_check->setZ(z + 0.05f);
 			quad_check->setSize(static_cast<glm::vec2>(size) * 0.7f);
 			quad_check->setColor(m_checkbox_info.color_mark);
 			quad_check->setSprite(m_checkbox_info.sprite);

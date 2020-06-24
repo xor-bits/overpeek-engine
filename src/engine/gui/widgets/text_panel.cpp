@@ -41,11 +41,13 @@ namespace oe::gui {
 
 	void TextPanel::on_render(const GUIRenderEvent& event)
 	{
+		if (!toggled) { text_quad->reset(); return; }
+
 		glm::vec2 text_size = glm::vec2(static_cast<float>(text_panel_info.font_size));
 		label->generate(text_panel_info.text, m_gui_manager->getWindow(), text_panel_info.background_color);
 		size = text_size * label->getSize();
 		text_quad->setPosition(static_cast<glm::vec2>(render_position + oe::alignmentOffset(size, align_render)));
-		text_quad->setZ(*event.z);
+		text_quad->setZ(z);
 		text_quad->setSize(size);
 		text_quad->setSprite(label->getSprite());
 		text_quad->setColor(oe::colors::white);

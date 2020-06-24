@@ -15,6 +15,7 @@ namespace oe::gui {
 		float max_value                           = 1.0f;
 		float initial_value                       = 0.0f;
 		bool draw_value                           = false;
+		bool vertical                             = false;
 		bool scroll                               = false;
 		glm::ivec2 slider_size                    = { 50, 50 };
 		glm::ivec2 knob_size                      = { 50, 50 };

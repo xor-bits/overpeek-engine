@@ -98,10 +98,11 @@ namespace oe::gui
 	
 	void TextInput::on_render(const GUIRenderEvent& event)
 	{
+		if (!toggled) { quad->reset(); text_quad->reset(); return; }
+
 		// bounding box
-		*event.z += 1.0f;
 		quad->setPosition(render_position - text_input_info.padding);
-		quad->setZ(*event.z);
+		quad->setZ(z);
 		quad->setSize(static_cast<glm::vec2>(size + text_input_info.padding * 2));
 		quad->setSprite(text_input_info.sprite);
 		quad->setColor(text_input_info.color);
@@ -117,12 +118,11 @@ namespace oe::gui
 		}
 
 		// text
-		*event.z += 1.0f;
 		glm::vec2 text_size = glm::vec2(text_input_info.font_size);
 		const std::wstring drawn_str = fmt::format(L"<#000000>{}{}", text_input_info.text, bar);
 		label->generate(drawn_str, m_gui_manager->getWindow());
 		text_quad->setPosition(static_cast<glm::vec2>(render_position + oe::alignmentOffset(size, text_input_info.align_text) - oe::alignmentOffset(static_cast<glm::ivec2>(text_size * label->getSize()), text_input_info.align_text)));
-		text_quad->setZ(*event.z);
+		text_quad->setZ(z + 0.05f);
 		text_quad->setSize(text_size * label->getSize());
 		text_quad->setSprite(label->getSprite());
 		text_quad->setColor(oe::colors::white);

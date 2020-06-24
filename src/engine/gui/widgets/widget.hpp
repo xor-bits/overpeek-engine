@@ -15,6 +15,10 @@ namespace oe::gui {
 		Widget* m_parent;
 		std::unordered_set<Widget*> m_nodes;
 		void setParent(Widget* parent);
+		static float z_acc;
+
+	protected:
+		float z;
 
 	public:
 		glm::ivec2 size;
@@ -23,6 +27,7 @@ namespace oe::gui {
 		glm::ivec2 render_position;
 		glm::vec2 align_parent = oe::alignments::center_center;
 		glm::vec2 align_render = oe::alignments::center_center;
+		bool toggled;
 		
 		GUI* m_gui_manager;
 

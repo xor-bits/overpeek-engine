@@ -39,7 +39,7 @@ namespace oe::graphics {
 		}
 		
 
-		
+		void reset() { m_position = { 0.0f, 0.0f, 0.0f }; m_size = { 0.0f, 0.0f }; m_color = { 0.0f, 0.0f, 0.0f, 0.0f }; }
 		void setPosition(const glm::vec3& position) { if (m_position != position) { m_updated = true; } m_position = position; }
 		void setPosition(const glm::vec2& position) { if (m_position.x != position.x || m_position.y != position.y) { m_updated = true; } m_position.x = position.x; m_position.y = position.y; }
 		void setX(float x) { if (m_position.x != x) { m_updated = true; } m_position.x = x; }
@@ -57,7 +57,7 @@ namespace oe::graphics {
 		const glm::vec4& getColor() const { return m_color; }
 
 		void expandSprite() { m_updated = true; m_sprite.position = { 0.0f, 0.0f }; m_sprite.size = { 1.0f, 1.0f }; }
-		void setSprite(const Sprite& sprite) { if (m_sprite.m_owner != sprite.m_owner) { m_sprite_updated = true; } m_sprite = sprite; }
+		void setSprite(const Sprite& sprite) { if (m_sprite.m_owner != sprite.m_owner) { m_sprite_updated = true; } else if(m_sprite.position != sprite.position || m_sprite.size != sprite.size) { m_updated = true; } m_sprite = sprite; }
 		void setSprite(const Sprite* sprite) { setSprite(*sprite); }
 		const Sprite* getSprite() const { return &m_sprite; }
 

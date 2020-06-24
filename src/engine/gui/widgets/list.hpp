@@ -1,7 +1,6 @@
 #pragma once
 
 #include "widget.hpp"
-#include "sprite_panel.hpp"
 #include "engine/graphics/sprite.hpp"
 #include "engine/interfacegen.hpp"
 
@@ -16,9 +15,8 @@ namespace oe::gui
 		glm::vec2 align_parent             = oe::alignments::top_left;
 		glm::vec2 align_render             = oe::alignments::top_left;
         bool scrollable                    = true;
-        glm::ivec2 elements                = { 1, -1 }; // -1 for dynamic, "scrollable" size
         int element_borders                = 5;
-		glm::vec4 bg_color                 = oe::colors::dark_grey;
+		glm::vec4 bg_color                 = { 0.17f, 0.17f, 0.17f, 1.0f };
         std::wstring title                 = L"";
 		glm::vec2 title_align              = oe::alignments::center_center;
         glm::vec4 title_bg_color           = oe::colors::darker_grey;
@@ -27,6 +25,8 @@ namespace oe::gui
 		const oe::graphics::Sprite* sprite = nullptr; // must be set
     };
 
+	class SpritePanel;
+	class Slider;
     class List : public Widget
     {
     private:
@@ -36,6 +36,7 @@ namespace oe::gui
 
         oe::graphics::FrameBuffer fb;
         SpritePanel* panel;
+        Slider* slider;
         oe::graphics::Sprite fb_sprite;
 
 	public:

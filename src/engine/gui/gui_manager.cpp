@@ -10,10 +10,6 @@
 
 namespace oe::gui {
 
-	constexpr int border = 5;
-
-	
-
 	GUI::GUI(const GUIBase& base)
 		: m_guibase(base)
 	{
@@ -75,7 +71,7 @@ namespace oe::gui {
 	void GUI::render() {
 		auto& engine = oe::Engine::getSingleton();
 		auto old_depth = engine.getDepth();
-		engine.depth(oe::depth_functions::always);
+		engine.depth(oe::depth_functions::less_than_or_equal);
 
 		render_empty();
 
@@ -89,9 +85,7 @@ namespace oe::gui {
 	void GUI::render_empty()
 	{
 		short_resize();
-		float z = 0.0f;
 		GUIRenderEvent event;
-		event.z = &z;
 		dispatcher.trigger(event);
 	}
 

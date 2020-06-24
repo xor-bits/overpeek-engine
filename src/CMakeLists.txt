@@ -132,6 +132,7 @@ set(source_list ${source_list}
 	"engine/gui/widgets/form.hpp"
 	"engine/gui/widgets/slider.cpp"
 	"engine/gui/widgets/slider.hpp"
+	"engine/gui/widgets/vec_slider.hpp"
 	"engine/gui/widgets/sprite_panel.cpp"
 	"engine/gui/widgets/sprite_panel.hpp"
 	"engine/gui/widgets/text_input.cpp"

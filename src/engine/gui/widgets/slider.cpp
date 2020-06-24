@@ -68,47 +68,87 @@ namespace oe::gui {
 	
 	void Slider::on_render(const GUIRenderEvent& event)
 	{
-		glm::vec2 slider_pos = glm::vec2(oe::utils::map(slider_info.initial_value, slider_info.min_value, slider_info.max_value, 0.0f, static_cast<float>(size.x - slider_info.knob_size.x)), 0.0f);
-		
-		{
-			*event.z += 1.0f;
-			quad_lslider->setPosition(render_position);
-			quad_lslider->setZ(*event.z);
-			quad_lslider->setSize({ slider_pos.x, size.y });
-			quad_lslider->setColor(slider_info.slider_lcolor);
-			quad_lslider->setSprite(slider_info.slider_sprite);
-			quad_lslider->update();
-		}
-		{
-			*event.z += 1.0f;
-			quad_rslider->setPosition({ render_position.x + slider_pos.x, render_position.y });
-			quad_rslider->setZ(*event.z);
-			quad_rslider->setSize({ size.x - slider_pos.x, size.y });
-			quad_rslider->setColor(slider_info.slider_rcolor);
-			quad_rslider->setSprite(slider_info.slider_sprite);
-			quad_rslider->update();
-		}
+		if (!toggled) { quad_lslider->reset(); quad_rslider->reset(); quad_knob->reset(); if (slider_info.draw_value) { label_quad->reset(); } return; }
 
-		*event.z += 1.0f;
-		quad_knob->setPosition(static_cast<glm::vec2>(render_position + static_cast<glm::ivec2>(slider_pos) + glm::ivec2(slider_info.knob_size.x / 2, slider_info.slider_size.y / 2)));
-		quad_knob->setZ(*event.z);
-		quad_knob->setSize(slider_info.knob_size);
-		quad_knob->setColor(slider_info.knob_color);
-		quad_knob->setSprite(slider_info.knob_sprite);
-		quad_knob->setRotationAlignment(oe::alignments::center_center);
-		quad_knob->update();
+		if (slider_info.vertical)
+		{
+			glm::vec2 slider_pos = glm::vec2(0.0f, oe::utils::map(slider_info.initial_value, slider_info.min_value, slider_info.max_value, 0.0f, static_cast<float>(size.y - slider_info.knob_size.y)));
+			{
+				quad_lslider->setPosition(render_position);
+				quad_lslider->setZ(z);
+				quad_lslider->setSize({ size.x, slider_pos.y });
+				quad_lslider->setColor(slider_info.slider_lcolor);
+				quad_lslider->setSprite(slider_info.slider_sprite);
+				quad_lslider->update();
+			}
+			{
+				quad_rslider->setPosition({ render_position.x, render_position.y + slider_pos.y });
+				quad_rslider->setZ(z + 0.025f);
+				quad_rslider->setSize({ size.x, size.y - slider_pos.y });
+				quad_rslider->setColor(slider_info.slider_rcolor);
+				quad_rslider->setSprite(slider_info.slider_sprite);
+				quad_rslider->update();
+			}
 
-		if (slider_info.draw_value) {
-			*event.z += 1.0f;
-			glm::vec2 text_size = glm::vec2(size.y * 0.6f);
-			value_label->generate(fmt::format(L"{:.2f}", slider_info.initial_value), m_gui_manager->getWindow(), { 0.0f, 0.0f, 0.0f, 0.2f });
-			label_quad->setPosition(static_cast<glm::vec2>(render_position + size / 2));
-			label_quad->setZ(*event.z);
-			label_quad->setSize(text_size * value_label->getSize());
-			label_quad->setSprite(value_label->getSprite());
-			label_quad->setColor(oe::colors::white);
-			label_quad->setRotationAlignment(oe::alignments::center_center);
-			label_quad->update();
+			quad_knob->setPosition(static_cast<glm::vec2>(render_position + static_cast<glm::ivec2>(slider_pos) + glm::ivec2(slider_info.slider_size.x / 2, slider_info.knob_size.y / 2)));
+			quad_knob->setZ(z + 0.05f);
+			quad_knob->setSize(slider_info.knob_size);
+			quad_knob->setColor(slider_info.knob_color);
+			quad_knob->setSprite(slider_info.knob_sprite);
+			quad_knob->setRotationAlignment(oe::alignments::center_center);
+			quad_knob->update();
+
+			if (slider_info.draw_value) {
+				glm::vec2 text_size = glm::vec2(size.y * 0.6f);
+				value_label->generate(fmt::format(L"{:.2f}", slider_info.initial_value), m_gui_manager->getWindow(), { 0.0f, 0.0f, 0.0f, 0.2f });
+				label_quad->setPosition(static_cast<glm::vec2>(render_position + size / 2));
+				label_quad->setZ(z + 0.075f);
+				label_quad->setSize(text_size * value_label->getSize());
+				label_quad->setSprite(value_label->getSprite());
+				label_quad->setColor(oe::colors::white);
+				label_quad->setRotationAlignment(oe::alignments::center_center);
+				label_quad->update();
+			}
+		}
+		else
+		{
+			glm::vec2 slider_pos = glm::vec2(oe::utils::map(slider_info.initial_value, slider_info.min_value, slider_info.max_value, 0.0f, static_cast<float>(size.x - slider_info.knob_size.x)), 0.0f);
+			{
+				quad_lslider->setPosition(render_position);
+				quad_lslider->setZ(z);
+				quad_lslider->setSize({ slider_pos.x, size.y });
+				quad_lslider->setColor(slider_info.slider_lcolor);
+				quad_lslider->setSprite(slider_info.slider_sprite);
+				quad_lslider->update();
+			}
+			{
+				quad_rslider->setPosition({ render_position.x + slider_pos.x, render_position.y });
+				quad_rslider->setZ(z + 0.025f);
+				quad_rslider->setSize({ size.x - slider_pos.x, size.y });
+				quad_rslider->setColor(slider_info.slider_rcolor);
+				quad_rslider->setSprite(slider_info.slider_sprite);
+				quad_rslider->update();
+			}
+
+			quad_knob->setPosition(static_cast<glm::vec2>(render_position + static_cast<glm::ivec2>(slider_pos) + glm::ivec2(slider_info.knob_size.x / 2, slider_info.slider_size.y / 2)));
+			quad_knob->setZ(z + 0.05f);
+			quad_knob->setSize(slider_info.knob_size);
+			quad_knob->setColor(slider_info.knob_color);
+			quad_knob->setSprite(slider_info.knob_sprite);
+			quad_knob->setRotationAlignment(oe::alignments::center_center);
+			quad_knob->update();
+
+			if (slider_info.draw_value) {
+				glm::vec2 text_size = glm::vec2(size.y * 0.6f);
+				value_label->generate(fmt::format(L"{:.2f}", slider_info.initial_value), m_gui_manager->getWindow(), { 0.0f, 0.0f, 0.0f, 0.2f });
+				label_quad->setPosition(static_cast<glm::vec2>(render_position + size / 2));
+				label_quad->setZ(z + 0.075f);
+				label_quad->setSize(text_size * value_label->getSize());
+				label_quad->setSprite(value_label->getSprite());
+				label_quad->setColor(oe::colors::white);
+				label_quad->setRotationAlignment(oe::alignments::center_center);
+				label_quad->update();
+			}
 		}
 	}
 
@@ -128,13 +168,24 @@ namespace oe::gui {
 	void Slider::on_cursor(const CursorPosEvent& event)
 	{
 		if (m_dragging) {
-			slider_info.initial_value =	oe::utils::map(
-				static_cast<float>(event.cursor_windowspace.x - render_position.x - (slider_info.knob_size.x / 2)), 
-				0.0f, 
-				static_cast<float>(size.x - slider_info.knob_size.x), 
-				slider_info.min_value, 
-				slider_info.max_value
-			);
+			if (slider_info.vertical)
+				slider_info.initial_value =	oe::utils::map(
+					static_cast<float>(event.cursor_windowspace.y - render_position.y - (slider_info.knob_size.y / 2)), 
+					0.0f, 
+					static_cast<float>(size.y - slider_info.knob_size.y), 
+					slider_info.min_value, 
+					slider_info.max_value
+				);
+			else
+			{
+				slider_info.initial_value =	oe::utils::map(
+					static_cast<float>(event.cursor_windowspace.x - render_position.x - (slider_info.knob_size.x / 2)), 
+					0.0f, 
+					static_cast<float>(size.x - slider_info.knob_size.x), 
+					slider_info.min_value, 
+					slider_info.max_value
+				);
+			}
 			clamp();
 
 			if (slider_info.callback) slider_info.callback(slider_info.initial_value);

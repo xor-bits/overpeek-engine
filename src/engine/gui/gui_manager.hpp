@@ -4,10 +4,13 @@
 #include "engine/graphics/interface/renderer.hpp"
 #include "engine/assets/default_shader/default_shader.hpp"
 #include "engine/interfacegen.hpp"
+#include "widgets/widget.hpp"
 
 
 
 namespace oe::gui {
+
+	constexpr int border = 5;
 
 	class GUI;
 	struct GUIBase
@@ -27,7 +30,6 @@ namespace oe::gui {
 
 	struct GUIRenderEvent
 	{
-		float *z = nullptr;
 	};
 
 	class Widget;

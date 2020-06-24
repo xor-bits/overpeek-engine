@@ -36,15 +36,16 @@ namespace oe::gui {
 
 	void SpritePanel::on_render(const GUIRenderEvent& event)
 	{
+		if (!toggled) { quad->reset(); return; }
+
 		if (!sprite_panel_info.sprite)
 		{
 			spdlog::warn("No sprite for SpritePanel");
 			return;
 		}
 
-		*event.z += 1.0f;
 		quad->setPosition(render_position);
-		quad->setZ(*event.z);
+		quad->setZ(z);
 		quad->setSize(size);
 		quad->setColor(sprite_panel_info.color);
 		quad->setSprite(sprite_panel_info.sprite);

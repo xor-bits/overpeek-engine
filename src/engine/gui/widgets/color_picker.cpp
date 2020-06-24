@@ -8,7 +8,7 @@
 namespace oe::gui {
 
 	Slider* color_channel(Widget* parent, const glm::vec2& offset, const glm::vec2& size, const std::string& text, const glm::vec4& color, const oe::graphics::Sprite* sprite, std::function<void(float)> update, float initial) {
-		oe::gui::SliderInfo slider_info;
+		SliderInfo slider_info;
 		slider_info.slider_size = size;
 		slider_info.knob_size = { 25, size.y };
 		slider_info.offset_position = offset;
@@ -23,7 +23,7 @@ namespace oe::gui {
 		slider_info.min_value = 0.0f;
 		slider_info.max_value = 1.0f;
 		slider_info.draw_value = true;
-		auto slider = new oe::gui::Slider(slider_info);
+		auto slider = new Slider(slider_info);
 		parent->addSubWidget(slider);
 
 		return slider;
@@ -35,13 +35,13 @@ namespace oe::gui {
 	{
 		if (color_picker_info.callback) color_picker_info.callback(get());
 
-		oe::gui::SpritePanelInfo sprite_panel_info = {};
+		SpritePanelInfo sprite_panel_info = {};
 		sprite_panel_info.size = color_picker_info.size;
 		sprite_panel_info.align_parent = color_picker_info.align_parent;
 		sprite_panel_info.align_render = color_picker_info.align_render;
 		sprite_panel_info.sprite = color_picker_info.sprite;
 		sprite_panel_info.color = color_picker_info.background_color;
-		auto box = new oe::gui::SpritePanel(sprite_panel_info);
+		auto box = new SpritePanel(sprite_panel_info);
 		addSubWidget(box);
 
 		SpritePanelInfo preview_panel_info;

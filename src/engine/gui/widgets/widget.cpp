@@ -3,8 +3,9 @@
 
 
 
-namespace oe::gui {
-	
+namespace oe::gui
+{
+	float Widget::z_acc = 0.0f;
 	Widget::Widget(const glm::ivec2& _size, const glm::vec2& _align_parent, const glm::vec2& _align_render, const glm::ivec2& _offset_position)
 		: size(_size)
 		, align_parent(_align_parent)
@@ -15,7 +16,10 @@ namespace oe::gui {
 		, m_nodes() 
 		, m_parent(nullptr)
 		, m_gui_manager(nullptr)
-	{}
+	{
+		z = z_acc;
+		z_acc += 0.1f;
+	}
 
 	Widget::~Widget() {
 		for (auto& w : m_nodes)
@@ -28,27 +32,27 @@ namespace oe::gui {
 	void Widget::managerAssigned(GUI* gui_manager)
 	{
 		m_gui_manager = gui_manager;
+
+		// event listeners
+		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&Widget::on_render>(this);
 		
 		for (auto& w : m_nodes)
 		{
 			w->managerAssigned(gui_manager);
 		}
-
-		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&Widget::on_render>(this);
 	}
 
 	void Widget::managerUnassigned(GUI* gui_manager)
 	{
 		m_gui_manager = nullptr;
+
+		// event listeners
+		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&Widget::on_render>(this);
 		
 		for (auto& w : m_nodes)
 		{
 			w->managerUnassigned(gui_manager);
 		}
-
-		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&Widget::on_render>(this);
 	}
 
 	void Widget::setParent(Widget* parent) {
