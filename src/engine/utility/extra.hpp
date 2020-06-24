@@ -44,6 +44,28 @@ namespace oe::utils {
 	template<typename chr_type> bool isNumber(const std::basic_string<chr_type>& input);
 	template<typename chr_type> const chr_type* strchr(const chr_type* input, chr_type c);
 	template<typename chr_type> bool checkChar(const std::basic_string<chr_type>& text, chr_type character, size_t position);
+
+	// vector conversions
+	template<int dim, class T>
+	glm::vec<dim, T> listToVec(const void* first)
+	{
+		glm::vec<dim, T> vec;
+		std::memcpy(&vec.x, first, dim * sizeof(T));
+		return vec;
+	}
+	template<int dim, class T>
+	glm::vec<dim, T> listToVec(const std::vector<T>& l)
+	{
+		glm::vec<dim, T> vec;
+		std::copy(l.begin(), l.begin() + dim, &vec.x);
+		return vec;
+	}
+	template<int dim, class T>
+	std::vector<T> vecToList(const glm::vec<dim, T>& vec)
+	{
+		const std::vector<T> l(&vec.x, &vec.x + dim);
+		return l;
+	}
 	
 	// templates
 	template<typename chr_type> unsigned long stringToHex(const std::basic_string<chr_type>& str)

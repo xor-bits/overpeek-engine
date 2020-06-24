@@ -65,19 +65,18 @@ namespace oe::gui {
 		quad_box->update();
 
 		if (m_checkbox_info.initial) {
-			quad_check->setPosition(static_cast<glm::vec2>(render_position + size / 2));
-			quad_check->setZ(z + 0.05f);
 			quad_check->setSize(static_cast<glm::vec2>(size) * 0.7f);
-			quad_check->setColor(m_checkbox_info.color_mark);
-			quad_check->setSprite(m_checkbox_info.sprite);
-			quad_check->setRotationAlignment(oe::alignments::center_center);
-			quad_check->update();
 		}
 		else
 		{
 			quad_check->setSize({ 0.0f, 0.0f });
-			quad_check->update();
 		}
+		quad_check->setPosition(static_cast<glm::vec2>(render_position + size / 2));
+		quad_check->setZ(z + 0.05f);
+		quad_check->setColor(m_checkbox_info.color_mark);
+		quad_check->setSprite(m_checkbox_info.sprite);
+		quad_check->setRotationAlignment(oe::alignments::center_center);
+		quad_check->update();
 	}
 
 }

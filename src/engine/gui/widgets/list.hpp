@@ -58,5 +58,7 @@ namespace oe::gui
 		void remove(size_t pos);
 		void remove(Widget* widget);
 
+		const std::vector<Widget*>& get() const { return list; }
+
     };
 }

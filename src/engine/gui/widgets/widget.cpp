@@ -22,11 +22,11 @@ namespace oe::gui
 	}
 
 	Widget::~Widget() {
+		if (m_gui_manager) managerUnassigned(m_gui_manager);
 		for (auto& w : m_nodes)
 		{
 			delete w;
 		}
-		if (m_gui_manager) managerUnassigned(m_gui_manager);
 	}
 
 	void Widget::managerAssigned(GUI* gui_manager)

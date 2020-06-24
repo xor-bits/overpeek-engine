@@ -10,6 +10,8 @@ oe::gui::TextInput* textbox;
 oe::gui::TextPanel* textpanel;
 oe::gui::SpritePanel* box;
 oe::gui::List* list;
+oe::gui::Checkbox* checkbox;
+oe::gui::VecSlider<4>* quat_slider;
 
 oe::graphics::Window window;
 oe::assets::DefaultShader* shader;
@@ -21,6 +23,7 @@ oe::graphics::Font* font;
 glm::vec4 color = oe::colors::orange;
 glm::vec3 rotate(0.0f, 1.0f, 0.0f);
 float speed = 0.0f;
+glm::quat cube_rotation;
 
 
 
@@ -36,7 +39,6 @@ public:
 	{
 		quaternion = glm::quat_cast(point);
 		text_panel_info.text = fmt::format(L"{:.1f}", quaternion);
-		spdlog::info("mat: {}", glm::vec4(1.0f));
 	}
 };
 
@@ -89,7 +91,44 @@ void cube() {
 	renderer->end();
 	
 	// shader and model matrix
-	ml_matrix = glm::rotate(ml_matrix, speed * -0.02f * window->getGameloop().getFrametimeMS(), rotate);
+	if (checkbox->m_checkbox_info.initial)
+	{
+		glm::vec4 quat_slider_val = quat_slider->getGLM();
+		cube_rotation = glm::angleAxis(quat_slider_val.w, glm::normalize(glm::vec3(quat_slider_val.x, quat_slider_val.y, quat_slider_val.z)));
+	}
+	else
+	{
+		auto points = list->get();
+		size_t list_len = points.size();
+		if (list_len == 0)
+		{
+			// nothing
+		}
+		else if (list_len == 1)
+		{
+			// single point
+			cube_rotation = reinterpret_cast<Checkpoint*>(points.at(0))->quaternion;
+		}
+		else
+		{
+			// lerp
+			float t = oe::utils::Clock::getSingleton().getSessionMillisecond() / 500.0f;
+			t = (sin(t) * 0.5f + 0.5f) * (list_len - 1);
+			t = std::fmodf(t, static_cast<float>(list_len - 1));
+
+			size_t index = t;
+			float modt = std::fmodf(t, 1.0f);
+			spdlog::debug("t: {}, modt: {}, index: {}", t, modt, index);
+			
+			const glm::quat& a = reinterpret_cast<Checkpoint*>(points.at(index))->quaternion;
+			const glm::quat& b = reinterpret_cast<Checkpoint*>(points.at(index + 1))->quaternion;
+
+			cube_rotation = glm::mix(a, b, modt);
+		}
+		
+
+	}
+	ml_matrix = glm::mat4_cast(cube_rotation);
 	shader->bind();
 	shader->setModelMatrix(ml_matrix);
 
@@ -218,20 +257,29 @@ void setup_gui() {
 		textbox->addSubWidget(button);
 	}
 	{
-		oe::gui::SliderInfo slider_info = {};
-		slider_info.slider_size = { 400, 30 };
-		slider_info.knob_size = { 45, 45 };
-		slider_info.align_parent = oe::alignments::bottom_center;
-		slider_info.align_render = oe::alignments::bottom_center;
-		slider_info.slider_sprite = pack->empty_sprite();
-		slider_info.knob_sprite = sprite;
-		slider_info.min_value = -1.0f;
-		slider_info.max_value =  1.0f;
-		slider_info.initial_value = 0.5f;
-		slider_info.callback = [](float val) { speed = val; };
-		slider_info.draw_value = true;
-		auto slider = new oe::gui::Slider(slider_info);
-		gui->addSubWidget(slider);
+		oe::gui::VecSliderInfo vecslider_info = {};
+		vecslider_info.slider_size = { 400, 30 };
+		vecslider_info.knob_size = { 45, 45 };
+		vecslider_info.align_parent = oe::alignments::bottom_center;
+		vecslider_info.align_render = oe::alignments::bottom_center;
+		vecslider_info.slider_sprite = pack->empty_sprite();
+		vecslider_info.knob_sprite = sprite;
+		vecslider_info.min_values = { -glm::pi<float>(), -1.0f, -1.0f, -1.0f };
+		vecslider_info.max_values = { glm::pi<float>(), 1.0f, 1.0f, 1.0f };
+		vecslider_info.initial_values = { 0.0f, 1.0f, 1.0f, 1.0f };
+		vecslider_info.callback = [](float val) { speed = val; };
+		vecslider_info.draw_value = true;
+		quat_slider = new oe::gui::VecSlider<4>(vecslider_info);
+		gui->addSubWidget(quat_slider);
+	}
+	{
+		oe::gui::CheckboxInfo ci = {};
+		ci.align_parent = oe::alignments::bottom_center;
+		ci.align_render = oe::alignments::bottom_center;
+		ci.offset_position = { 0, -35 };
+		ci.sprite = pack->empty_sprite();
+		checkbox = new oe::gui::Checkbox(ci);
+		gui->addSubWidget(checkbox);
 	}
 	{
 		oe::gui::TextPanelInfo text_panel_info = {};
@@ -269,8 +317,6 @@ void setup_gui() {
 	tpi.align_parent = oe::alignments::top_left;
 	tpi.align_render = oe::alignments::top_left;
 	tpi.text = L"placeholder";
-
-	append_list(L"xyz");
 }
 
 void main()
