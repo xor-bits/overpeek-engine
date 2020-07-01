@@ -86,7 +86,9 @@ namespace oe {
 
 	void Engine::__error(std::string error_msg, int line, std::string file) {
 		spdlog::error("error: {}\nline: {}\nfile: {}", error_msg, line, file);
-		oe::Engine::terminate();
+
+		if (!oe::Engine::getSingleton().engine_info.ignore_errors)
+			oe::Engine::terminate();
 	}
 
 

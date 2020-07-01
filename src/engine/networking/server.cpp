@@ -105,6 +105,8 @@ namespace oe::networking {
 	void Server::operate() {
 		ENetEvent event;
 
+		
+
 		while (m_keep_running) {
 			mtx.lock();
 			if (enet_host_service(m_server, &event, 0) <= 0) {

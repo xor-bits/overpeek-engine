@@ -83,13 +83,9 @@ namespace oe::utils {
 	}
 	template<typename chr_type> bool isNumber(const std::basic_string<chr_type>& input)
 	{
-		if (strchr(input.c_str(), (chr_type)'x')) return false; // no hex
-		if (strchr(input.c_str(), (chr_type)'b')) return false; // or oct
-		if (strchr(input.c_str(), (chr_type)'o')) return false; // or bin
-
-		size_t p = 0;
-		long hex = std::stol(input, &p, 16);
-		return p == input.size();
+		auto iter = input.begin();
+		while (iter != input.end() && std::isdigit(*iter)) iter++;
+		return !input.empty() && iter == input.end();
 	}
 	template<typename chr_type> const chr_type* strchr(const chr_type* input, chr_type c)
 	{
