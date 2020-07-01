@@ -8,6 +8,8 @@
 namespace oe::graphics { class IWindow; class IShader; class ITexture; class IFrameBuffer; class Renderer; }
 namespace oe::graphics
 {
+	class GLTexture;
+	class VKTexture;
 	class Texture
 	{
 	private:
@@ -19,6 +21,9 @@ namespace oe::graphics
 		Texture(const Texture&& move) { m_obj = std::move(move.m_obj); }
 
 		inline ITexture* get() const { return m_obj.get(); }
+		inline GLTexture* getGL() const { return reinterpret_cast<GLTexture*>(m_obj.get()); }
+		inline VKTexture* getVK() const { return reinterpret_cast<VKTexture*>(m_obj.get()); }
+
 		inline ITexture* operator->() const { return get(); }
 		inline Texture& operator=(const Texture& other) { m_obj = other.m_obj; return *this; }
 		inline bool operator==(const Texture& other) const { return get() == other.get(); }
@@ -26,6 +31,8 @@ namespace oe::graphics
 		inline operator bool() const { return get(); }
 	};
 
+	class GLShader;
+	class VKShader;
 	class Shader
 	{
 	private:
@@ -37,6 +44,9 @@ namespace oe::graphics
 		Shader(const Shader&& move) { m_obj = std::move(move.m_obj); }
 
 		inline IShader* get() const { return m_obj.get(); }
+		inline GLShader* getGL() const { return reinterpret_cast<GLShader*>(m_obj.get()); }
+		inline VKShader* getVK() const { return reinterpret_cast<VKShader*>(m_obj.get()); }
+
 		inline IShader* operator->() const { return get(); }
 		inline Shader& operator=(const Shader& other) { m_obj = other.m_obj; return *this; }
 		inline bool operator==(const Shader& other) const { return get() == other.get(); }
@@ -44,6 +54,8 @@ namespace oe::graphics
 		inline operator bool() const { return get(); }
 	};
 
+	class GLWindow;
+	class VKWindow;
 	class Window
 	{
 	private:
@@ -55,6 +67,9 @@ namespace oe::graphics
 		Window(const Window&& move) { m_obj = std::move(move.m_obj); }
 
 		inline IWindow* get() const { return m_obj.get(); }
+		inline GLWindow* getGL() const { return reinterpret_cast<GLWindow*>(m_obj.get()); }
+		inline VKWindow* getVK() const { return reinterpret_cast<VKWindow*>(m_obj.get()); }
+
 		inline IWindow* operator->() const { return get(); }
 		inline Window& operator=(const Window& other) { m_obj = other.m_obj; return *this; }
 		inline bool operator==(const Window& other) const { return get() == other.get(); }
@@ -62,6 +77,8 @@ namespace oe::graphics
 		inline operator bool() const { return get(); }
 	};
 
+	class GLFrameBuffer;
+	class VKFrameBuffer;
 	class FrameBuffer
 	{
 	private:
@@ -73,6 +90,9 @@ namespace oe::graphics
 		FrameBuffer(const FrameBuffer&& move) { m_obj = std::move(move.m_obj); }
 
 		inline IFrameBuffer* get() const { return m_obj.get(); }
+		inline GLFrameBuffer* getGL() const { return reinterpret_cast<GLFrameBuffer*>(m_obj.get()); }
+		inline VKFrameBuffer* getVK() const { return reinterpret_cast<VKFrameBuffer*>(m_obj.get()); }
+
 		inline IFrameBuffer* operator->() const { return get(); }
 		inline FrameBuffer& operator=(const FrameBuffer& other) { m_obj = other.m_obj; return *this; }
 		inline bool operator==(const FrameBuffer& other) const { return get() == other.get(); }
@@ -91,6 +111,9 @@ namespace oe::graphics
 		PrimitiveRenderer(const PrimitiveRenderer&& move) { m_obj = std::move(move.m_obj); }
 
 		inline IPrimitiveRenderer* get() const { return m_obj.get(); }
+		// inline GLPrimitiveRenderer* getGL() const { return reinterpret_cast<GLPrimitiveRenderer*>(m_obj.get()); }
+		// inline VKPrimitiveRenderer* getVK() const { return reinterpret_cast<VKPrimitiveRenderer*>(m_obj.get()); }
+
 		inline IPrimitiveRenderer* operator->() const { return get(); }
 		inline PrimitiveRenderer& operator=(const PrimitiveRenderer& other) { m_obj = other.m_obj; return *this; }
 		inline bool operator==(const PrimitiveRenderer& other) const { return get() == other.get(); }

@@ -31,6 +31,7 @@ namespace oe::graphics {
 		~GLTexture();
 
 		virtual void setData(const TextureInfo& texture_info) override;
+		virtual oe::utils::image_data getImageData() const override;
 
 		virtual void bind() const override;
 		virtual void unbind() const override;

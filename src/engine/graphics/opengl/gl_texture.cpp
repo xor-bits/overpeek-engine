@@ -136,6 +136,27 @@ namespace oe::graphics {
 		}
 	}
 
+	oe::utils::image_data GLTexture::getImageData() const
+	{
+		if (m_texture_info.size.size() != 2) { oe_error_terminate("Texture dimensions must be 2x2 to getImageData"); }
+
+		size_t size = 1;
+		size *= m_texture_info.size[0];
+		size *= m_texture_info.size[1];
+		size *= oe::sizeofFormat(m_texture_info.data_format);
+
+		// __debugbreak(); GL_RGBA;
+		uint8_t* data = new uint8_t[size];
+		bind();
+		glGetTexImage(m_target, 0, m_gl_format, GL_UNSIGNED_BYTE, data);
+
+		auto img = oe::utils::image_data(data, m_texture_info.data_format, m_texture_info.size[0], m_texture_info.size[1]);
+		// __debugbreak();
+		
+		delete data;
+		return img;
+	}
+
 	void GLTexture::empty1D(size_t width) {
 		m_target = GL_TEXTURE_1D;
 		bind();

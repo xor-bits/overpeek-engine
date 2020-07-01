@@ -2,6 +2,7 @@
 
 #include "engine/enum.hpp"
 #include "engine/graphics/interface/instance.hpp"
+#include "engine/utility/fileio.hpp"
 
 
 
@@ -16,6 +17,7 @@ namespace oe::graphics {
 		virtual ~ITexture();
 
 		virtual void setData(const TextureInfo& texture_info) = 0;
+		virtual oe::utils::image_data getImageData() const = 0;
 
 		virtual void bind() const = 0;
 		virtual void unbind() const = 0;

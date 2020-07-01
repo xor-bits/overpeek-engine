@@ -21,6 +21,22 @@ namespace oe {
 		rgb, // red channel byte 0, green channel byte 2, blue channel byte 3, repeat
 		mono // white channel byte 0, repeat
 	};
+	static size_t sizeofFormat(const formats& format)
+	{
+		switch (format)
+		{
+		case formats::rgba:
+			return 4;
+		case formats::rgb:
+			return 3;
+		case formats::mono:
+			return 1;
+		default:
+			return 4;
+		}
+	}
+
+
 	enum class modes {
 		enable, 
 		disable, 
