@@ -30,7 +30,6 @@ cmake -DBUILD_TESTS=TRUE -DBUILD_VULKAN=TRUE ..
 
 #### Depends on:
 - OpenGL
-- OpenAL
 - Vulkan (if BUILD_VULKAN=TRUE)
 
 ### Features
