@@ -31,6 +31,7 @@ cmake -DBUILD_TESTS=TRUE -DBUILD_VULKAN=TRUE ..
 #### Depends on:
 - OpenGL
 - Vulkan (if BUILD_VULKAN=TRUE)
+- OpenAL
 
 ### Features
 - Window creation (glfw) 
