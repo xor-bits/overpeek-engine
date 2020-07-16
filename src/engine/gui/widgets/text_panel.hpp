@@ -1,14 +1,16 @@
 #pragma once
 
 #include "widget.hpp"
+#include "engine/graphics/textLabel.hpp"
 
 
 
-namespace oe::graphics { class Quad; class TextLabel; }
-namespace oe::gui {
-
-	struct TextPanelInfo {
-		std::wstring text          = L"";
+namespace oe::graphics { class Quad; }
+namespace oe::gui
+{
+	struct TextPanelInfo
+	{
+		std::u32string text        = U"";
 		int font_size              = 16;
 		glm::vec4 background_color = oe::colors::transparent;
 		glm::ivec2 offset_position = { 0, 0 };
@@ -18,9 +20,10 @@ namespace oe::gui {
 
 	struct GUIRenderEvent;
 	class GUI;
-	class TextPanel : public Widget {
+	class TextPanel : public Widget
+	{
 	private:
-		oe::graphics::TextLabel* label;
+		oe::graphics::u32TextLabel* label;
 		oe::graphics::Quad* text_quad;
 
 	public:

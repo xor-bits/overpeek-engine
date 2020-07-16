@@ -1,10 +1,11 @@
 #pragma once
 
 #include "widget.hpp"
+#include "engine/graphics/textLabel.hpp"
 
 
 
-namespace oe::graphics { class Quad; class TextLabel; }
+namespace oe::graphics { class Quad; }
 namespace oe::gui {
 
 	typedef std::function<void(float)> slider_callback;

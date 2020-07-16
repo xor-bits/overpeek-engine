@@ -78,7 +78,7 @@ namespace oe::utils {
 		}
 
 		// connect update
-		template<size_t ups, auto F, class Instance>
+		template<size_t ups, auto F, typename Instance>
 		void connect_update_listener(Instance&& instance)
 		{
 			find_or_create(ups)->second->update_sink.connect<F>(instance);
@@ -89,7 +89,7 @@ namespace oe::utils {
 			find_or_create(ups)->second->update_sink.connect<F>();
 		}
 		// disconnect update
-		template<size_t ups, auto F, class Instance>
+		template<size_t ups, auto F, typename Instance>
 		void disconnect_update_listener(Instance&& instance)
 		{
 			m_update_systems[ups].disconnect<F>(instance);
@@ -100,7 +100,7 @@ namespace oe::utils {
 			m_update_systems[ups].disconnect<F>();
 		}
 		// connect render
-		template<auto F, class Instance>
+		template<auto F, typename Instance>
 		void connect_render_listener(Instance&& instance)
 		{
 			render_sink.connect<F>(instance);
@@ -111,7 +111,7 @@ namespace oe::utils {
 			render_sink.connect<F>();
 		}
 		// disconnect render
-		template<auto F, class Instance>
+		template<auto F, typename Instance>
 		void disconnect_render_listener(Instance&& instance)
 		{
 			render_sink.disconnect<F>(instance);

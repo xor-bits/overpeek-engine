@@ -92,34 +92,34 @@ namespace oe::graphics {
 		const glm::vec2& getCursorTransformed();
 		void setCursorTransformed(const glm::vec2& cursor_at_world_space);
 
-		const std::wstring getClipboard();
-		void setClipboard(const std::wstring& str);
+		const std::string getClipboard();
+		void setClipboard(const std::string& str);
 
 		// -- events --
 		// connect events
-		template<class Event, auto Listener, class Instance>
+		template<typename Event, auto Listener, typename Instance>
 		void connect_listener(const Instance& instance)
 		{
 			dispatcher.sink<Event>().connect<Listener>(instance);
 		}
-		template<class Event, auto Listener>
+		template<typename Event, auto Listener>
 		void connect_listener()
 		{
 			dispatcher.sink<Event>().connect<Listener>();
 		}
 		// disconenct events
-		template<class Event, auto Listener, class Instance>
+		template<typename Event, auto Listener, typename Instance>
 		void disconnect_listener(Instance&& instance)
 		{
 			dispatcher.sink<Event>().disconnect<Listener>(instance);
 		}
-		template<class Event, auto Listener>
+		template<typename Event, auto Listener>
 		void disconnect_listener()
 		{
 			dispatcher.sink<Event>().disconnect<Listener>();
 		}
 		// connect update
-		template<size_t ups, auto F, class Instance>
+		template<size_t ups, auto F, typename Instance>
 		void connect_update_listener(Instance&& instance)
 		{
 			m_window_gameloop.connect_update_listener<ups, F>(instance);
@@ -130,7 +130,7 @@ namespace oe::graphics {
 			m_window_gameloop.connect_update_listener<ups, F>();
 		}
 		// disconnect update
-		template<size_t ups, auto F, class Instance>
+		template<size_t ups, auto F, typename Instance>
 		void disconnect_update_listener(Instance&& instance)
 		{
 			m_window_gameloop.disconnect_update_listener<ups, F>(instance);
@@ -141,7 +141,7 @@ namespace oe::graphics {
 			m_window_gameloop.disconnect_update_listener<ups, F>();
 		}
 		// connect render
-		template<auto F, class Instance>
+		template<auto F, typename Instance>
 		void connect_render_listener(Instance&& instance)
 		{
 			m_window_gameloop.connect_render_listener<F>(instance);
@@ -152,7 +152,7 @@ namespace oe::graphics {
 			m_window_gameloop.connect_render_listener<F>();
 		}
 		// disconnect render
-		template<auto F, class Instance>
+		template<auto F, typename Instance>
 		void disconnect_render_listener(Instance&& instance)
 		{
 			m_window_gameloop.disconnect_render_listener<F>(instance)

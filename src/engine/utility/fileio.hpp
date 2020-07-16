@@ -78,14 +78,14 @@ namespace oe::utils {
 		void writeString(const std::string& string, fs::path path);
 
 		// data size is count of T elements to write
-		template<class T> static void write(std::string name, const T* data, size_t data_size) {
+		template<typename T> static void write(std::string name, const T* data, size_t data_size) {
 			std::ofstream output_stream(name);
 			output_stream.write((const char*)data, data_size * sizeof(T));
 			output_stream.close();
 		}
 
 		// data size is count of T elements to read
-		template<class T> static void read(std::string name, T* data, size_t& data_size) {
+		template<typename T> static void read(std::string name, T* data, size_t& data_size) {
 			std::ifstream input_stream(name);
 			input_stream.seekg(input_stream.end);
 			data_size = input_stream.tellg() / sizeof(T);

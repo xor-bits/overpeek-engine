@@ -16,23 +16,24 @@ namespace oe::utils {
 	extern bool isInRange(int input, int min, int max);
 	extern int sign(float n);
 
-	template<class T>
+	template<typename T>
 	T clamp(const T _val, const T _min, const T _max) {
 		return std::max(std::min(_val, _max), _min);
 	}
 
-	template<class T>
+	template<typename T>
 	T map(const T value, const T low1, const T high1, const T low2, const T high2) {
 		return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
 	}
 
     // rgb/hsv algorthms by
     // https://stackoverflow.com/a/6930407/12147216
-
 	extern glm::vec3 rgbToHSV(glm::vec3 in);
 	extern glm::vec3 hsvToRGB(glm::vec3 in);
-	extern std::string convertUTF(const std::wstring &s);
-	extern std::wstring convertUTF(const std::string &s);
+
+	// https://github.com/coder0xff/Plange/blob/master/source/utilities/utf.cpp
+	template<typename from, typename to>
+	to convertUTF(const from&);
 
 	// hex conversions
 	extern glm::ivec3 hexToRGB(unsigned long hex);
@@ -46,21 +47,21 @@ namespace oe::utils {
 	template<typename chr_type> bool checkChar(const std::basic_string<chr_type>& text, chr_type character, size_t position);
 
 	// vector conversions
-	template<int dim, class T>
+	template<int dim, typename T>
 	glm::vec<dim, T> listToVec(const void* first)
 	{
 		glm::vec<dim, T> vec;
 		std::memcpy(&vec.x, first, dim * sizeof(T));
 		return vec;
 	}
-	template<int dim, class T>
+	template<int dim, typename T>
 	glm::vec<dim, T> listToVec(const std::vector<T>& l)
 	{
 		glm::vec<dim, T> vec;
 		std::copy(l.begin(), l.begin() + dim, &vec.x);
 		return vec;
 	}
-	template<int dim, class T>
+	template<int dim, typename T>
 	std::vector<T> vecToList(const glm::vec<dim, T>& vec)
 	{
 		const std::vector<T> l(&vec.x, &vec.x + dim);
@@ -72,12 +73,8 @@ namespace oe::utils {
 	{
 		if (!checkChar(str, (chr_type)'#', 0)) return -1; // not a hexcode
 
-		
-		std::basic_stringstream<chr_type> hex_str;
-		hex_str << std::hex << str.substr(1, 6);
-		std::basic_string<chr_type> hex_sstring = hex_str.str();
-		long hex = std::stol(hex_sstring, nullptr, 16);
-		if (!isNumber(hex_sstring) || hex < 0) return -1; // not a hexcode
+		long hex = std::stol(oe::utils::convertUTF<std::basic_string<chr_type>, std::string>(str.substr(1, 6)), nullptr, 16);
+		if (hex < 0) return -1; // not a hexcode
 
 		return hex;
 	}

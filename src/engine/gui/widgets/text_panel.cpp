@@ -11,7 +11,7 @@ namespace oe::gui {
 		: Widget(glm::vec2(static_cast<float>(_text_panel_info.font_size)), _text_panel_info.align_parent, _text_panel_info.align_render, _text_panel_info.offset_position)
 		, text_panel_info(_text_panel_info)
 	{
-		label = new oe::graphics::TextLabel();
+		label = new oe::graphics::u32TextLabel();
 	}
 
 	TextPanel::~TextPanel()

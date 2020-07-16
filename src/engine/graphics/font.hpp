@@ -24,7 +24,7 @@ namespace oe::graphics {
 	class Font {
 	public:
 		struct Glyph {
-			wchar_t codepoint;
+			char32_t codepoint;
 			glm::vec2 size;
 			glm::vec2 top_left;
 			glm::vec2 advance;
@@ -33,13 +33,13 @@ namespace oe::graphics {
 		};
 
 	private:
-		oe::graphics::SpritePack* sprite_pack;
-		std::unordered_map<wchar_t, Glyph*> m_glyphs;
+		SpritePack m_sprite_pack;
+		std::unordered_map<char32_t, Glyph*> m_glyphs;
 		int m_resolution;
 		FT_LibraryRec_* ft;
 		FT_FaceRec_* face;
 
-		bool gen_codepoint_glyph(wchar_t codepoint);
+		bool gen_codepoint_glyph(char32_t codepoint);
 	
 	public:
 		/*
@@ -48,11 +48,12 @@ namespace oe::graphics {
 		windows: C:/Windows/Fonts/
 		macos: *workdir*
 		*/
-		Font(oe::graphics::SpritePack* sprite_packer, int resolution = 64, std::string font_path = DEFAULT_FONT);
+		Font(int resolution = 64, std::string font_path = DEFAULT_FONT);
 		~Font();
 
-		const Glyph* getGlyph(wchar_t c);
+		const Glyph* getGlyph(char32_t c);
 		int getResolution() const { return m_resolution; }
+		SpritePack* getSpritePack() { return &m_sprite_pack; }
 	};
 
 }

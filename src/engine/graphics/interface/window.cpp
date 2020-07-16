@@ -209,8 +209,8 @@ namespace oe::graphics {
 		glfwSetCursorPos(m_window_handle, m_cursor_transformed.x, m_cursor_transformed.y);
 	}
 
-	const std::wstring IWindow::getClipboard() { return oe::utils::convertUTF(glfwGetClipboardString(m_window_handle)); }
+	const std::string IWindow::getClipboard() { return glfwGetClipboardString(m_window_handle); }
 	
-	void IWindow::setClipboard(const std::wstring& str) { glfwSetClipboardString(m_window_handle, oe::utils::convertUTF(str).c_str()); }
+	void IWindow::setClipboard(const std::string& str) { glfwSetClipboardString(m_window_handle, str.c_str()); }
 
 }

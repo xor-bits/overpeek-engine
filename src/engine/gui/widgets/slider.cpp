@@ -97,18 +97,6 @@ namespace oe::gui {
 			quad_knob->setSprite(slider_info.knob_sprite);
 			quad_knob->setRotationAlignment(oe::alignments::center_center);
 			quad_knob->update();
-
-			if (slider_info.draw_value) {
-				glm::vec2 text_size = glm::vec2(size.y * 0.6f);
-				value_label->generate(fmt::format(L"{:.2f}", slider_info.initial_value), m_gui_manager->getWindow(), { 0.0f, 0.0f, 0.0f, 0.2f });
-				label_quad->setPosition(static_cast<glm::vec2>(render_position + size / 2));
-				label_quad->setZ(z + 0.075f);
-				label_quad->setSize(text_size * value_label->getSize());
-				label_quad->setSprite(value_label->getSprite());
-				label_quad->setColor(oe::colors::white);
-				label_quad->setRotationAlignment(oe::alignments::center_center);
-				label_quad->update();
-			}
 		}
 		else
 		{
@@ -137,18 +125,19 @@ namespace oe::gui {
 			quad_knob->setSprite(slider_info.knob_sprite);
 			quad_knob->setRotationAlignment(oe::alignments::center_center);
 			quad_knob->update();
+		}
 
-			if (slider_info.draw_value) {
-				glm::vec2 text_size = glm::vec2(size.y * 0.6f);
-				value_label->generate(fmt::format(L"{:.2f}", slider_info.initial_value), m_gui_manager->getWindow(), { 0.0f, 0.0f, 0.0f, 0.2f });
-				label_quad->setPosition(static_cast<glm::vec2>(render_position + size / 2));
-				label_quad->setZ(z + 0.075f);
-				label_quad->setSize(text_size * value_label->getSize());
-				label_quad->setSprite(value_label->getSprite());
-				label_quad->setColor(oe::colors::white);
-				label_quad->setRotationAlignment(oe::alignments::center_center);
-				label_quad->update();
-			}
+		// value
+		if (slider_info.draw_value) {
+			glm::vec2 text_size = glm::vec2(size.y * 0.6f);
+			value_label->generate(fmt::format("{:.2f}", slider_info.initial_value), m_gui_manager->getWindow(), { 0.0f, 0.0f, 0.0f, 0.2f });
+			label_quad->setPosition(static_cast<glm::vec2>(render_position + size / 2));
+			label_quad->setZ(z + 0.075f);
+			label_quad->setSize(text_size * value_label->getSize());
+			label_quad->setSprite(value_label->getSprite());
+			label_quad->setColor(oe::colors::white);
+			label_quad->setRotationAlignment(oe::alignments::center_center);
+			label_quad->update();
 		}
 	}
 

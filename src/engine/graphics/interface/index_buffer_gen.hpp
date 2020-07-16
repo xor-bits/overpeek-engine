@@ -146,7 +146,7 @@ namespace oe::graphics {
 			return { index_array, sizeof(uint16_t) * m_primitive_count * 6 };
 		}
 
-		template<class T>
+		template<typename T>
 		static_array optional_vertex_gen(const void* copied = nullptr)
 		{
 			float* vb;

@@ -5,13 +5,13 @@
 #include "engine/graphics/interface/window.hpp"
 #include "engine/gui/gui_manager.hpp"
 
-bool insertchars(std::wstring *obj, int i, wchar_t *chars, int n) {
+bool insertchars(std::u32string *obj, int i, char32_t *chars, int n) {
 	obj->insert(i, chars, n);
 	return true;
 }
 
-#define STB_TEXTEDIT_STRING						std::wstring
-#define STB_TEXTEDIT_CHARTYPE					wchar_t
+#define STB_TEXTEDIT_CHARTYPE					char32_t
+#define STB_TEXTEDIT_STRING						std::basic_string<STB_TEXTEDIT_CHARTYPE>
 
 #define STB_TEXTEDIT_STRINGLEN(obj)				obj->size()
 #define STB_TEXTEDIT_LAYOUTROW(r,obj,n)			NULL
@@ -59,7 +59,7 @@ namespace oe::gui
 		m_state = new STB_TexteditState();
 		static_cast<STB_TexteditState*>(m_state)->cursor = text_input_info.text.size();
 		
-		label = new oe::graphics::TextLabel();
+		label = new oe::graphics::u32TextLabel();
 	}
 
 	TextInput::~TextInput()
@@ -109,17 +109,17 @@ namespace oe::gui
 		quad->update();
 
 		// vertical bar
-		std::wstring bar = L"";
+		std::u32string bar = U"";
 		auto& clock = oe::utils::Clock::getSingleton();
 		float time = clock.getSessionMillisecond();
 		if (m_selected && (timer_key_pressed > clock.getSessionMillisecond() || (int)floor(time) % 2000 > 1000))
 		{
-			bar = L"|";
+			bar = U"|";
 		}
 
 		// text
 		glm::vec2 text_size = glm::vec2(text_input_info.font_size);
-		const std::wstring drawn_str = fmt::format(L"<#000000>{}{}", text_input_info.text, bar);
+		const std::u32string drawn_str = fmt::format(U"<#000000>{}{}", text_input_info.text, bar);
 		label->generate(drawn_str, m_gui_manager->getWindow());
 		text_quad->setPosition(static_cast<glm::vec2>(render_position + oe::alignmentOffset(size, text_input_info.align_text) - oe::alignmentOffset(static_cast<glm::ivec2>(text_size * label->getSize()), text_input_info.align_text)));
 		text_quad->setZ(z + 0.05f);
@@ -163,12 +163,12 @@ namespace oe::gui
 			else if (event.key == oe::keys::key_right && event.mods == oe::modifiers::control)
 				stb_textedit_key(&text_input_info.text, reinterpret_cast<STB_TexteditState*>(m_state), STB_TEXTEDIT_K_WORDRIGHT);
 			else if (event.key == oe::keys::key_v && event.mods == oe::modifiers::control) { // ctrl + v
-				std::wstring cb = m_gui_manager->getWindow()->getClipboard();
+				std::u32string cb = oe::utils::convertUTF<std::string, std::u32string>(m_gui_manager->getWindow()->getClipboard());
 				stb_textedit_paste(&text_input_info.text, reinterpret_cast<STB_TexteditState*>(m_state), cb.c_str(), cb.size());
 			}
 			else if (event.key == oe::keys::key_c && event.mods == oe::modifiers::control) { // ctrl + c
-				std::wstring copied = text_input_info.text.substr(reinterpret_cast<STB_TexteditState*>(m_state)->select_start, reinterpret_cast<STB_TexteditState*>(m_state)->select_end - reinterpret_cast<STB_TexteditState*>(m_state)->select_start);
-				m_gui_manager->getWindow()->setClipboard(copied);
+				std::u32string copied = text_input_info.text.substr(reinterpret_cast<STB_TexteditState*>(m_state)->select_start, reinterpret_cast<STB_TexteditState*>(m_state)->select_end - reinterpret_cast<STB_TexteditState*>(m_state)->select_start);
+				m_gui_manager->getWindow()->setClipboard(oe::utils::convertUTF<std::u32string, std::string>(copied));
 				stb_textedit_cut(&text_input_info.text, reinterpret_cast<STB_TexteditState*>(m_state));
 			}
 			else if (event.key == oe::keys::key_enter) {

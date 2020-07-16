@@ -1,20 +1,21 @@
 #pragma once
 
 #include "widget.hpp"
+#include "engine/graphics/textLabel.hpp"
 
 
 
-namespace oe::graphics { class Quad; class TextLabel; }
+namespace oe::graphics { class Quad; }
 namespace oe::gui {
 
-#define TEXT_CALLBACK_WRAPPER(x) [&](const std::string & string) { x(string); }
-	typedef std::function<void(const std::wstring & string)> textbox_callback;
+#define TEXT_CALLBACK_WRAPPER(x) [&](const std::u32string & string) { x(string); }
+	typedef std::function<void(const std::u32string & string)> textbox_callback;
 
-	const static std::wstring filter_none          = L"";
-	const static std::wstring filter_letters_upper = L"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	const static std::wstring filter_letters_lower = L"abcdefghijklmnopqrstuvwxyz";
-	const static std::wstring filter_numbers       = L"0123456789";
-	const static std::wstring filter_newline       = L"\n";
+	const static std::u32string filter_none          = U"";
+	const static std::u32string filter_letters_upper = U"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	const static std::u32string filter_letters_lower = U"abcdefghijklmnopqrstuvwxyz";
+	const static std::u32string filter_numbers       = U"0123456789";
+	const static std::u32string filter_newline       = U"\n";
 
 	struct TextInputInfo {
 		textbox_callback callback_changed  = nullptr;
@@ -25,8 +26,8 @@ namespace oe::gui {
 		glm::vec2 align_parent             = oe::alignments::center_center;
 		glm::vec2 align_render             = oe::alignments::center_center;
 		glm::vec2 align_text               = oe::alignments::center_center;
-		std::wstring text                  = L"";
-		std::wstring filter                = filter_none;
+		std::u32string text                = U"";
+		std::u32string filter              = filter_none;
 		int font_size                      = 16;
 		glm::vec4 color                    = oe::colors::dark_grey;
 		const oe::graphics::Sprite* sprite = nullptr; // must be set
@@ -36,7 +37,7 @@ namespace oe::gui {
 	class GUI;
 	class TextInput : public Widget {
 	private:
-		oe::graphics::TextLabel* label;
+		oe::graphics::u32TextLabel* label;
 		oe::graphics::Quad* quad;
 		oe::graphics::Quad* text_quad;
 
@@ -56,7 +57,7 @@ namespace oe::gui {
 		virtual void managerAssigned(GUI* gui_manager) override;
 		virtual void managerUnassigned(GUI* gui_manager) override;
 
-		oe::graphics::TextLabel* debug() { return label; };
+		oe::graphics::u32TextLabel* debug() { return label; };
 
 		// events
 		void on_render(const GUIRenderEvent& event);

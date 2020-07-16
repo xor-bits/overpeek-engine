@@ -96,7 +96,7 @@ constexpr str_array< ResElemT, N - 1 > str_array_cast( const SrcElemT(&a)[N] )
     return detail::do_str_array_cast< ResElemT >( a, Indices{} );
 }
 
-template<class str, class formatter, class arg_joiner, class FormatContext>
+template<typename str, typename formatter, typename arg_joiner, typename FormatContext>
 auto arg_join_contexted(const str& begin, const str& end, formatter& T_formatter, arg_joiner& value, FormatContext& ctx)
 {
 	auto it = value.begin;

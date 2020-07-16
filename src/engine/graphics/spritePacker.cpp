@@ -59,8 +59,6 @@ namespace oe::graphics {
 
 		std::vector<Sprite*> vect;
 		Sprite* sprite = new Sprite();
-		sprite->position = { 0, 0 };
-		sprite->size = { 1, 1 };
 		vect.push_back(sprite);
 		
 		usr_data->m_rectangles.push_back(rectpack2D::rect_xywh(0, 0, sprite_texture.width + m_border, sprite_texture.height + m_border));
@@ -83,8 +81,6 @@ namespace oe::graphics {
 		for (size_t x = 0; x < sprite_count.x; x++) {
 			for (size_t y = 0; y < sprite_count.y; y++) {
 				Sprite* sprite = new Sprite();
-				sprite->position = { x, y };
-				sprite->size = sprite_count;
 				vect.push_back(sprite);
 			}
 		}
@@ -146,8 +142,8 @@ namespace oe::graphics {
 			auto& image = usr_data->m_images.at(i);
 			auto& sprite = m_sprites.at(i);
 			for (size_t i = 0; i < sprite.size(); i++) {
-				sprite.at(i)->size = glm::vec2(image.width / (float)pack_width, image.height / (float)pack_height) / sprite.at(i)->size;
-				sprite.at(i)->position = glm::vec2(rectangle.x / (float)pack_width, rectangle.y / (float)pack_height) + sprite.at(i)->position * sprite.at(i)->size;
+				sprite.at(i)->size = glm::vec2(image.width / (float)pack_width, image.height / (float)pack_height);
+				sprite.at(i)->position = glm::vec2(rectangle.x / (float)pack_width, rectangle.y / (float)pack_height);
 			}
 
 			// conversions

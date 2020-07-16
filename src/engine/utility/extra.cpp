@@ -171,14 +171,43 @@ std::string oe::utils::hexToString(unsigned long hex)
     return fmt::format("{0:x}", hex);
 }
 
-std::string oe::utils::convertUTF(const std::wstring &s)
+template<> std::string oe::utils::convertUTF(const std::u32string& from)
 {
-    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> conv;
-    return conv.to_bytes(s);
+	std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv;
+	return conv.to_bytes(from);
 }
 
-std::wstring oe::utils::convertUTF(const std::string &s)
+template<> std::string oe::utils::convertUTF(const std::u16string& from)
 {
-    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> conv;
-    return conv.from_bytes(s);
+	std::wstring_convert<std::codecvt_utf8<char16_t>, char16_t> conv;
+	return conv.to_bytes(from);
+}
+
+template<> std::string oe::utils::convertUTF(const std::wstring& from)
+{
+	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> conv;
+	return conv.to_bytes(from);
+}
+
+template<> std::u32string oe::utils::convertUTF(const std::string& from)
+{
+	std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv;
+	return conv.from_bytes(from);
+}
+
+template<> std::u16string oe::utils::convertUTF(const std::string& from)
+{
+	std::wstring_convert<std::codecvt_utf8<char16_t>, char16_t> conv;
+	return conv.from_bytes(from);
+}
+
+template<> std::wstring oe::utils::convertUTF(const std::string& from)
+{
+	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> conv;
+	return conv.from_bytes(from);
+}
+
+template<> std::string oe::utils::convertUTF(const std::string& from)
+{
+	return from;
 }

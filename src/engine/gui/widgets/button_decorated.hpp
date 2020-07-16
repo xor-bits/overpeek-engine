@@ -13,7 +13,7 @@ namespace oe::gui {
 		glm::ivec2 size                    = { 50, 50 };
 		glm::ivec2 padding                 = { 8, 8 };
 		glm::ivec2 offset_position         = { 0, 0 };
-		std::wstring text                  = L"";
+		std::u32string text                = U"";
 		bool autoresize                    = false;
 		glm::vec2 align_parent             = oe::alignments::center_center;
 		glm::vec2 align_render             = oe::alignments::center_center;

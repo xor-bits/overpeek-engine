@@ -11,7 +11,7 @@
 
 namespace oe::graphics {
 
-	bool Font::gen_codepoint_glyph(wchar_t codepoint)
+	bool Font::gen_codepoint_glyph(char32_t codepoint)
 	{
 		//Load glyph
 		if (FT_Load_Char(face, codepoint, FT_LOAD_RENDER)) {
@@ -24,7 +24,7 @@ namespace oe::graphics {
 		if (!g->bitmap.buffer) return false;
 
 		// white font
-		unsigned char* data = new unsigned char[g->bitmap.width * g->bitmap.rows * 4]();
+		uint8_t* data = new uint8_t[g->bitmap.width * g->bitmap.rows * 4]();
 		for (int y = 0; y < g->bitmap.rows; y++) {
 			for (int x = 0; x < g->bitmap.width; x++) {
 				int pixel = (x + y * g->bitmap.width) * 4;
@@ -44,16 +44,16 @@ namespace oe::graphics {
 			glm::vec2(g->advance.x >> 6, g->advance.y >> 6) / (float)m_resolution,
 
 			// add glyph to sprite packer
-			sprite_pack->addSprite(oe::utils::image_data(data, oe::formats::rgba, g->bitmap.width, g->bitmap.rows))
+			m_sprite_pack.addSprite(std::move(oe::utils::image_data(data, oe::formats::rgba, g->bitmap.width, g->bitmap.rows)))
 		};
 		m_glyphs.insert(std::make_pair(codepoint, glyph));
 
 		delete[] data;
+		return true;
 	}
 
-	Font::Font(oe::graphics::SpritePack* sprite_packer, int resolution, std::string font_path)
-		: sprite_pack(sprite_packer)
-		, m_resolution(resolution)
+	Font::Font(int resolution, std::string font_path)
+		: m_resolution(resolution)
 	{
 		oe_debug_call("font");
 
@@ -72,8 +72,8 @@ namespace oe::graphics {
 		FT_Set_Pixel_Sizes(face, 0, resolution);
 		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
 
-		// all glyphs
-		for (wchar_t i = 32; i < 256; i++) {
+		// all ascii glyphs
+		for (char32_t i = 32; i < 127; i++) {
 			gen_codepoint_glyph(i);
 		}
 
@@ -83,9 +83,11 @@ namespace oe::graphics {
 			glm::vec2(0.0f),
 			glm::vec2(0.0f),
 			glm::vec2(0.3f),
-			sprite_packer->empty_sprite()
+			m_sprite_pack.empty_sprite()
 		};
 		m_glyphs.insert(std::make_pair(' ', glyph));
+
+		m_sprite_pack.constructRepeat();
 	}
 
 	Font::~Font() {
@@ -97,7 +99,7 @@ namespace oe::graphics {
 		FT_Done_FreeType(ft);
 	}
 	
-	const Font::Glyph* Font::getGlyph(wchar_t c)
+	const Font::Glyph* Font::getGlyph(char32_t c)
 	{
 		if (m_glyphs.find(c) != m_glyphs.end()) 
 		{
@@ -109,6 +111,8 @@ namespace oe::graphics {
 			// glyph not found, try generate it
 			bool successful = gen_codepoint_glyph(c);
 			if (!successful) return nullptr;
+			
+			m_sprite_pack.constructRepeat(); // frametime jumps when new character is seen
 			if (m_glyphs.find(c) != m_glyphs.end()) 
 			{
 				// glyph found

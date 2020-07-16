@@ -1,16 +1,19 @@
 #include <engine/include.hpp>
 
 #include <string>
+#include <iostream>
 
 
 
 oe::graphics::Window window;
 oe::graphics::Renderer* renderer;
 oe::assets::DefaultShader* shader;
-oe::graphics::SpritePack* pack;
 oe::graphics::Font* font;
 
-oe::graphics::TextLabel* label;
+oe::graphics::u32TextLabel* label;
+oe::graphics::Quad* quad;
+
+
 
 void render(float update_fraction)
 {
@@ -21,6 +24,11 @@ void render(float update_fraction)
 void update_2() {
 	auto& gameloop = window->getGameloop();
 	spdlog::debug("frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
+	
+	oe::graphics::Sprite sprite;
+	sprite.m_owner = font->getSpritePack()->getTexture();
+	quad->setSprite(sprite);
+	quad->update();
 }
 
 void resize(const oe::ResizeEvent& event) {
@@ -66,26 +74,24 @@ int main(int argc, char** argv) {
 	shader = new oe::assets::DefaultShader();
 
 	// sprites
-	pack = new oe::graphics::SpritePack();
-	font = new oe::graphics::Font(pack);
+	font = new oe::graphics::Font();
 	oe::graphics::Text::setFont(font);
-	pack->construct();
 
 	
 	// submitting
-	label = new oe::graphics::TextLabel(font);
+	label = new oe::graphics::u32TextLabel(font);
 	// label->generate("<#1020ff>The quick brown fox <#ff2020>jumps <#ffffff>over the lazy dog.", window);
-	label->generate(L"The quick brown fox", window, oe::colors::pink);
-	auto quad = renderer->createQuad();
+	label->generate(U"<#1020ff>\u2116<#ffffff>The quick brown fox<#ff2020>\u263A", window, oe::colors::translucent_black);
+
+	quad = renderer->createQuad();
 	quad->setPosition({ label->getSize().x * -0.05, 0.25f });
 	quad->setSize(label->getSize() * 0.1f);
 	quad->setColor(oe::colors::white);
 	quad->setSprite(label->getSprite());
 	quad->update();
-	spdlog::info(label->getSize());
 	
 	oe::graphics::Sprite sprite;
-	sprite.m_owner = pack->getTexture();
+	sprite.m_owner = font->getSpritePack()->getTexture();
 	quad = renderer->createQuad();
 	quad->setPosition({ -0.5f, -1.0f });
 	quad->setSize({ 1.0f, 1.0f });
@@ -105,7 +111,6 @@ int main(int argc, char** argv) {
 
 	// closing
 	delete font;
-	delete pack;
 	delete shader;
 
 	return 0;

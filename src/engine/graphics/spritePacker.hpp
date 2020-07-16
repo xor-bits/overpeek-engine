@@ -44,7 +44,7 @@ namespace oe::graphics {
 		void constructRepeat();
 
 		void bind();
-		Texture getTexture() { return m_texture; }
+		Texture getTexture() const { return m_texture; }
 
 		const Sprite* empty_sprite() const { return m_sprites.at(0).at(0); }
 	};
