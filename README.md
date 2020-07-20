@@ -42,4 +42,7 @@ cmake -DBUILD_TESTS=TRUE -DBUILD_VULKAN=TRUE ..
     - Text rendering (Freetype) (basic) 
     - GUI (basic)
 - Networking (basic)
-- General utility tools (that I find useful) 
+- General utility tools (that I find useful)
+
+### Why?
+I created this as I am making my game entirely from scratch and I thought someone could find this project somewhat useful. Or so I hope.
