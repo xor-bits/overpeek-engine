@@ -102,7 +102,7 @@ namespace oe::utils {
 			m_host_window->bump();
 		});
 
-		while(true)
+		while(m_should_run)
 		{
 			m_host_window->waitEvents();
 		}
