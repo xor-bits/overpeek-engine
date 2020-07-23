@@ -34,7 +34,6 @@ namespace oe::graphics {
 				long hex = oe::utils::stringToHex(text.substr(i + 1, 7));
 				if (hex != -1)
 				{
-					spdlog::debug("hex: {}", hex);
 					glm::vec3 rgb = oe::utils::hexToRGB(hex);
 					curColor = glm::vec4(rgb / 255.0f, 1.0f); // alpha 1.0
 

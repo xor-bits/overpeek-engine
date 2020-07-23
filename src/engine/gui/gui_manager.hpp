@@ -15,12 +15,12 @@ namespace oe::gui {
 	class GUI;
 	struct GUIBase
 	{
-		std::function<const glm::vec2&()> get_size_func;
+		std::function<const glm::ivec2&()> get_size_func;
 		std::function<void(GUI *const &)> resize_connect_func;
 		std::function<void(GUI *const &)> resize_disconnect_func;
 		oe::graphics::Window event_window;
 
-		GUIBase(const std::function<const glm::vec2&()>& _get_size_func, const std::function<void(GUI *const &)>& _resize_connect_func, const std::function<void(GUI *const &)>& _resize_disconnect_func, const oe::graphics::Window& _event_window)
+		GUIBase(const std::function<const glm::ivec2&()>& _get_size_func, const std::function<void(GUI *const &)>& _resize_connect_func, const std::function<void(GUI *const &)>& _resize_disconnect_func, const oe::graphics::Window& _event_window)
 			: get_size_func(_get_size_func)
 			, resize_connect_func(_resize_connect_func)
 			, resize_disconnect_func(_resize_disconnect_func)

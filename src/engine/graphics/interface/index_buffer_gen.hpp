@@ -29,7 +29,7 @@ namespace oe::graphics {
 		{}
 
 		~static_array() {
-			if (m_ptr) delete[] m_ptr;
+			delete[] m_ptr;
 		}
 
 		const void* ptr() const { return m_ptr; }

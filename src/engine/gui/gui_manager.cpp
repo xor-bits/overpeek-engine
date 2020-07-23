@@ -26,7 +26,7 @@ namespace oe::gui {
 		m_shader = oe::assets::DefaultShader();
 
 		FormInfo form_info = {};
-		form_info.size = m_guibase.get_size_func() - glm::vec2(2 * border);
+		form_info.size = m_guibase.get_size_func() - glm::ivec2(2 * border);
 		form_info.offset_position = { border, border };
 		m_main_frame = new oe::gui::Form(form_info);
 		m_offset = { 0, 0 };
@@ -42,14 +42,13 @@ namespace oe::gui {
 	}
 
 	GUI::GUI(const oe::graphics::Window& window)
-		: GUI(GUIBase::GUIBase(
+		: GUI(GUIBase(
 			std::bind(&oe::graphics::IWindow::getSize, window.get()), 
 			std::bind((void(oe::graphics::IWindow::*)(GUI *const &))&oe::graphics::IWindow::connect_listener<oe::ResizeEvent, &GUI::on_resize>, window.get(), std::placeholders::_1),
 			std::bind((void(oe::graphics::IWindow::*)(GUI *const &))&oe::graphics::IWindow::disconnect_listener<oe::ResizeEvent, &GUI::on_resize>, window.get(), std::placeholders::_1),
 			window
 		))
-	{
-	}
+	{}
 
 	GUI::~GUI() {
 		delete m_main_frame;

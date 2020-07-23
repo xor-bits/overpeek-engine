@@ -4,7 +4,7 @@
 
 
 
-namespace oe::graphics { class Quad; }
+namespace oe::graphics { struct Quad; }
 namespace oe::gui {
 
 	struct FormInfo {

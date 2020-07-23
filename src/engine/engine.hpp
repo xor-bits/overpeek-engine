@@ -131,10 +131,10 @@ struct fmt::formatter<glm::vec<dim, T>, chr_type> {
 	auto format(const glm::vec<dim, T>& d, FormatContext& ctx) {
 		constexpr auto begin = str_array_cast<chr_type>("[ ");
 		constexpr auto end = str_array_cast<chr_type>(" ]");
-		constexpr auto sep = str_array_cast<chr_type>(", ");
+		constexpr auto sep = ", ";
 
 		const std::vector<T> dv(&d.x, &d.x + dim);
-		const auto value = fmt::join(dv, sep.c_str());
+		const auto value = fmt::join(dv, sep);
 
 		return arg_join_contexted(begin, end, T_formatter, value, ctx);
 	}
@@ -155,7 +155,6 @@ struct fmt::formatter<glm::qua<T>, chr_type> {
 		constexpr auto begin = str_array_cast<chr_type>("[ <");
 		constexpr auto mid = str_array_cast<chr_type>(">, ");
 		constexpr auto end = str_array_cast<chr_type>(" ]");
-		constexpr auto sep = str_array_cast<chr_type>(", ");
 
 		const glm::vec<3, T> dv { d.x, d.y, d.z };
 

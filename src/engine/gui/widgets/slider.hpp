@@ -5,7 +5,7 @@
 
 
 
-namespace oe::graphics { class Quad; }
+namespace oe::graphics { struct Quad; }
 namespace oe::gui {
 
 	typedef std::function<void(float)> slider_callback;

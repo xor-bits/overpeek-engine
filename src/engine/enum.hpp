@@ -326,8 +326,8 @@ namespace oe {
 
 		static constexpr glm::vec4 clear_color = glm::vec4(0.18f, 0.18f, 0.2f, 1.0f);
 
-		static glm::vec4 rainbow_bright(float t) { return (rainbow_bright(t) + 1.0f) * 0.5f; };
 		static glm::vec4 rainbow(float t) { return glm::vec4(glm::vec4(sin(t), sin(t + (5.0f / 8.0f) * glm::pi<float>()), sin(t + (10.0f / 8.0f) * glm::pi<float>()), 1.0f)); };
+		static glm::vec4 rainbow_bright(float t) { return (rainbow(t) + 1.0f) * 0.5f; };
 	};
 
 	struct alignments {

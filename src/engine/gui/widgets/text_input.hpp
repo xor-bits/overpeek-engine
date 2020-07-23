@@ -5,7 +5,7 @@
 
 
 
-namespace oe::graphics { class Quad; }
+namespace oe::graphics { struct Quad; }
 namespace oe::gui {
 
 #define TEXT_CALLBACK_WRAPPER(x) [&](const std::u32string & string) { x(string); }

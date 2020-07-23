@@ -36,7 +36,7 @@ public:
 		: TextPanel(tpi)
 	{
 		quaternion = quat;
-		text_panel_info.text = fmt::format(L"{:.1f}", quaternion);
+		text_panel_info.text = fmt::format(U"{:.1f}", quaternion);
 	}
 };
 
@@ -122,8 +122,6 @@ void cube() {
 
 			cube_rotation = glm::mix(a, b, modt);
 		}
-		
-
 	}
 	ml_matrix = glm::mat4_cast(cube_rotation);
 	shader->bind();
@@ -158,9 +156,8 @@ void resize(const oe::ResizeEvent& event) {
 // update 30 times per second
 void update_30() {
 	auto& gameloop = window->getGameloop(); 
-	std::wstring str = fmt::format(L"frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
+	std::u32string str = fmt::format(U"frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
 	textpanel->text_panel_info.text = str;
-	// spdlog::info(str);
 }
 
 void append_list(const glm::quat& quat)
@@ -197,7 +194,7 @@ void setup_gui() {
 		button_info.align_parent = oe::alignments::top_center;
 		button_info.align_render = oe::alignments::top_center;
 		button_info.sprite = pack->empty_sprite();
-		button_info.text = L"log";
+		button_info.text = U"log";
 		button_info.callback = [](oe::mouse_buttons button, oe::actions action) {
 			if (action == oe::actions::release && button == oe::mouse_buttons::button_left) {
 				glm::vec4 quat_slider_val = quat_slider->getGLM();
@@ -239,7 +236,7 @@ void setup_gui() {
 		text_panel_info.font_size = 20;
 		text_panel_info.align_parent = oe::alignments::top_left;
 		text_panel_info.align_render = oe::alignments::top_left;
-		text_panel_info.text = L"placeholder";
+		text_panel_info.text = U"placeholder";
 		textpanel = new oe::gui::TextPanel(text_panel_info);
 		gui->addSubWidget(textpanel);
 	}
@@ -259,7 +256,7 @@ void setup_gui() {
 		list_info.align_parent = oe::alignments::top_right;
 		list_info.align_render = oe::alignments::top_right;
 		list_info.sprite = pack->empty_sprite();
-		list_info.title = L"Loglist";
+		list_info.title = U"Loglist";
 		list_info.title_height = 28;
 		list = new oe::gui::List(list_info);
 		gui->addSubWidget(list);
@@ -269,13 +266,13 @@ void setup_gui() {
 	tpi.font_size = 14;
 	tpi.align_parent = oe::alignments::top_left;
 	tpi.align_render = oe::alignments::top_left;
-	tpi.text = L"placeholder";
+	tpi.text = U"placeholder";
 	
 	auto& random = oe::utils::Random::getSingleton();
 	for(int i = 0; i < 5; i++) append_list(glm::angleAxis(random.randomf(-glm::pi<float>(), glm::pi<float>()), glm::normalize(random.randomVec3(-1.0f, 1.0f))));
 }
 
-void main()
+int main()
 {
 	auto& engine = oe::Engine::getSingleton();
 
@@ -317,11 +314,11 @@ void main()
 	auto img = oe::assets::TextureSet::oe_logo_img;
 	pack = new oe::graphics::SpritePack();
 	sprite = pack->addSprite(img);
+	pack->construct();
 
 	// font
-	font = new oe::graphics::Font(pack);
+	font = new oe::graphics::Font();
 	oe::graphics::Text::setFont(font);
-	pack->construct();
 
 	// gui
 	gui = new oe::gui::GUI(window);
@@ -335,4 +332,6 @@ void main()
 	delete font;
 	delete pack;
 	delete shader;
+
+	return 0;
 }

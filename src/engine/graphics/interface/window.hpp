@@ -100,23 +100,23 @@ namespace oe::graphics {
 		template<typename Event, auto Listener, typename Instance>
 		void connect_listener(const Instance& instance)
 		{
-			dispatcher.sink<Event>().connect<Listener>(instance);
+			dispatcher.sink<Event>().template connect<Listener>(instance);
 		}
 		template<typename Event, auto Listener>
 		void connect_listener()
 		{
-			dispatcher.sink<Event>().connect<Listener>();
+			dispatcher.sink<Event>().template connect<Listener>();
 		}
 		// disconenct events
 		template<typename Event, auto Listener, typename Instance>
 		void disconnect_listener(Instance&& instance)
 		{
-			dispatcher.sink<Event>().disconnect<Listener>(instance);
+			dispatcher.sink<Event>().template disconnect<Listener>(instance);
 		}
 		template<typename Event, auto Listener>
 		void disconnect_listener()
 		{
-			dispatcher.sink<Event>().disconnect<Listener>();
+			dispatcher.sink<Event>().template disconnect<Listener>();
 		}
 		// connect update
 		template<size_t ups, auto F, typename Instance>

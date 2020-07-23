@@ -21,13 +21,13 @@ namespace oe::gui {
 		float z;
 
 	public:
-		glm::ivec2 size;
-		glm::ivec2 offset_position;
-		glm::ivec2 topleft_position;
-		glm::ivec2 render_position;
+		glm::ivec2 size = { 0, 0 };
+		glm::ivec2 offset_position = { 0, 0 };
+		glm::ivec2 topleft_position = { 0, 0 };
+		glm::ivec2 render_position = { 0, 0 };
 		glm::vec2 align_parent = oe::alignments::center_center;
 		glm::vec2 align_render = oe::alignments::center_center;
-		bool toggled;
+		bool toggled = true;
 		
 		GUI* m_gui_manager;
 

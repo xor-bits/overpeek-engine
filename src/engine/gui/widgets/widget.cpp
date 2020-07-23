@@ -1,6 +1,8 @@
 #include "widget.hpp"
 #include "engine/gui/gui_manager.hpp"
 
+#include "engine/utility/clock.hpp"
+
 
 
 namespace oe::gui
