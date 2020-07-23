@@ -79,16 +79,32 @@ namespace oe::utils {
 	void GameLoop::start() {
 		oe_debug_call("gameloop");
 
-		// initial resize
-		oe::ResizeEvent event;
-		event.framebuffer_size = m_host_window->m_window_info.size;
-		event.framebuffer_size_old = event.framebuffer_size;
-		event.aspect = m_host_window->aspect();
-		m_host_window->dispatcher.trigger(event);
 
 		m_should_run = true;
-		while (m_should_run) {
-			loop();
+		m_host_window->inactive_context(); // release context from main thread
+		std::thread second_thread([&](){
+			m_host_window->active_context(); // make context current in this second("gl") thread
+			
+			init_signal.publish(); // init
+
+			// initial resize after init signal
+			oe::ResizeEvent event;
+			event.framebuffer_size = m_host_window->m_window_info.size;
+			event.framebuffer_size_old = event.framebuffer_size;
+			event.aspect = m_host_window->aspect();
+			m_host_window->dispatcher.trigger(event);
+
+			while (m_should_run)
+				loop(); // update and render
+			
+			cleanup_signal.publish(); // cleanup
+
+			m_host_window->bump();
+		});
+
+		while(true)
+		{
+			m_host_window->waitEvents();
 		}
 	}
 
@@ -115,6 +131,7 @@ namespace oe::utils {
 
 		// swap the framebuffers out of the timer
 		m_host_window->update();
+		m_host_window->updateEvents();
 		if (m_host_window->shouldClose()) stop();
 
 		m_render_perf_logger.log(frame_time);

@@ -148,9 +148,32 @@ namespace oe::graphics {
 
 
 
-	void GLWindow::update() 
+	void GLWindow::pollEvents()
 	{
 		glfwPollEvents();
+		updateEvents();
+	}
+
+	void GLWindow::waitEvents(float timeout)
+	{
+		if (timeout == 0.0f)
+			glfwWaitEvents();
+		else
+			glfwWaitEventsTimeout(timeout);
+	}
+
+	void GLWindow::updateEvents()
+	{
+		dispatcher.update();
+	}
+
+	void GLWindow::bump()
+	{
+		glfwPostEmptyEvent();
+	}
+
+	void GLWindow::update() 
+	{
 		glfwSwapBuffers(m_window_handle);
 	}
 
@@ -173,6 +196,10 @@ namespace oe::graphics {
 	void GLWindow::active_context() const {
 		// set context for opengl
 		glfwMakeContextCurrent(m_window_handle);
+	}
+	
+	void GLWindow::inactive_context() const {
+		glfwMakeContextCurrent(NULL);
 	}
 	
 	void GLWindow::bind()

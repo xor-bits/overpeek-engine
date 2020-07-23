@@ -1,17 +1,18 @@
 #include <engine/include.hpp>
 
 #include <string>
+#include <thread>
 
 
 
 constexpr unsigned int updates_per_second = 60;
 constexpr float inverse_ups = 1.0f / updates_per_second;
 
-const oe::graphics::Sprite* sprite;
-oe::graphics::IWindow* window;
-oe::graphics::SpritePack* pack;
+oe::graphics::Window window;
 oe::graphics::Renderer* renderer;
 oe::assets::DefaultShader* shader;
+oe::graphics::SpritePack* pack;
+const oe::graphics::Sprite* sprite;
 
 const int entities = 200;
 entt::registry entity_registry;
@@ -20,7 +21,8 @@ b2RevoluteJoint* motor_joint;
 
 
 // <<<<----- box2d stuff
-struct component_renderable {
+struct component_renderable
+{
 	oe::graphics::Quad* quad;
 
 	static void on_construct(entt::registry& reg, entt::entity e)
@@ -33,7 +35,8 @@ struct component_renderable {
 	}
 };
 
-struct component_body {
+struct component_body
+{
 	b2Body* body;
 
 	static void on_destroy(entt::registry& reg, entt::entity e)
@@ -84,7 +87,8 @@ b2RevoluteJoint* joint(b2Body* a, b2Body* b)
 // box2d stuff ----->>>>
 
 // scene setup
-void setup() {
+void setup()
+{
 	auto& random = oe::utils::Random::getSingleton();
 
 	entity_registry.on_construct<component_renderable>().connect<component_renderable::on_construct>();
@@ -105,7 +109,8 @@ void setup() {
 }
 
 // render event
-void render(float update_fraction) {
+void render(float update_fraction)
+{
 	window->clear(oe::colors::transparent);
 
 	// submitting
@@ -130,7 +135,8 @@ void render(float update_fraction) {
 }
 
 // framebuffer resize
-void resize(const oe::ResizeEvent& event) {
+void resize(const oe::ResizeEvent& event)
+{
 	glm::mat4 pr_matrix = glm::ortho(-20.0f * event.aspect, 20.0f * event.aspect, 20.0f, -20.0f);
 	shader->bind();
 	shader->setProjectionMatrix(pr_matrix);
@@ -138,13 +144,15 @@ void resize(const oe::ResizeEvent& event) {
 }
 
 // update event 2 times per second
-void update_2() {
+void update_2()
+{
 	auto& gameloop = window->getGameloop(); 
 	spdlog::info("frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
 }
 
 // update event 60 times per second
-void update() {
+void update()
+{
 	entity_registry.view<component_body>().each([&](entt::entity entity, component_body& body)
 	{
 		// rendering
@@ -158,9 +166,50 @@ void update() {
 	box2d_world.Step(inverse_ups, 8, 8);
 }
 
+void init()
+{
+	auto& engine = oe::Engine::getSingleton();
 
+	// connect events (this can also be done in (int main()))
+	window->connect_listener<oe::ResizeEvent, &resize>();
+	window->connect_render_listener<&render>();
+	window->connect_update_listener<2, &update_2>();
+	window->connect_update_listener<updates_per_second, &update>();
 
-int main(int argc, char* argv[]) {
+	// instance settings
+	engine.culling(oe::culling_modes::back);
+	engine.swapInterval(0);
+	engine.blending();
+
+	// renderer
+	oe::RendererInfo renderer_info = {};
+	renderer_info.arrayRenderType = oe::types::dynamic_type;
+	renderer_info.indexRenderType = oe::types::static_type;
+	renderer_info.max_primitive_count = entities;
+	renderer_info.staticVBOBuffer_data = nullptr;
+	renderer = new oe::graphics::Renderer(renderer_info);
+	setup();
+
+	// shader
+	shader = new oe::assets::DefaultShader();
+
+	// sprites
+	pack = new oe::graphics::SpritePack();
+	sprite = pack->empty_sprite();
+	pack->construct();
+}
+
+void cleanup()
+{
+	// closing
+	delete pack;
+	delete shader;
+	delete renderer;
+	window.reset();
+}
+
+int main(int argc, char* argv[])
+{
 	auto& engine = oe::Engine::getSingleton();
 
 	// engine
@@ -175,44 +224,10 @@ int main(int argc, char* argv[]) {
 	window_info.multisamples = 4;
 	window_info.transparent = true;
 	// window_info.borderless = true;
-	window = engine.createWindow(window_info);
-
-	// connect events
-	window->connect_listener<oe::ResizeEvent, &resize>();
-	window->connect_render_listener<&render>();
-	window->connect_update_listener<2, &update_2>();
-	window->connect_update_listener<updates_per_second, &update>();
-
-	// instance settings
-	engine.culling(oe::culling_modes::back);
-	engine.swapInterval(0);
-	engine.blending();
-
-	// renderer
-	oe::RendererInfo renderer_info = {};
-	renderer_info.arrayRenderType = oe::types::dynamicrender;
-	renderer_info.indexRenderType = oe::types::staticrender;
-	renderer_info.max_primitive_count = entities;
-	renderer_info.staticVBOBuffer_data = nullptr;
-	renderer = engine.createRenderer(renderer_info);
-	setup();
-
-	// shader
-	shader = new oe::assets::DefaultShader();
-
-	// sprites
-	pack = new oe::graphics::SpritePack();
-	sprite = pack->empty_sprite();
-	pack->construct();
-
-	// start
+	window = oe::graphics::Window(window_info);
+	window->connect_init_listener<&init>();
+	window->connect_cleanup_listener<&cleanup>();
+	
 	window->getGameloop().start();
-
-	// closing
-	delete pack;
-	delete shader;
-	engine.destroyRenderer(renderer);
-	engine.destroyWindow(window);
-
 	return 0;
 }

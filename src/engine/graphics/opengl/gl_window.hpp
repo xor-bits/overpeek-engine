@@ -31,7 +31,13 @@ namespace oe::graphics {
 		virtual void swapInterval(uint8_t frames) override;
 		virtual void bind() override;
 
+		virtual void pollEvents() override;
+		virtual void waitEvents(float timeout) override;
+		virtual void updateEvents() override;
+		virtual void bump() override;
+
 		virtual void active_context() const override;
+		virtual void inactive_context() const override;
 
 		virtual std::string getAPI() const override;
 		virtual std::string getAPIVersion() const override;

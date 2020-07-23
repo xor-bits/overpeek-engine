@@ -29,6 +29,8 @@ namespace oe::graphics
 		inline bool operator==(const Texture& other) const { return get() == other.get(); }
 		inline bool operator!=(const Texture& other) const { return get() != other.get(); }
 		inline operator bool() const { return get(); }
+
+		inline void reset() { m_obj.reset(); }
 	};
 
 	class GLShader;
@@ -52,6 +54,8 @@ namespace oe::graphics
 		inline bool operator==(const Shader& other) const { return get() == other.get(); }
 		inline bool operator!=(const Shader& other) const { return get() != other.get(); }
 		inline operator bool() const { return get(); }
+
+		inline void reset() { m_obj.reset(); }
 	};
 
 	class GLWindow;
@@ -75,6 +79,8 @@ namespace oe::graphics
 		inline bool operator==(const Window& other) const { return get() == other.get(); }
 		inline bool operator!=(const Window& other) const { return get() != other.get(); }
 		inline operator bool() const { return get(); }
+
+		inline void reset() { m_obj.reset(); }
 	};
 
 	class GLFrameBuffer;
@@ -98,6 +104,8 @@ namespace oe::graphics
 		inline bool operator==(const FrameBuffer& other) const { return get() == other.get(); }
 		inline bool operator!=(const FrameBuffer& other) const { return get() != other.get(); }
 		inline operator bool() const { return get(); }
+
+		inline void reset() { m_obj.reset(); }
 	};
 
 	class PrimitiveRenderer
@@ -119,6 +127,8 @@ namespace oe::graphics
 		inline bool operator==(const PrimitiveRenderer& other) const { return get() == other.get(); }
 		inline bool operator!=(const PrimitiveRenderer& other) const { return get() != other.get(); }
 		inline operator bool() const { return get(); }
+
+		inline void reset() { m_obj.reset(); }
 	};
 	
 }

@@ -47,6 +47,12 @@ namespace oe::utils {
 		float m_frame_counter_start = 0.0f;
 		entt::sigh<void(float)> render_signal;
 		entt::sink<void(float)> render_sink{render_signal};
+		
+		entt::sigh<void()> init_signal;
+		entt::sink<void()> init_sink{init_signal};
+		
+		entt::sigh<void()> cleanup_signal;
+		entt::sink<void()> cleanup_sink{cleanup_signal};
 
 		std::unordered_map<size_t, UpdateSystem*> m_update_systems;
 		size_t m_main_updatesystem_ups;
@@ -120,6 +126,50 @@ namespace oe::utils {
 		void disconnect_render_listener()
 		{
 			render_sink.disconnect<F>();
+		}
+		// connect init
+		template<auto F, typename Instance>
+		void connect_init_listener(Instance&& instance)
+		{
+			init_sink.connect<F>(instance);
+		}
+		template<auto F>
+		void connect_init_listener()
+		{
+			init_sink.connect<F>();
+		}
+		// disconnect init
+		template<auto F, typename Instance>
+		void disconnect_init_listener(Instance&& instance)
+		{
+			init_sink.disconnect<F>(instance);
+		}
+		template<auto F>
+		void disconnect_init_listener()
+		{
+			init_sink.disconnect<F>();
+		}
+		// connect cleanup
+		template<auto F, typename Instance>
+		void connect_cleanup_listener(Instance&& instance)
+		{
+			cleanup_sink.connect<F>(instance);
+		}
+		template<auto F>
+		void connect_cleanup_listener()
+		{
+			cleanup_sink.connect<F>();
+		}
+		// disconnect cleanup
+		template<auto F, typename Instance>
+		void disconnect_cleanup_listener(Instance&& instance)
+		{
+			cleanup_sink.disconnect<F>(instance);
+		}
+		template<auto F>
+		void disconnect_cleanup_listener()
+		{
+			cleanup_sink.disconnect<F>();
 		}
 
 	public:

@@ -49,6 +49,11 @@ namespace oe::graphics {
 		virtual void viewport() = 0;
 		virtual void bind() = 0;
 
+		virtual void pollEvents() = 0;
+		virtual void waitEvents(float timeout = 0.0f) = 0; // timeout in seconds, 0 for no timeout
+		virtual void updateEvents() = 0; // only after for waitEvents, process events in main thread
+		virtual void bump() = 0; // empty event to get out of waitEvents
+
 		/*Also known as VSync*/
 		virtual void swapInterval(uint8_t frames) = 0;
 
@@ -59,6 +64,7 @@ namespace oe::graphics {
 		// for multiwindow setups
 		// active window while rendering needs to be specified first
 		virtual void active_context() const = 0;
+		virtual void inactive_context() const = 0;
 
 	public:
 		inline const WindowInfo& getWindowInfo() { return m_window_info; }
@@ -161,6 +167,50 @@ namespace oe::graphics {
 		void disconnect_render_listener()
 		{
 			m_window_gameloop.disconnect_render_listener<F>()
+		}
+		// connect init
+		template<auto F, typename Instance>
+		void connect_init_listener(Instance&& instance)
+		{
+			m_window_gameloop.connect_init_listener<F>(instance);
+		}
+		template<auto F>
+		void connect_init_listener()
+		{
+			m_window_gameloop.connect_init_listener<F>();
+		}
+		// disconnect init
+		template<auto F, typename Instance>
+		void disconnect_init_listener(Instance&& instance)
+		{
+			m_window_gameloop.disconnect_init_listener<F>(instance)
+		}
+		template<auto F>
+		void disconnect_init_listener()
+		{
+			m_window_gameloop.disconnect_init_listener<F>()
+		}
+		// connect cleanup
+		template<auto F, typename Instance>
+		void connect_cleanup_listener(Instance&& instance)
+		{
+			m_window_gameloop.connect_cleanup_listener<F>(instance);
+		}
+		template<auto F>
+		void connect_cleanup_listener()
+		{
+			m_window_gameloop.connect_cleanup_listener<F>();
+		}
+		// disconnect cleanup
+		template<auto F, typename Instance>
+		void disconnect_cleanup_listener(Instance&& instance)
+		{
+			m_window_gameloop.disconnect_cleanup_listener<F>(instance)
+		}
+		template<auto F>
+		void disconnect_cleanup_listener()
+		{
+			m_window_gameloop.disconnect_cleanup_listener<F>()
 		}
 
 
