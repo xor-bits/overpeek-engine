@@ -1,15 +1,16 @@
 #include "gl_framebuffer.hpp"
 #include "engine/engine.hpp"
+#include "engine/graphics/interface/window.hpp"
 
-#include <glad/glad.h>
+#include "gl_include.hpp"
 #include <GLFW/glfw3.h>
 
 
 
 namespace oe::graphics {
 
-	GLFrameBuffer::GLFrameBuffer(const FrameBufferInfo& framebuffer_info)
-		: FrameBuffer(framebuffer_info) 
+	GLFrameBuffer::GLFrameBuffer(const FrameBufferInfo& framebuffer_info, const Window& window)
+		: IFrameBuffer(framebuffer_info, window) 
 	{
 		oe_debug_call("gl_framebuffer");
 
@@ -19,18 +20,17 @@ namespace oe::graphics {
 		// Texture
 		TextureInfo texture_info = {};
 		texture_info.empty = true;
-		texture_info.width = framebuffer_info.width;
-		texture_info.height = framebuffer_info.height;
-		texture_info.dimensions = 2;
-		m_texture = new oe::graphics::GLTexture(texture_info);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_texture->getGLTexture(), 0);
+		texture_info.size = { static_cast<size_t>(framebuffer_info.size.x), static_cast<size_t>(framebuffer_info.size.y) };
+		texture_info.offset = { 0, 0 };
+		m_texture = Texture(texture_info);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, reinterpret_cast<GLTexture*>(m_texture.get())->getGLTexture(), 0);
 
 		// Render buffer object
 		glGenRenderbuffers(1, &m_rbo);
 		glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, framebuffer_info.width, framebuffer_info.height);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, framebuffer_info.size.x, framebuffer_info.size.y);
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbo);
 
@@ -40,13 +40,16 @@ namespace oe::graphics {
 			oe_error_terminate("Framebuffer not complete {}", fboStatus);
 
 		clear();
-		unbind();
+		window->bind();
+		
+		sprite.m_owner = m_texture;
+		sprite.position = { 0.0f, 1.0f };
+		sprite.size = { 1.0f, -1.0f };
 	}
 
 	GLFrameBuffer::~GLFrameBuffer() {
 		glDeleteFramebuffers(1, &m_id);
 		glDeleteRenderbuffers(1, &m_rbo);
-		delete m_texture;
 	}
 
 	void GLFrameBuffer::clear(const glm::vec4& color) {
@@ -56,10 +59,7 @@ namespace oe::graphics {
 
 	void GLFrameBuffer::bind() {
 		glBindFramebuffer(GL_FRAMEBUFFER, m_id);
-	}
-
-	void GLFrameBuffer::unbind() {
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, m_framebuffer_info.size.x, m_framebuffer_info.size.y);
 	}
 
 }

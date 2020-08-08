@@ -5,14 +5,11 @@
 
 namespace oe::graphics {
 
+	class IWindow; class IShader; class ITexture; class IFrameBuffer; class Renderer;
 	class GLInstance : public Instance {
 	public:
-		GLInstance(const InstanceInfo& instance_info);
+		GLInstance();
 		~GLInstance();
-		
-		// Inherited via Instance
-		virtual graphics::Window* createWindow(const WindowInfo& window_config) const override;
-		virtual void destroyWindow(graphics::Window* window) const override;
 	
 	public:
 		virtual void blending(oe::modes mode = oe::modes::enable) const override;

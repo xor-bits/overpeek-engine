@@ -6,14 +6,14 @@ set(CMAKE_USE_RELATIVE_PATHS TRUE)
 # https://github.com/richgel999/miniz
 #
 
-project(miniz C)
-
 # miniz
-add_library(${PROJECT_NAME} STATIC miniz.h miniz.c)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
+set(target_name "miniz")
+add_library(${target_name} STATIC miniz.h miniz.c)
+target_include_directories(${target_name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${target_name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # miniz_INCLUDE_DIRS
-set(${PROJECT_NAME}_INCLUDE_DIRS
-	${PROJECT_SOURCE_DIR}
-    CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE
+set(${target_name}_INCLUDE_DIRS
+	${CMAKE_CURRENT_SOURCE_DIR}
+    CACHE INTERNAL "${target_name}: Include Directories" FORCE
 )

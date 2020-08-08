@@ -6,104 +6,129 @@
 
 #include "engine/internal_libs.hpp"
 #include "engine/engine.hpp"
+#include "engine/graphics/spritePacker.hpp"
 
 
 
 namespace oe::graphics {
 
-	Font::Font(oe::graphics::SpritePack* sprite_packer, int resolution, std::string font_path) {
+	bool Font::gen_codepoint_glyph(char32_t codepoint)
+	{
+		//Load glyph
+		if (FT_Load_Char(face, codepoint, FT_LOAD_RENDER)) {
+			spdlog::warn("Failed to load glyph: {}", (size_t)codepoint);
+			return false;
+		}
+
+		// glyph
+		auto g = face->glyph;
+		if (!g->bitmap.buffer) return false;
+
+		// white font
+		uint8_t* data = new uint8_t[g->bitmap.width * g->bitmap.rows * 4]();
+		for (int y = 0; y < g->bitmap.rows; y++) {
+			for (int x = 0; x < g->bitmap.width; x++) {
+				int pixel = (x + y * g->bitmap.width) * 4;
+
+				data[pixel + 0] = 255;
+				data[pixel + 1] = 255;
+				data[pixel + 2] = 255;
+				data[pixel + 3] = g->bitmap.buffer[x + y * g->bitmap.width];
+			}
+		}
+
+		//Now store character for later use
+		Font::Glyph* glyph = new Font::Glyph{
+			codepoint,
+			glm::vec2(g->bitmap.width, g->bitmap.rows) / (float)m_resolution,
+			glm::vec2(g->bitmap_left, -g->bitmap_top) / (float)m_resolution,
+			glm::vec2(g->advance.x >> 6, g->advance.y >> 6) / (float)m_resolution,
+
+			// add glyph to sprite packer
+			m_sprite_pack->create(std::move(oe::utils::image_data(data, oe::formats::rgba, g->bitmap.width, g->bitmap.rows)))
+		};
+		m_glyphs.insert(std::make_pair(codepoint, glyph));
+
+		FT_Outline_Embolden;
+
+		delete[] data;
+		return true;
+	}
+
+	Font::Font(uint16_t resolution, const std::string& font_path)
+		: m_resolution(resolution)
+		, m_sprite_pack(new SpritePack(5))
+	{
 		oe_debug_call("font");
 
-		m_resolution = resolution;
-
 		// Freetype library
-		FT_Library ft;
 		if (FT_Init_FreeType(&ft)) {
 			oe_error_terminate("FT_Init_FreeType failed");
 			return;
 		}
 
 		// Font
-		FT_Face face;
 		if (FT_New_Face(ft, font_path.c_str(), 0, &face)) {
 			oe_error_terminate("Failed to load font at path {}", font_path.c_str());
 			return;
 		}
-
+		
 		FT_Set_Pixel_Sizes(face, 0, resolution);
 		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
 
-		// all glyphs
-		bb_max_height = 0; bb_min_height = 0;
-		for (int i = 0; i < 128; i++) {
-			unsigned char c = i;
-
-			//Load glyph
-			if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
-				spdlog::warn("Failed to load glyph: {}", c);
-				continue;
-			}
-
-			// glyph
-			auto g = face->glyph;
-			if (!g->bitmap.buffer) continue;
-
-			// white font
-			unsigned char* data = new unsigned char[g->bitmap.width * g->bitmap.rows * 4]();
-			for (int y = 0; y < g->bitmap.rows; y++) {
-				for (int x = 0; x < g->bitmap.width; x++) {
-					int pixel = (x + y * g->bitmap.width) * 4;
-
-					data[pixel + 0] = 255;
-					data[pixel + 1] = 255;
-					data[pixel + 2] = 255;
-					data[pixel + 3] = g->bitmap.buffer[x + y * g->bitmap.width];
-				}
-			}
-
-			//Now store character for later use
-			Glyph* glyph = new Glyph{
-				c,
-				glm::vec2(g->bitmap.width, g->bitmap.rows) / (float)m_resolution,
-				glm::vec2(g->bitmap_left, -g->bitmap_top) / (float)m_resolution,
-				glm::vec2(g->advance.x >> 6, g->advance.y >> 6) / (float)m_resolution,
-
-				// add glyph to sprite packer
-				sprite_packer->addSprite(oe::utils::image_data(data, oe::formats::rgba, g->bitmap.width, g->bitmap.rows))
-			};
-			m_glyphs.insert(std::make_pair(c, glyph));
-
-			// find the max bearing y
-			float bearing_y = -glyph->top_left.y;
-			if (bb_max_height < bearing_y) bb_max_height = bearing_y;
-
-			// find the lowest point
-			float lowest_y = (glyph->top_left.y + glyph->size.y);
-			if (bb_min_height > lowest_y) bb_min_height = lowest_y;
-
-			delete[] data;
+		// all ascii glyphs
+		for (char32_t i = 32; i < 127; i++) {
+			gen_codepoint_glyph(i);
 		}
 
 		// whitespace
 		Glyph* glyph = new Glyph{
-			32,
+			L' ',
 			glm::vec2(0.0f),
 			glm::vec2(0.0f),
 			glm::vec2(0.3f),
-			sprite_packer->empty_sprite()
+			m_sprite_pack->emptySprite()
 		};
 		m_glyphs.insert(std::make_pair(' ', glyph));
 
-		bb_height = bb_max_height - bb_min_height;
-
-		FT_Done_Face(face);
-		FT_Done_FreeType(ft);
+		m_sprite_pack->constructRepeat();
 	}
 
 	Font::~Font() {
 		for (auto& g : m_glyphs) {
 			if (g.second) delete g.second;
 		}
+		delete m_sprite_pack;
+
+		FT_Done_Face(face);
+		FT_Done_FreeType(ft);
+	}
+	
+	const Font::Glyph* Font::getGlyph(char32_t c)
+	{
+		if (m_glyphs.find(c) != m_glyphs.end()) 
+		{
+			// glyph found
+			return m_glyphs.at(c); 
+		}
+		else
+		{
+			// glyph not found, try generate it
+			bool successful = gen_codepoint_glyph(c);
+			if (!successful) return nullptr;
+			
+			m_sprite_pack->constructRepeat(); // frametime jumps when new character is seen
+			if (m_glyphs.find(c) != m_glyphs.end()) 
+			{
+				// glyph found
+				return m_glyphs.at(c); 
+			}
+			else 
+			{
+				return nullptr;
+			}
+		}
+		return nullptr;
 	}
 
 }

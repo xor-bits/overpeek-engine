@@ -8,23 +8,22 @@
 
 namespace oe::graphics {
 
-	class GLFrameBuffer : public FrameBuffer {
+	class GLFrameBuffer : public IFrameBuffer {
 	private:
 		unsigned int m_rbo;
 		unsigned int m_id;
 
-		GLTexture *m_texture;
+		Texture m_texture;
 
 	public:
-		GLFrameBuffer(const FrameBufferInfo& framebuffer_info);
+		GLFrameBuffer(const FrameBufferInfo& framebuffer_info, const Window& window);
 		~GLFrameBuffer();
 
 		virtual void bind() override;
-		virtual void unbind() override;
 
 		virtual void clear(const glm::vec4& color = oe::colors::clear_color) override;
 
-		virtual Texture* getTexture() override {
+		virtual Texture& getTexture() override {
 			return m_texture;
 		}
 	

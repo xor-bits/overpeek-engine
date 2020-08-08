@@ -142,16 +142,13 @@ else ()
   endif ()
 endif ()
 
-
-project(freetype C)
-
 set(VERSION_MAJOR "2")
 set(VERSION_MINOR "10")
 set(VERSION_PATCH "1")
 
 # Generate LIBRARY_VERSION and LIBRARY_SOVERSION.
 set(LIBTOOL_REGEX "version_info='([0-9]+):([0-9]+):([0-9]+)'")
-file(STRINGS "${PROJECT_SOURCE_DIR}/builds/unix/configure.raw"
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/builds/unix/configure.raw"
   VERSION_INFO
   REGEX ${LIBTOOL_REGEX})
 string(REGEX REPLACE
@@ -191,7 +188,7 @@ endif ()
 
 
 # Add local cmake modules
-list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/builds/cmake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/builds/cmake)
 
 
 if (BUILD_FRAMEWORK)
@@ -242,7 +239,7 @@ if (UNIX)
   check_include_file("fcntl.h" HAVE_FCNTL_H)
   check_include_file("stdint.h" HAVE_STDINT_H)
 
-  file(READ "${PROJECT_SOURCE_DIR}/builds/unix/ftconfig.in"
+  file(READ "${CMAKE_CURRENT_SOURCE_DIR}/builds/unix/ftconfig.in"
     FTCONFIG_H)
   if (HAVE_UNISTD_H)
     string(REGEX REPLACE
@@ -262,11 +259,11 @@ if (UNIX)
   string(REPLACE "/undef " "#undef "
     FTCONFIG_H "${FTCONFIG_H}")
 else ()
-  file(READ "${PROJECT_SOURCE_DIR}/include/freetype/config/ftconfig.h"
+  file(READ "${CMAKE_CURRENT_SOURCE_DIR}/include/freetype/config/ftconfig.h"
     FTCONFIG_H)
 endif ()
 
-set(FTCONFIG_H_NAME "${PROJECT_BINARY_DIR}/include/freetype/config/ftconfig.h")
+set(FTCONFIG_H_NAME "${CMAKE_CURRENT_BINARY_DIR}/include/freetype/config/ftconfig.h")
 if (EXISTS "${FTCONFIG_H_NAME}")
   file(READ "${FTCONFIG_H_NAME}" ORIGINAL_FTCONFIG_H)
 else ()
@@ -278,7 +275,7 @@ endif ()
 
 
 # Create the options file
-file(READ "${PROJECT_SOURCE_DIR}/include/freetype/config/ftoption.h"
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/include/freetype/config/ftoption.h"
   FTOPTION_H)
 if (ZLIB_FOUND)
   string(REGEX REPLACE
@@ -306,7 +303,7 @@ if (BROTLIDEC_FOUND)
     FTOPTION_H "${FTOPTION_H}")
 endif ()
 
-set(FTOPTION_H_NAME "${PROJECT_BINARY_DIR}/include/freetype/config/ftoption.h")
+set(FTOPTION_H_NAME "${CMAKE_CURRENT_BINARY_DIR}/include/freetype/config/ftoption.h")
 if (EXISTS "${FTOPTION_H_NAME}")
   file(READ "${FTOPTION_H_NAME}" ORIGINAL_FTOPTION_H)
 else ()
@@ -484,15 +481,15 @@ include(GNUInstallDirs)
 if (NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL)
   install(
     # Note the trailing slash in the argument to `DIRECTORY'!
-    DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
       DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/freetype2
       COMPONENT headers
       PATTERN "internal" EXCLUDE
       PATTERN "ftconfig.h" EXCLUDE
       PATTERN "ftoption.h" EXCLUDE)
   install(
-    FILES ${PROJECT_BINARY_DIR}/include/freetype/config/ftconfig.h
-          ${PROJECT_BINARY_DIR}/include/freetype/config/ftoption.h
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/include/freetype/config/ftconfig.h
+          ${CMAKE_CURRENT_BINARY_DIR}/include/freetype/config/ftoption.h
       DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/freetype2/freetype/config
       COMPONENT headers)
 endif ()
@@ -500,7 +497,7 @@ endif ()
 if (NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
   # Generate the pkg-config file
   if (UNIX)
-    file(READ "${PROJECT_SOURCE_DIR}/builds/unix/freetype2.in" FREETYPE2_PC_IN)
+    file(READ "${CMAKE_CURRENT_SOURCE_DIR}/builds/unix/freetype2.in" FREETYPE2_PC_IN)
 
     string(REPLACE ";" ", " PKG_CONFIG_REQUIRED_PRIVATE "${PKG_CONFIG_REQUIRED_PRIVATE}")
 
@@ -519,7 +516,7 @@ if (NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
     string(REPLACE "%LIBS_PRIVATE%" ""  # All libs support pkg-config
            FREETYPE2_PC_IN ${FREETYPE2_PC_IN})
 
-    set(FREETYPE2_PC_IN_NAME "${PROJECT_BINARY_DIR}/freetype2.pc")
+    set(FREETYPE2_PC_IN_NAME "${CMAKE_CURRENT_BINARY_DIR}/freetype2.pc")
     if (EXISTS "${FREETYPE2_PC_IN_NAME}")
       file(READ "${FREETYPE2_PC_IN_NAME}" ORIGINAL_FREETYPE2_PC_IN)
     else ()
@@ -530,7 +527,7 @@ if (NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
     endif ()
 
     install(
-      FILES ${PROJECT_BINARY_DIR}/freetype2.pc
+      FILES ${CMAKE_CURRENT_BINARY_DIR}/freetype2.pc
       DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
       COMPONENT pkgconfig)
   endif ()

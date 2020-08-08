@@ -3,7 +3,7 @@
 #include <string>
 #include <iostream>
 
-#include <glad/glad.h>
+#include "gl_include.hpp"
 #include <GLFW/glfw3.h>
 
 #include "engine/internal_libs.hpp"
@@ -12,47 +12,48 @@
 
 
 
+#ifndef __EMSCRIPTEN__
 void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
 	// ignore non-significant error/warning codes
 	if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
 
 	std::string log_text = "OpenGL Debug Message";
 	switch (severity) {
-	case GL_DEBUG_SEVERITY_HIGH:         spdlog::error(log_text); break;
-	case GL_DEBUG_SEVERITY_MEDIUM:       spdlog::critical(log_text); break;
-	case GL_DEBUG_SEVERITY_LOW:          spdlog::warn(log_text); break;
-	case GL_DEBUG_SEVERITY_NOTIFICATION: spdlog::info(log_text); break;
+		case GL_DEBUG_SEVERITY_HIGH:         spdlog::error(log_text); break;
+		case GL_DEBUG_SEVERITY_MEDIUM:       spdlog::critical(log_text); break;
+		case GL_DEBUG_SEVERITY_LOW:          spdlog::warn(log_text); break;
+		case GL_DEBUG_SEVERITY_NOTIFICATION: spdlog::info(log_text); break;
 	}
 
 	std::string log_source;
 	switch (source) {
-	case GL_DEBUG_SOURCE_API:             log_source = "API"; break;
-	case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   log_source = "Window System"; break;
-	case GL_DEBUG_SOURCE_SHADER_COMPILER: log_source = "Shader Compiler"; break;
-	case GL_DEBUG_SOURCE_THIRD_PARTY:     log_source = "Third Party"; break;
-	case GL_DEBUG_SOURCE_APPLICATION:     log_source = "Application"; break;
-	case GL_DEBUG_SOURCE_OTHER:           log_source = "Other"; break;
+		case GL_DEBUG_SOURCE_API:             log_source = "API"; break;
+		case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   log_source = "Window System"; break;
+		case GL_DEBUG_SOURCE_SHADER_COMPILER: log_source = "IShader Compiler"; break;
+		case GL_DEBUG_SOURCE_THIRD_PARTY:     log_source = "Third Party"; break;
+		case GL_DEBUG_SOURCE_APPLICATION:     log_source = "Application"; break;
+		case GL_DEBUG_SOURCE_OTHER:           log_source = "Other"; break;
 	}
 
 	std::string log_type;
 	switch (type) {
-	case GL_DEBUG_TYPE_ERROR:               log_type = "Error"; break;
-	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: log_type = "Deprecated Behaviour"; break;
-	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  log_type = "Undefined Behaviour"; break;
-	case GL_DEBUG_TYPE_PORTABILITY:         log_type = "Portability"; break;
-	case GL_DEBUG_TYPE_PERFORMANCE:         log_type = "Performance"; break;
-	case GL_DEBUG_TYPE_MARKER:              log_type = "Marker"; break;
-	case GL_DEBUG_TYPE_PUSH_GROUP:          log_type = "Push Group"; break;
-	case GL_DEBUG_TYPE_POP_GROUP:           log_type = "Pop Group"; break;
-	case GL_DEBUG_TYPE_OTHER:               log_type = "Other"; break;
+		case GL_DEBUG_TYPE_ERROR:               log_type = "Error"; break;
+		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: log_type = "Deprecated Behaviour"; break;
+		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  log_type = "Undefined Behaviour"; break;
+		case GL_DEBUG_TYPE_PORTABILITY:         log_type = "Portability"; break;
+		case GL_DEBUG_TYPE_PERFORMANCE:         log_type = "Performance"; break;
+		case GL_DEBUG_TYPE_MARKER:              log_type = "Marker"; break;
+		case GL_DEBUG_TYPE_PUSH_GROUP:          log_type = "Push Group"; break;
+		case GL_DEBUG_TYPE_POP_GROUP:           log_type = "Pop Group"; break;
+		case GL_DEBUG_TYPE_OTHER:               log_type = "Other"; break;
 	}
 
 	std::string log_severity;
 	switch (severity) {
-	case GL_DEBUG_SEVERITY_HIGH:         log_severity = "Severity: high"; break;
-	case GL_DEBUG_SEVERITY_MEDIUM:       log_severity = "Severity: medium"; break;
-	case GL_DEBUG_SEVERITY_LOW:          log_severity = "Severity: low"; break;
-	case GL_DEBUG_SEVERITY_NOTIFICATION: log_severity = "Severity: notification"; break;
+		case GL_DEBUG_SEVERITY_HIGH:         log_severity = "Severity: high"; break;
+		case GL_DEBUG_SEVERITY_MEDIUM:       log_severity = "Severity: medium"; break;
+		case GL_DEBUG_SEVERITY_LOW:          log_severity = "Severity: low"; break;
+		case GL_DEBUG_SEVERITY_NOTIFICATION: log_severity = "Severity: notification"; break;
 	}
 
 	std::cout << fmt::format("Message       :   ({}): {}", id, message) << std::endl;
@@ -60,44 +61,61 @@ void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum seve
 	std::cout << fmt::format("Description   :   {}", log_type) << std::endl;
 	std::cout << fmt::format("Line          :   {}", log_severity) << std::endl;
 	std::cout << std::endl;
-	oe_error_terminate("OpenGL error");
+
+	if (severity == GL_DEBUG_SEVERITY_HIGH) oe_error_terminate("OpenGL error");
 }
+#endif
 
 namespace oe::graphics {
 
-	void GLWindow::glfw(const Instance* instance) {
+	void GLWindow::glfw(const std::unique_ptr<Instance>& instance) {
 		// Window hints
 		glfwWindowHint(GLFW_SAMPLES, m_window_info.multisamples);
 		glfwWindowHint(GLFW_RESIZABLE, m_window_info.resizeable);
-		glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, m_window_info.transparent);
 		glfwWindowHint(GLFW_DECORATED, !m_window_info.borderless);
 		if (m_debugging) glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 
+#ifndef __EMSCRIPTEN__ // no transparency with webgl
+		glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, m_window_info.transparent);
+#endif /* __EMSCRIPTEN__ */
+
 		// Window creation
-		m_window_handle = glfwCreateWindow(m_window_info.size.x, m_window_info.size.y, m_window_info.title.c_str(), m_window_info.fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
+		GLFWwindow* share_handle = m_window_info.share_handle != nullptr ? ((GLWindow*)m_window_info.share_handle)->m_window_handle : nullptr;
+		m_window_handle = glfwCreateWindow(m_window_info.size.x, m_window_info.size.y, m_window_info.title.data(), m_window_info.fullscreen ? glfwGetPrimaryMonitor() : NULL, share_handle);
 		if (!m_window_handle) oe_error_terminate("Failed to create window!");
 
+#ifndef __EMSCRIPTEN__ // window is stuck in the browser so it cant move
 		//Center the window
 		int monitor_xpos, monitor_ypos, monitor_width, monitor_height;
 		glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), &monitor_xpos, &monitor_ypos, &monitor_width, &monitor_height);
 		m_window_info.position = { (monitor_width - m_window_info.size.x) * 0.5f, (monitor_height - m_window_info.size.y) * 0.5f };
 		glfwSetWindowPos(m_window_handle, m_window_info.position.x, m_window_info.position.y);
+#endif /* __EMSCRIPTEN__ */
 
 		// set context for opengl
-		glfwMakeContextCurrent(m_window_handle);
+		active_context();
 	}
 
-	void GLWindow::glad(const Instance* instance) {
+	void GLWindow::glad(const std::unique_ptr<Instance>& instance) {
 		// Init glad
+#ifndef __EMSCRIPTEN__
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) oe_error_terminate("Failed to init glad");
+#endif
 
 		int gl_v_major, gl_v_minor;
 		glGetIntegerv(GL_MAJOR_VERSION, &gl_v_major);
 		glGetIntegerv(GL_MINOR_VERSION, &gl_v_minor);
+		std::string gl_version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+		std::string glsl_version = reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+		spdlog::info("OpenGL: {}", gl_version);
+		spdlog::info("OpenGL Shading Language: {}", glsl_version);
 
 		// GL config
+#ifndef __EMSCRIPTEN__
 		if (m_window_info.multisamples) glEnable(GL_MULTISAMPLE);
+#endif
 		if (m_debugging) {
+#ifndef __EMSCRIPTEN__
 			if (((gl_v_major == 4 && gl_v_minor >= 3) || gl_v_major > 4)) {
 				glEnable(GL_DEBUG_OUTPUT);
 				glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -106,7 +124,9 @@ namespace oe::graphics {
 			} else {
 				spdlog::critical("OpenGL {}.{} does not support glDebugMessageCallback", gl_v_major, gl_v_minor);
 			}
-
+#else
+			spdlog::critical("EMSCRIPTEN does not support glDebugMessageCallback");
+#endif
 		}
 
 		// GL
@@ -118,9 +138,9 @@ namespace oe::graphics {
 		instance->blending();
 	}
 
-	GLWindow::GLWindow(const Instance* instance, const WindowInfo& window_config) 
-		: Window::Window(instance, window_config)
-		, m_debugging(instance->m_instance_info.debug_messages) 
+	GLWindow::GLWindow(const std::unique_ptr<Instance>& instance, const WindowInfo& window_config) 
+		: IWindow::IWindow(instance, window_config)
+		, m_debugging(oe::Engine::getSingleton().engine_info.debug_messages)
 	{
 		oe_debug_call("gl_window");
 
@@ -132,31 +152,55 @@ namespace oe::graphics {
 		glfw(instance);
 		glad(instance);
 
-		Window::postglfw();
+		IWindow::postglfw();
 	}
 
 	GLWindow::~GLWindow() 
 	{
-		spdlog::info("window termination");
 		glfwDestroyWindow(m_window_handle);
 		glfwTerminate();
 	}
 
 
 
-	void GLWindow::update() 
+	void GLWindow::pollEvents()
 	{
 		glfwPollEvents();
+		updateEvents();
+	}
+
+	void GLWindow::waitEvents(float timeout)
+	{
+		if (timeout == 0.0f)
+			glfwWaitEvents();
+		else
+			glfwWaitEventsTimeout(timeout);
+	}
+
+	void GLWindow::updateEvents()
+	{
+		dispatcher_mutex.lock();
+		dispatcher.update();
+		dispatcher_mutex.unlock();
+	}
+
+	void GLWindow::bump()
+	{
+		glfwPostEmptyEvent();
+	}
+
+	void GLWindow::update() 
+	{
 		glfwSwapBuffers(m_window_handle);
 	}
 
-	void GLWindow::clear(const glm::vec4& color) 
+	void GLWindow::clear(const glm::vec4& color)
 	{
 		glClearColor(color.r, color.g, color.b, color.a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	void GLWindow::viewport() 
+	void GLWindow::viewport() const
 	{
 		glViewport(0, 0, m_window_info.size.x, m_window_info.size.y);
 	}
@@ -166,46 +210,19 @@ namespace oe::graphics {
 		glfwSwapInterval(frames);
 	}
 
-
-
-	Renderer* GLWindow::createRenderer(const RendererInfo& renderer_info) const
-	{
-		return new GLRenderer(renderer_info);
+	void GLWindow::active_context() const {
+		// set context for opengl
+		glfwMakeContextCurrent(m_window_handle);
 	}
-
-	Shader* GLWindow::createShader(const ShaderInfo& shader_info) const
-	{
-		return new GLShader(shader_info);
+	
+	void GLWindow::inactive_context() const {
+		glfwMakeContextCurrent(NULL);
 	}
-
-	Texture* GLWindow::createTexture(const TextureInfo& texture_info) const
+	
+	void GLWindow::bind() const
 	{
-		return new GLTexture(texture_info);
-	}
-
-	FrameBuffer* GLWindow::createFrameBuffer(const FrameBufferInfo& framebuffer_info) const
-	{
-		return new GLFrameBuffer(framebuffer_info);
-	}
-
-	void GLWindow::destroyRenderer(graphics::Renderer* renderer) const
-	{
-		delete (GLRenderer*)renderer;
-	}
-
-	void GLWindow::destroyShader(graphics::Shader* shader) const
-	{
-		delete (GLShader*)shader;
-	}
-
-	void GLWindow::destroyTexture(graphics::Texture* texture) const
-	{
-		delete (GLTexture*)texture;
-	}
-
-	void GLWindow::destroyFrameBuffer(graphics::FrameBuffer* framebuffer) const
-	{
-		delete (graphics::GLFrameBuffer*)framebuffer;
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		viewport();
 	}
 
 

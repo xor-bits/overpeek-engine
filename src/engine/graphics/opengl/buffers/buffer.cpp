@@ -1,6 +1,7 @@
 #include "buffer.hpp"
 
-#include <glad/glad.h>
+#include "engine/graphics/opengl/gl_include.hpp"
+
 #include <iomanip>
 #include <sstream>
 #include <cstddef>
@@ -16,6 +17,7 @@ namespace oe::graphics {
 
 		p_target = target;
 		p_size = size;
+		p_mapped = false;
 
 		glGenBuffers(1, &p_id);
 		bind();
@@ -37,13 +39,15 @@ namespace oe::graphics {
 
 	void* Buffer::mapBuffer() {
 		bind();
-		void* buffer = glMapBuffer(p_target, GL_WRITE_ONLY);
-		return buffer;
+		p_mapped = true;
+		return glMapBuffer(p_target, GL_WRITE_ONLY);
 	}
 
 	void Buffer::unmapBuffer() {
+		if (!p_mapped) oe_error_terminate("buffer was not mapped");
 		bind();
 		glUnmapBuffer(p_target);
+		p_mapped = false;
 	}
 
 	void Buffer::setBufferData(const void *data, size_t size) {

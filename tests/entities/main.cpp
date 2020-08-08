@@ -1,131 +1,233 @@
-#include <engine/engine.hpp>
+#include <engine/include.hpp>
 
 #include <string>
+#include <thread>
 
 
 
 constexpr unsigned int updates_per_second = 60;
 constexpr float inverse_ups = 1.0f / updates_per_second;
 
-const oe::graphics::Sprite* sprite;
-oe::graphics::Instance* instance;
-oe::graphics::Window* window;
-oe::graphics::SpritePack* pack;
+oe::graphics::Window window;
 oe::graphics::Renderer* renderer;
 oe::assets::DefaultShader* shader;
-entt::registry registry;
+oe::graphics::SpritePack* pack;
+const oe::graphics::Sprite* sprite;
+
+const int entities = 200;
+entt::registry entity_registry;
+b2World box2d_world(b2Vec2(0.0f, 9.81f));
+b2RevoluteJoint* motor_joint;
 
 
+// <<<<----- box2d stuff
+struct component_renderable
+{
+	oe::graphics::Quad* quad;
 
-struct position : public glm::vec2 {};
-struct velocity : public glm::vec2 {};
-
-void ecsSetup(int argc, char* argv[]) {
-	for (auto i = 0; i < 100; ++i) {
-		glm::vec2 pos = oe::utils::Random::getSingleton().randomVec2(-17.5f, 17.5);
-		glm::vec2 vel = oe::utils::Random::getSingleton().randomVec2(-5.0f, 5.0);
-
-		auto entity = registry.create();
-		registry.assign<position>(entity, pos);
-		if (i % 2 == 0) { registry.assign<velocity>(entity, vel); }
+	static void on_construct(entt::registry& reg, entt::entity e)
+	{
 	}
+
+	static void on_destroy(entt::registry& reg, entt::entity e)
+	{
+		renderer->destroyQuad(reg.get<component_renderable>(e).quad);
+	}
+};
+
+struct component_body
+{
+	b2Body* body;
+
+	static void on_destroy(entt::registry& reg, entt::entity e)
+	{
+		renderer->destroyQuad(reg.get<component_renderable>(e).quad);
+	}
+};
+
+b2Body* box(bool is_static, const glm::vec2& pos, const glm::vec2& size, float angle, const glm::vec4& color, float density = 1.0f)
+{
+	b2BodyDef bodydef = {};
+	b2FixtureDef fixturedef = {};
+	b2PolygonShape polygonshape = {};
+	bodydef.gravityScale = 1.0f;
+	fixturedef.density = density;
+	fixturedef.friction = 1.0f;
+	fixturedef.restitution = 0.1f;
+
+	bodydef.position = { pos.x, pos.y };
+	bodydef.type = is_static ? b2BodyType::b2_staticBody : b2BodyType::b2_dynamicBody;
+	bodydef.angle = angle;
+	auto body = box2d_world.CreateBody(&bodydef);
+	polygonshape.SetAsBox(size.x / 2.0f, size.y / 2.0f);
+	fixturedef.shape = &polygonshape;
+	body->CreateFixture(&fixturedef);
+	auto entity = entity_registry.create();
+	auto quad = renderer->createQuad();
+	quad->setSize(size);
+	quad->setRotationAlignment(oe::alignments::center_center);
+	quad->setColor(color);
+	entity_registry.assign<component_renderable>(entity, quad);
+	entity_registry.assign<component_body>(entity, body);
+
+	return body;
 }
 
-void render(float update_fraction) {
-	// clear framebuffer
-	window->clear();
+b2RevoluteJoint* joint(b2Body* a, b2Body* b)
+{
+	b2RevoluteJointDef jointDef = {};
+	jointDef.bodyA = a;
+	jointDef.bodyB = b;
+	jointDef.enableMotor = true;
+	jointDef.motorSpeed = 3.0f;
+	jointDef.maxMotorTorque = 1e20f;
+	
+	return static_cast<b2RevoluteJoint*>(box2d_world.CreateJoint(&jointDef));
+}
+// box2d stuff ----->>>>
 
-	// begin submitting
-	renderer->begin();
-	renderer->clear();
+// scene setup
+void setup()
+{
+	auto& random = oe::utils::Random::getSingleton();
+
+	entity_registry.on_construct<component_renderable>().connect<component_renderable::on_construct>();
+	entity_registry.on_destroy<component_renderable>().connect<component_renderable::on_destroy>();
+	
+	// ground box
+	auto body_0 = box(false, { 10.0f, 15.0f }, { 1.5f, 15.0f }, glm::quarter_pi<float>(), glm::vec4(random.randomVec3(0.0f, 1.0f), 1.0f), 0.1f);
+	auto body_1 = box(true, { 0.0f, 15.0f }, { 1.0f, 1.0f }, glm::quarter_pi<float>(), glm::vec4(random.randomVec3(0.0f, 1.0f), 1.0f));
+	motor_joint = joint(body_0, body_1);
+
+	// random falling boxes
+	for (auto i = 2; i < entities; ++i) {
+		glm::vec2 pos = { random.randomf(-2.0f, 2.0f), random.randomf(-30.0f, 5.0f) };
+		glm::vec2 size = random.randomVec2(0.1f, 1.0f);
+		box(false, pos, size, random.randomf(0.0f, glm::two_pi<float>()), glm::vec4(random.randomVec3(0.0f, 1.0f), 1.0f));
+	}
+
+}
+
+// render event
+void render(float update_fraction)
+{
+	window->clear(oe::colors::transparent);
 
 	// submitting
-	registry.view<position>().each([&](position& pos) {
+	entity_registry.view<component_renderable, component_body>().each([&](entt::entity entity, component_renderable& renderable, component_body& body)
+	{
 		// rendering
-		renderer->submit(pos, { 0.2f, 0.2f }, sprite);
-		});
+		auto pos = body.body->GetPosition();
+		auto vel = body.body->GetLinearVelocity();
+		auto rotation = body.body->GetAngle();
+		pos.x += (vel.x * update_fraction * inverse_ups);
+		pos.y += (vel.y * update_fraction * inverse_ups);
+
+		renderable.quad->setPosition({ pos.x, pos.y });
+		renderable.quad->setSprite(sprite);
+		renderable.quad->setRotation(rotation);
+		renderable.quad->update();
+	});
 
 	// stop submitting and render
-	pack->bind();
 	shader->bind();
-	renderer->end();
 	renderer->render();
-
-	// swap buffers and poll events
-	window->update();
-
-	// check if needs to close
-	if (window->shouldClose()) oe::utils::GameLoop::getSingleton().stop();
 }
 
-void resize(const glm::vec2& window_size) {
-	float aspect = window->aspect();
-
-	glm::mat4 pr_matrix = glm::ortho(-20.0f * aspect, 20.0f * aspect, 20.0f, -20.0f);
+// framebuffer resize
+void resize(const oe::ResizeEvent& event)
+{
+	glm::mat4 pr_matrix = glm::ortho(-20.0f * event.aspect, 20.0f * event.aspect, 20.0f, -20.0f);
 	shader->bind();
 	shader->setProjectionMatrix(pr_matrix);
 	shader->useTexture(true);
 }
 
-void update() {
-	registry.view<position, velocity>().each([&](position& pos, velocity& vel) {
-		pos += vel * inverse_ups;
-		});
-	registry.view<velocity>().each([](velocity& vel) {
-		// vel.value = { 0.0f, 0.0f };
-	});
+// update event 2 times per second
+void update_2()
+{
+	auto& gameloop = window->getGameloop(); 
+	spdlog::info("frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
 }
 
-int main(int argc, char* argv[]) {
-	// engine
-	oe::EngineInfo engine_info = {};
-	engine_info.api = oe::graphics_api::OpenGL;
-	oe::Engine::getSingleton().init(engine_info);
-	ecsSetup(argc, argv);
+// update event 60 times per second
+void update()
+{
+	entity_registry.view<component_body>().each([&](entt::entity entity, component_body& body)
+	{
+		// rendering
+		auto& pos = body.body->GetPosition();
+		if (pos.y >= 20.0f) { body.body->SetTransform(b2Vec2(0.0f, -20.0f), 0.0f); body.body->SetLinearVelocity(b2Vec2(0.0f, 0.0f)); }
+	});
 
-	// instance
-	oe::InstanceInfo instance_info = {};
-	instance_info.debug_messages = true;
-	// instance_info.favored_gpu_vulkan = oe::gpu::dedicated;
-	instance = oe::Engine::getSingleton().createInstance(instance_info);
+	float motor_joint_speed = std::pow(window->getCursorTransformed().x * 2.0f, 3.0f);
+	motor_joint->SetMotorSpeed(motor_joint_speed);
 
-	// window
-	oe::WindowInfo window_info;
-	window_info.title = "Test 1 - Renderer";
-	window_info.multisamples = 4;
-	window_info.resize_callback = resize;
-	window = instance->createWindow(window_info);
+	box2d_world.Step(inverse_ups, 8, 8);
+}
+
+void init()
+{
+	auto& engine = oe::Engine::getSingleton();
+
+	// connect events (this can also be done in (int main()))
+	window->connect_listener<oe::ResizeEvent, &resize>();
+	window->connect_render_listener<&render>();
+	window->connect_update_listener<2, &update_2>();
+	window->connect_update_listener<updates_per_second, &update>();
 
 	// instance settings
-	instance->culling(oe::culling_modes::back);
-	instance->swapInterval(1);
-	instance->blending();
+	engine.culling(oe::culling_modes::back);
+	engine.swapInterval(0);
+	engine.blending();
 
 	// renderer
 	oe::RendererInfo renderer_info = {};
-	renderer_info.arrayRenderType = oe::types::dynamicrender;
-	renderer_info.indexRenderType = oe::types::staticrender;
-	renderer_info.max_quad_count = 100;
+	renderer_info.arrayRenderType = oe::types::dynamic_type;
+	renderer_info.indexRenderType = oe::types::static_type;
+	renderer_info.max_primitive_count = entities;
 	renderer_info.staticVBOBuffer_data = nullptr;
-	renderer = window->createRenderer(renderer_info);
+	renderer = new oe::graphics::Renderer(renderer_info);
+	setup();
 
 	// shader
-	shader = new oe::assets::DefaultShader(window);
+	shader = new oe::assets::DefaultShader();
 
 	// sprites
-	pack = new oe::graphics::SpritePack(window);
+	pack = new oe::graphics::SpritePack();
 	sprite = pack->empty_sprite();
 	pack->construct();
+}
 
-	// start
-	resize(window->getSize());
-	oe::utils::GameLoop::getSingleton().start(render, update, 60);
-
+void cleanup()
+{
 	// closing
 	delete pack;
 	delete shader;
-	window->destroyRenderer(renderer);
-	instance->destroyWindow(window);
+	delete renderer;
+	window.reset();
+}
 
+int main(int argc, char* argv[])
+{
+	auto& engine = oe::Engine::getSingleton();
+
+	// engine
+	oe::EngineInfo engine_info = {};
+	engine_info.api = oe::graphics_api::OpenGL;
+	engine_info.debug_messages = false;
+	engine.init(engine_info);
+
+	// window
+	oe::WindowInfo window_info;
+	window_info.title = "Entities";
+	window_info.multisamples = 4;
+	window_info.transparent = true;
+	// window_info.borderless = true;
+	window = oe::graphics::Window(window_info);
+	window->connect_init_listener<&init>();
+	window->connect_cleanup_listener<&cleanup>();
+	
+	window->getGameloop().start();
 	return 0;
 }

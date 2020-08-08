@@ -2,23 +2,29 @@
 
 #include "engine/enum.hpp"
 #include "engine/graphics/interface/instance.hpp"
+#include "engine/utility/fileio.hpp"
 
 
 
 namespace oe::graphics {
 
-	class Texture {
+	class ITexture {
 	protected:
 		TextureInfo m_texture_info;
 
 	public:
-		Texture(const TextureInfo& texture_info);
-		~Texture();
+		ITexture(const TextureInfo& texture_info);
+		virtual ~ITexture();
 
 		virtual void setData(const TextureInfo& texture_info) = 0;
+		virtual oe::utils::image_data getImageData() const = 0;
 
-		virtual void bind() = 0;
-		virtual void unbind() = 0;
+		virtual void bind() const = 0;
+		virtual void unbind() const = 0;
+
+		// compute shader only
+		virtual void bindCompute() const = 0;
+		virtual void unbindCompute() const = 0;
 
 	public:
 		inline const TextureInfo& getTextureInfo() { return m_texture_info; }

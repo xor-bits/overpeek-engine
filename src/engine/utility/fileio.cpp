@@ -6,6 +6,7 @@
 #include <sstream>
 
 #include "engine/internal_libs.hpp"
+#include "engine/utility/clock.hpp"
 #include "engine/engine.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -16,11 +17,15 @@
 #define MINIMP3_IMPLEMENTATION
 #include "minimp3_ex.h"
 
+#ifdef __EMSCRIPTEN__
+#include <AL/al.h>
+#else
 #include <al.h>
+#endif
 
 
 
-int stb_i_format(oe::formats format) {
+constexpr int stb_i_format(oe::formats format) {
 	switch (format)
 	{
 	case oe::formats::rgba:
@@ -32,7 +37,7 @@ int stb_i_format(oe::formats format) {
 	}
 }
 
-int stb_i_channels(oe::formats format) {
+constexpr int stb_i_channels(oe::formats format) {
 	switch (format)
 	{
 	case oe::formats::rgba:
@@ -44,11 +49,18 @@ int stb_i_channels(oe::formats format) {
 	}
 }
 
+namespace oe::utils
+{
+	image_data::image_data(oe::formats _format, int _width, int _height)
+		: format(_format)
+		, width(_width), height(_height)
+		, size(_width* _height* stb_i_channels(_format))
+	{
+		data = new uint8_t[size];
+	}
 
-
-namespace oe::utils {
-
-	image_data::image_data(fs::path path, oe::formats _format) {
+	image_data::image_data(fs::path path, oe::formats _format)
+	{
 		int channels;
 		data = stbi_load(path.string().c_str(), &width, &height, &channels, stb_i_format(_format));
 
@@ -78,11 +90,22 @@ namespace oe::utils {
 		std::memcpy(data, _copied.data, size);
 	}
 
-	image_data::~image_data() {
+	image_data::~image_data()
+	{
 		delete data;
 	}
 
-	audio_data::audio_data(fs::path path) {
+	audio_data::audio_data(int _format, int _size, int _channels, int _sample_rate)
+		: format(_format)
+		, size(_size)
+		, channels(_channels)
+		, sample_rate(_sample_rate)
+	{
+		data = new int16_t[size];
+	}
+
+	audio_data::audio_data(fs::path path)
+	{
 		mp3dec_t mp3d;
 		mp3dec_file_info_t info;
 		if (mp3dec_load(&mp3d, path.string().c_str(), &info, NULL, NULL)) {
@@ -139,17 +162,33 @@ namespace oe::utils { // just to make the code look prettier
 	}
 
 
+	bool FileIO::fileExists(fs::path path)
+	{
+		return fs::exists(path);
+	}
 
-	void FileIO::loadString(std::string& string, fs::path path)
+	void FileIO::readString(std::string& string, fs::path path)
 	{
 		std::ifstream input_file_stream = std::ifstream(path);
 		if (!input_file_stream.is_open()) {
-			oe_error_terminate("Failed to load imagefile \"{}\"", std::string(path.string().c_str()));
+			oe_error_terminate("Failed to open file \"{}\"", std::string(path.string().c_str()));
 		}
 
 		std::stringstream buffer;
 		buffer << input_file_stream.rdbuf();
+		input_file_stream.close();
 		string = buffer.str();
+	}
+		
+	void FileIO::writeString(const std::string& string, fs::path path)
+	{
+		std::ofstream output_file_stream = std::ofstream(path);
+		if (!output_file_stream.is_open()) {
+			oe_error_terminate("Failed to open file \"{}\"", std::string(path.string().c_str()));
+		}
+
+		output_file_stream << string;
+		output_file_stream.close();
 	}
 
 	void FileIO::saveImage(fs::path path, const image_data& image)

@@ -154,17 +154,17 @@ namespace oe::graphics {
 		return new VKRenderer(this, renderer_info);
 	}
 
-	Shader* VKWindow::createShader(const ShaderInfo& shader_info) const
+	IShader* VKWindow::createShader(const ShaderInfo& shader_info) const
 	{
 		return new VKShader(this, shader_info);
 	}
 
-	Texture* VKWindow::createTexture(const TextureInfo& texture_info) const
+	ITexture* VKWindow::createTexture(const TextureInfo& texture_info) const
 	{
 		return nullptr;
 	}
 
-	FrameBuffer* VKWindow::createFrameBuffer(const FrameBufferInfo& framebuffer_info) const
+	IFrameBuffer* VKWindow::createFrameBuffer(const FrameBufferInfo& framebuffer_info) const
 	{
 		return nullptr;
 	}
@@ -174,17 +174,17 @@ namespace oe::graphics {
 		// delete static_cast<VKRenderer*>(renderer);
 	}
 
-	void VKWindow::destroyShader(Shader* shader) const
+	void VKWindow::destroyShader(IShader* shader) const
 	{
 		delete static_cast<VKShader*>(shader);
 	}
 
-	void VKWindow::destroyTexture(Texture* texture) const
+	void VKWindow::destroyTexture(ITexture* texture) const
 	{
 		// delete static_cast<VKTexture*>(texture);
 	}
 
-	void VKWindow::destroyFrameBuffer(FrameBuffer* framebuffer) const
+	void VKWindow::destroyFrameBuffer(IFrameBuffer* framebuffer) const
 	{
 		// delete static_cast<VKFrameBuffer*>(framebuffer);
 	}

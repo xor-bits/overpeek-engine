@@ -5,6 +5,7 @@
 #include "vk_swapchain.hpp"
 #include "buffers/vk_command_pool.hpp"
 #include "engine/engine.hpp"
+#include "engine/graphics/interface/shader_common.hpp"
 
 
 
@@ -54,30 +55,6 @@ namespace oe::graphics {
 		}
 	}
 
-	vk::ShaderStageFlagBits shader_flagbits(oe::shader_stages stage) {
-		switch (stage)
-		{
-		case oe::shader_stages::vertex_shader:
-			return vk::ShaderStageFlagBits::eVertex;
-			break;
-		case oe::shader_stages::tesselation_control_shader:
-			return vk::ShaderStageFlagBits::eTessellationControl;
-			break;
-		case oe::shader_stages::tesselation_evaluation_shader:
-			return vk::ShaderStageFlagBits::eTessellationEvaluation;
-			break;
-		case oe::shader_stages::geometry_shader:
-			return vk::ShaderStageFlagBits::eGeometry;
-			break;
-		case oe::shader_stages::fragment_shader:
-			return vk::ShaderStageFlagBits::eFragment;
-			break;
-		case oe::shader_stages::compute_shader:
-			return vk::ShaderStageFlagBits::eCompute;
-			break;
-		}
-	}
-
 	std::string shader_module_name(const std::string& name, oe::shader_stages stage) {
 		switch (stage)
 		{
@@ -102,8 +79,32 @@ namespace oe::graphics {
 		}
 	}
 
+	vk::ShaderStageFlagBits shader_flagbits(oe::shader_stages stage) {
+		switch (stage)
+		{
+		case oe::shader_stages::vertex_shader:
+			return vk::ShaderStageFlagBits::eVertex;
+			break;
+		case oe::shader_stages::tesselation_control_shader:
+			return vk::ShaderStageFlagBits::eTessellationControl;
+			break;
+		case oe::shader_stages::tesselation_evaluation_shader:
+			return vk::ShaderStageFlagBits::eTessellationEvaluation;
+			break;
+		case oe::shader_stages::geometry_shader:
+			return vk::ShaderStageFlagBits::eGeometry;
+			break;
+		case oe::shader_stages::fragment_shader:
+			return vk::ShaderStageFlagBits::eFragment;
+			break;
+		case oe::shader_stages::compute_shader:
+			return vk::ShaderStageFlagBits::eCompute;
+			break;
+		}
+	}
+
 	VKShader::VKShader(const VKWindow* window, const ShaderInfo& shader_info)
-		: Shader::Shader(shader_info)
+		: IShader::IShader(shader_info)
 		, m_window(window)
 		, m_logical_device(window->m_logical_device)
 	{
@@ -120,7 +121,7 @@ namespace oe::graphics {
 			size_t code_size = (result.end() - result.begin()) * sizeof(uint32_t);
 
 			if (result.GetNumErrors() != 0) {
-				oe_error_terminate("Shader ({}) compilation failed: {}", shader_info.name, result.GetErrorMessage());
+				oe_error_terminate("IShader ({}) compilation failed: {}", shader_info.name, result.GetErrorMessage());
 			}
 
 			// stage type
@@ -286,35 +287,35 @@ namespace oe::graphics {
 	void VKShader::unbind() const
 	{
 	}
-	int VKShader::getUniformLocation(const std::string& name) const
+	int VKShader::getUniformLocation(const std::string& name)
 	{
 		return 0;
 	}
-	void VKShader::setUniform1f(const std::string& name, float value) const	  
+	void VKShader::setUniform1f(const std::string& name, float value) 
 	{
 	}
-	void VKShader::setUniform2f(const std::string& name, const glm::fvec2& value) const
+	void VKShader::setUniform2f(const std::string& name, const glm::fvec2& value)
 	{
 	}
-	void VKShader::setUniform3f(const std::string& name, const glm::fvec3& value) const
+	void VKShader::setUniform3f(const std::string& name, const glm::fvec3& value)
 	{
 	}
-	void VKShader::setUniform4f(const std::string& name, const glm::fvec4& value) const
+	void VKShader::setUniform4f(const std::string& name, const glm::fvec4& value)
 	{
 	}
-	void VKShader::setUniform1i(const std::string& name, int value) const
+	void VKShader::setUniform1i(const std::string& name, int value)
 	{
 	}
-	void VKShader::setUniform2i(const std::string& name, const glm::ivec2& value) const
+	void VKShader::setUniform2i(const std::string& name, const glm::ivec2& value)
 	{
 	}
-	void VKShader::setUniform3i(const std::string& name, const glm::ivec3& value) const
+	void VKShader::setUniform3i(const std::string& name, const glm::ivec3& value)
 	{
 	}
-	void VKShader::setUniform4i(const std::string& name, const glm::ivec4& value) const
+	void VKShader::setUniform4i(const std::string& name, const glm::ivec4& value)
 	{
 	}
-	void VKShader::setUniformMat4(const std::string& name, const glm::mat4& value) const
+	void VKShader::setUniformMat4(const std::string& name, const glm::mat4& value)
 	{
 	}
 

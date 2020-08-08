@@ -1,7 +1,12 @@
 #include "audio.hpp"
 
+#ifdef __EMSCRIPTEN__
+#include <AL/al.h>
+#include <AL/alc.h>
+#else
 #include <al.h>
 #include <alc.h>
+#endif
 #include "engine/engine.hpp"
 
 

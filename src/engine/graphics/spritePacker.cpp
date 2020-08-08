@@ -1,5 +1,6 @@
 #include "spritePacker.hpp"
 #include "engine/engine.hpp"
+#include "engine/graphics/interface/window.hpp"
 
 #include <finders_interface.h>
 
@@ -20,12 +21,11 @@ namespace oe::graphics {
 
 
 
-	SpritePack::SpritePack(const Window* window, int border)
-		: m_window(window)
+	SpritePack::SpritePack(int border)
 	{
 		oe_debug_call("spritepack");
 
-		m_texture = nullptr;
+		m_constructed = false;
 		m_usr_data = new __usr_data();
 		auto usr_data = static_cast<__usr_data*>(m_usr_data);
 
@@ -38,78 +38,40 @@ namespace oe::graphics {
 		unsigned char* data = new unsigned char[img_size];
 		std::memset(data, (unsigned char)255, img_size);
 		oe::utils::image_data empty_img(data, oe::formats::rgba, 1, 1);
-		addSprite(empty_img);
+		create(empty_img);
 		delete[] data;
 	}
 
-	SpritePack::~SpritePack() {
-		for (size_t i = 0; i < m_sprites.size(); i++) {
-			for (size_t j = 0; j < m_sprites.at(i).size(); j++) {
-				delete m_sprites.at(i).at(j);
-			}
-		}
-		if(m_texture) m_window->destroyTexture(m_texture);
-		delete static_cast<__usr_data*>(m_usr_data);
+	SpritePack::~SpritePack()
+	{
+		for(auto iter : m_sprites) delete iter;
+		delete m_usr_data;
 	}
 
-	const Sprite* SpritePack::addSprite(const oe::utils::image_data& sprite_texture) {
+	const Sprite* SpritePack::create(const oe::utils::image_data& sprite_texture)
+	{
 		auto usr_data = static_cast<__usr_data*>(m_usr_data);
-
-		std::vector<Sprite*> vect;
-		Sprite* sprite = new Sprite(this);
-		sprite->position = { 0, 0 };
-		sprite->size = { 1, 1 };
-		vect.push_back(sprite);
+		auto sprite = new Sprite();
 		
 		usr_data->m_rectangles.push_back(rectpack2D::rect_xywh(0, 0, sprite_texture.width + m_border, sprite_texture.height + m_border));
 		usr_data->m_images.push_back(sprite_texture);
-		m_sprites.push_back(vect);
+		m_sprites.push_back(sprite);
 
-		return vect.at(0);
+		return sprite;
 	}
 
-	const Sprite* SpritePack::addSprite(fs::path sprite_texture) {
-		return addSprite(oe::utils::image_data(sprite_texture));
+	const Sprite* SpritePack::create(fs::path sprite_texture)
+	{
+		return create(oe::utils::image_data(sprite_texture));
 	}
 
-	std::vector<std::vector<const Sprite*>> SpritePack::addMultiSprite(oe::utils::image_data sprite_texture, const glm::vec2& sprite_count) {
-		auto usr_data = static_cast<__usr_data*>(m_usr_data);
-
-		std::vector<Sprite*> vect;
-		for (size_t x = 0; x < sprite_count.x; x++) {
-			for (size_t y = 0; y < sprite_count.y; y++) {
-				Sprite* sprite = new Sprite(this);
-				sprite->position = { x, y };
-				sprite->size = sprite_count;
-				vect.push_back(sprite);
-			}
-		}
-		
-		usr_data->m_rectangles.push_back(rectpack2D::rect_xywh(0, 0, sprite_texture.width + m_border, sprite_texture.height + m_border));
-		usr_data->m_images.push_back(sprite_texture);
-		m_sprites.push_back(vect);
-
-		std::vector<std::vector<const Sprite*>> returned;
-		for (size_t x = 0; x < sprite_count.x; x++) {
-			std::vector<const Sprite*> row;
-			for (size_t y = 0; y < sprite_count.y; y++) {
-				row.push_back(vect.at(y + x * sprite_count.y));
-			}
-			returned.push_back(row);
-		}
-
-		return returned;
-	}
-
-	std::vector<std::vector<const Sprite*>> SpritePack::addMultiSprite(fs::path sprite_texture, const glm::vec2& sprite_count) {
-		return addMultiSprite(oe::utils::image_data(sprite_texture), sprite_count);
-	}
-
-	size_t coordsToIndex(size_t x, size_t y, size_t c, size_t width, size_t channels) {
+	size_t coordsToIndex(size_t x, size_t y, size_t c, size_t width, size_t channels)
+	{
 		return channels * (x + y * width) + c;
 	}
 
-	void SpritePack::constructRepeat() {
+	void SpritePack::constructRepeat()
+	{
 		auto usr_data = static_cast<__usr_data*>(m_usr_data);
 
 		// pack sprites
@@ -138,44 +100,77 @@ namespace oe::graphics {
 			auto& rectangle = usr_data->m_rectangles.at(i);
 			auto& image = usr_data->m_images.at(i);
 			auto& sprite = m_sprites.at(i);
-			for (size_t i = 0; i < sprite.size(); i++) {
-				sprite.at(i)->size = glm::vec2(image.width / (float)pack_width, image.height / (float)pack_height) / sprite.at(i)->size;
-				sprite.at(i)->position = glm::vec2(rectangle.x / (float)pack_width, rectangle.y / (float)pack_height) + sprite.at(i)->position * sprite.at(i)->size;
-			}
+			
+			sprite->size = glm::vec2(image.width / (float)pack_width, image.height / (float)pack_height);
+			sprite->position = glm::vec2(rectangle.x / (float)pack_width, rectangle.y / (float)pack_height);
 
-			// print sprite img to final texture
-			for (size_t y = 0; y < image.height; y++) {
-				for (size_t x = 0; x < image.width; x++) {
-					data[coordsToIndex(rectangle.x + x, rectangle.y + y, 0, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, image.width, 4)];
-					data[coordsToIndex(rectangle.x + x, rectangle.y + y, 1, pack_width, 4)] = image.data[coordsToIndex(x, y, 1, image.width, 4)];
-					data[coordsToIndex(rectangle.x + x, rectangle.y + y, 2, pack_width, 4)] = image.data[coordsToIndex(x, y, 2, image.width, 4)];
-					data[coordsToIndex(rectangle.x + x, rectangle.y + y, 3, pack_width, 4)] = image.data[coordsToIndex(x, y, 3, image.width, 4)];
+			// conversions
+			switch (image.format)
+			{
+			case oe::formats::mono:
+				// mono format to rgba
+				for (size_t y = 0; y < image.height; y++) {
+					for (size_t x = 0; x < image.width; x++) {
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 0, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, image.width, 1)];
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 1, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, image.width, 1)];
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 2, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, image.width, 1)];
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 3, pack_width, 4)] = 255;
+					}
 				}
+				break;
+			case oe::formats::rgb:
+				// rgb format to rgba
+				for (size_t y = 0; y < image.height; y++) {
+					for (size_t x = 0; x < image.width; x++) {
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 0, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, image.width, 3)];
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 1, pack_width, 4)] = image.data[coordsToIndex(x, y, 1, image.width, 3)];
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 2, pack_width, 4)] = image.data[coordsToIndex(x, y, 2, image.width, 3)];
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 3, pack_width, 4)] = 255;
+					}
+				}
+				break;
+			case oe::formats::rgba:
+				// no conversion
+				for (size_t y = 0; y < image.height; y++) {
+					for (size_t x = 0; x < image.width; x++) {
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 0, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, image.width, 4)];
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 1, pack_width, 4)] = image.data[coordsToIndex(x, y, 1, image.width, 4)];
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 2, pack_width, 4)] = image.data[coordsToIndex(x, y, 2, image.width, 4)];
+						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 3, pack_width, 4)] = image.data[coordsToIndex(x, y, 3, image.width, 4)];
+					}
+				}
+				break;
 			}
 		}
 
 
 		oe::TextureInfo texture_info = {};
-		texture_info.dimensions = 2;
 		texture_info.generate_mipmaps = true;
 		texture_info.data = data;
-		texture_info.width = pack_width;
-		texture_info.height = pack_height;
+		texture_info.size = { pack_width, pack_height };
+		texture_info.offset = { 0, 0 };
 
-		m_texture = m_window->createTexture(texture_info);
+		m_texture = Texture(texture_info);
+		for (auto sprite : m_sprites)
+		{
+			sprite->m_owner = m_texture;
+		}
+		m_constructed = true;
 		
 		delete[] data;
 	}
 
-	void SpritePack::construct() {
+	void SpritePack::construct()
+	{
 		constructRepeat();
 
 		auto usr_data = static_cast<__usr_data*>(m_usr_data);
 		usr_data->m_images.clear();
 	}
 
-	void SpritePack::bind() const {
-		if (!m_texture) { oe_error_terminate("SpritePack was not constructed"); }
+	void SpritePack::bind()
+	{
+		if (!m_constructed) { spdlog::warn("SpritePack was not constructed"); constructRepeat(); }
 		m_texture->bind();
 	}
 

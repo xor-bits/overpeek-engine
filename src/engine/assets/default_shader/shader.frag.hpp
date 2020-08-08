@@ -1,23 +1,23 @@
-const std::string shader_frag_gl = R"shader(
+constexpr char shader_frag_gl[] = R"shader(
 #version 140
 #extension GL_ARB_explicit_attrib_location : enable
-		
-in vec2 shader_uv;
-in vec4 shader_color;
 
 layout(location = 0) out vec4 color;
+		
+in vec2 shader_uv_frag;
+in vec4 shader_color_frag;
 
 uniform sampler2D tex;
 uniform int usetex = 1;
 
 void main()
 {
-	if (usetex != 0) color = texture(tex, shader_uv) * shader_color;
-	else color = shader_color;
+	if (usetex != 0) color = texture(tex, shader_uv_frag) * shader_color_frag;
+	else color = shader_color_frag;
 }
 )shader";
 
-const std::string shader_frag_vk = R"shader(
+constexpr char shader_frag_vk[] = R"shader(
 #version 140
 #extension GL_ARB_separate_shader_objects : enable
 		

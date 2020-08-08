@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(enet)
-
 # The "configure" step.
 include(CheckFunctionExists)
 include(CheckStructHasMember)
@@ -55,7 +53,7 @@ if(HAS_SOCKLEN_T)
     add_definitions(-DHAS_SOCKLEN_T=1)
 endif()
 
-include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 set(INCLUDE_FILES_PREFIX include/enet)
 set(INCLUDE_FILES

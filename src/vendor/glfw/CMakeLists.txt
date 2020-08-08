@@ -195,11 +195,8 @@ if (_GLFW_X11)
 
     find_package(X11 REQUIRED)
 
-    list(APPEND glfw_PKG_DEPS "x11")
-
     # Set up library and include paths
     list(APPEND glfw_INCLUDE_DIRS "${X11_X11_INCLUDE_PATH}")
-    list(APPEND glfw_LIBRARIES "${X11_X11_LIB}")
 
     # Check for XRandR (modern resolution switching and gamma control)
     if (NOT X11_Xrandr_INCLUDE_PATH)
@@ -238,7 +235,7 @@ if (_GLFW_WAYLAND)
     find_package(WaylandScanner REQUIRED)
     find_package(WaylandProtocols 1.15 REQUIRED)
 
-    list(APPEND glfw_PKG_DEPS "wayland-egl")
+    list(APPEND glfw_PKG_DEPS "wayland-client")
 
     list(APPEND glfw_INCLUDE_DIRS "${Wayland_INCLUDE_DIRS}")
     list(APPEND glfw_LIBRARIES "${Wayland_LIBRARIES}")
@@ -305,7 +302,7 @@ include(CMakePackageConfigHelpers)
 
 set(GLFW_CONFIG_PATH "${CMAKE_INSTALL_LIBDIR}/cmake/glfw3")
 
-configure_package_config_file(src/glfw3Config.cmake.in
+configure_package_config_file(CMake/glfw3Config.cmake.in
                               src/glfw3Config.cmake
                               INSTALL_DESTINATION "${GLFW_CONFIG_PATH}"
                               NO_CHECK_REQUIRED_COMPONENTS_MACRO)
@@ -314,7 +311,7 @@ write_basic_package_version_file(src/glfw3ConfigVersion.cmake
                                  VERSION ${GLFW_VERSION}
                                  COMPATIBILITY SameMajorVersion)
 
-configure_file(src/glfw3.pc.in src/glfw3.pc @ONLY)
+configure_file(CMake/glfw3.pc.in src/glfw3.pc @ONLY)
 
 #--------------------------------------------------------------------
 # Add subdirectories

@@ -9,7 +9,7 @@ namespace oe::graphics {
 
 	class IndexBuffer : public Buffer {
 	public:
-		IndexBuffer(unsigned short int *data, size_t size, oe::types buffer_type);
+		IndexBuffer(const void *data, size_t size, oe::types buffer_type);
 	};
 
 }

@@ -1,7 +1,16 @@
 #include "engine.hpp"
 
-#include "graphics/opengl/gl_instance.hpp"
-#include "graphics/vulkan/vk_instance.hpp"
+#include "engine/graphics/interface/instance.hpp"
+#include "engine/utility/random.hpp"
+#include "engine/utility/clock.hpp"
+#include "engine/audio/audio.hpp"
+#include "engine/networking/server.hpp"
+
+
+#include "engine/graphics/opengl/gl_instance.hpp"
+#if defined(BUILD_VULKAN)
+#include "engine/graphics/vulkan/vk_instance.hpp"
+#endif
 
 #include <GLFW/glfw3.h>
 
@@ -14,6 +23,7 @@ static void glfw_error_func(int code, const char* desc) {
 namespace oe {
 
 	Engine* Engine::singleton = nullptr;
+	size_t Engine::draw_calls = 0;
 
 	Engine::Engine() {
 		// init to start the timer and seed the randomizer
@@ -39,6 +49,22 @@ namespace oe {
 		}
 
 		srand(oe::utils::Clock::getSingleton().getMicroseconds());
+
+
+		switch (engine_info.api)
+		{
+		case graphics_api::OpenGL:
+			instance = std::make_unique<oe::graphics::GLInstance>();
+			break;
+#ifdef BUILD_VULKAN
+		case graphics_api::Vulkan:
+			instance = std::make_unique<oe::graphics::VKInstance>();
+			break;
+#endif
+		default:
+			instance = nullptr;
+			break;
+		}
 	}
 
 	void Engine::deinit() {
@@ -48,6 +74,7 @@ namespace oe {
 		if (engine_info.networking) {
 			networking::enet::deinitEnet();
 		}
+		instance.reset();
 	}
 
 	void Engine::terminate() {
@@ -59,38 +86,18 @@ namespace oe {
 
 	void Engine::__error(std::string error_msg, int line, std::string file) {
 		spdlog::error("error: {}\nline: {}\nfile: {}", error_msg, line, file);
-		oe::Engine::terminate();
+
+		if (!oe::Engine::getSingleton().engine_info.ignore_errors)
+			oe::Engine::terminate();
 	}
 
-	graphics::Instance* Engine::createInstance(const InstanceInfo& instance_config) {
-		if (engine_info.api == oe::graphics_api::OpenGL) {
-			return new oe::graphics::GLInstance(instance_config);
-		}
-		else {
-#ifdef BUILD_VULKAN
-			return new oe::graphics::VKInstance(instance_config);
-#else
-			return nullptr;
-#endif
-		}
-	}
 
-	void Engine::destroyInstance(graphics::Instance* instance) {
-		delete instance;
-	}
-
-	void Engine::multipass(graphics::FrameBuffer& fb_0, graphics::FrameBuffer& fb_1, const graphics::Renderer& renderer, size_t count) {
-		for (int i = 0; i < count; i++) {
-			fb_1.bind();
-			fb_0.getTexture()->bind();
-			renderer.render(1);
-			fb_1.unbind();
-
-			fb_0.bind();
-			fb_1.getTexture()->bind();
-			renderer.render(1);
-			fb_0.unbind();
-		}
-	}
-
+	void Engine::blending(oe::modes mode) const { instance->blending(mode); }
+	void Engine::depth(depth_functions func) { current_depth = func; instance->depth(func); }
+	depth_functions Engine::getDepth() const { return current_depth; }
+	void Engine::swapInterval(unsigned int interval) const { instance->swapInterval(interval); }
+	void Engine::culling(culling_modes c) const { instance->culling(c); }
+	void Engine::lineWidth(float w) const { instance->lineWidth(w); }
+	void Engine::pointRadius(float w) const { instance->pointRadius(w); }
+	void Engine::polygonMode(polygon_mode p) const { instance->polygonMode(p); }
 }

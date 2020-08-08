@@ -1,31 +1,48 @@
 #pragma once
 
 #include "widget.hpp"
+#include "engine/enum.hpp"
 
 
 
-namespace oe::gui {
-
-#define BUTTON_CALLBACK_WRAPPER(x) [&](oe::mouse_buttons button, oe::actions action) { x(button, action); }
-	typedef std::function<void(oe::mouse_buttons button, oe::actions action)> fun_button_callback;
-
-	struct ButtonInfo {
-		fun_button_callback callback  = nullptr;
-		glm::ivec2 size           = { 50, 50 };
-		glm::vec2 offset_position = { 0, 0 };
-		glm::vec2 align_parent    = oe::alignments::center_center;
-		glm::vec2 align_render    = oe::alignments::center_center;
+namespace oe::gui
+{
+	struct ButtonInfo
+	{
+		glm::ivec2 size              = { 50, 50 };
+		glm::ivec2 offset_position   = { 0, 0 };
+		glm::vec2 align_parent       = oe::alignments::center_center;
+		glm::vec2 align_render       = oe::alignments::center_center;
 	};
 
-	class Button : public Widget {
+	struct ButtonHoverEvent
+	{};
+
+	struct ButtonUseEvent
+	{
+		oe::actions action;
+		oe::mouse_buttons button;
+		oe::modifiers modifier;
+	};
+
+	class Button : public Widget
+	{
 	public:
 		ButtonInfo button_info;
+		ButtonHoverEvent event_hover_latest;
+		ButtonUseEvent event_use_latest;
 
 	public:
 		Button(const ButtonInfo& button_info);
+		~Button();
 
-		// Inherited via Widget
-		virtual void cursor(oe::mouse_buttons button, oe::actions action, const glm::vec2& cursor_window) override;
+		virtual void managerAssigned(GUI* gui_manager) override;
+		virtual void managerUnassigned(GUI* gui_manager) override;
+
+	private:
+		// events
+		void on_cursor(const CursorPosEvent& event);
+		void on_button(const MouseButtonEvent& event);
 	};
 
 }

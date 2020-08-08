@@ -7,6 +7,9 @@
 #include <vector>
 #include <functional>
 
+#include "engine/graphics/interface/index_buffer_gen.hpp"
+#include "engine/graphics/vertexData.hpp"
+
 
 
 namespace oe {
@@ -18,6 +21,22 @@ namespace oe {
 		rgb, // red channel byte 0, green channel byte 2, blue channel byte 3, repeat
 		mono // white channel byte 0, repeat
 	};
+
+	constexpr size_t sizeofFormat(const formats& format)
+	{
+		switch (format)
+		{
+		case formats::rgba:
+			return 4;
+		case formats::rgb:
+			return 3;
+		case formats::mono:
+			return 1;
+		default:
+			return 4;
+		}
+	}
+
 	enum class modes {
 		enable, 
 		disable, 
@@ -42,14 +61,15 @@ namespace oe {
 	enum class polygon_mode {
 		fill, 
 		lines, 
-		points
+		points,
+		none
 	};
 
-	// render types
+	// opengl GL_STATIC_.. and GL_DYNAMIC_..
 	enum class types {
 		none,
-		staticrender, 
-		dynamicrender
+		static_type, 
+		dynamic_type
 	};
 
 	// shader stages
@@ -277,11 +297,14 @@ namespace oe {
 
 	// some predefined colors
 	struct colors {
+		static constexpr glm::vec4 translucent_black = glm::vec4(0.0f, 0.0f, 0.0f, 0.25f);
 		static constexpr glm::vec4 transparent = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
 		static constexpr glm::vec4 white = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		static constexpr glm::vec4 light_grey = glm::vec4(0.75f, 0.75f, 0.75f, 1.0f);
 		static constexpr glm::vec4 grey = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
 		static constexpr glm::vec4 dark_grey = glm::vec4(0.25f, 0.25f, 0.25f, 1.0f);
+		static constexpr glm::vec4 darker_grey = glm::vec4(0.125f, 0.125f, 0.125f, 1.0f);
+		static constexpr glm::vec4 darkest_grey = glm::vec4(0.0625f, 0.0625f, 0.0625f, 1.0f);
 		static constexpr glm::vec4 black = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 		static constexpr glm::vec4 red = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
 		static constexpr glm::vec4 green = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
@@ -304,8 +327,8 @@ namespace oe {
 
 		static constexpr glm::vec4 clear_color = glm::vec4(0.18f, 0.18f, 0.2f, 1.0f);
 
-		static constexpr glm::vec4 rainbow_bright(float t) { return (rainbow_bright(t) + 1.0f) * 0.5f; };
-		static constexpr glm::vec4 rainbow(float t) { return glm::vec4(glm::vec4(sin(t), sin(t + (5.0f / 8.0f) * glm::pi<float>()), sin(t + (10.0f / 8.0f) * glm::pi<float>()), 1.0f)); };
+		static glm::vec4 rainbow(float t) { return glm::vec4(glm::vec4(sin(t), sin(t + (5.0f / 8.0f) * glm::pi<float>()), sin(t + (10.0f / 8.0f) * glm::pi<float>()), 1.0f)); };
+		static glm::vec4 rainbow_bright(float t) { return (rainbow(t) + 1.0f) * 0.5f; };
 	};
 
 	struct alignments {
@@ -322,6 +345,9 @@ namespace oe {
 	static glm::vec2 alignmentOffset(const glm::vec2& size, const glm::vec2& alignment) {
 		return size * alignment;
 	}
+	static glm::ivec2 alignmentOffset(const glm::ivec2& size, const glm::vec2& alignment) {
+		return static_cast<glm::ivec2>(static_cast<glm::vec2>(size) * alignment);
+	}
 
 	typedef std::function<void(oe::keys key, oe::actions action, oe::modifiers mods)> fun_key_callback;
 	typedef std::function<void(oe::mouse_buttons button, oe::actions action)> fun_button_callback;
@@ -329,31 +355,29 @@ namespace oe {
 	typedef std::function<void(const glm::vec2 & framebuffer_size)> fun_resize_callback;
 	typedef std::function<void(uint32_t codepoint, oe::modifiers mods)> fun_text_callback;
 	typedef std::function<void(const glm::vec2 & transformed, const glm::vec2 & window)> fun_cursor_callback;
+	typedef std::function<void(float)> fun_window_render;
+	typedef std::function<void()> fun_window_update;
 
 	// window open info
 	struct WindowInfo {
-		glm::vec2 position = { 0, 0 };
-		glm::vec2 size = { 900, 600 };
+		glm::ivec2 position = { 0, 0 };
+		glm::ivec2 size = { 900, 600 };
 		std::string title = "Overpeek Engine";
 		unsigned char multisamples = 0;
 		bool borderless = false;
 		bool resizeable = true;
-		bool transparent = false;
+		bool transparent = false; // does nothing when using emscripten
 		bool fullscreen = false;
+		void* share_handle = nullptr; // pointer to the first window obj for multiwindow setups
 		uint32_t swap_interval = 1;
-		fun_key_callback key_callback = nullptr;
-		fun_button_callback button_callback = nullptr;
-		fun_scroll_callback scroll_callback = nullptr;
-		fun_resize_callback resize_callback = nullptr;
-		fun_text_callback text_callback = nullptr;
-		fun_cursor_callback cursor_callback = nullptr;
+		size_t main_updatesystem_ups = 60;
 	};
 
 	// renderer create info
 	struct RendererInfo {
-		int max_quad_count = 10000;
-		oe::types arrayRenderType = oe::types::dynamicrender;
-		oe::types indexRenderType = oe::types::staticrender;
+		int max_primitive_count = 10000;
+		oe::types arrayRenderType = oe::types::dynamic_type;
+		oe::types indexRenderType = oe::types::static_type;
 		void* staticVBOBuffer_data = nullptr;
 	};
 
@@ -361,9 +385,10 @@ namespace oe {
 	struct ShaderStageInfo {
 		shader_stages stage;
 		std::string source;
+		std::string include_path; // optional
 	};
 
-	// shader create info
+	// shader create info, shader_stages is non-owning
 	struct ShaderInfo {
 		std::string name;
 		std::vector<ShaderStageInfo> shader_stages;
@@ -374,12 +399,9 @@ namespace oe {
 		bool audio = false;
 		bool networking = false;
 		graphics_api api = oe::graphics_api::OpenGL;
-	};
-
-	// instance create info
-	struct InstanceInfo {
 		gpu favored_gpu_vulkan = gpu::dedicated;
 		bool debug_messages = false;
+		bool ignore_errors = true;
 	};
 
 	struct TextureInfo {
@@ -388,18 +410,73 @@ namespace oe {
 		oe::formats data_format = oe::formats::rgba;
 		bool generate_mipmaps = false;
 
-		uint8_t dimensions = 2;
-		size_t width = 1;
-		size_t x_offset = 0;
-		size_t height = 0;
-		size_t y_offset = 0;
-		size_t depth = 0;
-		size_t z_offset = 0;
+		std::vector<size_t> size = { 1 };   // must have the same size as (std::vector<size_t> offset)
+		std::vector<size_t> offset = { 0 }; // must have the same size as (std::vector<size_t> size)
 	};
 
 	struct FrameBufferInfo {
-		size_t width = 1;
-		size_t height = 1;
+		glm::ivec2 size = { 1, 1 };
 	};
 
+	// events
+    struct CursorPosEvent
+    {
+        glm::ivec2 cursor_windowspace = { 0.0f, 0.0f };
+        glm::vec2 cursor_worldspace = { 0.0f, 0.0f };
+    };
+
+	struct ScrollEvent
+    {
+        glm::vec2 scroll_delta = { 0.0f, 0.0f };
+    };
+
+	struct MouseButtonEvent
+	{
+		CursorPosEvent cursor_pos;
+
+        oe::mouse_buttons button = oe::mouse_buttons::none;
+        oe::actions action = oe::actions::none;
+        oe::modifiers mods = oe::modifiers::none;
+	};
+
+    struct KeyboardEvent
+    {
+        oe::keys key = oe::keys::none;
+        oe::actions action = oe::actions::none;
+        oe::modifiers mods = oe::modifiers::none;
+    };
+
+	struct CodepointEvent
+	{
+        // unicode text input
+        char32_t codepoint = 0;
+	};
+
+	struct ResizeEvent
+	{
+        glm::ivec2 framebuffer_size = { 0, 0 };
+        glm::ivec2 framebuffer_size_old = { 0, 0 };
+		float aspect = 0.0f;
+	};
+
+#ifdef WIN32
+#define __OE_FONT_NAME				"Arial.ttf"
+#define __OE_FONT_PATH				"C:/Windows/Fonts/"
+#define __OE_FULL_FONT_PATH			__OE_FONT_PATH __OE_FONT_NAME
+#elif __linux__
+#define __OE_FONT_NAME				"LiberationSans-Regular.ttf"
+#define __OE_FONT_PATH				"/usr/share/fonts/truetype/liberation/"
+#define __OE_FULL_FONT_PATH			__OE_FONT_PATH __OE_FONT_NAME
+#else
+#define __OE_FONT_NAME				"LiberationSans-Regular.ttf"
+#define __OE_FONT_PATH				"/System/Library/Fonts"  /* I have no idea about fonts with MacOS */
+#define __OE_FULL_FONT_PATH			__OE_FONT_PATH __OE_FONT_NAME
+#endif
+	
+	constexpr char default_font_name[] = __OE_FONT_NAME;
+	constexpr char default_font_path[] = __OE_FONT_PATH;
+	constexpr char default_full_font_path[] = __OE_FULL_FONT_PATH;
+
+#undef __FONT_NAME
+#undef __OE_DEFAULT_FONT__
 }

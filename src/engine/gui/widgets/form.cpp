@@ -1,4 +1,6 @@
 #include "form.hpp"
+#include "engine/gui/gui_manager.hpp"
+#include "engine/graphics/interface/renderer.hpp"
 
 
 
@@ -8,13 +10,10 @@ namespace oe::gui {
 		: Widget::Widget(_form_info.size, _form_info.align_parent, _form_info.align_render, _form_info.offset_position)
 		, form_info(_form_info)
 	{
-	
 	}
 
-	void Form::render(oe::graphics::Renderer& renderer) {
-		if (form_info.color != oe::colors::transparent) {
-			renderer.submit(render_position, size, 0, form_info.color);
-		}
+	Form::~Form()
+	{
 	}
 
 }

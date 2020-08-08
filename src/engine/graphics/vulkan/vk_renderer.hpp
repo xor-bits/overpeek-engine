@@ -8,7 +8,9 @@
 namespace oe::graphics {
 
 	class VKWindow; class VKBuffer;
-	class VKRenderer : public Renderer {
+
+	template<primitive_types type = primitive_types::quads, typename buffer_gen = basic_buffer_gen>
+	class VKRenderer : public Renderer<type, buffer_gen> {
 	private:
 		const VKWindow* m_window;
 		VKBuffer* m_vbo;

@@ -1,24 +1,18 @@
 #include "checkbox.hpp"
+#include "engine/gui/gui_manager.hpp"
+#include "engine/graphics/interface/renderer.hpp"
+
+#include "button.hpp"
 
 
 
-namespace oe::gui {
-
-	void Checkbox::checkbox_action(oe::mouse_buttons button, oe::actions action) {
-		if (button == oe::mouse_buttons::button_left && action == oe::actions::release) {
-			m_toggled = !m_toggled;
-			if (m_checkbox_info.callback)
-				m_checkbox_info.callback(m_toggled);
-		}
-	}
-
+namespace oe::gui
+{
 	Checkbox::Checkbox(const CheckboxInfo& _checkbox_info)
 		: Widget(_checkbox_info.size, _checkbox_info.align_parent, _checkbox_info.align_render, _checkbox_info.offset_position)
 		, m_checkbox_info(_checkbox_info)
-		, m_toggled(_checkbox_info.initial)
 	{
 		ButtonInfo button_info;
-		button_info.callback = BUTTON_CALLBACK_WRAPPER(checkbox_action);
 		button_info.size = _checkbox_info.size;
 		button_info.offset_position = { 0, 0 };
 		button_info.align_parent = oe::alignments::center_center;
@@ -27,13 +21,76 @@ namespace oe::gui {
 		addSubWidget(m_button);
 	}
 
-	void Checkbox::render(oe::graphics::Renderer& renderer) {
-		renderer.submit(render_position, size, m_checkbox_info.sprite, m_checkbox_info.color_back);
+	Checkbox::~Checkbox()
+	{}
 
-		if (m_toggled) {
-			glm::vec2 pos = render_position + size * 0.5f;
-			renderer.submit(pos, size * 0.7f, m_checkbox_info.sprite, m_checkbox_info.color_mark, oe::alignments::center_center);
-		}
+	void Checkbox::managerAssigned(GUI* gui_manager)
+	{
+		quad_check = gui_manager->getRenderer()->create();
+		quad_box = gui_manager->getRenderer()->create(); // check - box, hehe
+
+		// event listeners
+		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&Checkbox::on_render>(this);
+
+		Widget::managerAssigned(gui_manager);
 	}
+
+	void Checkbox::managerUnassigned(GUI* gui_manager)
+	{
+		quad_check.reset();
+		quad_box.reset();
+
+		// event listeners
+		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&Checkbox::on_render>(this);
+
+		Widget::managerUnassigned(gui_manager);
+	}
+
+	void Checkbox::on_render(const GUIRenderEvent& event)
+	{
+		if (!toggled) { quad_check->reset(); quad_box->reset(); return; }
+
+		NULL_SPRITE_CHECK(m_checkbox_info.sprite);
+
+		quad_box->setPosition(render_position);
+		quad_box->setZ(z);
+		quad_box->setSize(size);
+		quad_box->setColor(m_checkbox_info.color_back);
+		quad_box->setSprite(m_checkbox_info.sprite);
+		quad_box->update();
+
+		if (m_checkbox_info.initial) {
+			quad_check->setSize(static_cast<glm::vec2>(size) * 0.7f);
+		}
+		else
+		{
+			quad_check->setSize({ 0.0f, 0.0f });
+		}
+		quad_check->setPosition(static_cast<glm::vec2>(render_position + size / 2));
+		quad_check->setZ(z + 0.05f);
+		quad_check->setColor(m_checkbox_info.color_mark);
+		quad_check->setSprite(m_checkbox_info.sprite);
+		quad_check->setRotationAlignment(oe::alignments::center_center);
+		quad_check->update();
+	}
+
+	void Checkbox::on_button_use(const ButtonUseEvent& e)
+	{
+		if (e.button == oe::mouse_buttons::button_left && e.action == oe::actions::release) {
+			m_checkbox_info.initial = !m_checkbox_info.initial;
+		}
+		
+		event_use_latest.action = e.action;
+		event_use_latest.button = e.button;
+		event_use_latest.modifier = e.modifier;
+		event_use_latest.value = m_checkbox_info.initial;
+		dispatcher.trigger(event_use_latest);
+	}
+
+	void Checkbox::on_button_hover(const ButtonHoverEvent& e)
+	{
+		dispatcher.trigger(event_hover_latest);
+	}
+
 
 }

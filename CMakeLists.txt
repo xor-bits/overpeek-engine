@@ -1,23 +1,30 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 
-project(overpeek-engine)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+project("engine")
 
 # engine
 add_subdirectory(src) # static library (engine)
 
-option(BUILD_TESTS "build with tests" OFF)
-option(BUILD_VULKAN "build with vulkan test" OFF)
-if(${BUILD_TESTS})
+option(OE_BUILD_TESTS "build with tests" ON)
+set(OE_BUILD_MODE 0 CACHE STRING "0 - OpenGL, 1 - Shaderc and OpenGL, 2 - Vulkan, Shaderc and OpenGL")
+if(OE_BUILD_TESTS)
 	# tests
-	add_subdirectory(tests/rendering) # executable
-	add_subdirectory(tests/text) # executable
-	add_subdirectory(tests/gui) # executable
-	add_subdirectory(tests/entities) # executable
-	add_subdirectory(tests/networking) # executable
-	
-	if(${BUILD_VULKAN})
-		target_compile_definitions(engine PRIVATE BUILD_VULKAN)
-		add_subdirectory(tests/vulkan) # 
-	endif()
+	add_subdirectory(tests)
 endif()
+
+
+# set(str "")
+# macro(print_dirs target)
+# 	get_property(dirs TARGET ${target} PROPERTY INCLUDE_DIRECTORIES)
+# 	foreach(dir ${dirs})
+# 	set(str "${str} --include-path=\"${dir}\"")
+# 	endforeach()
+# endmacro()
+# 
+# print_dirs("engine")
+# print_dirs("entities")
+# print_dirs("box2d")
+# print_dirs("glfw")
+# 
+# message("${str}")

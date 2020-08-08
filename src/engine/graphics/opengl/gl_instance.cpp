@@ -1,41 +1,24 @@
 #include "gl_instance.hpp"
 #include "gl_window.hpp"
-#include "gl_renderer.hpp"
 #include "gl_shader.hpp"
 #include "gl_texture.hpp"
 #include "gl_framebuffer.hpp"
 
 #include "engine/engine.hpp"
 
-#include <glad/glad.h>
+#include "gl_include.hpp"
 #include <GLFW/glfw3.h>
 
 
 
 namespace oe::graphics {
 
-	GLInstance::GLInstance(const InstanceInfo& instance_info) 
-		: Instance(instance_info) 
-	{
-		oe_debug_call("gl_instance");
-	}
+	GLInstance::GLInstance() 
+		: Instance() 
+	{}
 
 	GLInstance::~GLInstance()
-	{
-
-	}
-
-
-
-	Window* GLInstance::createWindow(const WindowInfo& window_config) const
-	{
-		return new GLWindow(this, window_config);
-	}
-
-	void GLInstance::destroyWindow(graphics::Window* window) const
-	{
-		delete (graphics::GLWindow*)window;
-	}
+	{}
 
 
 

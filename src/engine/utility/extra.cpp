@@ -2,10 +2,12 @@
 
 #include "extra.hpp"
 #include <string>
+#include <sstream>
 
 
 
-void oe::utils::rotatePoint(glm::vec2 center, float angle, glm::vec2& p) {
+void oe::utils::rotatePoint(glm::vec2 center, float angle, glm::vec2& p)
+{
     float s = sin(angle);
     float c = cos(angle);
 
@@ -22,7 +24,8 @@ void oe::utils::rotatePoint(glm::vec2 center, float angle, glm::vec2& p) {
     p.y = ynew + center.y;
 }
 
-void oe::utils::rotatePoint(float angle, glm::vec2& p) {
+void oe::utils::rotatePoint(float angle, glm::vec2& p)
+{
     float s = sin(angle);
     float c = cos(angle);
 
@@ -30,18 +33,23 @@ void oe::utils::rotatePoint(float angle, glm::vec2& p) {
     p = { (p.x * c - p.y * s), (p.x * s + p.y * c) };
 }
 
-std::string oe::utils::boolToString(bool b) {
+std::string oe::utils::boolToString(bool b)
+{
     return b ? "true" : "false";
 }
 
-bool oe::utils::isInRange(int input, int min, int max) {
+bool oe::utils::isInRange(int input, int min, int max)
+{
     return (input >= min) && (input <= max);
 }
 
-int oe::utils::sign(float n) {
+int oe::utils::sign(float n)
+{
     return n < 0 ? -1 : 1;
 }
-glm::vec3 oe::utils::rgb_to_hsv(glm::vec3 in) {
+
+glm::vec3 oe::utils::rgbToHSV(glm::vec3 in)
+{
     glm::vec3   out;
     float      min, max, delta;
 
@@ -85,7 +93,8 @@ glm::vec3 oe::utils::rgb_to_hsv(glm::vec3 in) {
     return out;
 }
 
-glm::vec3 oe::utils::hsv_to_rgb(glm::vec3 in) {
+glm::vec3 oe::utils::hsvToRGB(glm::vec3 in)
+{
     float      hh, p, q, t, ff;
     long        i;
     glm::vec3   out;
@@ -140,4 +149,65 @@ glm::vec3 oe::utils::hsv_to_rgb(glm::vec3 in) {
         break;
     }
     return out;
+}
+
+
+glm::ivec3 oe::utils::hexToRGB(unsigned long hex)
+{
+    return glm::vec3(
+        (hex & 0xff0000) >> 16,
+        (hex & 0x00ff00) >> 8,
+        (hex & 0x0000ff) >> 0
+    );
+}
+
+unsigned long oe::utils::RGBtoHex(glm::ivec3 rgb)
+{
+    return rgb.x << 16 + rgb.y << 8 + rgb.z << 0;
+}
+
+std::string oe::utils::hexToString(unsigned long hex)
+{
+    return fmt::format("{0:x}", hex);
+}
+
+template<> std::string oe::utils::convertUTF(const std::u32string& from)
+{
+	std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv;
+	return conv.to_bytes(from);
+}
+
+template<> std::string oe::utils::convertUTF(const std::u16string& from)
+{
+	std::wstring_convert<std::codecvt_utf8<char16_t>, char16_t> conv;
+	return conv.to_bytes(from);
+}
+
+template<> std::string oe::utils::convertUTF(const std::wstring& from)
+{
+	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> conv;
+	return conv.to_bytes(from);
+}
+
+template<> std::u32string oe::utils::convertUTF(const std::string& from)
+{
+	std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv;
+	return conv.from_bytes(from);
+}
+
+template<> std::u16string oe::utils::convertUTF(const std::string& from)
+{
+	std::wstring_convert<std::codecvt_utf8<char16_t>, char16_t> conv;
+	return conv.from_bytes(from);
+}
+
+template<> std::wstring oe::utils::convertUTF(const std::string& from)
+{
+	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> conv;
+	return conv.from_bytes(from);
+}
+
+template<> std::string oe::utils::convertUTF(const std::string& from)
+{
+	return from;
 }

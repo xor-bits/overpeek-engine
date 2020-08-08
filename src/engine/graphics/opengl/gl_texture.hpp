@@ -6,7 +6,7 @@
 
 namespace oe::graphics {
 
-	class GLTexture : public Texture {
+	class GLTexture : public ITexture {
 	private:
 		uint32_t m_id;
 		int32_t m_target;
@@ -31,9 +31,14 @@ namespace oe::graphics {
 		~GLTexture();
 
 		virtual void setData(const TextureInfo& texture_info) override;
+		virtual oe::utils::image_data getImageData() const override;
 
-		virtual void bind() override;
-		virtual void unbind() override;
+		virtual void bind() const override;
+		virtual void unbind() const override;
+
+		// compute shader only
+		virtual void bindCompute() const override;
+		virtual void unbindCompute() const override;
 
 	public:
 		uint32_t getGLTexture() { return m_id; }

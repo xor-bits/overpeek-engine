@@ -1,123 +1,139 @@
-#include <engine/engine.hpp>
+#include <engine/include.hpp>
 
 #include <string>
 
-#include "texture.png.hpp"
 
 
-
-const oe::graphics::Sprite* sprite;
-const oe::graphics::Sprite* sprite_white;
-oe::graphics::Instance* instance;
-oe::graphics::Window* window;
-oe::graphics::SpritePack* pack;
-oe::graphics::Renderer* renderer;
+const oe::graphics::Sprite* sprite; // from pack 0
+const oe::graphics::Sprite* sprite_white; // from pack 1
+oe::graphics::SpritePack* pack_0;
+oe::graphics::SpritePack* pack_1;
+oe::graphics::Window window;
 oe::assets::DefaultShader* shader;
+oe::graphics::Renderer* renderer;
+std::array<oe::graphics::Quad*, 2> quads;
 
-double t = 0;
-void render(float update_fraction) {
-	t += oe::utils::GameLoop::getSingleton().getFrameUpdateScale();
 
-	// clear framebuffer
-	window->clear();
 
-	// begin submitting
-	renderer->begin();
-	renderer->clear();
+void create_scene() {
+	quads[0] = renderer->createQuad();
+	quads[0]->setPosition({ 0.0f, 0.0f, 0.0f });
+	quads[0]->setSize({ 1.0f, 1.0f });
+	quads[0]->setRotationAlignment(oe::alignments::center_center);
+	quads[0]->setSprite(sprite_white);
+	quads[0]->setColor(oe::colors::blue);
+	quads[0]->update();
 	
-	// submitting
-	renderer->submit(glm::vec2(-0.5f,  0.5f), glm::vec2(0.4f), sprite_white, oe::colors::blue,  oe::alignments::center_center, std::sin(t));
-	renderer->submit(glm::vec2(-0.5f, -0.5f), glm::vec2(0.4f), sprite_white, oe::colors::red,   oe::alignments::center_center, std::tan(t));
-	renderer->submit(glm::vec2( 0.5f, -0.5f), glm::vec2(0.4f), sprite_white, oe::colors::green, oe::alignments::center_center, t * 100.0f);
-	renderer->submit(glm::vec2( 0.5f,  0.5f), glm::vec2(0.4f), sprite,       oe::colors::white, oe::alignments::center_center, std::pow(std::sin(t * 5.0f), 11.0f));
-
-	// stop submitting and render
-	// pack->bind();
-	shader->bind();
-	renderer->end();
-	renderer->render();
-	
-	// swap buffers and poll events
-	window->update();
-
-	// check if needs to close
-	if (window->shouldClose()) oe::utils::GameLoop::getSingleton().stop();
+	quads[1] = renderer->createQuad();
+	quads[1]->setPosition({ 0.0f, 0.0f, 1.0f });
+	quads[1]->setSize({ 0.75f, 0.75f });
+	quads[1]->setRotationAlignment(oe::alignments::center_center);
+	quads[1]->setSprite(sprite);
+	quads[1]->setColor(oe::colors::white);
+	quads[1]->update();
 }
 
-void update() {
-	spdlog::info("FPS: " + std::to_string(oe::utils::GameLoop::getSingleton().getFPS()));
-}
-
-void resize(const glm::vec2& window_size) {
-	float aspect = window->aspect();
+void resize(const oe::ResizeEvent& event) {
+	window->active_context();
+	float aspect = event.aspect;
 	glm::mat4 pr = glm::ortho(-aspect, aspect, 1.0f, -1.0f);
 	shader->setProjectionMatrix(pr);
 	shader->useTexture(true);
 }
 
-void keyboard(oe::keys key, oe::actions action, oe::modifiers mods) {
-	if (action == oe::actions::press) {
-		if (key == oe::keys::key_escape) {
-			oe::utils::GameLoop::getSingleton().stop();
+void render(float update_fraction) {
+	// modify scene
+	float t = oe::utils::Clock::getSingleton().getSessionMillisecond() / 300.0f;
+	quads[0]->setRotation(std::sin(t));
+	quads[0]->update();
+	quads[1]->setRotation(t);
+	quads[1]->update();
+
+	// render scene
+	shader->bind();
+	renderer->render();
+}
+
+void update_2() {
+	auto& gameloop = window->getGameloop();
+	spdlog::info("frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
+}
+
+void keyboard(const oe::KeyboardEvent& event) {
+	if (event.action == oe::actions::press) {
+		if (event.key == oe::keys::key_escape) {
+			window->getGameloop().stop();
 		}
-		else if (key == oe::keys::key_enter) {
+		else if (event.key == oe::keys::key_enter) {
 			window->setFullscreen(!window->getFullscreen());
 		}
 	}
 }
 
-int main(int argc, char** argv) {
+void init() {
+	auto& engine = oe::Engine::getSingleton();
+
 	// engine
 	oe::EngineInfo engine_info = {};
 	engine_info.api = oe::graphics_api::OpenGL;
-	oe::Engine::getSingleton().init(engine_info);
-
-	// instance
-	oe::InstanceInfo instance_info = {};
-	instance_info.debug_messages = true;
-	// instance_info.favored_gpu_vulkan = oe::gpu::dedicated;
-	instance = oe::Engine::getSingleton().createInstance(instance_info);
+	engine_info.debug_messages = true;
+	engine.init(engine_info);
 
 	// window
 	oe::WindowInfo window_info;
-	window_info.title = "Test 1 - Renderer";
+	window_info.title = "Renderer";
 	window_info.multisamples = 4;
-	window_info.resize_callback = resize;
-	window_info.key_callback = keyboard;
-	window = instance->createWindow(window_info);
+	window_info.size = { 900, 600 };
+	window = oe::graphics::Window(window_info);
+
+	// connect events
+	window->connect_listener<oe::ResizeEvent, &resize>();
+	window->connect_render_listener<&render>();
+	window->connect_update_listener<2, &update_2>();
 	
 	// instance settings
-	instance->culling(oe::culling_modes::back);
-	instance->swapInterval(1);
-	instance->blending();
+	engine.culling(oe::culling_modes::neither);
+	engine.swapInterval(0);
+	engine.blending();
 
 	// renderer
 	oe::RendererInfo renderer_info = {};
-	renderer_info.arrayRenderType = oe::types::dynamicrender;
-	renderer_info.indexRenderType = oe::types::staticrender;
-	renderer_info.max_quad_count = 6;
+	renderer_info.arrayRenderType = oe::types::dynamic_type;
+	renderer_info.indexRenderType = oe::types::static_type;
+	renderer_info.max_primitive_count = 100;
 	renderer_info.staticVBOBuffer_data = nullptr;
-	renderer = window->createRenderer(renderer_info);
+	renderer = new oe::graphics::Renderer(renderer_info);
 
 	// shader
-	shader = new oe::assets::DefaultShader(window);
+	shader = new oe::assets::DefaultShader();
 	
 	// sprites
-	auto img = oe::utils::image_data(texture_png, oe::formats::rgba, 5, 5);
-	pack = new oe::graphics::SpritePack(window);
-	sprite = pack->addSprite(img);
-	sprite_white = pack->empty_sprite();
-	pack->construct();
-	
+	auto img = oe::assets::TextureSet::oe_logo_img;
+	pack_0 = new oe::graphics::SpritePack();
+	pack_1 = new oe::graphics::SpritePack();
+	sprite = pack_0->addSprite(img);
+	sprite_white = pack_1->empty_sprite();
+	pack_0->construct();
+	pack_1->construct();
+
 	// start
-	resize(window->getSize());
-	oe::utils::GameLoop::getSingleton().start(render, update, 1);
+	create_scene();
+	window->getGameloop().start(); // print the average frametime 30 times in a second
 
 	// closing
-	delete pack;
+	delete pack_0;
+	delete pack_1;
 	delete shader;
-	window->destroyRenderer(renderer);
-	instance->destroyWindow(window);
+	delete renderer;
+}
 
-	return 0;
+int main(int argc, char** argv) {
+	try {
+		init();
+		return 0;
+	} catch (const std::exception& e) {
+		spdlog::error(e.what());
+		assert(e.what());
+		return -1;
+	}
 }
