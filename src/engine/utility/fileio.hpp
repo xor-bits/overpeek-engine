@@ -8,7 +8,7 @@
 
 
 #ifndef __has_include
-static_assert(false, "__has_include not supported");
+#error __has_include not supported
 #else
 #  if __has_include(<filesystem>)
 #    include <filesystem>
@@ -24,31 +24,37 @@ namespace fs = boost::filesystem;
 
 
 
-namespace oe::utils {
-
-	struct image_data {
+namespace oe::utils
+{
+	struct image_data
+	{
 		uint8_t* data;
 		oe::formats format;
 		int width, height;
 		size_t size;
 
+		image_data(oe::formats format, int width, int height); // allocates space for uint8_t*data
 		image_data(fs::path path, oe::formats format = oe::formats::rgba);
 		image_data(const uint8_t* data, oe::formats format, int width, int height);
 		image_data(const image_data& copied);
 		~image_data();
 	};
 
-	struct audio_data {
+	struct audio_data
+	{
 		int16_t* data;
 		int format, size, channels, sample_rate;
+		const bool stolen = false;
 
+		audio_data(int format, int size, int channels, int sample_rate); // allocates space for uint16_t*data
 		audio_data(fs::path path);
 		audio_data(const int16_t* data, int format, int size, int channels, int sample_rate);
 		audio_data(const audio_data& copied);
 		~audio_data();
 	};
 
-	class FileIO {
+	class FileIO
+	{
 	private:
 		static FileIO* singleton;
 		FileIO();

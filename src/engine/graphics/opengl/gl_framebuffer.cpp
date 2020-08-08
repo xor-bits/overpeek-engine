@@ -2,14 +2,14 @@
 #include "engine/engine.hpp"
 #include "engine/graphics/interface/window.hpp"
 
-#include <glad/glad.h>
+#include "gl_include.hpp"
 #include <GLFW/glfw3.h>
 
 
 
 namespace oe::graphics {
 
-	GLFrameBuffer::GLFrameBuffer(const FrameBufferInfo& framebuffer_info, Window& window)
+	GLFrameBuffer::GLFrameBuffer(const FrameBufferInfo& framebuffer_info, const Window& window)
 		: IFrameBuffer(framebuffer_info, window) 
 	{
 		oe_debug_call("gl_framebuffer");

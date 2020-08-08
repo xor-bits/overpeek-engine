@@ -7,7 +7,7 @@
 
 namespace oe::gui
 {
-	float Widget::z_acc = 0.0f;
+	float Widget::z_acc = -99999.0f;
 	Widget::Widget(const glm::ivec2& _size, const glm::vec2& _align_parent, const glm::vec2& _align_render, const glm::ivec2& _offset_position)
 		: size(_size)
 		, align_parent(_align_parent)
@@ -23,7 +23,8 @@ namespace oe::gui
 		z_acc += 0.1f;
 	}
 
-	Widget::~Widget() {
+	Widget::~Widget()
+	{
 		if (m_gui_manager) managerUnassigned(m_gui_manager);
 		for (auto& w : m_nodes)
 		{
@@ -57,11 +58,13 @@ namespace oe::gui
 		}
 	}
 
-	void Widget::setParent(Widget* parent) {
+	void Widget::setParent(Widget* parent)
+	{
 		m_parent = parent;
 	}
 
-	void Widget::addSubWidget(Widget* widget) {
+	void Widget::addSubWidget(Widget* widget)
+	{
 		widget->setParent(this);
 		m_nodes.insert(widget);
 		if (m_gui_manager)
@@ -71,7 +74,8 @@ namespace oe::gui
 		}
 	}
 
-	void Widget::removeSubWidget(Widget* widget) {
+	void Widget::removeSubWidget(Widget* widget)
+	{
 		m_nodes.erase(widget);
 		if (m_gui_manager)
 		{
@@ -80,9 +84,9 @@ namespace oe::gui
 		}
 	}
 
-	void Widget::on_render(const GUIRenderEvent& event) {
+	void Widget::on_render(const GUIRenderEvent& event)
+	{
 		if (m_parent) render_position = offset_position + m_parent->render_position + oe::alignmentOffset(m_parent->size, align_parent) - oe::alignmentOffset(size, align_render);
 		else render_position = offset_position - oe::alignmentOffset(size, align_render);
 	}
-
 }

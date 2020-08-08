@@ -2,10 +2,14 @@
 
 #include <iostream>
 
-#include <glad/glad.h>
+#include "gl_include.hpp"
 #include <GLFW/glfw3.h>
+
+
+#if OOE_BUILD_MODE_SHADERC
 #include <shaderc/shaderc.hpp>
 #include "engine/graphics/interface/shader_common.hpp"
+#endif
 
 #include "engine/utility/fileio.hpp"
 #include "engine/engine.hpp"
@@ -15,9 +19,9 @@
 
 namespace oe::graphics {
 
-	unsigned int GLShader::loadShader(const std::string& source, unsigned int shadertype) {
+	unsigned int GLShader::loadShader(const std::string_view& name, const std::string_view& source, unsigned int shadertype) {
 		//Load and compile
-		const char* shaderChar = source.c_str();
+		const char* shaderChar = source.data();
 
 		GLuint shader;
 		shader = glCreateShader(shadertype);
@@ -25,11 +29,11 @@ namespace oe::graphics {
 		glCompileShader(shader);
 
 		//Get errors
-		shaderLog(shader, GL_COMPILE_STATUS);
+		shaderLog(name, shader, GL_COMPILE_STATUS);
 		return shader;
 	}
 
-	void GLShader::shaderLog(unsigned int shader, unsigned int type) const {
+	void GLShader::shaderLog(const std::string_view& name, unsigned int shader, unsigned int type) const {
 		int success = false;
 		glGetShaderiv(shader, type, &success);
 		if (!success)
@@ -39,12 +43,12 @@ namespace oe::graphics {
 			char* infoLog = new char[infoLogLength]();
 			glGetShaderInfoLog(shader, 512, nullptr, infoLog);
 
-			oe_error_terminate("{}: shader compilation: \n{}", m_shader_info.name, infoLog);
+			oe_error_terminate("{}: shader compilation: \n{}", name, infoLog);
 			delete[] infoLog;
 		}
 	}
 
-	void GLShader::programLog(int program, unsigned int type) const {
+	void GLShader::programLog(const std::string_view& name, int program, unsigned int type) const {
 		int success = false;
 		glGetProgramiv(program, type, &success);
 		if (!success)
@@ -54,7 +58,7 @@ namespace oe::graphics {
 			char* infoLog = new char[infoLogLength]();
 			glGetProgramInfoLog(program, 512, nullptr, infoLog);
 
-			oe_error_terminate("{}: program linking: \n{}", m_shader_info.name, infoLog);
+			oe_error_terminate("{}: program linking: \n{}", name, infoLog);
 			delete[] infoLog;
 		}
 	}
@@ -70,8 +74,9 @@ namespace oe::graphics {
 		p_shader_program = glCreateProgram();
 
 		std::vector<GLuint> modules;
-		for (auto& stage : m_shader_info.shader_stages)
+		for (auto& stage : shader_info.shader_stages)
 		{
+#ifdef OE_BUILD_MODE_SHADERC // OPTIMIZE GLSL
 			// optimization and <#include>:s
 			std::unique_ptr<Includer> includer = std::make_unique<Includer>(stage.include_path);
 
@@ -79,14 +84,16 @@ namespace oe::graphics {
 			shaderc::CompileOptions options = shaderc::CompileOptions();
 			options.SetOptimizationLevel(shaderc_optimization_level::shaderc_optimization_level_performance);
 			options.SetIncluder(std::move(includer));
-			auto result = compiler.PreprocessGlsl(stage.source, shader_kind(stage.stage), shader_module_name(shader_info.name, stage.stage).c_str(), options);
+			auto result = compiler.PreprocessGlsl(stage.source.data(), shader_kind(stage.stage), shader_module_name(shader_info.name.data(), stage.stage).c_str(), options);
 			size_t code_size = (result.end() - result.begin()) * sizeof(uint32_t);
 
 			if (result.GetNumErrors() != 0) {
 				oe_error_terminate("IShader ({}) compilation failed: {}", shader_info.name, result.GetErrorMessage());
 			}
-			std::string preprocessed_glsl = result.begin(); // i know, its stupid to copy large c string to string instead of just using the c string
-
+			std::string_view preprocessed_glsl = result.begin();
+#else  // DON'T OPTIMIZE GLSL
+			std::string_view preprocessed_glsl = stage.source.data();
+#endif
 
 			// stage type
 			uint32_t stage_id;
@@ -113,7 +120,7 @@ namespace oe::graphics {
 			}
 
 			// shader compilation
-			GLuint shader_module = loadShader(preprocessed_glsl, stage_id);
+			GLuint shader_module = loadShader(shader_info.name, preprocessed_glsl, stage_id);
 			modules.push_back(shader_module);
 
 			// attach shader stage
@@ -122,7 +129,7 @@ namespace oe::graphics {
 
 		// Get shader program linking error
 		glLinkProgram(p_shader_program);
-		programLog(p_shader_program, GL_LINK_STATUS);
+		programLog(shader_info.name, p_shader_program, GL_LINK_STATUS);
 
 		// Free up data
 		for (GLuint shader_module : modules) 
@@ -159,7 +166,9 @@ namespace oe::graphics {
 		buffer->compute(binding);
 		uint32_t block_index = 0;
 		block_index = glGetProgramResourceIndex(p_shader_program, GL_SHADER_STORAGE_BLOCK, block_name.c_str());
+#ifndef __EMSCRIPTEN__
 		glShaderStorageBlockBinding(p_shader_program, block_index, binding);
+#endif
 	}
 
 	void GLShader::unbindSSBO(const std::string& block_name, const StorageBuffer* buffer, size_t binding)

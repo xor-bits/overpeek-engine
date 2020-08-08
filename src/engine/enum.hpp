@@ -21,7 +21,8 @@ namespace oe {
 		rgb, // red channel byte 0, green channel byte 2, blue channel byte 3, repeat
 		mono // white channel byte 0, repeat
 	};
-	static size_t sizeofFormat(const formats& format)
+
+	constexpr size_t sizeofFormat(const formats& format)
 	{
 		switch (format)
 		{
@@ -35,7 +36,6 @@ namespace oe {
 			return 4;
 		}
 	}
-
 
 	enum class modes {
 		enable, 
@@ -61,7 +61,8 @@ namespace oe {
 	enum class polygon_mode {
 		fill, 
 		lines, 
-		points
+		points,
+		none
 	};
 
 	// opengl GL_STATIC_.. and GL_DYNAMIC_..
@@ -365,7 +366,7 @@ namespace oe {
 		unsigned char multisamples = 0;
 		bool borderless = false;
 		bool resizeable = true;
-		bool transparent = false;
+		bool transparent = false; // does nothing when using emscripten
 		bool fullscreen = false;
 		void* share_handle = nullptr; // pointer to the first window obj for multiwindow setups
 		uint32_t swap_interval = 1;
@@ -387,7 +388,7 @@ namespace oe {
 		std::string include_path; // optional
 	};
 
-	// shader create info
+	// shader create info, shader_stages is non-owning
 	struct ShaderInfo {
 		std::string name;
 		std::vector<ShaderStageInfo> shader_stages;
@@ -448,7 +449,7 @@ namespace oe {
 	struct CodepointEvent
 	{
         // unicode text input
-        wchar_t codepoint = 0;
+        char32_t codepoint = 0;
 	};
 
 	struct ResizeEvent
@@ -457,4 +458,25 @@ namespace oe {
         glm::ivec2 framebuffer_size_old = { 0, 0 };
 		float aspect = 0.0f;
 	};
+
+#ifdef WIN32
+#define __OE_FONT_NAME				"Arial.ttf"
+#define __OE_FONT_PATH				"C:/Windows/Fonts/"
+#define __OE_FULL_FONT_PATH			__OE_FONT_PATH __OE_FONT_NAME
+#elif __linux__
+#define __OE_FONT_NAME				"LiberationSans-Regular.ttf"
+#define __OE_FONT_PATH				"/usr/share/fonts/truetype/liberation/"
+#define __OE_FULL_FONT_PATH			__OE_FONT_PATH __OE_FONT_NAME
+#else
+#define __OE_FONT_NAME				"LiberationSans-Regular.ttf"
+#define __OE_FONT_PATH				"/System/Library/Fonts"  /* I have no idea about fonts with MacOS */
+#define __OE_FULL_FONT_PATH			__OE_FONT_PATH __OE_FONT_NAME
+#endif
+	
+	constexpr char default_font_name[] = __OE_FONT_NAME;
+	constexpr char default_font_path[] = __OE_FONT_PATH;
+	constexpr char default_full_font_path[] = __OE_FULL_FONT_PATH;
+
+#undef __FONT_NAME
+#undef __OE_DEFAULT_FONT__
 }

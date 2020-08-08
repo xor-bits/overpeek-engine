@@ -1,26 +1,18 @@
 #pragma once
 
-#include <string>
-#include <map>
-
-#include "engine/graphics/spritePacker.hpp"
 #include "engine/internal_libs.hpp"
+#include "engine/enum.hpp"
 
-#ifdef WIN32
-#define __FONT_NAME		"Arial.ttf"
-#define DEFAULT_FONT	"C:/Windows/Fonts/" __FONT_NAME
-#elif __linux__
-#define __FONT_NAME		"LiberationSans-Regular.ttf"
-#define DEFAULT_FONT	"/usr/share/fonts/truetype/liberation/" __FONT_NAME
-#else
-#define __FONT_NAME		"LiberationSans-Regular.ttf"
-#define DEFAULT_FONT	 __FONT_NAME
-#endif
+#include <string>
+#include <unordered_map>
+
 
 
 struct FT_LibraryRec_; struct FT_FaceRec_;
-namespace oe::graphics {
+namespace oe::graphics { struct Sprite; class SpritePack; }
 
+namespace oe::graphics
+{
 	class Font {
 	public:
 		struct Glyph {
@@ -33,7 +25,7 @@ namespace oe::graphics {
 		};
 
 	private:
-		SpritePack m_sprite_pack;
+		SpritePack* m_sprite_pack;
 		std::unordered_map<char32_t, Glyph*> m_glyphs;
 		int m_resolution;
 		FT_LibraryRec_* ft;
@@ -48,12 +40,12 @@ namespace oe::graphics {
 		windows: C:/Windows/Fonts/
 		macos: *workdir*
 		*/
-		Font(int resolution = 64, std::string font_path = DEFAULT_FONT);
+		Font(uint16_t resolution = 64u, const std::string& font_path = oe::default_font_path);
 		~Font();
 
 		const Glyph* getGlyph(char32_t c);
 		int getResolution() const { return m_resolution; }
-		SpritePack* getSpritePack() { return &m_sprite_pack; }
+		SpritePack* getSpritePack() { return m_sprite_pack; }
 	};
 
 }

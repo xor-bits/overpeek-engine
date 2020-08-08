@@ -38,72 +38,31 @@ namespace oe::graphics {
 		unsigned char* data = new unsigned char[img_size];
 		std::memset(data, (unsigned char)255, img_size);
 		oe::utils::image_data empty_img(data, oe::formats::rgba, 1, 1);
-		addSprite(empty_img);
+		create(empty_img);
 		delete[] data;
 	}
 
 	SpritePack::~SpritePack()
 	{
-		for (size_t i = 0; i < m_sprites.size(); i++) {
-			for (size_t j = 0; j < m_sprites.at(i).size(); j++) {
-				delete m_sprites.at(i).at(j);
-			}
-		}
-		// m_texture
-		delete static_cast<__usr_data*>(m_usr_data);
+		for(auto iter : m_sprites) delete iter;
+		delete m_usr_data;
 	}
 
-	const Sprite* SpritePack::addSprite(const oe::utils::image_data& sprite_texture)
+	const Sprite* SpritePack::create(const oe::utils::image_data& sprite_texture)
 	{
 		auto usr_data = static_cast<__usr_data*>(m_usr_data);
-
-		std::vector<Sprite*> vect;
-		Sprite* sprite = new Sprite();
-		vect.push_back(sprite);
+		auto sprite = new Sprite();
 		
 		usr_data->m_rectangles.push_back(rectpack2D::rect_xywh(0, 0, sprite_texture.width + m_border, sprite_texture.height + m_border));
 		usr_data->m_images.push_back(sprite_texture);
-		m_sprites.push_back(vect);
+		m_sprites.push_back(sprite);
 
-		return vect.at(0);
+		return sprite;
 	}
 
-	const Sprite* SpritePack::addSprite(fs::path sprite_texture)
+	const Sprite* SpritePack::create(fs::path sprite_texture)
 	{
-		return addSprite(oe::utils::image_data(sprite_texture));
-	}
-
-	std::vector<std::vector<const Sprite*>> SpritePack::addMultiSprite(oe::utils::image_data sprite_texture, const glm::vec2& sprite_count)
-	{
-		auto usr_data = static_cast<__usr_data*>(m_usr_data);
-
-		std::vector<Sprite*> vect;
-		for (size_t x = 0; x < sprite_count.x; x++) {
-			for (size_t y = 0; y < sprite_count.y; y++) {
-				Sprite* sprite = new Sprite();
-				vect.push_back(sprite);
-			}
-		}
-		
-		usr_data->m_rectangles.push_back(rectpack2D::rect_xywh(0, 0, sprite_texture.width + m_border, sprite_texture.height + m_border));
-		usr_data->m_images.push_back(sprite_texture);
-		m_sprites.push_back(vect);
-
-		std::vector<std::vector<const Sprite*>> returned;
-		for (size_t x = 0; x < sprite_count.x; x++) {
-			std::vector<const Sprite*> row;
-			for (size_t y = 0; y < sprite_count.y; y++) {
-				row.push_back(vect.at(y + x * sprite_count.y));
-			}
-			returned.push_back(row);
-		}
-
-		return returned;
-	}
-
-	std::vector<std::vector<const Sprite*>> SpritePack::addMultiSprite(fs::path sprite_texture, const glm::vec2& sprite_count)
-	{
-		return addMultiSprite(oe::utils::image_data(sprite_texture), sprite_count);
+		return create(oe::utils::image_data(sprite_texture));
 	}
 
 	size_t coordsToIndex(size_t x, size_t y, size_t c, size_t width, size_t channels)
@@ -141,10 +100,9 @@ namespace oe::graphics {
 			auto& rectangle = usr_data->m_rectangles.at(i);
 			auto& image = usr_data->m_images.at(i);
 			auto& sprite = m_sprites.at(i);
-			for (size_t i = 0; i < sprite.size(); i++) {
-				sprite.at(i)->size = glm::vec2(image.width / (float)pack_width, image.height / (float)pack_height);
-				sprite.at(i)->position = glm::vec2(rectangle.x / (float)pack_width, rectangle.y / (float)pack_height);
-			}
+			
+			sprite->size = glm::vec2(image.width / (float)pack_width, image.height / (float)pack_height);
+			sprite->position = glm::vec2(rectangle.x / (float)pack_width, rectangle.y / (float)pack_height);
 
 			// conversions
 			switch (image.format)
@@ -195,10 +153,7 @@ namespace oe::graphics {
 		m_texture = Texture(texture_info);
 		for (auto sprite : m_sprites)
 		{
-			for (auto subsprite : sprite)
-			{
-				subsprite->m_owner = m_texture;
-			}
+			sprite->m_owner = m_texture;
 		}
 		m_constructed = true;
 		

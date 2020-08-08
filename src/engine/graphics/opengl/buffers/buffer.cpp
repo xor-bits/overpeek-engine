@@ -1,6 +1,7 @@
 #include "buffer.hpp"
 
-#include <glad/glad.h>
+#include "engine/graphics/opengl/gl_include.hpp"
+
 #include <iomanip>
 #include <sstream>
 #include <cstddef>
@@ -38,9 +39,8 @@ namespace oe::graphics {
 
 	void* Buffer::mapBuffer() {
 		bind();
-		void* buffer = glMapBuffer(p_target, GL_WRITE_ONLY);
 		p_mapped = true;
-		return buffer;
+		return glMapBuffer(p_target, GL_WRITE_ONLY);
 	}
 
 	void Buffer::unmapBuffer() {

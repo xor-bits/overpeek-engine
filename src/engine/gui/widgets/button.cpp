@@ -1,5 +1,6 @@
 #include "button.hpp"
 #include "engine/gui/gui_manager.hpp"
+#include "engine/graphics/interface/window.hpp"
 
 
 
@@ -16,6 +17,7 @@ namespace oe::gui {
 	void Button::managerAssigned(GUI* gui_manager)
 	{
 		// event listeners
+		gui_manager->getWindow()->connect_listener<oe::CursorPosEvent, &Button::on_cursor>(this);
 		gui_manager->getWindow()->connect_listener<oe::MouseButtonEvent, &Button::on_button>(this);
 
 		Widget::managerAssigned(gui_manager);
@@ -24,19 +26,30 @@ namespace oe::gui {
 	void Button::managerUnassigned(GUI* gui_manager)
 	{
 		// event listeners
+		gui_manager->getWindow()->disconnect_listener<oe::CursorPosEvent, &Button::on_cursor>(this);
 		gui_manager->getWindow()->disconnect_listener<oe::MouseButtonEvent, &Button::on_button>(this);
 
 		Widget::managerUnassigned(gui_manager);
 	}
 
+	bool check_inside(const glm::vec2& point, const glm::vec2& top_left, const glm::vec2& size); // slider.cpp has the definition
+		
+	void Button::on_cursor(const CursorPosEvent& event)
+	{
+		if (check_inside(event.cursor_windowspace, render_position, size)) 
+		{
+			dispatcher.trigger(event_hover_latest);
+		}
+	}
+
 	void Button::on_button(const MouseButtonEvent& event)
 	{
-		if (event.cursor_pos.cursor_windowspace.x >= render_position.x && 
-			event.cursor_pos.cursor_windowspace.x < render_position.x + size.x && 
-			event.cursor_pos.cursor_windowspace.y >= render_position.y && 
-			event.cursor_pos.cursor_windowspace.y < render_position.y + size.y) 
+		if (check_inside(event.cursor_pos.cursor_windowspace, render_position, size)) 
 		{
-			if (button_info.callback) button_info.callback(event.button, event.action);
+			event_use_latest.action = event.action;
+			event_use_latest.button = event.button;
+			event_use_latest.modifier = event.mods;
+			dispatcher.trigger(event_use_latest);
 		}
 	}
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <mutex>
 
 #include "engine/graphics/interface/instance.hpp"
 #include "engine/graphics/interface/renderer.hpp"
@@ -24,7 +25,8 @@ namespace oe::graphics {
 	class IWindow {
 	public:
 		WindowInfo m_window_info;
-		entt::dispatcher dispatcher{};
+		entt::dispatcher dispatcher;
+		std::mutex dispatcher_mutex;
 
 	protected:
 		GLFWwindow* m_window_handle = nullptr;
@@ -41,13 +43,13 @@ namespace oe::graphics {
 		void postglfw();
 
 	public:
-		IWindow(const Instance* instance, const WindowInfo& window_config);
+		IWindow(const std::unique_ptr<Instance>& instance, const WindowInfo& window_config);
 		virtual ~IWindow();
 
 		virtual void update() = 0;
 		virtual void clear(const glm::vec4& color = oe::colors::clear_color) = 0;
-		virtual void viewport() = 0;
-		virtual void bind() = 0;
+		virtual void viewport() const = 0;
+		virtual void bind() const = 0;
 
 		virtual void pollEvents() = 0;
 		virtual void waitEvents(float timeout = 0.0f) = 0; // timeout in seconds, 0 for no timeout
@@ -106,27 +108,35 @@ namespace oe::graphics {
 		template<typename Event, auto Listener, typename Instance>
 		void connect_listener(const Instance& instance)
 		{
+			dispatcher_mutex.lock();
 			dispatcher.sink<Event>().template connect<Listener>(instance);
+			dispatcher_mutex.unlock();
 		}
 		template<typename Event, auto Listener>
 		void connect_listener()
 		{
+			dispatcher_mutex.lock();
 			dispatcher.sink<Event>().template connect<Listener>();
+			dispatcher_mutex.unlock();
 		}
 		// disconenct events
 		template<typename Event, auto Listener, typename Instance>
-		void disconnect_listener(Instance&& instance)
+		void disconnect_listener(const Instance& instance)
 		{
+			dispatcher_mutex.lock();
 			dispatcher.sink<Event>().template disconnect<Listener>(instance);
+			dispatcher_mutex.unlock();
 		}
 		template<typename Event, auto Listener>
 		void disconnect_listener()
 		{
+			dispatcher_mutex.lock();
 			dispatcher.sink<Event>().template disconnect<Listener>();
+			dispatcher_mutex.unlock();
 		}
 		// connect update
 		template<size_t ups, auto F, typename Instance>
-		void connect_update_listener(Instance&& instance)
+		void connect_update_listener(const Instance& instance)
 		{
 			m_window_gameloop.connect_update_listener<ups, F>(instance);
 		}
@@ -137,7 +147,7 @@ namespace oe::graphics {
 		}
 		// disconnect update
 		template<size_t ups, auto F, typename Instance>
-		void disconnect_update_listener(Instance&& instance)
+		void disconnect_update_listener(const Instance& instance)
 		{
 			m_window_gameloop.disconnect_update_listener<ups, F>(instance);
 		}
@@ -148,7 +158,7 @@ namespace oe::graphics {
 		}
 		// connect render
 		template<auto F, typename Instance>
-		void connect_render_listener(Instance&& instance)
+		void connect_render_listener(const Instance& instance)
 		{
 			m_window_gameloop.connect_render_listener<F>(instance);
 		}
@@ -159,18 +169,18 @@ namespace oe::graphics {
 		}
 		// disconnect render
 		template<auto F, typename Instance>
-		void disconnect_render_listener(Instance&& instance)
+		void disconnect_render_listener(const Instance& instance)
 		{
-			m_window_gameloop.disconnect_render_listener<F>(instance)
+			m_window_gameloop.disconnect_render_listener<F>(instance);
 		}
 		template<auto F>
 		void disconnect_render_listener()
 		{
-			m_window_gameloop.disconnect_render_listener<F>()
+			m_window_gameloop.disconnect_render_listener<F>();
 		}
 		// connect init
 		template<auto F, typename Instance>
-		void connect_init_listener(Instance&& instance)
+		void connect_init_listener(const Instance& instance)
 		{
 			m_window_gameloop.connect_init_listener<F>(instance);
 		}
@@ -181,18 +191,18 @@ namespace oe::graphics {
 		}
 		// disconnect init
 		template<auto F, typename Instance>
-		void disconnect_init_listener(Instance&& instance)
+		void disconnect_init_listener(const Instance& instance)
 		{
-			m_window_gameloop.disconnect_init_listener<F>(instance)
+			m_window_gameloop.disconnect_init_listener<F>(instance);
 		}
 		template<auto F>
 		void disconnect_init_listener()
 		{
-			m_window_gameloop.disconnect_init_listener<F>()
+			m_window_gameloop.disconnect_init_listener<F>();
 		}
 		// connect cleanup
 		template<auto F, typename Instance>
-		void connect_cleanup_listener(Instance&& instance)
+		void connect_cleanup_listener(const Instance& instance)
 		{
 			m_window_gameloop.connect_cleanup_listener<F>(instance);
 		}
@@ -203,14 +213,14 @@ namespace oe::graphics {
 		}
 		// disconnect cleanup
 		template<auto F, typename Instance>
-		void disconnect_cleanup_listener(Instance&& instance)
+		void disconnect_cleanup_listener(const Instance& instance)
 		{
-			m_window_gameloop.disconnect_cleanup_listener<F>(instance)
+			m_window_gameloop.disconnect_cleanup_listener<F>(instance);
 		}
 		template<auto F>
 		void disconnect_cleanup_listener()
 		{
-			m_window_gameloop.disconnect_cleanup_listener<F>()
+			m_window_gameloop.disconnect_cleanup_listener<F>();
 		}
 
 

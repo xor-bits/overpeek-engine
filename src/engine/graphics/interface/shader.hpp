@@ -10,9 +10,6 @@
 namespace oe::graphics {
 
 	class IShader {
-	protected:
-		ShaderInfo m_shader_info;
-
 	public:
 		IShader(const ShaderInfo& shader_info);
 		virtual ~IShader();
@@ -21,8 +18,6 @@ namespace oe::graphics {
 		virtual void unbind() const = 0;
 
 	public:
-		inline const ShaderInfo& getShaderInfo() { return m_shader_info; }
-		
 		virtual int getUniformLocation(const std::string& name) = 0;
 
 		virtual void setUniform1f(const std::string& name, float value) = 0;

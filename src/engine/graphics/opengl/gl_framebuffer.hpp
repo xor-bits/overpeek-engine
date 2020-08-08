@@ -16,7 +16,7 @@ namespace oe::graphics {
 		Texture m_texture;
 
 	public:
-		GLFrameBuffer(const FrameBufferInfo& framebuffer_info, Window& window);
+		GLFrameBuffer(const FrameBufferInfo& framebuffer_info, const Window& window);
 		~GLFrameBuffer();
 
 		virtual void bind() override;

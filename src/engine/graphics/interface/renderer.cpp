@@ -9,8 +9,8 @@
 
 
 
-namespace oe::graphics {
-	
+namespace oe::graphics
+{
 	void gen_points(const glm::vec2& position, const glm::vec2& size, const glm::vec2& align, float angle, glm::vec2& pointA, glm::vec2& pointB, glm::vec2& pointC, glm::vec2& pointD) {
 		glm::vec2 alignment = alignmentOffset(size, align);
 		pointA = size * glm::vec2(0.0f, 0.0f) - alignment;
@@ -29,6 +29,21 @@ namespace oe::graphics {
 		pointB += position;
 		pointC += position;
 		pointD += position;
+	}
+
+
+
+	Quad::Quad(Renderer& host)
+		: m_renderer(host)
+	{}
+
+	Quad::~Quad()
+	{
+		m_renderer.m_quads.erase(m_id);
+	}
+
+	std::shared_ptr<Quad> Quad::shared() {
+		return shared_from_this();
 	}
 
 	std::array<VertexData, 4> Quad::gen_vertices() const {
@@ -50,19 +65,26 @@ namespace oe::graphics {
 
 	void Quad::update()
 	{
-		m_renderer->updateQuad(this);
+		m_renderer.update(shared());
+	}
+
+	size_t Quad::getQuadIndex() const {
+		return m_quad_index;
 	}
 
 
 
-	Renderer::Renderer(const RendererInfo& renderer_info)
-		: m_renderer_info(renderer_info)
+	SubRenderer::SubRenderer(Renderer& host)
+			: m_renderer(host)
+		{}
+
+	SubRenderer::~SubRenderer()
 	{
+		m_renderer.m_renderers.erase((size_t)m_texture.get());
 	}
 
-	Renderer::~Renderer()
-	{
-		clear();
+	std::shared_ptr<SubRenderer> SubRenderer::shared() {
+		return shared_from_this();
 	}
 	
 	void SubRenderer::attempt_map()
@@ -86,35 +108,13 @@ namespace oe::graphics {
 		attempt_unmap();
 		m_primitive_renderer->render();
 	}
-	
-	SubRenderer* Renderer::select_subrenderer(Quad* quad)
-	{
-		auto find_iter = m_renderers.find((size_t)quad->m_sprite.m_owner.get());
-		if (find_iter == m_renderers.end())
-		{
-			SubRenderer* sr = new SubRenderer();
-			sr->m_primitive_renderer = PrimitiveRenderer(m_renderer_info);
-			sr->m_quad_index = 0;
-			sr->m_buffer_bound = false;
-			sr->m_texture = quad->m_sprite.m_owner;
 
-			// create new subrenderer
-			m_renderers.insert(std::make_pair((size_t)quad->m_sprite.m_owner.get(), sr));
-
-			return sr;
-		}
-		else
-		{
-			return find_iter->second;
-		}
-	}
-
-	void SubRenderer::assign_new_quad(Quad* quad)
+	void SubRenderer::assign_new_quad(std::shared_ptr<Quad>& quad)
 	{
 		auto vertex_array = quad->gen_vertices();
 
 		quad->m_assigned = true;
-		quad->m_current_subrenderer = this;
+		quad->m_current_subrenderer = shared();
 		quad->m_quad_index = m_quad_index;
 		
 		// submit the quad to the selected subrenderer
@@ -124,13 +124,13 @@ namespace oe::graphics {
 		m_quad_index++;
 	}
 
-	void SubRenderer::reassign_quad(Quad* quad)
+	void SubRenderer::reassign_quad(std::shared_ptr<Quad>& quad)
 	{
 		quad->m_current_subrenderer->remove_quad(quad);
 		assign_new_quad(quad);
 	}
 	
-	void SubRenderer::modify_quad(Quad* quad)
+	void SubRenderer::modify_quad(std::shared_ptr<Quad>& quad)
 	{
 		auto vertex_array = quad->gen_vertices();
 
@@ -138,19 +138,22 @@ namespace oe::graphics {
 		m_primitive_renderer->submitVertex(vertex_array.data(), vertex_array.size(), quad->m_quad_index * 4);
 	}
 	
-	void SubRenderer::remove_quad(Quad* quad)
+	void SubRenderer::remove_quad(std::shared_ptr<Quad>& quad)
 	{
-		quad->m_current_subrenderer = nullptr;
+		quad->m_current_subrenderer.reset();
 		quad->m_assigned = false;
-		
-		// if last quad
-		if (quad->m_quad_index + 1 == m_quad_index)
+
+		if (!quad->m_current_subrenderer) // was the only quad on the stack
+		{
+			return; // this = nullptr
+		}
+		else if (quad->m_quad_index + 1 == m_quad_index) // if last quad on stack
 		{
 			// reduce drawn vertices
 			m_primitive_renderer->vertexCount() -= 4;
 			m_quad_index--;
 		}
-		else
+		else // somewhere in the middle of stack, or front
 		{
 			// else fill with empty data
 			const static std::array<VertexData, 4> empty_filler = {
@@ -167,18 +170,44 @@ namespace oe::graphics {
 
 
 
-	void Renderer::destroyQuads()
+	Renderer::Renderer(const RendererInfo& renderer_info)
+		: m_renderer_info(renderer_info)
+	{}
+
+	Renderer::~Renderer()
+	{}
+
+	std::shared_ptr<SubRenderer> Renderer::select_subrenderer(const Texture& texture)
 	{
-		clear();
+		auto find_iter = m_renderers.find((size_t)texture.get());
+		if (find_iter == m_renderers.end())
+		{
+			auto sr = std::make_shared<SubRenderer>(*this);
+			sr->m_primitive_renderer = PrimitiveRenderer(m_renderer_info);
+			sr->m_quad_index = 0;
+			sr->m_buffer_bound = false;
+			sr->m_texture = texture;
+
+			// create new subrenderer
+			m_renderers.insert({reinterpret_cast<size_t>(texture.get()), static_cast<std::weak_ptr<SubRenderer>>(sr)});
+
+			return sr;
+		}
+		else
+		{
+			return find_iter->second.lock();
+		}
 	}
 
 	void Renderer::clear()
 	{
 		m_quads.clear();
 		m_renderers.clear();
+
+		m_quads_forgotten.clear();
 	}
 	
-	void Renderer::updateQuad(Quad* quad)
+	void Renderer::update(std::shared_ptr<Quad>& quad)
 	{
 		if (!quad->m_current_subrenderer)
 		{
@@ -188,7 +217,7 @@ namespace oe::graphics {
 			auto new_subrenderer = select_subrenderer(quad);
 			if (new_subrenderer->m_quad_index >= m_renderer_info.max_primitive_count)
 			{
-				spdlog::error("subrenderer primitive overflow!");
+				spdlog::error("subrenderer primitive overflow!"); // TODO: add another subrenderer
 				return;
 			}
 			new_subrenderer->assign_new_quad(quad);
@@ -198,20 +227,16 @@ namespace oe::graphics {
 			// move quad to another subrenderer
 			quad->m_sprite_updated = false;
 			auto new_subrenderer = select_subrenderer(quad);
-			auto old_subrenderer = quad->m_current_subrenderer;
+			auto& old_subrenderer = quad->m_current_subrenderer;
 
 			if (old_subrenderer == new_subrenderer)
 			{
 				// modified quad vertices
 				quad->m_updated = false;
-				quad->m_current_subrenderer->modify_quad(quad);
+				old_subrenderer->modify_quad(quad);
 			}
 
-			quad->m_current_subrenderer->remove_quad(quad);
-			if (old_subrenderer->m_quad_index == 0)
-			{
-				removeSubrendererWithTexture((size_t)old_subrenderer->m_texture.get());
-			}
+			old_subrenderer->remove_quad(quad);
 			
 			if (new_subrenderer->m_quad_index >= m_renderer_info.max_primitive_count)
 			{
@@ -232,42 +257,34 @@ namespace oe::graphics {
 		}
 	}
 
-	void Renderer::removeSubrendererWithTexture(size_t texture)
+	void Renderer::forget(std::shared_ptr<Quad>&& quad)
 	{
-		auto iter = m_renderers.find((size_t)texture);
-		if (iter != m_renderers.end())
-		{
-			delete iter->second;
-			m_renderers.erase(iter);
-		}
+		m_quads_forgotten.insert({quad->m_id, std::move(quad)});
 	}
 
-	Quad* Renderer::createQuad()
+	std::shared_ptr<Quad> Renderer::create()
 	{
-		auto quad = new Quad(this);
-		m_quads.insert(quad);
-		return quad;
-	}
+		auto shared = std::make_shared<Quad>(*this);
+		shared->m_id = std::hash<Quad*>{}(shared.get());
+		
+		m_quads.insert({ shared->m_id, static_cast<std::weak_ptr<Quad>>(shared) });
 
-	void Renderer::destroyQuad(Quad* quad)
-	{
-		auto old_subrenderer = quad->m_current_subrenderer;
-		if (old_subrenderer)
-		{
-			quad->m_current_subrenderer->remove_quad(quad);
-		}
-
-		m_quads.erase(quad);
-		delete quad;
+		return shared;
 	}
 	
 	void Renderer::render()
 	{
-		for (auto subrenderer : m_renderers)
+		for (auto& subrenderer : m_renderers)
 		{
-			// spdlog::debug("primitive count: {}", subrenderer.second->m_quad_index);
-			subrenderer.second->m_texture->bind();
-			subrenderer.second->render();
+			if (subrenderer.second.expired())
+			{
+				spdlog::warn("subrenderer leaked");
+				return;
+			}
+
+			auto shared = subrenderer.second.lock();
+			shared->m_texture->bind();
+			shared->render();
 		}
 	}
 

@@ -18,7 +18,6 @@ oe::assets::DefaultShader* shader;
 oe::graphics::PrimitiveRenderer renderer;
 oe::graphics::SpritePack* pack;
 const oe::graphics::Sprite* sprite;
-oe::graphics::Font* font;
 
 glm::vec4 color = oe::colors::orange;
 glm::quat cube_rotation;
@@ -96,6 +95,7 @@ void cube() {
 	}
 	else
 	{
+		if(!list) return;
 		auto points = list->get();
 		size_t list_len = points.size();
 		if (list_len == 0)
@@ -157,19 +157,19 @@ void resize(const oe::ResizeEvent& event) {
 void update_30() {
 	auto& gameloop = window->getGameloop(); 
 	std::u32string str = fmt::format(U"frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
-	textpanel->text_panel_info.text = str;
+	if(textpanel) textpanel->text_panel_info.text = str;
 }
 
 void append_list(const glm::quat& quat)
 {
-	Checkpoint* checkpoint = new Checkpoint(quat);
-	list->add(checkpoint);
+	if(!list) return;
+	list->add(new Checkpoint(quat));
 }
 
 // gui
 void setup_gui() {
 	{
-		oe::gui::SpritePanelInfo sprite_panel_info = {};
+		oe::gui::SpritePanelInfo sprite_panel_info;
 		sprite_panel_info.size = { 150, 150 };
 		sprite_panel_info.align_parent = oe::alignments::bottom_left;
 		sprite_panel_info.align_render = oe::alignments::bottom_left;
@@ -179,41 +179,40 @@ void setup_gui() {
 		gui->addSubWidget(box);
 	}
 	{
-		oe::gui::TextInputInfo text_input_info = {};
+		oe::gui::TextInputInfo text_input_info;
 		text_input_info.size = { 200, 80 };
 		text_input_info.align_parent = oe::alignments::bottom_right;
 		text_input_info.align_render = oe::alignments::bottom_right;
 		text_input_info.font_size = 14;
-		text_input_info.sprite = pack->empty_sprite();
+		text_input_info.sprite = pack->emptySprite();
 		textbox = new oe::gui::TextInput(text_input_info);
 		gui->addSubWidget(textbox);
 	}
 	{
-		oe::gui::DecoratedButtonInfo button_info = {};
+		oe::gui::DecoratedButtonInfo button_info;
 		button_info.size = { 175, 50 };
 		button_info.align_parent = oe::alignments::top_center;
 		button_info.align_render = oe::alignments::top_center;
-		button_info.sprite = pack->empty_sprite();
+		button_info.sprite = pack->emptySprite();
 		button_info.text = U"log";
-		button_info.callback = [](oe::mouse_buttons button, oe::actions action) {
-			if (action == oe::actions::release && button == oe::mouse_buttons::button_left) {
+		auto button = new oe::gui::DecoratedButton(button_info);
+		gui->addSubWidget(button);
+
+		auto callback_lambda = [](const oe::gui::ButtonUseEvent& e) {
+			if (e.action == oe::actions::release && e.button == oe::mouse_buttons::button_left) {
 				glm::vec4 quat_slider_val = quat_slider->getGLM();
 				append_list(glm::angleAxis(quat_slider_val.w, glm::normalize(glm::vec3(quat_slider_val.x, quat_slider_val.y, quat_slider_val.z))));
 			}
-			else if (action == oe::actions::none || button == oe::mouse_buttons::none) {
-				// spdlog::info("Button hovered");
-			}
 		};
-		auto button = new oe::gui::DecoratedButton(button_info);
-		gui->addSubWidget(button);
+		button->connect_listener<oe::gui::ButtonUseEvent, &decltype(callback_lambda)::operator()>(callback_lambda);
 	}
 	{
-		oe::gui::VecSliderInfo vecslider_info = {};
+		oe::gui::VecSliderInfo<4> vecslider_info;
 		vecslider_info.slider_size = { 400, 30 };
 		vecslider_info.knob_size = { 45, 45 };
 		vecslider_info.align_parent = oe::alignments::bottom_center;
 		vecslider_info.align_render = oe::alignments::bottom_center;
-		vecslider_info.slider_sprite = pack->empty_sprite();
+		vecslider_info.slider_sprite = pack->emptySprite();
 		vecslider_info.knob_sprite = sprite;
 		vecslider_info.min_values = { -glm::pi<float>(), -1.0f, -1.0f, -1.0f };
 		vecslider_info.max_values = { glm::pi<float>(), 1.0f, 1.0f, 1.0f };
@@ -223,20 +222,21 @@ void setup_gui() {
 		gui->addSubWidget(quat_slider);
 	}
 	{
-		oe::gui::CheckboxInfo ci = {};
+		oe::gui::CheckboxInfo ci;
 		ci.align_parent = oe::alignments::bottom_center;
 		ci.align_render = oe::alignments::bottom_center;
 		ci.offset_position = { 0, -40 };
-		ci.sprite = pack->empty_sprite();
+		ci.sprite = pack->emptySprite();
 		checkbox = new oe::gui::Checkbox(ci);
 		gui->addSubWidget(checkbox);
 	}
 	{
-		oe::gui::TextPanelInfo text_panel_info = {};
+		oe::gui::TextPanelInfo text_panel_info;
 		text_panel_info.font_size = 20;
 		text_panel_info.align_parent = oe::alignments::top_left;
 		text_panel_info.align_render = oe::alignments::top_left;
 		text_panel_info.text = U"placeholder";
+		text_panel_info.font_path = oe::default_font_path + std::string("arialbi.ttf");
 		textpanel = new oe::gui::TextPanel(text_panel_info);
 		gui->addSubWidget(textpanel);
 	}
@@ -245,17 +245,22 @@ void setup_gui() {
 		color_picker_info.size = { 200, 100 };
 		color_picker_info.align_parent = oe::alignments::center_left;
 		color_picker_info.align_render = oe::alignments::center_left;
-		color_picker_info.callback = [&](glm::vec4 value) { color = value; };
-		color_picker_info.sprite = pack->empty_sprite();
+		color_picker_info.sprite = pack->emptySprite();
 		auto color_picker = new oe::gui::ColorPicker(color_picker_info);
 		gui->addSubWidget(color_picker);
+
+		auto callback_lambda = [&](const oe::gui::ColorPickerUseEvent& e)
+		{
+			color = e.value;
+		};
+		color_picker->connect_listener<oe::gui::ColorPickerUseEvent, &decltype(callback_lambda)::operator()>(callback_lambda);
 	}
 	{
 		oe::gui::ListInfo list_info;
 		list_info.size = { 200, 400 };
 		list_info.align_parent = oe::alignments::top_right;
 		list_info.align_render = oe::alignments::top_right;
-		list_info.sprite = pack->empty_sprite();
+		list_info.sprite = pack->emptySprite();
 		list_info.title = U"Loglist";
 		list_info.title_height = 28;
 		list = new oe::gui::List(list_info);
@@ -313,15 +318,11 @@ int main()
 	// spritepack
 	auto img = oe::assets::TextureSet::oe_logo_img;
 	pack = new oe::graphics::SpritePack();
-	sprite = pack->addSprite(img);
+	sprite = pack->create(img);
 	pack->construct();
 
-	// font
-	font = new oe::graphics::Font();
-	oe::graphics::Text::setFont(font);
-
 	// gui
-	gui = new oe::gui::GUI(window);
+	gui = new oe::gui::GUI(window, oe::default_font_path + std::string("arialbd.ttf"));
 	setup_gui();
 
 	// start
@@ -329,7 +330,6 @@ int main()
 
 	// cleanup
 	delete gui;
-	delete font;
 	delete pack;
 	delete shader;
 

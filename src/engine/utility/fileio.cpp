@@ -17,11 +17,15 @@
 #define MINIMP3_IMPLEMENTATION
 #include "minimp3_ex.h"
 
+#ifdef __EMSCRIPTEN__
+#include <AL/al.h>
+#else
 #include <al.h>
+#endif
 
 
 
-int stb_i_format(oe::formats format) {
+constexpr int stb_i_format(oe::formats format) {
 	switch (format)
 	{
 	case oe::formats::rgba:
@@ -33,7 +37,7 @@ int stb_i_format(oe::formats format) {
 	}
 }
 
-int stb_i_channels(oe::formats format) {
+constexpr int stb_i_channels(oe::formats format) {
 	switch (format)
 	{
 	case oe::formats::rgba:
@@ -45,11 +49,18 @@ int stb_i_channels(oe::formats format) {
 	}
 }
 
+namespace oe::utils
+{
+	image_data::image_data(oe::formats _format, int _width, int _height)
+		: format(_format)
+		, width(_width), height(_height)
+		, size(_width* _height* stb_i_channels(_format))
+	{
+		data = new uint8_t[size];
+	}
 
-
-namespace oe::utils {
-
-	image_data::image_data(fs::path path, oe::formats _format) {
+	image_data::image_data(fs::path path, oe::formats _format)
+	{
 		int channels;
 		data = stbi_load(path.string().c_str(), &width, &height, &channels, stb_i_format(_format));
 
@@ -79,11 +90,22 @@ namespace oe::utils {
 		std::memcpy(data, _copied.data, size);
 	}
 
-	image_data::~image_data() {
+	image_data::~image_data()
+	{
 		delete data;
 	}
 
-	audio_data::audio_data(fs::path path) {
+	audio_data::audio_data(int _format, int _size, int _channels, int _sample_rate)
+		: format(_format)
+		, size(_size)
+		, channels(_channels)
+		, sample_rate(_sample_rate)
+	{
+		data = new int16_t[size];
+	}
+
+	audio_data::audio_data(fs::path path)
+	{
 		mp3dec_t mp3d;
 		mp3dec_file_info_t info;
 		if (mp3dec_load(&mp3d, path.string().c_str(), &info, NULL, NULL)) {

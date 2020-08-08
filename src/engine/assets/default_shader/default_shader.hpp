@@ -1,18 +1,20 @@
 #pragma once
 
-#include "engine/graphics/interface/window.hpp"
-#include "engine/graphics/interface/shader.hpp"
+#include "engine/enum.hpp"
+#include "engine/interfacegen.hpp"
 
 
 
-namespace oe::assets {
-
-	class DefaultShader {
+namespace oe::assets
+{
+	class DefaultShader
+	{
 	private:
-		oe::graphics::Shader shader;
+		oe::graphics::Shader m_shader;
+		oe::polygon_mode m_mode;
 
 	public:
-		DefaultShader();
+		DefaultShader(oe::polygon_mode mode = oe::polygon_mode::fill);
 
 		void bind() const;
 		void unbind() const;
@@ -22,7 +24,7 @@ namespace oe::assets {
 		void setModelMatrix(const glm::mat4& ml_mat = glm::mat4(1.0)) const;
 		void useTexture(bool use = true) const;
 
-		const oe::graphics::Shader& getShader() { return shader; }
+		const oe::graphics::Shader& getShader() { return m_shader; }
 
 	};
 

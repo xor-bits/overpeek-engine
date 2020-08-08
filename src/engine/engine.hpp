@@ -11,7 +11,7 @@ namespace oe {
 	class Engine {
 	public:
 		EngineInfo engine_info;
-		oe::graphics::Instance* instance;
+		std::unique_ptr<oe::graphics::Instance> instance;
 		depth_functions current_depth;
 		static size_t draw_calls;
 

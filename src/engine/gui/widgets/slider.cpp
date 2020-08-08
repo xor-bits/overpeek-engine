@@ -1,8 +1,9 @@
 #include "slider.hpp"
 
-#include "engine/engine.hpp"
-#include "engine/graphics/textLabel.hpp"
 #include "engine/gui/gui_manager.hpp"
+#include "engine/graphics/textLabel.hpp"
+#include "engine/graphics/interface/window.hpp"
+#include "engine/graphics/interface/renderer.hpp"
 
 
 
@@ -12,31 +13,21 @@ namespace oe::gui {
 		: Widget(_slider_info.slider_size, _slider_info.align_parent, _slider_info.align_render, _slider_info.offset_position)
 		, slider_info(_slider_info)
 		, m_dragging(false)
-	{
-		if (slider_info.callback) slider_info.callback(slider_info.initial_value);
-		if (slider_info.draw_value)
-		{
-			value_label = new oe::graphics::TextLabel();
-		}
-	}
+	{}
 
 	Slider::~Slider()
-	{
-		if (slider_info.draw_value)
-		{
-			delete value_label;
-		}
-	}
+	{}
 
 	void Slider::managerAssigned(GUI* gui_manager)
 	{
 		if (slider_info.draw_value)
 		{
-			label_quad = gui_manager->getLateRenderer()->createQuad();
+			label_quad = gui_manager->getLateRenderer()->create();
+			value_label = new oe::graphics::TextLabel(gui_manager->getFont(slider_info.draw_font_size, slider_info.draw_font_path));
 		}
-		quad_knob = gui_manager->getRenderer()->createQuad();
-		quad_lslider = gui_manager->getRenderer()->createQuad();
-		quad_rslider = gui_manager->getRenderer()->createQuad();
+		quad_knob = gui_manager->getRenderer()->create();
+		quad_lslider = gui_manager->getRenderer()->create();
+		quad_rslider = gui_manager->getRenderer()->create();
 
 		// event listeners
 		gui_manager->getWindow()->connect_listener<oe::MouseButtonEvent, &Slider::on_button>(this);
@@ -51,11 +42,12 @@ namespace oe::gui {
 	{
 		if (slider_info.draw_value)
 		{
-			gui_manager->getLateRenderer()->destroyQuad(label_quad);
+			label_quad.reset();
+			delete value_label;
 		}
-		gui_manager->getRenderer()->destroyQuad(quad_knob);
-		gui_manager->getRenderer()->destroyQuad(quad_lslider);
-		gui_manager->getRenderer()->destroyQuad(quad_rslider);
+		quad_knob.reset();
+		quad_lslider.reset();
+		quad_rslider.reset();
 
 		// event listeners
 		gui_manager->getWindow()->disconnect_listener<oe::MouseButtonEvent, &Slider::on_button>(this);
@@ -69,6 +61,8 @@ namespace oe::gui {
 	void Slider::on_render(const GUIRenderEvent& event)
 	{
 		if (!toggled) { quad_lslider->reset(); quad_rslider->reset(); quad_knob->reset(); if (slider_info.draw_value) { label_quad->reset(); } return; }
+
+		NULL_SPRITE_CHECK(!(!slider_info.slider_sprite || !slider_info.knob_sprite));
 
 		if (slider_info.vertical)
 		{
@@ -129,11 +123,10 @@ namespace oe::gui {
 
 		// value
 		if (slider_info.draw_value) {
-			glm::vec2 text_size = glm::vec2(size.y * 0.6f);
 			value_label->generate(fmt::format("{:.2f}", slider_info.initial_value), m_gui_manager->getWindow(), { 0.0f, 0.0f, 0.0f, 0.2f });
 			label_quad->setPosition(static_cast<glm::vec2>(render_position + size / 2));
 			label_quad->setZ(z + 0.075f);
-			label_quad->setSize(text_size * value_label->getSize());
+			label_quad->setSize(value_label->getSize());
 			label_quad->setSprite(value_label->getSprite());
 			label_quad->setColor(oe::colors::white);
 			label_quad->setRotationAlignment(oe::alignments::center_center);
@@ -156,6 +149,11 @@ namespace oe::gui {
 
 	void Slider::on_cursor(const CursorPosEvent& event)
 	{
+		if (check_inside(event.cursor_windowspace, render_position, size))
+		{
+			dispatcher.trigger(event_hover_latest);
+		}
+
 		if (m_dragging) {
 			if (slider_info.vertical)
 				slider_info.initial_value =	oe::utils::map(
@@ -176,8 +174,9 @@ namespace oe::gui {
 				);
 			}
 			clamp();
-
-			if (slider_info.callback) slider_info.callback(slider_info.initial_value);
+			
+			event_use_latest.value = slider_info.initial_value;
+			dispatcher.trigger(event_use_latest);
 		}
 	}
 
@@ -186,13 +185,31 @@ namespace oe::gui {
 		if (check_inside(event.cursor_pos.cursor_windowspace, render_position, size))
 		{
 			// hold
-			if (event.button == oe::mouse_buttons::button_left && event.action == oe::actions::press)
+			if (event.button == oe::mouse_buttons::button_left && event.action != oe::actions::release) // press or repeat
+			{
 				m_dragging = true;
+
+				event_use_latest.action = event.action;
+				event_use_latest.button = event.button;
+				event_use_latest.modifier = event.mods;
+				event_use_latest.value = slider_info.initial_value;
+				dispatcher.trigger(event_use_latest);
+
+				on_cursor(event.cursor_pos);
+			}
 		}
 
 		// release
 		if (event.button == oe::mouse_buttons::button_left && event.action == oe::actions::release)
+		{
 			m_dragging = false;
+
+			event_use_latest.action = event.action;
+			event_use_latest.button = event.button;
+			event_use_latest.modifier = event.mods;
+			event_use_latest.value = slider_info.initial_value;
+			dispatcher.trigger(event_use_latest);
+		}
 	}
 
 	void Slider::on_scroll(const ScrollEvent& event)
@@ -205,8 +222,12 @@ namespace oe::gui {
 			const float speed = (slider_info.max_value - slider_info.min_value) * 0.03f;
 			slider_info.initial_value += speed * event.scroll_delta.y;
 			clamp();
-			
-			if (slider_info.callback) slider_info.callback(slider_info.initial_value);
+
+			event_use_latest.action = oe::actions::none;
+			event_use_latest.button = oe::mouse_buttons::none;
+			event_use_latest.modifier = oe::modifiers::none;
+			event_use_latest.value = slider_info.initial_value;
+			dispatcher.trigger(event_use_latest);
 		}
 	}
 

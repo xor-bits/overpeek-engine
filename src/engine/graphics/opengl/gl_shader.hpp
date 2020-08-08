@@ -16,9 +16,9 @@ namespace oe::graphics {
 		uint32_t p_shader_program;
 		std::unordered_map<std::string, int32_t> m_uniform_lookup_table;
 
-		unsigned int loadShader(const std::string& source, unsigned int shadertype);
-		void shaderLog(unsigned int shader, unsigned int type) const;
-		void programLog(int program, unsigned int type) const;
+		unsigned int loadShader(const std::string_view& name, const std::string_view& source, unsigned int shadertype);
+		void shaderLog(const std::string_view& name, unsigned int shader, unsigned int type) const;
+		void programLog(const std::string_view& name, int program, unsigned int type) const;
 
 	public:
 		GLShader(const ShaderInfo& shader_info);

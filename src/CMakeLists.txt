@@ -9,8 +9,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 set(OpenGL_GL_PREFERENCE GLVND) # required
 find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
-if(BUILD_VULKAN)
-find_package(Vulkan REQUIRED)
+if(OE_BUILD_MODE EQUAL 2)
+	find_package(Vulkan REQUIRED)
 endif()
 
 # sources
@@ -28,8 +28,9 @@ set(source_list ${source_list}
 	"engine/assets/default_shader/default_shader.cpp"
 	"engine/assets/default_shader/default_shader.hpp"
 	"engine/assets/default_shader/shader.vert.hpp"
+	"engine/assets/default_shader/shader.geom.l.hpp"
+	"engine/assets/default_shader/shader.geom.p.hpp"
 	"engine/assets/default_shader/shader.frag.hpp"
-	"engine/assets/texture_set/texture_set.cpp"
 	"engine/assets/texture_set/texture_set.hpp"
 )
 set(source_list ${source_list} 
@@ -67,6 +68,7 @@ set(source_list ${source_list}
 set(source_list ${source_list} 
 	"engine/graphics/opengl/gl_framebuffer.cpp"
 	"engine/graphics/opengl/gl_framebuffer.hpp"
+	"engine/graphics/opengl/gl_include.hpp"
 	"engine/graphics/opengl/gl_instance.cpp"
 	"engine/graphics/opengl/gl_instance.hpp"
 	"engine/graphics/opengl/gl_primitive_renderer.cpp"
@@ -180,12 +182,21 @@ endforeach()
 set(target_name "engine")
 add_library(${target_name} STATIC ${source_list})
 set_target_properties(${target_name} PROPERTIES FOLDER engine)
+if(OE_BUILD_MODE EQUAL 0)
+	target_compile_definitions(${target_name} PUBLIC "OE_BUILD_MODE_GL")
+elseif(OE_BUILD_MODE EQUAL 1)
+	target_compile_definitions(${target_name} PUBLIC "OE_BUILD_MODE_SHADERC")
+elseif(OE_BUILD_MODE EQUAL 2)
+	target_compile_definitions(${target_name} PUBLIC "OE_BUILD_MODE_VULKAN")
+endif()
 
 # platform specific
 if (MSVC)
 set_target_properties(${target_name} PROPERTIES COMPILE_FLAGS "/MP") # multicore compile
 target_link_libraries(${target_name} PRIVATE "Ws2_32") # required by enet
 target_link_libraries(${target_name} PRIVATE "Winmm")  # required by enet
+elseif(EMSCRIPTEN)
+# 
 else()
 target_link_libraries(${target_name} PRIVATE "stdc++fs")
 endif()
@@ -208,10 +219,15 @@ add_subdirectory("vendor/box2d")
 target_include_directories(${target_name} PUBLIC "vendor/box2d/include")
 target_link_libraries(${target_name} PRIVATE box2d)
 # glfw
-add_subdirectory("vendor/glfw")
-set_target_properties(glfw PROPERTIES FOLDER "engine/vendor")
-target_include_directories(${target_name} PRIVATE ${glfw_INCLUDE_DIRS})
-target_link_libraries(${target_name} PRIVATE glfw)
+if (NOT EMSCRIPTEN)
+	add_subdirectory("vendor/glfw")
+	set_target_properties(glfw PROPERTIES FOLDER "engine/vendor")
+	target_include_directories(${target_name} PRIVATE ${glfw_INCLUDE_DIRS})
+	target_link_libraries(${target_name} PRIVATE glfw)
+else()
+	find_package(glfw3 3 REQUIRED)
+	target_link_libraries(${target_name} PRIVATE glfw)
+endif()
 # glad
 add_subdirectory("vendor/glad")
 set_target_properties(glad PROPERTIES FOLDER "engine/vendor")
@@ -245,18 +261,23 @@ target_include_directories(${target_name} PRIVATE "vendor/minimp3/include")
 # rectpack2D
 target_include_directories(${target_name} PRIVATE "vendor/rectpack2D/include")
 # vulkan
-if(BUILD_VULKAN)
-target_include_directories(${target_name} PRIVATE ${Vulkan_INCLUDE_DIRS})
-target_link_libraries(${target_name} PRIVATE ${Vulkan_LIBRARIES})
+if(OE_BUILD_MODE EQUAL 2)
+	target_include_directories(${target_name} PRIVATE ${Vulkan_INCLUDE_DIRS})
+	target_link_libraries(${target_name} PRIVATE ${Vulkan_LIBRARIES})
 endif()
 # openal
-target_include_directories(${target_name} PRIVATE ${OPENAL_INCLUDE_DIR})
-target_link_libraries(${target_name} PRIVATE ${OPENAL_LIBRARY})
+if (NOT EMSCRIPTEN)
+	target_include_directories(${target_name} PRIVATE ${OPENAL_INCLUDE_DIR})
+	target_link_libraries(${target_name} PRIVATE ${OPENAL_LIBRARY})
+else()
+	target_link_libraries(${target_name} PRIVATE openal)
+endif()
 # opengl
 target_link_libraries(${target_name} PRIVATE ${OPENGL_LIBRARY})
 # shaderc
-
-add_subdirectory("vendor/shaderc/src")
-target_link_libraries(${target_name} PRIVATE shaderc)
-target_include_directories(${target_name} PRIVATE "vendor/shaderc/src/libshaderc/include")
-set_target_properties(shaderc PROPERTIES FOLDER "engine/vendor")
+if(OE_BUILD_MODE GREATER_EQUAL 1)
+	add_subdirectory("vendor/shaderc/src")
+	target_link_libraries(${target_name} PRIVATE shaderc)
+	target_include_directories(${target_name} PRIVATE "vendor/shaderc/src/libshaderc/include")
+	set_target_properties(shaderc PROPERTIES FOLDER "engine/vendor")
+endif()

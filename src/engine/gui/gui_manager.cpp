@@ -8,10 +8,11 @@
 
 
 
-namespace oe::gui {
-
-	GUI::GUI(const GUIBase& base)
-		: m_guibase(base)
+namespace oe::gui
+{
+	GUI::GUI(const oe::graphics::Window& window, const std::string& default_font)
+		: m_window(window)
+		, m_default_font_path(default_font)
 	{
 		// renderer
 		oe::RendererInfo renderer_info = {};
@@ -23,10 +24,10 @@ namespace oe::gui {
 		m_late_renderer = new oe::graphics::Renderer(renderer_info);
 
 		// shader
-		m_shader = oe::assets::DefaultShader();
+		m_shader = new oe::assets::DefaultShader();
 
 		FormInfo form_info = {};
-		form_info.size = m_guibase.get_size_func() - glm::ivec2(2 * border);
+		form_info.size = m_window->getSize() - glm::ivec2(2 * border);
 		form_info.offset_position = { border, border };
 		m_main_frame = new oe::gui::Form(form_info);
 		m_offset = { 0, 0 };
@@ -38,43 +39,38 @@ namespace oe::gui {
 		short_resize();
 		
 		// event listeners
-		m_guibase.resize_connect_func(this);
+		m_window->connect_listener<oe::ResizeEvent, &GUI::on_resize>(this);
 	}
 
-	GUI::GUI(const oe::graphics::Window& window)
-		: GUI(GUIBase(
-			std::bind(&oe::graphics::IWindow::getSize, window.get()), 
-			std::bind((void(oe::graphics::IWindow::*)(GUI *const &))&oe::graphics::IWindow::connect_listener<oe::ResizeEvent, &GUI::on_resize>, window.get(), std::placeholders::_1),
-			std::bind((void(oe::graphics::IWindow::*)(GUI *const &))&oe::graphics::IWindow::disconnect_listener<oe::ResizeEvent, &GUI::on_resize>, window.get(), std::placeholders::_1),
-			window
-		))
-	{}
-
-	GUI::~GUI() {
+	GUI::~GUI()
+	{
 		delete m_main_frame;
 		delete m_renderer;
 		delete m_late_renderer;
+		delete m_shader;
 		
 		// event listeners
-		m_guibase.resize_disconnect_func(this);
+		m_window->disconnect_listener<oe::ResizeEvent, &GUI::on_resize>(this);
 	}
 
-	void GUI::offset(const glm::vec2& offset) {
+	void GUI::offset(const glm::vec2& offset)
+	{
 		m_offset = offset;
 
 		glm::mat4 ml_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(offset, 0.0f));
-		m_shader.bind();
-		m_shader.setModelMatrix(ml_matrix);
+		m_shader->bind();
+		m_shader->setModelMatrix(ml_matrix);
 	}
 
-	void GUI::render() {
+	void GUI::render()
+	{
 		auto& engine = oe::Engine::getSingleton();
 		auto old_depth = engine.getDepth();
 		engine.depth(oe::depth_functions::less_than_or_equal);
 
 		render_empty();
 
-		m_shader.bind();
+		m_shader->bind();
 		m_renderer->render();
 		m_late_renderer->render();
 		
@@ -84,18 +80,18 @@ namespace oe::gui {
 	void GUI::render_empty()
 	{
 		short_resize();
-		GUIRenderEvent event;
-		dispatcher.trigger(event);
+		dispatcher.trigger(GUIRenderEvent{});
 	}
 
-	void GUI::short_resize() {
-		oe::ResizeEvent event;
-		event.framebuffer_size = m_guibase.get_size_func();
-		event.framebuffer_size_old = event.framebuffer_size;
-		on_resize(event);
+	void GUI::short_resize()
+	{
+		latest_resize_event.framebuffer_size_old = latest_resize_event.framebuffer_size;
+		latest_resize_event.framebuffer_size = m_window->getSize();
+		on_resize(latest_resize_event);
 	}
 
-	void GUI::on_resize(const oe::ResizeEvent& event) {
+	void GUI::on_resize(const oe::ResizeEvent& event)
+	{
 		m_main_frame->size = static_cast<glm::vec2>(event.framebuffer_size) - glm::vec2(2 * border);
 		m_main_frame->offset_position = { border, border };
 
@@ -110,10 +106,10 @@ namespace oe::gui {
 		*/
 
 		if (m_old_window_size == event.framebuffer_size) return;
-		glm::mat4 pr_matrix = glm::ortho(0.0f, (float)event.framebuffer_size.x, (float)event.framebuffer_size.y, 0.0f, -100000.0f, 10.0f);
-		m_shader.bind();
-		m_shader.useTexture(true);
-		m_shader.setProjectionMatrix(pr_matrix);
+		glm::mat4 pr_matrix = glm::ortho(0.0f, (float)event.framebuffer_size.x, (float)event.framebuffer_size.y, 0.0f, -100000.0f, 100000.0f);
+		m_shader->bind();
+		m_shader->useTexture(true);
+		m_shader->setProjectionMatrix(pr_matrix);
 		m_old_window_size = event.framebuffer_size;
 	}
 
@@ -125,6 +121,44 @@ namespace oe::gui {
 	void GUI::removeSubWidget(Widget* widget)
 	{
 		m_main_frame->removeSubWidget(widget);
+	}
+
+	oe::graphics::Renderer* GUI::getRenderer() const
+	{
+		return m_renderer;
+	}
+
+	oe::graphics::Renderer* GUI::getLateRenderer() const
+	{
+		return m_late_renderer;
+	}
+
+	const oe::graphics::Window& GUI::getWindow() const
+	{
+		return m_window;
+	}
+
+	oe::graphics::Font& GUI::getFont(size_t resolution, std::string font)
+	{
+		if(font.empty()) font = m_default_font_path;
+
+		auto sizeiter = m_fontmap.find(resolution);
+		if(sizeiter == m_fontmap.end())
+		{
+			auto font_ptr = new oe::graphics::Font(resolution, font);
+			m_fontmap[resolution][font] = font_ptr;
+			return *font_ptr;
+		}
+
+		auto fontiter = sizeiter->second.find(font);
+		if(fontiter == sizeiter->second.end())
+		{
+			auto font_ptr = new oe::graphics::Font(resolution, font);
+			m_fontmap[resolution][font] = font_ptr;
+			return *font_ptr;
+		}
+
+		return *fontiter->second;
 	}
 
 }

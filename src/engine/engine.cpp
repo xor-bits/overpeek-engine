@@ -54,11 +54,11 @@ namespace oe {
 		switch (engine_info.api)
 		{
 		case graphics_api::OpenGL:
-			instance = new oe::graphics::GLInstance();
+			instance = std::make_unique<oe::graphics::GLInstance>();
 			break;
 #ifdef BUILD_VULKAN
 		case graphics_api::Vulkan:
-			instance = new oe::graphics::VKInstance();
+			instance = std::make_unique<oe::graphics::VKInstance>();
 			break;
 #endif
 		default:
@@ -74,7 +74,7 @@ namespace oe {
 		if (engine_info.networking) {
 			networking::enet::deinitEnet();
 		}
-		if (instance) delete instance;
+		instance.reset();
 	}
 
 	void Engine::terminate() {

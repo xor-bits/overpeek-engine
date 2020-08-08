@@ -7,7 +7,7 @@
 
 namespace oe::graphics {
 
-	IFrameBuffer::IFrameBuffer(const FrameBufferInfo& framebuffer_info, Window& window)
+	IFrameBuffer::IFrameBuffer(const FrameBufferInfo& framebuffer_info, const Window& window)
 		: m_framebuffer_info(framebuffer_info) 
 	{
 
@@ -18,7 +18,7 @@ namespace oe::graphics {
 
 	}
 
-	void IFrameBuffer::multipass(FrameBuffer& fb_0, FrameBuffer& fb_1, Window& window, const std::array<VertexData, 4>& vertices, size_t count)
+	void IFrameBuffer::multipass(FrameBuffer& fb_0, FrameBuffer& fb_1, const Window& window, const std::array<VertexData, 4>& vertices, size_t count)
 	{
 		FramebufferMultipass::getSingleton().multipass(fb_0, fb_1, window, vertices, count);
 	}
@@ -31,7 +31,7 @@ namespace oe::graphics {
 		m_primitive_renderer = new PrimitiveRenderer(ri);
 	}
 
-	void FramebufferMultipass::multipass(FrameBuffer& fb_0, FrameBuffer& fb_1, Window& window, const std::array<VertexData, 4>& vertices, size_t count)
+	void FramebufferMultipass::multipass(FrameBuffer& fb_0, FrameBuffer& fb_1, const Window& window, const std::array<VertexData, 4>& vertices, size_t count)
 	{
 		PrimitiveRenderer& pr = *reinterpret_cast<PrimitiveRenderer*>(m_primitive_renderer);
 		pr->begin();

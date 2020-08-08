@@ -1,48 +1,49 @@
 #include "color_picker.hpp"
 
-#include "engine/engine.hpp"
 #include "slider.hpp"
+#include "sprite_panel.hpp"
 
 
 
-namespace oe::gui {
+namespace oe::gui
+{
+	VecSliderInfo<4> create_info(const ColorPickerInfo& color_picker_info)
+	{
+		const int slider_height = color_picker_info.size.y;
+		const int slider_width = color_picker_info.size.x - 55;
 
-	Slider* color_channel(Widget* parent, const glm::vec2& offset, const glm::vec2& size, const std::string& text, const glm::vec4& color, const oe::graphics::Sprite* sprite, std::function<void(float)> update, float initial) {
-		SliderInfo slider_info;
-		slider_info.slider_size = size;
-		slider_info.knob_size = { 25, size.y };
-		slider_info.offset_position = offset;
-		slider_info.align_parent = oe::alignments::top_left;
-		slider_info.align_render = oe::alignments::top_left;
-		slider_info.slider_lcolor = color;
-		// slider_info.slider_rcolor = default;
-		slider_info.slider_sprite = sprite;
-		slider_info.knob_sprite = sprite;
-		slider_info.callback = update;
-		slider_info.initial_value = initial;
-		slider_info.min_value = 0.0f;
-		slider_info.max_value = 1.0f;
-		slider_info.draw_value = true;
-		auto slider = new Slider(slider_info);
-		parent->addSubWidget(slider);
+		VecSliderInfo<4> info;
+		info.type = arrangements::rows;
+		info.initial_values = color_picker_info.initial_color;
+		info.min_values = glm::vec4(0.0f);
+		info.max_values = glm::vec4(color_picker_info.draw_value == 2 ? 256.0f : 1.0f);
+		
+		info.slider_size = { slider_width, slider_height };
+		info.knob_size = { 25, slider_height };
+		info.offset_position = { 50, 5 };
+		info.align_parent = color_picker_info.align_parent;
+		info.align_render = color_picker_info.align_render;
+		info.draw_value = color_picker_info.draw_value != 0;
+		info.slider_sprite = color_picker_info.sprite;
+		info.knob_sprite = color_picker_info.sprite;
+		info.draw_value = true;
 
-		return slider;
+		return info;
 	}
 
 	ColorPicker::ColorPicker(const ColorPickerInfo& _color_picker_info)
-		: Widget(_color_picker_info.size, _color_picker_info.align_parent, _color_picker_info.align_render, _color_picker_info.offset_position)
+		: VecSlider<4>(create_info(_color_picker_info))
 		, color_picker_info(_color_picker_info)
+		, mult(color_picker_info.draw_value == 2 ? 256.0f : 1.0f)
 	{
-		if (color_picker_info.callback) color_picker_info.callback(get());
-
 		SpritePanelInfo sprite_panel_info = {};
 		sprite_panel_info.size = color_picker_info.size;
 		sprite_panel_info.align_parent = color_picker_info.align_parent;
 		sprite_panel_info.align_render = color_picker_info.align_render;
 		sprite_panel_info.sprite = color_picker_info.sprite;
 		sprite_panel_info.color = color_picker_info.background_color;
-		auto box = new SpritePanel(sprite_panel_info);
-		addSubWidget(box);
+		auto bgbox = new SpritePanel(sprite_panel_info);
+		// addSubWidget(bgbox);
 
 		SpritePanelInfo preview_panel_info;
 		preview_panel_info.align_parent = oe::alignments::top_right;
@@ -54,36 +55,54 @@ namespace oe::gui {
 		preview_panel = new SpritePanel(preview_panel_info);
 		addSubWidget(preview_panel);
 
-		int slider_height = static_cast<int>((color_picker_info.size.y - 25) / 4.0f);
-		int slider_width = color_picker_info.size.x - 55;
+		sliders[0]->slider_info.slider_lcolor = oe::colors::red;
+		sliders[1]->slider_info.slider_lcolor = oe::colors::green;
+		sliders[2]->slider_info.slider_lcolor = oe::colors::blue;
+		sliders[3]->slider_info.slider_lcolor = oe::colors::black;
 
-		slider_r = color_channel(this, { 5, 0 * slider_height + 5  }, { slider_width, slider_height }, "R", oe::colors::red, color_picker_info.sprite, [&](float value) { color_picker_info.initial_color.r = value; update(); }, color_picker_info.initial_color.r);
-		slider_g = color_channel(this, { 5, 1 * slider_height + 10 }, { slider_width, slider_height }, "G", oe::colors::green, color_picker_info.sprite, [&](float value) { color_picker_info.initial_color.g = value; update(); }, color_picker_info.initial_color.g);
-		slider_b = color_channel(this, { 5, 2 * slider_height + 15 }, { slider_width, slider_height }, "B", oe::colors::blue, color_picker_info.sprite, [&](float value) { color_picker_info.initial_color.b = value; update(); }, color_picker_info.initial_color.b);
-		slider_a = color_channel(this, { 5, 3 * slider_height + 20 }, { slider_width, slider_height }, "A", oe::colors::black, color_picker_info.sprite, [&](float value) { color_picker_info.initial_color.a = value; update(); }, color_picker_info.initial_color.a);
+
+		connect_listener<VecSliderHoverEvent<4>, &ColorPicker::on_vec_slider_hover>(this);
+		connect_listener<VecSliderUseEvent<4>, &ColorPicker::on_vec_slider_use>(this);
+	}
+
+	ColorPicker::~ColorPicker()
+	{
+		disconnect_listener<VecSliderHoverEvent<4>, &ColorPicker::on_vec_slider_hover>(this);
+		disconnect_listener<VecSliderUseEvent<4>, &ColorPicker::on_vec_slider_use>(this);
+	}
+
+	void ColorPicker::on_vec_slider_hover(const VecSliderHoverEvent<4>& e)
+	{
+		dispatcher.trigger(event_hover_latest);
+	}
+
+	void ColorPicker::on_vec_slider_use(const VecSliderUseEvent<4>& e)
+	{
+		color_picker_info.initial_color = e.value;
+		update();
+
+		event_use_latest.action = e.action;
+		event_use_latest.button = e.button;
+		event_use_latest.modifier = e.modifier;
+		dispatcher.trigger(event_use_latest);
 	}
 	
 	const glm::vec4& ColorPicker::get() const
-	{ 
-		return color_picker_info.initial_color;
+	{
+		return color_picker_info.initial_color / mult;
 	}
 
 	void ColorPicker::set(const glm::vec4& color)
 	{
 		color_picker_info.initial_color = color; 
 		update();
-			
-		slider_r->slider_info.initial_value = color_picker_info.initial_color.r;
-		slider_g->slider_info.initial_value = color_picker_info.initial_color.g;
-		slider_b->slider_info.initial_value = color_picker_info.initial_color.b;
-		slider_a->slider_info.initial_value = color_picker_info.initial_color.a;
+
+		VecSlider<4>::set({ color.x * mult, color.y * mult, color.z * mult, color.w * mult });
 	}
 
 	void ColorPicker::update()
 	{
 		preview_panel->sprite_panel_info.color = color_picker_info.initial_color;
-		if(color_picker_info.callback)
-			color_picker_info.callback(color_picker_info.initial_color);
 	}
 
 }

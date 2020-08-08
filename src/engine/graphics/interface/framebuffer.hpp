@@ -18,13 +18,13 @@ namespace oe::graphics {
 		Sprite sprite;
 
 	public:
-		IFrameBuffer(const FrameBufferInfo& framebuffer_info, Window& window);
+		IFrameBuffer(const FrameBufferInfo& framebuffer_info, const Window& window);
 		virtual ~IFrameBuffer();
 
 		virtual void bind() = 0; // will bind corresponding texture
 		virtual void clear(const glm::vec4& color = oe::colors::clear_color) = 0;
 
-		static void multipass(FrameBuffer& fb_0, FrameBuffer& fb_1, Window& window, const std::array<VertexData, 4>& vertices, size_t count);
+		static void multipass(FrameBuffer& fb_0, FrameBuffer& fb_1, const Window& window, const std::array<VertexData, 4>& vertices, size_t count);
 
 		const Sprite& getSprite() { return sprite; }
 
@@ -47,7 +47,7 @@ namespace oe::graphics {
 			return *fb_multipasser;
 		}
 
-		void multipass(FrameBuffer& fb_0, FrameBuffer& fb_1, Window& window, const std::array<VertexData, 4>& vertices, size_t count);
+		void multipass(FrameBuffer& fb_0, FrameBuffer& fb_1, const Window& window, const std::array<VertexData, 4>& vertices, size_t count);
 
 	private:
 		void* m_primitive_renderer;

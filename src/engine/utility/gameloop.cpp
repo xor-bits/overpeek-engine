@@ -64,17 +64,11 @@ namespace oe::utils {
 		m_host_window = window;
 		m_main_updatesystem_ups = main_updatesystem_ups;
 
-		UpdateSystem* ptr = new UpdateSystem(main_updatesystem_ups);
-		m_update_systems.insert(std::make_pair(main_updatesystem_ups, ptr));
+		m_update_systems.emplace(main_updatesystem_ups, main_updatesystem_ups);
 	}
 
 	GameLoop::~GameLoop()
-	{
-		for(auto& system : m_update_systems)
-		{
-			delete system.second;
-		}
-	}
+	{}
 
 	void GameLoop::start() {
 		oe_debug_call("gameloop");
@@ -100,12 +94,16 @@ namespace oe::utils {
 			cleanup_signal.publish(); // cleanup
 
 			m_host_window->bump();
+			m_host_window->inactive_context();
 		});
 
 		while(m_should_run)
 		{
 			m_host_window->waitEvents();
 		}
+
+		if(second_thread.joinable()) second_thread.join();
+		m_host_window->active_context();
 	}
 
 	void GameLoop::loop() {
@@ -114,15 +112,15 @@ namespace oe::utils {
 		// updates
 		for(auto& system : m_update_systems)
 		{
-			system.second->update_attempt();
+			system.second.update_attempt();
 		}
 
 		// start profiling the frame
 		size_t timeframe = clock.getMicroseconds();
 
 		// render callback
-		auto main_updatesystem_iter = m_update_systems[m_main_updatesystem_ups];
-		float update_fraction = static_cast<float>(main_updatesystem_iter->m_update_lag) / static_cast<float>(main_updatesystem_iter->m_ups_cap);
+		const auto& main_updatesystem_iter = m_update_systems[m_main_updatesystem_ups];
+		float update_fraction = static_cast<float>(main_updatesystem_iter.m_update_lag) / static_cast<float>(main_updatesystem_iter.m_ups_cap);
 		m_host_window->clear();
 		render_signal.publish(update_fraction);
 
@@ -146,8 +144,8 @@ namespace oe::utils {
 			// update counters
 			for(auto& system : m_update_systems)
 			{
-				system.second->m_perf_logger.m_per_second = system.second->m_perf_logger.m_periodical_count;
-				system.second->m_perf_logger.m_periodical_count = 0;
+				system.second.m_perf_logger.m_per_second = system.second.m_perf_logger.m_periodical_count;
+				system.second.m_perf_logger.m_periodical_count = 0;
 			}
 
 			// reset timer

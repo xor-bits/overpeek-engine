@@ -28,7 +28,10 @@ namespace oe::graphics {
 
 				oe::CodepointEvent event;
 				event.codepoint = codepoint;
+
+				this_class->dispatcher_mutex.lock();
 				this_class->dispatcher.enqueue(event);
+				this_class->dispatcher_mutex.unlock();
 				// if (this_class->m_window_info.text_callback) this_class->m_window_info.text_callback(static_cast<uint32_t>(codepoint), static_cast<oe::modifiers>(mods));
 			});
 		
@@ -47,7 +50,10 @@ namespace oe::graphics {
 				event.framebuffer_size = this_class->m_window_info.size;
 				event.framebuffer_size_old = old;
 				event.aspect = this_class->aspect();
+				
+				this_class->dispatcher_mutex.lock();
 				this_class->dispatcher.enqueue(event);
+				this_class->dispatcher_mutex.unlock();
 				//if (this_class->m_window_info.resize_callback) this_class->m_window_info.resize_callback(this_class->m_window_info.size);
 			});
 		
@@ -64,7 +70,10 @@ namespace oe::graphics {
 				oe::CursorPosEvent event;
 				event.cursor_windowspace = this_class->m_cursor_window;
 				event.cursor_worldspace = this_class->m_cursor_transformed;
+
+				this_class->dispatcher_mutex.lock();
 				this_class->dispatcher.enqueue(event);
+				this_class->dispatcher_mutex.unlock();
 				// if (this_class->m_window_info.cursor_callback) this_class->m_window_info.cursor_callback(this_class->m_cursor_transformed, this_class->m_cursor_window);
 			});
 		
@@ -83,7 +92,10 @@ namespace oe::graphics {
 				event.mods = static_cast<oe::modifiers>(mods);
 				event.cursor_pos.cursor_windowspace = this_class->m_cursor_window;
 				event.cursor_pos.cursor_worldspace = this_class->m_cursor_transformed;
+
+				this_class->dispatcher_mutex.lock();
 				this_class->dispatcher.enqueue(event);
+				this_class->dispatcher_mutex.unlock();
 				// if (this_class->m_window_info.button_callback) this_class->m_window_info.button_callback(static_cast<oe::mouse_buttons>(button), static_cast<oe::actions>(action));
 			});
 		
@@ -100,7 +112,10 @@ namespace oe::graphics {
 				event.key = static_cast<oe::keys>(key);
 				event.action = static_cast<oe::actions>(action);
 				event.mods = static_cast<oe::modifiers>(mods);
+
+				this_class->dispatcher_mutex.lock();
 				this_class->dispatcher.enqueue(event);
+				this_class->dispatcher_mutex.unlock();
 				// if (this_class->m_window_info.key_callback) this_class->m_window_info.key_callback(static_cast<oe::keys>(key), static_cast<oe::actions>(action), static_cast<oe::modifiers>(mods));
 			});
 		
@@ -110,7 +125,10 @@ namespace oe::graphics {
 
 				oe::ScrollEvent event;
 				event.scroll_delta = { xoffset, yoffset };
+
+				this_class->dispatcher_mutex.lock();
 				this_class->dispatcher.enqueue(event);
+				this_class->dispatcher_mutex.unlock();
 				// if (this_class->m_window_info.scroll_callback) this_class->m_window_info.scroll_callback(yoffset);
 			});
 
@@ -123,7 +141,7 @@ namespace oe::graphics {
 		connect_listener<oe::ResizeEvent, &resize_viewport>();
 	}
 
-	IWindow::IWindow(const Instance* instance, const WindowInfo& window_config) 
+	IWindow::IWindow(const std::unique_ptr<Instance>& instance, const WindowInfo& window_config) 
 		: m_window_info(window_config)
 		, m_window_gameloop(this, m_window_info.main_updatesystem_ups)
 	{
@@ -193,11 +211,19 @@ namespace oe::graphics {
 	const std::string& IWindow::getTitle() { return m_window_info.title; }
 	void IWindow::setTitle(const std::string& title) { m_window_info.title = title; glfwSetWindowTitle(m_window_handle, title.c_str()); }
 
+#ifndef __EMSCRIPTEN__ /* WebGL does not support borderless or non-resizeable glfw windows */
 	bool IWindow::getBorderless() { return m_window_info.borderless; }
 	void IWindow::setBorderless(bool borderless) { m_window_info.borderless = borderless; glfwSetWindowAttrib(m_window_handle, GLFW_DECORATED, !m_window_info.resizeable); }
 
 	bool IWindow::getResizeable() { return m_window_info.resizeable; }
 	void IWindow::setResizeable(bool resizeable) { m_window_info.resizeable = resizeable; glfwSetWindowAttrib(m_window_handle, GLFW_RESIZABLE, m_window_info.resizeable); }
+#else /* __EMSCRIPTEN__ */
+	bool IWindow::getBorderless() { return false; }
+	void IWindow::setBorderless(bool borderless) { }
+
+	bool IWindow::getResizeable() { return false; }
+	void IWindow::setResizeable(bool resizeable) { }
+#endif /* __EMSCRIPTEN__ */
 
 	bool IWindow::getFullscreen() { return m_window_info.fullscreen; }
 	void IWindow::setFullscreen(bool fullscreen) { m_window_info.fullscreen = fullscreen; m_window_info.fullscreen ? makeFullscreen(m_window_handle, m_window_info) : makeWindowed(m_window_handle, m_window_info); }

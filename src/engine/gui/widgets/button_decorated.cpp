@@ -1,11 +1,9 @@
 #include "button_decorated.hpp"
 #include "engine/gui/gui_manager.hpp"
 
-#if _DEBUG && 0
-#define _DEFAULT_COLOR glm::vec4(0.0f, 0.0f, 0.0f, 0.2f)
-#else
-#define _DEFAULT_COLOR glm::vec4(0.0f, 0.0f, 0.0f, 0.0f)
-#endif // _DEBUG
+#include "text_panel.hpp"
+#include "sprite_panel.hpp"
+#include "button.hpp"
 
 
 
@@ -19,7 +17,6 @@ namespace oe::gui {
 		b_info.size = button_info.size;
 		b_info.align_parent = oe::alignments::center_center;
 		b_info.align_render = oe::alignments::center_center;
-		b_info.callback = button_info.callback;
 		button = new Button(b_info);
 		addSubWidget(button);
 
@@ -46,7 +43,6 @@ namespace oe::gui {
 
 	void DecoratedButton::managerAssigned(GUI* gui_manager)
 	{
-		
 		// event listeners
 		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&DecoratedButton::on_render>(this);
 
@@ -69,6 +65,18 @@ namespace oe::gui {
 		button_background->size = new_size;
 		button->size = new_size;
 		size = new_size;
+	}
+
+	void DecoratedButton::on_button_use(const ButtonUseEvent& e)
+	{
+		event_use_latest = e;
+		dispatcher.trigger(event_use_latest);
+	}
+
+	void DecoratedButton::on_button_hover(const ButtonHoverEvent& e)
+	{
+		event_hover_latest = e;
+		dispatcher.trigger(event_hover_latest);
 	}
 
 }

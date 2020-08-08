@@ -6,16 +6,17 @@
 
 
 namespace oe::graphics { struct Quad; }
+
 namespace oe::gui {
 
-	typedef std::function<void(float)> slider_callback;
-
-	struct SliderInfo {
-		slider_callback callback                  = nullptr;
+	struct SliderInfo
+	{
 		float min_value                           = -1.0f;
 		float max_value                           = 1.0f;
 		float initial_value                       = 0.0f;
 		bool draw_value                           = false;
+		int draw_font_size                        = 14;
+		std::string draw_font_path                = ""; // empty for gui default
 		bool vertical                             = false;
 		bool scroll                               = false;
 		glm::ivec2 slider_size                    = { 50, 50 };
@@ -30,15 +31,24 @@ namespace oe::gui {
 		glm::vec2 align_render                    = oe::alignments::center_center;
 	};
 
-	struct GUIRenderEvent;
-	class GUI;
+	struct SliderHoverEvent
+	{};
+
+	struct SliderUseEvent
+	{
+		oe::actions action;
+		oe::mouse_buttons button;
+		oe::modifiers modifier;
+		float value;
+	};
+
 	class Slider : public Widget {
 	private:
 		oe::graphics::TextLabel* value_label;
-		oe::graphics::Quad* label_quad;
-		oe::graphics::Quad* quad_knob;
-		oe::graphics::Quad* quad_lslider;
-		oe::graphics::Quad* quad_rslider;
+		std::shared_ptr<oe::graphics::Quad> label_quad;
+		std::shared_ptr<oe::graphics::Quad> quad_knob;
+		std::shared_ptr<oe::graphics::Quad> quad_lslider;
+		std::shared_ptr<oe::graphics::Quad> quad_rslider;
 
 	private:
 		bool m_dragging;
@@ -47,6 +57,8 @@ namespace oe::gui {
 
 	public:
 		SliderInfo slider_info;
+		SliderHoverEvent event_hover_latest;
+		SliderUseEvent event_use_latest;
 
 	public:
 		Slider(const SliderInfo& slider_info);
@@ -55,6 +67,7 @@ namespace oe::gui {
 		virtual void managerAssigned(GUI* gui_manager) override;
 		virtual void managerUnassigned(GUI* gui_manager) override;
 
+	private:
 		// events
 		void on_render(const GUIRenderEvent& event);
 		void on_cursor(const CursorPosEvent& event);

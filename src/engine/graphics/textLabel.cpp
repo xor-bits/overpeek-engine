@@ -6,6 +6,7 @@
 
 #include "font.hpp"
 #include "engine/engine.hpp"
+#include "engine/graphics/interface/window.hpp"
 #include "engine/graphics/interface/renderer.hpp"
 #include "engine/assets/default_shader/default_shader.hpp"
 
@@ -13,6 +14,24 @@
 
 namespace oe::graphics {
 	
+	class TextLabelRenderer
+	{
+	private:
+		static TextLabelRenderer* singleton;
+		TextLabelRenderer(const TextLabelRenderer& copy) = delete;
+		TextLabelRenderer()
+			: fb_renderer(oe::RendererInfo{ 2048 })
+			, fb_shader()
+		{}
+
+	public:
+		static TextLabelRenderer& getSingleton() { if(!singleton) singleton = new TextLabelRenderer(); return *singleton; }
+
+		oe::assets::DefaultShader fb_shader;
+		oe::graphics::Renderer fb_renderer;
+	};
+	TextLabelRenderer* TextLabelRenderer::singleton = nullptr;
+
 	template<typename char_type>
 	using pairData = std::pair<char_type, glm::vec4>;
 	template<typename char_type>
@@ -57,25 +76,15 @@ namespace oe::graphics {
 	template textrenderData<char16_t> textTorenderData(const std::basic_string<char16_t>&);
 	template textrenderData<char32_t> textTorenderData(const std::basic_string<char32_t>&);
 
-	TextLabelRenderer* TextLabelRenderer::singleton = nullptr;
-	TextLabelRenderer::TextLabelRenderer()
-	{
-		fb_shader = new oe::assets::DefaultShader();
-		
-		oe::RendererInfo r_info = {};
-		r_info.max_primitive_count = 2048;
-		fb_renderer = new Renderer(r_info);
-	}
-
 	template<typename char_type>
-	void BasicTextLabel<char_type>::generate(const string_type& text, Window& window, const glm::vec4& color)
+	void BasicTextLabel<char_type>::generate(const string_type& text, const Window& window, const glm::vec4& color)
 	{
 		if (m_text == text && initial_generated) return; // why render the same image again?
 		regenerate(text, window, color);
 	}
 	
 	template<typename char_type>
-	void BasicTextLabel<char_type>::regenerate(const string_type& text, Window& window, const glm::vec4& color)
+	void BasicTextLabel<char_type>::regenerate(const string_type& text, const Window& window, const glm::vec4& color)
 	{
 		m_text = text;
 		initial_generated = true;
@@ -83,24 +92,14 @@ namespace oe::graphics {
 		float multisamples = std::max(static_cast<float>(window->m_window_info.multisamples), 1.0f); // should I make this function arg or keep like this
 
 		// size of the framebuffer
-		if (!m_font) { oe_error_terminate("No font"); }
-		m_size = BasicText<char_type>::size(text, glm::vec2(m_font->getResolution() * multisamples), m_font);
+		m_size = BasicText<char_type>::size(m_font, text, glm::vec2(m_font.getResolution() * multisamples));
 		m_size.x = std::max(m_size.x, 1.0f);
 		m_size.y = std::max(m_size.y, 1.0f);
 
 		// create the framebuffer
 		oe::FrameBufferInfo fb_info = {};
 		fb_info.size = static_cast<glm::ivec2>(m_size) * 2; // double the required size, to make room for future reuse
-		if (m_framebuffer && m_fb_size.x >= m_size.x && m_fb_size.y >= m_size.y)
-		{
-			// reuse the old framebuffer
-		}
-		else if (m_framebuffer)
-		{
-			// regen framebuffer
-			m_framebuffer = FrameBuffer(fb_info, window);
-		}
-		else
+		if (!m_framebuffer || m_fb_size.x < m_size.x || m_fb_size.y < m_size.y)
 		{
 			// create new framebuffer
 			m_framebuffer = FrameBuffer(fb_info, window);
@@ -112,14 +111,14 @@ namespace oe::graphics {
 
 		// render to the framebuffer
 		auto& tbr = TextLabelRenderer::getSingleton();
-		BasicText<char_type>::submit(tbr.fb_renderer, text, { 0.0f, 0.0f }, m_font->getResolution() * multisamples, alignments::top_left, glm::vec4(1.0f), m_font);
+		BasicText<char_type>::submit(tbr.fb_renderer, m_font, text, { 0.0f, 0.0f }, m_font.getResolution() * multisamples, alignments::top_left, glm::vec4(1.0f));
 		glm::mat4 pr_matrix = glm::ortho(0.0f, m_size.x, m_size.y, 0.0f);
-		tbr.fb_shader->setProjectionMatrix(pr_matrix);
-		tbr.fb_shader->bind();
-		tbr.fb_renderer->render();
-		tbr.fb_renderer->clear();
+		tbr.fb_shader.setProjectionMatrix(pr_matrix);
+		tbr.fb_shader.bind();
+		tbr.fb_renderer.render();
+		tbr.fb_renderer.clear();
 		
-		tbr.fb_shader->unbind(); // just so the user couldnt accidentally modify this shader
+		tbr.fb_shader.unbind(); // just so the user couldnt accidentally modify this shader
 
 		// bind window framebuffer
 		window->bind();
@@ -128,7 +127,7 @@ namespace oe::graphics {
 		m_sprite.m_owner = m_framebuffer->getTexture();
 		m_sprite.position = { 0.0f, 1.0f };
 		m_sprite.size = { 1.0f, -1.0f };
-		m_size /= m_font->getResolution() * multisamples;
+		m_size /= multisamples;
 	}
 	
 	template class BasicTextLabel<char>;
@@ -145,30 +144,13 @@ namespace oe::graphics {
 	// template<> void BasicTextLabel<wchar_t>::regenerate(const string_type& text, Window& window, const glm::vec4& color);
 	// template<> void BasicTextLabel<char16_t>::regenerate(const string_type& text, Window& window, const glm::vec4& color);
 	// template<> void BasicTextLabel<char32_t>::regenerate(const string_type& text, Window& window, const glm::vec4& color);
-	
-
 
 	template<typename char_type>
-	Font* BasicText<char_type>::s_font;
-
-	template<typename char_type>
-	void BasicText<char_type>::setFont(Font* font)
-	{
-		s_font = font;
-	}
-
-	template<typename char_type>
-	Font* BasicText<char_type>::getFont()
-	{
-		return s_font;
-	}
-
-	template<typename char_type>
-	bool index_to_char(size_t i, char_type& c, oe::graphics::Font::Glyph const *& glyph, const textrenderData<char_type>& renderData, glm::vec2& advance, const glm::vec2& size, Font* font)
+	bool index_to_char(size_t i, char_type& c, oe::graphics::Font::Glyph const *& glyph, const textrenderData<char_type>& renderData, glm::vec2& advance, const glm::vec2& size, Font& font)
 	{
 		c = renderData.at(i).first;
-		glyph = font->getGlyph(c);
-		if (!glyph) glyph = font->getGlyph(0);
+		glyph = font.getGlyph(c);
+		if (!glyph) glyph = font.getGlyph(0);
 		if (!glyph) oe_error_terminate("NULL glyph in 0");
 
 		if(c == '\n') // new line
@@ -186,7 +168,7 @@ namespace oe::graphics {
 	}
 
 	template<typename char_type>
-	glm::vec2 calculate_final_size(const textrenderData<char_type>& renderData, const glm::vec2& size, Font* font)
+	glm::vec2 calculate_final_size(const textrenderData<char_type>& renderData, const glm::vec2& size, Font& font)
 	{
 		float left(0.0f);
 		float right(0.0f);
@@ -211,26 +193,20 @@ namespace oe::graphics {
 	}
 
 	template<typename char_type>
-	glm::vec2 BasicText<char_type>::size(const string_type& text, const glm::vec2& size, Font* font)
+	glm::vec2 BasicText<char_type>::size(Font& font, const string_type& text, const glm::vec2& size)
 	{
-		if (!font) font = s_font;
-		if (!font) oe_error_terminate("No font!");
-
 		textrenderData<char_type> renderData = textTorenderData<char_type>(text);
 		return calculate_final_size(renderData, size, font);
 	}
 
 	template<typename char_type>
-	void BasicText<char_type>::submit(Renderer* renderer, const string_type& text, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align, const glm::vec4& bg_color, Font* font)
+	void BasicText<char_type>::submit(Renderer& renderer, Font& font, const string_type& text, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align, const glm::vec4& bg_color)
 	{
-		if (!font) font = s_font;
-		if (!font) oe_error_terminate("No font!");
-
 		textrenderData<char_type> renderData = textTorenderData<char_type>(text);
 		const glm::vec2 final_size = calculate_final_size<char_type>(renderData, size, font);
 
-		float avg_top = font->getGlyph('|')->top_left.y;
-		
+		float avg_top = font.getGlyph('|')->top_left.y;
+	
 		// get width
 		glm::vec2 advance = alignmentOffset(-final_size, align);
 		const oe::graphics::Font::Glyph* glyph;
@@ -241,12 +217,15 @@ namespace oe::graphics {
 				continue;
 			}
 
-			auto quad = renderer->createQuad();
+			auto quad = renderer.create();
 			quad->setPosition(pos + advance + glyph->top_left * size - glm::vec2(0.0f, avg_top * size.y));
 			quad->setSize(glyph->size * size);
 			quad->setSprite(glyph->sprite);
 			quad->setColor(renderData[i].second);
 			quad->update();
+			
+			renderer.forget(std::move(quad));
+
 			advance += glm::vec2(glyph->advance.x, 0.0f) * size;
 		}
 	}

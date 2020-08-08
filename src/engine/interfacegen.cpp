@@ -20,17 +20,14 @@
 
 namespace oe::graphics
 {
-
-
-
 	Texture::Texture(const TextureInfo& obj_info)
 	{
 		auto& engine = oe::Engine::getSingleton();
 		if (engine.engine_info.api == graphics_api::OpenGL)
-			m_obj = std::make_unique<GLTexture>(obj_info);
+			m_obj = std::make_shared<GLTexture>(obj_info);
 #ifdef BUILD_VULKAN
 		else
-			m_obj = std::make_unique<VKTexture>(obj_info);
+			m_obj = std::make_shared<VKTexture>(obj_info);
 #endif
 	}
 
@@ -38,10 +35,10 @@ namespace oe::graphics
 	{
 		auto& engine = oe::Engine::getSingleton();
 		if (engine.engine_info.api == graphics_api::OpenGL)
-			m_obj = std::make_unique<GLShader>(obj_info);
+			m_obj = std::make_shared<GLShader>(obj_info);
 #ifdef BUILD_VULKAN
 		else
-			m_obj = std::make_unique<VKShader>(obj_info);
+			m_obj = std::make_shared<VKShader>(obj_info);
 #endif
 	}
 
@@ -49,21 +46,21 @@ namespace oe::graphics
 	{
 		auto& engine = oe::Engine::getSingleton();
 		if (engine.engine_info.api == graphics_api::OpenGL)
-			m_obj = std::make_unique<GLWindow>(oe::Engine::getSingleton().instance, obj_info);
+			m_obj = std::make_shared<GLWindow>(oe::Engine::getSingleton().instance, obj_info);
 #ifdef BUILD_VULKAN
 		else
-			m_obj = std::make_unique<VKWindow>(oe::Engine::getSingleton().instance, obj_info);
+			m_obj = std::make_shared<VKWindow>(oe::Engine::getSingleton().instance, obj_info);
 #endif
 	}
 
-	FrameBuffer::FrameBuffer(const FrameBufferInfo& obj_info, Window& window)
+	FrameBuffer::FrameBuffer(const FrameBufferInfo& obj_info, const Window& window)
 	{
 		auto& engine = oe::Engine::getSingleton();
 		if (engine.engine_info.api == graphics_api::OpenGL)
-			m_obj = std::make_unique<GLFrameBuffer>(obj_info, window);
+			m_obj = std::make_shared<GLFrameBuffer>(obj_info, window);
 #ifdef BUILD_VULKAN
 		else
-			m_obj = std::make_unique<VKFrameBuffer>(obj_info, window);
+			m_obj = std::make_shared<VKFrameBuffer>(obj_info, window);
 #endif
 	}
 
@@ -71,10 +68,10 @@ namespace oe::graphics
 	{
 		auto& engine = oe::Engine::getSingleton();
 		if (engine.engine_info.api == graphics_api::OpenGL)
-			m_obj = std::make_unique<GLPrimitiveRenderer>(obj_info);
+			m_obj = std::make_shared<GLPrimitiveRenderer>(obj_info);
 #ifdef BUILD_VULKAN
 		else
-			m_obj = std::make_unique<VKPrimitiveRenderer>(obj_info);
+			m_obj = std::make_shared<VKPrimitiveRenderer>(obj_info);
 #endif
 	}
 }

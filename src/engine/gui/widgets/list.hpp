@@ -49,9 +49,6 @@ namespace oe::gui
 		virtual void managerAssigned(GUI* gui_manager) override;
 		virtual void managerUnassigned(GUI* gui_manager) override;
 
-		// events
-		void on_render(const GUIRenderEvent& event);
-
 		// this class will take ownership of this pointer
 		void add(size_t pos, Widget* widget);
 		void add(Widget* widget);
@@ -60,5 +57,8 @@ namespace oe::gui
 
 		const std::vector<Widget*>& get() const { return list; }
 
+	private:
+		// events
+		void on_render(const GUIRenderEvent& event);
     };
 }

@@ -1,6 +1,7 @@
 #include "sprite_panel.hpp"
 #include "engine/engine.hpp"
 #include "engine/gui/gui_manager.hpp"
+#include "engine/graphics/interface/renderer.hpp"
 
 
 
@@ -9,14 +10,15 @@ namespace oe::gui {
 	SpritePanel::SpritePanel(const SpritePanelInfo& _sprite_panel_info)
 		: Widget::Widget(_sprite_panel_info.size, _sprite_panel_info.align_parent, _sprite_panel_info.align_render, _sprite_panel_info.offset_position)
 		, sprite_panel_info(_sprite_panel_info)
-	{}
+	{
+	}
 	
 	SpritePanel::~SpritePanel()
 	{}
 
 	void SpritePanel::managerAssigned(GUI* gui_manager)
 	{
-		quad = gui_manager->getRenderer()->createQuad();
+		quad = gui_manager->getRenderer()->create();
 
 		// event listeners
 		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&SpritePanel::on_render>(this);
@@ -26,7 +28,7 @@ namespace oe::gui {
 
 	void SpritePanel::managerUnassigned(GUI* gui_manager)
 	{
-		gui_manager->getRenderer()->destroyQuad(quad);
+		quad.reset();
 
 		// event listeners
 		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&SpritePanel::on_render>(this);
@@ -38,11 +40,7 @@ namespace oe::gui {
 	{
 		if (!toggled) { quad->reset(); return; }
 
-		if (!sprite_panel_info.sprite)
-		{
-			spdlog::warn("No sprite for SpritePanel");
-			return;
-		}
+		NULL_SPRITE_CHECK(sprite_panel_info.sprite);
 
 		quad->setPosition(render_position);
 		quad->setZ(z);

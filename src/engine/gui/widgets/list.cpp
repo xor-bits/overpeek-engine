@@ -4,6 +4,7 @@
 #include "slider.hpp"
 #include "text_panel.hpp"
 #include "engine/gui/gui_manager.hpp"
+#include "engine/graphics/interface/window.hpp"
 
 #include <algorithm>
 
@@ -11,7 +12,6 @@
 
 namespace oe::gui
 {
-    
     List::List(const ListInfo& list_info)
         : Widget(list_info.size, list_info.align_parent, list_info.align_render, list_info.offset_position)
         , m_list_info(list_info)
@@ -112,7 +112,6 @@ namespace oe::gui
             slider->toggled = true;
             float overflow_size = static_cast<float>(offset_accumulator.at(offset_accumulator.size() - 1) + m_list_info.element_borders - size.y) / static_cast<float>(size.y);
             fb_sprite.position.y -= slider->slider_info.initial_value * overflow_size;
-            spdlog::info(overflow_size);
         }
     }
 

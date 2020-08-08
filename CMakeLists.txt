@@ -6,9 +6,9 @@ project("engine")
 # engine
 add_subdirectory(src) # static library (engine)
 
-option(BUILD_TESTS "build with tests" ON)
-option(BUILD_VULKAN "build with vulkan test" OFF)
-if(${BUILD_TESTS})
+option(OE_BUILD_TESTS "build with tests" ON)
+set(OE_BUILD_MODE 0 CACHE STRING "0 - OpenGL, 1 - Shaderc and OpenGL, 2 - Vulkan, Shaderc and OpenGL")
+if(OE_BUILD_TESTS)
 	# tests
 	add_subdirectory(tests)
 endif()

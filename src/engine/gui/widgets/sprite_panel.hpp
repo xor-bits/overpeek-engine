@@ -1,11 +1,11 @@
 #pragma once
 
 #include "widget.hpp"
-#include "engine/graphics/sprite.hpp"
 
 
 
-namespace oe::graphics { struct Quad; }
+namespace oe::graphics { struct Quad; struct Sprite; }
+
 namespace oe::gui {
 
 	struct SpritePanelInfo {
@@ -16,12 +16,10 @@ namespace oe::gui {
 		glm::vec4 color                    = oe::colors::white;
 		const oe::graphics::Sprite* sprite = nullptr; // must be set
 	};
-
-	struct GUIRenderEvent;
-	class GUI;
+	
 	class SpritePanel : public Widget {
 	private:
-		oe::graphics::Quad* quad;
+		std::shared_ptr<oe::graphics::Quad> quad;
 		
 	public:
 		SpritePanelInfo sprite_panel_info;
@@ -33,6 +31,7 @@ namespace oe::gui {
 		virtual void managerAssigned(GUI* gui_manager) override;
 		virtual void managerUnassigned(GUI* gui_manager) override;
 
+	private:
 		// events
 		void on_render(const GUIRenderEvent& event);
 	};

@@ -185,7 +185,7 @@ development environment.  By including the glad header before the GLFW header,
 it suppresses the development environment's OpenGL or OpenGL ES header.
 
 @code
-#include <glad/glad.h>
+#include "gl_include.hpp"
 #include <GLFW/glfw3.h>
 @endcode
 

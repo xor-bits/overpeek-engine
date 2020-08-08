@@ -2,24 +2,17 @@
 #include "engine/gui/gui_manager.hpp"
 #include "engine/graphics/interface/renderer.hpp"
 
+#include "button.hpp"
 
 
-namespace oe::gui {
 
-	void Checkbox::checkbox_action(oe::mouse_buttons button, oe::actions action) {
-		if (button == oe::mouse_buttons::button_left && action == oe::actions::release) {
-			m_checkbox_info.initial = !m_checkbox_info.initial;
-			if (m_checkbox_info.callback)
-				m_checkbox_info.callback(m_checkbox_info.initial);
-		}
-	}
-
+namespace oe::gui
+{
 	Checkbox::Checkbox(const CheckboxInfo& _checkbox_info)
 		: Widget(_checkbox_info.size, _checkbox_info.align_parent, _checkbox_info.align_render, _checkbox_info.offset_position)
 		, m_checkbox_info(_checkbox_info)
 	{
 		ButtonInfo button_info;
-		button_info.callback = BUTTON_CALLBACK_WRAPPER(checkbox_action);
 		button_info.size = _checkbox_info.size;
 		button_info.offset_position = { 0, 0 };
 		button_info.align_parent = oe::alignments::center_center;
@@ -33,8 +26,8 @@ namespace oe::gui {
 
 	void Checkbox::managerAssigned(GUI* gui_manager)
 	{
-		quad_check = gui_manager->getRenderer()->createQuad();
-		quad_box = gui_manager->getRenderer()->createQuad(); // check - box, hehe
+		quad_check = gui_manager->getRenderer()->create();
+		quad_box = gui_manager->getRenderer()->create(); // check - box, hehe
 
 		// event listeners
 		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&Checkbox::on_render>(this);
@@ -44,8 +37,8 @@ namespace oe::gui {
 
 	void Checkbox::managerUnassigned(GUI* gui_manager)
 	{
-		gui_manager->getRenderer()->destroyQuad(quad_check);
-		gui_manager->getRenderer()->destroyQuad(quad_box);
+		quad_check.reset();
+		quad_box.reset();
 
 		// event listeners
 		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&Checkbox::on_render>(this);
@@ -56,6 +49,8 @@ namespace oe::gui {
 	void Checkbox::on_render(const GUIRenderEvent& event)
 	{
 		if (!toggled) { quad_check->reset(); quad_box->reset(); return; }
+
+		NULL_SPRITE_CHECK(m_checkbox_info.sprite);
 
 		quad_box->setPosition(render_position);
 		quad_box->setZ(z);
@@ -78,5 +73,24 @@ namespace oe::gui {
 		quad_check->setRotationAlignment(oe::alignments::center_center);
 		quad_check->update();
 	}
+
+	void Checkbox::on_button_use(const ButtonUseEvent& e)
+	{
+		if (e.button == oe::mouse_buttons::button_left && e.action == oe::actions::release) {
+			m_checkbox_info.initial = !m_checkbox_info.initial;
+		}
+		
+		event_use_latest.action = e.action;
+		event_use_latest.button = e.button;
+		event_use_latest.modifier = e.modifier;
+		event_use_latest.value = m_checkbox_info.initial;
+		dispatcher.trigger(event_use_latest);
+	}
+
+	void Checkbox::on_button_hover(const ButtonHoverEvent& e)
+	{
+		dispatcher.trigger(event_hover_latest);
+	}
+
 
 }

@@ -6,7 +6,7 @@
 
 #include "engine/engine.hpp"
 
-#include <glad/glad.h>
+#include "gl_include.hpp"
 #include <GLFW/glfw3.h>
 
 

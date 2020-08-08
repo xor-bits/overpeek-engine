@@ -11,7 +11,7 @@ oe::assets::DefaultShader* shader;
 oe::graphics::Font* font;
 
 oe::graphics::u32TextLabel* label;
-oe::graphics::Quad* quad;
+std::shared_ptr<oe::graphics::Quad> quad;
 
 
 
@@ -32,8 +32,7 @@ void update_2() {
 }
 
 void resize(const oe::ResizeEvent& event) {
-	float aspect = event.aspect;
-	glm::mat4 pr_matrix = glm::ortho(-aspect, aspect, 1.0f, -1.0f);
+	glm::mat4 pr_matrix = glm::ortho(0.0f, (float)event.framebuffer_size.x, (float)event.framebuffer_size.y, 0.0f);
 	shader->setProjectionMatrix(pr_matrix);
 	shader->useTexture(true);
 }
@@ -74,27 +73,26 @@ int main(int argc, char** argv) {
 	shader = new oe::assets::DefaultShader();
 
 	// sprites
-	font = new oe::graphics::Font();
-	oe::graphics::Text::setFont(font);
-
+	font = new oe::graphics::Font(64);
 	
 	// submitting
-	label = new oe::graphics::u32TextLabel(font);
-	// label->generate("<#1020ff>The quick brown fox <#ff2020>jumps <#ffffff>over the lazy dog.", window);
+	label = new oe::graphics::u32TextLabel(*font);
 	label->generate(U"<#1020ff>\u2116<#ffffff>The quick brown fox<#ff2020>\u263A", window, oe::colors::translucent_black);
 
-	quad = renderer->createQuad();
-	quad->setPosition({ label->getSize().x * -0.05, 0.25f });
-	quad->setSize(label->getSize() * 0.1f);
+	quad = renderer->create();
+	quad->setPosition({ 50, 50 });
+	quad->setSize(label->getSize()); spdlog::debug("{}", label->getSize());
 	quad->setColor(oe::colors::white);
 	quad->setSprite(label->getSprite());
 	quad->update();
 	
+	renderer->forget(std::move(quad));
+	
 	oe::graphics::Sprite sprite;
 	sprite.m_owner = font->getSpritePack()->getTexture();
-	quad = renderer->createQuad();
-	quad->setPosition({ -0.5f, -1.0f });
-	quad->setSize({ 1.0f, 1.0f });
+	quad = renderer->create();
+	quad->setPosition({ 50, 134 });
+	quad->setSize({ 200, 200 });
 	quad->setColor(oe::colors::white);
 	quad->setSprite(sprite);
 	quad->update();

@@ -1,15 +1,35 @@
 #pragma once
 
 #include "enum.hpp"
-#include "engine/graphics/interface/primitive_renderer.hpp"
 
 
 
-namespace oe::graphics { class IWindow; class IShader; class ITexture; class IFrameBuffer; class Renderer; }
 namespace oe::graphics
 {
+	/* -- forward declarations -- */
+	class ITexture;
 	class GLTexture;
 	class VKTexture;
+	
+	class IShader;
+	class GLShader;
+	class VKShader;
+	
+	class IWindow;
+	class GLWindow;
+	class VKWindow;
+	
+	class IFrameBuffer;
+	class GLFrameBuffer;
+	class VKFrameBuffer;
+	
+	template<primitive_types type, typename buffer_gen, typename vertex_type>
+	class IBasicPrimitiveRenderer;
+	using IPrimitiveRenderer = IBasicPrimitiveRenderer<primitive_types::quads, BasicBufferGen<primitive_types::quads>, VertexData>;
+	/* -- forward declarations -- */
+
+
+
 	class Texture
 	{
 	private:
@@ -33,8 +53,6 @@ namespace oe::graphics
 		inline void reset() { m_obj.reset(); }
 	};
 
-	class GLShader;
-	class VKShader;
 	class Shader
 	{
 	private:
@@ -58,8 +76,6 @@ namespace oe::graphics
 		inline void reset() { m_obj.reset(); }
 	};
 
-	class GLWindow;
-	class VKWindow;
 	class Window
 	{
 	private:
@@ -83,15 +99,13 @@ namespace oe::graphics
 		inline void reset() { m_obj.reset(); }
 	};
 
-	class GLFrameBuffer;
-	class VKFrameBuffer;
 	class FrameBuffer
 	{
 	private:
 		std::shared_ptr<IFrameBuffer> m_obj;
 	public:
 		FrameBuffer() {}
-		FrameBuffer(const FrameBufferInfo& obj_info, Window& window);
+		FrameBuffer(const FrameBufferInfo& obj_info, const Window& window);
 		FrameBuffer(const FrameBuffer& copy) { m_obj = copy.m_obj; }
 		FrameBuffer(const FrameBuffer&& move) { m_obj = std::move(move.m_obj); }
 
@@ -107,7 +121,7 @@ namespace oe::graphics
 
 		inline void reset() { m_obj.reset(); }
 	};
-
+	
 	class PrimitiveRenderer
 	{
 	private:

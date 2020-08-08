@@ -6,12 +6,33 @@
 
 namespace oe::assets
 {
-    class TextureSet { // this class exists just for looks and consistency, pls don't bully me
-    public:
-        static const unsigned char oe_logo[];
-        static const oe::utils::image_data oe_logo_img;
-    };
+	class TextureSet // this 'fake' class exists just for looks and consistency, pls don't bully me
+	{
+	public:
+		static constexpr uint8_t oe_logo[] =
+		{
+			0xff, 0xff, 0xff,	0xff, 0xff, 0xff,   0xff, 0xff, 0xff,   0xff, 0xff, 0xff,   0xff, 0xff, 0xff,
+			0xff, 0xff, 0xff,	0x10, 0x20, 0xff,   0xff, 0xff, 0xff,   0x10, 0x20, 0xff,   0xff, 0xff, 0xff,
+			0xff, 0xff, 0xff,	0x10, 0x20, 0xff,   0xff, 0xff, 0xff,   0xff, 0xff, 0xff,   0xff, 0xff, 0xff,
+			0xff, 0xff, 0xff,	0x10, 0x20, 0xff,   0x10, 0x20, 0xff,   0x10, 0x20, 0xff,   0xff, 0xff, 0xff,
+			0xff, 0xff, 0xff,	0xff, 0xff, 0xff,   0xff, 0xff, 0xff,   0xff, 0xff, 0xff,   0xff, 0xff, 0xff,
+		};
 
-} // namespace oe::assets
+		static inline const oe::utils::image_data oe_logo_img = { &oe_logo[0], oe::formats::rgb, 5, 5 };
 
+		static inline const oe::utils::image_data generate_circle(const size_t radius)
+		{
+			size_t edge_l = 2 * radius;
+			oe::utils::image_data img(oe::formats::mono, edge_l, edge_l);
 
+			for	(size_t i = 0; i < edge_l*edge_l; i++)
+			{
+				const size_t x_mid = i % edge_l + radius;
+				const size_t y_mid = i / edge_l + radius;
+				img.data[i] = x_mid*x_mid + y_mid+y_mid <= radius*radius ? 0xff : 0x00;
+			}
+
+			return img;
+		}
+	};
+} // namespace oe::assets::TextureSet

@@ -2,26 +2,24 @@
 
 #include "engine/graphics/textLabel.hpp"
 #include "engine/gui/gui_manager.hpp"
+#include "engine/graphics/interface/renderer.hpp"
 
 
 
-namespace oe::gui {
-	
+namespace oe::gui
+{
 	TextPanel::TextPanel(const TextPanelInfo& _text_panel_info) 
 		: Widget(glm::vec2(static_cast<float>(_text_panel_info.font_size)), _text_panel_info.align_parent, _text_panel_info.align_render, _text_panel_info.offset_position)
 		, text_panel_info(_text_panel_info)
-	{
-		label = new oe::graphics::u32TextLabel();
-	}
+	{}
 
 	TextPanel::~TextPanel()
-	{
-		delete label;
-	}
+	{}
 
 	void TextPanel::managerAssigned(GUI* gui_manager)
 	{
-		text_quad = gui_manager->getLateRenderer()->createQuad();
+		text_quad = gui_manager->getLateRenderer()->create();
+		label = new oe::graphics::u32TextLabel(gui_manager->getFont(text_panel_info.font_size, text_panel_info.font_path));
 
 		// event listeners
 		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&TextPanel::on_render>(this);
@@ -31,7 +29,8 @@ namespace oe::gui {
 
 	void TextPanel::managerUnassigned(GUI* gui_manager)
 	{
-		gui_manager->getLateRenderer()->destroyQuad(text_quad);
+		text_quad.reset();
+		delete label;
 
 		// event listeners
 		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&TextPanel::on_render>(this);
@@ -43,9 +42,8 @@ namespace oe::gui {
 	{
 		if (!toggled) { text_quad->reset(); return; }
 
-		glm::vec2 text_size = glm::vec2(static_cast<float>(text_panel_info.font_size));
 		label->generate(text_panel_info.text, m_gui_manager->getWindow(), text_panel_info.background_color);
-		size = text_size * label->getSize();
+		size = label->getSize();
 		text_quad->setPosition(static_cast<glm::vec2>(render_position + oe::alignmentOffset(size, align_render)));
 		text_quad->setZ(z);
 		text_quad->setSize(size);

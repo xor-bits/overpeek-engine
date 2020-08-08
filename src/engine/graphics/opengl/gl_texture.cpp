@@ -1,6 +1,6 @@
 #include "gl_texture.hpp"
 
-#include <glad/glad.h>
+#include "gl_include.hpp"
 
 #include <assert.h>
 #include <spdlog/spdlog.h>
@@ -20,7 +20,7 @@ namespace oe::graphics {
 		case oe::formats::rgb:
 			return GL_RGB;
 		case oe::formats::mono:
-			return GL_R;
+			return GL_RED;
 		}
 	}
 
@@ -145,17 +145,39 @@ namespace oe::graphics {
 		size *= m_texture_info.size[1];
 		size *= oe::sizeofFormat(m_texture_info.data_format);
 
-		// __debugbreak(); GL_RGBA;
 		uint8_t* data = new uint8_t[size];
 		bind();
-		glGetTexImage(m_target, 0, m_gl_format, GL_UNSIGNED_BYTE, data);
+
+#ifndef __EMSCRIPTEN__
+		// OpenGL method for pulling texture pixel data
+		glGetTexImage(m_target, 0, m_gl_format, GL_UNSIGNED_BYTE, data); // read from texture
+#else
+		// OpenGL ES method for pulling texture data
+		uint32_t fbo; // generate temporary framebuffer
+		int32_t fbo_current;
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo_current);
+		glGenFramebuffers(1, &fbo); 
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_target, 0);
+
+		glReadPixels(0, 0, m_texture_info.size[0], m_texture_info.size[1], m_gl_format, GL_UNSIGNED_BYTE, data); // read from framebuffer
+
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo_current); // bind the last active fbo back
+		glDeleteFramebuffers(1, &fbo); // and delete the temporary one
+#endif
 
 		auto img = oe::utils::image_data(data, m_texture_info.data_format, m_texture_info.size[0], m_texture_info.size[1]);
-		// __debugbreak();
 		
 		delete data;
 		return img;
 	}
+
+#ifdef __EMSCRIPTEN__
+#define GL_TEXTURE_1D GL_TEXTURE_2D
+#define glTexStorage1D(target, levels, internalformat, width) glTexStorage2D(target, levels, internalformat, width, 1)
+#define glTexImage1D(target, level, internalformat, width, border, format, type, data) glTexImage2D(target, level, internalformat, width, 1, border, format, type, data)
+#define glTexSubImage1D(m_id, level, x_offset, width, m_gl_format, GL_UNSIGNED_BYTE, data) glTexSubImage2D(m_id, level, x_offset, 0, width, 1, m_gl_format, GL_UNSIGNED_BYTE, data)
+#endif
 
 	void GLTexture::empty1D(size_t width) {
 		m_target = GL_TEXTURE_1D;
@@ -234,7 +256,7 @@ namespace oe::graphics {
 		if (m_texture_info.size.size() != 1) { oe_error_terminate("Dimension mismatch {} and 1", m_texture_info.size.size()); }
 		if (x_offset + width > m_texture_info.size[0]) 
 			oe_error_terminate("Sub texture bigger than initial texture");
-		glTextureSubImage1D(m_id, 0, x_offset, width, m_gl_format, GL_UNSIGNED_BYTE, data);
+		glTexSubImage1D(m_id, 0, x_offset, width, m_gl_format, GL_UNSIGNED_BYTE, data);
 	}
 	
 	void GLTexture::data2D(const uint8_t* data, size_t width, size_t x_offset, size_t height, size_t y_offset) {
@@ -242,7 +264,7 @@ namespace oe::graphics {
 		if (m_texture_info.size.size() != 1) { oe_error_terminate("Dimension mismatch {} and 2", m_texture_info.size.size()); }
 		if (x_offset + width > m_texture_info.size[0] || y_offset + height > m_texture_info.size[1]) 
 			oe_error_terminate("Sub texture bigger than initial texture");
-		glTextureSubImage2D(m_id, 0, x_offset, y_offset, width, height, m_gl_format, GL_UNSIGNED_BYTE, data);
+		glTexSubImage2D(m_id, 0, x_offset, y_offset, width, height, m_gl_format, GL_UNSIGNED_BYTE, data);
 	}
 	
 	void GLTexture::data3D(const uint8_t* data, size_t width, size_t x_offset, size_t height, size_t y_offset, size_t depth, size_t z_offset) {
@@ -250,7 +272,7 @@ namespace oe::graphics {
 		if (m_texture_info.size.size() != 1) { oe_error_terminate("Dimension mismatch {} and 3", m_texture_info.size.size()); }
 		if (x_offset + width > m_texture_info.size[0] || y_offset + height > m_texture_info.size[1] || z_offset + depth > m_texture_info.size[2]) 
 			oe_error_terminate("Sub texture bigger than initial texture");
-		glTextureSubImage3D(m_id, 0, x_offset, y_offset, z_offset, width, height, depth, m_gl_format, GL_UNSIGNED_BYTE, data);
+		glTexSubImage3D(m_id, 0, x_offset, y_offset, z_offset, width, height, depth, m_gl_format, GL_UNSIGNED_BYTE, data);
 	}
 
 }

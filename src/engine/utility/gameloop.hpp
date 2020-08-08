@@ -54,7 +54,7 @@ namespace oe::utils {
 		entt::sigh<void()> cleanup_signal;
 		entt::sink<void()> cleanup_sink{cleanup_signal};
 
-		std::unordered_map<size_t, UpdateSystem*> m_update_systems;
+		std::unordered_map<size_t, UpdateSystem> m_update_systems;
 		size_t m_main_updatesystem_ups;
 
 		oe::graphics::IWindow* m_host_window;
@@ -77,37 +77,36 @@ namespace oe::utils {
 			if (iter == m_update_systems.end())
 			{
 				// new update listener
-				UpdateSystem* ptr = new UpdateSystem(ups);
-				iter = m_update_systems.insert(std::make_pair(ups, ptr)).first;
+				iter = m_update_systems.emplace(ups, ups).first;
 			}
 			return iter;
 		}
 
 		// connect update
 		template<size_t ups, auto F, typename Instance>
-		void connect_update_listener(Instance&& instance)
+		void connect_update_listener(const Instance& instance)
 		{
-			find_or_create(ups)->second->update_sink.connect<F>(instance);
+			find_or_create(ups)->second.update_sink.connect<F>(instance);
 		}
 		template<size_t ups, auto F>
 		void connect_update_listener()
 		{
-			find_or_create(ups)->second->update_sink.connect<F>();
+			find_or_create(ups)->second.update_sink.connect<F>();
 		}
 		// disconnect update
 		template<size_t ups, auto F, typename Instance>
-		void disconnect_update_listener(Instance&& instance)
+		void disconnect_update_listener(const Instance& instance)
 		{
-			m_update_systems[ups].disconnect<F>(instance);
+			m_update_systems[ups].update_sink.disconnect<F>(instance);
 		}
 		template<size_t ups, auto F>
 		void disconnect_update_listener()
 		{
-			m_update_systems[ups].disconnect<F>();
+			m_update_systems[ups].update_sink.disconnect<F>();
 		}
 		// connect render
 		template<auto F, typename Instance>
-		void connect_render_listener(Instance&& instance)
+		void connect_render_listener(const Instance& instance)
 		{
 			render_sink.connect<F>(instance);
 		}
@@ -118,7 +117,7 @@ namespace oe::utils {
 		}
 		// disconnect render
 		template<auto F, typename Instance>
-		void disconnect_render_listener(Instance&& instance)
+		void disconnect_render_listener(const Instance& instance)
 		{
 			render_sink.disconnect<F>(instance);
 		}
@@ -129,7 +128,7 @@ namespace oe::utils {
 		}
 		// connect init
 		template<auto F, typename Instance>
-		void connect_init_listener(Instance&& instance)
+		void connect_init_listener(const Instance& instance)
 		{
 			init_sink.connect<F>(instance);
 		}
@@ -140,7 +139,7 @@ namespace oe::utils {
 		}
 		// disconnect init
 		template<auto F, typename Instance>
-		void disconnect_init_listener(Instance&& instance)
+		void disconnect_init_listener(const Instance& instance)
 		{
 			init_sink.disconnect<F>(instance);
 		}
@@ -151,7 +150,7 @@ namespace oe::utils {
 		}
 		// connect cleanup
 		template<auto F, typename Instance>
-		void connect_cleanup_listener(Instance&& instance)
+		void connect_cleanup_listener(const Instance& instance)
 		{
 			cleanup_sink.connect<F>(instance);
 		}
@@ -162,7 +161,7 @@ namespace oe::utils {
 		}
 		// disconnect cleanup
 		template<auto F, typename Instance>
-		void disconnect_cleanup_listener(Instance&& instance)
+		void disconnect_cleanup_listener(const Instance& instance)
 		{
 			cleanup_sink.disconnect<F>(instance);
 		}
