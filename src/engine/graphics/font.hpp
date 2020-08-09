@@ -40,7 +40,7 @@ namespace oe::graphics
 		windows: C:/Windows/Fonts/
 		macos: *workdir*
 		*/
-		Font(uint16_t resolution = 64u, const std::string& font_path = oe::default_font_path);
+		Font(uint16_t resolution = 64u, const std::string& font_path = oe::default_full_font_path);
 		~Font();
 
 		const Glyph* getGlyph(char32_t c);

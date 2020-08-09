@@ -11,12 +11,12 @@ oe::graphics::SpritePack* pack_1;
 oe::graphics::Window window;
 oe::assets::DefaultShader* shader;
 oe::graphics::Renderer* renderer;
-std::array<oe::graphics::Quad*, 2> quads;
+std::array<std::shared_ptr<oe::graphics::Quad>, 2> quads;
 
 
 
 void create_scene() {
-	quads[0] = renderer->createQuad();
+	quads[0] = renderer->create();
 	quads[0]->setPosition({ 0.0f, 0.0f, 0.0f });
 	quads[0]->setSize({ 1.0f, 1.0f });
 	quads[0]->setRotationAlignment(oe::alignments::center_center);
@@ -24,7 +24,7 @@ void create_scene() {
 	quads[0]->setColor(oe::colors::blue);
 	quads[0]->update();
 	
-	quads[1] = renderer->createQuad();
+	quads[1] = renderer->create();
 	quads[1]->setPosition({ 0.0f, 0.0f, 1.0f });
 	quads[1]->setSize({ 0.75f, 0.75f });
 	quads[1]->setRotationAlignment(oe::alignments::center_center);
@@ -111,8 +111,8 @@ void init() {
 	auto img = oe::assets::TextureSet::oe_logo_img;
 	pack_0 = new oe::graphics::SpritePack();
 	pack_1 = new oe::graphics::SpritePack();
-	sprite = pack_0->addSprite(img);
-	sprite_white = pack_1->empty_sprite();
+	sprite = pack_0->create(img);
+	sprite_white = pack_1->emptySprite();
 	pack_0->construct();
 	pack_1->construct();
 

@@ -23,26 +23,12 @@ b2RevoluteJoint* motor_joint;
 // <<<<----- box2d stuff
 struct component_renderable
 {
-	oe::graphics::Quad* quad;
-
-	static void on_construct(entt::registry& reg, entt::entity e)
-	{
-	}
-
-	static void on_destroy(entt::registry& reg, entt::entity e)
-	{
-		renderer->destroyQuad(reg.get<component_renderable>(e).quad);
-	}
+	std::shared_ptr<oe::graphics::Quad> quad;
 };
 
 struct component_body
 {
 	b2Body* body;
-
-	static void on_destroy(entt::registry& reg, entt::entity e)
-	{
-		renderer->destroyQuad(reg.get<component_renderable>(e).quad);
-	}
 };
 
 b2Body* box(bool is_static, const glm::vec2& pos, const glm::vec2& size, float angle, const glm::vec4& color, float density = 1.0f)
@@ -63,7 +49,7 @@ b2Body* box(bool is_static, const glm::vec2& pos, const glm::vec2& size, float a
 	fixturedef.shape = &polygonshape;
 	body->CreateFixture(&fixturedef);
 	auto entity = entity_registry.create();
-	auto quad = renderer->createQuad();
+	auto quad = renderer->create();
 	quad->setSize(size);
 	quad->setRotationAlignment(oe::alignments::center_center);
 	quad->setColor(color);
@@ -91,9 +77,6 @@ void setup()
 {
 	auto& random = oe::utils::Random::getSingleton();
 
-	entity_registry.on_construct<component_renderable>().connect<component_renderable::on_construct>();
-	entity_registry.on_destroy<component_renderable>().connect<component_renderable::on_destroy>();
-	
 	// ground box
 	auto body_0 = box(false, { 10.0f, 15.0f }, { 1.5f, 15.0f }, glm::quarter_pi<float>(), glm::vec4(random.randomVec3(0.0f, 1.0f), 1.0f), 0.1f);
 	auto body_1 = box(true, { 0.0f, 15.0f }, { 1.0f, 1.0f }, glm::quarter_pi<float>(), glm::vec4(random.randomVec3(0.0f, 1.0f), 1.0f));
@@ -195,7 +178,7 @@ void init()
 
 	// sprites
 	pack = new oe::graphics::SpritePack();
-	sprite = pack->empty_sprite();
+	sprite = pack->emptySprite();
 	pack->construct();
 }
 
