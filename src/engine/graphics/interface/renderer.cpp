@@ -65,7 +65,8 @@ namespace oe::graphics
 
 	void Quad::update()
 	{
-		m_renderer.update(shared());
+		auto ptr = shared();
+		m_renderer.update(ptr);
 	}
 
 	size_t Quad::getQuadIndex() const {

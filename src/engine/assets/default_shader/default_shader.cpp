@@ -108,13 +108,13 @@ namespace oe::assets {
 
 	DefaultShader::DefaultShader(oe::polygon_mode mode)
 	{
-		auto& info_map_iter = default_shader_info.find(Engine::getSingleton().engine_info.api);
+		const auto& info_map_iter = default_shader_info.find(Engine::getSingleton().engine_info.api);
 		if(info_map_iter == default_shader_info.end()) { oe_error_terminate("Unknown graphics api"); }
-		auto& info_map = info_map_iter->second;
+		const auto& info_map = info_map_iter->second;
 		
-		auto& info_iter = info_map.find(mode);
+		const auto& info_iter = info_map.find(mode);
 		if(info_map_iter == default_shader_info.end()) { oe_error_terminate("Unknown polygonmode"); }
-		auto& info = info_iter->second;
+		const auto& info = info_iter->second;
 
 		m_shader = oe::graphics::Shader(info);
 	}
