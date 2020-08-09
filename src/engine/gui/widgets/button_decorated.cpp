@@ -45,6 +45,8 @@ namespace oe::gui {
 	{
 		// event listeners
 		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&DecoratedButton::on_render>(this);
+		button->connect_listener<ButtonHoverEvent, &DecoratedButton::on_button_hover>(this);
+		button->connect_listener<ButtonUseEvent, &DecoratedButton::on_button_use>(this);
 
 		Widget::managerAssigned(gui_manager);
 	}
@@ -53,6 +55,8 @@ namespace oe::gui {
 	{
 		// event listeners
 		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&DecoratedButton::on_render>(this);
+		button->disconnect_listener<ButtonHoverEvent, &DecoratedButton::on_button_hover>(this);
+		button->disconnect_listener<ButtonUseEvent, &DecoratedButton::on_button_use>(this);
 
 		Widget::managerUnassigned(gui_manager);
 	}

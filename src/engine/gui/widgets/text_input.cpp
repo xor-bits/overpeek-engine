@@ -103,9 +103,9 @@ namespace oe::gui
 		NULL_SPRITE_CHECK(text_input_info.sprite);
 
 		// bounding box
-		quad->setPosition(render_position - text_input_info.padding);
+		quad->setPosition(render_position);
 		quad->setZ(z);
-		quad->setSize(static_cast<glm::vec2>(size + text_input_info.padding * 2));
+		quad->setSize(static_cast<glm::vec2>(size));
 		quad->setSprite(text_input_info.sprite);
 		quad->setColor(text_input_info.color);
 		quad->update();
@@ -120,12 +120,11 @@ namespace oe::gui
 		}
 
 		// text
-		glm::vec2 text_size = glm::vec2(text_input_info.font_size);
 		const std::u32string drawn_str = fmt::format(U"<#000000>{}{}", text_input_info.text, bar);
 		label->generate(drawn_str, m_gui_manager->getWindow());
-		text_quad->setPosition(static_cast<glm::vec2>(render_position + oe::alignmentOffset(size, text_input_info.align_text) - oe::alignmentOffset(static_cast<glm::ivec2>(text_size * label->getSize()), text_input_info.align_text)));
+		text_quad->setPosition(static_cast<glm::vec2>(render_position + oe::alignmentOffset(size, text_input_info.align_text) - oe::alignmentOffset(static_cast<glm::ivec2>(label->getSize()), text_input_info.align_text)));
 		text_quad->setZ(z + 0.05f);
-		text_quad->setSize(text_size * label->getSize());
+		text_quad->setSize(label->getSize());
 		text_quad->setSprite(label->getSprite());
 		text_quad->setColor(oe::colors::white);
 		text_quad->update();

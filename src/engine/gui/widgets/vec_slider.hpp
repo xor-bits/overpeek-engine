@@ -46,23 +46,34 @@ namespace oe::gui
         VecSlider(VecSliderInfo<dimension> slider_info)
             : Widget(slider_info.slider_size, slider_info.align_parent, slider_info.align_render, slider_info.offset_position)
         {
-            glm::ivec2 offset = { 0, 0 };
+			static_assert(dimension != 0, "VecSlider dimension must not be zero");
+
+            glm::ivec2 offset_next = { 0, 0 };
             switch (slider_info.type)
             {
             case arrangements::columns:
-                slider_info.slider_size = { (slider_info.slider_size.x - (1 + dimension) * slider_info.slider_borders) / dimension, slider_info.slider_size.y };
-                slider_info.knob_size = { (slider_info.knob_size.x - (1 + dimension) * slider_info.slider_borders) / dimension, slider_info.knob_size.y };
-                offset = glm::ivec2(slider_info.slider_size.x + slider_info.slider_borders, 0);
+                slider_info.slider_size = { (slider_info.slider_size.x - (dimension - 1) * slider_info.slider_borders) / dimension, slider_info.slider_size.y };
+                offset_next = glm::ivec2(slider_info.slider_size.x + slider_info.slider_borders, 0);
+				size = {
+					slider_info.slider_size.x * dimension + (dimension - 1) * slider_info.slider_borders,
+					slider_info.slider_size.y
+				};
                 break;
             case arrangements::rows:
-                slider_info.slider_size = { slider_info.slider_size.x, (slider_info.slider_size.y - (1 + dimension) * slider_info.slider_borders) / dimension };
-                slider_info.knob_size = { slider_info.knob_size.x, (slider_info.knob_size.y - (1 + dimension) * slider_info.slider_borders) / dimension };
-                offset = glm::ivec2(0, slider_info.slider_size.y + slider_info.slider_borders);
+                slider_info.slider_size = { slider_info.slider_size.x, (slider_info.slider_size.y - (dimension - 1) * slider_info.slider_borders) / dimension };
+                offset_next = glm::ivec2(0, slider_info.slider_size.y + slider_info.slider_borders);
+				size = {
+					slider_info.slider_size.x,
+					slider_info.slider_size.y * dimension + (dimension - 1) * slider_info.slider_borders
+				};
                 break;
-            
             default:
                 break;
             }
+
+
+			size_t min_w_or_h = std::min(slider_info.slider_size.x, slider_info.slider_size.y);
+			slider_info.knob_size = { min_w_or_h, min_w_or_h };
 
             slider_info.offset_position = { 0, 0 };
             slider_info.align_parent = oe::alignments::top_left;
@@ -74,7 +85,7 @@ namespace oe::gui
                 slider_info.max_value = slider_info.max_values[i];
                 sliders[i] = new Slider(slider_info);
                 addSubWidget(sliders[i]);
-                slider_info.offset_position += offset;
+                slider_info.offset_position += offset_next;
 
 				sliders[i]->connect_listener<SliderHoverEvent, &VecSlider<dimension>::on_slider_hover>(this);
 				sliders[i]->connect_listener<SliderUseEvent, &VecSlider<dimension>::on_slider_use>(this);
@@ -127,6 +138,8 @@ namespace oe::gui
 			event_use_latest.modifier = e.modifier;
 			event_use_latest.button = e.button;
 			event_use_latest.value = getGLM();
+			
+			dispatcher.trigger(event_use_latest);
 		}
     };
 }

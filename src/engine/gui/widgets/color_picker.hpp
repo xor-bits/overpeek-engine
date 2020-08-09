@@ -13,7 +13,7 @@ namespace oe::gui
 	struct ColorPickerInfo {
 		float min_value                    = -1.0f;
 		float max_value                    = 1.0f;
-		int draw_value                    = 2; // (false/0) = no draw, (true/1) = draw 0.0-1.0, 2 = draw 0-256
+		int draw_value                     = 2; // (false/0) = no draw, (true/1) = draw 0.0-1.0, 2 = draw 0-256
 		glm::vec4 initial_color            = oe::colors::white;
 		glm::vec4 background_color         = oe::colors::dark_grey;
 		glm::ivec2 size                    = { 200, 100 };

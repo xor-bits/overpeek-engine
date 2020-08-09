@@ -19,9 +19,8 @@ oe::graphics::PrimitiveRenderer renderer;
 oe::graphics::SpritePack* pack;
 const oe::graphics::Sprite* sprite;
 
-glm::vec4 color = oe::colors::orange;
+glm::vec4 color = { 0.4f, 0.5f, 0.4f, 1.0f };
 glm::quat cube_rotation;
-
 
 
 static glm::mat4 ml_matrix = glm::mat4(1.0f);
@@ -173,7 +172,6 @@ void setup_gui() {
 		sprite_panel_info.size = { 150, 150 };
 		sprite_panel_info.align_parent = oe::alignments::bottom_left;
 		sprite_panel_info.align_render = oe::alignments::bottom_left;
-		sprite_panel_info.offset_position = { 10, -10 };
 		sprite_panel_info.sprite = sprite;
 		box = new oe::gui::SpritePanel(sprite_panel_info);
 		gui->addSubWidget(box);
@@ -198,7 +196,7 @@ void setup_gui() {
 		auto button = new oe::gui::DecoratedButton(button_info);
 		gui->addSubWidget(button);
 
-		auto callback_lambda = [](const oe::gui::ButtonUseEvent& e) {
+		auto callback_lambda = [&](const oe::gui::ButtonUseEvent& e) {
 			if (e.action == oe::actions::release && e.button == oe::mouse_buttons::button_left) {
 				glm::vec4 quat_slider_val = quat_slider->getGLM();
 				append_list(glm::angleAxis(quat_slider_val.w, glm::normalize(glm::vec3(quat_slider_val.x, quat_slider_val.y, quat_slider_val.z))));
@@ -243,6 +241,7 @@ void setup_gui() {
 	{
 		oe::gui::ColorPickerInfo color_picker_info;
 		color_picker_info.size = { 200, 100 };
+		color_picker_info.initial_color = color;
 		color_picker_info.align_parent = oe::alignments::center_left;
 		color_picker_info.align_render = oe::alignments::center_left;
 		color_picker_info.sprite = pack->emptySprite();

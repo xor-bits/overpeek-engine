@@ -96,15 +96,15 @@ namespace oe::graphics {
 		m_size.x = std::max(m_size.x, 1.0f);
 		m_size.y = std::max(m_size.y, 1.0f);
 
-		// create the framebuffer
-		oe::FrameBufferInfo fb_info = {};
-		fb_info.size = static_cast<glm::ivec2>(m_size) * 2; // double the required size, to make room for future reuse
 		if (!m_framebuffer || m_fb_size.x < m_size.x || m_fb_size.y < m_size.y)
 		{
 			// create new framebuffer
+			oe::FrameBufferInfo fb_info = {};
+			fb_info.size = static_cast<glm::ivec2>(m_size) * 2; // double the required size, to make room for future reuse
 			m_framebuffer = FrameBuffer(fb_info, window);
+			
+			m_fb_size = fb_info.size;
 		}
-		m_fb_size = m_size * 2.0f;
 
 		m_framebuffer->bind();
 		m_framebuffer->clear(color);

@@ -72,6 +72,9 @@ namespace oe::gui
 		virtual void addSubWidget(Widget* widget);
 		virtual void removeSubWidget(Widget* widget);
 
+		float getZ() { return z; }
+		void overrideZ(float _z) { z = _z; }
+
 	private:
 		// events
 		void on_render(const GUIRenderEvent& event);
