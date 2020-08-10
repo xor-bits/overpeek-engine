@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 
 
-#if OOE_BUILD_MODE_SHADERC
+#if OE_BUILD_MODE_SHADERC
 #include <shaderc/shaderc.hpp>
 #include "engine/graphics/interface/shader_common.hpp"
 #endif

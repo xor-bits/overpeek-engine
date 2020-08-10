@@ -67,7 +67,8 @@ namespace oe {
 		}
 	}
 
-	void Engine::deinit() {
+	void Engine::deinit()
+	{
 		if (engine_info.audio) {
 			audio::Audio::deinit();
 		}
@@ -77,17 +78,16 @@ namespace oe {
 		instance.reset();
 	}
 
-	void Engine::terminate() {
-#ifdef _DEBUG
+	void Engine::terminate()
+	{
 		assert(0);
-#else
-#endif // _DEBUG
 	}
 
-	void Engine::__error(std::string error_msg, int line, std::string file) {
+	void Engine::__error(std::string error_msg, int line, std::string file)
+	{
 		spdlog::error("error: {}\nline: {}\nfile: {}", error_msg, line, file);
 
-		if (!oe::Engine::getSingleton().engine_info.ignore_errors)
+		if (!engine_info.ignore_errors)
 			oe::Engine::terminate();
 	}
 
