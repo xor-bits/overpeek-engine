@@ -1,5 +1,5 @@
 constexpr char shader_geom_points_gl[] = R"shader(
-#version 320
+#version 330
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(triangles) in;

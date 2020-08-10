@@ -14,7 +14,8 @@ oe::gui::Checkbox* checkbox;
 oe::gui::VecSlider<4>* quat_slider;
 
 oe::graphics::Window window;
-oe::assets::DefaultShader* shader;
+oe::assets::DefaultShader* shader_fill;
+oe::assets::DefaultShader* shader_lines;
 oe::graphics::PrimitiveRenderer renderer;
 oe::graphics::SpritePack* pack;
 const oe::graphics::Sprite* sprite;
@@ -123,13 +124,12 @@ void cube() {
 		}
 	}
 	ml_matrix = glm::mat4_cast(cube_rotation);
-	shader->bind();
-	shader->setModelMatrix(ml_matrix);
+	shader_fill->bind();
+	shader_fill->setModelMatrix(ml_matrix);
 
 	// render
-	oe::Engine::getSingleton().polygonMode(oe::polygon_mode::lines);
+	shader_lines->bind();
 	renderer->render();
-	oe::Engine::getSingleton().polygonMode(oe::polygon_mode::fill);
 }
 
 // render event
@@ -146,10 +146,15 @@ void resize(const oe::ResizeEvent& event) {
 	glm::mat4 pr_matrix = glm::perspectiveFov(30.0f, (float)event.framebuffer_size.x, (float)event.framebuffer_size.y, 0.0f, 1000.0f);
 	glm::mat4 vw_matrix = glm::lookAt(glm::vec3(0.0f, 0.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	
-	shader->bind();
-	shader->useTexture(false);
-	shader->setProjectionMatrix(pr_matrix);
-	shader->setViewMatrix(vw_matrix);
+	shader_fill->bind();
+	shader_fill->useTexture(false);
+	shader_fill->setProjectionMatrix(pr_matrix);
+	shader_fill->setViewMatrix(vw_matrix);
+
+	shader_lines->bind();
+	shader_lines->useTexture(false);
+	shader_lines->setProjectionMatrix(pr_matrix);
+	shader_lines->setViewMatrix(vw_matrix);
 }
 
 // update 30 times per second
@@ -312,7 +317,8 @@ int main()
 	renderer = oe::graphics::PrimitiveRenderer(renderer_info);
 	
 	// shader
-	shader = new oe::assets::DefaultShader();
+	shader_fill = new oe::assets::DefaultShader(oe::polygon_mode::fill);
+	shader_lines = new oe::assets::DefaultShader(oe::polygon_mode::lines);
 
 	// spritepack
 	auto img = oe::assets::TextureSet::oe_logo_img;
@@ -330,7 +336,8 @@ int main()
 	// cleanup
 	delete gui;
 	delete pack;
-	delete shader;
+	delete shader_fill;
+	delete shader_lines;
 
 	return 0;
 }
