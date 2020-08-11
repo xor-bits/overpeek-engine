@@ -28,6 +28,7 @@ set(source_list ${source_list}
 	"engine/assets/default_shader/default_shader.cpp"
 	"engine/assets/default_shader/default_shader.hpp"
 	"engine/assets/default_shader/shader.vert.hpp"
+	"engine/assets/default_shader/shader.vert.g.hpp"
 	"engine/assets/default_shader/shader.geom.l.hpp"
 	"engine/assets/default_shader/shader.geom.p.hpp"
 	"engine/assets/default_shader/shader.frag.hpp"

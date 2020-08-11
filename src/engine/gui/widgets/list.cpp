@@ -76,7 +76,7 @@ namespace oe::gui
         FrameBufferInfo fbi;
         fbi.size = gui_manager->getWindow()->getSize();
         fb = oe::graphics::FrameBuffer(fbi, gui_manager->getWindow());
-        panel->sprite_panel_info.sprite = &fb_sprite;
+        // panel->sprite_panel_info.sprite = &fb_sprite;
         
 		// event listeners
 		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&List::on_render>(this);
@@ -96,7 +96,8 @@ namespace oe::gui
 
 	void List::on_render(const GUIRenderEvent& event)
     {
-        fb->bind();
+        // TODO: fix this
+        /* fb->bind();
         fb->clear(m_list_info.bg_color);
 
         list_gui_manager->render();
@@ -112,7 +113,7 @@ namespace oe::gui
             slider->toggled = true;
             float overflow_size = static_cast<float>(offset_accumulator.at(offset_accumulator.size() - 1) + m_list_info.element_borders - size.y) / static_cast<float>(size.y);
             fb_sprite.position.y -= slider->slider_info.initial_value * overflow_size;
-        }
+        } */
     }
 
     void List::add(size_t pos, Widget* widget)

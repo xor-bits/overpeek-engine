@@ -129,24 +129,40 @@ namespace oe::assets {
 		m_shader->unbind();
 	}
 
-	void DefaultShader::setProjectionMatrix(const glm::mat4& pr_mat) const
+	void DefaultShader::setProjectionMatrix(const glm::mat4& pr_mat)
 	{
-		m_shader->setUniformMat4("pr_matrix", pr_mat);
+		if(m_pr_mat == pr_mat) return;
+		m_pr_mat = pr_mat;
+		updateMVP();
 	}
 
-	void DefaultShader::setViewMatrix(const glm::mat4& vw_mat) const
+	void DefaultShader::setViewMatrix(const glm::mat4& vw_mat)
 	{
-		m_shader->setUniformMat4("vw_matrix", vw_mat);
+		if(m_vw_mat == vw_mat) return;
+		m_vw_mat = vw_mat;
+		updateMVP();
 	}
 		
-	void DefaultShader::setModelMatrix(const glm::mat4& ml_mat) const
+	void DefaultShader::setModelMatrix(const glm::mat4& ml_mat)
 	{
-		m_shader->setUniformMat4("ml_matrix", ml_mat);
+		if(m_ml_mat == ml_mat) return;
+		m_ml_mat = ml_mat;
+		updateMVP();
 	}
 
-	void DefaultShader::useTexture(bool use) const
+	void DefaultShader::updateMVP() const
 	{
-		m_shader->setUniform1i("usetex", use);
+		m_shader->setUniformMat4("mvp_matrix", m_pr_mat * m_vw_mat * m_ml_mat);
+	}
+
+	void DefaultShader::setColor(const glm::vec4& color) const
+	{
+		m_shader->setUniform4f("u_color", color);
+	}
+
+	void DefaultShader::setTexture(bool use) const
+	{
+		m_shader->setUniform1i("u_usetex", use);
 	}
 
 }

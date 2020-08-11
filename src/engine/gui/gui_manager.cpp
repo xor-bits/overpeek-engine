@@ -108,7 +108,7 @@ namespace oe::gui
 		if (m_old_window_size == event.framebuffer_size) return;
 		glm::mat4 pr_matrix = glm::ortho(0.0f, (float)event.framebuffer_size.x, (float)event.framebuffer_size.y, 0.0f, -100000.0f, 100000.0f);
 		m_shader->bind();
-		m_shader->useTexture(true);
+		m_shader->setTexture(true);
 		m_shader->setProjectionMatrix(pr_matrix);
 		m_old_window_size = event.framebuffer_size;
 	}

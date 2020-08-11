@@ -13,16 +13,23 @@ namespace oe::assets
 		oe::graphics::Shader m_shader;
 		oe::polygon_mode m_mode;
 
+		glm::mat4 m_pr_mat = glm::mat4(1.0f);
+		glm::mat4 m_vw_mat = glm::mat4(1.0f);
+		glm::mat4 m_ml_mat = glm::mat4(1.0f);
+
 	public:
 		DefaultShader(oe::polygon_mode mode = oe::polygon_mode::fill);
 
 		void bind() const;
 		void unbind() const;
 
-		void setProjectionMatrix(const glm::mat4& pr_mat = glm::mat4(1.0)) const;
-		void setViewMatrix(const glm::mat4& vw_mat = glm::mat4(1.0)) const;
-		void setModelMatrix(const glm::mat4& ml_mat = glm::mat4(1.0)) const;
-		void useTexture(bool use = true) const;
+		void setProjectionMatrix(const glm::mat4& pr_mat = glm::mat4(1.0));
+		void setViewMatrix(const glm::mat4& vw_mat = glm::mat4(1.0));
+		void setModelMatrix(const glm::mat4& ml_mat = glm::mat4(1.0));
+		void updateMVP() const;
+
+		void setColor(const glm::vec4& color) const; // set uniform color
+		void setTexture(bool use = true) const; // false = use vertex color and uniform color, true = use texture, vertex color and uniform color
 
 		const oe::graphics::Shader& getShader() { return m_shader; }
 

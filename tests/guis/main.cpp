@@ -40,45 +40,46 @@ public:
 };
 
 // render cube
-void cube() {
+void initCube()
+{
 	// vertices
 	const std::vector<oe::graphics::VertexData> box_vertices = 
 	{
 		// front
-		{ { -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f }, color },
-		{ { -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, color },
-		{ {  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, color },
-		{ {  1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f }, color },
+		{ { -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
+		{ { -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
+		{ {  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
+		{ {  1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
 		
 		// back
-		{ { -1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f }, color },
-		{ { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, color },
-		{ {  1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f }, color },
-		{ {  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, color },
+		{ { -1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
+		{ { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
+		{ {  1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
+		{ {  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
 		
 		// top
-		{ { -1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f }, color },
-		{ { -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, color },
-		{ {  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, color },
-		{ {  1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, color },
+		{ { -1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
+		{ { -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
+		{ {  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
+		{ {  1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
 		
 		// bottom
-		{ { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, color },
-		{ { -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, color },
-		{ {  1.0f, -1.0f,  1.0f }, { 1.0f, 1.0f }, color },
-		{ {  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, color },
+		{ { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
+		{ { -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
+		{ {  1.0f, -1.0f,  1.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
+		{ {  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
 		
 		// left
-		{ { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, color },
-		{ { -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, color },
-		{ { -1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, color },
-		{ { -1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, color },
+		{ { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
+		{ { -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
+		{ { -1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
+		{ { -1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
 		
 		// right
-		{ {  1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, color },
-		{ {  1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, color },
-		{ {  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, color },
-		{ {  1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, color },
+		{ {  1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
+		{ {  1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
+		{ {  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
+		{ {  1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
 	};
 
 	// submit
@@ -86,7 +87,10 @@ void cube() {
 	renderer->clear();
 	renderer->submitVertex(box_vertices);
 	renderer->end();
-	
+}
+
+void cube()
+{
 	// shader and model matrix
 	if (checkbox->m_checkbox_info.initial)
 	{
@@ -124,17 +128,16 @@ void cube() {
 		}
 	}
 	ml_matrix = glm::mat4_cast(cube_rotation);
-	shader_fill->bind();
-	shader_fill->setModelMatrix(ml_matrix);
 
 	// render
 	shader_lines->bind();
+	shader_lines->setModelMatrix(ml_matrix);
+	shader_lines->setColor(color);
 	renderer->render();
 }
 
 // render event
 void render(float update_fraction) {
-	// submitting
 	cube();
 
 	// gui
@@ -147,12 +150,12 @@ void resize(const oe::ResizeEvent& event) {
 	glm::mat4 vw_matrix = glm::lookAt(glm::vec3(0.0f, 0.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	
 	shader_fill->bind();
-	shader_fill->useTexture(false);
+	shader_fill->setTexture(false);
 	shader_fill->setProjectionMatrix(pr_matrix);
 	shader_fill->setViewMatrix(vw_matrix);
 
 	shader_lines->bind();
-	shader_lines->useTexture(false);
+	shader_lines->setTexture(false);
 	shader_lines->setProjectionMatrix(pr_matrix);
 	shader_lines->setViewMatrix(vw_matrix);
 }
@@ -162,6 +165,7 @@ void update_30() {
 	auto& gameloop = window->getGameloop(); 
 	std::u32string str = fmt::format(U"frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
 	if(textpanel) textpanel->text_panel_info.text = str;
+	spdlog::info("{}", oe::utils::convertUTF<decltype(str), std::string>(str));
 }
 
 void append_list(const glm::quat& quat)
@@ -315,6 +319,7 @@ int main()
 	renderer_info.max_primitive_count = 6;
 	renderer_info.staticVBOBuffer_data = nullptr;
 	renderer = oe::graphics::PrimitiveRenderer(renderer_info);
+	initCube();
 	
 	// shader
 	shader_fill = new oe::assets::DefaultShader(oe::polygon_mode::fill);
