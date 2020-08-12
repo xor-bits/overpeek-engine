@@ -34,7 +34,7 @@ void update_2() {
 void resize(const oe::ResizeEvent& event) {
 	glm::mat4 pr_matrix = glm::ortho(0.0f, (float)event.framebuffer_size.x, (float)event.framebuffer_size.y, 0.0f);
 	shader->setProjectionMatrix(pr_matrix);
-	shader->useTexture(true);
+	shader->setTexture(true);
 }
 
 int main(int argc, char** argv) {

@@ -62,11 +62,13 @@ namespace oe::gui {
 	{
 		if (!toggled) { quad_lslider->reset(); quad_rslider->reset(); quad_knob->reset(); if (slider_info.draw_value) { label_quad->reset(); } return; }
 
+		if (!slider_info.slider_sprite) slider_info.slider_sprite = slider_info.knob_sprite;
+		if (!slider_info.knob_sprite) slider_info.knob_sprite = slider_info.slider_sprite;
 		NULL_SPRITE_CHECK(!(!slider_info.slider_sprite || !slider_info.knob_sprite));
 
 		if (slider_info.vertical)
 		{
-			glm::vec2 slider_pos = glm::vec2(0.0f, oe::utils::map(slider_info.initial_value, slider_info.min_value, slider_info.max_value, 0.0f, static_cast<float>(size.y - slider_info.knob_size.y)));
+			glm::vec2 slider_pos = glm::vec2(0.0f, oe::utils::map(slider_info.value_initial, slider_info.value_bounds.x, slider_info.value_bounds.y, 0.0f, static_cast<float>(size.y - slider_info.knob_size.y)));
 			{
 				quad_lslider->setPosition(render_position);
 				quad_lslider->setZ(z);
@@ -94,7 +96,7 @@ namespace oe::gui {
 		}
 		else
 		{
-			glm::vec2 slider_pos = glm::vec2(oe::utils::map(slider_info.initial_value, slider_info.min_value, slider_info.max_value, 0.0f, static_cast<float>(size.x - slider_info.knob_size.x)), 0.0f);
+			glm::vec2 slider_pos = glm::vec2(oe::utils::map(slider_info.value_initial, slider_info.value_bounds.x, slider_info.value_bounds.y, 0.0f, static_cast<float>(size.x - slider_info.knob_size.x)), 0.0f);
 			{
 				quad_lslider->setPosition(render_position);
 				quad_lslider->setZ(z);
@@ -122,8 +124,10 @@ namespace oe::gui {
 		}
 
 		// value
-		if (slider_info.draw_value) {
-			value_label->generate(fmt::format("{:.2f}", slider_info.initial_value), m_gui_manager->getWindow(), { 0.0f, 0.0f, 0.0f, 0.2f });
+		if (slider_info.draw_value)
+		{
+			std::string s = fmt::format("{:.2f}", slider_info.value_initial);
+			value_label->generate(s, m_gui_manager->getWindow(), { 0.0f, 0.0f, 0.0f, 0.2f });
 			label_quad->setPosition(static_cast<glm::vec2>(render_position + size / 2));
 			label_quad->setZ(z + 0.075f);
 			label_quad->setSize(value_label->getSize());
@@ -144,7 +148,7 @@ namespace oe::gui {
 	
 	void Slider::clamp()
 	{
-		slider_info.initial_value = oe::utils::clamp(slider_info.initial_value, slider_info.min_value, slider_info.max_value);
+		slider_info.value_initial = oe::utils::clamp(slider_info.value_initial, slider_info.value_bounds.x, slider_info.value_bounds.y);
 	}
 
 	void Slider::on_cursor(const CursorPosEvent& event)
@@ -156,26 +160,26 @@ namespace oe::gui {
 
 		if (m_dragging) {
 			if (slider_info.vertical)
-				slider_info.initial_value =	oe::utils::map(
+				slider_info.value_initial =	oe::utils::map(
 					static_cast<float>(event.cursor_windowspace.y - render_position.y - (slider_info.knob_size.y / 2)), 
 					0.0f, 
 					static_cast<float>(size.y - slider_info.knob_size.y), 
-					slider_info.min_value, 
-					slider_info.max_value
+					slider_info.value_bounds.x, 
+					slider_info.value_bounds.y
 				);
 			else
 			{
-				slider_info.initial_value =	oe::utils::map(
+				slider_info.value_initial =	oe::utils::map(
 					static_cast<float>(event.cursor_windowspace.x - render_position.x - (slider_info.knob_size.x / 2)), 
 					0.0f, 
 					static_cast<float>(size.x - slider_info.knob_size.x), 
-					slider_info.min_value, 
-					slider_info.max_value
+					slider_info.value_bounds.x, 
+					slider_info.value_bounds.y
 				);
 			}
 			clamp();
 			
-			event_use_latest.value = slider_info.initial_value;
+			event_use_latest.value = slider_info.value_initial;
 			dispatcher.trigger(event_use_latest);
 		}
 	}
@@ -192,7 +196,7 @@ namespace oe::gui {
 				event_use_latest.action = event.action;
 				event_use_latest.button = event.button;
 				event_use_latest.modifier = event.mods;
-				event_use_latest.value = slider_info.initial_value;
+				event_use_latest.value = slider_info.value_initial;
 				dispatcher.trigger(event_use_latest);
 
 				on_cursor(event.cursor_pos);
@@ -207,7 +211,7 @@ namespace oe::gui {
 			event_use_latest.action = event.action;
 			event_use_latest.button = event.button;
 			event_use_latest.modifier = event.mods;
-			event_use_latest.value = slider_info.initial_value;
+			event_use_latest.value = slider_info.value_initial;
 			dispatcher.trigger(event_use_latest);
 		}
 	}
@@ -219,14 +223,14 @@ namespace oe::gui {
 		const glm::vec2& cursor_window = m_gui_manager->getWindow()->getCursorWindow();
 		if (check_inside(cursor_window, render_position, size))
 		{
-			const float speed = (slider_info.max_value - slider_info.min_value) * 0.03f;
-			slider_info.initial_value += speed * event.scroll_delta.y;
+			const float speed = (slider_info.value_bounds.y - slider_info.value_bounds.x) * 0.03f;
+			slider_info.value_initial += speed * event.scroll_delta.y;
 			clamp();
 
 			event_use_latest.action = oe::actions::none;
 			event_use_latest.button = oe::mouse_buttons::none;
 			event_use_latest.modifier = oe::modifiers::none;
-			event_use_latest.value = slider_info.initial_value;
+			event_use_latest.value = slider_info.value_initial;
 			dispatcher.trigger(event_use_latest);
 		}
 	}

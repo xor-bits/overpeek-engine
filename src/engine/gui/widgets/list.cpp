@@ -58,8 +58,7 @@ namespace oe::gui
             slider_info.knob_size = { 16, 16 };
             slider_info.slider_lcolor = slider_info.slider_rcolor;
             slider_info.vertical = true;
-            slider_info.min_value = 0.0f;
-            slider_info.max_value = 1.0f;
+            slider_info.value_bounds = { 0.0f, 1.0f };
             slider = new Slider(slider_info);
             slider->toggled = false;
             addSubWidget(slider);

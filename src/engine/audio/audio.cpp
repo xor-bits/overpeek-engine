@@ -3,6 +3,9 @@
 #ifdef __EMSCRIPTEN__
 #include <AL/al.h>
 #include <AL/alc.h>
+#elif defined(VCPKG_TOOLCHAIN)
+#include <AL/al.h>
+#include <AL/alc.h>
 #else
 #include <al.h>
 #include <alc.h>

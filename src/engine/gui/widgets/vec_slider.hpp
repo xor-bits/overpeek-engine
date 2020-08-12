@@ -80,9 +80,8 @@ namespace oe::gui
             slider_info.align_render = oe::alignments::top_left;
             for(size_t i = 0; i < dimension; i++)
             {
-                slider_info.initial_value = slider_info.initial_values[i];
-                slider_info.min_value = slider_info.min_values[i];
-                slider_info.max_value = slider_info.max_values[i];
+                slider_info.value_initial = slider_info.initial_values[i];
+                slider_info.value_bounds = { slider_info.min_values[i], slider_info.max_values[i] };
                 sliders[i] = new Slider(slider_info);
                 addSubWidget(sliders[i]);
                 slider_info.offset_position += offset_next;
@@ -104,7 +103,7 @@ namespace oe::gui
         void get(std::array<float, dimension>& val) const
         { 
             for(int i = 0; i < dimension; i++) 
-                val[i] = sliders[i]->slider_info.initial_value; 
+                val[i] = sliders[i]->slider_info.value_initial; 
         }
 
         std::array<float, dimension> get() const
@@ -123,7 +122,7 @@ namespace oe::gui
         void set(const std::array<float, dimension>& val)
         {
             for(int i = 0; i < dimension; i++)
-                sliders[i]->slider_info.initial_value = val[i];
+                sliders[i]->slider_info.value_initial = val[i];
         }
 
 	private:

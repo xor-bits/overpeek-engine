@@ -15,10 +15,13 @@
 #include <stb_image_write.h>
 
 #define MINIMP3_IMPLEMENTATION
-#include "minimp3_ex.h"
+#include <minimp3/minimp3_ex.h>
 
 #ifdef __EMSCRIPTEN__
 #include <AL/al.h>
+#elif defined(VCPKG_TOOLCHAIN)
+#include <AL/al.h>
+#include <AL/alc.h>
 #else
 #include <al.h>
 #endif

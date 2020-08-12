@@ -11,16 +11,15 @@ namespace oe::gui {
 
 	struct SliderInfo
 	{
-		float min_value                           = -1.0f;
-		float max_value                           = 1.0f;
-		float initial_value                       = 0.0f;
+		glm::vec2 value_bounds                    = { -1.0f, 1.0f };
+		float value_initial                       = 0.0f;
 		bool draw_value                           = false;
 		int draw_font_size                        = 14;
 		std::string draw_font_path                = ""; // empty for gui default
 		bool vertical                             = false;
 		bool scroll                               = false;
-		glm::ivec2 slider_size                    = { 50, 50 };
-		glm::ivec2 knob_size                      = { 50, 50 };
+		glm::ivec2 slider_size                    = { 100, 30 };
+		glm::ivec2 knob_size                      = { 30, 30 };
 		glm::vec4 knob_color                      = oe::colors::grey;
 		glm::vec4 slider_lcolor                   = oe::colors::dark_grey;
 		glm::vec4 slider_rcolor                   = oe::colors::darker_grey;

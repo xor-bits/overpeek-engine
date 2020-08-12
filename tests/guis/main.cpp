@@ -1,5 +1,4 @@
 #include <engine/include.hpp>
-#include <spdlog/fmt/bundled/format.h>
 
 #include <string>
 
@@ -165,7 +164,6 @@ void update_30() {
 	auto& gameloop = window->getGameloop(); 
 	std::u32string str = fmt::format(U"frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
 	if(textpanel) textpanel->text_panel_info.text = str;
-	spdlog::info("{}", oe::utils::convertUTF<decltype(str), std::string>(str));
 }
 
 void append_list(const glm::quat& quat)

@@ -38,7 +38,7 @@ void resize(const oe::ResizeEvent& event) {
 	float aspect = event.aspect;
 	glm::mat4 pr = glm::ortho(-aspect, aspect, 1.0f, -1.0f);
 	shader->setProjectionMatrix(pr);
-	shader->useTexture(true);
+	shader->setTexture(true);
 }
 
 void render(float update_fraction) {
