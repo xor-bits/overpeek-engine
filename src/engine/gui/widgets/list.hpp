@@ -10,10 +10,6 @@ namespace oe::gui
 {
     struct ListInfo
     {
-		glm::ivec2 size                    = { 100, 300 };
-		glm::ivec2 offset_position         = { 0, 0 };
-		glm::vec2 align_parent             = oe::alignments::top_left;
-		glm::vec2 align_render             = oe::alignments::top_left;
         bool scrollable                    = true;
         int element_borders                = 5;
 		glm::vec4 bg_color                 = { 0.17f, 0.17f, 0.17f, 1.0f };
@@ -23,6 +19,8 @@ namespace oe::gui
         int title_height                   = 0; // 28
         int title_font_size                = 16;
 		const oe::graphics::Sprite* sprite = nullptr; // must be set
+
+		WidgetInfo widget_info = { { 100, 300 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
     };
 
 	class SpritePanel;

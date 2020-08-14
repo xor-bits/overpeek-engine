@@ -162,7 +162,7 @@ void resize(const oe::ResizeEvent& event) {
 // update 30 times per second
 void update_30() {
 	auto& gameloop = window->getGameloop(); 
-	std::u32string str = fmt::format(U"frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
+	std::u32string str = fmt::format(U"frametime: {:3.3f} ms ({} fps) updatetime: {:3.3f} ms ({} ups) this is some useless text lololololololololo", gameloop.getFrametimeMS(), gameloop.getAverageFPS(), gameloop.getUpdatetimeMS<30>(), gameloop.getAverageUPS<30>());
 	if(textpanel) textpanel->text_panel_info.text = str;
 }
 
@@ -176,18 +176,14 @@ void append_list(const glm::quat& quat)
 void setup_gui() {
 	{
 		oe::gui::SpritePanelInfo sprite_panel_info;
-		sprite_panel_info.size = { 150, 150 };
-		sprite_panel_info.align_parent = oe::alignments::bottom_left;
-		sprite_panel_info.align_render = oe::alignments::bottom_left;
+		sprite_panel_info.widget_info = { { 150, 150 }, { 0, 0 }, oe::alignments::bottom_left, oe::alignments::bottom_left };
 		sprite_panel_info.sprite = sprite;
 		box = new oe::gui::SpritePanel(sprite_panel_info);
 		gui->addSubWidget(box);
 	}
 	{
 		oe::gui::TextInputInfo text_input_info;
-		text_input_info.size = { 200, 80 };
-		text_input_info.align_parent = oe::alignments::bottom_right;
-		text_input_info.align_render = oe::alignments::bottom_right;
+		text_input_info.widget_info = { { 200, 80 }, { 0, 0 }, oe::alignments::bottom_right, oe::alignments::bottom_right };
 		text_input_info.font_size = 14;
 		text_input_info.sprite = pack->emptySprite();
 		textbox = new oe::gui::TextInput(text_input_info);
@@ -195,9 +191,7 @@ void setup_gui() {
 	}
 	{
 		oe::gui::DecoratedButtonInfo button_info;
-		button_info.size = { 175, 50 };
-		button_info.align_parent = oe::alignments::top_center;
-		button_info.align_render = oe::alignments::top_center;
+		button_info.button_info.widget_info = { { 175, 50 }, { 0, 0 }, oe::alignments::top_center, oe::alignments::top_center };
 		button_info.sprite = pack->emptySprite();
 		button_info.text = U"log";
 		auto button = new oe::gui::DecoratedButton(button_info);
@@ -213,33 +207,27 @@ void setup_gui() {
 	}
 	{
 		oe::gui::VecSliderInfo<4> vecslider_info;
-		vecslider_info.slider_size = { 400, 30 };
-		vecslider_info.knob_size = { 45, 45 };
-		vecslider_info.align_parent = oe::alignments::bottom_center;
-		vecslider_info.align_render = oe::alignments::bottom_center;
-		vecslider_info.slider_sprite = pack->emptySprite();
-		vecslider_info.knob_sprite = sprite;
+		vecslider_info.slider_info.widget_info = { { 400, 30 }, { 0, 0 }, oe::alignments::bottom_center, oe::alignments::bottom_center };
+		vecslider_info.slider_info.slider_sprite = pack->emptySprite();
+		vecslider_info.slider_info.knob_sprite = sprite;
+		vecslider_info.slider_info.draw_value = true;
 		vecslider_info.min_values = { -glm::pi<float>(), -1.0f, -1.0f, -1.0f };
 		vecslider_info.max_values = { glm::pi<float>(), 1.0f, 1.0f, 1.0f };
 		vecslider_info.initial_values = { 0.0f, 1.0f, 1.0f, 1.0f };
-		vecslider_info.draw_value = true;
 		quat_slider = new oe::gui::VecSlider<4>(vecslider_info);
 		gui->addSubWidget(quat_slider);
 	}
 	{
 		oe::gui::CheckboxInfo ci;
-		ci.align_parent = oe::alignments::bottom_center;
-		ci.align_render = oe::alignments::bottom_center;
-		ci.offset_position = { 0, -40 };
+		ci.widget_info = { { 24, 24 }, { 0, -40 }, oe::alignments::bottom_center, oe::alignments::bottom_center };
 		ci.sprite = pack->emptySprite();
 		checkbox = new oe::gui::Checkbox(ci);
 		gui->addSubWidget(checkbox);
 	}
 	{
 		oe::gui::TextPanelInfo text_panel_info;
+		text_panel_info.widget_info = { { 0, 0 }, { 0, 0 }, oe::alignments::top_left, oe::alignments::top_left };
 		text_panel_info.font_size = 20;
-		text_panel_info.align_parent = oe::alignments::top_left;
-		text_panel_info.align_render = oe::alignments::top_left;
 		text_panel_info.text = U"placeholder";
 		text_panel_info.font_path = oe::default_font_path + std::string("arialbi.ttf");
 		textpanel = new oe::gui::TextPanel(text_panel_info);
@@ -247,10 +235,8 @@ void setup_gui() {
 	}
 	{
 		oe::gui::ColorPickerInfo color_picker_info;
-		color_picker_info.size = { 200, 100 };
+		color_picker_info.widget_info = { { 200, 100 }, { 0, 0 }, oe::alignments::center_left, oe::alignments::center_left };
 		color_picker_info.initial_color = color;
-		color_picker_info.align_parent = oe::alignments::center_left;
-		color_picker_info.align_render = oe::alignments::center_left;
 		color_picker_info.sprite = pack->emptySprite();
 		auto color_picker = new oe::gui::ColorPicker(color_picker_info);
 		gui->addSubWidget(color_picker);
@@ -263,20 +249,20 @@ void setup_gui() {
 	}
 	{
 		oe::gui::ListInfo list_info;
-		list_info.size = { 200, 400 };
-		list_info.align_parent = oe::alignments::top_right;
-		list_info.align_render = oe::alignments::top_right;
+		list_info.widget_info = { { 200, 400 }, { 0, 0 }, oe::alignments::top_right, oe::alignments::top_right };
 		list_info.sprite = pack->emptySprite();
 		list_info.title = U"Loglist";
 		list_info.title_height = 28;
 		list = new oe::gui::List(list_info);
 		gui->addSubWidget(list);
+
+		// list->toggle(false); // TODO: fix bug that makes list not disappear, but go to oe::allignments::top_left
 	}
 
 	tpi = {};
 	tpi.font_size = 14;
-	tpi.align_parent = oe::alignments::top_left;
-	tpi.align_render = oe::alignments::top_left;
+	tpi.widget_info.align_parent = oe::alignments::top_left;
+	tpi.widget_info.align_render = oe::alignments::top_left;
 	tpi.text = U"placeholder";
 	
 	auto& random = oe::utils::Random::getSingleton();

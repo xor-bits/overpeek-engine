@@ -22,13 +22,14 @@ namespace oe::gui
 		renderer_info.staticVBOBuffer_data = nullptr;
 		m_renderer = new oe::graphics::Renderer(renderer_info);
 		m_late_renderer = new oe::graphics::Renderer(renderer_info);
+		m_line_renderer = new oe::graphics::Renderer(renderer_info);
 
 		// shader
-		m_shader = new oe::assets::DefaultShader();
+		m_shader_fill = new oe::assets::DefaultShader(oe::polygon_mode::fill);
+		m_shader_lines = new oe::assets::DefaultShader(oe::polygon_mode::lines);
 
-		FormInfo form_info = {};
-		form_info.size = m_window->getSize() - glm::ivec2(2 * border);
-		form_info.offset_position = { border, border };
+		FormInfo form_info;
+		form_info.widget_info = { m_window->getSize() - glm::ivec2(2 * border), { border, border }, oe::alignments::top_left, oe::alignments::top_left };
 		m_main_frame = new oe::gui::Form(form_info);
 		m_offset = { 0, 0 };
 		m_old_window_size = { 0, 0 };
@@ -47,7 +48,9 @@ namespace oe::gui
 		delete m_main_frame;
 		delete m_renderer;
 		delete m_late_renderer;
-		delete m_shader;
+		delete m_line_renderer;
+		delete m_shader_fill;
+		delete m_shader_lines;
 		
 		// event listeners
 		m_window->disconnect_listener<oe::ResizeEvent, &GUI::on_resize>(this);
@@ -58,8 +61,10 @@ namespace oe::gui
 		m_offset = offset;
 
 		glm::mat4 ml_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(offset, 0.0f));
-		m_shader->bind();
-		m_shader->setModelMatrix(ml_matrix);
+		m_shader_fill->bind();
+		m_shader_fill->setModelMatrix(ml_matrix);
+		m_shader_lines->bind();
+		m_shader_lines->setModelMatrix(ml_matrix);
 	}
 
 	void GUI::render()
@@ -70,9 +75,11 @@ namespace oe::gui
 
 		render_empty();
 
-		m_shader->bind();
+		m_shader_fill->bind();
 		m_renderer->render();
 		m_late_renderer->render();
+		// m_shader_lines->bind();
+		// m_line_renderer->render();
 		
 		engine.depth(old_depth);
 	}
@@ -92,8 +99,8 @@ namespace oe::gui
 
 	void GUI::on_resize(const oe::ResizeEvent& event)
 	{
-		m_main_frame->size = static_cast<glm::vec2>(event.framebuffer_size) - glm::vec2(2 * border);
-		m_main_frame->offset_position = { border, border };
+		m_main_frame->m_info.size = static_cast<glm::vec2>(event.framebuffer_size) - glm::vec2(2 * border);
+		m_main_frame->m_info.offset_position = { border, border };
 
 		/*
 		    0                  0
@@ -107,9 +114,12 @@ namespace oe::gui
 
 		if (m_old_window_size == event.framebuffer_size) return;
 		glm::mat4 pr_matrix = glm::ortho(0.0f, (float)event.framebuffer_size.x, (float)event.framebuffer_size.y, 0.0f, -100000.0f, 100000.0f);
-		m_shader->bind();
-		m_shader->setTexture(true);
-		m_shader->setProjectionMatrix(pr_matrix);
+		m_shader_fill->bind();
+		m_shader_fill->setTexture(true);
+		m_shader_fill->setProjectionMatrix(pr_matrix);
+		m_shader_lines->bind();
+		m_shader_lines->setTexture(true);
+		m_shader_lines->setProjectionMatrix(pr_matrix);
 		m_old_window_size = event.framebuffer_size;
 	}
 
@@ -126,6 +136,11 @@ namespace oe::gui
 	oe::graphics::Renderer* GUI::getRenderer() const
 	{
 		return m_renderer;
+	}
+
+	oe::graphics::Renderer* GUI::getLineRenderer() const
+	{
+		return m_line_renderer;
 	}
 
 	oe::graphics::Renderer* GUI::getLateRenderer() const

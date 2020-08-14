@@ -52,7 +52,7 @@ namespace oe::gui
 	}
 	
 	TextInput::TextInput(const TextInputInfo& _text_input_info)
-		: Widget(_text_input_info.size, _text_input_info.align_parent, _text_input_info.align_render, _text_input_info.offset_position)
+		: Widget(_text_input_info.widget_info)
 		, text_input_info(_text_input_info)
 		, m_selected(false)
 		, m_filtering(_text_input_info.filter != filter_none)
@@ -98,14 +98,14 @@ namespace oe::gui
 	
 	void TextInput::on_render(const GUIRenderEvent& event)
 	{
-		if (!toggled) { quad->reset(); text_quad->reset(); return; }
+		if (!m_info.toggled) { quad->reset(); text_quad->reset(); return; }
 
 		NULL_SPRITE_CHECK(text_input_info.sprite);
 
 		// bounding box
 		quad->setPosition(render_position);
 		quad->setZ(z);
-		quad->setSize(static_cast<glm::vec2>(size));
+		quad->setSize(static_cast<glm::vec2>(m_info.size));
 		quad->setSprite(text_input_info.sprite);
 		quad->setColor(text_input_info.color);
 		quad->update();
@@ -122,7 +122,7 @@ namespace oe::gui
 		// text
 		const std::u32string drawn_str = fmt::format(U"<#000000>{}{}", text_input_info.text, bar);
 		label->generate(drawn_str, m_gui_manager->getWindow());
-		text_quad->setPosition(static_cast<glm::vec2>(render_position + oe::alignmentOffset(size, text_input_info.align_text) - oe::alignmentOffset(static_cast<glm::ivec2>(label->getSize()), text_input_info.align_text)));
+		text_quad->setPosition(static_cast<glm::vec2>(render_position + oe::alignmentOffset(m_info.size, text_input_info.align_text) - oe::alignmentOffset(static_cast<glm::ivec2>(label->getSize()), text_input_info.align_text)));
 		text_quad->setZ(z + 0.05f);
 		text_quad->setSize(label->getSize());
 		text_quad->setSprite(label->getSprite());
@@ -193,9 +193,9 @@ namespace oe::gui
 	{
 		if (event.button == oe::mouse_buttons::button_left && event.action == oe::actions::press) {
 			if (event.cursor_pos.cursor_windowspace.x >= render_position.x &&
-				event.cursor_pos.cursor_windowspace.x < render_position.x + size.x &&
+				event.cursor_pos.cursor_windowspace.x < render_position.x + m_info.size.x &&
 				event.cursor_pos.cursor_windowspace.y >= render_position.y &&
-				event.cursor_pos.cursor_windowspace.y < render_position.y + size.y
+				event.cursor_pos.cursor_windowspace.y < render_position.y + m_info.size.y
 			/*if (*/ )
 			{
 				m_selected = true;

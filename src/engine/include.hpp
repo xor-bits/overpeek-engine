@@ -34,6 +34,7 @@
 #include "gui/widgets/checkbox.hpp"
 #include "gui/widgets/color_picker.hpp"
 #include "gui/widgets/list.hpp"
+#include "gui/widgets/graph.hpp"
 
 // Other
 #include "engine/enum.hpp"

@@ -138,7 +138,9 @@ set(source_list ${source_list}
 	"engine/gui/widgets/widget.hpp"
 	"engine/gui/widgets/list.cpp"
 	"engine/gui/widgets/list.hpp"
-)
+	"engine/gui/widgets/graph.cpp"
+	"engine/gui/widgets/graph.hpp"
+	)
 set(source_list ${source_list} 
 	"engine/networking/client.cpp"
 	"engine/networking/client.hpp"
@@ -227,7 +229,9 @@ if(VCPKG_TOOLCHAIN) # with vcpkg
 	target_link_libraries(${target_name} PRIVATE miniz::miniz)
 	target_link_libraries(${target_name} PRIVATE enet)
 	find_package(freetype CONFIG REQUIRED)
-    target_link_libraries(${target_name} PRIVATE freetype)
+	target_link_libraries(${target_name} PRIVATE freetype)
+	find_package(Microsoft.GSL CONFIG REQUIRED)
+    target_link_libraries(${target_name} PRIVATE Microsoft.GSL::GSL)
 
 	# optional deps
 	if(OE_BUILD_MODE GREATER_EQUAL 1)

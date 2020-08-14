@@ -7,7 +7,9 @@
 
 
 
-namespace oe::graphics {
+namespace oe::graphics
+{
+	uint32_t GLFrameBuffer::bound_fbo_id = 0xFFFFFFFF;
 
 	GLFrameBuffer::GLFrameBuffer(const FrameBufferInfo& framebuffer_info, const Window& window)
 		: IFrameBuffer(framebuffer_info, window) 
@@ -47,17 +49,25 @@ namespace oe::graphics {
 		sprite.size = { 1.0f, -1.0f };
 	}
 
-	GLFrameBuffer::~GLFrameBuffer() {
+	GLFrameBuffer::~GLFrameBuffer()
+	{
 		glDeleteFramebuffers(1, &m_id);
 		glDeleteRenderbuffers(1, &m_rbo);
 	}
 
-	void GLFrameBuffer::clear(const glm::vec4& color) {
+	void GLFrameBuffer::clear(const glm::vec4& color)
+	{
+		bind();
+
 		glClearColor(color.x, color.y, color.z, color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	void GLFrameBuffer::bind() {
+	void GLFrameBuffer::bind()
+	{
+		if (bound_fbo_id == m_id) return;
+		bound_fbo_id = m_id;
+
 		glBindFramebuffer(GL_FRAMEBUFFER, m_id);
 		glViewport(0, 0, m_framebuffer_info.size.x, m_framebuffer_info.size.y);
 	}

@@ -7,7 +7,7 @@
 namespace oe::gui {
 
 	Form::Form(const FormInfo& _form_info) 
-		: Widget::Widget(_form_info.size, _form_info.align_parent, _form_info.align_render, _form_info.offset_position)
+		: Widget::Widget(_form_info.widget_info)
 		, form_info(_form_info)
 	{
 	}

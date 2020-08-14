@@ -6,21 +6,18 @@
 
 
 namespace oe::gui { class Slider; class SpritePanel; }
-namespace oe::graphics { class Sprite; }
+namespace oe::graphics { struct Sprite; }
 
 namespace oe::gui
 {
-	struct ColorPickerInfo {
-		float min_value                    = -1.0f;
-		float max_value                    = 1.0f;
-		int draw_value                     = 2; // (false/0) = no draw, (true/1) = draw 0.0-1.0, 2 = draw 0-256
+	struct ColorPickerInfo
+	{
+		uint8_t draw_value                 = 2; // (false/0) = no draw, (true/1) = draw 0.0-1.0, 2 = draw 0-256
 		glm::vec4 initial_color            = oe::colors::white;
 		glm::vec4 background_color         = oe::colors::dark_grey;
-		glm::ivec2 size                    = { 200, 100 };
 		const oe::graphics::Sprite* sprite = nullptr; // must be set
-		glm::ivec2 offset_position         = { 0, 0 };
-		glm::vec2 align_parent             = oe::alignments::center_center;
-		glm::vec2 align_render             = oe::alignments::center_center;
+
+		WidgetInfo widget_info = { { 200, 100 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
 	};
 
 	struct ColorPickerHoverEvent

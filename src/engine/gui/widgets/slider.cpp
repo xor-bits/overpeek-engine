@@ -10,7 +10,7 @@
 namespace oe::gui {
 
 	Slider::Slider(const SliderInfo& _slider_info) 
-		: Widget(_slider_info.slider_size, _slider_info.align_parent, _slider_info.align_render, _slider_info.offset_position)
+		: Widget(_slider_info.widget_info)
 		, slider_info(_slider_info)
 		, m_dragging(false)
 	{}
@@ -60,7 +60,7 @@ namespace oe::gui {
 	
 	void Slider::on_render(const GUIRenderEvent& event)
 	{
-		if (!toggled) { quad_lslider->reset(); quad_rslider->reset(); quad_knob->reset(); if (slider_info.draw_value) { label_quad->reset(); } return; }
+		if (!m_info.toggled) { quad_lslider->reset(); quad_rslider->reset(); quad_knob->reset(); if (slider_info.draw_value) { label_quad->reset(); } return; }
 
 		if (!slider_info.slider_sprite) slider_info.slider_sprite = slider_info.knob_sprite;
 		if (!slider_info.knob_sprite) slider_info.knob_sprite = slider_info.slider_sprite;
@@ -68,11 +68,11 @@ namespace oe::gui {
 
 		if (slider_info.vertical)
 		{
-			glm::vec2 slider_pos = glm::vec2(0.0f, oe::utils::map(slider_info.value_initial, slider_info.value_bounds.x, slider_info.value_bounds.y, 0.0f, static_cast<float>(size.y - slider_info.knob_size.y)));
+			glm::vec2 slider_pos = glm::vec2(0.0f, oe::utils::map(slider_info.value_initial, slider_info.value_bounds.x, slider_info.value_bounds.y, 0.0f, static_cast<float>(m_info.size.y - slider_info.knob_size.y)));
 			{
 				quad_lslider->setPosition(render_position);
 				quad_lslider->setZ(z);
-				quad_lslider->setSize({ size.x, slider_pos.y });
+				quad_lslider->setSize({ m_info.size.x, slider_pos.y });
 				quad_lslider->setColor(slider_info.slider_lcolor);
 				quad_lslider->setSprite(slider_info.slider_sprite);
 				quad_lslider->update();
@@ -80,13 +80,13 @@ namespace oe::gui {
 			{
 				quad_rslider->setPosition({ render_position.x, render_position.y + slider_pos.y });
 				quad_rslider->setZ(z + 0.025f);
-				quad_rslider->setSize({ size.x, size.y - slider_pos.y });
+				quad_rslider->setSize({ m_info.size.x, m_info.size.y - slider_pos.y });
 				quad_rslider->setColor(slider_info.slider_rcolor);
 				quad_rslider->setSprite(slider_info.slider_sprite);
 				quad_rslider->update();
 			}
 
-			quad_knob->setPosition(static_cast<glm::vec2>(render_position + static_cast<glm::ivec2>(slider_pos) + glm::ivec2(slider_info.slider_size.x / 2, slider_info.knob_size.y / 2)));
+			quad_knob->setPosition(static_cast<glm::vec2>(render_position + static_cast<glm::ivec2>(slider_pos) + glm::ivec2(m_info.size.x / 2, slider_info.knob_size.y / 2)));
 			quad_knob->setZ(z + 0.05f);
 			quad_knob->setSize(slider_info.knob_size);
 			quad_knob->setColor(slider_info.knob_color);
@@ -96,11 +96,11 @@ namespace oe::gui {
 		}
 		else
 		{
-			glm::vec2 slider_pos = glm::vec2(oe::utils::map(slider_info.value_initial, slider_info.value_bounds.x, slider_info.value_bounds.y, 0.0f, static_cast<float>(size.x - slider_info.knob_size.x)), 0.0f);
+			glm::vec2 slider_pos = glm::vec2(oe::utils::map(slider_info.value_initial, slider_info.value_bounds.x, slider_info.value_bounds.y, 0.0f, static_cast<float>(m_info.size.x - slider_info.knob_size.x)), 0.0f);
 			{
 				quad_lslider->setPosition(render_position);
 				quad_lslider->setZ(z);
-				quad_lslider->setSize({ slider_pos.x, size.y });
+				quad_lslider->setSize({ slider_pos.x, m_info.size.y });
 				quad_lslider->setColor(slider_info.slider_lcolor);
 				quad_lslider->setSprite(slider_info.slider_sprite);
 				quad_lslider->update();
@@ -108,13 +108,13 @@ namespace oe::gui {
 			{
 				quad_rslider->setPosition({ render_position.x + slider_pos.x, render_position.y });
 				quad_rslider->setZ(z + 0.025f);
-				quad_rslider->setSize({ size.x - slider_pos.x, size.y });
+				quad_rslider->setSize({ m_info.size.x - slider_pos.x, m_info.size.y });
 				quad_rslider->setColor(slider_info.slider_rcolor);
 				quad_rslider->setSprite(slider_info.slider_sprite);
 				quad_rslider->update();
 			}
 
-			quad_knob->setPosition(static_cast<glm::vec2>(render_position + static_cast<glm::ivec2>(slider_pos) + glm::ivec2(slider_info.knob_size.x / 2, slider_info.slider_size.y / 2)));
+			quad_knob->setPosition(static_cast<glm::vec2>(render_position + static_cast<glm::ivec2>(slider_pos) + glm::ivec2(slider_info.knob_size.x / 2, m_info.size.y / 2)));
 			quad_knob->setZ(z + 0.05f);
 			quad_knob->setSize(slider_info.knob_size);
 			quad_knob->setColor(slider_info.knob_color);
@@ -128,7 +128,7 @@ namespace oe::gui {
 		{
 			std::string s = fmt::format("{:.2f}", slider_info.value_initial);
 			value_label->generate(s, m_gui_manager->getWindow(), { 0.0f, 0.0f, 0.0f, 0.2f });
-			label_quad->setPosition(static_cast<glm::vec2>(render_position + size / 2));
+			label_quad->setPosition(static_cast<glm::vec2>(render_position + m_info.size / 2));
 			label_quad->setZ(z + 0.075f);
 			label_quad->setSize(value_label->getSize());
 			label_quad->setSprite(value_label->getSprite());
@@ -153,7 +153,7 @@ namespace oe::gui {
 
 	void Slider::on_cursor(const CursorPosEvent& event)
 	{
-		if (check_inside(event.cursor_windowspace, render_position, size))
+		if (check_inside(event.cursor_windowspace, render_position, m_info.size))
 		{
 			dispatcher.trigger(event_hover_latest);
 		}
@@ -163,7 +163,7 @@ namespace oe::gui {
 				slider_info.value_initial =	oe::utils::map(
 					static_cast<float>(event.cursor_windowspace.y - render_position.y - (slider_info.knob_size.y / 2)), 
 					0.0f, 
-					static_cast<float>(size.y - slider_info.knob_size.y), 
+					static_cast<float>(m_info.size.y - slider_info.knob_size.y), 
 					slider_info.value_bounds.x, 
 					slider_info.value_bounds.y
 				);
@@ -172,7 +172,7 @@ namespace oe::gui {
 				slider_info.value_initial =	oe::utils::map(
 					static_cast<float>(event.cursor_windowspace.x - render_position.x - (slider_info.knob_size.x / 2)), 
 					0.0f, 
-					static_cast<float>(size.x - slider_info.knob_size.x), 
+					static_cast<float>(m_info.size.x - slider_info.knob_size.x), 
 					slider_info.value_bounds.x, 
 					slider_info.value_bounds.y
 				);
@@ -186,7 +186,7 @@ namespace oe::gui {
 
 	void Slider::on_button(const MouseButtonEvent& event)
 	{
-		if (check_inside(event.cursor_pos.cursor_windowspace, render_position, size))
+		if (check_inside(event.cursor_pos.cursor_windowspace, render_position, m_info.size))
 		{
 			// hold
 			if (event.button == oe::mouse_buttons::button_left && event.action != oe::actions::release) // press or repeat
@@ -221,7 +221,7 @@ namespace oe::gui {
 		if (!slider_info.scroll) return;
 
 		const glm::vec2& cursor_window = m_gui_manager->getWindow()->getCursorWindow();
-		if (check_inside(cursor_window, render_position, size))
+		if (check_inside(cursor_window, render_position, m_info.size))
 		{
 			const float speed = (slider_info.value_bounds.y - slider_info.value_bounds.x) * 0.03f;
 			slider_info.value_initial += speed * event.scroll_delta.y;

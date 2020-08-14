@@ -8,7 +8,7 @@
 namespace oe::gui {
 
 	SpritePanel::SpritePanel(const SpritePanelInfo& _sprite_panel_info)
-		: Widget::Widget(_sprite_panel_info.size, _sprite_panel_info.align_parent, _sprite_panel_info.align_render, _sprite_panel_info.offset_position)
+		: Widget::Widget(_sprite_panel_info.widget_info)
 		, sprite_panel_info(_sprite_panel_info)
 	{
 	}
@@ -38,13 +38,13 @@ namespace oe::gui {
 
 	void SpritePanel::on_render(const GUIRenderEvent& event)
 	{
-		if (!toggled) { quad->reset(); return; }
+		if (!m_info.toggled) { quad->reset(); return; }
 
 		NULL_SPRITE_CHECK(sprite_panel_info.sprite);
 
 		quad->setPosition(render_position);
 		quad->setZ(z);
-		quad->setSize(size);
+		quad->setSize(m_info.size);
 		quad->setColor(sprite_panel_info.color);
 		quad->setSprite(sprite_panel_info.sprite);
 		quad->update();

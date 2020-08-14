@@ -18,16 +18,14 @@ namespace oe::gui {
 		std::string draw_font_path                = ""; // empty for gui default
 		bool vertical                             = false;
 		bool scroll                               = false;
-		glm::ivec2 slider_size                    = { 100, 30 };
 		glm::ivec2 knob_size                      = { 30, 30 };
 		glm::vec4 knob_color                      = oe::colors::grey;
 		glm::vec4 slider_lcolor                   = oe::colors::dark_grey;
 		glm::vec4 slider_rcolor                   = oe::colors::darker_grey;
 		const oe::graphics::Sprite* knob_sprite   = nullptr; // must be set
 		const oe::graphics::Sprite* slider_sprite = nullptr; // must be set
-		glm::ivec2 offset_position                = { 0, 0 };
-		glm::vec2 align_parent                    = oe::alignments::center_center;
-		glm::vec2 align_render                    = oe::alignments::center_center;
+
+		WidgetInfo widget_info                    = { { 150, 30 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
 	};
 
 	struct SliderHoverEvent

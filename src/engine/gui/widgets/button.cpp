@@ -7,7 +7,7 @@
 namespace oe::gui {
 
 	Button::Button(const ButtonInfo& _button_info)
-		: Widget(_button_info.size, _button_info.align_parent, _button_info.align_render, _button_info.offset_position)
+		: Widget(_button_info.widget_info)
 		, button_info(_button_info)
 	{}
 
@@ -36,7 +36,7 @@ namespace oe::gui {
 		
 	void Button::on_cursor(const CursorPosEvent& event)
 	{
-		if (check_inside(event.cursor_windowspace, render_position, size)) 
+		if (check_inside(event.cursor_windowspace, render_position, m_info.size)) 
 		{
 			dispatcher.trigger(event_hover_latest);
 		}
@@ -44,7 +44,7 @@ namespace oe::gui {
 
 	void Button::on_button(const MouseButtonEvent& event)
 	{
-		if (check_inside(event.cursor_pos.cursor_windowspace, render_position, size)) 
+		if (check_inside(event.cursor_pos.cursor_windowspace, render_position, m_info.size)) 
 		{
 			event_use_latest.action = event.action;
 			event_use_latest.button = event.button;

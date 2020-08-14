@@ -14,6 +14,15 @@ namespace oe::gui { struct GUIRenderEvent; class GUI; }
 
 namespace oe::gui
 {
+	struct WidgetInfo
+	{
+		glm::ivec2 size                    = { 50, 50 };
+		glm::ivec2 offset_position         = { 0, 0 };
+		glm::vec2 align_parent             = oe::alignments::center_center;
+		glm::vec2 align_render             = oe::alignments::center_center;
+		bool toggled                       = true;
+	};
+
 	class Widget
 	{
 	private:
@@ -31,14 +40,10 @@ namespace oe::gui
 		entt::dispatcher dispatcher;
 
 	public:
-		glm::ivec2 size = { 0, 0 };
-		glm::ivec2 offset_position = { 0, 0 };
-		glm::vec2 align_parent = ::oe::alignments::center_center;
-		glm::vec2 align_render = ::oe::alignments::center_center;
-		bool toggled = true;
+		WidgetInfo m_info;
 
 	public:
-		Widget(const glm::ivec2& size, const glm::vec2& align_parent, const glm::vec2& align_render, const glm::ivec2& offset_position);
+		Widget(const WidgetInfo& info);
 		virtual ~Widget();
 
 		// connect event
@@ -75,6 +80,8 @@ namespace oe::gui
 		float getZ() { return z; }
 		void overrideZ(float _z) { z = _z; }
 
+		void toggle(bool enabled = true);
+
 	private:
 		// events
 		void on_render(const GUIRenderEvent& event);
@@ -82,3 +89,14 @@ namespace oe::gui
 	friend class GUI;
 	};
 }
+
+template <>
+struct fmt::formatter<oe::gui::WidgetInfo> {
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx) { return ctx.begin(); }
+
+	template <typename FormatContext>
+	auto format(const oe::gui::WidgetInfo& i, FormatContext& ctx) {
+		return format_to(ctx.out(), "[ s: {}, o: {}, a0: {}, a1: {}, t: {} ]", i.size, i.offset_position, i.align_parent, i.align_render, i.toggled);
+	}
+};

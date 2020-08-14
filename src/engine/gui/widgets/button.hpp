@@ -9,10 +9,7 @@ namespace oe::gui
 {
 	struct ButtonInfo
 	{
-		glm::ivec2 size              = { 50, 50 };
-		glm::ivec2 offset_position   = { 0, 0 };
-		glm::vec2 align_parent       = oe::alignments::center_center;
-		glm::vec2 align_render       = oe::alignments::center_center;
+		WidgetInfo widget_info = { { 50, 50 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
 	};
 
 	struct ButtonHoverEvent

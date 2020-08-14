@@ -89,10 +89,8 @@ namespace oe::graphics {
 		m_text = text;
 		initial_generated = true;
 
-		float multisamples = std::max(static_cast<float>(window->m_window_info.multisamples), 1.0f); // should I make this function arg or keep like this
-
 		// size of the framebuffer
-		m_size = BasicText<char_type>::size(m_font, text, glm::vec2(m_font.getResolution() * multisamples));
+		m_size = BasicText<char_type>::size(m_font, text, glm::vec2(m_font.getResolution()));
 		m_size.x = std::max(m_size.x, 1.0f);
 		m_size.y = std::max(m_size.y, 1.0f);
 
@@ -111,7 +109,7 @@ namespace oe::graphics {
 
 		// render to the framebuffer
 		auto& tbr = TextLabelRenderer::getSingleton();
-		BasicText<char_type>::submit(tbr.fb_renderer, m_font, text, { 0.0f, 0.0f }, m_font.getResolution() * multisamples, alignments::top_left, glm::vec4(1.0f));
+		BasicText<char_type>::submit(tbr.fb_renderer, m_font, text, { 0.0f, 0.0f }, m_font.getResolution(), alignments::top_left, glm::vec4(1.0f));
 		glm::mat4 pr_matrix = glm::ortho(0.0f, m_size.x, m_size.y, 0.0f);
 		tbr.fb_shader.setProjectionMatrix(pr_matrix);
 		tbr.fb_shader.bind();
@@ -127,7 +125,6 @@ namespace oe::graphics {
 		m_sprite.m_owner = m_framebuffer->getTexture();
 		m_sprite.position = { 0.0f, 1.0f };
 		m_sprite.size = { 1.0f, -1.0f };
-		m_size /= multisamples;
 	}
 	
 	template class BasicTextLabel<char>;

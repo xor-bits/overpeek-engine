@@ -12,13 +12,15 @@ namespace oe::gui
     enum class arrangements { columns, rows };
 
     template<size_t dimension = 3>
-    struct VecSliderInfo : public SliderInfo
+    struct VecSliderInfo
     {
         arrangements type = arrangements::columns;
 		int slider_borders = 3;
         glm::vec<dimension, float> initial_values;
         glm::vec<dimension, float> min_values;
         glm::vec<dimension, float> max_values;
+
+        SliderInfo slider_info;
     };
 
     template<size_t dimension = 3>
@@ -44,7 +46,7 @@ namespace oe::gui
          
     public:
         VecSlider(VecSliderInfo<dimension> slider_info)
-            : Widget(slider_info.slider_size, slider_info.align_parent, slider_info.align_render, slider_info.offset_position)
+            : Widget(slider_info.slider_info.widget_info)
         {
 			static_assert(dimension != 0, "VecSlider dimension must not be zero");
 
@@ -52,19 +54,19 @@ namespace oe::gui
             switch (slider_info.type)
             {
             case arrangements::columns:
-                slider_info.slider_size = { (slider_info.slider_size.x - (dimension - 1) * slider_info.slider_borders) / dimension, slider_info.slider_size.y };
-                offset_next = glm::ivec2(slider_info.slider_size.x + slider_info.slider_borders, 0);
-				size = {
-					slider_info.slider_size.x * dimension + (dimension - 1) * slider_info.slider_borders,
-					slider_info.slider_size.y
+                slider_info.slider_info.widget_info.size = { (slider_info.slider_info.widget_info.size.x - (dimension - 1) * slider_info.slider_borders) / dimension, slider_info.slider_info.widget_info.size.y };
+                offset_next = glm::ivec2(slider_info.slider_info.widget_info.size.x + slider_info.slider_borders, 0);
+				m_info.size = {
+					slider_info.slider_info.widget_info.size.x * dimension + (dimension - 1) * slider_info.slider_borders,
+					slider_info.slider_info.widget_info.size.y
 				};
                 break;
             case arrangements::rows:
-                slider_info.slider_size = { slider_info.slider_size.x, (slider_info.slider_size.y - (dimension - 1) * slider_info.slider_borders) / dimension };
-                offset_next = glm::ivec2(0, slider_info.slider_size.y + slider_info.slider_borders);
-				size = {
-					slider_info.slider_size.x,
-					slider_info.slider_size.y * dimension + (dimension - 1) * slider_info.slider_borders
+                slider_info.slider_info.widget_info.size = { slider_info.slider_info.widget_info.size.x, (slider_info.slider_info.widget_info.size.y - (dimension - 1) * slider_info.slider_borders) / dimension };
+                offset_next = glm::ivec2(0, slider_info.slider_info.widget_info.size.y + slider_info.slider_borders);
+				m_info.size = {
+					slider_info.slider_info.widget_info.size.x,
+					slider_info.slider_info.widget_info.size.y * dimension + (dimension - 1) * slider_info.slider_borders
 				};
                 break;
             default:
@@ -72,19 +74,17 @@ namespace oe::gui
             }
 
 
-			size_t min_w_or_h = std::min(slider_info.slider_size.x, slider_info.slider_size.y);
-			slider_info.knob_size = { min_w_or_h, min_w_or_h };
+			size_t min_w_or_h = std::min(slider_info.slider_info.widget_info.size.x, slider_info.slider_info.widget_info.size.y);
+			slider_info.slider_info.knob_size = { min_w_or_h, min_w_or_h };
 
-            slider_info.offset_position = { 0, 0 };
-            slider_info.align_parent = oe::alignments::top_left;
-            slider_info.align_render = oe::alignments::top_left;
+            slider_info.slider_info.widget_info = { slider_info.slider_info.widget_info.size, { 0, 0 }, oe::alignments::top_left, oe::alignments::top_left };
             for(size_t i = 0; i < dimension; i++)
             {
-                slider_info.value_initial = slider_info.initial_values[i];
-                slider_info.value_bounds = { slider_info.min_values[i], slider_info.max_values[i] };
-                sliders[i] = new Slider(slider_info);
+                slider_info.slider_info.value_initial = slider_info.initial_values[i];
+                slider_info.slider_info.value_bounds = { slider_info.min_values[i], slider_info.max_values[i] };
+                sliders[i] = new Slider(slider_info.slider_info);
                 addSubWidget(sliders[i]);
-                slider_info.offset_position += offset_next;
+                slider_info.slider_info.widget_info.offset_position += offset_next;
 
 				sliders[i]->connect_listener<SliderHoverEvent, &VecSlider<dimension>::on_slider_hover>(this);
 				sliders[i]->connect_listener<SliderUseEvent, &VecSlider<dimension>::on_slider_use>(this);

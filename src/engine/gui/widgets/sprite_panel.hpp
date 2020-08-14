@@ -8,13 +8,12 @@ namespace oe::graphics { struct Quad; struct Sprite; }
 
 namespace oe::gui {
 
-	struct SpritePanelInfo {
-		glm::ivec2 size                    = { 50, 50 };
-		glm::ivec2 offset_position         = { 0, 0 };
-		glm::vec2 align_parent             = oe::alignments::center_center;
-		glm::vec2 align_render             = oe::alignments::center_center;
+	struct SpritePanelInfo
+	{
 		glm::vec4 color                    = oe::colors::white;
 		const oe::graphics::Sprite* sprite = nullptr; // must be set
+		
+		WidgetInfo widget_info             = { { 50, 50 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
 	};
 	
 	class SpritePanel : public Widget {

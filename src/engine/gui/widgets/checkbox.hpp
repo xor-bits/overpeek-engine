@@ -11,17 +11,12 @@ namespace oe::gui
 {
 	struct CheckboxInfo
 	{
-		glm::ivec2 size                    = { 24, 24 };
-		glm::ivec2 offset_position         = { 0, 0 };
-		glm::vec2 align_parent             = oe::alignments::center_center;
-		glm::vec2 align_render             = oe::alignments::center_center;
-
 		bool initial                       = false;
-
 		glm::vec4 color_back               = oe::colors::dark_grey;
 		glm::vec4 color_mark               = oe::colors::lime;
-
 		const oe::graphics::Sprite* sprite = nullptr; // must be set
+
+		WidgetInfo widget_info             = { { 24, 24 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
 	};
 
 	struct CheckboxHoverEvent

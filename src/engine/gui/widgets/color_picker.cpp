@@ -10,8 +10,8 @@ namespace oe::gui
 {
 	VecSliderInfo<4> create_info(const ColorPickerInfo& color_picker_info)
 	{
-		const int slider_height = color_picker_info.size.y;
-		const int slider_width = color_picker_info.size.x - 55;
+		const int slider_height = color_picker_info.widget_info.size.y;
+		const int slider_width = color_picker_info.widget_info.size.x - 55;
 		const float mult = color_picker_info.draw_value == 2 ? 256.0f : 1.0f;
 
 		VecSliderInfo<4> info;
@@ -20,14 +20,14 @@ namespace oe::gui
 		info.min_values = glm::vec4(0.0f);
 		info.max_values = glm::vec4(mult);
 		
-		info.slider_size = { slider_width - 10, slider_height - 10 };
-		info.offset_position = color_picker_info.offset_position + glm::ivec2{ 5, 5 };
-		info.align_parent = color_picker_info.align_parent;
-		info.align_render = color_picker_info.align_render;
-		info.draw_value = color_picker_info.draw_value != 0;
-		info.slider_sprite = color_picker_info.sprite;
-		info.knob_sprite = color_picker_info.sprite;
-		info.draw_value = true;
+		info.slider_info.widget_info = color_picker_info.widget_info;
+		info.slider_info.widget_info.size = { slider_width - 10, slider_height - 10 };
+		info.slider_info.widget_info.offset_position += glm::ivec2{ 5, 5 };
+		
+		info.slider_info.draw_value = color_picker_info.draw_value != 0;
+		info.slider_info.slider_sprite = color_picker_info.sprite;
+		info.slider_info.knob_sprite = color_picker_info.sprite;
+		info.slider_info.draw_value = true;
 		info.slider_borders = 5;
 
 		return info;
@@ -39,13 +39,9 @@ namespace oe::gui
 		, mult(color_picker_info.draw_value == 2 ? 256.0f : 1.0f)
 	{
 		color_picker_info.initial_color *= mult;
-		color_picker_info.size = VecSlider<4>::size;
 
 		SpritePanelInfo sprite_panel_info = {};
-		sprite_panel_info.size = color_picker_info.size + glm::ivec2{ 55, 10 };
-		sprite_panel_info.align_parent = oe::alignments::top_left;
-		sprite_panel_info.align_render = oe::alignments::top_left;
-		sprite_panel_info.offset_position = { -5, -5 };
+		sprite_panel_info.widget_info = { m_info.size + glm::ivec2{ 55, 10 }, { -5, -5 }, oe::alignments::top_left, oe::alignments::top_left };
 		sprite_panel_info.sprite = color_picker_info.sprite;
 		sprite_panel_info.color = color_picker_info.background_color;
 		auto bgbox = new SpritePanel(sprite_panel_info);
@@ -53,10 +49,7 @@ namespace oe::gui
 		addSubWidget(bgbox);
 
 		SpritePanelInfo preview_panel_info;
-		preview_panel_info.align_parent = oe::alignments::top_right;
-		preview_panel_info.align_render = oe::alignments::top_right;
-		preview_panel_info.size = { 40, color_picker_info.size.y };
-		preview_panel_info.offset_position = { -5, 5 };
+		preview_panel_info.widget_info = { { 40, m_info.size.y }, { -5, 5 }, oe::alignments::top_right, oe::alignments::top_right };
 		preview_panel_info.color = color_picker_info.initial_color;
 		preview_panel_info.sprite = color_picker_info.sprite;
 		preview_panel = new SpritePanel(preview_panel_info);

@@ -55,8 +55,8 @@ b2Body* box(b2BodyType body_type, const glm::vec2& pos, const glm::vec2& size, f
 	quad->setSize(size);
 	quad->setRotationAlignment(oe::alignments::center_center);
 	quad->setColor(color);
-	entity_registry.assign<component_renderable>(entity, quad);
-	entity_registry.assign<component_body>(entity, body);
+	entity_registry.emplace<component_renderable>(entity, quad);
+	entity_registry.emplace<component_body>(entity, body);
 
 	return body;
 }

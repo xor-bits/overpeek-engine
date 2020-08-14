@@ -7,12 +7,9 @@
 
 namespace oe::gui
 {
-	float Widget::z_acc = -99999.0f;
-	Widget::Widget(const glm::ivec2& _size, const glm::vec2& _align_parent, const glm::vec2& _align_render, const glm::ivec2& _offset_position)
-		: size(_size)
-		, align_parent(_align_parent)
-		, align_render(_align_render)
-		, offset_position(_offset_position)
+	float Widget::z_acc = 1.0f;
+	Widget::Widget(const WidgetInfo& info)
+		: m_info(info)
 		, render_position({ 0, 0 })
 		, topleft_position({ 0, 0 })
 		, m_nodes() 
@@ -84,9 +81,18 @@ namespace oe::gui
 		}
 	}
 
+	void Widget::toggle(bool enabled)
+	{
+		m_info.toggled = enabled;
+		for (auto& w : m_nodes)
+		{
+			w->toggle(enabled);
+		}
+	}
+
 	void Widget::on_render(const GUIRenderEvent& event)
 	{
-		if (m_parent) render_position = offset_position + m_parent->render_position + oe::alignmentOffset(m_parent->size, align_parent) - oe::alignmentOffset(size, align_render);
-		else render_position = offset_position - oe::alignmentOffset(size, align_render);
+		if (m_parent) render_position = m_info.offset_position + m_parent->render_position + oe::alignmentOffset(m_parent->m_info.size, m_info.align_parent) - oe::alignmentOffset(m_info.size, m_info.align_render);
+		else render_position = m_info.offset_position - oe::alignmentOffset(m_info.size, m_info.align_render);
 	}
 }

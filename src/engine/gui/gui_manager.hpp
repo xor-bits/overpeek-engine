@@ -27,8 +27,10 @@ namespace oe::gui
 	private:
 		Form* m_main_frame;
 		oe::graphics::Renderer* m_renderer;
+		oe::graphics::Renderer* m_line_renderer;
 		oe::graphics::Renderer* m_late_renderer;
-		oe::assets::DefaultShader* m_shader;
+		oe::assets::DefaultShader* m_shader_fill;
+		oe::assets::DefaultShader* m_shader_lines;
 		oe::ResizeEvent latest_resize_event;
 		const oe::graphics::Window& m_window;
 
@@ -59,6 +61,7 @@ namespace oe::gui
 		void offset(const glm::vec2& offset);
 
 		oe::graphics::Renderer* getRenderer() const;
+		oe::graphics::Renderer* getLineRenderer() const;
 		oe::graphics::Renderer* getLateRenderer() const;
 		const oe::graphics::Window& getWindow() const;
 

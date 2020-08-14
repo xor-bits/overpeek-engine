@@ -5,17 +5,16 @@
 
 
 namespace oe::graphics { struct Quad; }
-namespace oe::gui {
-
-	struct FormInfo {
-		glm::ivec2 size            = { 50, 50 };
-		glm::ivec2 offset_position = { 0, 0 };
-		glm::vec2 align_parent     = oe::alignments::top_left;
-		glm::vec2 align_render     = oe::alignments::top_left;
+namespace oe::gui
+{
+	struct FormInfo
+	{
+		WidgetInfo widget_info = { { 50, 50 }, { 0, 0 }, oe::alignments::top_left, oe::alignments::top_left };
 	};
 
 	class GUI;
-	class Form : public Widget {
+	class Form : public Widget
+	{
 	public:
 		FormInfo form_info;
 

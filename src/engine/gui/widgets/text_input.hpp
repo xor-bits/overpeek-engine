@@ -17,18 +17,16 @@ namespace oe::gui
 
 	struct TextInputInfo
 	{
-		glm::ivec2 size                    = { 100, 100 };
-		glm::ivec2 padding                 = { 3, 3 };
 		glm::ivec2 offset_position         = { 0, 0 };
-		glm::vec2 align_parent             = oe::alignments::center_center;
-		glm::vec2 align_render             = oe::alignments::center_center;
 		glm::vec2 align_text               = oe::alignments::center_center;
 		std::u32string text                = U"";
 		std::u32string filter              = filter_none;
-		int font_size                      = 16;
+		size_t font_size                   = 16;
 		std::string font_path              = ""; // empty for gui default
 		glm::vec4 color                    = oe::colors::dark_grey;
 		const oe::graphics::Sprite* sprite = nullptr; // must be set
+		
+		WidgetInfo widget_info             = { { 100, 100 }, { 3, 3 }, oe::alignments::center_center, oe::alignments::center_center };
 	};
 
 	struct TextInputHoverEvent

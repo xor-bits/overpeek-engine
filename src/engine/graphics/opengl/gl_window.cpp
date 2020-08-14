@@ -15,7 +15,7 @@
 #ifndef __EMSCRIPTEN__
 void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
 	// ignore non-significant error/warning codes
-	if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
+	// if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
 
 	std::string log_text = "OpenGL Debug Message";
 	switch (severity) {
@@ -196,6 +196,8 @@ namespace oe::graphics {
 
 	void GLWindow::clear(const glm::vec4& color)
 	{
+		bind();
+
 		glClearColor(color.r, color.g, color.b, color.a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
@@ -221,6 +223,9 @@ namespace oe::graphics {
 	
 	void GLWindow::bind() const
 	{
+		if (GLFrameBuffer::bound_fbo_id == 0) return;
+		GLFrameBuffer::bound_fbo_id = 0;
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		viewport();
 	}

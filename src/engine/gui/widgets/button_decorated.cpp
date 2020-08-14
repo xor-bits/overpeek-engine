@@ -10,32 +10,23 @@
 namespace oe::gui {
 
 	DecoratedButton::DecoratedButton(const DecoratedButtonInfo& _button_info)
-		: Widget(_button_info.size, _button_info.align_parent, _button_info.align_render, _button_info.offset_position)
+		: Button(_button_info.button_info)
 		, button_info(_button_info)
 	{
-		ButtonInfo b_info = {};
-		b_info.size = button_info.size;
-		b_info.align_parent = oe::alignments::center_center;
-		b_info.align_render = oe::alignments::center_center;
-		button = new Button(b_info);
-		addSubWidget(button);
-
-		SpritePanelInfo sp_info = {};
-		sp_info.size = button_info.size;
-		sp_info.align_parent = oe::alignments::center_center;
-		sp_info.align_render = oe::alignments::center_center;
+		SpritePanelInfo sp_info;
+		sp_info.widget_info = _button_info.button_info.widget_info;
 		sp_info.sprite = button_info.sprite;
 		sp_info.color = button_info.color;
 		button_background = new oe::gui::SpritePanel(sp_info);
-		button->addSubWidget(button_background);
+		addSubWidget(button_background);
 
-		TextPanelInfo tp_info = {};
-		tp_info.font_size = static_cast<int>(static_cast<float>(button_info.size.y) * 0.8f);
+		TextPanelInfo tp_info;
 		tp_info.text = button_info.text;
-		tp_info.align_parent = oe::alignments::center_center;
-		tp_info.align_render = oe::alignments::center_center;
+		tp_info.font_size = _button_info.text_font_size;
+		tp_info.widget_info.align_parent = oe::alignments::center_center;
+		tp_info.widget_info.align_render = oe::alignments::center_center;
 		button_text = new oe::gui::TextPanel(tp_info);
-		button_background->addSubWidget(button_text);
+		addSubWidget(button_text);
 	}
 
 	DecoratedButton::~DecoratedButton() {
@@ -45,8 +36,6 @@ namespace oe::gui {
 	{
 		// event listeners
 		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&DecoratedButton::on_render>(this);
-		button->connect_listener<ButtonHoverEvent, &DecoratedButton::on_button_hover>(this);
-		button->connect_listener<ButtonUseEvent, &DecoratedButton::on_button_use>(this);
 
 		Widget::managerAssigned(gui_manager);
 	}
@@ -55,8 +44,6 @@ namespace oe::gui {
 	{
 		// event listeners
 		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&DecoratedButton::on_render>(this);
-		button->disconnect_listener<ButtonHoverEvent, &DecoratedButton::on_button_hover>(this);
-		button->disconnect_listener<ButtonUseEvent, &DecoratedButton::on_button_use>(this);
 
 		Widget::managerUnassigned(gui_manager);
 	}
@@ -65,22 +52,9 @@ namespace oe::gui {
 	{
 		if (!button_info.autoresize) return;
 
-		const glm::ivec2 new_size = button_text->size + button_info.padding * 2;
-		button_background->size = new_size;
-		button->size = new_size;
-		size = new_size;
-	}
-
-	void DecoratedButton::on_button_use(const ButtonUseEvent& e)
-	{
-		event_use_latest = e;
-		dispatcher.trigger(event_use_latest);
-	}
-
-	void DecoratedButton::on_button_hover(const ButtonHoverEvent& e)
-	{
-		event_hover_latest = e;
-		dispatcher.trigger(event_hover_latest);
+		const glm::ivec2 new_size = button_text->m_info.size + button_info.padding * 2;
+		button_background->m_info.size = new_size;
+		m_info.size = new_size;
 	}
 
 }

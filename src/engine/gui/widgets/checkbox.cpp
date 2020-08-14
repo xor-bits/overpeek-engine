@@ -9,14 +9,11 @@
 namespace oe::gui
 {
 	Checkbox::Checkbox(const CheckboxInfo& _checkbox_info)
-		: Widget(_checkbox_info.size, _checkbox_info.align_parent, _checkbox_info.align_render, _checkbox_info.offset_position)
+		: Widget(_checkbox_info.widget_info)
 		, m_checkbox_info(_checkbox_info)
 	{
 		ButtonInfo button_info;
-		button_info.size = _checkbox_info.size;
-		button_info.offset_position = { 0, 0 };
-		button_info.align_parent = oe::alignments::center_center;
-		button_info.align_render = oe::alignments::center_center;
+		button_info.widget_info = { m_info.size, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
 		m_button = new Button(button_info);
 		addSubWidget(m_button);
 	}
@@ -52,25 +49,25 @@ namespace oe::gui
 
 	void Checkbox::on_render(const GUIRenderEvent& event)
 	{
-		if (!toggled) { quad_check->reset(); quad_box->reset(); return; }
+		if (!m_info.toggled) { quad_check->reset(); quad_box->reset(); return; }
 
 		NULL_SPRITE_CHECK(m_checkbox_info.sprite);
 
 		quad_box->setPosition(render_position);
 		quad_box->setZ(z);
-		quad_box->setSize(size);
+		quad_box->setSize(m_info.size);
 		quad_box->setColor(m_checkbox_info.color_back);
 		quad_box->setSprite(m_checkbox_info.sprite);
 		quad_box->update();
 
 		if (m_checkbox_info.initial) {
-			quad_check->setSize(static_cast<glm::vec2>(size) * 0.7f);
+			quad_check->setSize(static_cast<glm::vec2>(m_info.size) * 0.7f);
 		}
 		else
 		{
 			quad_check->setSize({ 0.0f, 0.0f });
 		}
-		quad_check->setPosition(static_cast<glm::vec2>(render_position + size / 2));
+		quad_check->setPosition(static_cast<glm::vec2>(render_position + m_info.size / 2));
 		quad_check->setZ(z + 0.05f);
 		quad_check->setColor(m_checkbox_info.color_mark);
 		quad_check->setSprite(m_checkbox_info.sprite);

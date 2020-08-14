@@ -11,13 +11,12 @@ namespace oe::gui
 {
 	struct TextPanelInfo
 	{
-		std::u32string text        = U"";
-		int font_size              = 16;
+		std::u32string text        = U"placeholder";
+		size_t font_size           = 16;
 		std::string font_path      = ""; // empty for gui default
 		glm::vec4 background_color = oe::colors::transparent;
-		glm::ivec2 offset_position = { 0, 0 };
-		glm::vec2 align_parent     = oe::alignments::center_center;
-		glm::vec2 align_render     = oe::alignments::center_center;
+		
+		WidgetInfo widget_info     = { { 0, 0 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
 	};
 
 
