@@ -91,7 +91,7 @@ void initCube()
 void cube()
 {
 	// shader and model matrix
-	if (checkbox->m_checkbox_info.initial)
+	if (checkbox && checkbox->m_checkbox_info.initial)
 	{
 		glm::vec4 quat_slider_val = quat_slider->getGLM();
 		cube_rotation = glm::angleAxis(quat_slider_val.w, glm::normalize(glm::vec3(quat_slider_val.x, quat_slider_val.y, quat_slider_val.z)));
@@ -162,7 +162,7 @@ void resize(const oe::ResizeEvent& event) {
 // update 30 times per second
 void update_30() {
 	auto& gameloop = window->getGameloop(); 
-	std::u32string str = fmt::format(U"frametime: {:3.3f} ms ({} fps) updatetime: {:3.3f} ms ({} ups) this is some useless text lololololololololo", gameloop.getFrametimeMS(), gameloop.getAverageFPS(), gameloop.getUpdatetimeMS<30>(), gameloop.getAverageUPS<30>());
+	std::u32string str = fmt::format(U"frametime: {:3.3f} ms ({} fps) updatetime: {:3.3f} ms ({} ups)", gameloop.getFrametimeMS(), gameloop.getAverageFPS(), gameloop.getUpdatetimeMS<30>(), gameloop.getAverageUPS<30>());
 	if(textpanel) textpanel->text_panel_info.text = str;
 }
 
@@ -174,14 +174,14 @@ void append_list(const glm::quat& quat)
 
 // gui
 void setup_gui() {
-	{
+	if(0){
 		oe::gui::SpritePanelInfo sprite_panel_info;
 		sprite_panel_info.widget_info = { { 150, 150 }, { 0, 0 }, oe::alignments::bottom_left, oe::alignments::bottom_left };
 		sprite_panel_info.sprite = sprite;
 		box = new oe::gui::SpritePanel(sprite_panel_info);
 		gui->addSubWidget(box);
 	}
-	{
+	if(0){
 		oe::gui::TextInputInfo text_input_info;
 		text_input_info.widget_info = { { 200, 80 }, { 0, 0 }, oe::alignments::bottom_right, oe::alignments::bottom_right };
 		text_input_info.font_size = 14;
@@ -189,23 +189,7 @@ void setup_gui() {
 		textbox = new oe::gui::TextInput(text_input_info);
 		gui->addSubWidget(textbox);
 	}
-	{
-		oe::gui::DecoratedButtonInfo button_info;
-		button_info.button_info.widget_info = { { 175, 50 }, { 0, 0 }, oe::alignments::top_center, oe::alignments::top_center };
-		button_info.sprite = pack->emptySprite();
-		button_info.text = U"log";
-		auto button = new oe::gui::DecoratedButton(button_info);
-		gui->addSubWidget(button);
-
-		auto callback_lambda = [&](const oe::gui::ButtonUseEvent& e) {
-			if (e.action == oe::actions::release && e.button == oe::mouse_buttons::button_left) {
-				glm::vec4 quat_slider_val = quat_slider->getGLM();
-				append_list(glm::angleAxis(quat_slider_val.w, glm::normalize(glm::vec3(quat_slider_val.x, quat_slider_val.y, quat_slider_val.z))));
-			}
-		};
-		button->connect_listener<oe::gui::ButtonUseEvent, &decltype(callback_lambda)::operator()>(callback_lambda);
-	}
-	{
+	if(0){
 		oe::gui::VecSliderInfo<4> vecslider_info;
 		vecslider_info.slider_info.widget_info = { { 400, 30 }, { 0, 0 }, oe::alignments::bottom_center, oe::alignments::bottom_center };
 		vecslider_info.slider_info.slider_sprite = pack->emptySprite();
@@ -217,23 +201,32 @@ void setup_gui() {
 		quat_slider = new oe::gui::VecSlider<4>(vecslider_info);
 		gui->addSubWidget(quat_slider);
 	}
-	{
+	if(0){
 		oe::gui::CheckboxInfo ci;
-		ci.widget_info = { { 24, 24 }, { 0, -40 }, oe::alignments::bottom_center, oe::alignments::bottom_center };
+		ci.widget_info = { { 24, 24 }, { 0, -35 }, oe::alignments::bottom_center, oe::alignments::bottom_center };
 		ci.sprite = pack->emptySprite();
 		checkbox = new oe::gui::Checkbox(ci);
 		gui->addSubWidget(checkbox);
+
+		{
+			oe::gui::DecoratedButtonInfo button_info;
+			button_info.button_info.widget_info = { { 60, 24 }, { 5, 0 }, oe::alignments::center_right, oe::alignments::center_left };
+			button_info.sprite = pack->emptySprite();
+			button_info.text = U"log";
+			button_info.text_font_size = 18;
+			auto button = new oe::gui::DecoratedButton(button_info);
+			checkbox->addSubWidget(button);
+
+			auto callback_lambda = [&](const oe::gui::ButtonUseEvent& e) {
+				if (e.action == oe::actions::release && e.button == oe::mouse_buttons::button_left) {
+					glm::vec4 quat_slider_val = quat_slider->getGLM();
+					append_list(glm::angleAxis(quat_slider_val.w, glm::normalize(glm::vec3(quat_slider_val.x, quat_slider_val.y, quat_slider_val.z))));
+				}
+			};
+			button->connect_listener<oe::gui::ButtonUseEvent, &decltype(callback_lambda)::operator()>(callback_lambda);
+		}
 	}
-	{
-		oe::gui::TextPanelInfo text_panel_info;
-		text_panel_info.widget_info = { { 0, 0 }, { 0, 0 }, oe::alignments::top_left, oe::alignments::top_left };
-		text_panel_info.font_size = 20;
-		text_panel_info.text = U"placeholder";
-		text_panel_info.font_path = oe::default_font_path + std::string("arialbi.ttf");
-		textpanel = new oe::gui::TextPanel(text_panel_info);
-		gui->addSubWidget(textpanel);
-	}
-	{
+	if(0){
 		oe::gui::ColorPickerInfo color_picker_info;
 		color_picker_info.widget_info = { { 200, 100 }, { 0, 0 }, oe::alignments::center_left, oe::alignments::center_left };
 		color_picker_info.initial_color = color;
@@ -248,6 +241,26 @@ void setup_gui() {
 		color_picker->connect_listener<oe::gui::ColorPickerUseEvent, &decltype(callback_lambda)::operator()>(callback_lambda);
 	}
 	{
+		oe::gui::TextPanelInfo text_panel_info;
+		text_panel_info.widget_info = { { 0, 0 }, { 0, 0 }, oe::alignments::top_left, oe::alignments::top_left };
+		text_panel_info.font_size = 20;
+		text_panel_info.text = U"placeholder";
+		text_panel_info.font_path = oe::default_font_path + std::string("arialbi.ttf");
+		/* text_panel_info.background_color = oe::colors::translucent_black; */
+		textpanel = new oe::gui::TextPanel(text_panel_info);
+		gui->addSubWidget(textpanel);
+
+		{
+			oe::gui::GraphInfo graph_info;
+			graph_info.bg_panel_info.widget_info.offset_position = { 0, 5 };
+			graph_info.bg_panel_info.widget_info.align_parent = oe::alignments::bottom_left;
+			graph_info.bg_panel_info.widget_info.align_render = oe::alignments::top_left;
+			graph_info.bg_panel_info.sprite = pack->emptySprite();
+			auto graph = new oe::gui::Graph(graph_info);
+			textpanel->addSubWidget(graph);
+		}
+	}
+	if(0){
 		oe::gui::ListInfo list_info;
 		list_info.widget_info = { { 200, 400 }, { 0, 0 }, oe::alignments::top_right, oe::alignments::top_right };
 		list_info.sprite = pack->emptySprite();

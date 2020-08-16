@@ -25,6 +25,9 @@ namespace oe::graphics
 	
 	template<primitive_types type, typename buffer_gen, typename vertex_type>
 	class IBasicPrimitiveRenderer;
+	template<oe::primitive_types type>
+	struct BasicBufferGen;
+	struct VertexData;
 	using IPrimitiveRenderer = IBasicPrimitiveRenderer<primitive_types::quads, BasicBufferGen<primitive_types::quads>, VertexData>;
 	/* -- forward declarations -- */
 

@@ -231,7 +231,17 @@ if(VCPKG_TOOLCHAIN) # with vcpkg
 	find_package(freetype CONFIG REQUIRED)
 	target_link_libraries(${target_name} PRIVATE freetype)
 	find_package(Microsoft.GSL CONFIG REQUIRED)
-    target_link_libraries(${target_name} PRIVATE Microsoft.GSL::GSL)
+	target_link_libraries(${target_name} PRIVATE Microsoft.GSL::GSL)
+	find_package(EnTT CONFIG REQUIRED)
+    target_link_libraries(${target_name} PRIVATE EnTT::EnTT)
+	find_package(spdlog CONFIG REQUIRED)
+	target_link_libraries(${target_name} PRIVATE spdlog::spdlog_header_only)
+	find_package(fmt CONFIG REQUIRED)
+	target_link_libraries(${target_name} PRIVATE fmt::fmt-header-only)
+	find_path(STB_INCLUDE_DIRS "stb.h")
+	target_include_directories(${target_name} PRIVATE ${STB_INCLUDE_DIRS})
+	find_path(MINIMP3_INCLUDE_DIRS "minimp3/minimp3.h")
+    target_include_directories(${target_name} PRIVATE ${MINIMP3_INCLUDE_DIRS})
 
 	# optional deps
 	if(OE_BUILD_MODE GREATER_EQUAL 1)

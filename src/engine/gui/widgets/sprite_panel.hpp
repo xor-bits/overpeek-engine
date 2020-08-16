@@ -6,8 +6,8 @@
 
 namespace oe::graphics { struct Quad; struct Sprite; }
 
-namespace oe::gui {
-
+namespace oe::gui
+{
 	struct SpritePanelInfo
 	{
 		glm::vec4 color                    = oe::colors::white;
@@ -16,7 +16,8 @@ namespace oe::gui {
 		WidgetInfo widget_info             = { { 50, 50 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
 	};
 	
-	class SpritePanel : public Widget {
+	class SpritePanel : public Widget
+	{
 	private:
 		std::shared_ptr<oe::graphics::Quad> quad;
 		

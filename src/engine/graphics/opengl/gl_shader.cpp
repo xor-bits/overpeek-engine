@@ -199,13 +199,24 @@ namespace oe::graphics {
 		return location;
 	}
 
-	void GLShader::setUniform1f(const std::string& name, float value) { glUniform1f(location(this, name), value); }
-	void GLShader::setUniform2f(const std::string& name, const glm::fvec2& value) { glUniform2f(location(this, name), value.x, value.y); }
-	void GLShader::setUniform3f(const std::string& name, const glm::fvec3& value) { glUniform3f(location(this, name), value.x, value.y, value.z); }
-	void GLShader::setUniform4f(const std::string& name, const glm::fvec4& value) { glUniform4f(location(this, name), value.x, value.y, value.z, value.w); }
-	void GLShader::setUniform1i(const std::string& name, int value) { glUniform1i(location(this, name), value); }
-	void GLShader::setUniform2i(const std::string& name, const glm::ivec2& value) { glUniform2i(location(this, name), value.x, value.y); }
-	void GLShader::setUniform3i(const std::string& name, const glm::ivec3& value) { glUniform3i(location(this, name), value.x, value.y, value.z); }
-	void GLShader::setUniform4i(const std::string& name, const glm::ivec4& value) { glUniform4i(location(this, name), value.x, value.y, value.z, value.w); }
-	void GLShader::setUniformMat4(const std::string& name, const glm::mat4& value) { glUniformMatrix4fv(location(this, name), 1, GL_FALSE, glm::value_ptr(value)); }
+	void GLShader::setUniform(const std::string& name, const float value) { glUniform1f(location(this, name), value); }
+	void GLShader::setUniform(const std::string& name, const glm::fvec2& value) { glUniform2f(location(this, name), value.x, value.y); }
+	void GLShader::setUniform(const std::string& name, const glm::fvec3& value) { glUniform3f(location(this, name), value.x, value.y, value.z); }
+	void GLShader::setUniform(const std::string& name, const glm::fvec4& value) { glUniform4f(location(this, name), value.x, value.y, value.z, value.w); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const float* values) { glUniform1fv(location(this, name), count, values); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const glm::fvec2* values) { glUniform2fv(location(this, name), count, glm::value_ptr(values[0])); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const glm::fvec3* values) { glUniform3fv(location(this, name), count, glm::value_ptr(values[0])); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const glm::fvec4* values) { glUniform4fv(location(this, name), count, glm::value_ptr(values[0])); }
+	
+	void GLShader::setUniform(const std::string& name, const int value) { glUniform1i(location(this, name), value); }
+	void GLShader::setUniform(const std::string& name, const glm::ivec2& value) { glUniform2i(location(this, name), value.x, value.y); }
+	void GLShader::setUniform(const std::string& name, const glm::ivec3& value) { glUniform3i(location(this, name), value.x, value.y, value.z); }
+	void GLShader::setUniform(const std::string& name, const glm::ivec4& value) { glUniform4i(location(this, name), value.x, value.y, value.z, value.w); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const int* values) { glUniform1iv(location(this, name), count, values); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const glm::ivec2* values) { glUniform2iv(location(this, name), count, glm::value_ptr(values[0])); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const glm::ivec3* values) { glUniform3iv(location(this, name), count, glm::value_ptr(values[0])); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const glm::ivec4* values) { glUniform4iv(location(this, name), count, glm::value_ptr(values[0])); }
+	
+	void GLShader::setUniform(const std::string& name, const glm::mat4& value) { glUniformMatrix4fv(location(this, name), 1, GL_FALSE, glm::value_ptr(value)); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const glm::mat4* value) { glUniformMatrix4fv(location(this, name), count, GL_FALSE, glm::value_ptr(value[0])); }
 }

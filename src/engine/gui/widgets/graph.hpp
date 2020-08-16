@@ -13,18 +13,19 @@ namespace oe::gui
     struct GraphInfo
     {
         gsl::span<float> graph_data;
-        glm::vec4 graph_color = oe::colors::green;
+		float graph_line_width      = 1.0f;
+        glm::vec4 graph_color       = oe::colors::green;
 
         SpritePanelInfo bg_panel_info = { oe::colors::translucent_black, nullptr, { { 300, 200 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center } };
     };
 
-    class Graph : public Widget
+    class Graph : public SpritePanel
     {
     public:
         GraphInfo m_graph_info;
 
     private:
-        SpritePanel bg;
+        SpritePanel m_graph;
         oe::graphics::FrameBuffer graph_fb;
 
     public:
@@ -32,5 +33,9 @@ namespace oe::gui
 
 		virtual void managerAssigned(GUI* gui_manager) override;
 		virtual void managerUnassigned(GUI* gui_manager) override;
+
+	private:
+		// events
+		void on_render(const GUIRenderEvent& event);
     };
 }

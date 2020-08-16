@@ -2,6 +2,7 @@
 #include "engine/gui/gui_manager.hpp"
 
 #include "engine/utility/clock.hpp"
+#include <spdlog/spdlog.h>
 
 
 
@@ -62,6 +63,8 @@ namespace oe::gui
 
 	void Widget::addSubWidget(Widget* widget)
 	{
+		if (this == widget) { spdlog::warn("Subwidget cannot be itself"); return; }
+
 		widget->setParent(this);
 		m_nodes.insert(widget);
 		if (m_gui_manager)

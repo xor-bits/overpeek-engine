@@ -7,8 +7,8 @@
 
 namespace oe::graphics { struct Quad; }
 
-namespace oe::gui {
-
+namespace oe::gui
+{
 	struct SliderInfo
 	{
 		glm::vec2 value_bounds                    = { -1.0f, 1.0f };
@@ -39,7 +39,8 @@ namespace oe::gui {
 		float value;
 	};
 
-	class Slider : public Widget {
+	class Slider : public Widget
+	{
 	private:
 		oe::graphics::TextLabel* value_label;
 		std::shared_ptr<oe::graphics::Quad> label_quad;

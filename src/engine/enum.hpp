@@ -6,9 +6,7 @@
 #include <array>
 #include <vector>
 #include <functional>
-
-#include "engine/graphics/interface/index_buffer_gen.hpp"
-#include "engine/graphics/vertexData.hpp"
+#include <gsl/span>
 
 
 
@@ -80,6 +78,14 @@ namespace oe {
 		geometry_shader, 
 		fragment_shader, 
 		compute_shader
+	};
+	
+	enum class primitive_types {
+		points,
+		lines,
+		triangles, // independent triangles
+		quads,     // independent quads
+		custom,    // user defined
 	};
 
 	// supported graphics apis

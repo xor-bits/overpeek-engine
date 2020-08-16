@@ -14,7 +14,9 @@ namespace oe::gui {
 		, button_info(_button_info)
 	{
 		SpritePanelInfo sp_info;
-		sp_info.widget_info = _button_info.button_info.widget_info;
+		sp_info.widget_info.size = m_info.size;
+		sp_info.widget_info.align_parent = oe::alignments::center_center;
+		sp_info.widget_info.align_render = oe::alignments::center_center;
 		sp_info.sprite = button_info.sprite;
 		sp_info.color = button_info.color;
 		button_background = new oe::gui::SpritePanel(sp_info);
@@ -29,7 +31,8 @@ namespace oe::gui {
 		addSubWidget(button_text);
 	}
 
-	DecoratedButton::~DecoratedButton() {
+	DecoratedButton::~DecoratedButton()
+	{
 	}
 
 	void DecoratedButton::managerAssigned(GUI* gui_manager)
@@ -37,7 +40,7 @@ namespace oe::gui {
 		// event listeners
 		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&DecoratedButton::on_render>(this);
 
-		Widget::managerAssigned(gui_manager);
+		Button::managerAssigned(gui_manager);
 	}
 
 	void DecoratedButton::managerUnassigned(GUI* gui_manager)
@@ -45,7 +48,7 @@ namespace oe::gui {
 		// event listeners
 		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&DecoratedButton::on_render>(this);
 
-		Widget::managerUnassigned(gui_manager);
+		Button::managerUnassigned(gui_manager);
 	}
 
 	void DecoratedButton::on_render(const GUIRenderEvent& event)

@@ -5,16 +5,6 @@
 
 
 
-namespace oe {
-	enum class primitive_types {
-		points,
-		lines,
-		triangles, // independent triangles
-		quads,     // independent quads
-		custom,    // user defined
-	};
-}
-
 namespace oe::graphics {
 
 	struct static_array { // cant just use vector? na

@@ -152,17 +152,17 @@ namespace oe::assets {
 
 	void DefaultShader::updateMVP() const
 	{
-		m_shader->setUniformMat4("mvp_matrix", m_pr_mat * m_vw_mat * m_ml_mat);
+		m_shader->setUniform("mvp_matrix", m_pr_mat * m_vw_mat * m_ml_mat);
 	}
 
 	void DefaultShader::setColor(const glm::vec4& color) const
 	{
-		m_shader->setUniform4f("u_color", color);
+		m_shader->setUniform("u_color", color);
 	}
 
 	void DefaultShader::setTexture(bool use) const
 	{
-		m_shader->setUniform1i("u_usetex", use);
+		m_shader->setUniform("u_usetex", (int)use);
 	}
 
 }

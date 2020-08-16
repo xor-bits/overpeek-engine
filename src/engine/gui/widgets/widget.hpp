@@ -1,6 +1,8 @@
 #pragma once
 
 #include "engine/enum.hpp"
+#include <entt/entt.hpp>
+#include <fmt/format.h>
 
 #include <unordered_set>
 

@@ -30,7 +30,8 @@ namespace oe::gui
 		bool value;
 	};
 
-	class Checkbox : public Widget {
+	class Checkbox : public Widget
+	{
 	private:
 		std::shared_ptr<oe::graphics::Quad> quad_check;
 		std::shared_ptr<oe::graphics::Quad> quad_box; // hehe

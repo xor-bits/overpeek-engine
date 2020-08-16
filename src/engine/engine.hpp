@@ -2,6 +2,7 @@
 
 #include "engine/enum.hpp"
 #include <utility>
+#include <fmt/format.h>
 
 
 
@@ -55,6 +56,11 @@ namespace oe {
 		void polygonMode(polygon_mode p = polygon_mode::fill) const;
 	
 	};
+
+	template <typename T> struct is_container : std::false_type {};
+	template <typename T, typename alloc> struct is_container<std::vector<T, alloc>> : std::true_type {};
+	template <typename T, size_t S> struct is_container<std::array<T, S>> : std::true_type {};
+	template <typename T, size_t S> struct is_container<gsl::span<T, S>> : std::true_type {};
 }
 
 

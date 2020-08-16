@@ -8,9 +8,10 @@
 namespace oe::graphics { struct Sprite; }
 namespace oe::gui { class Button; class SpritePanel; class TextPanel; }
 
-namespace oe::gui {
-
-	struct DecoratedButtonInfo {
+namespace oe::gui
+{
+	struct DecoratedButtonInfo
+	{
 		glm::ivec2 padding                 = { 8, 8 };
 		std::u32string text                = U"";
 		size_t text_font_size              = 28;
@@ -22,15 +23,16 @@ namespace oe::gui {
 		ButtonInfo button_info;
 	};
 	
-	class DecoratedButton : public oe::gui::Button {
+	class DecoratedButton : public Button
+	{
 	public:
 		DecoratedButtonInfo button_info;
 		ButtonHoverEvent event_hover_latest;
 		ButtonUseEvent event_use_latest;
 
 	private:
-		oe::gui::SpritePanel* button_background;
-		oe::gui::TextPanel* button_text;
+		SpritePanel* button_background;
+		TextPanel* button_text;
 
 	public:
 		DecoratedButton(const DecoratedButtonInfo& button_info);

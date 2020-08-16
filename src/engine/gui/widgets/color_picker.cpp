@@ -50,7 +50,7 @@ namespace oe::gui
 
 		SpritePanelInfo preview_panel_info;
 		preview_panel_info.widget_info = { { 40, m_info.size.y }, { -5, 5 }, oe::alignments::top_right, oe::alignments::top_right };
-		preview_panel_info.color = color_picker_info.initial_color;
+		preview_panel_info.color = color_picker_info.initial_color / mult;
 		preview_panel_info.sprite = color_picker_info.sprite;
 		preview_panel = new SpritePanel(preview_panel_info);
 		bgbox->addSubWidget(preview_panel);
