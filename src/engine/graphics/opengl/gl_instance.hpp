@@ -19,6 +19,8 @@ namespace oe::graphics {
 		virtual void lineWidth(float w = 1.0f) const override;
 		virtual void pointRadius(float w = 1.0f) const override;
 		virtual void polygonMode(oe::polygon_mode p = oe::polygon_mode::fill) const override;
+		virtual void viewport(int x, int y, size_t w, size_t h) const override;
+	
 	};
 
 }

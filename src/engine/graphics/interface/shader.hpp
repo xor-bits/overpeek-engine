@@ -47,6 +47,7 @@ namespace oe::graphics {
 		template<typename arr_type>
 		void setUniform(const std::string& name, const arr_type& arr, typename std::enable_if<oe::is_container<arr_type>::value >::type* = 0)
 		{
+			if (arr.size() == 0) return;
 			setUniform(name, arr.size(), arr.data());
 		}
 	};

@@ -30,6 +30,8 @@ namespace oe::graphics {
 		// primitive draw mode
 		virtual void polygonMode(polygon_mode p = polygon_mode::fill) const = 0;
 
+		// renderpos
+		virtual void viewport(int x, int y, size_t w, size_t h) const = 0;
 	};
 
 }

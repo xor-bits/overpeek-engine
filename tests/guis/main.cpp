@@ -11,6 +11,10 @@ oe::gui::SpritePanel* box;
 oe::gui::List* list;
 oe::gui::Checkbox* checkbox;
 oe::gui::VecSlider<4>* quat_slider;
+oe::gui::Graph* graph_fps;
+oe::gui::Graph* graph_ups;
+std::array<float, 200> perf_log_fps;
+std::array<float, 50> perf_log_ups;
 
 oe::graphics::Window window;
 oe::assets::DefaultShader* shader_fill;
@@ -159,11 +163,34 @@ void resize(const oe::ResizeEvent& event) {
 	shader_lines->setViewMatrix(vw_matrix);
 }
 
+template <typename to>
+struct transform_cast
+{
+	to inmin, inmax;
+	transform_cast(to mi, to mx) : inmin(mi), inmax(mx) {}
+
+	template <typename from>
+	to operator()(const from& x) const
+	{
+		return oe::utils::map(static_cast<to>(x), inmin, inmax, static_cast<to>(0.0f), static_cast<to>(1.0f));
+	}
+};
+
 // update 30 times per second
 void update_30() {
 	auto& gameloop = window->getGameloop(); 
 	std::u32string str = fmt::format(U"frametime: {:3.3f} ms ({} fps) updatetime: {:3.3f} ms ({} ups)", gameloop.getFrametimeMS(), gameloop.getAverageFPS(), gameloop.getUpdatetimeMS<30>(), gameloop.getAverageUPS<30>());
 	if(textpanel) textpanel->text_panel_info.text = str;
+
+	auto& fps_log = window->getGameloop().getPerfLoggerFPS();
+	std::transform(fps_log.m_average_time.begin(), fps_log.m_average_time.begin() + perf_log_fps.size(), perf_log_fps.begin(), transform_cast<float>(fps_log.m_min_time, fps_log.m_max_time));
+	std::rotate(perf_log_fps.begin(), perf_log_fps.begin() + (fps_log.m_total_count % perf_log_fps.size()), perf_log_fps.end());
+	graph_fps->m_graph_info.graph_data = { perf_log_fps.data(), perf_log_fps.size() };
+
+	auto& ups_log = window->getGameloop().getPerfLoggerUPS<30>();
+	std::transform(ups_log.m_average_time.begin(), ups_log.m_average_time.begin() + perf_log_ups.size(), perf_log_ups.begin(), transform_cast<float>(ups_log.m_min_time, ups_log.m_max_time));
+	std::rotate(perf_log_ups.begin(), perf_log_ups.begin() + (ups_log.m_total_count % perf_log_ups.size()), perf_log_ups.end());
+	graph_ups->m_graph_info.graph_data = { perf_log_ups.data(), perf_log_ups.size() };
 }
 
 void append_list(const glm::quat& quat)
@@ -174,14 +201,14 @@ void append_list(const glm::quat& quat)
 
 // gui
 void setup_gui() {
-	if(0){
+	{
 		oe::gui::SpritePanelInfo sprite_panel_info;
 		sprite_panel_info.widget_info = { { 150, 150 }, { 0, 0 }, oe::alignments::bottom_left, oe::alignments::bottom_left };
 		sprite_panel_info.sprite = sprite;
 		box = new oe::gui::SpritePanel(sprite_panel_info);
 		gui->addSubWidget(box);
 	}
-	if(0){
+	{
 		oe::gui::TextInputInfo text_input_info;
 		text_input_info.widget_info = { { 200, 80 }, { 0, 0 }, oe::alignments::bottom_right, oe::alignments::bottom_right };
 		text_input_info.font_size = 14;
@@ -189,7 +216,7 @@ void setup_gui() {
 		textbox = new oe::gui::TextInput(text_input_info);
 		gui->addSubWidget(textbox);
 	}
-	if(0){
+	{
 		oe::gui::VecSliderInfo<4> vecslider_info;
 		vecslider_info.slider_info.widget_info = { { 400, 30 }, { 0, 0 }, oe::alignments::bottom_center, oe::alignments::bottom_center };
 		vecslider_info.slider_info.slider_sprite = pack->emptySprite();
@@ -201,7 +228,7 @@ void setup_gui() {
 		quat_slider = new oe::gui::VecSlider<4>(vecslider_info);
 		gui->addSubWidget(quat_slider);
 	}
-	if(0){
+	{
 		oe::gui::CheckboxInfo ci;
 		ci.widget_info = { { 24, 24 }, { 0, -35 }, oe::alignments::bottom_center, oe::alignments::bottom_center };
 		ci.sprite = pack->emptySprite();
@@ -226,7 +253,7 @@ void setup_gui() {
 			button->connect_listener<oe::gui::ButtonUseEvent, &decltype(callback_lambda)::operator()>(callback_lambda);
 		}
 	}
-	if(0){
+	{
 		oe::gui::ColorPickerInfo color_picker_info;
 		color_picker_info.widget_info = { { 200, 100 }, { 0, 0 }, oe::alignments::center_left, oe::alignments::center_left };
 		color_picker_info.initial_color = color;
@@ -252,15 +279,22 @@ void setup_gui() {
 
 		{
 			oe::gui::GraphInfo graph_info;
+			graph_info.bg_panel_info.widget_info.size = { 150, 100 };
 			graph_info.bg_panel_info.widget_info.offset_position = { 0, 5 };
 			graph_info.bg_panel_info.widget_info.align_parent = oe::alignments::bottom_left;
 			graph_info.bg_panel_info.widget_info.align_render = oe::alignments::top_left;
 			graph_info.bg_panel_info.sprite = pack->emptySprite();
-			auto graph = new oe::gui::Graph(graph_info);
-			textpanel->addSubWidget(graph);
+			graph_info.graph_color = oe::colors::green;
+			graph_fps = new oe::gui::Graph(graph_info);
+			textpanel->addSubWidget(graph_fps);
+			
+			graph_info.bg_panel_info.widget_info.offset_position = { 155, 5 };
+			graph_info.graph_color = oe::colors::blue;
+			graph_ups = new oe::gui::Graph(graph_info);
+			textpanel->addSubWidget(graph_ups);
 		}
 	}
-	if(0){
+	{
 		oe::gui::ListInfo list_info;
 		list_info.widget_info = { { 200, 400 }, { 0, 0 }, oe::alignments::top_right, oe::alignments::top_right };
 		list_info.sprite = pack->emptySprite();

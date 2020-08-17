@@ -128,4 +128,9 @@ namespace oe::graphics {
 		}
 	}
 
+	void GLInstance::viewport(int x, int y, size_t w, size_t h) const
+	{
+		glViewport(x, y, w, h);
+	}
+
 }

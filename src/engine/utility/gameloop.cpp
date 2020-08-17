@@ -18,9 +18,17 @@ namespace oe::utils {
 		m_periodical_count++;
 
 		m_average_time[m_total_count % mc_average_size] = time;
+
 		
 		m_cached_average_time = 0;
-		for(int i = 0; i < mc_average_size; i++) m_cached_average_time += m_average_time[i];
+		m_max_time = 0;
+		m_min_time = std::numeric_limits<size_t>::max();
+		for(int i = 0; i < mc_average_size; i++) 
+		{
+			m_cached_average_time += m_average_time[i];
+			if(m_max_time < m_average_time[i]) m_max_time = m_average_time[i];
+			if(m_min_time > m_average_time[i]) m_min_time = m_average_time[i];
+		}
 		m_cached_average_time /= mc_average_size;
 	}
 

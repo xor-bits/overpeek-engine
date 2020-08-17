@@ -7,8 +7,8 @@
 
 
 namespace oe::graphics { class IWindow; }
-namespace oe::utils {
-
+namespace oe::utils
+{
 	static const size_t mc_average_size = 200;
 
 	struct PerfLogger
@@ -19,6 +19,8 @@ namespace oe::utils {
 		size_t m_total_count = 0;
 		size_t m_periodical_count = 0;
 		size_t m_per_second = 0;
+		size_t m_min_time = std::numeric_limits<size_t>::max();
+		size_t m_max_time = 0;
 
 		PerfLogger();
 		void log(size_t time);
@@ -200,6 +202,10 @@ namespace oe::utils {
 
 		// For logic inside the render loop
 		inline float getFrameUpdateScale() { return 0.000001f * getFrametime(); }
+
+		template<size_t ups>
+		inline auto& getPerfLoggerUPS() { return m_update_systems[ups].m_perf_logger; }
+		inline auto& getPerfLoggerFPS() { return m_render_perf_logger; }
 
 	};
 

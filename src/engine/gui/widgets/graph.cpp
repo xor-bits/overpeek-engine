@@ -25,7 +25,6 @@ uniform ivec2 u_viewport;
 uniform float u_graph_data[256];
 uniform int u_graph_size; /* should always be in range 0-255 */
 uniform float u_line_w = 1.0;
-uniform vec4 u_color;
 
 float d_line(in vec2 pixel, in vec2 line_a, in vec2 line_b)
 {
@@ -44,7 +43,7 @@ void main()
 {
 	// point in screen
 	ivec2 pixel = ivec2(gl_FragCoord.xy);
-	vec2 pixelf = gl_FragCoord.xy / u_viewport.xy;
+	vec2 pixelf = vec2(pixel) / u_viewport.xy;
 
 	// points of the line
 	int left_i = int(floor(pixelf.x * u_graph_size));
@@ -62,7 +61,7 @@ void main()
 	// final color alpha
 	float alpha = max(d, (h >= pixel.y ? 0.5 : 0.0));
 
-	color = vec4(u_color.rgb, alpha);
+	color = vec4(1.0, 1.0, 1.0, alpha);
 }
 )glsl";
 
@@ -107,7 +106,7 @@ namespace oe::gui
         , m_graph_info(info)
 		, m_graph({ info.graph_color, info.bg_panel_info.sprite, info.bg_panel_info.widget_info })
     {
-        
+        std::swap(m_graph_info.graph_color, sprite_panel_info.color);
     }
 
 	void Graph::managerAssigned(GUI* gui_manager)
@@ -132,20 +131,21 @@ namespace oe::gui
 	
 	void Graph::on_render(const GUIRenderEvent& event)
 	{
-		static auto floats = [](){ // another stupid way to do kind of noise random
-			std::array<float, 128> fs; auto& rnd = oe::utils::Random().getSingleton();
-			fs[0] = 0.5f;
-			for(size_t n = 1; n < fs.size(); n++) fs[n] = fs[n-1] + rnd.randomf(-0.1f, 0.1f);
-			return fs;
-		}();
+		graph_fb->bind();
+		graph_fb->clear(m_graph_info.graph_color);
 
+		glm::ivec2 viewport = m_info.size;
+		if(m_graph_info.graph_data.size() != 0) viewport += glm::ivec2(m_info.size.x / m_graph_info.graph_data.size(), 0.0f);
 		auto& graph_renderer = GraphRenderer::getSingleton();
 		graph_renderer.g_shader->bind();
-		graph_renderer.g_shader->setUniform("u_graph_size", m_graph_info.graph_data.size());
+		graph_renderer.g_shader->setUniform("u_graph_size", (int)m_graph_info.graph_data.size());
 		graph_renderer.g_shader->setUniform("u_graph_data", m_graph_info.graph_data);
-		graph_renderer.g_shader->setUniform("u_viewport", m_gui_manager->getWindow()->getSize());
-		graph_renderer.g_shader->setUniform("u_color", m_graph_info.graph_color);
+		graph_renderer.g_shader->setUniform("u_viewport", viewport);
 		graph_renderer.g_shader->setUniform("u_line_w", m_graph_info.graph_line_width);
 		graph_renderer.g_renderer.render();
+
+		m_gui_manager->getWindow()->bind();
+
+		sprite_panel_info.sprite = &graph_fb->getSprite();
 	}
 }
