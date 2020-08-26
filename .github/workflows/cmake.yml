@@ -26,7 +26,7 @@ jobs:
         setupOnly: true
         vcpkgGitCommitId: 4a08a10
     - run: |
-        $VCPKG_ROOT/vcpkg install openal-soft glfw3 glad box2d miniz enet freetype ms-gsl entt spdlog fmt stb minimp3 glm
+        ${{runner.workspace}}/vcpkg/vcpkg install openal-soft glfw3 glad box2d miniz enet freetype ms-gsl entt spdlog fmt stb minimp3 glm
 
     - name: Create Build Environment
       # Some projects don't allow in-source building, so create a separate build directory
