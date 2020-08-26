@@ -117,6 +117,7 @@ void render(float update_fraction)
 	// stop submitting and render
 	shader->bind();
 	renderer->render();
+	shader->unbind();
 
 	gui_manager->render();
 }
@@ -188,13 +189,13 @@ void init()
 
 	gui_manager = new oe::gui::GUI(window);
 	oe::gui::SliderInfo s_info;
-	s_info.slider_size = { 250, 30 };
+	s_info.widget_info.size = { 250, 30 };
+	s_info.widget_info.align_parent = oe::alignments::top_left;
+	s_info.widget_info.align_render = oe::alignments::top_left;
 	s_info.slider_lcolor = oe::colors::red;
 	s_info.slider_rcolor = oe::colors::green;
 	s_info.slider_sprite = pack->emptySprite();
 	s_info.value_bounds = { -10.0f, 10.0f, };
-	s_info.align_parent = oe::alignments::top_left;
-	s_info.align_render = oe::alignments::top_left;
 	auto slider = new oe::gui::Slider(s_info);
 	gui_manager->addSubWidget(slider);
 	auto callback_lambda = [&](const oe::gui::SliderUseEvent& e)
