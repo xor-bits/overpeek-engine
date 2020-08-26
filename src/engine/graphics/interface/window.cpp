@@ -199,8 +199,8 @@ namespace oe::graphics {
 
 	// getters/setters
 	float IWindow::aspect() { return m_aspect_ratio; };
-	float IWindow::button(oe::mouse_buttons button) { int32_t num = static_cast<int32_t>(button); if (num >= M_NUM_BUTTONS || num < 0) oe_error_terminate("Invalid button {}", button); else return m_buttons[num]; }
-	float IWindow::key(oe::keys key) { int32_t num = static_cast<int32_t>(key); if (num >= M_NUM_KEYS || num < 0) oe_error_terminate("Invalid key {}", key); else return m_keys[num]; }
+	bool IWindow::button(oe::mouse_buttons button) { int32_t num = static_cast<int32_t>(button); if (num >= M_NUM_BUTTONS || num < 0) { oe_error_terminate("Invalid button {}", button); return false; } else return m_buttons[num]; }
+	bool IWindow::key(oe::keys key) { int32_t num = static_cast<int32_t>(key); if (num >= M_NUM_KEYS || num < 0) { oe_error_terminate("Invalid key {}", key); return false; } else return m_keys[num]; }
 
 	const glm::ivec2& IWindow::getPosition() { return m_window_info.position; }
 	void IWindow::setPosition(const glm::ivec2& pos) { m_window_info.position = pos; glfwSetWindowPos(m_window_handle, m_window_info.position.x, m_window_info.position.y); }

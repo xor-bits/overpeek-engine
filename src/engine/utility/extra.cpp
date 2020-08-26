@@ -1,6 +1,5 @@
-#pragma once
-
 #include "extra.hpp"
+
 #include <string>
 #include <sstream>
 
@@ -163,7 +162,7 @@ glm::ivec3 oe::utils::hexToRGB(unsigned long hex)
 
 unsigned long oe::utils::RGBtoHex(glm::ivec3 rgb)
 {
-    return rgb.x << 16 + rgb.y << 8 + rgb.z << 0;
+    return (rgb.x << 16) + (rgb.y << 8) + (rgb.z << 0);
 }
 
 std::string oe::utils::hexToString(unsigned long hex)

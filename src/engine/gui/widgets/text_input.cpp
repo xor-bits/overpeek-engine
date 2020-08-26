@@ -63,7 +63,7 @@ namespace oe::gui
 
 	TextInput::~TextInput()
 	{
-		delete m_state;
+		delete static_cast<STB_TexteditState*>(m_state);
 	}
 
 	void TextInput::managerAssigned(GUI* gui_manager)

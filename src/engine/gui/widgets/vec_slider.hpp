@@ -86,8 +86,8 @@ namespace oe::gui
                 addSubWidget(sliders[i]);
                 slider_info.slider_info.widget_info.offset_position += offset_next;
 
-				sliders[i]->connect_listener<SliderHoverEvent, &VecSlider<dimension>::on_slider_hover>(this);
-				sliders[i]->connect_listener<SliderUseEvent, &VecSlider<dimension>::on_slider_use>(this);
+				sliders[i]->template connect_listener<SliderHoverEvent, &VecSlider<dimension>::on_slider_hover>(this);
+				sliders[i]->template connect_listener<SliderUseEvent, &VecSlider<dimension>::on_slider_use>(this);
             }
         }
 
@@ -95,8 +95,8 @@ namespace oe::gui
 		{
 			for(size_t i = 0; i < dimension; i++)
             {
-				sliders[i]->disconnect_listener<SliderHoverEvent, &VecSlider<dimension>::on_slider_hover>(this);
-				sliders[i]->disconnect_listener<SliderUseEvent, &VecSlider<dimension>::on_slider_use>(this);
+				sliders[i]->template disconnect_listener<SliderHoverEvent, &VecSlider<dimension>::on_slider_hover>(this);
+				sliders[i]->template disconnect_listener<SliderUseEvent, &VecSlider<dimension>::on_slider_use>(this);
             }
 		}
 

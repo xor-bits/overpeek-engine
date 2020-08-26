@@ -75,8 +75,8 @@ namespace oe::gui
 		static GraphRenderer* singleton;
 		GraphRenderer(const GraphRenderer& copy) = delete;
 		GraphRenderer()
-			: g_renderer(oe::RendererInfo{ 1 })
-			, g_shader({ "asset:graph_shader", { { oe::shader_stages::vertex_shader, shader_vert_gl }, { oe::shader_stages::fragment_shader, graph_shader_frag } } })
+			: g_shader({ "asset:graph_shader", { { oe::shader_stages::vertex_shader, shader_vert_gl }, { oe::shader_stages::fragment_shader, graph_shader_frag } } })
+			, g_renderer(oe::RendererInfo{ 1 })
 			, g_pack()
 		{
 			g_pack.construct();

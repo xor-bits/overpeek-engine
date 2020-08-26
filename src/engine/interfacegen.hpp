@@ -2,6 +2,8 @@
 
 #include "enum.hpp"
 
+#include <memory>
+
 
 
 namespace oe::graphics

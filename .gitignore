@@ -1,2 +1,5 @@
 build/
+build_ux/
+build_wn/
+build_mc/
 .vscode/

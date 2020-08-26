@@ -10,9 +10,10 @@
 
 
 
-namespace oe::graphics {
-
-	uint32_t gl_format(oe::formats format) {
+namespace oe::graphics
+{
+	constexpr uint32_t gl_format(oe::formats format)
+	{
 		switch (format)
 		{
 		case oe::formats::rgba:
@@ -24,7 +25,8 @@ namespace oe::graphics {
 		}
 	}
 
-	uint32_t gl_internalformat(oe::formats format) {
+	constexpr uint32_t gl_internalformat(oe::formats format)
+	{
 		switch (format)
 		{
 		case oe::formats::rgba:
@@ -51,6 +53,13 @@ namespace oe::graphics {
 
 		size_t dimensions = texture_info.size.size();
 		if (dimensions != texture_info.offset.size()) { oe_error_terminate("texture_info.size.size() and texture_info.offset.size() do not match"); }
+
+		// no glTexStorage below gl 4.2, workaround with null texture
+		if(m_texture_info.empty && oe::Engine::getSingleton().instance->versionNumber() < 42)
+		{
+			m_texture_info.empty = false;
+			m_texture_info.data = nullptr;
+		}
 
 		// load texture
 		switch (dimensions)
@@ -168,7 +177,7 @@ namespace oe::graphics {
 
 		auto img = oe::utils::image_data(data, m_texture_info.data_format, m_texture_info.size[0], m_texture_info.size[1]);
 		
-		delete data;
+		delete[] data;
 		return img;
 	}
 

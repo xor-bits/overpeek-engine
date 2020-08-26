@@ -10,12 +10,12 @@ namespace oe::gui
 {
 	float Widget::z_acc = 1.0f;
 	Widget::Widget(const WidgetInfo& info)
-		: m_info(info)
-		, render_position({ 0, 0 })
-		, topleft_position({ 0, 0 })
+		: m_parent(nullptr)
 		, m_nodes() 
-		, m_parent(nullptr)
+		, topleft_position({ 0, 0 })
+		, render_position({ 0, 0 })
 		, m_gui_manager(nullptr)
+		, m_info(info)
 	{
 		z = z_acc;
 		z_acc += 0.1f;

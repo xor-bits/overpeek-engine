@@ -116,7 +116,7 @@ namespace oe::graphics {
 #endif
 		if (m_debugging) {
 #ifndef __EMSCRIPTEN__
-			if (((gl_v_major == 4 && gl_v_minor >= 3) || gl_v_major > 4)) {
+			if (instance->versionNumber() >= 43) {
 				glEnable(GL_DEBUG_OUTPUT);
 				glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 				glDebugMessageCallback(glDebugOutput, nullptr);

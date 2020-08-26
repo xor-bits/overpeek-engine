@@ -73,8 +73,8 @@ namespace oe::graphics {
 		inline oe::utils::GameLoop& getGameloop() {return m_window_gameloop; }
 
 		float aspect();
-		float button(oe::mouse_buttons button);
-		float key(oe::keys key);
+		bool button(oe::mouse_buttons button);
+		bool key(oe::keys key);
 
 		const glm::ivec2& getPosition();
 		void setPosition(const glm::ivec2& pos);

@@ -207,18 +207,35 @@ if(VCPKG_TOOLCHAIN) # with vcpkg
 	target_link_libraries(${target_name} PRIVATE ${OPENGL_LIBRARY})
 
 	
-	if (CMAKE_BUILD_TYPE EQUAL "Debug")
-		set(CURRENT_PACKAGES_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug")
+	if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+		set(_VCPKG_LIB_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/lib")
 	else()
-		set(CURRENT_PACKAGES_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}")
+		set(_VCPKG_LIB_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
 	endif()
+	set(_VCPKG_INC_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
 	
 	target_include_directories(${target_name} PUBLIC "vendor/rectpack2D/include") # no rectpack2D in vcpkg
-	target_include_directories(${target_name} PUBLIC "${CURRENT_PACKAGES_DIR}/include/")
-	target_link_directories(${target_name} PUBLIC "${CURRENT_PACKAGES_DIR}/lib")
+	target_include_directories(${target_name} PUBLIC "${_VCPKG_INC_DIR}")
+	target_link_directories(${target_name} PUBLIC "${_VCPKG_LIB_DIR}")
 	
-	find_package(OpenAL CONFIG REQUIRED)
-	target_link_libraries(${target_name} PRIVATE OpenAL::OpenAL)
+# additional glfw3 dependencies for ubuntu:
+# sudo apt install libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev
+
+# vcpkg install openal-soft glfw3 glad box2d miniz enet freetype ms-gsl entt spdlog fmt stb minimp3 glm
+# optionally shaderc and/or vulkan' vcpkg install shaderc vulkan
+	if(NOT UNIX)
+		find_package(OpenAL CONFIG REQUIRED)
+		target_link_libraries(${target_name} PRIVATE OpenAL::OpenAL)
+		find_package(freetype CONFIG REQUIRED)
+		target_link_libraries(${target_name} PRIVATE freetype)
+	else()
+		find_package(OpenAL REQUIRED)
+		target_link_libraries(${target_name} PRIVATE ${OPENAL_LIBRARY})
+		target_include_directories(${target_name} PUBLIC ${OPENAL_INCLUDE_DIR})
+		find_package(Freetype REQUIRED)
+		target_link_libraries(${target_name} PRIVATE ${FREETYPE_LIBRARIES})
+		target_include_directories(${target_name} PUBLIC ${FREETYPE_INCLUDE_DIRS})
+	endif()
 	find_package(glfw3 CONFIG REQUIRED)
 	target_link_libraries(${target_name} PRIVATE glfw)
 	find_package(glad CONFIG REQUIRED)
@@ -228,8 +245,6 @@ if(VCPKG_TOOLCHAIN) # with vcpkg
 	find_package(miniz CONFIG REQUIRED)
 	target_link_libraries(${target_name} PRIVATE miniz::miniz)
 	target_link_libraries(${target_name} PRIVATE enet)
-	find_package(freetype CONFIG REQUIRED)
-	target_link_libraries(${target_name} PRIVATE freetype)
 	find_package(Microsoft.GSL CONFIG REQUIRED)
 	target_link_libraries(${target_name} PRIVATE Microsoft.GSL::GSL)
 	find_package(EnTT CONFIG REQUIRED)

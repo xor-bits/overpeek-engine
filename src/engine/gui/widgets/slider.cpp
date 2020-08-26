@@ -11,8 +11,8 @@ namespace oe::gui {
 
 	Slider::Slider(const SliderInfo& _slider_info) 
 		: Widget(_slider_info.widget_info)
-		, slider_info(_slider_info)
 		, m_dragging(false)
+		, slider_info(_slider_info)
 	{}
 
 	Slider::~Slider()

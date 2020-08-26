@@ -1,6 +1,7 @@
 #include <engine/include.hpp>
 
 #include <string>
+#include <cmath>
 
 
 
@@ -119,10 +120,10 @@ void cube()
 			// lerp
 			float t = oe::utils::Clock::getSingleton().getSessionMillisecond() / 500.0f;
 			t = (sin(t) * 0.5f + 0.5f) * (list_len - 1);
-			t = std::fmodf(t, static_cast<float>(list_len - 1));
+			t = ::fmodf(t, static_cast<float>(list_len - 1));
 
 			size_t index = t;
-			float modt = std::fmodf(t, 1.0f);
+			float modt = ::fmodf(t, 1.0f);
 			
 			const glm::quat& a = reinterpret_cast<Checkpoint*>(points.at(index))->quaternion;
 			const glm::quat& b = reinterpret_cast<Checkpoint*>(points.at(index + 1))->quaternion;
@@ -137,6 +138,7 @@ void cube()
 	shader_lines->setModelMatrix(ml_matrix);
 	shader_lines->setColor(color);
 	renderer->render();
+	shader_lines->unbind();
 }
 
 // render event
@@ -272,14 +274,14 @@ void setup_gui() {
 		text_panel_info.widget_info = { { 0, 0 }, { 0, 0 }, oe::alignments::top_left, oe::alignments::top_left };
 		text_panel_info.font_size = 20;
 		text_panel_info.text = U"placeholder";
-		text_panel_info.font_path = oe::default_font_path + std::string("arialbi.ttf");
+		text_panel_info.font_path = oe::default_full_font_path_bolditalic;
 		/* text_panel_info.background_color = oe::colors::translucent_black; */
 		textpanel = new oe::gui::TextPanel(text_panel_info);
 		gui->addSubWidget(textpanel);
 
 		{
 			oe::gui::GraphInfo graph_info;
-			graph_info.bg_panel_info.widget_info.size = { 150, 100 };
+			graph_info.bg_panel_info.widget_info.size = { 200, 100 };
 			graph_info.bg_panel_info.widget_info.offset_position = { 0, 5 };
 			graph_info.bg_panel_info.widget_info.align_parent = oe::alignments::bottom_left;
 			graph_info.bg_panel_info.widget_info.align_render = oe::alignments::top_left;
@@ -288,7 +290,7 @@ void setup_gui() {
 			graph_fps = new oe::gui::Graph(graph_info);
 			textpanel->addSubWidget(graph_fps);
 			
-			graph_info.bg_panel_info.widget_info.offset_position = { 155, 5 };
+			graph_info.bg_panel_info.widget_info.offset_position = { 205, 5 };
 			graph_info.graph_color = oe::colors::blue;
 			graph_ups = new oe::gui::Graph(graph_info);
 			textpanel->addSubWidget(graph_ups);
@@ -363,7 +365,7 @@ int main()
 	pack->construct();
 
 	// gui
-	gui = new oe::gui::GUI(window, oe::default_font_path + std::string("arialbd.ttf"));
+	gui = new oe::gui::GUI(window, oe::default_full_font_path_bold);
 	setup_gui();
 
 	// start

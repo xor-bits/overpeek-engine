@@ -11,7 +11,16 @@
 
 
 
-namespace oe::graphics {
+namespace oe::graphics
+{
+	const int get_gl_version_number()
+	{
+		int gl_v_major, gl_v_minor;
+		glGetIntegerv(GL_MAJOR_VERSION, &gl_v_major);
+		glGetIntegerv(GL_MINOR_VERSION, &gl_v_minor);
+
+		return gl_v_major * 10 + gl_v_minor;
+	}
 
 	GLInstance::GLInstance() 
 		: Instance() 
@@ -33,6 +42,8 @@ namespace oe::graphics {
 		case oe::modes::disable:
 			glDisable(GL_BLEND);
 			break;
+		default: // keep
+			break;
 		}
 	}
 
@@ -41,6 +52,9 @@ namespace oe::graphics {
 		glDepthMask(GL_TRUE);
 		switch (func)
 		{
+		case oe::depth_functions::disable:
+			// fall through
+			[[fallthrough]];
 		case oe::depth_functions::always:
 			glDisable(GL_DEPTH_TEST);
 			glDepthFunc(GL_ALWAYS);
@@ -125,12 +139,20 @@ namespace oe::graphics {
 		case oe::polygon_mode::points:
 			glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 			break;
+		default:
+			break;
 		}
 	}
 
 	void GLInstance::viewport(int x, int y, size_t w, size_t h) const
 	{
 		glViewport(x, y, w, h);
+	}
+
+	int GLInstance::versionNumber()
+	{
+		if (m_version_number == -1) m_version_number = get_gl_version_number();
+		return m_version_number;
 	}
 
 }

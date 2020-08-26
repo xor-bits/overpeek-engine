@@ -348,11 +348,9 @@ namespace oe {
 		static constexpr glm::vec2 center_right = glm::vec2(1.0f, 0.5f);
 		static constexpr glm::vec2 bottom_right = glm::vec2(1.0f, 1.0f);
 	};
-	static glm::vec2 alignmentOffset(const glm::vec2& size, const glm::vec2& alignment) {
-		return size * alignment;
-	}
-	static glm::ivec2 alignmentOffset(const glm::ivec2& size, const glm::vec2& alignment) {
-		return static_cast<glm::ivec2>(static_cast<glm::vec2>(size) * alignment);
+	template<typename T = glm::vec2>
+	T alignmentOffset(const T& size, const glm::vec2& alignment) {
+		return static_cast<T>(static_cast<glm::vec2>(size) * alignment);
 	}
 
 	typedef std::function<void(oe::keys key, oe::actions action, oe::modifiers mods)> fun_key_callback;
@@ -466,23 +464,64 @@ namespace oe {
 	};
 
 #ifdef WIN32
-#define __OE_FONT_NAME				"Arial.ttf"
+#define __OE_FONT_NAME_R			"Arial.ttf"
+#define __OE_FONT_NAME_B			"Arialbd.ttf"
+#define __OE_FONT_NAME_I			"Ariali.ttf"
+#define __OE_FONT_NAME_BI			"Arialbi.ttf"
 #define __OE_FONT_PATH				"C:/Windows/Fonts/"
-#define __OE_FULL_FONT_PATH			__OE_FONT_PATH __OE_FONT_NAME
 #elif __linux__
-#define __OE_FONT_NAME				"LiberationSans-Regular.ttf"
+#define __OE_FONT_NAME_R			"LiberationSans-Regular.ttf"
+#define __OE_FONT_NAME_B			"LiberationSans-Bold.ttf"
+#define __OE_FONT_NAME_I			"LiberationSans-Italic.ttf"
+#define __OE_FONT_NAME_BI			"LiberationSans-BoldItalic.ttf"
 #define __OE_FONT_PATH				"/usr/share/fonts/truetype/liberation/"
-#define __OE_FULL_FONT_PATH			__OE_FONT_PATH __OE_FONT_NAME
 #else
-#define __OE_FONT_NAME				"LiberationSans-Regular.ttf"
+#define __OE_FONT_NAME_R			"LiberationSans-Regular.ttf"
+#define __OE_FONT_NAME_B			"LiberationSans-Bold.ttf"
+#define __OE_FONT_NAME_I			"LiberationSans-Italic.ttf"
+#define __OE_FONT_NAME_BI			"LiberationSans-BoldItalic.ttf"
 #define __OE_FONT_PATH				"/System/Library/Fonts"  /* I have no idea about fonts with MacOS */
-#define __OE_FULL_FONT_PATH			__OE_FONT_PATH __OE_FONT_NAME
 #endif
+
+#define __OE_FULL_FONT_PATH_R		__OE_FONT_PATH __OE_FONT_NAME_R
+#define __OE_FULL_FONT_PATH_B		__OE_FONT_PATH __OE_FONT_NAME_B
+#define __OE_FULL_FONT_PATH_I		__OE_FONT_PATH __OE_FONT_NAME_I
+#define __OE_FULL_FONT_PATH_BI		__OE_FONT_PATH __OE_FONT_NAME_BI
+#define __OE_FONT_NAME				__OE_FONT_NAME_R
+#define __OE_FULL_FONT_PATH_R		__OE_FONT_PATH __OE_FONT_NAME_R
+#define __OE_FULL_FONT_PATH_B		__OE_FONT_PATH __OE_FONT_NAME_B
+#define __OE_FULL_FONT_PATH_I		__OE_FONT_PATH __OE_FONT_NAME_I
+#define __OE_FULL_FONT_PATH_BI		__OE_FONT_PATH __OE_FONT_NAME_BI
+#define __OE_FULL_FONT_PATH			__OE_FULL_FONT_PATH_R
 	
+	constexpr char default_font_name_regular[] = __OE_FONT_NAME_R;
+	constexpr char default_font_name_bold[] = __OE_FONT_NAME_B;
+	constexpr char default_font_name_italic[] = __OE_FONT_NAME_I;
+	constexpr char default_font_name_bolditalic[] = __OE_FONT_NAME_BI;
 	constexpr char default_font_name[] = __OE_FONT_NAME;
+
 	constexpr char default_font_path[] = __OE_FONT_PATH;
+	
+	constexpr char default_full_font_path_regular[] = __OE_FULL_FONT_PATH_R;
+	constexpr char default_full_font_path_bold[] = __OE_FULL_FONT_PATH_B;
+	constexpr char default_full_font_path_italic[] = __OE_FULL_FONT_PATH_I;
+	constexpr char default_full_font_path_bolditalic[] = __OE_FULL_FONT_PATH_BI;
 	constexpr char default_full_font_path[] = __OE_FULL_FONT_PATH;
 
-#undef __FONT_NAME
-#undef __OE_DEFAULT_FONT__
+#undef __OE_FONT_NAME_R
+#undef __OE_FONT_NAME_B
+#undef __OE_FONT_NAME_I
+#undef __OE_FONT_NAME_BI
+#undef __OE_FONT_PATH
+
+#undef __OE_FULL_FONT_PATH_R
+#undef __OE_FULL_FONT_PATH_B
+#undef __OE_FULL_FONT_PATH_I
+#undef __OE_FULL_FONT_PATH_BI
+#undef __OE_FONT_NAME
+#undef __OE_FULL_FONT_PATH_R
+#undef __OE_FULL_FONT_PATH_B
+#undef __OE_FULL_FONT_PATH_I
+#undef __OE_FULL_FONT_PATH_BI
+#undef __OE_FULL_FONT_PATH
 }

@@ -40,9 +40,9 @@ namespace oe::graphics
 		
 	public:
 		BasicTextLabel(Font& font)
-			: m_text(str_array_cast<char_type>("").c_str())
-			, m_font(font)
+			: m_font(font)
 			, m_fb_size(0.0f, 0.0f)
+			, m_text()
 			, m_size(0.0f, 0.0f)
 		{}
 

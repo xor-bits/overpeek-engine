@@ -49,15 +49,13 @@ namespace oe::graphics {
 		};
 		m_glyphs.insert(std::make_pair(codepoint, glyph));
 
-		FT_Outline_Embolden;
-
 		delete[] data;
 		return true;
 	}
 
 	Font::Font(uint16_t resolution, const std::string& font_path)
-		: m_resolution(resolution)
-		, m_sprite_pack(new SpritePack(5))
+		: m_sprite_pack(new SpritePack(5))
+		, m_resolution(resolution)
 	{
 		oe_debug_call("font");
 

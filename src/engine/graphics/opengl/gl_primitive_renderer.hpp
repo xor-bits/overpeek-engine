@@ -10,8 +10,8 @@
 
 
 
-namespace oe::graphics {
-
+namespace oe::graphics
+{
 	void native_glDrawElementsPoints(size_t override_index_count);
 	void native_glDrawElementsLines(size_t override_index_count);
 	void native_glDrawElementsTriangles(size_t override_index_count);
@@ -51,37 +51,49 @@ namespace oe::graphics {
 			std::function<void(int, int, size_t)> fn = std::bind(&VertexBuffer::attrib, m_vbo, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
 			vertex_type::config(fn);
 
-			switch (generator.render_primitive())
+			oe::primitive_types ptype = generator.render_primitive();
+			switch (ptype)
 			{
 			case oe::primitive_types::points:
 				native_glDrawElementsPrimitive = native_glDrawElementsPoints;
+				break;
 			case oe::primitive_types::lines:
 				native_glDrawElementsPrimitive = native_glDrawElementsLines;
+				break;
 			case oe::primitive_types::triangles:
 				native_glDrawElementsPrimitive = native_glDrawElementsTriangles;
+				break;
+			default:
+				oe_error_terminate("Non primitive oe::primitive_types asked: {}", static_cast<int>(ptype));
+				native_glDrawElementsPrimitive = native_glDrawElementsTriangles;
+				break;
 			}
 		}
 
-		~GLBasicPrimitiveRenderer() {
+		~GLBasicPrimitiveRenderer()
+		{
 			delete m_vao;
 			delete m_vbo;
 			delete m_ibo;
 		}
 
 		// Inherited via Renderer
-		virtual void submitVertex(const vertex_type& vertex, size_t index) override {
+		virtual void submitVertex(const vertex_type& vertex, size_t index) override
+		{
 			if (!m_mapped_buffer) oe_error_terminate("Buffer not mapped!");
 			m_mapped_buffer[index] = vertex;
 			Interface::m_vertex_count = std::max(Interface::m_vertex_count, index + 1);
 		}
 
-		virtual void submitVertex(const std::vector<vertex_type>& vertices, size_t first_index) override {
+		virtual void submitVertex(const std::vector<vertex_type>& vertices, size_t first_index) override
+		{
 			if (!m_mapped_buffer) oe_error_terminate("Buffer not mapped!");
 			std::memcpy(m_mapped_buffer + first_index, vertices.data(), vertices.size() * sizeof(vertex_type));
 			Interface::m_vertex_count = std::max(Interface::m_vertex_count, first_index + vertices.size());
 		}
 		
-		virtual void submitVertex(const vertex_type* first_vertex, size_t vertex_count, size_t first_index) override {
+		virtual void submitVertex(const vertex_type* first_vertex, size_t vertex_count, size_t first_index) override
+		{
 			if (!m_mapped_buffer) oe_error_terminate("Buffer not mapped!");
 			std::memcpy(m_mapped_buffer + first_index, first_vertex, vertex_count * sizeof(vertex_type));
 			Interface::m_vertex_count = std::max(Interface::m_vertex_count, first_index + vertex_count);
