@@ -35,6 +35,6 @@ jobs:
       with:
         useVcpkgToolchainFile: true
         cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-        cmakeListsTxtPath: '${{runner.workspace}}/CMakeLists.txt'
-        buildDirectory: '${{ runner.workspace }}/build'
+        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
+        buildDirectory: '${{ github.workspace }}/build'
         cmakeAppendedArgs: ''
