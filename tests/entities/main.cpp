@@ -78,7 +78,7 @@ struct MotorScript : public oe::ecs::Behaviour
 {
 	b2RevoluteJoint* motor_joint{};
 
-	void on_init(oe::ecs::Entity attached_to)
+	void on_init(const oe::ecs::Entity& attached_to)
 	{
 		auto& generic_src_a = getScriptComponent<GenericScript>();
 		auto& generic_src_b = attached_to.getScriptComponent<GenericScript>();
@@ -88,7 +88,7 @@ struct MotorScript : public oe::ecs::Behaviour
 		jointDef.bodyB = generic_src_b.m_body;
 		jointDef.enableMotor = true;
 		jointDef.motorSpeed = 0.0f;
-		jointDef.maxMotorTorque = 1e20f;
+		jointDef.maxMotorTorque = std::numeric_limits<float>::max();
 
 		motor_joint = static_cast<b2RevoluteJoint*>(box2d_world.CreateJoint(&jointDef));
 	}

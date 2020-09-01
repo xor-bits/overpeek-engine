@@ -35,23 +35,23 @@ namespace oe::gui
 
 	ColorPicker::ColorPicker(const ColorPickerInfo& _color_picker_info)
 		: VecSlider<4>(create_info(_color_picker_info))
-		, color_picker_info(_color_picker_info)
-		, mult(color_picker_info.draw_value == 2 ? 256.0f : 1.0f)
+		, m_color_picker_info(_color_picker_info)
+		, mult(m_color_picker_info.draw_value == 2 ? 256.0f : 1.0f)
 	{
-		color_picker_info.initial_color *= mult;
+		m_color_picker_info.initial_color *= mult;
 
 		SpritePanelInfo sprite_panel_info = {};
 		sprite_panel_info.widget_info = { m_info.size + glm::ivec2{ 55, 10 }, { -5, -5 }, oe::alignments::top_left, oe::alignments::top_left };
-		sprite_panel_info.sprite = color_picker_info.sprite;
-		sprite_panel_info.color = color_picker_info.background_color;
+		sprite_panel_info.sprite = m_color_picker_info.sprite;
+		sprite_panel_info.color = m_color_picker_info.background_color;
 		auto bgbox = new SpritePanel(sprite_panel_info);
 		bgbox->overrideZ(bgbox->getZ() - 0.5f);
 		addSubWidget(bgbox);
 
 		SpritePanelInfo preview_panel_info;
 		preview_panel_info.widget_info = { { 40, m_info.size.y }, { -5, 5 }, oe::alignments::top_right, oe::alignments::top_right };
-		preview_panel_info.color = color_picker_info.initial_color / mult;
-		preview_panel_info.sprite = color_picker_info.sprite;
+		preview_panel_info.color = m_color_picker_info.initial_color / mult;
+		preview_panel_info.sprite = m_color_picker_info.sprite;
 		preview_panel = new SpritePanel(preview_panel_info);
 		bgbox->addSubWidget(preview_panel);
 
@@ -73,29 +73,29 @@ namespace oe::gui
 
 	void ColorPicker::on_vec_slider_hover(const VecSliderHoverEvent<4>& e)
 	{
-		dispatcher.trigger(event_hover_latest);
+		dispatcher.trigger(m_event_hover_latest);
 	}
 
 	void ColorPicker::on_vec_slider_use(const VecSliderUseEvent<4>& e)
 	{
-		color_picker_info.initial_color = e.value / mult;
+		m_color_picker_info.initial_color = e.value / mult;
 		update();
 
-		event_use_latest.action = e.action;
-		event_use_latest.button = e.button;
-		event_use_latest.modifier = e.modifier;
-		event_use_latest.value = color_picker_info.initial_color;
-		dispatcher.trigger(event_use_latest);
+		m_event_use_latest.action = e.action;
+		m_event_use_latest.button = e.button;
+		m_event_use_latest.modifier = e.modifier;
+		m_event_use_latest.value = m_color_picker_info.initial_color;
+		dispatcher.trigger(m_event_use_latest);
 	}
 	
 	const glm::vec4& ColorPicker::get() const
 	{
-		return color_picker_info.initial_color;
+		return m_color_picker_info.initial_color;
 	}
 
 	void ColorPicker::set(const glm::vec4& color)
 	{
-		color_picker_info.initial_color = color; 
+		m_color_picker_info.initial_color = color;
 		update();
 
 		VecSlider<4>::set({ color.x * mult, color.y * mult, color.z * mult, color.w * mult });
@@ -103,7 +103,7 @@ namespace oe::gui
 
 	void ColorPicker::update()
 	{
-		preview_panel->sprite_panel_info.color = color_picker_info.initial_color;
+		preview_panel->sprite_panel_info.color = m_color_picker_info.initial_color;
 	}
 
 }

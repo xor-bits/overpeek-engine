@@ -1,11 +1,9 @@
 #include "renderer.hpp"
 
 #include "engine/utility/extra.hpp"
-#include "engine/graphics/opengl/gl_primitive_renderer.hpp"
 #include "engine/graphics/interface/window.hpp"
-
-
 #include "engine/graphics/opengl/gl_texture.hpp"
+#include "engine/interfacegen_renderer.hpp"
 
 
 

@@ -104,7 +104,7 @@ namespace oe::gui
     Graph::Graph(const GraphInfo& info)
         : SpritePanel(info.bg_panel_info)
         , m_graph_info(info)
-		, m_graph({ info.graph_color, info.bg_panel_info.sprite, info.bg_panel_info.widget_info })
+		, m_graph({ info.graph_color, info.bg_panel_info.sprite, false, info.bg_panel_info.widget_info })
     {
         std::swap(m_graph_info.graph_color, sprite_panel_info.color);
     }

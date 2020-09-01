@@ -13,7 +13,7 @@ namespace oe::gui
 	struct ColorPickerInfo
 	{
 		uint8_t draw_value                 = 2; // (false/0) = no draw, (true/1) = draw 0.0-1.0, 2 = draw 0-256
-		glm::vec4 initial_color            = oe::colors::white;
+		glm::vec4 initial_color            = oe::colors::red;
 		glm::vec4 background_color         = oe::colors::dark_grey;
 		const oe::graphics::Sprite* sprite = nullptr; // must be set
 
@@ -34,9 +34,9 @@ namespace oe::gui
 	class ColorPicker : public VecSlider<4> 
 	{
 	public:
-		ColorPickerInfo color_picker_info;
-		ColorPickerHoverEvent event_hover_latest;
-		ColorPickerUseEvent event_use_latest;
+		ColorPickerInfo m_color_picker_info;
+		ColorPickerHoverEvent m_event_hover_latest;
+		ColorPickerUseEvent m_event_use_latest;
 
 	private:
 		SpritePanel* preview_panel = nullptr;

@@ -2,8 +2,7 @@
 
 #include "engine/internal_libs.hpp"
 #include "engine/graphics/sprite.hpp"
-
-#include "primitive_renderer.hpp"
+#include "engine/interfacegen_renderer.hpp"
 
 #include <unordered_set>
 

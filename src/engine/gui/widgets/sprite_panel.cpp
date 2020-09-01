@@ -18,7 +18,10 @@ namespace oe::gui {
 
 	void SpritePanel::managerAssigned(GUI* gui_manager)
 	{
-		quad = gui_manager->getRenderer()->create();
+		if (sprite_panel_info.sprite_alpha)
+			quad = gui_manager->getLateRenderer()->create();
+		else
+			quad = gui_manager->getRenderer()->create();
 
 		// event listeners
 		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&SpritePanel::on_render>(this);

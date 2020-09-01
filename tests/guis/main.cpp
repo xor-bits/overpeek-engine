@@ -271,6 +271,17 @@ void setup_gui() {
 			color = e.value;
 		};
 		color_picker->connect_listener<oe::gui::ColorPickerUseEvent, &decltype(callback_lambda)::operator()>(callback_lambda);
+
+		{
+			oe::gui::ColorPickerWheelInfo color_picker_wheel_info;
+			color_picker_wheel_info.color_picker_info = color_picker_info;
+			color_picker_wheel_info.color_picker_info.widget_info.size = { 200, 200 };
+			color_picker_wheel_info.color_picker_info.widget_info.offset_position = { color_picker_info.widget_info.size.x + 5, 0 };
+			color_picker_wheel_info.alpha = false;
+			color_picker_wheel_info.preview = true;
+			auto color_picker_wheel = new oe::gui::ColorPickerWheel(color_picker_wheel_info);
+			gui->addSubWidget(color_picker_wheel);
+		}
 	}
 	{
 		oe::gui::TextPanelInfo text_panel_info;

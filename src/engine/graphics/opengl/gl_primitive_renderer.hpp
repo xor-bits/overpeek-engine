@@ -78,20 +78,6 @@ namespace oe::graphics
 		}
 
 		// Inherited via Renderer
-		virtual void submitVertex(const vertex_type& vertex, size_t index) override
-		{
-			if (!m_mapped_buffer) oe_error_terminate("Buffer not mapped!");
-			m_mapped_buffer[index] = vertex;
-			Interface::m_vertex_count = std::max(Interface::m_vertex_count, index + 1);
-		}
-
-		virtual void submitVertex(const std::vector<vertex_type>& vertices, size_t first_index) override
-		{
-			if (!m_mapped_buffer) oe_error_terminate("Buffer not mapped!");
-			std::memcpy(m_mapped_buffer + first_index, vertices.data(), vertices.size() * sizeof(vertex_type));
-			Interface::m_vertex_count = std::max(Interface::m_vertex_count, first_index + vertices.size());
-		}
-		
 		virtual void submitVertex(const vertex_type* first_vertex, size_t vertex_count, size_t first_index) override
 		{
 			if (!m_mapped_buffer) oe_error_terminate("Buffer not mapped!");
@@ -130,6 +116,6 @@ namespace oe::graphics
 		}
 	};
 
-	typedef GLBasicPrimitiveRenderer<oe::primitive_types::quads, BasicBufferGen<oe::primitive_types::quads>, VertexData> GLPrimitiveRenderer;
+	using GLPrimitiveRenderer = GLBasicPrimitiveRenderer<oe::primitive_types::quads, BasicBufferGen<oe::primitive_types::quads>, VertexData>;
 
 }

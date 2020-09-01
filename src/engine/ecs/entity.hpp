@@ -45,7 +45,7 @@ namespace oe::ecs
 		// get component
 		// returned value might get invalidated after next Entity::setComponent()
 		template<typename T>
-		T& getScriptComponent()
+		T& getScriptComponent() const
 		{
 			return *m_world->m_scene.get<std::unique_ptr<T>>(m_entity).get();
 		}

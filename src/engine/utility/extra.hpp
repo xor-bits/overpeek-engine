@@ -26,8 +26,8 @@ namespace oe::utils {
 		return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
 	}
 
-    // rgb/hsv algorthms by
-    // https://stackoverflow.com/a/6930407/12147216
+	// { 0 - 1, 0 - 1, 0 - 1 } -> { 0 - 1, 0 - 1, 0 - 1 }
+	// https://stackoverflow.com/a/17897228 modified for glm
 	extern glm::vec3 rgbToHSV(glm::vec3 in);
 	extern glm::vec3 hsvToRGB(glm::vec3 in);
 
