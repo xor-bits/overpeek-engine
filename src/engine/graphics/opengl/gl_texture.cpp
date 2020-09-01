@@ -155,7 +155,7 @@ namespace oe::graphics
 		size *= oe::sizeofFormat(m_texture_info.data_format);
 
 		uint8_t* data = new uint8_t[size];
-		bind();
+		GLTexture::bind();
 
 #ifndef __EMSCRIPTEN__
 		// OpenGL method for pulling texture pixel data
@@ -190,7 +190,7 @@ namespace oe::graphics
 
 	void GLTexture::empty1D(size_t width) {
 		m_target = GL_TEXTURE_1D;
-		bind();
+		GLTexture::bind();
 
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -201,7 +201,7 @@ namespace oe::graphics
 
 	void GLTexture::empty2D(size_t width, size_t height) {
 		m_target = GL_TEXTURE_2D;
-		bind();
+		GLTexture::bind();
 
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -213,7 +213,7 @@ namespace oe::graphics
 
 	void GLTexture::empty3D(size_t width, size_t height, size_t depth) {
 		m_target = GL_TEXTURE_3D;
-		bind();
+		GLTexture::bind();
 
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -226,7 +226,7 @@ namespace oe::graphics
 
 	void GLTexture::load1D(const uint8_t* data, size_t width) {
 		m_target = GL_TEXTURE_1D;
-		bind();
+		GLTexture::bind();
 
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -237,7 +237,7 @@ namespace oe::graphics
 
 	void GLTexture::load2D(const uint8_t* data, size_t width, size_t height) {
 		m_target = GL_TEXTURE_2D;
-		bind();
+		GLTexture::bind();
 
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -249,7 +249,7 @@ namespace oe::graphics
 
 	void GLTexture::load3D(const uint8_t* data, size_t width, size_t height, size_t depth) {
 		m_target = GL_TEXTURE_3D;
-		bind();
+		GLTexture::bind();
 
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -261,7 +261,7 @@ namespace oe::graphics
 	}
 
 	void GLTexture::data1D(const uint8_t* data, size_t width, size_t x_offset) {
-		bind();
+		GLTexture::bind();
 		if (m_texture_info.size.size() != 1) { oe_error_terminate("Dimension mismatch {} and 1", m_texture_info.size.size()); }
 		if (x_offset + width > m_texture_info.size[0]) 
 			oe_error_terminate("Sub texture bigger than initial texture");
@@ -269,7 +269,7 @@ namespace oe::graphics
 	}
 	
 	void GLTexture::data2D(const uint8_t* data, size_t width, size_t x_offset, size_t height, size_t y_offset) {
-		bind();
+		GLTexture::bind();
 		if (m_texture_info.size.size() != 1) { oe_error_terminate("Dimension mismatch {} and 2", m_texture_info.size.size()); }
 		if (x_offset + width > m_texture_info.size[0] || y_offset + height > m_texture_info.size[1]) 
 			oe_error_terminate("Sub texture bigger than initial texture");
@@ -277,7 +277,7 @@ namespace oe::graphics
 	}
 	
 	void GLTexture::data3D(const uint8_t* data, size_t width, size_t x_offset, size_t height, size_t y_offset, size_t depth, size_t z_offset) {
-		bind();
+		GLTexture::bind();
 		if (m_texture_info.size.size() != 1) { oe_error_terminate("Dimension mismatch {} and 3", m_texture_info.size.size()); }
 		if (x_offset + width > m_texture_info.size[0] || y_offset + height > m_texture_info.size[1] || z_offset + depth > m_texture_info.size[2]) 
 			oe_error_terminate("Sub texture bigger than initial texture");

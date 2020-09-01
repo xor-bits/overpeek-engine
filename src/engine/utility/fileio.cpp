@@ -64,7 +64,7 @@ namespace oe::utils
 
 	image_data::image_data(fs::path path, oe::formats _format)
 	{
-		int channels;
+		int channels{};
 		data = stbi_load(path.string().c_str(), &width, &height, &channels, stb_i_format(_format));
 
 		if (!data) {
@@ -110,7 +110,7 @@ namespace oe::utils
 	audio_data::audio_data(fs::path path)
 	{
 		mp3dec_t mp3d;
-		mp3dec_file_info_t info;
+		mp3dec_file_info_t info{};
 		if (mp3dec_load(&mp3d, path.string().c_str(), &info, NULL, NULL)) {
 			oe_error_terminate("Failed to load audiofile \"{}\"", std::string(path.string().c_str()));
 		}

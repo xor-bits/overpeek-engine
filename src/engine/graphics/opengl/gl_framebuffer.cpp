@@ -17,7 +17,7 @@ namespace oe::graphics
 		oe_debug_call("gl_framebuffer");
 
 		glGenFramebuffers(1, &m_id);
-		bind();
+		GLFrameBuffer::bind();
 
 		// Texture
 		TextureInfo texture_info = {};
@@ -41,7 +41,7 @@ namespace oe::graphics
 		if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
 			oe_error_terminate("Framebuffer not complete {}", fboStatus);
 
-		clear();
+		GLFrameBuffer::clear();
 		window->bind();
 		
 		sprite.m_owner = m_texture;
@@ -57,7 +57,7 @@ namespace oe::graphics
 
 	void GLFrameBuffer::clear(const glm::vec4& color)
 	{
-		bind();
+		GLFrameBuffer::bind();
 
 		glClearColor(color.x, color.y, color.z, color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

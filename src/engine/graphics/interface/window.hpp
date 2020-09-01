@@ -19,10 +19,11 @@
 
 
 
-class GLFWwindow;
-namespace oe::graphics {
-
-	class IWindow {
+struct GLFWwindow;
+namespace oe::graphics
+{
+	class IWindow
+	{
 	public:
 		WindowInfo m_window_info;
 		entt::dispatcher dispatcher;

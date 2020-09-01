@@ -11,9 +11,10 @@
 
 
 
-namespace oe::graphics {
-	
-	class GLWindow : public IWindow {
+namespace oe::graphics
+{	
+	class GLWindow : public IWindow
+	{
 	private:
 		bool m_debugging;
 

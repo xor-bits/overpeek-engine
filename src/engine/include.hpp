@@ -13,6 +13,11 @@
 // Audio
 #include "audio/audio.hpp"
 
+// ecs
+#include "ecs/components/all.hpp"
+#include "ecs/world.hpp"
+#include "ecs/entity.hpp"
+
 // Logic
 #include "utility/zip.hpp"
 #include "utility/clock.hpp"

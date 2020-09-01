@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
 	shader = new oe::assets::DefaultShader();
 
 	// sprites
-	font = new oe::graphics::Font(64);
+	font = new oe::graphics::Font(64, oe::default_full_font_path_bold);
 	
 	// submitting
 	label = new oe::graphics::u32TextLabel(*font);

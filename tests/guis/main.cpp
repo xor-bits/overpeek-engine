@@ -26,6 +26,7 @@ const oe::graphics::Sprite* sprite;
 
 glm::vec4 color = { 0.4f, 0.5f, 0.4f, 1.0f };
 glm::quat cube_rotation;
+constexpr bool graphs = true;
 
 
 static glm::mat4 ml_matrix = glm::mat4(1.0f);
@@ -184,6 +185,8 @@ void update_30() {
 	std::u32string str = fmt::format(U"frametime: {:3.3f} ms ({} fps) updatetime: {:3.3f} ms ({} ups)", gameloop.getFrametimeMS(), gameloop.getAverageFPS(), gameloop.getUpdatetimeMS<30>(), gameloop.getAverageUPS<30>());
 	if(textpanel) textpanel->text_panel_info.text = str;
 
+	if constexpr (!graphs) return;
+
 	auto& fps_log = window->getGameloop().getPerfLoggerFPS();
 	std::transform(fps_log.m_average_time.begin(), fps_log.m_average_time.begin() + perf_log_fps.size(), perf_log_fps.begin(), transform_cast<float>(fps_log.m_min_time, fps_log.m_max_time));
 	std::rotate(perf_log_fps.begin(), perf_log_fps.begin() + (fps_log.m_total_count % perf_log_fps.size()), perf_log_fps.end());
@@ -279,7 +282,7 @@ void setup_gui() {
 		textpanel = new oe::gui::TextPanel(text_panel_info);
 		gui->addSubWidget(textpanel);
 
-		{
+		if constexpr (graphs) {
 			oe::gui::GraphInfo graph_info;
 			graph_info.bg_panel_info.widget_info.size = { 200, 100 };
 			graph_info.bg_panel_info.widget_info.offset_position = { 0, 5 };
@@ -332,7 +335,7 @@ int main()
 	// window
 	oe::WindowInfo window_config = {};
 	window_config.title = "GUIs";
-	window_config.multisamples = 4;
+	window_config.multisamples = 2;
 	window = oe::graphics::Window(window_config);
 
 	// connect events
@@ -341,7 +344,7 @@ int main()
 	window->connect_update_listener<30, &update_30>();
 
 	// instance settings
-	engine.swapInterval(0);
+	engine.swapInterval(1);
 	engine.culling(oe::culling_modes::neither);
 	engine.blending(oe::modes::enable);
 

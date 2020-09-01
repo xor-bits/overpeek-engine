@@ -31,6 +31,14 @@ set(source_list ${source_list}
 	"engine/audio/audio.hpp"
 )
 set(source_list ${source_list} 
+	"engine/ecs/components/all.hpp"
+	"engine/ecs/components/quad.hpp"
+	"engine/ecs/entity.cpp"
+	"engine/ecs/entity.hpp"
+	"engine/ecs/world.hpp"
+	"engine/ecs/world.cpp"
+)
+set(source_list ${source_list} 
 	"engine/graphics/font.cpp"
 	"engine/graphics/font.hpp"
 	"engine/graphics/sprite.cpp"
@@ -163,7 +171,7 @@ set(source_list ${source_list}
 )
 
 set(target_name "engine")
-add_library(${target_name} STATIC ${source_list})
+add_library(${target_name} STATIC ${source_list} "engine/ecs/world.hpp" "engine/ecs/world.cpp"   )
 set_target_properties(${target_name} PROPERTIES FOLDER engine)
 if(OE_BUILD_MODE EQUAL 0)
 	target_compile_definitions(${target_name} PUBLIC "OE_BUILD_MODE_GL")
@@ -178,7 +186,6 @@ endif()
 
 # platform specific
 if (MSVC)
-	set_target_properties(${target_name} PROPERTIES COMPILE_FLAGS "/MP") # multicore compile
 	target_link_libraries(${target_name} PRIVATE "Ws2_32") # required by enet
 	target_link_libraries(${target_name} PRIVATE "Winmm")  # required by enet
 elseif(EMSCRIPTEN)

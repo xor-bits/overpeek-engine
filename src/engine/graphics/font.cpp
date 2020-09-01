@@ -15,7 +15,8 @@ namespace oe::graphics {
 	bool Font::gen_codepoint_glyph(char32_t codepoint)
 	{
 		//Load glyph
-		if (FT_Load_Char(face, codepoint, FT_LOAD_RENDER)) {
+		if (FT_Load_Char(face, codepoint, FT_LOAD_RENDER))
+		{
 			spdlog::warn("Failed to load glyph: {}", (size_t)codepoint);
 			return false;
 		}

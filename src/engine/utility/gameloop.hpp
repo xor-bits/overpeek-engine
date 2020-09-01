@@ -47,13 +47,13 @@ namespace oe::utils
 	private:
 		PerfLogger m_render_perf_logger;
 		float m_frame_counter_start = 0.0f;
-		entt::sigh<void(float)> render_signal;
+		entt::sigh<void(float)> render_signal{};
 		entt::sink<void(float)> render_sink{render_signal};
 		
-		entt::sigh<void()> init_signal;
+		entt::sigh<void()> init_signal{};
 		entt::sink<void()> init_sink{init_signal};
 		
-		entt::sigh<void()> cleanup_signal;
+		entt::sigh<void()> cleanup_signal{};
 		entt::sink<void()> cleanup_sink{cleanup_signal};
 
 		std::unordered_map<size_t, UpdateSystem> m_update_systems;

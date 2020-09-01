@@ -1,5 +1,9 @@
+out/
 build/
 build_ux/
 build_wn/
 build_mc/
 .vscode/
+.vs/
+Testing/
+CMakeSettings.json
