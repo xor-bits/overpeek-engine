@@ -34,14 +34,13 @@ namespace oe::gui
 		static float z_acc;
 
 	protected:
-		glm::ivec2 topleft_position = { 0, 0 };
-		glm::ivec2 render_position = { 0, 0 };
-
 		GUI* m_gui_manager;
 		float z;
 		entt::dispatcher dispatcher;
 
 	public:
+		glm::ivec2 topleft_position = { 0, 0 };
+		glm::ivec2 render_position = { 0, 0 };
 		WidgetInfo m_info;
 
 	public:

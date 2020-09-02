@@ -2,6 +2,7 @@
 
 #include "engine/utility/fileio.hpp"
 
+#include <iostream>
 
 
 namespace oe::assets
@@ -68,10 +69,10 @@ namespace oe::assets
 			constexpr size_t edge_l = 2;
 			oe::utils::image_data img(oe::formats::rgba, edge_l, edge_l);
 
-			reinterpret_cast<glm::vec<4, uint8_t>*>(img.data)[0] = color_a;
-			reinterpret_cast<glm::vec<4, uint8_t>*>(img.data)[2] = color_a;
-			reinterpret_cast<glm::vec<4, uint8_t>*>(img.data)[1] = color_b;
-			reinterpret_cast<glm::vec<4, uint8_t>*>(img.data)[3] = color_b;
+			reinterpret_cast<glm::vec<4, uint8_t>*>(img.data)[0] = color_a * 255.0f;
+			reinterpret_cast<glm::vec<4, uint8_t>*>(img.data)[1] = color_b * 255.0f;
+			reinterpret_cast<glm::vec<4, uint8_t>*>(img.data)[2] = color_b * 255.0f;
+			reinterpret_cast<glm::vec<4, uint8_t>*>(img.data)[3] = color_a * 255.0f;
 
 			return img;
 		}

@@ -22,6 +22,7 @@ namespace oe::gui
 		glm::vec4 knob_color                      = oe::colors::grey;
 		glm::vec4 slider_lcolor                   = oe::colors::dark_grey;
 		glm::vec4 slider_rcolor                   = oe::colors::darker_grey;
+		bool linear_color                         = false;
 		const oe::graphics::Sprite* knob_sprite   = nullptr; // must be set
 		const oe::graphics::Sprite* slider_sprite = nullptr; // must be set
 

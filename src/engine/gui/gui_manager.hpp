@@ -65,6 +65,8 @@ namespace oe::gui
 		oe::graphics::Renderer* getLineRenderer() const;
 		oe::graphics::Renderer* getLateRenderer() const;
 		const oe::graphics::Window& getWindow() const;
+		const oe::assets::DefaultShader* getShaderFill() const;
+		const oe::assets::DefaultShader* getShaderLines() const;
 
 		oe::graphics::Font& getFont(size_t resolution, std::string font = "");
 	};

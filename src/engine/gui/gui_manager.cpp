@@ -153,6 +153,16 @@ namespace oe::gui
 		return m_window;
 	}
 
+	const oe::assets::DefaultShader* GUI::getShaderFill() const
+	{
+		return m_shader_fill;
+	}
+
+	const oe::assets::DefaultShader* GUI::getShaderLines() const
+	{
+		return m_shader_lines;
+	}
+
 	oe::graphics::Font& GUI::getFont(size_t resolution, std::string font)
 	{
 		if(font.empty()) font = m_default_font_path;

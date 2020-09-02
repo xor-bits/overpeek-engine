@@ -33,6 +33,7 @@ namespace oe::gui
 		glm::ivec2 selector_triangle;
 
 		Slider* m_alpha_slider;
+		SpritePanel* m_framebuffer_panel;
 		SpritePanel* m_preview;
 
 		constexpr static float wheel_width = 0.1f;
@@ -65,5 +66,6 @@ namespace oe::gui
 		void on_render(const GUIRenderEvent& event);
 		void on_cursor(const CursorPosEvent& event);
 		void on_button(const MouseButtonEvent& event);
+		void on_slider_use(const SliderUseEvent& event);
 	};
 }

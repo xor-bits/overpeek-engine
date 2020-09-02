@@ -28,7 +28,6 @@ uniform ivec2 u_offset;
 uniform ivec2 u_viewport;
 uniform sampler2D u_tex;
 uniform int u_usetex = 1;
-uniform vec4 u_color = vec4(1.0);
 uniform float u_wheel_width = 0.1;
 uniform bool u_hsv = true;
 
@@ -55,7 +54,7 @@ void main()
 		hsv = vec4(hsv2rgb(vec3(dir / 6.28, 1.0, 1.0)), 1.0);
 	}
 
-	color = u_color * shader_color_frag;
+	color = vec4(0.0);
 	float distance_from_middle = length(point);
     distance_from_middle = 1.0 - abs(0.49 - wheel_width - distance_from_middle) + wheel_width;
 	
@@ -162,7 +161,7 @@ namespace oe::gui
 			ti.wrap = oe::texture_wrap::repeat;
 
 			c_checkerboard = {
-				ti, { 0.0f, 0.0f }, { 1.0f, 1.0f }
+				{ ti }, { 0.0f, 0.0f }, { 1.0f, 1.0f }
 			};
 
 			auto circle_img = oe::assets::TextureSet::generate_circle(32);
@@ -193,7 +192,7 @@ namespace oe::gui
 	ColorPickerWheelRenderer* ColorPickerWheelRenderer::singleton = nullptr;
 
 	ColorPickerWheel::ColorPickerWheel(const ColorPickerWheelInfo& color_picker_info)
-		: SpritePanel({ oe::colors::white, color_picker_info.color_picker_info.sprite, false, color_picker_info.color_picker_info.widget_info })
+		: SpritePanel({ color_picker_info.color_picker_info.background_color, color_picker_info.color_picker_info.sprite, false, color_picker_info.color_picker_info.widget_info })
 		, m_color_picker_info(color_picker_info)
 	{
 		triangle_vertices[0].color = oe::colors::red;
@@ -205,6 +204,15 @@ namespace oe::gui
 		triangle_vertices[2].uv = { 0.0f, 0.0f };
 
 		auto& renderer = ColorPickerWheelRenderer::getSingleton();
+
+		SpritePanelInfo lsp_info;
+		lsp_info.widget_info.size = glm::ivec2{ std::min(m_info.size.x, m_info.size.y - 25) };
+		lsp_info.widget_info.align_parent = oe::alignments::top_center;
+		lsp_info.widget_info.align_render = oe::alignments::top_center;
+		lsp_info.sprite = &renderer.c_checkerboard;
+		lsp_info.color = oe::colors::white;
+		m_framebuffer_panel = new SpritePanel(lsp_info);
+		addSubWidget(m_framebuffer_panel);
 
 		if (color_picker_info.preview)
 		{
@@ -223,14 +231,19 @@ namespace oe::gui
 		if (color_picker_info.alpha)
 		{
 			SliderInfo s_info;
-			s_info.widget_info.size = { color_picker_info.color_picker_info.widget_info.size.x - 10, 20 };
-			s_info.widget_info.offset_position = { 5, -5 };
-			s_info.widget_info.align_parent = oe::alignments::bottom_right;
-			s_info.widget_info.align_render = oe::alignments::bottom_right;
+			s_info.widget_info.size = { color_picker_info.color_picker_info.widget_info.size.x - 10, 15 };
+			s_info.knob_size = { 16, 16 };
+			s_info.widget_info.offset_position = { 0, -5 };
+			s_info.widget_info.align_parent = oe::alignments::bottom_center;
+			s_info.widget_info.align_render = oe::alignments::bottom_center;
 			s_info.slider_sprite = &renderer.c_checkerboard;
 			s_info.knob_sprite = &renderer.c_checkerboard;
 			s_info.value_bounds = { 0.0f, 1.0f };
 			s_info.value_initial = color_picker_info.color_picker_info.initial_color.a;
+			s_info.linear_color = true;
+			s_info.slider_lcolor = oe::colors::white;
+			s_info.slider_rcolor = oe::colors::black;
+			s_info.knob_sprite = color_picker_info.color_picker_info.sprite;
 			m_alpha_slider = new Slider(s_info);
 			addSubWidget(m_alpha_slider);
 		}
@@ -239,15 +252,22 @@ namespace oe::gui
 		set(color_picker_info.color_picker_info.initial_color);
 	}
 
+	void ColorPickerWheel::on_slider_use(const SliderUseEvent& event)
+	{
+		m_color_picker_info.color_picker_info.initial_color.a = event.value;
+		update();
+	}
+
 	void ColorPickerWheel::managerAssigned(GUI* gui_manager)
 	{
-		wheel_fb = { { m_info.size }, gui_manager->getWindow() };
-		sprite_panel_info.sprite = &wheel_fb->getSprite();
+		wheel_fb = { { m_framebuffer_panel->m_info.size }, gui_manager->getWindow() };
+		m_framebuffer_panel->sprite_panel_info.sprite = &wheel_fb->getSprite();
 
 		// event listeners
 		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&ColorPickerWheel::on_render>(this);
 		gui_manager->getWindow()->connect_listener<oe::CursorPosEvent, &ColorPickerWheel::on_cursor>(this);
 		gui_manager->getWindow()->connect_listener<oe::MouseButtonEvent, &ColorPickerWheel::on_button>(this);
+		m_alpha_slider->connect_listener<SliderUseEvent, &ColorPickerWheel::on_slider_use>(this);
 
 		SpritePanel::managerAssigned(gui_manager);
 	}
@@ -261,6 +281,7 @@ namespace oe::gui
 		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&ColorPickerWheel::on_render>(this);
 		gui_manager->getWindow()->disconnect_listener<oe::CursorPosEvent, &ColorPickerWheel::on_cursor>(this);
 		gui_manager->getWindow()->disconnect_listener<oe::MouseButtonEvent, &ColorPickerWheel::on_button>(this);
+		m_alpha_slider->disconnect_listener<SliderUseEvent, &ColorPickerWheel::on_slider_use>(this);
 
 		SpritePanel::managerUnassigned(gui_manager);
 	}
@@ -312,8 +333,10 @@ namespace oe::gui
 
 		m_preview->sprite_panel_info.color = m_color_picker_info.color_picker_info.initial_color;
 
+
+
 		glm::vec2 selector_wheel_f = { std::cos(direction), std::sin(direction) };
-		selector_wheel_f *= -m_info.size / 2;
+		selector_wheel_f *= -m_framebuffer_panel->m_info.size / 2;
 		selector_wheel_f.y *= -1.0f;
 		selector_wheel = glm::vec2(selector_wheel_f) * (1.0f - wheel_width);
 
@@ -321,7 +344,7 @@ namespace oe::gui
 			+ barycentric_pos_triangle.x * triangle_vertices[0].position
 			+ barycentric_pos_triangle.y * triangle_vertices[1].position
 			+ barycentric_pos_triangle.z * triangle_vertices[2].position;
-		selector_triangle_f *= -m_info.size / 2;
+		selector_triangle_f *= -m_framebuffer_panel->m_info.size / 2;
 		selector_triangle_f.y *= -1.0f;
 		selector_triangle = selector_triangle_f;
 
@@ -332,19 +355,17 @@ namespace oe::gui
 	void ColorPickerWheel::on_render(const GUIRenderEvent& event)
 	{
 		wheel_fb->bind();
+		wheel_fb->clear(oe::colors::transparent);
 
-		m_info.size.y = std::max(m_info.size.y, 1);
-		float aspect = static_cast<float>(m_info.size.x) / static_cast<float>(m_info.size.y);
-
+		float aspect = static_cast<float>(m_framebuffer_panel->m_info.size.x) / static_cast<float>(m_framebuffer_panel->m_info.size.y);
 		glm::mat4 pr_matrix = glm::ortho(-aspect, aspect, 1.0f, -1.0f);
 
 		auto& renderer = ColorPickerWheelRenderer::getSingleton();
 		renderer.c_shader->bind();
-		renderer.c_shader->setUniform("u_viewport", m_info.size);
-		renderer.c_shader->setUniform("u_offset", -m_info.size / 2);
+		renderer.c_shader->setUniform("u_viewport", m_framebuffer_panel->m_info.size);
+		renderer.c_shader->setUniform("u_offset", -m_framebuffer_panel->m_info.size / 2);
 		renderer.c_shader->setUniform("u_wheel_width", wheel_width);
 		renderer.c_shader->setUniform("mvp_matrix", pr_matrix);
-		renderer.c_shader->setUniform("u_color", m_color_picker_info.color_picker_info.background_color);
 		renderer.c_shader->setUniform("u_hsv", true);
 		renderer.c_renderer_circle->render();
 
@@ -358,22 +379,22 @@ namespace oe::gui
 		renderer.c_renderer_triangle->render();
 
 		renderer.c_shader->bind();
-		renderer.c_shader->setUniform("u_viewport", m_info.size / 16);
-		renderer.c_shader->setUniform("u_offset", -m_info.size / 2 + selector_triangle);
+		renderer.c_shader->setUniform("u_viewport", m_framebuffer_panel->m_info.size / 16);
+		renderer.c_shader->setUniform("u_offset", -m_framebuffer_panel->m_info.size / 2 + selector_triangle);
 		renderer.c_shader->setUniform("u_wheel_width", wheel_width);
 		renderer.c_shader->setUniform("mvp_matrix", pr_matrix);
-		renderer.c_shader->setUniform("u_color", oe::colors::transparent);
 		renderer.c_shader->setUniform("u_hsv", false);
 		renderer.c_renderer_circle->render();
 
 		renderer.c_shader->bind();
-		renderer.c_shader->setUniform("u_viewport", m_info.size / 16);
-		renderer.c_shader->setUniform("u_offset", -m_info.size / 2 + selector_wheel);
+		renderer.c_shader->setUniform("u_viewport", m_framebuffer_panel->m_info.size / 16);
+		renderer.c_shader->setUniform("u_offset", -m_framebuffer_panel->m_info.size / 2 + selector_wheel);
 		renderer.c_shader->setUniform("u_wheel_width", wheel_width);
 		renderer.c_shader->setUniform("mvp_matrix", pr_matrix);
-		renderer.c_shader->setUniform("u_color", oe::colors::transparent);
 		renderer.c_shader->setUniform("u_hsv", false);
 		renderer.c_renderer_circle->render();
+
+		renderer.c_checkerboard.size = m_alpha_slider->m_info.size / 8;
 
 		m_gui_manager->getWindow()->bind();
 	}
@@ -381,7 +402,7 @@ namespace oe::gui
 	void ColorPickerWheel::on_cursor(const CursorPosEvent& event)
 	{
 		// relative_pos
-		glm::vec2 r_pos = relative_pos(event.cursor_windowspace, render_position, m_info.size);
+		glm::vec2 r_pos = relative_pos(event.cursor_windowspace, m_framebuffer_panel->render_position, m_framebuffer_panel->m_info.size);
 
 		if (dragging_wheel)
 		{
@@ -417,7 +438,7 @@ namespace oe::gui
 		m_event_use_latest.button = event.button;
 		m_event_use_latest.modifier = event.mods;
 
-		glm::vec2 r_pos = relative_pos(event.cursor_pos.cursor_windowspace, render_position, m_info.size);
+		glm::vec2 r_pos = relative_pos(event.cursor_pos.cursor_windowspace, m_framebuffer_panel->render_position, m_framebuffer_panel->m_info.size);
 		if (event.button == oe::mouse_buttons::button_left)
 		{
 			dragging_wheel = event.action != oe::actions::release && in_circle(r_pos, wheel_width);
