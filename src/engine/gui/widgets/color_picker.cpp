@@ -95,7 +95,10 @@ namespace oe::gui
 
 	void ColorPicker::set(const glm::vec4& color)
 	{
+		if (m_color_picker_info.initial_color == color)
+			return;
 		m_color_picker_info.initial_color = color;
+
 		update();
 
 		VecSlider<4>::set({ color.x * mult, color.y * mult, color.z * mult, color.w * mult });

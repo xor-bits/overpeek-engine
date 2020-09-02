@@ -38,12 +38,40 @@ namespace oe::graphics
 		}
 	}
 
+	constexpr uint32_t gl_wrap(oe::texture_wrap wrap)
+	{
+		switch (wrap)
+		{
+		case oe::texture_wrap::repeat:
+			return GL_REPEAT;
+		case oe::texture_wrap::mirrored_repeat:
+			return GL_MIRRORED_REPEAT;
+		case oe::texture_wrap::clamp_to_edge:
+			return GL_CLAMP_TO_EDGE;
+		default: // oe::texture_wrap::clamp_to_border:
+			return GL_CLAMP_TO_BORDER;
+		}
+	}
+
+	constexpr uint32_t gl_filter(oe::texture_filter filter)
+	{
+		switch (filter)
+		{
+		case oe::texture_filter::linear:
+			return GL_LINEAR;
+		default: // oe::texture_filter::nearest:
+			return GL_NEAREST;
+		}
+	}
+
 
 
 	GLTexture::GLTexture(const TextureInfo& texture_info)
 		: ITexture(texture_info)
 		, m_gl_format(gl_format(texture_info.data_format))
 		, m_gl_internalformat(gl_internalformat(texture_info.data_format))
+		, m_gl_filter(gl_filter(texture_info.filter))
+		, m_gl_wrap(gl_wrap(texture_info.wrap))
 	{
 		oe_debug_call("gl_texture");
 
@@ -118,6 +146,8 @@ namespace oe::graphics
 	void GLTexture::setData(const TextureInfo& texture_info) {
 		m_gl_format = gl_format(texture_info.data_format);
 		m_gl_internalformat = gl_internalformat(texture_info.data_format);
+		m_gl_filter = gl_filter(texture_info.filter);
+		m_gl_wrap = gl_wrap(texture_info.wrap);
 
 		size_t dimensions = texture_info.size.size();
 		if (dimensions != texture_info.offset.size()) { oe_error_terminate("texture_info.size.size() and texture_info.offset.size() do not match"); }
@@ -192,9 +222,9 @@ namespace oe::graphics
 		m_target = GL_TEXTURE_1D;
 		GLTexture::bind();
 
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, m_gl_filter);
+		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, m_gl_filter);
 
 		glTexStorage1D(m_target, 1, m_gl_internalformat, width);
 	}
@@ -203,10 +233,10 @@ namespace oe::graphics
 		m_target = GL_TEXTURE_2D;
 		GLTexture::bind();
 
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, m_gl_filter);
+		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, m_gl_filter);
 
 		glTexStorage2D(m_target, 1, m_gl_internalformat, width, height);
 	}
@@ -215,11 +245,11 @@ namespace oe::graphics
 		m_target = GL_TEXTURE_3D;
 		GLTexture::bind();
 
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_R, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, m_gl_filter);
+		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, m_gl_filter);
 
 		glTexStorage3D(m_target, 1, m_gl_internalformat, width, height, depth);
 	}
@@ -228,9 +258,14 @@ namespace oe::graphics
 		m_target = GL_TEXTURE_1D;
 		GLTexture::bind();
 
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		GL_REPEAT;
+		GL_MIRRORED_REPEAT;
+		GL_CLAMP_TO_EDGE;
+		GL_CLAMP_TO_BORDER;
+
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, m_gl_filter);
+		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, m_gl_filter);
 
 		glTexImage1D(m_target, 0, m_gl_internalformat, width, 0, m_gl_format, GL_UNSIGNED_BYTE, data);
 	}
@@ -239,10 +274,10 @@ namespace oe::graphics
 		m_target = GL_TEXTURE_2D;
 		GLTexture::bind();
 
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, m_gl_filter);
+		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, m_gl_filter);
 		
 		glTexImage2D(m_target, 0, m_gl_internalformat, width, height, 0, m_gl_format, GL_UNSIGNED_BYTE, data);
 	}
@@ -251,11 +286,11 @@ namespace oe::graphics
 		m_target = GL_TEXTURE_3D;
 		GLTexture::bind();
 
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_R, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, m_gl_filter);
+		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, m_gl_filter);
 
 		glTexImage3D(m_target, 0, m_gl_internalformat, width, height, depth, 0, m_gl_format, GL_UNSIGNED_BYTE, data);
 	}

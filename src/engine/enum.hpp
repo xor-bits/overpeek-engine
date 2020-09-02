@@ -302,6 +302,14 @@ namespace oe {
 		gamepad_triangle = gamepad_y
 	};
 
+	enum class texture_wrap {
+		repeat, mirrored_repeat, clamp_to_edge, clamp_to_border
+	};
+
+	enum class texture_filter {
+		nearest, linear
+	};
+
 	// some predefined colors
 	struct colors {
 		static constexpr glm::vec4 translucent_black = glm::vec4(0.0f, 0.0f, 0.0f, 0.25f);
@@ -414,6 +422,9 @@ namespace oe {
 		const uint8_t* data;
 		oe::formats data_format = oe::formats::rgba;
 		bool generate_mipmaps = false;
+
+		texture_wrap wrap = texture_wrap::clamp_to_border;
+		texture_filter filter = texture_filter::nearest;
 
 		std::vector<size_t> size = { 1 };   // must have the same size as (std::vector<size_t> offset)
 		std::vector<size_t> offset = { 0 }; // must have the same size as (std::vector<size_t> size)

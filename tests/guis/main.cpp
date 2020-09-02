@@ -14,6 +14,8 @@ oe::gui::Checkbox* checkbox;
 oe::gui::VecSlider<4>* quat_slider;
 oe::gui::Graph* graph_fps;
 oe::gui::Graph* graph_ups;
+oe::gui::ColorPicker* color_picker;
+oe::gui::ColorPickerWheel* color_picker_wheel;
 std::array<float, 200> perf_log_fps;
 std::array<float, 50> perf_log_ups;
 
@@ -152,6 +154,8 @@ void render(float update_fraction) {
 
 // framebuffer resize
 void resize(const oe::ResizeEvent& event) {
+	if (event.framebuffer_size == glm::ivec2{ 0, 1 }) return;
+
 	glm::mat4 pr_matrix = glm::perspectiveFov(30.0f, (float)event.framebuffer_size.x, (float)event.framebuffer_size.y, 0.0f, 1000.0f);
 	glm::mat4 vw_matrix = glm::lookAt(glm::vec3(0.0f, 0.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	
@@ -260,28 +264,35 @@ void setup_gui() {
 	}
 	{
 		oe::gui::ColorPickerInfo color_picker_info;
-		color_picker_info.widget_info = { { 200, 100 }, { 0, 0 }, oe::alignments::center_left, oe::alignments::center_left };
 		color_picker_info.initial_color = color;
+		color_picker_info.widget_info = { { 200, 100 }, { 0, 0 }, oe::alignments::center_left, oe::alignments::center_left };
 		color_picker_info.sprite = pack->emptySprite();
-		auto color_picker = new oe::gui::ColorPicker(color_picker_info);
+
+		oe::gui::ColorPickerWheelInfo color_picker_wheel_info;
+		color_picker_wheel_info.color_picker_info = color_picker_info;
+		color_picker_wheel_info.color_picker_info.widget_info.size = { 200, 200 };
+		color_picker_wheel_info.color_picker_info.widget_info.offset_position = { color_picker_info.widget_info.size.x + 5, 0 };
+		color_picker_wheel_info.alpha = true;
+		color_picker_wheel_info.preview = true;
+		color_picker_wheel = new oe::gui::ColorPickerWheel(color_picker_wheel_info);
+		gui->addSubWidget(color_picker_wheel);
+
+		color_picker = new oe::gui::ColorPicker(color_picker_info);
 		gui->addSubWidget(color_picker);
 
-		auto callback_lambda = [&](const oe::gui::ColorPickerUseEvent& e)
+		auto picker_callback_lambda = [&](const oe::gui::ColorPickerUseEvent& e)
 		{
 			color = e.value;
+			color_picker_wheel->set(e.value);
 		};
-		color_picker->connect_listener<oe::gui::ColorPickerUseEvent, &decltype(callback_lambda)::operator()>(callback_lambda);
+		color_picker->connect_listener<oe::gui::ColorPickerUseEvent, &decltype(picker_callback_lambda)::operator()>(picker_callback_lambda);
 
+		auto wheel_callback_lambda = [&](const oe::gui::ColorPickerUseEvent& e)
 		{
-			oe::gui::ColorPickerWheelInfo color_picker_wheel_info;
-			color_picker_wheel_info.color_picker_info = color_picker_info;
-			color_picker_wheel_info.color_picker_info.widget_info.size = { 200, 200 };
-			color_picker_wheel_info.color_picker_info.widget_info.offset_position = { color_picker_info.widget_info.size.x + 5, 0 };
-			color_picker_wheel_info.alpha = false;
-			color_picker_wheel_info.preview = true;
-			auto color_picker_wheel = new oe::gui::ColorPickerWheel(color_picker_wheel_info);
-			gui->addSubWidget(color_picker_wheel);
-		}
+			color = e.value;
+			color_picker->set(e.value);
+		};
+		color_picker_wheel->connect_listener<oe::gui::ColorPickerUseEvent, &decltype(wheel_callback_lambda)::operator()>(wheel_callback_lambda);
 	}
 	{
 		oe::gui::TextPanelInfo text_panel_info;
