@@ -29,6 +29,8 @@ namespace oe::gui
 		float direction = 0.0f;
 		std::array<oe::graphics::VertexData, 3> triangle_vertices;
 		glm::vec3 barycentric_pos_triangle;
+		glm::ivec2 selector_wheel;
+		glm::ivec2 selector_triangle;
 
 		Slider* m_alpha_slider;
 		SpritePanel* m_preview;

@@ -24,7 +24,8 @@ layout(location = 0) out vec4 color;
 in vec2 shader_uv_frag;
 in vec4 shader_color_frag;
 
-uniform vec2 u_viewport;
+uniform ivec2 u_offset;
+uniform ivec2 u_viewport;
 uniform sampler2D u_tex;
 uniform int u_usetex = 1;
 uniform vec4 u_color = vec4(1.0);
@@ -41,25 +42,25 @@ vec3 hsv2rgb(vec3 c)
 
 void main()
 {
-    float aspect = u_viewport.x / u_viewport.y;
+    float aspect = float(u_viewport.x) / float(u_viewport.y);
 	float wheel_width = u_wheel_width * 0.5;
     
-	vec2 point = (gl_FragCoord.xy) / (u_viewport.xy) - vec2(0.5, 0.5);
+	vec2 point = (gl_FragCoord.xy + u_offset) / vec2(u_viewport.xy);
     point.x *= aspect;
 
-	vec3 hsv = vec3(1.0);
+	vec4 hsv = vec4(1.0);
 	if (u_hsv)
 	{
 		float dir = atan(point.y, point.x);
-		hsv = hsv2rgb(vec3(dir / 6.28, 1.0, 1.0));
+		hsv = vec4(hsv2rgb(vec3(dir / 6.28, 1.0, 1.0)), 1.0);
 	}
 
 	color = u_color * shader_color_frag;
 	float distance_from_middle = length(point);
     distance_from_middle = 1.0 - abs(0.49 - wheel_width - distance_from_middle) + wheel_width;
-    distance_from_middle = pow(distance_from_middle, 499.0);
-    distance_from_middle = max(min(distance_from_middle, 1.0), 0.0);
-    color.rgb = hsv * distance_from_middle + color.rgb * (1.0 - distance_from_middle);
+	
+	if(distance_from_middle > 1.0f)
+		color = hsv * distance_from_middle;
 }
 )glsl";
 
@@ -296,6 +297,10 @@ namespace oe::gui
 	
 	void ColorPickerWheel::update()
 	{
+		triangle_vertices[0].position = { std::cos(direction + 0 * equilateral_triangle_angles) * triangle_width, std::sin(direction + 0 * equilateral_triangle_angles) * triangle_width, 0.0f };
+		triangle_vertices[1].position = { std::cos(direction + 1 * equilateral_triangle_angles) * triangle_width, std::sin(direction + 1 * equilateral_triangle_angles) * triangle_width, 0.0f };
+		triangle_vertices[2].position = { std::cos(direction + 2 * equilateral_triangle_angles) * triangle_width, std::sin(direction + 2 * equilateral_triangle_angles) * triangle_width, 0.0f };
+
 		float alpha = m_color_picker_info.color_picker_info.initial_color.a;
 		m_color_picker_info.color_picker_info.initial_color =
 			+ barycentric_pos_triangle.x * triangle_vertices[0].color
@@ -306,6 +311,19 @@ namespace oe::gui
 		m_color_picker_info.color_picker_info.initial_color.a = alpha;
 
 		m_preview->sprite_panel_info.color = m_color_picker_info.color_picker_info.initial_color;
+
+		glm::vec2 selector_wheel_f = { std::cos(direction), std::sin(direction) };
+		selector_wheel_f *= -m_info.size / 2;
+		selector_wheel_f.y *= -1.0f;
+		selector_wheel = glm::vec2(selector_wheel_f) * (1.0f - wheel_width);
+
+		glm::vec2 selector_triangle_f =
+			+ barycentric_pos_triangle.x * triangle_vertices[0].position
+			+ barycentric_pos_triangle.y * triangle_vertices[1].position
+			+ barycentric_pos_triangle.z * triangle_vertices[2].position;
+		selector_triangle_f *= -m_info.size / 2;
+		selector_triangle_f.y *= -1.0f;
+		selector_triangle = selector_triangle_f;
 
 		m_event_use_latest.value = m_color_picker_info.color_picker_info.initial_color;
 		dispatcher.trigger(m_event_use_latest);
@@ -322,15 +340,13 @@ namespace oe::gui
 
 		auto& renderer = ColorPickerWheelRenderer::getSingleton();
 		renderer.c_shader->bind();
-		renderer.c_shader->setUniform("u_viewport", glm::vec2(m_info.size.y, m_info.size.y));
+		renderer.c_shader->setUniform("u_viewport", m_info.size);
+		renderer.c_shader->setUniform("u_offset", -m_info.size / 2);
 		renderer.c_shader->setUniform("u_wheel_width", wheel_width);
 		renderer.c_shader->setUniform("mvp_matrix", pr_matrix);
 		renderer.c_shader->setUniform("u_color", m_color_picker_info.color_picker_info.background_color);
+		renderer.c_shader->setUniform("u_hsv", true);
 		renderer.c_renderer_circle->render();
-
-		triangle_vertices[0].position = { std::cos(direction + 0 * equilateral_triangle_angles) * triangle_width, std::sin(direction + 0 * equilateral_triangle_angles) * triangle_width, 0.0f };
-		triangle_vertices[1].position = { std::cos(direction + 1 * equilateral_triangle_angles) * triangle_width, std::sin(direction + 1 * equilateral_triangle_angles) * triangle_width, 0.0f };
-		triangle_vertices[2].position = { std::cos(direction + 2 * equilateral_triangle_angles) * triangle_width, std::sin(direction + 2 * equilateral_triangle_angles) * triangle_width, 0.0f };
 
 		renderer.c_defaultshader.bind();
 		renderer.c_defaultshader.setProjectionMatrix(pr_matrix);
@@ -340,6 +356,24 @@ namespace oe::gui
 		renderer.c_renderer_triangle->submitVertex(triangle_vertices, 0);
 		renderer.c_renderer_triangle->end();
 		renderer.c_renderer_triangle->render();
+
+		renderer.c_shader->bind();
+		renderer.c_shader->setUniform("u_viewport", m_info.size / 16);
+		renderer.c_shader->setUniform("u_offset", -m_info.size / 2 + selector_triangle);
+		renderer.c_shader->setUniform("u_wheel_width", wheel_width);
+		renderer.c_shader->setUniform("mvp_matrix", pr_matrix);
+		renderer.c_shader->setUniform("u_color", oe::colors::transparent);
+		renderer.c_shader->setUniform("u_hsv", false);
+		renderer.c_renderer_circle->render();
+
+		renderer.c_shader->bind();
+		renderer.c_shader->setUniform("u_viewport", m_info.size / 16);
+		renderer.c_shader->setUniform("u_offset", -m_info.size / 2 + selector_wheel);
+		renderer.c_shader->setUniform("u_wheel_width", wheel_width);
+		renderer.c_shader->setUniform("mvp_matrix", pr_matrix);
+		renderer.c_shader->setUniform("u_color", oe::colors::transparent);
+		renderer.c_shader->setUniform("u_hsv", false);
+		renderer.c_renderer_circle->render();
 
 		m_gui_manager->getWindow()->bind();
 	}
