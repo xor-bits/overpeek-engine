@@ -98,14 +98,6 @@ namespace oe::ecs
 
 		bool valid() const;
 
-	private:
-		template<typename T>
-		void add_on_cleanup(T& component)
-		{
-			if constexpr (has_on_cleanup<T>::value)
-				m_world->m_scene.on_destroy<T>().template connect<&T::on_cleanup>(component);
-		}
-
 	public:
 		entt::entity m_entity{};
 		World* m_world{};
