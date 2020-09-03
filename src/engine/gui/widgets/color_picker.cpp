@@ -3,6 +3,11 @@
 #include "slider.hpp"
 #include "sprite_panel.hpp"
 #include "engine/engine.hpp"
+#include "color_picker_wheel.hpp"
+#include "button.hpp"
+
+#include "../gui_manager.hpp"
+#include "engine/graphics/interface/window.hpp"
 
 
 
@@ -12,18 +17,20 @@ namespace oe::gui
 	{
 		const int slider_height = color_picker_info.widget_info.size.y;
 		const int slider_width = color_picker_info.widget_info.size.x - 55;
-		const float mult = color_picker_info.draw_value == 2 ? 256.0f : 1.0f;
 
 		VecSliderInfo<4> info;
 		info.type = arrangements::rows;
-		info.initial_values = color_picker_info.initial_color * mult;
+		info.initial_values = color_picker_info.initial_color;
 		info.min_values = glm::vec4(0.0f);
-		info.max_values = glm::vec4(mult);
+		info.max_values = glm::vec4(1.0f);
 		
 		info.slider_info.widget_info = color_picker_info.widget_info;
 		info.slider_info.widget_info.size = { slider_width - 10, slider_height - 10 };
 		info.slider_info.widget_info.offset_position += glm::ivec2{ 5, 5 };
 		
+		if(color_picker_info.draw_value == 2)
+			info.slider_info.draw_format = [](const SliderInfo& info) { return fmt::format("{}", static_cast<int>(info.value_initial * 256.0f)); };
+
 		info.slider_info.draw_value = color_picker_info.draw_value != 0;
 		info.slider_info.slider_sprite = color_picker_info.sprite;
 		info.slider_info.knob_sprite = color_picker_info.sprite;
@@ -36,10 +43,7 @@ namespace oe::gui
 	ColorPicker::ColorPicker(const ColorPickerInfo& _color_picker_info)
 		: VecSlider<4>(create_info(_color_picker_info))
 		, m_color_picker_info(_color_picker_info)
-		, mult(m_color_picker_info.draw_value == 2 ? 256.0f : 1.0f)
 	{
-		m_color_picker_info.initial_color *= mult;
-
 		SpritePanelInfo sprite_panel_info = {};
 		sprite_panel_info.widget_info = { m_info.size + glm::ivec2{ 55, 10 }, { -5, -5 }, oe::alignments::top_left, oe::alignments::top_left };
 		sprite_panel_info.sprite = m_color_picker_info.sprite;
@@ -50,7 +54,7 @@ namespace oe::gui
 
 		SpritePanelInfo preview_panel_info;
 		preview_panel_info.widget_info = { { 40, m_info.size.y }, { -5, 5 }, oe::alignments::top_right, oe::alignments::top_right };
-		preview_panel_info.color = m_color_picker_info.initial_color / mult;
+		preview_panel_info.color = m_color_picker_info.initial_color;
 		preview_panel_info.sprite = m_color_picker_info.sprite;
 		preview_panel = new SpritePanel(preview_panel_info);
 		bgbox->addSubWidget(preview_panel);
@@ -59,7 +63,32 @@ namespace oe::gui
 		sliders[1]->slider_info.slider_lcolor = oe::colors::green;
 		sliders[2]->slider_info.slider_lcolor = oe::colors::blue;
 		sliders[3]->slider_info.slider_lcolor = oe::colors::black;
+		
+		if (m_color_picker_info.popup_color_picker_wheel)
+		{
+			ColorPickerWheelInfo cpw_info;
+			cpw_info.alpha = true;
+			cpw_info.preview = true;
+			cpw_info.color_picker_info.background_color = m_color_picker_info.background_color;
+			cpw_info.color_picker_info.initial_color = m_color_picker_info.initial_color;
+			cpw_info.color_picker_info.sprite = m_color_picker_info.sprite;
+			cpw_info.color_picker_info.widget_info.size = { 200, 200 };
+			cpw_info.color_picker_info.widget_info.align_parent = oe::alignments::top_left;
+			cpw_info.color_picker_info.widget_info.align_render = oe::alignments::top_left;
+			popup_wheel = new ColorPickerWheel(cpw_info);
+			addSubWidget(popup_wheel);
 
+			popup_wheel->toggle(false);
+
+			ButtonInfo b_info;
+			b_info.widget_info = preview_panel_info.widget_info;
+			preview_button = new Button(b_info);
+			bgbox->addSubWidget(preview_button);
+
+			popup_wheel->connect_listener<ColorPickerUseEvent, &ColorPicker::on_color_wheel_use>(this);
+			preview_button->connect_listener<ButtonHoverEvent, &ColorPicker::on_button_hover>(this);
+			preview_button->connect_listener<ButtonUseEvent, &ColorPicker::on_button_use>(this);
+		}
 
 		connect_listener<VecSliderHoverEvent<4>, &ColorPicker::on_vec_slider_hover>(this);
 		connect_listener<VecSliderUseEvent<4>, &ColorPicker::on_vec_slider_use>(this);
@@ -67,8 +96,36 @@ namespace oe::gui
 
 	ColorPicker::~ColorPicker()
 	{
+		if (m_color_picker_info.popup_color_picker_wheel)
+		{
+			popup_wheel->disconnect_listener<ColorPickerUseEvent, &ColorPicker::on_color_wheel_use>(this);
+			preview_button->disconnect_listener<ButtonHoverEvent, &ColorPicker::on_button_hover>(this);
+			preview_button->disconnect_listener<ButtonUseEvent, &ColorPicker::on_button_use>(this);
+		}
+
 		disconnect_listener<VecSliderHoverEvent<4>, &ColorPicker::on_vec_slider_hover>(this);
 		disconnect_listener<VecSliderUseEvent<4>, &ColorPicker::on_vec_slider_use>(this);
+	}
+
+	void ColorPicker::managerAssigned(GUI* gui_manager)
+	{
+		gui_manager->getWindow()->connect_listener<MouseButtonEvent, &ColorPicker::on_mouse_button>(this);
+		gui_manager->getWindow()->connect_listener<CursorPosEvent, &ColorPicker::on_cursor_pos>(this);
+		VecSlider<4>::managerAssigned(gui_manager);
+	}
+
+	void ColorPicker::managerUnassigned(GUI* gui_manager)
+	{
+		gui_manager->getWindow()->disconnect_listener<MouseButtonEvent, &ColorPicker::on_mouse_button>(this);
+		gui_manager->getWindow()->disconnect_listener<CursorPosEvent, &ColorPicker::on_cursor_pos>(this);
+		VecSlider<4>::managerUnassigned(gui_manager);
+	}
+
+	void ColorPicker::on_color_wheel_use(const ColorPickerUseEvent& e)
+	{
+		set(e.value);
+		m_event_use_latest = e;
+		dispatcher.trigger(m_event_use_latest);
 	}
 
 	void ColorPicker::on_vec_slider_hover(const VecSliderHoverEvent<4>& e)
@@ -78,7 +135,7 @@ namespace oe::gui
 
 	void ColorPicker::on_vec_slider_use(const VecSliderUseEvent<4>& e)
 	{
-		m_color_picker_info.initial_color = e.value / mult;
+		m_color_picker_info.initial_color = e.value;
 		update();
 
 		m_event_use_latest.action = e.action;
@@ -86,6 +143,53 @@ namespace oe::gui
 		m_event_use_latest.modifier = e.modifier;
 		m_event_use_latest.value = m_color_picker_info.initial_color;
 		dispatcher.trigger(m_event_use_latest);
+	}
+
+	void ColorPicker::on_button_hover(const ButtonHoverEvent& e)
+	{
+		if (m_color_picker_info.popup_open != open_fn::in_bbox) return;
+
+		popup_wheel->m_info.offset_position = m_gui_manager->getWindow()->getCursorWindow() - render_position + glm::ivec2{ 10, 10 };
+		popup_wheel->toggle(true);
+	}
+
+	void ColorPicker::on_button_use(const ButtonUseEvent& e)
+	{
+		if (m_color_picker_info.popup_open != open_fn::click_in) return;
+
+		if (e.button != oe::mouse_buttons::button_left || e.action != oe::actions::press) return;
+
+		popup_wheel->m_info.offset_position = m_gui_manager->getWindow()->getCursorWindow() - render_position + glm::ivec2{ 10, 10 };
+		popup_wheel->toggle(true);
+	}
+
+	void ColorPicker::on_mouse_button(const MouseButtonEvent& e)
+	{
+		if (m_color_picker_info.popup_close != close_fn::click_out) return;
+
+		if (e.button != oe::mouse_buttons::button_left || e.action != oe::actions::press) return;
+
+		if (!oe::utils::bounding_box_test(
+			e.cursor_pos.cursor_windowspace,
+			glm::min(preview_button->render_position, popup_wheel->render_position),
+			glm::max(preview_button->render_position + preview_button->m_info.size, popup_wheel->render_position + popup_wheel->m_info.size) - glm::min(preview_button->render_position, popup_wheel->render_position)))
+		{
+			popup_wheel->toggle(false);
+		}
+	}
+
+	void ColorPicker::on_cursor_pos(const CursorPosEvent& e)
+	{
+		if (m_color_picker_info.popup_close != close_fn::leave_bbox) return;
+
+		constexpr int bbox_padding = 30;
+		if (!oe::utils::bounding_box_test(
+			e.cursor_windowspace,
+			glm::min(preview_button->render_position, popup_wheel->render_position) - glm::ivec2{ bbox_padding },
+			glm::max(preview_button->render_position + preview_button->m_info.size, popup_wheel->render_position + popup_wheel->m_info.size) - glm::min(preview_button->render_position, popup_wheel->render_position) + glm::ivec2{ bbox_padding * 2 }))
+		{
+			popup_wheel->toggle(false);
+		}
 	}
 	
 	const glm::vec4& ColorPicker::get() const
@@ -101,12 +205,16 @@ namespace oe::gui
 
 		update();
 
-		VecSlider<4>::set({ color.x * mult, color.y * mult, color.z * mult, color.w * mult });
+		std::array<float, 4> arr;
+		oe::utils::vecToContainer<4, float>(color, arr);
+		VecSlider<4>::set(arr);
 	}
 
 	void ColorPicker::update()
 	{
 		preview_panel->sprite_panel_info.color = m_color_picker_info.initial_color;
+		if (m_color_picker_info.popup_color_picker_wheel)
+			popup_wheel->set(m_color_picker_info.initial_color);
 	}
 
 }

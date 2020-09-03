@@ -40,7 +40,12 @@ namespace oe::gui
 
 	void TextPanel::on_render(const GUIRenderEvent& event)
 	{
-		if (!m_info.toggled) { text_quad->reset(); return; }
+		text_quad->toggle(m_info.toggled);
+		if (!m_info.toggled)
+		{
+			text_quad->update(text_quad);
+			return;
+		}
 
 		label->generate(text_panel_info.text, m_gui_manager->getWindow(), text_panel_info.background_color);
 		m_info.size = label->getSize();
@@ -50,7 +55,7 @@ namespace oe::gui
 		text_quad->setSprite(label->getSprite());
 		text_quad->setColor(oe::colors::white);
 		text_quad->setRotationAlignment(m_info.align_render);
-		text_quad->update();
+		text_quad->update(text_quad);
 	}
 
 }

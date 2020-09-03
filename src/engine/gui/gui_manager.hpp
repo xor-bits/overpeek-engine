@@ -18,8 +18,8 @@ namespace oe::gui
 {
 	constexpr int border = 5;
 
-	struct GUIRenderEvent
-	{};
+	struct GUIRenderEvent {};
+	struct GUIPreRenderEvent {};
 	
 	class GUI {
 	public:

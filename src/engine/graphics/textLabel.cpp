@@ -218,7 +218,7 @@ namespace oe::graphics {
 			quad->setSize(glyph->size * size);
 			quad->setSprite(glyph->sprite);
 			quad->setColor(renderData[i].second);
-			quad->update();
+			quad->update(quad);
 			
 			renderer.forget(std::move(quad));
 

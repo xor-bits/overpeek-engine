@@ -16,7 +16,7 @@ namespace oe::gui
 	{
 		bool preview                      = true;
 		bool alpha                        = true;
-		ColorPickerInfo color_picker_info = { 2, oe::colors::red, oe::colors::dark_grey, nullptr, { { 200, 225 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center } };
+		ColorPickerInfo color_picker_info = { 2, oe::colors::red, oe::colors::dark_grey, nullptr, false, close_fn::never, open_fn::never, { { 200, 225 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center } };
 	};
 
 	class ColorPickerWheel : public SpritePanel
@@ -53,6 +53,7 @@ namespace oe::gui
 
 	public:
 		ColorPickerWheel(const ColorPickerWheelInfo& color_picker_info);
+		~ColorPickerWheel();
 
 		virtual void managerAssigned(GUI* gui_manager) override;
 		virtual void managerUnassigned(GUI* gui_manager) override;

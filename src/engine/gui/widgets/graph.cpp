@@ -85,7 +85,7 @@ namespace oe::gui
 			quad->setPosition({ -1.0f, -1.0f });
 			quad->setSize({ 2.0f, 2.0f });
 			quad->setSprite(g_pack.emptySprite());
-			quad->update();
+			quad->update(quad);
 
 			g_renderer.forget(std::move(quad));
 		}

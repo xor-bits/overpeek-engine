@@ -47,6 +47,14 @@ int oe::utils::sign(float n)
     return n < 0 ? -1 : 1;
 }
 
+bool oe::utils::bounding_box_test(const glm::vec2& point, const glm::vec2& top_left, const glm::vec2& size)
+{
+    return (point.x >= top_left.x &&
+        point.x < top_left.x + size.x &&
+        point.y >= top_left.y &&
+        point.y < top_left.y + size.y);
+}
+
 // { 0 - 1, 0 - 1, 0 - 1 } -> { 0 - 1, 0 - 1, 0 - 1 }
 // https://stackoverflow.com/a/17897228 modified for glm
 glm::vec3 oe::utils::rgbToHSV(glm::vec3 in)

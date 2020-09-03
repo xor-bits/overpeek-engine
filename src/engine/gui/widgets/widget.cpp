@@ -35,7 +35,7 @@ namespace oe::gui
 		m_gui_manager = gui_manager;
 
 		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&Widget::on_render>(this);
+		gui_manager->dispatcher.sink<GUIPreRenderEvent>().connect<&Widget::on_pre_render>(this);
 		
 		for (auto& w : m_nodes)
 		{
@@ -48,7 +48,7 @@ namespace oe::gui
 		m_gui_manager = nullptr;
 
 		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&Widget::on_render>(this);
+		gui_manager->dispatcher.sink<GUIPreRenderEvent>().disconnect<&Widget::on_pre_render>(this);
 		
 		for (auto& w : m_nodes)
 		{
@@ -93,7 +93,7 @@ namespace oe::gui
 		}
 	}
 
-	void Widget::on_render(const GUIRenderEvent& event)
+	void Widget::on_pre_render(const GUIPreRenderEvent& event)
 	{
 		if (m_parent) render_position = m_info.offset_position + m_parent->render_position + oe::alignmentOffset(m_parent->m_info.size, m_info.align_parent) - oe::alignmentOffset(m_info.size, m_info.align_render);
 		else render_position = m_info.offset_position - oe::alignmentOffset(m_info.size, m_info.align_render);

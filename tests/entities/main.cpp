@@ -70,7 +70,7 @@ struct GenericScript : public oe::ecs::Behaviour
 		quad.quad_holder->setPosition({ pos.x, pos.y });
 		quad.quad_holder->setSprite(sprite);
 		quad.quad_holder->setRotation(rotation);
-		quad.quad_holder->update();
+		quad.quad_holder->update(quad.quad_holder);
 	}
 };
 

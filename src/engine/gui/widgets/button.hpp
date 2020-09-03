@@ -36,6 +36,8 @@ namespace oe::gui
 		virtual void managerAssigned(GUI* gui_manager) override;
 		virtual void managerUnassigned(GUI* gui_manager) override;
 
+		bool test(const glm::vec2& point);
+
 	private:
 		// events
 		void on_cursor(const CursorPosEvent& event);

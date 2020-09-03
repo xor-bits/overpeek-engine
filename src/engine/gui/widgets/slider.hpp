@@ -11,20 +11,23 @@ namespace oe::gui
 {
 	struct SliderInfo
 	{
-		glm::vec2 value_bounds                    = { -1.0f, 1.0f };
-		float value_initial                       = 0.0f;
-		bool draw_value                           = false;
-		int draw_font_size                        = 14;
-		std::string draw_font_path                = ""; // empty for gui default
-		bool vertical                             = false;
-		bool scroll                               = false;
-		glm::ivec2 knob_size                      = { 30, 30 };
-		glm::vec4 knob_color                      = oe::colors::grey;
-		glm::vec4 slider_lcolor                   = oe::colors::dark_grey;
-		glm::vec4 slider_rcolor                   = oe::colors::darker_grey;
-		bool linear_color                         = false;
-		const oe::graphics::Sprite* knob_sprite   = nullptr; // must be set
-		const oe::graphics::Sprite* slider_sprite = nullptr; // must be set
+		glm::vec2 value_bounds                                    = { -1.0f, 1.0f };
+		float value_initial                                       = 0.0f;
+		bool draw_value                                           = false;
+		int draw_font_size                                        = 14;
+		std::string draw_font_path                                = ""; // empty for gui default
+		std::function<std::string(const SliderInfo&)> draw_format = &SliderInfo::default_formatter;
+		bool vertical                                             = false;
+		bool scroll                                               = false;
+		glm::ivec2 knob_size                                      = { 30, 30 };
+		glm::vec4 knob_color                                      = oe::colors::grey;
+		glm::vec4 slider_lcolor                                   = oe::colors::dark_grey;
+		glm::vec4 slider_rcolor                                   = oe::colors::darker_grey;
+		bool linear_color                                         = false;
+		const oe::graphics::Sprite* knob_sprite                   = nullptr; // must be set
+		const oe::graphics::Sprite* slider_sprite                 = nullptr; // must be set
+
+		static std::string default_formatter(const SliderInfo& info);
 
 		WidgetInfo widget_info                    = { { 150, 30 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
 	};

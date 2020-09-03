@@ -15,7 +15,6 @@ oe::gui::VecSlider<4>* quat_slider;
 oe::gui::Graph* graph_fps;
 oe::gui::Graph* graph_ups;
 oe::gui::ColorPicker* color_picker;
-oe::gui::ColorPickerWheel* color_picker_wheel;
 std::array<float, 200> perf_log_fps;
 std::array<float, 50> perf_log_ups;
 
@@ -267,32 +266,15 @@ void setup_gui() {
 		color_picker_info.initial_color = color;
 		color_picker_info.widget_info = { { 200, 100 }, { 0, 0 }, oe::alignments::center_left, oe::alignments::center_left };
 		color_picker_info.sprite = pack->emptySprite();
-
-		oe::gui::ColorPickerWheelInfo color_picker_wheel_info;
-		color_picker_wheel_info.color_picker_info = color_picker_info;
-		color_picker_wheel_info.color_picker_info.widget_info.size = { 200, 200 };
-		color_picker_wheel_info.color_picker_info.widget_info.offset_position = { color_picker_info.widget_info.size.x + 5, 0 };
-		color_picker_wheel_info.alpha = true;
-		color_picker_wheel_info.preview = true;
-		color_picker_wheel = new oe::gui::ColorPickerWheel(color_picker_wheel_info);
-		gui->addSubWidget(color_picker_wheel);
-
+		color_picker_info.popup_color_picker_wheel = true;
 		color_picker = new oe::gui::ColorPicker(color_picker_info);
 		gui->addSubWidget(color_picker);
 
 		auto picker_callback_lambda = [&](const oe::gui::ColorPickerUseEvent& e)
 		{
 			color = e.value;
-			color_picker_wheel->set(e.value);
 		};
 		color_picker->connect_listener<oe::gui::ColorPickerUseEvent, &decltype(picker_callback_lambda)::operator()>(picker_callback_lambda);
-
-		auto wheel_callback_lambda = [&](const oe::gui::ColorPickerUseEvent& e)
-		{
-			color = e.value;
-			color_picker->set(e.value);
-		};
-		color_picker_wheel->connect_listener<oe::gui::ColorPickerUseEvent, &decltype(wheel_callback_lambda)::operator()>(wheel_callback_lambda);
 	}
 	{
 		oe::gui::TextPanelInfo text_panel_info;

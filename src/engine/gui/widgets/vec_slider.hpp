@@ -115,8 +115,9 @@ namespace oe::gui
 
         glm::vec<dimension, float> getGLM() const
         {
-            auto list = get();
-            return oe::utils::listToVec<dimension, float>(&(*list.begin()));
+            glm::vec<dimension, float> vec;
+            oe::utils::containerToVec<4, float>(get(), vec);
+            return vec;
         }
 
         void set(const std::array<float, dimension>& val)

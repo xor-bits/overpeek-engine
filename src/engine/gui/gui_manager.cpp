@@ -87,6 +87,8 @@ namespace oe::gui
 	void GUI::render_empty()
 	{
 		short_resize();
+		
+		dispatcher.trigger(GUIPreRenderEvent{});
 		dispatcher.trigger(GUIRenderEvent{});
 	}
 

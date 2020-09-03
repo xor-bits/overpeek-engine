@@ -211,6 +211,7 @@ namespace oe::gui
 		lsp_info.widget_info.align_render = oe::alignments::top_center;
 		lsp_info.sprite = &renderer.c_checkerboard;
 		lsp_info.color = oe::colors::white;
+		lsp_info.sprite_alpha = true;
 		m_framebuffer_panel = new SpritePanel(lsp_info);
 		addSubWidget(m_framebuffer_panel);
 
@@ -239,7 +240,7 @@ namespace oe::gui
 			s_info.slider_sprite = &renderer.c_checkerboard;
 			s_info.knob_sprite = &renderer.c_checkerboard;
 			s_info.value_bounds = { 0.0f, 1.0f };
-			s_info.value_initial = color_picker_info.color_picker_info.initial_color.a;
+			s_info.value_initial = m_color_picker_info.color_picker_info.initial_color.a;
 			s_info.linear_color = true;
 			s_info.slider_lcolor = oe::colors::white;
 			s_info.slider_rcolor = oe::colors::black;
@@ -248,8 +249,16 @@ namespace oe::gui
 			addSubWidget(m_alpha_slider);
 		}
 
+		glm::vec4 tmp = m_color_picker_info.color_picker_info.initial_color;
 		m_color_picker_info.color_picker_info.initial_color = { -1.0f, 0.0f, 0.0f, 0.0f };
-		set(color_picker_info.color_picker_info.initial_color);
+		set(tmp);
+
+		m_alpha_slider->connect_listener<SliderUseEvent, &ColorPickerWheel::on_slider_use>(this);
+	}
+
+	ColorPickerWheel::~ColorPickerWheel()
+	{
+		m_alpha_slider->disconnect_listener<SliderUseEvent, &ColorPickerWheel::on_slider_use>(this);
 	}
 
 	void ColorPickerWheel::on_slider_use(const SliderUseEvent& event)
@@ -267,7 +276,6 @@ namespace oe::gui
 		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&ColorPickerWheel::on_render>(this);
 		gui_manager->getWindow()->connect_listener<oe::CursorPosEvent, &ColorPickerWheel::on_cursor>(this);
 		gui_manager->getWindow()->connect_listener<oe::MouseButtonEvent, &ColorPickerWheel::on_button>(this);
-		m_alpha_slider->connect_listener<SliderUseEvent, &ColorPickerWheel::on_slider_use>(this);
 
 		SpritePanel::managerAssigned(gui_manager);
 	}
@@ -281,7 +289,6 @@ namespace oe::gui
 		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&ColorPickerWheel::on_render>(this);
 		gui_manager->getWindow()->disconnect_listener<oe::CursorPosEvent, &ColorPickerWheel::on_cursor>(this);
 		gui_manager->getWindow()->disconnect_listener<oe::MouseButtonEvent, &ColorPickerWheel::on_button>(this);
-		m_alpha_slider->disconnect_listener<SliderUseEvent, &ColorPickerWheel::on_slider_use>(this);
 
 		SpritePanel::managerUnassigned(gui_manager);
 	}
@@ -322,7 +329,7 @@ namespace oe::gui
 		triangle_vertices[1].position = { std::cos(direction + 1 * equilateral_triangle_angles) * triangle_width, std::sin(direction + 1 * equilateral_triangle_angles) * triangle_width, 0.0f };
 		triangle_vertices[2].position = { std::cos(direction + 2 * equilateral_triangle_angles) * triangle_width, std::sin(direction + 2 * equilateral_triangle_angles) * triangle_width, 0.0f };
 
-		float alpha = m_color_picker_info.color_picker_info.initial_color.a;
+		float alpha = m_alpha_slider ? m_alpha_slider->slider_info.value_initial : m_color_picker_info.color_picker_info.initial_color.a;
 		m_color_picker_info.color_picker_info.initial_color =
 			+ barycentric_pos_triangle.x * triangle_vertices[0].color
 			+ barycentric_pos_triangle.y * triangle_vertices[1].color

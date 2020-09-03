@@ -49,7 +49,14 @@ namespace oe::gui
 
 	void Checkbox::on_render(const GUIRenderEvent& event)
 	{
-		if (!m_info.toggled) { quad_check->reset(); quad_box->reset(); return; }
+		quad_check->toggle(m_info.toggled);
+		quad_box->toggle(m_info.toggled);
+		if (!m_info.toggled)
+		{
+			quad_check->update(quad_check);
+			quad_box->update(quad_box);
+			return;
+		}
 
 		NULL_SPRITE_CHECK(m_checkbox_info.sprite);
 
@@ -58,7 +65,7 @@ namespace oe::gui
 		quad_box->setSize(m_info.size);
 		quad_box->setColor(m_checkbox_info.color_back);
 		quad_box->setSprite(m_checkbox_info.sprite);
-		quad_box->update();
+		quad_box->update(quad_box);
 
 		if (m_checkbox_info.initial) {
 			quad_check->setSize(static_cast<glm::vec2>(m_info.size) * 0.7f);
@@ -72,7 +79,7 @@ namespace oe::gui
 		quad_check->setColor(m_checkbox_info.color_mark);
 		quad_check->setSprite(m_checkbox_info.sprite);
 		quad_check->setRotationAlignment(oe::alignments::center_center);
-		quad_check->update();
+		quad_check->update(quad_check);
 	}
 
 	void Checkbox::on_button_use(const ButtonUseEvent& e)

@@ -12,7 +12,7 @@
 
 
 
-namespace oe::gui { struct GUIRenderEvent; class GUI; }
+namespace oe::gui { struct GUIRenderEvent; struct GUIPreRenderEvent; class GUI; }
 
 namespace oe::gui
 {
@@ -85,7 +85,7 @@ namespace oe::gui
 
 	private:
 		// events
-		void on_render(const GUIRenderEvent& event);
+		void on_pre_render(const GUIPreRenderEvent& event);
 
 	friend class GUI;
 	};

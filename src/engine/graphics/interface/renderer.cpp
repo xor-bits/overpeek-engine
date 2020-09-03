@@ -5,24 +5,67 @@
 #include "engine/graphics/opengl/gl_texture.hpp"
 #include "engine/interfacegen_renderer.hpp"
 
+#include "engine/assets/texture_set/texture_set.hpp"
+
 
 
 namespace oe::graphics
 {
-	void gen_points(const glm::vec2& position, const glm::vec2& size, const glm::vec2& align, float angle, glm::vec2& pointA, glm::vec2& pointB, glm::vec2& pointC, glm::vec2& pointD) {
-		glm::vec2 alignment = alignmentOffset(size, align);
+	class NullSpritePatcher
+	{
+	private:
+		static NullSpritePatcher* singleton;
+		NullSpritePatcher(const NullSpritePatcher& copy) = delete;
+		NullSpritePatcher()
+		{
+			auto checker_img = oe::assets::TextureSet::generate_checkerboard();
+			TextureInfo ti;
+			ti.data = checker_img.data;
+			ti.data_format = checker_img.format;
+			ti.size = { static_cast<size_t>(checker_img.width), static_cast<size_t>(checker_img.height) };
+			ti.offset = { 0, 0 };
+			ti.wrap = oe::texture_wrap::repeat;
+
+			m_sprite = {
+				{ ti }, { 0.0f, 0.0f }, { 1.0f, 1.0f }
+			};
+		}
+
+	public:
+		static NullSpritePatcher& getSingleton() { if (!singleton) singleton = new NullSpritePatcher(); return *singleton; }
+
+		oe::graphics::Sprite m_sprite;
+	};
+	NullSpritePatcher* NullSpritePatcher::singleton = nullptr;
+
+
+
+	void nullopt_fn(float, glm::vec2&) {}
+
+	void gen_points(const glm::vec2& position, const glm::vec2& size, const glm::vec2& align, float angle, glm::vec2& pointA, glm::vec2& pointB, glm::vec2& pointC, glm::vec2& pointD)
+	{
+		// setup points
+		const glm::vec2 alignment = alignmentOffset(size, align);
 		pointA = size * glm::vec2(0.0f, 0.0f) - alignment;
 		pointB = size * glm::vec2(0.0f, 1.0f) - alignment;
 		pointC = size * glm::vec2(1.0f, 1.0f) - alignment;
 		pointD = size * glm::vec2(1.0f, 0.0f) - alignment;
 
-		if (angle != 0.0f) { // with rotation
-			oe::utils::rotatePoint(angle, pointA);
-			oe::utils::rotatePoint(angle, pointB);
-			oe::utils::rotatePoint(angle, pointC);
-			oe::utils::rotatePoint(angle, pointD);
-		}
+		// rotate fn
+		using rotate_fn = void(*)(float, glm::vec2&);
+		constexpr std::array<rotate_fn, 2> branchless_if = {
+			&oe::utils::rotatePoint,
+			&nullopt_fn
+		};
+		const uint8_t idx = angle != 0.0f ? 0 : 1;
+		
+		// rotate if non 0 angle - branchless
+		branchless_if[idx](angle, pointA);
+		branchless_if[idx](angle, pointB);
+		branchless_if[idx](angle, pointC);
+		branchless_if[idx](angle, pointD);
 
+		// move to wanted offset pos
 		pointA += position;
 		pointB += position;
 		pointC += position;
@@ -40,30 +83,32 @@ namespace oe::graphics
 		m_renderer.m_quads.erase(m_id);
 	}
 
-	std::shared_ptr<Quad> Quad::shared() {
+	std::shared_ptr<Quad> Quad::shared()
+	{
 		return shared_from_this();
 	}
 
-	std::array<VertexData, 4> Quad::gen_vertices() const {
+	void Quad::gen_vertices(VertexData* ref) const
+	{
 		glm::vec2 pointA, pointB, pointC, pointD;
 		gen_points(m_position, m_size, m_rotation_alignment, m_rotation, pointA, pointB, pointC, pointD);
 
-		glm::vec2 sprite_pos = m_sprite.position;
-		glm::vec2 sprite_size = m_sprite.size;
+		const glm::vec2 sprite_pos = m_sprite.position;
+		const glm::vec2 sprite_size = m_sprite.size * (m_toggled ? 1.0f : 0.0f);
 
-		std::array<VertexData, 4> vertex_array = {
-			VertexData(glm::vec3(pointA, m_position.z), sprite_pos + sprite_size * glm::vec2(0.0f, 0.0f), m_color),
-			VertexData(glm::vec3(pointB, m_position.z), sprite_pos + sprite_size * glm::vec2(0.0f, 1.0f), m_color),
-			VertexData(glm::vec3(pointC, m_position.z), sprite_pos + sprite_size * glm::vec2(1.0f, 1.0f), m_color),
-			VertexData(glm::vec3(pointD, m_position.z), sprite_pos + sprite_size * glm::vec2(1.0f, 0.0f), m_color)
-		};
-
-		return vertex_array;
+		ref[0] = VertexData(glm::vec3(pointA, m_position.z), sprite_pos + sprite_size * glm::vec2(0.0f, 0.0f), m_color);
+		ref[1] = VertexData(glm::vec3(pointB, m_position.z), sprite_pos + sprite_size * glm::vec2(0.0f, 1.0f), m_color);
+		ref[2] = VertexData(glm::vec3(pointC, m_position.z), sprite_pos + sprite_size * glm::vec2(1.0f, 1.0f), m_color);
+		ref[3] = VertexData(glm::vec3(pointD, m_position.z), sprite_pos + sprite_size * glm::vec2(1.0f, 0.0f), m_color);
 	}
 
 	void Quad::update()
 	{
-		auto ptr = shared();
+		update(shared());
+	}
+	
+	void Quad::update(const std::shared_ptr<Quad>& ptr)
+	{
 		m_renderer.update(ptr);
 	}
 
@@ -108,36 +153,32 @@ namespace oe::graphics
 		m_primitive_renderer->render();
 	}
 
-	void SubRenderer::assign_new_quad(std::shared_ptr<Quad>& quad)
+	void SubRenderer::assign_new_quad(const std::shared_ptr<Quad>& quad)
 	{
-		auto vertex_array = quad->gen_vertices();
-
 		quad->m_assigned = true;
 		quad->m_current_subrenderer = shared();
 		quad->m_quad_index = m_quad_index;
 		
 		// submit the quad to the selected subrenderer
 		attempt_map();
-		m_primitive_renderer->submitVertex(vertex_array.data(), vertex_array.size(), m_quad_index * 4);
+		quad->gen_vertices(m_primitive_renderer->modifyVertex(4, m_quad_index * 4));
 		m_primitive_renderer->vertexCount() += 4;
 		m_quad_index++;
 	}
 
-	void SubRenderer::reassign_quad(std::shared_ptr<Quad>& quad)
+	void SubRenderer::reassign_quad(const std::shared_ptr<Quad>& quad)
 	{
 		quad->m_current_subrenderer->remove_quad(quad);
 		assign_new_quad(quad);
 	}
 	
-	void SubRenderer::modify_quad(std::shared_ptr<Quad>& quad)
+	void SubRenderer::modify_quad(const std::shared_ptr<Quad>& quad)
 	{
-		auto vertex_array = quad->gen_vertices();
-
 		attempt_map();
-		m_primitive_renderer->submitVertex(vertex_array.data(), vertex_array.size(), quad->m_quad_index * 4);
+		quad->gen_vertices(m_primitive_renderer->modifyVertex(4, quad->m_quad_index * 4));
 	}
 	
-	void SubRenderer::remove_quad(std::shared_ptr<Quad>& quad)
+	void SubRenderer::remove_quad(const std::shared_ptr<Quad>& quad)
 	{
 		quad->m_current_subrenderer.reset();
 		quad->m_assigned = false;
@@ -206,8 +247,10 @@ namespace oe::graphics
 		m_quads_forgotten.clear();
 	}
 	
-	void Renderer::update(std::shared_ptr<Quad>& quad)
+	void Renderer::update(const std::shared_ptr<Quad>& quad)
 	{
+		if (!quad->m_sprite.m_owner) quad->m_sprite = NullSpritePatcher::getSingleton().m_sprite;
+
 		if (!quad->m_current_subrenderer)
 		{
 			// new quad
@@ -223,6 +266,8 @@ namespace oe::graphics
 		}
 		else if (quad->m_sprite_updated)
 		{
+
+
 			// move quad to another subrenderer
 			quad->m_sprite_updated = false;
 			auto new_subrenderer = select_subrenderer(quad);
@@ -282,7 +327,7 @@ namespace oe::graphics
 			}
 
 			auto shared = subrenderer.second.lock();
-			shared->m_texture->bind();
+			if (shared->m_texture) shared->m_texture->bind();
 			shared->render();
 		}
 	}

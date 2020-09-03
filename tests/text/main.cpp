@@ -28,7 +28,7 @@ void update_2() {
 	oe::graphics::Sprite sprite;
 	sprite.m_owner = font->getSpritePack()->getTexture();
 	quad->setSprite(sprite);
-	quad->update();
+	quad->update(quad);
 }
 
 void resize(const oe::ResizeEvent& event) {
@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
 	quad->setSize(label->getSize()); spdlog::debug("{}", label->getSize());
 	quad->setColor(oe::colors::white);
 	quad->setSprite(label->getSprite());
-	quad->update();
+	quad->update(quad);
 	
 	renderer->forget(std::move(quad));
 	
@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
 	quad->setSize({ 200, 200 });
 	quad->setColor(oe::colors::white);
 	quad->setSprite(sprite);
-	quad->update();
+	quad->update(quad);
 	
 	// blue: <#0000ff>
 	// incomplete: <#542>

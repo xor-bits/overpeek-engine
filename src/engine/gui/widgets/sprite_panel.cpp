@@ -41,7 +41,12 @@ namespace oe::gui {
 
 	void SpritePanel::on_render(const GUIRenderEvent& event)
 	{
-		if (!m_info.toggled) { quad->reset(); return; }
+		quad->toggle(m_info.toggled);
+		if (!m_info.toggled)
+		{
+			quad->update(quad);
+			return;
+		}
 
 		NULL_SPRITE_CHECK(sprite_panel_info.sprite);
 
@@ -50,7 +55,7 @@ namespace oe::gui {
 		quad->setSize(m_info.size);
 		quad->setColor(sprite_panel_info.color);
 		quad->setSprite(sprite_panel_info.sprite);
-		quad->update();
+		quad->update(quad);
 	}
 
 }
