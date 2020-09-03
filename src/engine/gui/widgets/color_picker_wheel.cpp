@@ -416,7 +416,7 @@ namespace oe::gui
 			/*if (!in_circle(r_pos, wheel_width))
 				return;*/
 
-			direction = std::atan2f(r_pos.y, r_pos.x);
+			direction = atan2f(r_pos.y, r_pos.x);
 			const float hue = -direction / glm::two_pi<float>();
 			triangle_vertices[0].color = { oe::utils::hsvToRGB({ hue, 1.0f, 1.0f }), 1.0f };
 
