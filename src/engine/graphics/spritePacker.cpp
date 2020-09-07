@@ -59,6 +59,18 @@ namespace oe::graphics {
 
 		return sprite;
 	}
+	
+	const Sprite* SpritePack::create(oe::utils::image_data&& sprite_texture)
+	{
+		auto usr_data = static_cast<__usr_data*>(m_usr_data);
+		auto sprite = new Sprite();
+		
+		usr_data->m_rectangles.push_back(rectpack2D::rect_xywh(0, 0, sprite_texture.width + m_border, sprite_texture.height + m_border));
+		usr_data->m_images.push_back(std::move(sprite_texture));
+		m_sprites.push_back(sprite);
+
+		return sprite;
+	}
 
 	const Sprite* SpritePack::create(fs::path sprite_texture)
 	{

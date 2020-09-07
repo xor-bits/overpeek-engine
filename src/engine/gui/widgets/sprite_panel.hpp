@@ -12,6 +12,7 @@ namespace oe::gui
 	{
 		glm::vec4 color                    = oe::colors::white;
 		const oe::graphics::Sprite* sprite = nullptr; // must be set
+		float rotation                     = 0.0f;
 		
 		WidgetInfo widget_info             = { { 50, 50 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
 	};

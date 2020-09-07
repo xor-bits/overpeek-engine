@@ -30,7 +30,7 @@ namespace oe::graphics {
 				event.codepoint = codepoint;
 
 				this_class->dispatcher_mutex.lock();
-				this_class->dispatcher.enqueue(event);
+				this_class->m_window_gameloop.getDispatcher().enqueue(event);
 				this_class->dispatcher_mutex.unlock();
 				// if (this_class->m_window_info.text_callback) this_class->m_window_info.text_callback(static_cast<uint32_t>(codepoint), static_cast<oe::modifiers>(mods));
 			});
@@ -52,7 +52,7 @@ namespace oe::graphics {
 				event.aspect = this_class->aspect();
 				
 				this_class->dispatcher_mutex.lock();
-				this_class->dispatcher.enqueue(event);
+				this_class->m_window_gameloop.getDispatcher().enqueue(event);
 				this_class->dispatcher_mutex.unlock();
 				//if (this_class->m_window_info.resize_callback) this_class->m_window_info.resize_callback(this_class->m_window_info.size);
 			});
@@ -72,7 +72,7 @@ namespace oe::graphics {
 				event.cursor_worldspace = this_class->m_cursor_transformed;
 
 				this_class->dispatcher_mutex.lock();
-				this_class->dispatcher.enqueue(event);
+				this_class->m_window_gameloop.getDispatcher().enqueue(event);
 				this_class->dispatcher_mutex.unlock();
 				// if (this_class->m_window_info.cursor_callback) this_class->m_window_info.cursor_callback(this_class->m_cursor_transformed, this_class->m_cursor_window);
 			});
@@ -94,7 +94,7 @@ namespace oe::graphics {
 				event.cursor_pos.cursor_worldspace = this_class->m_cursor_transformed;
 
 				this_class->dispatcher_mutex.lock();
-				this_class->dispatcher.enqueue(event);
+				this_class->m_window_gameloop.getDispatcher().enqueue(event);
 				this_class->dispatcher_mutex.unlock();
 				// if (this_class->m_window_info.button_callback) this_class->m_window_info.button_callback(static_cast<oe::mouse_buttons>(button), static_cast<oe::actions>(action));
 			});
@@ -114,7 +114,7 @@ namespace oe::graphics {
 				event.mods = static_cast<oe::modifiers>(mods);
 
 				this_class->dispatcher_mutex.lock();
-				this_class->dispatcher.enqueue(event);
+				this_class->m_window_gameloop.getDispatcher().enqueue(event);
 				this_class->dispatcher_mutex.unlock();
 				// if (this_class->m_window_info.key_callback) this_class->m_window_info.key_callback(static_cast<oe::keys>(key), static_cast<oe::actions>(action), static_cast<oe::modifiers>(mods));
 			});
@@ -127,7 +127,7 @@ namespace oe::graphics {
 				event.scroll_delta = { xoffset, yoffset };
 
 				this_class->dispatcher_mutex.lock();
-				this_class->dispatcher.enqueue(event);
+				this_class->m_window_gameloop.getDispatcher().enqueue(event);
 				this_class->dispatcher_mutex.unlock();
 				// if (this_class->m_window_info.scroll_callback) this_class->m_window_info.scroll_callback(yoffset);
 			});
@@ -143,7 +143,7 @@ namespace oe::graphics {
 
 	IWindow::IWindow(const std::unique_ptr<Instance>& instance, const WindowInfo& window_config) 
 		: m_window_info(window_config)
-		, m_window_gameloop(this, m_window_info.main_updatesystem_ups)
+		, m_window_gameloop(this)
 	{
 		m_window_info.size.y = std::max(m_window_info.size.y, 1);
 		m_aspect_ratio = static_cast<float>(m_window_info.size.x) / static_cast<float>(m_window_info.size.y);

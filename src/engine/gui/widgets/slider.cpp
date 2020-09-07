@@ -153,6 +153,8 @@ namespace oe::gui {
 
 	void Slider::on_cursor(const CursorPosEvent& event)
 	{
+		if(!slider_info.interactable) return;
+
 		if (check_inside(event.cursor_windowspace, render_position, m_info.size))
 		{
 			dispatcher.trigger(event_hover_latest);
@@ -186,6 +188,8 @@ namespace oe::gui {
 
 	void Slider::on_button(const MouseButtonEvent& event)
 	{
+		if(!slider_info.interactable) return;
+
 		if (check_inside(event.cursor_pos.cursor_windowspace, render_position, m_info.size))
 		{
 			// hold
@@ -218,6 +222,8 @@ namespace oe::gui {
 
 	void Slider::on_scroll(const ScrollEvent& event)
 	{
+		if(!slider_info.interactable) return;
+		
 		if (!slider_info.scroll) return;
 
 		const glm::vec2& cursor_window = m_gui_manager->getWindow()->getCursorWindow();

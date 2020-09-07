@@ -348,11 +348,10 @@ namespace oe {
 		static constexpr glm::vec2 center_right = glm::vec2(1.0f, 0.5f);
 		static constexpr glm::vec2 bottom_right = glm::vec2(1.0f, 1.0f);
 	};
-	static glm::vec2 alignmentOffset(const glm::vec2& size, const glm::vec2& alignment) {
-		return size * alignment;
-	}
-	static glm::ivec2 alignmentOffset(const glm::ivec2& size, const glm::vec2& alignment) {
-		return static_cast<glm::ivec2>(static_cast<glm::vec2>(size) * alignment);
+	template<typename T>
+	static T alignmentOffset(const T& size, const glm::vec2& alignment)
+	{
+		return static_cast<T>(static_cast<glm::vec2>(size) * alignment);
 	}
 
 	typedef std::function<void(oe::keys key, oe::actions action, oe::modifiers mods)> fun_key_callback;
@@ -376,7 +375,6 @@ namespace oe {
 		bool fullscreen = false;
 		void* share_handle = nullptr; // pointer to the first window obj for multiwindow setups
 		uint32_t swap_interval = 1;
-		size_t main_updatesystem_ups = 60;
 	};
 
 	// renderer create info

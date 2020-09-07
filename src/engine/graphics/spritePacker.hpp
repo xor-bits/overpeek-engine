@@ -30,6 +30,7 @@ namespace oe::graphics {
 		~SpritePack();
 
 		const Sprite* create(const oe::utils::image_data& sprite_texture);
+		const Sprite* create(oe::utils::image_data&& sprite_texture);
 		const Sprite* create(fs::path sprite_texture);
 		const Sprite* emptySprite() const { return m_sprites.at(0); }
 		

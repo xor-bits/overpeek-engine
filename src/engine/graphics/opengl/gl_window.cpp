@@ -180,7 +180,7 @@ namespace oe::graphics {
 	void GLWindow::updateEvents()
 	{
 		dispatcher_mutex.lock();
-		dispatcher.update();
+		m_window_gameloop.getDispatcher().update();
 		dispatcher_mutex.unlock();
 	}
 

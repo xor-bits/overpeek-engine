@@ -18,6 +18,7 @@ namespace oe::gui
 		std::string draw_font_path                = ""; // empty for gui default
 		bool vertical                             = false;
 		bool scroll                               = false;
+		bool interactable                         = true;
 		glm::ivec2 knob_size                      = { 30, 30 };
 		glm::vec4 knob_color                      = oe::colors::grey;
 		glm::vec4 slider_lcolor                   = oe::colors::dark_grey;
