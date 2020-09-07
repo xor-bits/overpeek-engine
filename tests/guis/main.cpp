@@ -144,7 +144,8 @@ void cube()
 }
 
 // render event
-void render(float update_fraction) {
+void render(oe::utils::RenderEvent)
+{
 	cube();
 
 	// gui
@@ -152,7 +153,8 @@ void render(float update_fraction) {
 }
 
 // framebuffer resize
-void resize(const oe::ResizeEvent& event) {
+void resize(const oe::ResizeEvent& event)
+{
 	if (event.framebuffer_size == glm::ivec2{ 0, 1 }) return;
 
 	glm::mat4 pr_matrix = glm::perspectiveFov(30.0f, (float)event.framebuffer_size.x, (float)event.framebuffer_size.y, 0.0f, 1000.0f);
@@ -183,7 +185,8 @@ struct transform_cast
 };
 
 // update 30 times per second
-void update_30() {
+void update_30(oe::utils::UpdateEvent<30>)
+{
 	auto& gameloop = window->getGameloop(); 
 	std::u32string str = fmt::format(U"frametime: {:3.3f} ms ({} fps) updatetime: {:3.3f} ms ({} ups)", gameloop.getFrametimeMS(), gameloop.getAverageFPS(), gameloop.getUpdatetimeMS<30>(), gameloop.getAverageUPS<30>());
 	if(textpanel) textpanel->text_panel_info.text = str;
@@ -208,7 +211,8 @@ void append_list(const glm::quat& quat)
 }
 
 // gui
-void setup_gui() {
+void setup_gui()
+{
 	{
 		oe::gui::SpritePanelInfo sprite_panel_info;
 		sprite_panel_info.widget_info = { { 150, 150 }, { 0, 0 }, oe::alignments::bottom_left, oe::alignments::bottom_left };
@@ -344,8 +348,8 @@ int main()
 
 	// connect events
 	window->connect_listener<oe::ResizeEvent, &resize>();
-	window->connect_render_listener<&render>();
-	window->connect_update_listener<30, &update_30>();
+	window->connect_listener<oe::utils::RenderEvent, &render>();
+	window->connect_listener<oe::utils::UpdateEvent<30>, &update_30>();
 
 	// instance settings
 	engine.swapInterval(1);

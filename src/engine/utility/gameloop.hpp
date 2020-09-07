@@ -13,7 +13,7 @@ namespace oe::utils
 {
 	static const size_t mc_average_size = 200;
 	
-	template<size_t ups> struct UPS {};
+	template<size_t ups> struct UPS { static constexpr size_t system_ups = ups; };
 	template<size_t ups> using UpdateEvent = UPS<ups>;
 	struct InitEvent {};
 	struct CleanupEvent {};
@@ -78,8 +78,10 @@ namespace oe::utils
 		template<size_t ups>
 		void try_create()
 		{
-			// if ((const auto iter = m_update_systems.find(ups)) == m_update_systems.end())
-			// 	iter = m_update_systems.insert(ups, std::move(std::make_unique<UpdateSystem<ups>>())).first;
+			spdlog::debug("new upssystem: {}", ups);
+			std::unordered_map<size_t, std::unique_ptr<UpdateSystemBase>>::iterator iter = m_update_systems.find(ups);
+			if (iter == m_update_systems.end())
+			 	iter = m_update_systems.insert({ ups, std::move(std::make_unique<UpdateSystem<ups>>()) }).first;
 		}
 
 		template<size_t ups>
@@ -95,7 +97,7 @@ namespace oe::utils
 			typedef char one;
 			struct two { char x[2]; };
 
-			template <typename C> static one test(char[sizeof(&C::helloworld)]) ;
+			template <typename C> static one test(char[sizeof(&C::system_ups)]) ;
 			template <typename C> static two test(...);    
 
 		public:
@@ -141,7 +143,7 @@ namespace oe::utils
 		template<size_t ups>
 		inline uint32_t getAverageUPS() const
 		{ 
-			return m_update_systems.at(ups).m_perf_logger.m_per_second;
+			return m_update_systems.at(ups)->m_perf_logger.m_per_second;
 			// return (m_cached_average_updatetime != 0) ? static_cast<uint32_t>(1000000.0f / m_cached_average_updatetime) : 0;
 		}
 
@@ -150,7 +152,7 @@ namespace oe::utils
 
 		// updatetime in microseconds
 		template<size_t ups>
-		inline float getUpdatetime() const { return m_update_systems.at(ups).m_perf_logger.m_cached_average_time; }
+		inline float getUpdatetime() const { return m_update_systems.at(ups)->m_perf_logger.m_cached_average_time; }
 		
 		// frametime in milliseconds
 		inline float getFrametimeMS() const { return getFrametime() / 1000.0f; }
@@ -163,7 +165,7 @@ namespace oe::utils
 		inline float getFrameUpdateScale() const { return 0.000001f * getFrametime(); }
 
 		template<size_t ups>
-		inline auto& getPerfLoggerUPS() const { return m_update_systems.at(ups).m_perf_logger; }
+		inline auto& getPerfLoggerUPS() const { return m_update_systems.at(ups)->m_perf_logger; }
 		inline auto& getPerfLoggerFPS() const { return m_render_perf_logger; }
 
 		template<size_t ups> // for smooth animations when ups is low < 0.0f - 1.0f >
@@ -185,10 +187,11 @@ namespace oe::utils
 		static constexpr size_t system_ups = ups;
 
 		UpdateSystem()
-			: m_update_start(oe::utils::Clock::getSingleton().getMicroseconds())
-			, m_update_previous(m_update_start)
-			, m_ups_cap(1000000 / ups)
-		{}
+		{
+			m_update_start = oe::utils::Clock::getSingleton().getMicroseconds();
+			m_update_previous = m_update_start;
+			m_ups_cap = 1000000 / ups;
+		}
 
 		virtual void update_attempt(GameLoop& loop) override
 		{
