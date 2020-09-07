@@ -18,7 +18,10 @@ namespace oe::gui {
 
 	void SpritePanel::managerAssigned(GUI* gui_manager)
 	{
-		quad = gui_manager->getRenderer()->create();
+		if (sprite_panel_info.sprite_alpha)
+			quad = gui_manager->getLateRenderer()->create();
+		else
+			quad = gui_manager->getRenderer()->create();
 
 		// event listeners
 		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&SpritePanel::on_render>(this);
@@ -38,7 +41,12 @@ namespace oe::gui {
 
 	void SpritePanel::on_render(const GUIRenderEvent& event)
 	{
-		if (!m_info.toggled) { quad->reset(); return; }
+		quad->toggle(m_info.toggled);
+		if (!m_info.toggled)
+		{
+			quad->update(quad);
+			return;
+		}
 
 		NULL_SPRITE_CHECK(sprite_panel_info.sprite);
 
@@ -52,7 +60,7 @@ namespace oe::gui {
 			quad->setRotation(sprite_panel_info.rotation);
 			quad->setRotationAlignment(oe::alignments::center_center);
 		}
-		quad->update();
+		quad->update(quad);
 	}
 
 }

@@ -27,16 +27,23 @@ namespace oe::utils {
 		void seed(const T& value) { seed(static_cast<uint32_t>(std::hash<T>{}(value))); }
 		void seed() { seed(static_cast<uint32_t>(std::chrono::high_resolution_clock::now().time_since_epoch().count())); }
 		
-		template<typename T = float>
+		template<typename T = float, typename = std::enable_if_t<std::is_floating_point_v<T>>>
 		T randomf(T min = std::numeric_limits<T>().min(), T max = std::numeric_limits<T>().max())
 		{
-    		std::uniform_real_distribution<> dist(0, 10);
-			return min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - min)));
+			std::uniform_real_distribution<T> dist(min, max);
+			return dist(gen);
 		}
-		template<typename T = int>
+		template<typename T = float, typename = std::enable_if_t<std::is_floating_point_v<T>>>
+		T normalf(T mean = 0.0, T deviation = 1.0)
+		{
+			std::normal_distribution<T> dist(mean, deviation);
+			return dist(gen);
+		}
+		template<typename T = int, typename = std::enable_if_t<std::is_integral_v<T>>>
 		T randomi(T min = std::numeric_limits<T>().min(), T max = std::numeric_limits<T>().max())
 		{
-			return min + rand() % (max - min);
+			std::uniform_int_distribution<T> dist(min, max);
+			return dist(gen);
 		}
 
 		glm::vec2 randomVec2(float min, float max);

@@ -87,6 +87,8 @@ namespace oe::gui
 	void GUI::render_empty()
 	{
 		short_resize();
+		
+		dispatcher.trigger(GUIPreRenderEvent{});
 		dispatcher.trigger(GUIRenderEvent{});
 	}
 
@@ -151,6 +153,16 @@ namespace oe::gui
 	const oe::graphics::Window& GUI::getWindow() const
 	{
 		return m_window;
+	}
+
+	const oe::assets::DefaultShader* GUI::getShaderFill() const
+	{
+		return m_shader_fill;
+	}
+
+	const oe::assets::DefaultShader* GUI::getShaderLines() const
+	{
+		return m_shader_lines;
 	}
 
 	oe::graphics::Font& GUI::getFont(size_t resolution, std::string font)

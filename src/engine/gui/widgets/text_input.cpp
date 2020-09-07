@@ -63,7 +63,7 @@ namespace oe::gui
 
 	TextInput::~TextInput()
 	{
-		delete m_state;
+		delete static_cast<STB_TexteditState*>(m_state);
 	}
 
 	void TextInput::managerAssigned(GUI* gui_manager)
@@ -98,7 +98,14 @@ namespace oe::gui
 	
 	void TextInput::on_render(const GUIRenderEvent& event)
 	{
-		if (!m_info.toggled) { quad->reset(); text_quad->reset(); return; }
+		quad->toggle(m_info.toggled);
+		text_quad->toggle(m_info.toggled);
+		if (!m_info.toggled)
+		{
+			quad->update(quad);
+			text_quad->update(text_quad);
+			return;
+		}
 
 		NULL_SPRITE_CHECK(text_input_info.sprite);
 
@@ -108,7 +115,7 @@ namespace oe::gui
 		quad->setSize(static_cast<glm::vec2>(m_info.size));
 		quad->setSprite(text_input_info.sprite);
 		quad->setColor(text_input_info.color);
-		quad->update();
+		quad->update(quad);
 
 		// vertical bar
 		std::u32string bar = U"";
@@ -127,7 +134,7 @@ namespace oe::gui
 		text_quad->setSize(label->getSize());
 		text_quad->setSprite(label->getSprite());
 		text_quad->setColor(oe::colors::white);
-		text_quad->update();
+		text_quad->update(text_quad);
 	}
 
 	void TextInput::on_codepoint(const CodepointEvent& event)

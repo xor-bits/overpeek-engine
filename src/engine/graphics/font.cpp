@@ -15,7 +15,8 @@ namespace oe::graphics {
 	bool Font::gen_codepoint_glyph(char32_t codepoint)
 	{
 		//Load glyph
-		if (FT_Load_Char(face, codepoint, FT_LOAD_RENDER)) {
+		if (FT_Load_Char(face, codepoint, FT_LOAD_RENDER))
+		{
 			spdlog::warn("Failed to load glyph: {}", (size_t)codepoint);
 			return false;
 		}
@@ -49,15 +50,13 @@ namespace oe::graphics {
 		};
 		m_glyphs.insert(std::make_pair(codepoint, glyph));
 
-		FT_Outline_Embolden;
-
 		delete[] data;
 		return true;
 	}
 
 	Font::Font(uint16_t resolution, const std::string& font_path)
-		: m_resolution(resolution)
-		, m_sprite_pack(new SpritePack(5))
+		: m_sprite_pack(new SpritePack(5))
+		, m_resolution(resolution)
 	{
 		oe_debug_call("font");
 

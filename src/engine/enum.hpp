@@ -7,6 +7,7 @@
 #include <vector>
 #include <functional>
 #include <gsl/span>
+#include <gcem.hpp>
 
 
 
@@ -301,6 +302,14 @@ namespace oe {
 		gamepad_triangle = gamepad_y
 	};
 
+	enum class texture_wrap {
+		repeat, mirrored_repeat, clamp_to_edge, clamp_to_border
+	};
+
+	enum class texture_filter {
+		nearest, linear
+	};
+
 	// some predefined colors
 	struct colors {
 		static constexpr glm::vec4 translucent_black = glm::vec4(0.0f, 0.0f, 0.0f, 0.25f);
@@ -348,9 +357,8 @@ namespace oe {
 		static constexpr glm::vec2 center_right = glm::vec2(1.0f, 0.5f);
 		static constexpr glm::vec2 bottom_right = glm::vec2(1.0f, 1.0f);
 	};
-	template<typename T>
-	static T alignmentOffset(const T& size, const glm::vec2& alignment)
-	{
+	template<typename T = glm::vec2>
+	T alignmentOffset(const T& size, const glm::vec2& alignment) {
 		return static_cast<T>(static_cast<glm::vec2>(size) * alignment);
 	}
 
@@ -375,6 +383,7 @@ namespace oe {
 		bool fullscreen = false;
 		void* share_handle = nullptr; // pointer to the first window obj for multiwindow setups
 		uint32_t swap_interval = 1;
+		size_t main_updatesystem_ups = 60;
 	};
 
 	// renderer create info
@@ -413,6 +422,9 @@ namespace oe {
 		const uint8_t* data;
 		oe::formats data_format = oe::formats::rgba;
 		bool generate_mipmaps = false;
+
+		texture_wrap wrap = texture_wrap::clamp_to_border;
+		texture_filter filter = texture_filter::nearest;
 
 		std::vector<size_t> size = { 1 };   // must have the same size as (std::vector<size_t> offset)
 		std::vector<size_t> offset = { 0 }; // must have the same size as (std::vector<size_t> size)
@@ -464,23 +476,64 @@ namespace oe {
 	};
 
 #ifdef WIN32
-#define __OE_FONT_NAME				"Arial.ttf"
+#define __OE_FONT_NAME_R			"Arial.ttf"
+#define __OE_FONT_NAME_B			"Arialbd.ttf"
+#define __OE_FONT_NAME_I			"Ariali.ttf"
+#define __OE_FONT_NAME_BI			"Arialbi.ttf"
 #define __OE_FONT_PATH				"C:/Windows/Fonts/"
-#define __OE_FULL_FONT_PATH			__OE_FONT_PATH __OE_FONT_NAME
 #elif __linux__
-#define __OE_FONT_NAME				"LiberationSans-Regular.ttf"
+#define __OE_FONT_NAME_R			"LiberationSans-Regular.ttf"
+#define __OE_FONT_NAME_B			"LiberationSans-Bold.ttf"
+#define __OE_FONT_NAME_I			"LiberationSans-Italic.ttf"
+#define __OE_FONT_NAME_BI			"LiberationSans-BoldItalic.ttf"
 #define __OE_FONT_PATH				"/usr/share/fonts/truetype/liberation/"
-#define __OE_FULL_FONT_PATH			__OE_FONT_PATH __OE_FONT_NAME
 #else
-#define __OE_FONT_NAME				"LiberationSans-Regular.ttf"
+#define __OE_FONT_NAME_R			"LiberationSans-Regular.ttf"
+#define __OE_FONT_NAME_B			"LiberationSans-Bold.ttf"
+#define __OE_FONT_NAME_I			"LiberationSans-Italic.ttf"
+#define __OE_FONT_NAME_BI			"LiberationSans-BoldItalic.ttf"
 #define __OE_FONT_PATH				"/System/Library/Fonts"  /* I have no idea about fonts with MacOS */
-#define __OE_FULL_FONT_PATH			__OE_FONT_PATH __OE_FONT_NAME
 #endif
+
+#define __OE_FULL_FONT_PATH_R		__OE_FONT_PATH __OE_FONT_NAME_R
+#define __OE_FULL_FONT_PATH_B		__OE_FONT_PATH __OE_FONT_NAME_B
+#define __OE_FULL_FONT_PATH_I		__OE_FONT_PATH __OE_FONT_NAME_I
+#define __OE_FULL_FONT_PATH_BI		__OE_FONT_PATH __OE_FONT_NAME_BI
+#define __OE_FONT_NAME				__OE_FONT_NAME_R
+#define __OE_FULL_FONT_PATH_R		__OE_FONT_PATH __OE_FONT_NAME_R
+#define __OE_FULL_FONT_PATH_B		__OE_FONT_PATH __OE_FONT_NAME_B
+#define __OE_FULL_FONT_PATH_I		__OE_FONT_PATH __OE_FONT_NAME_I
+#define __OE_FULL_FONT_PATH_BI		__OE_FONT_PATH __OE_FONT_NAME_BI
+#define __OE_FULL_FONT_PATH			__OE_FULL_FONT_PATH_R
 	
+	constexpr char default_font_name_regular[] = __OE_FONT_NAME_R;
+	constexpr char default_font_name_bold[] = __OE_FONT_NAME_B;
+	constexpr char default_font_name_italic[] = __OE_FONT_NAME_I;
+	constexpr char default_font_name_bolditalic[] = __OE_FONT_NAME_BI;
 	constexpr char default_font_name[] = __OE_FONT_NAME;
+
 	constexpr char default_font_path[] = __OE_FONT_PATH;
+	
+	constexpr char default_full_font_path_regular[] = __OE_FULL_FONT_PATH_R;
+	constexpr char default_full_font_path_bold[] = __OE_FULL_FONT_PATH_B;
+	constexpr char default_full_font_path_italic[] = __OE_FULL_FONT_PATH_I;
+	constexpr char default_full_font_path_bolditalic[] = __OE_FULL_FONT_PATH_BI;
 	constexpr char default_full_font_path[] = __OE_FULL_FONT_PATH;
 
-#undef __FONT_NAME
-#undef __OE_DEFAULT_FONT__
+#undef __OE_FONT_NAME_R
+#undef __OE_FONT_NAME_B
+#undef __OE_FONT_NAME_I
+#undef __OE_FONT_NAME_BI
+#undef __OE_FONT_PATH
+
+#undef __OE_FULL_FONT_PATH_R
+#undef __OE_FULL_FONT_PATH_B
+#undef __OE_FULL_FONT_PATH_I
+#undef __OE_FULL_FONT_PATH_BI
+#undef __OE_FONT_NAME
+#undef __OE_FULL_FONT_PATH_R
+#undef __OE_FULL_FONT_PATH_B
+#undef __OE_FULL_FONT_PATH_I
+#undef __OE_FULL_FONT_PATH_BI
+#undef __OE_FULL_FONT_PATH
 }

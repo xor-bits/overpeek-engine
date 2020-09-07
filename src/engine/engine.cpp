@@ -85,10 +85,15 @@ namespace oe {
 
 	void Engine::__error(std::string error_msg, int line, std::string file)
 	{
-		spdlog::error("error: {}\nline: {}\nfile: {}", error_msg, line, file);
+		std::string error_str = fmt::format("error: {}\nline: {}\nfile: {}", error_msg, line, file);
+#ifdef OE_TERMINATE_IS_THROW
+		throw std::runtime_error(error_str);
+#else
+		spdlog::error("{}", error_str);
 
 		if (!engine_info.ignore_errors)
 			oe::Engine::terminate();
+#endif
 	}
 
 

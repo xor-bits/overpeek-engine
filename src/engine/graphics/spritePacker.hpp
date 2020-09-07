@@ -7,16 +7,17 @@
 
 
 
-namespace oe::graphics {
-
+namespace oe::graphics
+{
+	struct __usr_data;
 
 	// 2D only sprite packer
-	class SpritePack {
+	class SpritePack
+	{
 	private:
-		void* m_usr_data;
+		__usr_data* m_usr_data;
 
 	private:
-		glm::vec2 m_size;     // size of the packed texture
 		int m_border;
 		bool m_constructed;
 
@@ -30,7 +31,6 @@ namespace oe::graphics {
 		~SpritePack();
 
 		const Sprite* create(const oe::utils::image_data& sprite_texture);
-		const Sprite* create(oe::utils::image_data&& sprite_texture);
 		const Sprite* create(fs::path sprite_texture);
 		const Sprite* emptySprite() const { return m_sprites.at(0); }
 		

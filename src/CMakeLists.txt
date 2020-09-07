@@ -15,6 +15,7 @@ set(source_list ${source_list}
 	"engine/include.hpp"
 	"engine/interfacegen.hpp"
 	"engine/interfacegen.cpp"
+	"engine/interfacegen_renderer.hpp"
 )
 set(source_list ${source_list} 
 	"engine/assets/default_shader/default_shader.cpp"
@@ -29,6 +30,14 @@ set(source_list ${source_list}
 set(source_list ${source_list} 
 	"engine/audio/audio.cpp"
 	"engine/audio/audio.hpp"
+)
+set(source_list ${source_list} 
+	"engine/ecs/components/all.hpp"
+	"engine/ecs/components/quad.hpp"
+	"engine/ecs/entity.cpp"
+	"engine/ecs/entity.hpp"
+	"engine/ecs/world.hpp"
+	"engine/ecs/world.cpp"
 )
 set(source_list ${source_list} 
 	"engine/graphics/font.cpp"
@@ -123,6 +132,8 @@ set(source_list ${source_list}
 	"engine/gui/widgets/checkbox.hpp"
 	"engine/gui/widgets/color_picker.cpp"
 	"engine/gui/widgets/color_picker.hpp"
+	"engine/gui/widgets/color_picker_wheel.cpp"
+	"engine/gui/widgets/color_picker_wheel.hpp"
 	"engine/gui/widgets/form.cpp"
 	"engine/gui/widgets/form.hpp"
 	"engine/gui/widgets/slider.cpp"
@@ -163,7 +174,7 @@ set(source_list ${source_list}
 )
 
 set(target_name "engine")
-add_library(${target_name} STATIC ${source_list})
+add_library(${target_name} STATIC ${source_list} "engine/ecs/world.hpp" "engine/ecs/world.cpp"    "engine/interfacegen_renderer.hpp")
 set_target_properties(${target_name} PROPERTIES FOLDER engine)
 if(OE_BUILD_MODE EQUAL 0)
 	target_compile_definitions(${target_name} PUBLIC "OE_BUILD_MODE_GL")
@@ -178,7 +189,6 @@ endif()
 
 # platform specific
 if (MSVC)
-	set_target_properties(${target_name} PROPERTIES COMPILE_FLAGS "/MP") # multicore compile
 	target_link_libraries(${target_name} PRIVATE "Ws2_32") # required by enet
 	target_link_libraries(${target_name} PRIVATE "Winmm")  # required by enet
 elseif(EMSCRIPTEN)
@@ -207,18 +217,35 @@ if(VCPKG_TOOLCHAIN) # with vcpkg
 	target_link_libraries(${target_name} PRIVATE ${OPENGL_LIBRARY})
 
 	
-	if (CMAKE_BUILD_TYPE EQUAL "Debug")
-		set(CURRENT_PACKAGES_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug")
+	if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+		set(_VCPKG_LIB_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/lib")
 	else()
-		set(CURRENT_PACKAGES_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}")
+		set(_VCPKG_LIB_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
 	endif()
+	set(_VCPKG_INC_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
 	
 	target_include_directories(${target_name} PUBLIC "vendor/rectpack2D/include") # no rectpack2D in vcpkg
-	target_include_directories(${target_name} PUBLIC "${CURRENT_PACKAGES_DIR}/include/")
-	target_link_directories(${target_name} PUBLIC "${CURRENT_PACKAGES_DIR}/lib")
+	target_include_directories(${target_name} PUBLIC "${_VCPKG_INC_DIR}")
+	target_link_directories(${target_name} PUBLIC "${_VCPKG_LIB_DIR}")
 	
-	find_package(OpenAL CONFIG REQUIRED)
-	target_link_libraries(${target_name} PRIVATE OpenAL::OpenAL)
+# additional glfw3 dependencies for ubuntu:
+# sudo apt install libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev
+
+# vcpkg install openal-soft glfw3 glad box2d libzip enet freetype ms-gsl entt spdlog fmt stb minimp3 glm gcem
+# optionally shaderc and/or vulkan' vcpkg install shaderc vulkan
+	if(NOT UNIX)
+		find_package(OpenAL CONFIG REQUIRED)
+		target_link_libraries(${target_name} PRIVATE OpenAL::OpenAL)
+		find_package(freetype CONFIG REQUIRED)
+		target_link_libraries(${target_name} PRIVATE freetype)
+	else()
+		find_package(OpenAL REQUIRED)
+		target_link_libraries(${target_name} PRIVATE ${OPENAL_LIBRARY})
+		target_include_directories(${target_name} PUBLIC ${OPENAL_INCLUDE_DIR})
+		find_package(Freetype REQUIRED)
+		target_link_libraries(${target_name} PRIVATE ${FREETYPE_LIBRARIES})
+		target_include_directories(${target_name} PUBLIC ${FREETYPE_INCLUDE_DIRS})
+	endif()
 	find_package(glfw3 CONFIG REQUIRED)
 	target_link_libraries(${target_name} PRIVATE glfw)
 	find_package(glad CONFIG REQUIRED)
@@ -228,8 +255,6 @@ if(VCPKG_TOOLCHAIN) # with vcpkg
 	find_package(libzip CONFIG REQUIRED)
     target_link_libraries(${target_name} PRIVATE zip)
 	target_link_libraries(${target_name} PRIVATE enet)
-	find_package(freetype CONFIG REQUIRED)
-	target_link_libraries(${target_name} PRIVATE freetype)
 	find_package(Microsoft.GSL CONFIG REQUIRED)
 	target_link_libraries(${target_name} PRIVATE Microsoft.GSL::GSL)
 	find_package(EnTT CONFIG REQUIRED)
@@ -242,6 +267,8 @@ if(VCPKG_TOOLCHAIN) # with vcpkg
 	target_include_directories(${target_name} PRIVATE ${STB_INCLUDE_DIRS})
 	find_path(MINIMP3_INCLUDE_DIRS "minimp3/minimp3.h")
     target_include_directories(${target_name} PRIVATE ${MINIMP3_INCLUDE_DIRS})
+	find_package(gcem CONFIG REQUIRED)
+    target_link_libraries(${target_name} PRIVATE gcem)
 
 	# optional deps
 	if(OE_BUILD_MODE GREATER_EQUAL 1)

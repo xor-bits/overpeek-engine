@@ -1,6 +1,7 @@
 #include <engine/include.hpp>
 
 #include <string>
+#include <cmath>
 
 
 
@@ -13,6 +14,7 @@ oe::gui::Checkbox* checkbox;
 oe::gui::VecSlider<4>* quat_slider;
 oe::gui::Graph* graph_fps;
 oe::gui::Graph* graph_ups;
+oe::gui::ColorPicker* color_picker;
 std::array<float, 200> perf_log_fps;
 std::array<float, 50> perf_log_ups;
 
@@ -25,6 +27,7 @@ const oe::graphics::Sprite* sprite;
 
 glm::vec4 color = { 0.4f, 0.5f, 0.4f, 1.0f };
 glm::quat cube_rotation;
+constexpr bool graphs = true;
 
 
 static glm::mat4 ml_matrix = glm::mat4(1.0f);
@@ -119,10 +122,10 @@ void cube()
 			// lerp
 			float t = oe::utils::Clock::getSingleton().getSessionMillisecond() / 500.0f;
 			t = (sin(t) * 0.5f + 0.5f) * (list_len - 1);
-			t = std::fmodf(t, static_cast<float>(list_len - 1));
+			t = ::fmodf(t, static_cast<float>(list_len - 1));
 
 			size_t index = t;
-			float modt = std::fmodf(t, 1.0f);
+			float modt = ::fmodf(t, 1.0f);
 			
 			const glm::quat& a = reinterpret_cast<Checkpoint*>(points.at(index))->quaternion;
 			const glm::quat& b = reinterpret_cast<Checkpoint*>(points.at(index + 1))->quaternion;
@@ -137,6 +140,7 @@ void cube()
 	shader_lines->setModelMatrix(ml_matrix);
 	shader_lines->setColor(color);
 	renderer->render();
+	shader_lines->unbind();
 }
 
 // render event
@@ -149,6 +153,8 @@ void render(float update_fraction) {
 
 // framebuffer resize
 void resize(const oe::ResizeEvent& event) {
+	if (event.framebuffer_size == glm::ivec2{ 0, 1 }) return;
+
 	glm::mat4 pr_matrix = glm::perspectiveFov(30.0f, (float)event.framebuffer_size.x, (float)event.framebuffer_size.y, 0.0f, 1000.0f);
 	glm::mat4 vw_matrix = glm::lookAt(glm::vec3(0.0f, 0.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	
@@ -181,6 +187,8 @@ void update_30() {
 	auto& gameloop = window->getGameloop(); 
 	std::u32string str = fmt::format(U"frametime: {:3.3f} ms ({} fps) updatetime: {:3.3f} ms ({} ups)", gameloop.getFrametimeMS(), gameloop.getAverageFPS(), gameloop.getUpdatetimeMS<30>(), gameloop.getAverageUPS<30>());
 	if(textpanel) textpanel->text_panel_info.text = str;
+
+	if constexpr (!graphs) return;
 
 	auto& fps_log = window->getGameloop().getPerfLoggerFPS();
 	std::transform(fps_log.m_average_time.begin(), fps_log.m_average_time.begin() + perf_log_fps.size(), perf_log_fps.begin(), transform_cast<float>(fps_log.m_min_time, fps_log.m_max_time));
@@ -255,31 +263,32 @@ void setup_gui() {
 	}
 	{
 		oe::gui::ColorPickerInfo color_picker_info;
-		color_picker_info.widget_info = { { 200, 100 }, { 0, 0 }, oe::alignments::center_left, oe::alignments::center_left };
 		color_picker_info.initial_color = color;
+		color_picker_info.widget_info = { { 200, 100 }, { 0, 0 }, oe::alignments::center_left, oe::alignments::center_left };
 		color_picker_info.sprite = pack->emptySprite();
-		auto color_picker = new oe::gui::ColorPicker(color_picker_info);
+		color_picker_info.popup_color_picker_wheel = true;
+		color_picker = new oe::gui::ColorPicker(color_picker_info);
 		gui->addSubWidget(color_picker);
 
-		auto callback_lambda = [&](const oe::gui::ColorPickerUseEvent& e)
+		auto picker_callback_lambda = [&](const oe::gui::ColorPickerUseEvent& e)
 		{
 			color = e.value;
 		};
-		color_picker->connect_listener<oe::gui::ColorPickerUseEvent, &decltype(callback_lambda)::operator()>(callback_lambda);
+		color_picker->connect_listener<oe::gui::ColorPickerUseEvent, &decltype(picker_callback_lambda)::operator()>(picker_callback_lambda);
 	}
 	{
 		oe::gui::TextPanelInfo text_panel_info;
 		text_panel_info.widget_info = { { 0, 0 }, { 0, 0 }, oe::alignments::top_left, oe::alignments::top_left };
 		text_panel_info.font_size = 20;
 		text_panel_info.text = U"placeholder";
-		text_panel_info.font_path = oe::default_font_path + std::string("arialbi.ttf");
+		text_panel_info.font_path = oe::default_full_font_path_bolditalic;
 		/* text_panel_info.background_color = oe::colors::translucent_black; */
 		textpanel = new oe::gui::TextPanel(text_panel_info);
 		gui->addSubWidget(textpanel);
 
-		{
+		if constexpr (graphs) {
 			oe::gui::GraphInfo graph_info;
-			graph_info.bg_panel_info.widget_info.size = { 150, 100 };
+			graph_info.bg_panel_info.widget_info.size = { 200, 100 };
 			graph_info.bg_panel_info.widget_info.offset_position = { 0, 5 };
 			graph_info.bg_panel_info.widget_info.align_parent = oe::alignments::bottom_left;
 			graph_info.bg_panel_info.widget_info.align_render = oe::alignments::top_left;
@@ -288,7 +297,7 @@ void setup_gui() {
 			graph_fps = new oe::gui::Graph(graph_info);
 			textpanel->addSubWidget(graph_fps);
 			
-			graph_info.bg_panel_info.widget_info.offset_position = { 155, 5 };
+			graph_info.bg_panel_info.widget_info.offset_position = { 205, 5 };
 			graph_info.graph_color = oe::colors::blue;
 			graph_ups = new oe::gui::Graph(graph_info);
 			textpanel->addSubWidget(graph_ups);
@@ -330,7 +339,7 @@ int main()
 	// window
 	oe::WindowInfo window_config = {};
 	window_config.title = "GUIs";
-	window_config.multisamples = 4;
+	window_config.multisamples = 2;
 	window = oe::graphics::Window(window_config);
 
 	// connect events
@@ -339,7 +348,7 @@ int main()
 	window->connect_update_listener<30, &update_30>();
 
 	// instance settings
-	engine.swapInterval(0);
+	engine.swapInterval(1);
 	engine.culling(oe::culling_modes::neither);
 	engine.blending(oe::modes::enable);
 
@@ -363,7 +372,7 @@ int main()
 	pack->construct();
 
 	// gui
-	gui = new oe::gui::GUI(window, oe::default_font_path + std::string("arialbd.ttf"));
+	gui = new oe::gui::GUI(window, oe::default_full_font_path_bold);
 	setup_gui();
 
 	// start

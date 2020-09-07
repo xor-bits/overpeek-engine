@@ -10,9 +10,10 @@
 
 
 
-namespace oe::graphics {
-
-	uint32_t gl_format(oe::formats format) {
+namespace oe::graphics
+{
+	constexpr uint32_t gl_format(oe::formats format)
+	{
 		switch (format)
 		{
 		case oe::formats::rgba:
@@ -24,7 +25,8 @@ namespace oe::graphics {
 		}
 	}
 
-	uint32_t gl_internalformat(oe::formats format) {
+	constexpr uint32_t gl_internalformat(oe::formats format)
+	{
 		switch (format)
 		{
 		case oe::formats::rgba:
@@ -36,12 +38,40 @@ namespace oe::graphics {
 		}
 	}
 
+	constexpr uint32_t gl_wrap(oe::texture_wrap wrap)
+	{
+		switch (wrap)
+		{
+		case oe::texture_wrap::repeat:
+			return GL_REPEAT;
+		case oe::texture_wrap::mirrored_repeat:
+			return GL_MIRRORED_REPEAT;
+		case oe::texture_wrap::clamp_to_edge:
+			return GL_CLAMP_TO_EDGE;
+		default: // oe::texture_wrap::clamp_to_border:
+			return GL_CLAMP_TO_BORDER;
+		}
+	}
+
+	constexpr uint32_t gl_filter(oe::texture_filter filter)
+	{
+		switch (filter)
+		{
+		case oe::texture_filter::linear:
+			return GL_LINEAR;
+		default: // oe::texture_filter::nearest:
+			return GL_NEAREST;
+		}
+	}
+
 
 
 	GLTexture::GLTexture(const TextureInfo& texture_info)
 		: ITexture(texture_info)
 		, m_gl_format(gl_format(texture_info.data_format))
 		, m_gl_internalformat(gl_internalformat(texture_info.data_format))
+		, m_gl_filter(gl_filter(texture_info.filter))
+		, m_gl_wrap(gl_wrap(texture_info.wrap))
 	{
 		oe_debug_call("gl_texture");
 
@@ -51,6 +81,13 @@ namespace oe::graphics {
 
 		size_t dimensions = texture_info.size.size();
 		if (dimensions != texture_info.offset.size()) { oe_error_terminate("texture_info.size.size() and texture_info.offset.size() do not match"); }
+
+		// no glTexStorage below gl 4.2, workaround with null texture
+		if(m_texture_info.empty && oe::Engine::getSingleton().instance->versionNumber() < 42)
+		{
+			m_texture_info.empty = false;
+			m_texture_info.data = nullptr;
+		}
 
 		// load texture
 		switch (dimensions)
@@ -109,6 +146,8 @@ namespace oe::graphics {
 	void GLTexture::setData(const TextureInfo& texture_info) {
 		m_gl_format = gl_format(texture_info.data_format);
 		m_gl_internalformat = gl_internalformat(texture_info.data_format);
+		m_gl_filter = gl_filter(texture_info.filter);
+		m_gl_wrap = gl_wrap(texture_info.wrap);
 
 		size_t dimensions = texture_info.size.size();
 		if (dimensions != texture_info.offset.size()) { oe_error_terminate("texture_info.size.size() and texture_info.offset.size() do not match"); }
@@ -146,7 +185,7 @@ namespace oe::graphics {
 		size *= oe::sizeofFormat(m_texture_info.data_format);
 
 		uint8_t* data = new uint8_t[size];
-		bind();
+		GLTexture::bind();
 
 #ifndef __EMSCRIPTEN__
 		// OpenGL method for pulling texture pixel data
@@ -168,7 +207,7 @@ namespace oe::graphics {
 
 		auto img = oe::utils::image_data(data, m_texture_info.data_format, m_texture_info.size[0], m_texture_info.size[1]);
 		
-		delete data;
+		delete[] data;
 		return img;
 	}
 
@@ -181,78 +220,83 @@ namespace oe::graphics {
 
 	void GLTexture::empty1D(size_t width) {
 		m_target = GL_TEXTURE_1D;
-		bind();
+		GLTexture::bind();
 
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, m_gl_filter);
+		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, m_gl_filter);
 
 		glTexStorage1D(m_target, 1, m_gl_internalformat, width);
 	}
 
 	void GLTexture::empty2D(size_t width, size_t height) {
 		m_target = GL_TEXTURE_2D;
-		bind();
+		GLTexture::bind();
 
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, m_gl_filter);
+		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, m_gl_filter);
 
 		glTexStorage2D(m_target, 1, m_gl_internalformat, width, height);
 	}
 
 	void GLTexture::empty3D(size_t width, size_t height, size_t depth) {
 		m_target = GL_TEXTURE_3D;
-		bind();
+		GLTexture::bind();
 
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_R, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, m_gl_filter);
+		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, m_gl_filter);
 
 		glTexStorage3D(m_target, 1, m_gl_internalformat, width, height, depth);
 	}
 
 	void GLTexture::load1D(const uint8_t* data, size_t width) {
 		m_target = GL_TEXTURE_1D;
-		bind();
+		GLTexture::bind();
 
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		GL_REPEAT;
+		GL_MIRRORED_REPEAT;
+		GL_CLAMP_TO_EDGE;
+		GL_CLAMP_TO_BORDER;
+
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, m_gl_filter);
+		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, m_gl_filter);
 
 		glTexImage1D(m_target, 0, m_gl_internalformat, width, 0, m_gl_format, GL_UNSIGNED_BYTE, data);
 	}
 
 	void GLTexture::load2D(const uint8_t* data, size_t width, size_t height) {
 		m_target = GL_TEXTURE_2D;
-		bind();
+		GLTexture::bind();
 
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, m_gl_filter);
+		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, m_gl_filter);
 		
 		glTexImage2D(m_target, 0, m_gl_internalformat, width, height, 0, m_gl_format, GL_UNSIGNED_BYTE, data);
 	}
 
 	void GLTexture::load3D(const uint8_t* data, size_t width, size_t height, size_t depth) {
 		m_target = GL_TEXTURE_3D;
-		bind();
+		GLTexture::bind();
 
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_R, m_gl_wrap);
+		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, m_gl_filter);
+		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, m_gl_filter);
 
 		glTexImage3D(m_target, 0, m_gl_internalformat, width, height, depth, 0, m_gl_format, GL_UNSIGNED_BYTE, data);
 	}
 
 	void GLTexture::data1D(const uint8_t* data, size_t width, size_t x_offset) {
-		bind();
+		GLTexture::bind();
 		if (m_texture_info.size.size() != 1) { oe_error_terminate("Dimension mismatch {} and 1", m_texture_info.size.size()); }
 		if (x_offset + width > m_texture_info.size[0]) 
 			oe_error_terminate("Sub texture bigger than initial texture");
@@ -260,7 +304,7 @@ namespace oe::graphics {
 	}
 	
 	void GLTexture::data2D(const uint8_t* data, size_t width, size_t x_offset, size_t height, size_t y_offset) {
-		bind();
+		GLTexture::bind();
 		if (m_texture_info.size.size() != 1) { oe_error_terminate("Dimension mismatch {} and 2", m_texture_info.size.size()); }
 		if (x_offset + width > m_texture_info.size[0] || y_offset + height > m_texture_info.size[1]) 
 			oe_error_terminate("Sub texture bigger than initial texture");
@@ -268,7 +312,7 @@ namespace oe::graphics {
 	}
 	
 	void GLTexture::data3D(const uint8_t* data, size_t width, size_t x_offset, size_t height, size_t y_offset, size_t depth, size_t z_offset) {
-		bind();
+		GLTexture::bind();
 		if (m_texture_info.size.size() != 1) { oe_error_terminate("Dimension mismatch {} and 3", m_texture_info.size.size()); }
 		if (x_offset + width > m_texture_info.size[0] || y_offset + height > m_texture_info.size[1] || z_offset + depth > m_texture_info.size[2]) 
 			oe_error_terminate("Sub texture bigger than initial texture");

@@ -75,8 +75,8 @@ namespace oe::gui
 		static GraphRenderer* singleton;
 		GraphRenderer(const GraphRenderer& copy) = delete;
 		GraphRenderer()
-			: g_renderer(oe::RendererInfo{ 1 })
-			, g_shader({ "asset:graph_shader", { { oe::shader_stages::vertex_shader, shader_vert_gl }, { oe::shader_stages::fragment_shader, graph_shader_frag } } })
+			: g_shader({ "asset:graph_shader", { { oe::shader_stages::vertex_shader, shader_vert_gl }, { oe::shader_stages::fragment_shader, graph_shader_frag } } })
+			, g_renderer(oe::RendererInfo{ 1 })
 			, g_pack()
 		{
 			g_pack.construct();
@@ -85,7 +85,7 @@ namespace oe::gui
 			quad->setPosition({ -1.0f, -1.0f });
 			quad->setSize({ 2.0f, 2.0f });
 			quad->setSprite(g_pack.emptySprite());
-			quad->update();
+			quad->update(quad);
 
 			g_renderer.forget(std::move(quad));
 		}
@@ -104,7 +104,7 @@ namespace oe::gui
     Graph::Graph(const GraphInfo& info)
         : SpritePanel(info.bg_panel_info)
         , m_graph_info(info)
-		, m_graph({ info.graph_color, info.bg_panel_info.sprite, 0.0f, info.bg_panel_info.widget_info })
+		, m_graph({ info.graph_color, info.bg_panel_info.sprite, info.bg_panel_info.rotation, false, info.bg_panel_info.widget_info })
     {
         std::swap(m_graph_info.graph_color, sprite_panel_info.color);
     }

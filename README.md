@@ -1,4 +1,4 @@
-![Logo](/github/oe_logo.png)
+![Logo](/.github/oe_logo.png)
 # overpeek-engine
 Minimal game engine/library.
 Primary focus on 2D side.

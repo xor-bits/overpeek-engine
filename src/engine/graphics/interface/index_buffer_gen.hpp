@@ -5,15 +5,17 @@
 
 
 
-namespace oe::graphics {
-
-	struct static_array { // cant just use vector? na
+namespace oe::graphics
+{
+	template<typename T>
+	struct static_array // just a dumb pointer
+	{
 	private:
-		void* m_ptr;
+		T* m_ptr;
 		size_t m_size;
 
 	public:
-		static_array(void* ptr, size_t size) 
+		static_array(T* ptr, size_t size) 
 			: m_ptr(ptr)
 			, m_size(size)
 		{}
@@ -22,7 +24,7 @@ namespace oe::graphics {
 			delete[] m_ptr;
 		}
 
-		const void* ptr() const { return m_ptr; }
+		const T* ptr() const { return m_ptr; }
 		const size_t& size() const { return m_size; }
 	};
 
@@ -36,7 +38,7 @@ namespace oe::graphics {
 			: m_primitive_count(primitive_count)
 		{}
 
-		size_t vertex_per_primitive()
+		size_t vertex_per_primitive() const
 		{
 			switch (type)
 			{
@@ -53,7 +55,7 @@ namespace oe::graphics {
 			}
 		}
 
-		size_t index_per_primitive()
+		size_t index_per_primitive() const
 		{
 			switch (type)
 			{
@@ -70,17 +72,18 @@ namespace oe::graphics {
 			}
 		}
 
-		size_t vertex_count()
+		size_t vertex_count() const
 		{
 			return m_primitive_count * vertex_per_primitive();
 		}
 
-		size_t index_count()
+		size_t index_count() const
 		{
 			return m_primitive_count * index_per_primitive();
 		}
 
-		oe::primitive_types render_primitive() {
+		oe::primitive_types render_primitive() const
+		{
 			switch (type)
 			{
 			case oe::primitive_types::points:
@@ -105,22 +108,22 @@ namespace oe::graphics {
 			return index_array;
 		}
 
-		static_array gen_points()
+		static_array<uint16_t> gen_points() const
 		{
 			return { gen_simple(m_primitive_count), sizeof(uint16_t) * m_primitive_count };
 		}
 
-		static_array gen_lines()
+		static_array<uint16_t> gen_lines() const
 		{
 			return { gen_simple(m_primitive_count * 2), sizeof(uint16_t) * m_primitive_count * 2 };
 		}
 
-		static_array gen_triangles()
+		static_array<uint16_t> gen_triangles() const
 		{
 			return { gen_simple(m_primitive_count * 3), sizeof(uint16_t) * m_primitive_count * 3 };
 		}
 
-		static_array gen_quads()
+		static_array<uint16_t> gen_quads() const
 		{
 			uint16_t* index_array = new uint16_t[m_primitive_count * 6];
 			int index_counter = 0;
@@ -137,7 +140,7 @@ namespace oe::graphics {
 		}
 
 		template<typename T>
-		static_array optional_vertex_gen(const void* copied = nullptr)
+		static_array<float> optional_vertex_gen(const void* copied = nullptr) const
 		{
 			float* vb;
 			size_t size = vertex_count() * (size_t)T::component_count;
@@ -152,7 +155,8 @@ namespace oe::graphics {
 			return { vb, sizeof(float) * size };
 		}
 
-		static_array gen() {
+		static_array<uint16_t> gen() const
+		{
 			switch (type)
 			{
 			case oe::primitive_types::points:

@@ -20,7 +20,7 @@ namespace oe::graphics {
 		p_mapped = false;
 
 		glGenBuffers(1, &p_id);
-		bind();
+		glBindBuffer(p_target, p_id);
 
 		glBufferData(target, size, data, usage);
 	}

@@ -20,8 +20,8 @@ namespace oe::graphics {
 		static TextLabelRenderer* singleton;
 		TextLabelRenderer(const TextLabelRenderer& copy) = delete;
 		TextLabelRenderer()
-			: fb_renderer(oe::RendererInfo{ 2048 })
-			, fb_shader()
+			: fb_shader()
+			, fb_renderer(oe::RendererInfo{ 2048 })
 		{}
 
 	public:
@@ -41,7 +41,6 @@ namespace oe::graphics {
 	textrenderData<char_type> textTorenderData(const std::basic_string<char_type>& text) {
 		textrenderData<char_type> renderData = textrenderData<char_type>();
 
-		bool nextIsColor = false;
 		glm::vec4 curColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		for (int i = 0; i < text.size(); i++) {
 			char_type c = text[i];
@@ -219,7 +218,7 @@ namespace oe::graphics {
 			quad->setSize(glyph->size * size);
 			quad->setSprite(glyph->sprite);
 			quad->setColor(renderData[i].second);
-			quad->update();
+			quad->update(quad);
 			
 			renderer.forget(std::move(quad));
 

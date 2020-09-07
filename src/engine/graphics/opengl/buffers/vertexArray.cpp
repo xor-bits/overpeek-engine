@@ -14,7 +14,7 @@ namespace oe::graphics {
 	}
 
 	VertexArray::~VertexArray() {
-		for (VertexBuffer* v : p_buffers) { delete v; }
+		for (VertexBuffer* v : p_buffers) delete v;
 		glDeleteVertexArrays(1, &p_id);
 	}
 

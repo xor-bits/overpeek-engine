@@ -7,8 +7,15 @@
 namespace oe::graphics {
 
 	// note: OpenGL supports only one instance
-	class Instance {
+	class Instance
+	{
+	protected:
+		int m_version_number = -1;
+
 	public:
+		Instance() {}
+		virtual ~Instance() {}
+
 		// set blending mode
 		virtual void blending(oe::modes mode = oe::modes::enable) const = 0;
 		
@@ -32,6 +39,8 @@ namespace oe::graphics {
 
 		// renderpos
 		virtual void viewport(int x, int y, size_t w, size_t h) const = 0;
+
+		virtual int versionNumber() = 0;
 	};
 
 }

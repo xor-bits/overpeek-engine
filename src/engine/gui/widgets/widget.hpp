@@ -12,7 +12,7 @@
 
 
 
-namespace oe::gui { struct GUIRenderEvent; class GUI; }
+namespace oe::gui { struct GUIRenderEvent; struct GUIPreRenderEvent; class GUI; }
 
 namespace oe::gui
 {
@@ -34,14 +34,13 @@ namespace oe::gui
 		static float z_acc;
 
 	protected:
-		glm::ivec2 topleft_position = { 0, 0 };
-		glm::ivec2 render_position = { 0, 0 };
-
 		GUI* m_gui_manager;
 		float z;
 		entt::dispatcher dispatcher;
 
 	public:
+		glm::ivec2 topleft_position = { 0, 0 };
+		glm::ivec2 render_position = { 0, 0 };
 		WidgetInfo m_info;
 
 	public:
@@ -86,7 +85,7 @@ namespace oe::gui
 
 	private:
 		// events
-		void on_render(const GUIRenderEvent& event);
+		void on_pre_render(const GUIPreRenderEvent& event);
 
 	friend class GUI;
 	};

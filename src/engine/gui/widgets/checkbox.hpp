@@ -4,7 +4,7 @@
 
 
 
-namespace oe::graphics { struct Quad; struct Sprite; }
+namespace oe::graphics { class Quad; struct Sprite; }
 namespace oe::gui { class Button; struct ButtonUseEvent; struct ButtonHoverEvent; }
 
 namespace oe::gui

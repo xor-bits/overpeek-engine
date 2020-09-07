@@ -2,6 +2,7 @@
 
 #include "engine/graphics/interface/instance.hpp"
 #include "engine/graphics/interface/texture.hpp"
+#include "engine/graphics/vertexData.hpp"
 #include "engine/graphics/sprite.hpp"
 #include "engine/internal_libs.hpp"
 #include "engine/engine.hpp"
@@ -9,10 +10,12 @@
 
 
 
-namespace oe::graphics {
-
+namespace oe::graphics
+{
 	class IWindow;
-	class IFrameBuffer {
+
+	class IFrameBuffer
+	{
 	protected:
 		FrameBufferInfo m_framebuffer_info;
 		Sprite sprite;

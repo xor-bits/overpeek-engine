@@ -10,8 +10,8 @@
 
 
 
-namespace oe::graphics {
-
+namespace oe::graphics
+{
 	void native_glDrawElementsPoints(size_t override_index_count);
 	void native_glDrawElementsLines(size_t override_index_count);
 	void native_glDrawElementsTriangles(size_t override_index_count);
@@ -48,41 +48,49 @@ namespace oe::graphics {
 			m_vao = new VertexArray();
 			m_ibo = new IndexBuffer(index_buffer_data.ptr(), index_buffer_data.size(), renderer_info.indexRenderType);
 			m_vbo = new VertexBuffer(vertex_buffer_data.ptr(), vertex_buffer_data.size(), vertex_type::component_count, renderer_info.arrayRenderType);
-			std::function<void(int, int, size_t)> fn = std::bind(&VertexBuffer::attrib, m_vbo, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-			vertex_type::config(fn);
+			vertex_type::config([&](int index, int components, size_t startBytes) { m_vbo->attrib(index, components, startBytes); });
 
-			switch (generator.render_primitive())
+			oe::primitive_types ptype = generator.render_primitive();
+			switch (ptype)
 			{
 			case oe::primitive_types::points:
 				native_glDrawElementsPrimitive = native_glDrawElementsPoints;
+				break;
 			case oe::primitive_types::lines:
 				native_glDrawElementsPrimitive = native_glDrawElementsLines;
+				break;
 			case oe::primitive_types::triangles:
 				native_glDrawElementsPrimitive = native_glDrawElementsTriangles;
+				break;
+			default:
+				oe_error_terminate("Non primitive oe::primitive_types asked: {}", static_cast<int>(ptype));
+				native_glDrawElementsPrimitive = native_glDrawElementsTriangles;
+				break;
 			}
 		}
 
-		~GLBasicPrimitiveRenderer() {
+		~GLBasicPrimitiveRenderer()
+		{
 			delete m_vao;
 			delete m_vbo;
 			delete m_ibo;
 		}
 
 		// Inherited via Renderer
-		virtual void submitVertex(const vertex_type& vertex, size_t index) override {
+		virtual vertex_type* modifyVertex(size_t vertex_count, size_t first_index) override
+		{
 			if (!m_mapped_buffer) oe_error_terminate("Buffer not mapped!");
-			m_mapped_buffer[index] = vertex;
-			Interface::m_vertex_count = std::max(Interface::m_vertex_count, index + 1);
+			if (first_index + vertex_count > m_vbo->getSize())
+				return nullptr;
+
+			return m_mapped_buffer + first_index;
 		}
 
-		virtual void submitVertex(const std::vector<vertex_type>& vertices, size_t first_index) override {
+		virtual void submitVertex(const vertex_type* first_vertex, size_t vertex_count, size_t first_index) override
+		{
 			if (!m_mapped_buffer) oe_error_terminate("Buffer not mapped!");
-			std::memcpy(m_mapped_buffer + first_index, vertices.data(), vertices.size() * sizeof(vertex_type));
-			Interface::m_vertex_count = std::max(Interface::m_vertex_count, first_index + vertices.size());
-		}
-		
-		virtual void submitVertex(const vertex_type* first_vertex, size_t vertex_count, size_t first_index) override {
-			if (!m_mapped_buffer) oe_error_terminate("Buffer not mapped!");
+			if (first_index + vertex_count > m_vbo->getSize()) oe_error_terminate("Buffer overflow!");
+
 			std::memcpy(m_mapped_buffer + first_index, first_vertex, vertex_count * sizeof(vertex_type));
 			Interface::m_vertex_count = std::max(Interface::m_vertex_count, first_index + vertex_count);
 		}
@@ -91,7 +99,6 @@ namespace oe::graphics {
 			m_vao->bind();
 			m_vbo->bind();
 			m_mapped_buffer = (vertex_type*)m_vbo->mapBuffer();
-			if (!m_mapped_buffer) oe_error_terminate("Buffer not mapped!");
 		}
 
 		virtual void end() override {
@@ -118,6 +125,6 @@ namespace oe::graphics {
 		}
 	};
 
-	typedef GLBasicPrimitiveRenderer<oe::primitive_types::quads, BasicBufferGen<oe::primitive_types::quads>, VertexData> GLPrimitiveRenderer;
+	using GLPrimitiveRenderer = GLBasicPrimitiveRenderer<oe::primitive_types::quads, BasicBufferGen<oe::primitive_types::quads>, VertexData>;
 
 }

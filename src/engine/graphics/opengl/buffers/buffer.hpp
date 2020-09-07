@@ -15,7 +15,7 @@ namespace oe::graphics {
 		Buffer(const void* data, size_t size, int target, unsigned int usage);
 
 	public:
-		~Buffer();
+		virtual ~Buffer();
 		
 		// Binding
 
