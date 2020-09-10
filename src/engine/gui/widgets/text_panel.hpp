@@ -30,7 +30,7 @@ namespace oe::gui
 		TextPanelInfo text_panel_info;
 
 	public:
-		TextPanel(const TextPanelInfo& text_panel_info);
+		TextPanel(const TextPanelInfo& text_panel_info = {});
 		~TextPanel();
 
 		virtual void managerAssigned(GUI* gui_manager) override;

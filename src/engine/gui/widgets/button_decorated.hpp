@@ -18,7 +18,7 @@ namespace oe::gui
 		std::string text_font_path         = ""; // empty for gui default
 		bool autoresize                    = false;
 		glm::vec4 color                    = oe::colors::dark_grey;
-		const oe::graphics::Sprite* sprite = nullptr; // must be set
+		const oe::graphics::Sprite* sprite = nullptr;
 
 		ButtonInfo button_info;
 	};
@@ -35,7 +35,7 @@ namespace oe::gui
 		TextPanel* button_text;
 
 	public:
-		DecoratedButton(const DecoratedButtonInfo& button_info);
+		DecoratedButton(const DecoratedButtonInfo& button_info = {});
 		~DecoratedButton();
 
 		virtual void managerAssigned(GUI* gui_manager) override;

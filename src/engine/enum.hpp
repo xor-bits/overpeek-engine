@@ -435,6 +435,12 @@ namespace oe {
 	};
 
 	// events
+	template<size_t ups> struct UPS { static constexpr size_t system_ups = ups; };
+	template<size_t ups> using UpdateEvent = UPS<ups>;
+	struct InitEvent {};
+	struct CleanupEvent {};
+	struct RenderEvent {};
+
     struct CursorPosEvent
     {
         glm::ivec2 cursor_windowspace = { 0.0f, 0.0f };

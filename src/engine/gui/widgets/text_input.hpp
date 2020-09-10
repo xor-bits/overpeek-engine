@@ -24,7 +24,7 @@ namespace oe::gui
 		size_t font_size                   = 16;
 		std::string font_path              = ""; // empty for gui default
 		glm::vec4 color                    = oe::colors::dark_grey;
-		const oe::graphics::Sprite* sprite = nullptr; // must be set
+		const oe::graphics::Sprite* sprite = nullptr;
 		
 		WidgetInfo widget_info             = { { 100, 100 }, { 3, 3 }, oe::alignments::center_center, oe::alignments::center_center };
 	};
@@ -62,7 +62,7 @@ namespace oe::gui
 
 	public:
 		// window_handle is used for clipboard
-		TextInput(const TextInputInfo& text_input_info);
+		TextInput(const TextInputInfo& text_input_info = {});
 		~TextInput();
 
 		virtual void managerAssigned(GUI* gui_manager) override;

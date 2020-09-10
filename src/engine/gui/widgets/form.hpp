@@ -19,7 +19,7 @@ namespace oe::gui
 		FormInfo form_info;
 
 	public:
-		Form(const FormInfo& form_info);
+		Form(const FormInfo& form_info = {});
 		~Form();
 	};
 

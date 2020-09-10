@@ -6,8 +6,10 @@
 
 #include <unordered_set>
 
-#ifndef DISABLE_NULL_SPRITE_CHECK
+#ifdef ENABLE_NULL_SPRITE_CHECK
 #define NULL_SPRITE_CHECK(x) if (!x) { spdlog::warn("No sprite for {}", typeid(*this).name()); return; }
+#else
+#define NULL_SPRITE_CHECK(x)
 #endif /* NULL_SPRITE_CHECK */
 
 
@@ -44,7 +46,7 @@ namespace oe::gui
 		WidgetInfo m_info;
 
 	public:
-		Widget(const WidgetInfo& info);
+		Widget(const WidgetInfo& info = {});
 		virtual ~Widget();
 
 		// connect event

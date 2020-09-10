@@ -25,8 +25,8 @@ namespace oe::gui
 		glm::vec4 slider_lcolor                                   = oe::colors::dark_grey;
 		glm::vec4 slider_rcolor                                   = oe::colors::darker_grey;
 		bool linear_color                                         = false;
-		const oe::graphics::Sprite* knob_sprite                   = nullptr; // must be set
-		const oe::graphics::Sprite* slider_sprite                 = nullptr; // must be set
+		const oe::graphics::Sprite* knob_sprite                   = nullptr;
+		const oe::graphics::Sprite* slider_sprite                 = nullptr;
 
 		static std::string default_formatter(const SliderInfo& info);
 
@@ -64,7 +64,7 @@ namespace oe::gui
 		SliderUseEvent event_use_latest;
 
 	public:
-		Slider(const SliderInfo& slider_info);
+		Slider(const SliderInfo& slider_info = {});
 		~Slider();
 
 		virtual void managerAssigned(GUI* gui_manager) override;

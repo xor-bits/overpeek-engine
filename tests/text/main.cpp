@@ -15,13 +15,13 @@ std::shared_ptr<oe::graphics::Quad> quad;
 
 
 
-void render(float update_fraction)
+void render(oe::RenderEvent)
 {
 	shader->bind();
 	renderer->render();
 }
 
-void update_2() {
+void update_2(oe::UpdateEvent<2>) {
 	auto& gameloop = window->getGameloop();
 	spdlog::debug("frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
 	
@@ -53,8 +53,8 @@ int main(int argc, char** argv) {
 
 	// connect events
 	window->connect_listener<oe::ResizeEvent, &resize>();
-	window->connect_render_listener<&render>();
-	window->connect_update_listener<2, &update_2>();
+	window->connect_listener<oe::RenderEvent, &render>();
+	window->connect_listener<oe::UpdateEvent<2>, &update_2>();
 	
 	// instance settings
 	engine.culling(oe::culling_modes::back);
@@ -102,7 +102,6 @@ int main(int argc, char** argv) {
 	// faulty: <#5f>>>>>>>>>
 	// with 0x: <#0x4354>
 	// negative: <#-43531>
-
 	
 	// start
 	window->getGameloop().start(); // print the average frametime 30 times in a second

@@ -66,6 +66,8 @@ namespace oe::utils
 
 		FileIO& open(const std::string& file_or_directory_name); // open directory or directories
 		FileIO& close(size_t n = 1); // go back or close directories
+
+		std::vector<fs::path> items() const;
 		
 		const fs::path& getPath() const;
 		bool isDirectory() const;

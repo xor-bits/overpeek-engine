@@ -67,7 +67,7 @@ namespace oe::graphics {
 		// sprite setters/getters
 		void expandSprite() { m_updated = true; m_sprite.position = { 0.0f, 0.0f }; m_sprite.size = { 1.0f, 1.0f }; }
 		void setSprite(const Sprite& sprite) { if (m_sprite.m_owner != sprite.m_owner) { m_sprite_updated = true; } else if(m_sprite.position != sprite.position || m_sprite.size != sprite.size) { m_updated = true; } m_sprite = sprite; }
-		void setSprite(const Sprite* sprite) { setSprite(*sprite); }
+		void setSprite(const Sprite* sprite) { if(!sprite) return; setSprite(*sprite); }
 		const Sprite* getSprite() const { return &m_sprite; }
 
 		// rotation setters/getters

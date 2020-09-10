@@ -22,7 +22,7 @@ namespace oe::gui
 		uint8_t draw_value                 = 2; // (false/0) = no draw, (true/1) = draw 0.0-1.0, 2 = draw 0-256
 		glm::vec4 initial_color            = oe::colors::red;
 		glm::vec4 background_color         = oe::colors::dark_grey;
-		const oe::graphics::Sprite* sprite = nullptr; // must be set
+		const oe::graphics::Sprite* sprite = nullptr;
 		bool popup_color_picker_wheel      = true;
 		close_fn popup_close               = close_fn::leave_bbox;
 		open_fn popup_open                 = open_fn::click_in;
@@ -55,7 +55,7 @@ namespace oe::gui
 		SpritePanel* preview_panel = nullptr;
 
 	public:
-		ColorPicker(const ColorPickerInfo& color_picker_info);
+		ColorPicker(const ColorPickerInfo& color_picker_info = {});
 		~ColorPicker();
 
 		virtual void managerAssigned(GUI* gui_manager) override;

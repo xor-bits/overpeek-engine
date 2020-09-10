@@ -52,7 +52,7 @@ namespace oe::gui
 		ColorPickerUseEvent m_event_use_latest;
 
 	public:
-		ColorPickerWheel(const ColorPickerWheelInfo& color_picker_info);
+		ColorPickerWheel(const ColorPickerWheelInfo& color_picker_info = {});
 		~ColorPickerWheel();
 
 		virtual void managerAssigned(GUI* gui_manager) override;

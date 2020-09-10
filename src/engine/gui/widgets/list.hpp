@@ -18,7 +18,7 @@ namespace oe::gui
         glm::vec4 title_bg_color           = oe::colors::darker_grey;
         int title_height                   = 0; // 28
         int title_font_size                = 16;
-		const oe::graphics::Sprite* sprite = nullptr; // must be set
+		const oe::graphics::Sprite* sprite = nullptr;
 
 		WidgetInfo widget_info = { { 100, 300 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
     };
@@ -41,7 +41,7 @@ namespace oe::gui
 		ListInfo m_list_info;
 
 	public:
-		List(const ListInfo& list_info);
+		List(const ListInfo& list_info = {});
 		~List();
 
 		virtual void managerAssigned(GUI* gui_manager) override;

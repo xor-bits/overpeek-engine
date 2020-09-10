@@ -321,6 +321,23 @@ namespace oe::utils
 		zip_close(zipper);
 	}
 
+	void zip_entries(const fs::path& path_to_zip, const fs::path& path_in_zip, std::vector<fs::path>& vec)
+	{
+
+	}
+
+	void zip_paths(const std::vector<fs::path::const_iterator>& iter, const fs::path& current_path, fs::path& path_to_zip, fs::path& path_in_zip)
+	{
+		for (auto left_iter = current_path.begin(); left_iter != std::next(iter[0]); left_iter++)
+			path_to_zip.append(left_iter->generic_string());
+
+		for (auto right_iter = std::next(iter[0]); right_iter != current_path.end(); right_iter++)
+			path_in_zip.append(right_iter->generic_string());
+
+		if (!fs::is_regular_file(path_to_zip) && fs::exists(path_to_zip))
+			throw std::runtime_error(fmt::format("Path: '{}' already exists, but is not a file", path_to_zip.generic_string()));
+	}
+
 	std::vector<fs::path::const_iterator> first_zip_loc(const FileIO& fileio)
 	{
 		std::vector<fs::path::const_iterator> vec;
@@ -349,6 +366,50 @@ namespace oe::utils
 		for(size_t i = 0; i < n; i++)
 			m_current_path = m_current_path.parent_path();
 		return *this;
+	}
+	
+	std::vector<fs::path> FileIO::items() const
+	{
+		std::vector<fs::path> items;
+		
+		auto iter = first_zip_loc(*this);
+		if (!iter.empty())
+		{
+			fs::path path_to_zip, path_in_zip;
+			zip_paths(iter, m_current_path, path_to_zip, path_in_zip);
+
+			auto generic_to_zip = path_to_zip.generic_string();
+			auto generic_in_zip = path_in_zip.generic_string();
+
+			int error;
+			auto zipper = zip_open(generic_to_zip.c_str(), 0, &error);
+			if (!zipper)
+				throw std::runtime_error(fmt::format("Failed to open {}, {}", path_to_zip, zip_open_error(error)));
+
+			auto n = zip_get_num_entries(zipper, 0);
+			std::string last_folder;
+			for(decltype(n) ni = 0; ni < n; ni++)
+			{
+				zip_stat_t stats;
+				zip_stat_index(zipper, ni, 0, &stats);
+				
+				fs::path parent_path = fs::path(stats.name).parent_path();
+				if(path_in_zip == parent_path)
+					items.push_back(fs::path(stats.name).filename());
+
+				if(last_folder != parent_path && parent_path.parent_path() == path_in_zip)
+				{
+					last_folder = parent_path.generic_string();
+					items.push_back(last_folder);
+				}
+			}
+		}
+		else
+		{
+			for(auto& iter : fs::directory_iterator(m_current_path))
+				items.push_back(iter);
+		}
+		return items;
 	}
 	
 	const fs::path& FileIO::getPath() const
@@ -383,16 +444,8 @@ namespace oe::utils
 		auto iter = first_zip_loc(*this);
 		if (!iter.empty())
 		{
-			fs::path path_to_zip;
-			for (auto left_iter = m_current_path.begin(); left_iter != std::next(iter[0]); left_iter++)
-				path_to_zip.append(left_iter->generic_string());
-
-			fs::path path_in_zip;
-			for (auto right_iter = std::next(iter[0]); right_iter != m_current_path.end(); right_iter++)
-				path_in_zip.append(right_iter->generic_string());
-
-			if (!fs::is_regular_file(path_to_zip) && fs::exists(path_to_zip))
-				throw std::runtime_error(fmt::format("Path: '{}' already exists, but is not a file", path_to_zip.generic_string()));
+			fs::path path_to_zip, path_in_zip;
+			zip_paths(iter, m_current_path, path_to_zip, path_in_zip);
 
 			read_from_zip(path_to_zip, path_in_zip, data);
 		}
@@ -419,16 +472,8 @@ namespace oe::utils
 		auto iter = first_zip_loc(*this);
 		if (!iter.empty())
 		{
-			fs::path path_to_zip;
-			for (auto left_iter = m_current_path.begin(); left_iter != std::next(iter[0]); left_iter++)
-				path_to_zip.append(left_iter->generic_string());
-
-			fs::path path_in_zip;
-			for (auto right_iter = std::next(iter[0]); right_iter != m_current_path.end(); right_iter++)
-				path_in_zip.append(right_iter->generic_string());
-
-			if (!fs::is_regular_file(path_to_zip) && fs::exists(path_to_zip))
-				throw std::runtime_error(fmt::format("Path: '{}' already exists, but is not a file", path_to_zip.generic_string()));
+			fs::path path_to_zip, path_in_zip;
+			zip_paths(iter, m_current_path, path_to_zip, path_in_zip);
 
 			write_in_zip(path_to_zip, path_in_zip, bytes);
 		}

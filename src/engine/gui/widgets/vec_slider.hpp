@@ -45,7 +45,7 @@ namespace oe::gui
 		VecSliderUseEvent<dimension> event_use_latest;
          
     public:
-        VecSlider(VecSliderInfo<dimension> slider_info)
+        VecSlider(VecSliderInfo<dimension> slider_info = {})
             : Widget(slider_info.slider_info.widget_info)
         {
 			static_assert(dimension != 0, "VecSlider dimension must not be zero");

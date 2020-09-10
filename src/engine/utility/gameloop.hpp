@@ -6,18 +6,13 @@
 #include <entt/entt.hpp>
 #include <optional>
 #include "engine/utility/clock.hpp"
+#include "engine/enum.hpp"
 
 
 namespace oe::graphics { class IWindow; }
 namespace oe::utils
 {
 	static const size_t mc_average_size = 200;
-	
-	template<size_t ups> struct UPS { static constexpr size_t system_ups = ups; };
-	template<size_t ups> using UpdateEvent = UPS<ups>;
-	struct InitEvent {};
-	struct CleanupEvent {};
-	struct RenderEvent {};
 
 	class GameLoop;
 
@@ -78,7 +73,6 @@ namespace oe::utils
 		template<size_t ups>
 		void try_create()
 		{
-			spdlog::debug("new upssystem: {}", ups);
 			std::unordered_map<size_t, std::unique_ptr<UpdateSystemBase>>::iterator iter = m_update_systems.find(ups);
 			if (iter == m_update_systems.end())
 			 	iter = m_update_systems.insert({ ups, std::move(std::make_unique<UpdateSystem<ups>>()) }).first;
@@ -87,8 +81,13 @@ namespace oe::utils
 		template<size_t ups>
 		void try_remove()
 		{
-			if ((const auto iter = m_update_systems.find(ups)) != m_update_systems.end() && dispatcher.sink<UPS<ups>>().empty())
+			spdlog::info("try remove ups: {}", ups);
+			std::unordered_map<size_t, std::unique_ptr<UpdateSystemBase>>::iterator iter = m_update_systems.find(ups);
+			if (iter != m_update_systems.end() && dispatcher.sink<oe::UPS<ups>>().empty())
+			{
+				spdlog::info("removed ups: {}", ups);
 				m_update_systems.erase(iter);
+			}
 		}
 
 		template <typename T>

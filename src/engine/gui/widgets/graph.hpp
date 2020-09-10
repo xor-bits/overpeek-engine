@@ -29,7 +29,7 @@ namespace oe::gui
         oe::graphics::FrameBuffer graph_fb;
 
     public:
-        Graph(const GraphInfo& info);
+        Graph(const GraphInfo& info = {});
 
 		virtual void managerAssigned(GUI* gui_manager) override;
 		virtual void managerUnassigned(GUI* gui_manager) override;

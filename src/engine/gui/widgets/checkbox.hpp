@@ -14,7 +14,7 @@ namespace oe::gui
 		bool initial                       = false;
 		glm::vec4 color_back               = oe::colors::dark_grey;
 		glm::vec4 color_mark               = oe::colors::lime;
-		const oe::graphics::Sprite* sprite = nullptr; // must be set
+		const oe::graphics::Sprite* sprite = nullptr;
 
 		WidgetInfo widget_info             = { { 24, 24 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
 	};
@@ -43,7 +43,7 @@ namespace oe::gui
 		CheckboxUseEvent event_use_latest;
 
 	public:
-		Checkbox(const CheckboxInfo& checkbox_info);
+		Checkbox(const CheckboxInfo& checkbox_info = {});
 		~Checkbox();
 
 		virtual void managerAssigned(GUI* gui_manager) override;

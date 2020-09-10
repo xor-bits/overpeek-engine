@@ -30,7 +30,7 @@ namespace oe::gui
 		ButtonUseEvent event_use_latest;
 
 	public:
-		Button(const ButtonInfo& button_info);
+		Button(const ButtonInfo& button_info = {});
 		~Button();
 
 		virtual void managerAssigned(GUI* gui_manager) override;
