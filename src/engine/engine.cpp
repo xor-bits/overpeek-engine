@@ -65,6 +65,11 @@ namespace oe {
 			instance = nullptr;
 			break;
 		}
+
+#ifdef OE_BUILD_MODE_SHADERC
+		spdlog::debug("Using Shaderc for glsl optimization / spir-v compilation");
+#endif // OE_BUILD_MODE_SHADERC
+
 	}
 
 	void Engine::deinit()

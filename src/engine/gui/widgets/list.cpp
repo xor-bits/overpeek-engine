@@ -57,29 +57,25 @@ namespace oe::gui
     List::~List()
     {}
 
-	void List::managerAssigned(GUI* gui_manager)
+	void List::managerAssigned()
 	{
-        list_gui_manager = new GUI(gui_manager->getWindow());
+        list_gui_manager = new GUI(m_gui_manager->getWindow());
         
         FrameBufferInfo fbi;
-        fbi.size = gui_manager->getWindow()->getSize();
-        fb = oe::graphics::FrameBuffer(fbi, gui_manager->getWindow());
+        fbi.size = m_gui_manager->getWindow()->getSize();
+        fb = oe::graphics::FrameBuffer(fbi, m_gui_manager->getWindow());
         // panel->sprite_panel_info.sprite = &fb_sprite;
         
 		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&List::on_render>(this);
-
-		Widget::managerAssigned(gui_manager);
+        m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&List::on_render>(this);
 	}
 
-	void List::managerUnassigned(GUI* gui_manager)
+	void List::managerUnassigned()
 	{
         delete list_gui_manager;
         
 		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&List::on_render>(this);
-
-		Widget::managerUnassigned(gui_manager);
+        m_gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&List::on_render>(this);
 	}
 
 	void List::on_render(const GUIRenderEvent& event)

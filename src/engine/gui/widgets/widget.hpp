@@ -71,11 +71,12 @@ namespace oe::gui
 		}
 
 		// unassign before reassigning
-		virtual void managerAssigned(GUI* gui_manager);
-		virtual void managerUnassigned(GUI* gui_manager);
+		virtual void managerAssigned();
+		virtual void managerUnassigned();
 
 		// this class will take ownership of this pointer
 		virtual void addSubWidget(Widget* widget);
+		// will not delete removed subwidget
 		virtual void removeSubWidget(Widget* widget);
 
 		float getZ() { return z; }

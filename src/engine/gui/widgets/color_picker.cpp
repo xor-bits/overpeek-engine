@@ -107,18 +107,16 @@ namespace oe::gui
 		disconnect_listener<VecSliderUseEvent<4>, &ColorPicker::on_vec_slider_use>(this);
 	}
 
-	void ColorPicker::managerAssigned(GUI* gui_manager)
+	void ColorPicker::managerAssigned()
 	{
-		gui_manager->getWindow()->connect_listener<MouseButtonEvent, &ColorPicker::on_mouse_button>(this);
-		gui_manager->getWindow()->connect_listener<CursorPosEvent, &ColorPicker::on_cursor_pos>(this);
-		VecSlider<4>::managerAssigned(gui_manager);
+		m_gui_manager->getWindow()->connect_listener<MouseButtonEvent, &ColorPicker::on_mouse_button>(this);
+		m_gui_manager->getWindow()->connect_listener<CursorPosEvent, &ColorPicker::on_cursor_pos>(this);
 	}
 
-	void ColorPicker::managerUnassigned(GUI* gui_manager)
+	void ColorPicker::managerUnassigned()
 	{
-		gui_manager->getWindow()->disconnect_listener<MouseButtonEvent, &ColorPicker::on_mouse_button>(this);
-		gui_manager->getWindow()->disconnect_listener<CursorPosEvent, &ColorPicker::on_cursor_pos>(this);
-		VecSlider<4>::managerUnassigned(gui_manager);
+		m_gui_manager->getWindow()->disconnect_listener<MouseButtonEvent, &ColorPicker::on_mouse_button>(this);
+		m_gui_manager->getWindow()->disconnect_listener<CursorPosEvent, &ColorPicker::on_cursor_pos>(this);
 	}
 
 	void ColorPicker::on_color_wheel_use(const ColorPickerUseEvent& e)

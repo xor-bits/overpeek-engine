@@ -65,8 +65,8 @@ namespace oe::gui
 		TextInput(const TextInputInfo& text_input_info);
 		~TextInput();
 
-		virtual void managerAssigned(GUI* gui_manager) override;
-		virtual void managerUnassigned(GUI* gui_manager) override;
+		virtual void managerAssigned() override;
+		virtual void managerUnassigned() override;
 
 		oe::graphics::u32TextLabel* debug() { return label; };
 

@@ -23,37 +23,21 @@ namespace oe::gui
 
 	Widget::~Widget()
 	{
-		if (m_gui_manager) Widget::managerUnassigned(m_gui_manager);
+		toggle(false);
 		for (auto& w : m_nodes)
 		{
 			delete w;
 		}
 	}
 
-	void Widget::managerAssigned(GUI* gui_manager)
+	void Widget::managerAssigned()
 	{
-		m_gui_manager = gui_manager;
-
-		// event listeners
-		gui_manager->dispatcher.sink<GUIPreRenderEvent>().connect<&Widget::on_pre_render>(this);
-		
-		for (auto& w : m_nodes)
-		{
-			w->managerAssigned(gui_manager);
-		}
+		m_gui_manager->dispatcher.sink<GUIPreRenderEvent>().connect<&Widget::on_pre_render>(this);
 	}
 
-	void Widget::managerUnassigned(GUI* gui_manager)
+	void Widget::managerUnassigned()
 	{
-		m_gui_manager = nullptr;
-
-		// event listeners
-		gui_manager->dispatcher.sink<GUIPreRenderEvent>().disconnect<&Widget::on_pre_render>(this);
-		
-		for (auto& w : m_nodes)
-		{
-			w->managerUnassigned(gui_manager);
-		}
+		m_gui_manager->dispatcher.sink<GUIPreRenderEvent>().disconnect<&Widget::on_pre_render>(this);
 	}
 
 	void Widget::setParent(Widget* parent)
@@ -67,30 +51,59 @@ namespace oe::gui
 
 		widget->setParent(this);
 		m_nodes.insert(widget);
-		if (m_gui_manager)
+
+		if (!m_gui_manager) return;
+
+		std::function<void(Widget*, GUI*)> lambda;
+		lambda = [&](Widget* root, GUI* gui_manager)
 		{
-			widget->managerAssigned(m_gui_manager);
-			m_gui_manager->render_empty();
-		}
+			if (root->m_info.toggled && root->m_gui_manager != m_gui_manager && m_gui_manager != nullptr)
+			{
+				root->m_gui_manager = m_gui_manager;
+				root->managerAssigned();
+			}
+
+			for (auto& w : m_nodes)
+				lambda(w, gui_manager);
+		};
+
+		lambda(this, m_gui_manager);
 	}
 
 	void Widget::removeSubWidget(Widget* widget)
 	{
 		m_nodes.erase(widget);
-		if (m_gui_manager)
-		{
-			widget->managerUnassigned(m_gui_manager);
-			m_gui_manager->render_empty();
-		}
 	}
 
 	void Widget::toggle(bool enabled)
 	{
-		m_info.toggled = enabled;
-		for (auto& w : m_nodes)
+		if (!m_gui_manager)
 		{
-			w->toggle(enabled);
+			oe_error_terminate("crash");
+			spdlog::critical("cannot toggle non-assigned widget");
+			return;
 		}
+
+		std::function<void(Widget*,GUI*)> lambda;
+		lambda = [&](Widget* root, GUI* gui_manager)
+		{
+			if (root->m_info.toggled)
+			{
+				if(root->m_gui_manager != m_gui_manager && root->m_gui_manager != nullptr)
+					root->managerUnassigned();
+
+				if (root->m_gui_manager != m_gui_manager && m_gui_manager != nullptr)
+				{
+					root->m_gui_manager = m_gui_manager;
+					root->managerAssigned();
+				}
+			}
+
+			for (auto& w : m_nodes)
+				lambda(w, gui_manager);
+		};
+
+		lambda(this, enabled ? m_gui_manager : nullptr);
 	}
 
 	void Widget::on_pre_render(const GUIPreRenderEvent& event)

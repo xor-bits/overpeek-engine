@@ -44,8 +44,8 @@ namespace oe::gui
 		List(const ListInfo& list_info);
 		~List();
 
-		virtual void managerAssigned(GUI* gui_manager) override;
-		virtual void managerUnassigned(GUI* gui_manager) override;
+		virtual void managerAssigned() override;
+		virtual void managerUnassigned() override;
 
 		// this class will take ownership of this pointer
 		void add(size_t pos, Widget* widget);

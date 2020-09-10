@@ -38,8 +38,8 @@ namespace oe::gui
 		DecoratedButton(const DecoratedButtonInfo& button_info);
 		~DecoratedButton();
 
-		virtual void managerAssigned(GUI* gui_manager) override;
-		virtual void managerUnassigned(GUI* gui_manager) override;
+		virtual void managerAssigned() override;
+		virtual void managerUnassigned() override;
 		
 	private:
 		// events

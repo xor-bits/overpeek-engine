@@ -34,7 +34,8 @@ namespace oe::gui
 		m_offset = { 0, 0 };
 		m_old_window_size = { 0, 0 };
 
-		m_main_frame->managerAssigned(this);
+		m_main_frame->m_gui_manager = this;
+		m_main_frame->managerAssigned();
 
 		// initial resize
 		short_resize();

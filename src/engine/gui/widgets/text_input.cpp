@@ -66,34 +66,30 @@ namespace oe::gui
 		delete static_cast<STB_TexteditState*>(m_state);
 	}
 
-	void TextInput::managerAssigned(GUI* gui_manager)
+	void TextInput::managerAssigned()
 	{
-		quad = gui_manager->getRenderer()->create();
-		text_quad = gui_manager->getLateRenderer()->create();
-		label = new oe::graphics::u32TextLabel(gui_manager->getFont(text_input_info.font_size, text_input_info.font_path));
+		quad = m_gui_manager->getRenderer()->create();
+		text_quad = m_gui_manager->getLateRenderer()->create();
+		label = new oe::graphics::u32TextLabel(m_gui_manager->getFont(text_input_info.font_size, text_input_info.font_path));
 
 		// event listeners
-		gui_manager->getWindow()->connect_listener<oe::MouseButtonEvent, &TextInput::on_button>(this);
-		gui_manager->getWindow()->connect_listener<oe::CodepointEvent, &TextInput::on_codepoint>(this);
-		gui_manager->getWindow()->connect_listener<oe::KeyboardEvent, &TextInput::on_key>(this);
-		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&TextInput::on_render>(this);
-
-		Widget::managerAssigned(gui_manager);
+		m_gui_manager->getWindow()->connect_listener<oe::MouseButtonEvent, &TextInput::on_button>(this);
+		m_gui_manager->getWindow()->connect_listener<oe::CodepointEvent, &TextInput::on_codepoint>(this);
+		m_gui_manager->getWindow()->connect_listener<oe::KeyboardEvent, &TextInput::on_key>(this);
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&TextInput::on_render>(this);
 	}
 
-	void TextInput::managerUnassigned(GUI* gui_manager)
+	void TextInput::managerUnassigned()
 	{
 		quad.reset();
 		text_quad.reset();
 		delete label;
 
 		// event listeners
-		gui_manager->getWindow()->disconnect_listener<oe::MouseButtonEvent, &TextInput::on_button>(this);
-		gui_manager->getWindow()->disconnect_listener<oe::CodepointEvent, &TextInput::on_codepoint>(this);
-		gui_manager->getWindow()->disconnect_listener<oe::KeyboardEvent, &TextInput::on_key>(this);
-		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&TextInput::on_render>(this);
-
-		Widget::managerUnassigned(gui_manager);
+		m_gui_manager->getWindow()->disconnect_listener<oe::MouseButtonEvent, &TextInput::on_button>(this);
+		m_gui_manager->getWindow()->disconnect_listener<oe::CodepointEvent, &TextInput::on_codepoint>(this);
+		m_gui_manager->getWindow()->disconnect_listener<oe::KeyboardEvent, &TextInput::on_key>(this);
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&TextInput::on_render>(this);
 	}
 	
 	void TextInput::on_render(const GUIRenderEvent& event)

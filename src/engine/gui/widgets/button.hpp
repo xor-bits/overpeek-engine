@@ -33,8 +33,8 @@ namespace oe::gui
 		Button(const ButtonInfo& button_info);
 		~Button();
 
-		virtual void managerAssigned(GUI* gui_manager) override;
-		virtual void managerUnassigned(GUI* gui_manager) override;
+		virtual void managerAssigned() override;
+		virtual void managerUnassigned() override;
 
 		bool test(const glm::vec2& point);
 
