@@ -16,7 +16,7 @@ namespace oe::gui
 		float graph_line_width      = 1.0f;
         glm::vec4 graph_color       = oe::colors::green;
 
-        SpritePanelInfo bg_panel_info = { oe::colors::translucent_black, nullptr, false, { { 300, 200 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center } };
+        SpritePanelInfo bg_panel_info = { oe::colors::translucent_black, nullptr, 0.0f, false, { { 300, 200 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center } };
     };
 
     class Graph : public SpritePanel

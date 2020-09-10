@@ -238,6 +238,8 @@ namespace oe::gui
 
 	void Slider::on_cursor(const CursorPosEvent& event)
 	{
+		if(!slider_info.interactable) return;
+
 		if (oe::utils::bounding_box_test(event.cursor_windowspace, render_position, m_info.size))
 		{
 			dispatcher.trigger(event_hover_latest);
@@ -271,6 +273,8 @@ namespace oe::gui
 
 	void Slider::on_button(const MouseButtonEvent& event)
 	{
+		if(!slider_info.interactable) return;
+
 		if (oe::utils::bounding_box_test(event.cursor_pos.cursor_windowspace, render_position, m_info.size))
 		{
 			// hold
@@ -303,7 +307,7 @@ namespace oe::gui
 
 	void Slider::on_scroll(const ScrollEvent& event)
 	{
-		if (!slider_info.scroll) return;
+		if (!slider_info.scroll || !slider_info.interactable) return;
 
 		const glm::vec2& cursor_window = m_gui_manager->getWindow()->getCursorWindow();
 		if (oe::utils::bounding_box_test(cursor_window, render_position, m_info.size))

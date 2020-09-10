@@ -192,7 +192,7 @@ namespace oe::gui
 	ColorPickerWheelRenderer* ColorPickerWheelRenderer::singleton = nullptr;
 
 	ColorPickerWheel::ColorPickerWheel(const ColorPickerWheelInfo& color_picker_info)
-		: SpritePanel({ color_picker_info.color_picker_info.background_color, color_picker_info.color_picker_info.sprite, false, color_picker_info.color_picker_info.widget_info })
+		: SpritePanel({ color_picker_info.color_picker_info.background_color, color_picker_info.color_picker_info.sprite, 0.0f, false, color_picker_info.color_picker_info.widget_info })
 		, m_color_picker_info(color_picker_info)
 	{
 		triangle_vertices[0].color = oe::colors::red;

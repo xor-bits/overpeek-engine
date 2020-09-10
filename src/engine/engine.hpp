@@ -4,6 +4,21 @@
 #include <utility>
 #include <fmt/format.h>
 
+#ifndef __has_include
+#error __has_include not supported
+#else
+#  if __has_include(<filesystem>)
+#    include <filesystem>
+namespace fs = std::filesystem;
+#  elif __has_include(<experimental/filesystem>)
+#    include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+#  elif __has_include(<boost/filesystem.hpp>)
+#    include <boost/filesystem.hpp>
+namespace fs = boost::filesystem;
+#  endif
+#endif
+
 
 
 namespace oe::graphics { class Instance; }
@@ -207,6 +222,28 @@ struct fmt::formatter<glm::mat<dim, dim, T>, chr_type> {
 		const auto value = fmt::join(dv, sep.c_str());
 
 		return arg_join_contexted(begin, end, vec_formatter, value, ctx);
+	}
+};
+
+// format fs::path
+template <>
+struct fmt::formatter<fs::path> {
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx) { return ctx.begin(); }
+
+	template <typename FormatContext>
+	auto format(const fs::path& p, FormatContext& ctx) {
+		return format_to(ctx.out(), "<{}>", p.generic_string());
+	}
+};
+template <>
+struct fmt::formatter<fs::path::const_iterator> {
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx) { return ctx.begin(); }
+
+	template <typename FormatContext>
+	auto format(const fs::path::const_iterator& p, FormatContext& ctx) {
+		return format_to(ctx.out(), "<{}>", p->generic_string());
 	}
 };
 

@@ -51,6 +51,11 @@ namespace oe::gui {
 		quad->setSize(m_info.size);
 		quad->setColor(sprite_panel_info.color);
 		quad->setSprite(sprite_panel_info.sprite);
+		if (sprite_panel_info.rotation != 0.0f)
+		{
+			quad->setRotation(sprite_panel_info.rotation);
+			quad->setRotationAlignment(oe::alignments::center_center);
+		}
 		quad->update(quad);
 	}
 

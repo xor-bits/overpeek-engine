@@ -125,11 +125,12 @@ void setup()
 }
 
 // render event
-void render(float update_fraction)
+void render(oe::utils::RenderEvent)
 {
 	window->clear(oe::colors::transparent);
 
 	// submitting
+	float update_fraction = window->getGameloop().getUpdateLag<updates_per_second>();
 	world->m_scene.view<std::unique_ptr<GenericScript>>().each([update_fraction](std::unique_ptr<GenericScript>& src) {
 		src->on_custom_render(update_fraction);
 	});
@@ -152,7 +153,7 @@ void resize(const oe::ResizeEvent& event)
 }
 
 // update event 30 times per second
-void update_30()
+void update_30(oe::utils::UpdateEvent<30>)
 {
 	auto& gameloop = window->getGameloop();
 	std::u32string perf_info = fmt::format(U"- frametime: {:3.3f} ms ({} fps)\n- updatetime: {:3.3f} ms ({} ups)", gameloop.getFrametimeMS(), gameloop.getAverageFPS(), gameloop.getUpdatetimeMS<updates_per_second>(), gameloop.getAverageUPS<updates_per_second>());
@@ -207,16 +208,16 @@ void gui()
 	}
 }
 
-void init()
+void init(oe::utils::InitEvent)
 {
 	auto& engine = oe::Engine::getSingleton();
 	engine.depth(oe::depth_functions::always);
 
 	// connect events (this can also be done in (int main()))
 	window->connect_listener<oe::ResizeEvent, &resize>();
-	window->connect_render_listener<&render>();
-	window->connect_update_listener<30, &update_30>();
-	window->connect_update_listener<updates_per_second, &update>();
+	window->connect_listener<oe::utils::RenderEvent, &render>();
+	window->connect_listener<oe::utils::UpdateEvent<30>, &update_30>();
+	window->connect_listener<oe::utils::UpdateEvent<updates_per_second>, &update>();
 
 	// instance settings
 	engine.culling(oe::culling_modes::back);
@@ -238,7 +239,7 @@ void init()
 	setup();
 }
 
-void cleanup()
+void cleanup(oe::utils::CleanupEvent)
 {
 	// closing
 	delete gui_manager;
@@ -264,8 +265,8 @@ int main(int argc, char* argv[])
 	window_info.transparent = true;
 	// window_info.borderless = true;
 	window = oe::graphics::Window(window_info);
-	window->connect_init_listener<&init>();
-	window->connect_cleanup_listener<&cleanup>();
+	window->connect_listener<oe::utils::InitEvent, &init>();
+	window->connect_listener<oe::utils::CleanupEvent, &cleanup>();
 	
 	window->getGameloop().start();
 	return 0;

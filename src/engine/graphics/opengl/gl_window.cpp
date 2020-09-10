@@ -116,7 +116,7 @@ namespace oe::graphics {
 #endif
 		if (m_debugging) {
 #ifndef __EMSCRIPTEN__
-			if (instance->versionNumber() >= 43) {
+			if (((gl_v_major == 4 && gl_v_minor >= 3) || gl_v_major > 4)) {
 				glEnable(GL_DEBUG_OUTPUT);
 				glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 				glDebugMessageCallback(glDebugOutput, nullptr);
@@ -180,7 +180,7 @@ namespace oe::graphics {
 	void GLWindow::updateEvents()
 	{
 		dispatcher_mutex.lock();
-		dispatcher.update();
+		m_window_gameloop.getDispatcher().update();
 		dispatcher_mutex.unlock();
 	}
 

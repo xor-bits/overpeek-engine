@@ -5,7 +5,7 @@
 
 
 
-namespace oe::graphics { struct Quad; }
+namespace oe::graphics { class Quad; }
 
 namespace oe::gui
 {
@@ -13,6 +13,7 @@ namespace oe::gui
 	{
 		glm::vec2 value_bounds                                    = { -1.0f, 1.0f };
 		float value_initial                                       = 0.0f;
+		bool interactable                                         = true;
 		bool draw_value                                           = false;
 		int draw_font_size                                        = 14;
 		std::string draw_font_path                                = ""; // empty for gui default

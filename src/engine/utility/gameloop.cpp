@@ -32,47 +32,9 @@ namespace oe::utils {
 		m_cached_average_time /= mc_average_size;
 	}
 
-	UpdateSystem::UpdateSystem(size_t updates_per_second)
-	{
-		m_updates_per_second = updates_per_second;
-		m_ups_cap = 1000000 / updates_per_second;
-		
-		auto& clock = oe::utils::Clock::getSingleton();
-		m_update_start = clock.getMicroseconds();
-		m_update_previous = m_update_start;
-	}
-
-	void UpdateSystem::update_attempt()
-	{
-		auto& clock = oe::utils::Clock::getSingleton();
-
-		size_t current = clock.getMicroseconds();
-		size_t elapsed = current - m_update_previous;
-		m_update_previous = current;
-		m_update_lag += elapsed;
-
-		// Updates
-		while (m_update_lag >= m_ups_cap) {
-			// start profiling the update
-			size_t timeupdate = clock.getMicroseconds();
-			
-			// update callback
-			update_signal.publish();
-
-			// time used on the update
-			size_t update_time = clock.getMicroseconds() - timeupdate;
-			m_perf_logger.log(update_time);
-
-			m_update_lag -= m_ups_cap;
-		}
-	}
-
-	GameLoop::GameLoop(oe::graphics::IWindow* window, size_t main_updatesystem_ups)
+	GameLoop::GameLoop(oe::graphics::IWindow* window)
 	{
 		m_host_window = window;
-		m_main_updatesystem_ups = main_updatesystem_ups;
-
-		m_update_systems.emplace(main_updatesystem_ups, main_updatesystem_ups);
 	}
 
 	GameLoop::~GameLoop()
@@ -81,25 +43,24 @@ namespace oe::utils {
 	void GameLoop::start() {
 		oe_debug_call("gameloop");
 
-
 		m_should_run = true;
 		m_host_window->inactive_context(); // release context from main thread
 		std::thread second_thread([&](){
 			m_host_window->active_context(); // make context current in this second("gl") thread
 			
-			init_signal.publish(); // init
+			dispatcher.trigger(InitEvent{}); // init
 
 			// initial resize after init signal
 			oe::ResizeEvent event;
 			event.framebuffer_size = m_host_window->m_window_info.size;
 			event.framebuffer_size_old = event.framebuffer_size;
 			event.aspect = m_host_window->aspect();
-			m_host_window->dispatcher.trigger(event);
+			dispatcher.trigger(event);
 
 			while (m_should_run)
 				loop(); // update and render
 			
-			cleanup_signal.publish(); // cleanup
+			dispatcher.trigger(CleanupEvent{}); // cleanup
 
 			m_host_window->bump();
 			m_host_window->inactive_context();
@@ -120,17 +81,15 @@ namespace oe::utils {
 		// updates
 		for(auto& system : m_update_systems)
 		{
-			system.second.update_attempt();
+			system.second->update_attempt(*this);
 		}
 
 		// start profiling the frame
 		size_t timeframe = clock.getMicroseconds();
 
 		// render callback
-		const auto& main_updatesystem_iter = m_update_systems[m_main_updatesystem_ups];
-		float update_fraction = static_cast<float>(main_updatesystem_iter.m_update_lag) / static_cast<float>(main_updatesystem_iter.m_ups_cap);
 		m_host_window->clear();
-		render_signal.publish(update_fraction);
+		dispatcher.trigger(RenderEvent{});
 
 		// time used on the frame
 		size_t frame_time = clock.getMicroseconds() - timeframe;
@@ -152,8 +111,8 @@ namespace oe::utils {
 			// update counters
 			for(auto& system : m_update_systems)
 			{
-				system.second.m_perf_logger.m_per_second = system.second.m_perf_logger.m_periodical_count;
-				system.second.m_perf_logger.m_periodical_count = 0;
+				system.second->m_perf_logger.m_per_second = system.second->m_perf_logger.m_periodical_count;
+				system.second->m_perf_logger.m_periodical_count = 0;
 			}
 
 			// reset timer

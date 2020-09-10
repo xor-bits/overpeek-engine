@@ -231,7 +231,7 @@ if(VCPKG_TOOLCHAIN) # with vcpkg
 # additional glfw3 dependencies for ubuntu:
 # sudo apt install libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev
 
-# vcpkg install openal-soft glfw3 glad box2d miniz enet freetype ms-gsl entt spdlog fmt stb minimp3 glm gcem
+# vcpkg install openal-soft glfw3 glad box2d libzip enet freetype ms-gsl entt spdlog fmt stb minimp3 glm gcem
 # optionally shaderc and/or vulkan' vcpkg install shaderc vulkan
 	if(NOT UNIX)
 		find_package(OpenAL CONFIG REQUIRED)
@@ -252,8 +252,8 @@ if(VCPKG_TOOLCHAIN) # with vcpkg
 	target_link_libraries(${target_name} PRIVATE glad::glad)
 	find_package(unofficial-box2d CONFIG REQUIRED)
 	target_link_libraries(${target_name} PRIVATE unofficial::box2d::box2d)
-	find_package(miniz CONFIG REQUIRED)
-	target_link_libraries(${target_name} PRIVATE miniz::miniz)
+	find_package(libzip CONFIG REQUIRED)
+    target_link_libraries(${target_name} PRIVATE zip)
 	target_link_libraries(${target_name} PRIVATE enet)
 	find_package(Microsoft.GSL CONFIG REQUIRED)
 	target_link_libraries(${target_name} PRIVATE Microsoft.GSL::GSL)

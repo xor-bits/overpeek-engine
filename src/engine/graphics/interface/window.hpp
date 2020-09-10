@@ -19,14 +19,12 @@
 
 
 
-struct GLFWwindow;
-namespace oe::graphics
-{
-	class IWindow
-	{
+class GLFWwindow;
+namespace oe::graphics {
+
+	class IWindow {
 	public:
 		WindowInfo m_window_info;
-		entt::dispatcher dispatcher;
 		std::mutex dispatcher_mutex;
 
 	protected:
@@ -74,8 +72,8 @@ namespace oe::graphics
 		inline oe::utils::GameLoop& getGameloop() {return m_window_gameloop; }
 
 		float aspect();
-		bool button(oe::mouse_buttons button);
-		bool key(oe::keys key);
+		float button(oe::mouse_buttons button);
+		float key(oe::keys key);
 
 		const glm::ivec2& getPosition();
 		void setPosition(const glm::ivec2& pos);
@@ -110,14 +108,14 @@ namespace oe::graphics
 		void connect_listener(const Instance& instance)
 		{
 			dispatcher_mutex.lock();
-			dispatcher.sink<Event>().template connect<Listener>(instance);
+			m_window_gameloop.connect_listener<Event, Listener, Instance>(instance);
 			dispatcher_mutex.unlock();
 		}
 		template<typename Event, auto Listener>
 		void connect_listener()
 		{
 			dispatcher_mutex.lock();
-			dispatcher.sink<Event>().template connect<Listener>();
+			m_window_gameloop.connect_listener<Event, Listener>();
 			dispatcher_mutex.unlock();
 		}
 		// disconenct events
@@ -125,103 +123,15 @@ namespace oe::graphics
 		void disconnect_listener(const Instance& instance)
 		{
 			dispatcher_mutex.lock();
-			dispatcher.sink<Event>().template disconnect<Listener>(instance);
+			m_window_gameloop.disconnect_listener<Event, Listener, Instance>(instance);
 			dispatcher_mutex.unlock();
 		}
 		template<typename Event, auto Listener>
 		void disconnect_listener()
 		{
 			dispatcher_mutex.lock();
-			dispatcher.sink<Event>().template disconnect<Listener>();
+			m_window_gameloop.connect_listener<Event, Listener>();
 			dispatcher_mutex.unlock();
-		}
-		// connect update
-		template<size_t ups, auto F, typename Instance>
-		void connect_update_listener(const Instance& instance)
-		{
-			m_window_gameloop.connect_update_listener<ups, F>(instance);
-		}
-		template<size_t ups, auto F>
-		void connect_update_listener()
-		{
-			m_window_gameloop.connect_update_listener<ups, F>();
-		}
-		// disconnect update
-		template<size_t ups, auto F, typename Instance>
-		void disconnect_update_listener(const Instance& instance)
-		{
-			m_window_gameloop.disconnect_update_listener<ups, F>(instance);
-		}
-		template<size_t ups, auto F>
-		void disconnect_update_listener()
-		{
-			m_window_gameloop.disconnect_update_listener<ups, F>();
-		}
-		// connect render
-		template<auto F, typename Instance>
-		void connect_render_listener(const Instance& instance)
-		{
-			m_window_gameloop.connect_render_listener<F>(instance);
-		}
-		template<auto F>
-		void connect_render_listener()
-		{
-			m_window_gameloop.connect_render_listener<F>();
-		}
-		// disconnect render
-		template<auto F, typename Instance>
-		void disconnect_render_listener(const Instance& instance)
-		{
-			m_window_gameloop.disconnect_render_listener<F>(instance);
-		}
-		template<auto F>
-		void disconnect_render_listener()
-		{
-			m_window_gameloop.disconnect_render_listener<F>();
-		}
-		// connect init
-		template<auto F, typename Instance>
-		void connect_init_listener(const Instance& instance)
-		{
-			m_window_gameloop.connect_init_listener<F>(instance);
-		}
-		template<auto F>
-		void connect_init_listener()
-		{
-			m_window_gameloop.connect_init_listener<F>();
-		}
-		// disconnect init
-		template<auto F, typename Instance>
-		void disconnect_init_listener(const Instance& instance)
-		{
-			m_window_gameloop.disconnect_init_listener<F>(instance);
-		}
-		template<auto F>
-		void disconnect_init_listener()
-		{
-			m_window_gameloop.disconnect_init_listener<F>();
-		}
-		// connect cleanup
-		template<auto F, typename Instance>
-		void connect_cleanup_listener(const Instance& instance)
-		{
-			m_window_gameloop.connect_cleanup_listener<F>(instance);
-		}
-		template<auto F>
-		void connect_cleanup_listener()
-		{
-			m_window_gameloop.connect_cleanup_listener<F>();
-		}
-		// disconnect cleanup
-		template<auto F, typename Instance>
-		void disconnect_cleanup_listener(const Instance& instance)
-		{
-			m_window_gameloop.disconnect_cleanup_listener<F>(instance);
-		}
-		template<auto F>
-		void disconnect_cleanup_listener()
-		{
-			m_window_gameloop.disconnect_cleanup_listener<F>();
 		}
 
 

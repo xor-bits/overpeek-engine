@@ -6,7 +6,7 @@
 
 
 
-namespace oe::graphics { struct Quad; }
+namespace oe::graphics { class Quad; }
 
 namespace oe::ecs
 {

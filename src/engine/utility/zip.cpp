@@ -10,7 +10,7 @@
 
 namespace oe::utils {
 
-	Compression* Compression::singleton = nullptr;
+	/* Compression* Compression::singleton = nullptr;
 
 	std::vector<uint8_t> Compression::compress(const std::vector<uint8_t>& input) {
 		return compress(input.data(), input.size());
@@ -78,6 +78,6 @@ namespace oe::utils {
 
 	std::vector<uint8_t> Compression::string_to_data(const std::string& input) {
 		return std::vector<uint8_t>(input.begin(), input.end());
-	}
+	} */
 	
 }

@@ -112,7 +112,7 @@ namespace oe::graphics {
 		void modify_quad(const std::shared_ptr<Quad>& quad);
 		void remove_quad(const std::shared_ptr<Quad>& quad);
 
-		friend struct Quad;
+		friend class Quad;
 		friend struct Renderer;
 	};
 
@@ -139,7 +139,7 @@ namespace oe::graphics {
 		std::shared_ptr<SubRenderer> select_subrenderer(const Texture& texture);
 		void update(const std::shared_ptr<Quad>& quad);
 
-	friend struct Quad;
+	friend class Quad;
 	friend struct SubRenderer;
 	};
 
