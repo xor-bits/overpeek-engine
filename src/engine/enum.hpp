@@ -405,6 +405,9 @@ namespace oe {
 	struct ShaderInfo {
 		std::string name;
 		std::vector<ShaderStageInfo> shader_stages;
+#ifdef OE_BUILD_MODE_SHADERC
+		bool shaderc_optimize = true;
+#endif // OE_BUILD_MODE_SHADERC
 	};
 
 	// engine create info

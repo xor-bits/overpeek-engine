@@ -16,26 +16,22 @@ namespace oe::gui
 	TextPanel::~TextPanel()
 	{}
 
-	void TextPanel::managerAssigned(GUI* gui_manager)
+	void TextPanel::managerAssigned()
 	{
-		text_quad = gui_manager->getLateRenderer()->create();
-		label = new oe::graphics::u32TextLabel(gui_manager->getFont(text_panel_info.font_size, text_panel_info.font_path));
+		text_quad = m_gui_manager->getLateRenderer()->create();
+		label = new oe::graphics::u32TextLabel(m_gui_manager->getFont(text_panel_info.font_size, text_panel_info.font_path));
 
 		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&TextPanel::on_render>(this);
-
-		Widget::managerAssigned(gui_manager);
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&TextPanel::on_render>(this);
 	}
 
-	void TextPanel::managerUnassigned(GUI* gui_manager)
+	void TextPanel::managerUnassigned()
 	{
 		text_quad.reset();
 		delete label;
 
 		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&TextPanel::on_render>(this);
-
-		Widget::managerUnassigned(gui_manager);
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&TextPanel::on_render>(this);
 	}
 
 	void TextPanel::on_render(const GUIRenderEvent& event)

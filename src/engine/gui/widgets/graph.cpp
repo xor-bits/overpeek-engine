@@ -109,24 +109,20 @@ namespace oe::gui
         std::swap(m_graph_info.graph_color, sprite_panel_info.color);
     }
 
-	void Graph::managerAssigned(GUI* gui_manager)
+	void Graph::managerAssigned()
 	{
-		graph_fb = oe::graphics::FrameBuffer({ m_info.size }, gui_manager->getWindow());
+		graph_fb = oe::graphics::FrameBuffer({ m_info.size }, m_gui_manager->getWindow());
 
 		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&Graph::on_render>(this);
-
-		SpritePanel::managerAssigned(gui_manager);
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&Graph::on_render>(this);
 	}
 
-	void Graph::managerUnassigned(GUI* gui_manager)
+	void Graph::managerUnassigned()
 	{
 		graph_fb.reset();
 
 		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&Graph::on_render>(this);
-
-		SpritePanel::managerUnassigned(gui_manager);
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&Graph::on_render>(this);
 	}
 	
 	void Graph::on_render(const GUIRenderEvent& event)

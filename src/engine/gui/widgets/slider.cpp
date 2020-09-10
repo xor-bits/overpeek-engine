@@ -43,30 +43,28 @@ namespace oe::gui
 	Slider::~Slider()
 	{}
 
-	void Slider::managerAssigned(GUI* gui_manager)
+	void Slider::managerAssigned()
 	{
 		if (slider_info.draw_value)
 		{
-			label_quad = gui_manager->getLateRenderer()->create();
-			value_label = new oe::graphics::TextLabel(gui_manager->getFont(slider_info.draw_font_size, slider_info.draw_font_path));
+			label_quad = m_gui_manager->getLateRenderer()->create();
+			value_label = new oe::graphics::TextLabel(m_gui_manager->getFont(slider_info.draw_font_size, slider_info.draw_font_path));
 		}
-		quad_knob = gui_manager->getRenderer()->create();
+		quad_knob = m_gui_manager->getRenderer()->create();
 		if (!slider_info.linear_color)
 		{
-			quad_lslider = gui_manager->getRenderer()->create();
-			quad_rslider = gui_manager->getRenderer()->create();
+			quad_lslider = m_gui_manager->getRenderer()->create();
+			quad_rslider = m_gui_manager->getRenderer()->create();
 		}
 
 		// event listeners
-		gui_manager->getWindow()->connect_listener<oe::MouseButtonEvent, &Slider::on_button>(this);
-		gui_manager->getWindow()->connect_listener<oe::CursorPosEvent, &Slider::on_cursor>(this);
-		gui_manager->getWindow()->connect_listener<oe::ScrollEvent, &Slider::on_scroll>(this);
-		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&Slider::on_render>(this);
-
-		Widget::managerAssigned(gui_manager);
+		m_gui_manager->getWindow()->connect_listener<oe::MouseButtonEvent, &Slider::on_button>(this);
+		m_gui_manager->getWindow()->connect_listener<oe::CursorPosEvent, &Slider::on_cursor>(this);
+		m_gui_manager->getWindow()->connect_listener<oe::ScrollEvent, &Slider::on_scroll>(this);
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&Slider::on_render>(this);
 	}
 
-	void Slider::managerUnassigned(GUI* gui_manager)
+	void Slider::managerUnassigned()
 	{
 		if (slider_info.draw_value)
 		{
@@ -81,12 +79,10 @@ namespace oe::gui
 		}
 
 		// event listeners
-		gui_manager->getWindow()->disconnect_listener<oe::MouseButtonEvent, &Slider::on_button>(this);
-		gui_manager->getWindow()->disconnect_listener<oe::CursorPosEvent, &Slider::on_cursor>(this);
-		gui_manager->getWindow()->disconnect_listener<oe::ScrollEvent, &Slider::on_scroll>(this);
-		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&Slider::on_render>(this);
-
-		Widget::managerUnassigned(gui_manager);
+		m_gui_manager->getWindow()->disconnect_listener<oe::MouseButtonEvent, &Slider::on_button>(this);
+		m_gui_manager->getWindow()->disconnect_listener<oe::CursorPosEvent, &Slider::on_cursor>(this);
+		m_gui_manager->getWindow()->disconnect_listener<oe::ScrollEvent, &Slider::on_scroll>(this);
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&Slider::on_render>(this);
 	}
 	
 	void Slider::on_render(const GUIRenderEvent& event)

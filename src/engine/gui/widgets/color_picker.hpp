@@ -58,8 +58,8 @@ namespace oe::gui
 		ColorPicker(const ColorPickerInfo& color_picker_info = {});
 		~ColorPicker();
 
-		virtual void managerAssigned(GUI* gui_manager) override;
-		virtual void managerUnassigned(GUI* gui_manager) override;
+		virtual void managerAssigned() override;
+		virtual void managerUnassigned() override;
 
 		const glm::vec4& get() const;
 		void set(const glm::vec4& color);

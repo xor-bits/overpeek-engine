@@ -21,30 +21,26 @@ namespace oe::gui
 	Checkbox::~Checkbox()
 	{}
 
-	void Checkbox::managerAssigned(GUI* gui_manager)
+	void Checkbox::managerAssigned()
 	{
-		quad_check = gui_manager->getRenderer()->create();
-		quad_box = gui_manager->getRenderer()->create(); // check - box, hehe
+		quad_check = m_gui_manager->getRenderer()->create();
+		quad_box = m_gui_manager->getRenderer()->create(); // check - box, hehe
 
 		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&Checkbox::on_render>(this);
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&Checkbox::on_render>(this);
 		m_button->connect_listener<ButtonUseEvent, &Checkbox::on_button_use>(this);
 		m_button->connect_listener<ButtonHoverEvent, &Checkbox::on_button_hover>(this);
-
-		Widget::managerAssigned(gui_manager);
 	}
 
-	void Checkbox::managerUnassigned(GUI* gui_manager)
+	void Checkbox::managerUnassigned()
 	{
 		quad_check.reset();
 		quad_box.reset();
 
 		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&Checkbox::on_render>(this);
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&Checkbox::on_render>(this);
 		m_button->disconnect_listener<ButtonUseEvent, &Checkbox::on_button_use>(this);
 		m_button->disconnect_listener<ButtonHoverEvent, &Checkbox::on_button_hover>(this);
-
-		Widget::managerUnassigned(gui_manager);
 	}
 
 	void Checkbox::on_render(const GUIRenderEvent& event)

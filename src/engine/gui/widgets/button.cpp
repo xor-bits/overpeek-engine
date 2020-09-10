@@ -14,22 +14,18 @@ namespace oe::gui {
 	Button::~Button()
 	{}
 
-	void Button::managerAssigned(GUI* gui_manager)
+	void Button::managerAssigned()
 	{
 		// event listeners
-		gui_manager->getWindow()->connect_listener<oe::CursorPosEvent, &Button::on_cursor>(this);
-		gui_manager->getWindow()->connect_listener<oe::MouseButtonEvent, &Button::on_button>(this);
-
-		Widget::managerAssigned(gui_manager);
+		m_gui_manager->getWindow()->connect_listener<oe::CursorPosEvent, &Button::on_cursor>(this);
+		m_gui_manager->getWindow()->connect_listener<oe::MouseButtonEvent, &Button::on_button>(this);
 	}
 
-	void Button::managerUnassigned(GUI* gui_manager)
+	void Button::managerUnassigned()
 	{
 		// event listeners
-		gui_manager->getWindow()->disconnect_listener<oe::CursorPosEvent, &Button::on_cursor>(this);
-		gui_manager->getWindow()->disconnect_listener<oe::MouseButtonEvent, &Button::on_button>(this);
-
-		Widget::managerUnassigned(gui_manager);
+		m_gui_manager->getWindow()->disconnect_listener<oe::CursorPosEvent, &Button::on_cursor>(this);
+		m_gui_manager->getWindow()->disconnect_listener<oe::MouseButtonEvent, &Button::on_button>(this);
 	}
 
 	bool Button::test(const glm::vec2& point)

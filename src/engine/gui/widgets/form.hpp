@@ -21,6 +21,8 @@ namespace oe::gui
 	public:
 		Form(const FormInfo& form_info = {});
 		~Form();
+
+		friend class GUI;
 	};
 
 }

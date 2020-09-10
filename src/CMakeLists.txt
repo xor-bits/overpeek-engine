@@ -272,7 +272,7 @@ if(VCPKG_TOOLCHAIN) # with vcpkg
 
 	# optional deps
 	if(OE_BUILD_MODE GREATER_EQUAL 1)
-		target_link_libraries(${target_name} PRIVATE shaderc)
+		target_link_libraries(${target_name} PRIVATE shaderc_combined)
 	endif()
 	if(OE_BUILD_MODE EQUAL 2)
 		target_link_libraries(${target_name} PRIVATE vulkan)

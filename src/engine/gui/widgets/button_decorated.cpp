@@ -35,20 +35,14 @@ namespace oe::gui {
 	{
 	}
 
-	void DecoratedButton::managerAssigned(GUI* gui_manager)
+	void DecoratedButton::managerAssigned()
 	{
-		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&DecoratedButton::on_render>(this);
-
-		Button::managerAssigned(gui_manager);
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&DecoratedButton::on_render>(this);
 	}
 
-	void DecoratedButton::managerUnassigned(GUI* gui_manager)
+	void DecoratedButton::managerUnassigned()
 	{
-		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&DecoratedButton::on_render>(this);
-
-		Button::managerUnassigned(gui_manager);
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&DecoratedButton::on_render>(this);
 	}
 
 	void DecoratedButton::on_render(const GUIRenderEvent& event)

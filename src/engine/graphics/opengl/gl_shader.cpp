@@ -82,7 +82,8 @@ namespace oe::graphics {
 
 			shaderc::Compiler compiler = shaderc::Compiler();
 			shaderc::CompileOptions options = shaderc::CompileOptions();
-			options.SetOptimizationLevel(shaderc_optimization_level::shaderc_optimization_level_performance);
+			if(shader_info.shaderc_optimize)
+				options.SetOptimizationLevel(shaderc_optimization_level::shaderc_optimization_level_performance);
 			options.SetIncluder(std::move(includer));
 			auto result = compiler.PreprocessGlsl(stage.source.data(), shader_kind(stage.stage), shader_module_name(shader_info.name.data(), stage.stage).c_str(), options);
 			size_t code_size = (result.end() - result.begin()) * sizeof(uint32_t);

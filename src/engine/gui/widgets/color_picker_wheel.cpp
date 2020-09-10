@@ -267,30 +267,26 @@ namespace oe::gui
 		update();
 	}
 
-	void ColorPickerWheel::managerAssigned(GUI* gui_manager)
+	void ColorPickerWheel::managerAssigned()
 	{
-		wheel_fb = { { m_framebuffer_panel->m_info.size }, gui_manager->getWindow() };
+		wheel_fb = { { m_framebuffer_panel->m_info.size }, m_gui_manager->getWindow() };
 		m_framebuffer_panel->sprite_panel_info.sprite = &wheel_fb->getSprite();
 
 		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&ColorPickerWheel::on_render>(this);
-		gui_manager->getWindow()->connect_listener<oe::CursorPosEvent, &ColorPickerWheel::on_cursor>(this);
-		gui_manager->getWindow()->connect_listener<oe::MouseButtonEvent, &ColorPickerWheel::on_button>(this);
-
-		SpritePanel::managerAssigned(gui_manager);
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&ColorPickerWheel::on_render>(this);
+		m_gui_manager->getWindow()->connect_listener<oe::CursorPosEvent, &ColorPickerWheel::on_cursor>(this);
+		m_gui_manager->getWindow()->connect_listener<oe::MouseButtonEvent, &ColorPickerWheel::on_button>(this);
 	}
 
-	void ColorPickerWheel::managerUnassigned(GUI* gui_manager)
+	void ColorPickerWheel::managerUnassigned()
 	{
 		sprite_panel_info.sprite = m_color_picker_info.color_picker_info.sprite;
 		wheel_fb.reset();
 
 		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&ColorPickerWheel::on_render>(this);
-		gui_manager->getWindow()->disconnect_listener<oe::CursorPosEvent, &ColorPickerWheel::on_cursor>(this);
-		gui_manager->getWindow()->disconnect_listener<oe::MouseButtonEvent, &ColorPickerWheel::on_button>(this);
-
-		SpritePanel::managerUnassigned(gui_manager);
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&ColorPickerWheel::on_render>(this);
+		m_gui_manager->getWindow()->disconnect_listener<oe::CursorPosEvent, &ColorPickerWheel::on_cursor>(this);
+		m_gui_manager->getWindow()->disconnect_listener<oe::MouseButtonEvent, &ColorPickerWheel::on_button>(this);
 	}
 
 	const glm::vec4& ColorPickerWheel::get() const

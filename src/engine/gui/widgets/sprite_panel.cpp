@@ -16,27 +16,23 @@ namespace oe::gui {
 	SpritePanel::~SpritePanel()
 	{}
 
-	void SpritePanel::managerAssigned(GUI* gui_manager)
+	void SpritePanel::managerAssigned()
 	{
 		if (sprite_panel_info.sprite_alpha)
-			quad = gui_manager->getLateRenderer()->create();
+			quad = m_gui_manager->getLateRenderer()->create();
 		else
-			quad = gui_manager->getRenderer()->create();
+			quad = m_gui_manager->getRenderer()->create();
 
 		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&SpritePanel::on_render>(this);
-
-		Widget::managerAssigned(gui_manager);
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&SpritePanel::on_render>(this);
 	}
 
-	void SpritePanel::managerUnassigned(GUI* gui_manager)
+	void SpritePanel::managerUnassigned()
 	{
 		quad.reset();
 
 		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&SpritePanel::on_render>(this);
-
-		Widget::managerUnassigned(gui_manager);
+		m_gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&SpritePanel::on_render>(this);
 	}
 
 	void SpritePanel::on_render(const GUIRenderEvent& event)
