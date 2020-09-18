@@ -33,9 +33,9 @@ namespace oe::gui
 	class Checkbox : public Widget
 	{
 	private:
-		std::shared_ptr<oe::graphics::Quad> quad_check;
-		std::shared_ptr<oe::graphics::Quad> quad_box; // hehe
-		oe::gui::Button* m_button;
+		std::unique_ptr<oe::graphics::Quad> quad_check;
+		std::unique_ptr<oe::graphics::Quad> quad_box; // hehe
+		std::shared_ptr<oe::gui::Button> m_button;
 
 	public:
 		CheckboxInfo m_checkbox_info;
@@ -43,15 +43,15 @@ namespace oe::gui
 		CheckboxUseEvent event_use_latest;
 
 	public:
-		Checkbox(const CheckboxInfo& checkbox_info = {});
+		Checkbox(Widget* parent, GUI& gui_manager, const CheckboxInfo& checkbox_info = {});
 		~Checkbox();
 
-		virtual void managerAssigned() override;
-		virtual void managerUnassigned() override;
-
+		virtual void virtual_toggle(bool enabled) override;
+	
 	private:
 		// events
 		void on_render(const GUIRenderEvent& event);
+		oe::utils::connect_guard<GUIRenderEvent, &Checkbox::on_render, Checkbox> m_cg_render;
 		void on_button_use(const ButtonUseEvent& e);
 		void on_button_hover(const ButtonHoverEvent& e);
 	};

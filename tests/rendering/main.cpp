@@ -1,4 +1,5 @@
 #include <engine/include.hpp>
+#include <engine/graphics/renderer.hpp>
 
 #include <string>
 
@@ -11,29 +12,31 @@ oe::graphics::SpritePack* pack_1;
 oe::graphics::Window window;
 oe::assets::DefaultShader* shader;
 oe::graphics::Renderer* renderer;
-std::array<std::shared_ptr<oe::graphics::Quad>, 2> quads;
+std::array<std::unique_ptr<oe::graphics::Quad>, 2> quads;
 
 
 
-void create_scene() {
+void create_scene()
+{
 	quads[0] = renderer->create();
-	quads[0]->setPosition({ 0.0f, 0.0f, 0.0f });
+	quads[0]->setPosition({-0.5f, 0.0f, 0.0f });
 	quads[0]->setSize({ 1.0f, 1.0f });
 	quads[0]->setRotationAlignment(oe::alignments::center_center);
 	quads[0]->setSprite(sprite_white);
-	quads[0]->setColor(oe::colors::blue);
-	quads[0]->update(quads[0]);
+	quads[0]->setColor({ 0.0f, 0.0f, 1.0f, 0.5f });
+	quads[0]->update();
 	
 	quads[1] = renderer->create();
-	quads[1]->setPosition({ 0.0f, 0.0f, 1.0f });
+	quads[1]->setPosition({ 0.5f, 0.0f, 1.0f });
 	quads[1]->setSize({ 0.75f, 0.75f });
 	quads[1]->setRotationAlignment(oe::alignments::center_center);
 	quads[1]->setSprite(sprite);
-	quads[1]->setColor(oe::colors::white);
-	quads[1]->update(quads[1]);
+	quads[1]->setColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+	quads[1]->update();
 }
 
-void resize(const oe::ResizeEvent& event) {
+void resize(const oe::ResizeEvent& event)
+{
 	window->active_context();
 	float aspect = event.aspect;
 	glm::mat4 pr = glm::ortho(-aspect, aspect, 1.0f, -1.0f);
@@ -41,36 +44,44 @@ void resize(const oe::ResizeEvent& event) {
 	shader->setTexture(true);
 }
 
-void render(float update_fraction) {
+void render(oe::RenderEvent) 
+{
 	// modify scene
 	float t = oe::utils::Clock::getSingleton().getSessionMillisecond() / 300.0f;
 	quads[0]->setRotation(std::sin(t));
-	quads[0]->update(quads[0]);
+	quads[0]->update();
 	quads[1]->setRotation(t);
-	quads[1]->update(quads[1]);
+	quads[1]->update();
 
 	// render scene
 	shader->bind();
+	renderer->sort(oe::graphics::Renderer::sort_by_largest_z_and_texture);
 	renderer->render();
 }
 
-void update_2() {
+void update_2(oe::UpdateEvent<2>)
+{
 	auto& gameloop = window->getGameloop();
 	spdlog::info("frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
 }
 
-void keyboard(const oe::KeyboardEvent& event) {
-	if (event.action == oe::actions::press) {
-		if (event.key == oe::keys::key_escape) {
+void keyboard(const oe::KeyboardEvent& event)
+{
+	if (event.action == oe::actions::press)
+	{
+		if (event.key == oe::keys::key_escape)
+		{
 			window->getGameloop().stop();
 		}
-		else if (event.key == oe::keys::key_enter) {
+		else if (event.key == oe::keys::key_enter)
+		{
 			window->setFullscreen(!window->getFullscreen());
 		}
 	}
 }
 
-void init() {
+void init()
+{
 	auto& engine = oe::Engine::getSingleton();
 
 	// engine
@@ -88,8 +99,8 @@ void init() {
 
 	// connect events
 	window->connect_listener<oe::ResizeEvent, &resize>();
-	window->connect_render_listener<&render>();
-	window->connect_update_listener<2, &update_2>();
+	window->connect_listener<oe::RenderEvent, &render>();
+	window->connect_listener<oe::UpdateEvent<2>, &update_2>();
 	
 	// instance settings
 	engine.culling(oe::culling_modes::neither);
@@ -97,12 +108,7 @@ void init() {
 	engine.blending();
 
 	// renderer
-	oe::RendererInfo renderer_info = {};
-	renderer_info.arrayRenderType = oe::types::dynamic_type;
-	renderer_info.indexRenderType = oe::types::static_type;
-	renderer_info.max_primitive_count = 100;
-	renderer_info.staticVBOBuffer_data = nullptr;
-	renderer = new oe::graphics::Renderer(renderer_info);
+	renderer = new oe::graphics::Renderer(100);
 
 	// shader
 	shader = new oe::assets::DefaultShader();
@@ -127,11 +133,15 @@ void init() {
 	delete renderer;
 }
 
-int main(int argc, char** argv) {
-	try {
+int main(int argc, char** argv)
+{
+	try
+	{
 		init();
 		return 0;
-	} catch (const std::exception& e) {
+	}
+	catch (const std::exception& e)
+	{
 		spdlog::error(e.what());
 		assert(e.what());
 		return -1;

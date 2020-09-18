@@ -1,31 +1,37 @@
 #include "button.hpp"
 #include "engine/gui/gui_manager.hpp"
 #include "engine/graphics/interface/window.hpp"
+#include "engine/utility/extra.hpp"
 
 
 
-namespace oe::gui {
-
-	Button::Button(const ButtonInfo& _button_info)
-		: Widget(_button_info.widget_info)
+namespace oe::gui
+{
+	Button::Button(Widget* parent, GUI& gui_manager, const ButtonInfo& _button_info)
+		: Widget(parent, gui_manager, _button_info.widget_info)
 		, button_info(_button_info)
-	{}
-
-	Button::~Button()
-	{}
-
-	void Button::managerAssigned()
 	{
-		// event listeners
-		m_gui_manager->getWindow()->connect_listener<oe::CursorPosEvent, &Button::on_cursor>(this);
-		m_gui_manager->getWindow()->connect_listener<oe::MouseButtonEvent, &Button::on_button>(this);
 	}
 
-	void Button::managerUnassigned()
+	Button::~Button()
 	{
-		// event listeners
-		m_gui_manager->getWindow()->disconnect_listener<oe::CursorPosEvent, &Button::on_cursor>(this);
-		m_gui_manager->getWindow()->disconnect_listener<oe::MouseButtonEvent, &Button::on_button>(this);
+	}
+	
+	void Button::virtual_toggle(bool enabled)
+	{
+		if(enabled)
+		{
+			// event listeners
+			std::lock_guard(m_gui_manager.getWindow()->dispatcher_mutex);
+			m_cg_cursor = { m_gui_manager.getWindow()->getGameloop().getDispatcher(), this };
+			m_cg_button = { m_gui_manager.getWindow()->getGameloop().getDispatcher(), this };
+		}
+		else
+		{
+			// event listeners
+			m_cg_cursor.reset();
+			m_cg_button.reset();
+		}
 	}
 
 	bool Button::test(const glm::vec2& point)

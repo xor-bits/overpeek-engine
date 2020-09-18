@@ -3,11 +3,6 @@
 #include <string>
 #include <mutex>
 
-#include "engine/graphics/interface/instance.hpp"
-#include "engine/graphics/interface/renderer.hpp"
-#include "engine/graphics/interface/shader.hpp"
-#include "engine/graphics/interface/texture.hpp"
-#include "engine/graphics/interface/framebuffer.hpp"
 #include "engine/internal_libs.hpp"
 #include "engine/enum.hpp"
 #include "engine/utility/fileio.hpp"
@@ -38,6 +33,8 @@ namespace oe::graphics {
 		float m_aspect_ratio = 0;
 
 		oe::utils::GameLoop m_window_gameloop;
+		
+		bool m_processing_events = false;
 
 		void postglfw();
 
@@ -54,6 +51,7 @@ namespace oe::graphics {
 		virtual void waitEvents(float timeout = 0.0f) = 0; // timeout in seconds, 0 for no timeout
 		virtual void updateEvents() = 0; // only after for waitEvents, process events in main thread
 		virtual void bump() = 0; // empty event to get out of waitEvents
+		inline bool processingEvents() const { return m_processing_events; }
 
 		/*Also known as VSync*/
 		virtual void swapInterval(uint8_t frames) = 0;
@@ -71,35 +69,35 @@ namespace oe::graphics {
 		inline const WindowInfo& getWindowInfo() { return m_window_info; }
 		inline oe::utils::GameLoop& getGameloop() {return m_window_gameloop; }
 
-		float aspect();
-		float button(oe::mouse_buttons button);
-		float key(oe::keys key);
+		float getAspect() const;
+		float getButton(oe::mouse_buttons button) const;
+		float getKey(oe::keys key) const;
 
-		const glm::ivec2& getPosition();
+		const glm::ivec2& getPosition() const;
 		void setPosition(const glm::ivec2& pos);
 
-		const glm::ivec2& getSize();
+		const glm::ivec2& getSize() const;
 		void setSize(const glm::ivec2& size);
 
-		const std::string& getTitle();
+		const std::string& getTitle() const;
 		void setTitle(const std::string& title);
 
-		bool getBorderless();
+		bool getBorderless() const;
 		void setBorderless(bool borderless);
 
-		bool getResizeable();
+		bool getResizeable() const;
 		void setResizeable(bool resizeable);
 
-		bool getFullscreen();
+		bool getFullscreen() const;
 		void setFullscreen(bool fullscreen);
 
-		const glm::ivec2& getCursorWindow();
+		const glm::ivec2& getCursorWindow() const;
 		void setCursorWindow(const glm::ivec2& cursor_at_window);
 
-		const glm::vec2& getCursorTransformed();
+		const glm::vec2& getCursorTransformed() const;
 		void setCursorTransformed(const glm::vec2& cursor_at_world_space);
 
-		const std::string getClipboard();
+		const std::string getClipboard() const;
 		void setClipboard(const std::string& str);
 
 		// -- events --

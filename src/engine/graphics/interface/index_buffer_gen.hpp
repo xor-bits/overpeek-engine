@@ -12,12 +12,12 @@ namespace oe::graphics
 	{
 	private:
 		T* m_ptr;
-		size_t m_size;
+		int32_t m_size;
 
 	public:
 		static_array(T* ptr, size_t size) 
 			: m_ptr(ptr)
-			, m_size(size)
+			, m_size(static_cast<int32_t>(std::clamp<size_t>(size, 0, std::numeric_limits<int32_t>::max())))
 		{}
 
 		~static_array() {
@@ -25,20 +25,20 @@ namespace oe::graphics
 		}
 
 		const T* ptr() const { return m_ptr; }
-		const size_t& size() const { return m_size; }
+		const int32_t& size() const { return m_size; }
 	};
 
 	template<oe::primitive_types type>
 	struct BasicBufferGen {
 	private:
-		size_t m_primitive_count;
+		int32_t m_primitive_count;
 
 	public:
-		BasicBufferGen(size_t primitive_count)
+		BasicBufferGen(int32_t primitive_count)
 			: m_primitive_count(primitive_count)
 		{}
 
-		size_t vertex_per_primitive() const
+		int32_t vertex_per_primitive() const
 		{
 			switch (type)
 			{
@@ -55,7 +55,7 @@ namespace oe::graphics
 			}
 		}
 
-		size_t index_per_primitive() const
+		int32_t index_per_primitive() const
 		{
 			switch (type)
 			{
@@ -72,12 +72,12 @@ namespace oe::graphics
 			}
 		}
 
-		size_t vertex_count() const
+		int32_t vertex_count() const
 		{
 			return m_primitive_count * vertex_per_primitive();
 		}
 
-		size_t index_count() const
+		int32_t index_count() const
 		{
 			return m_primitive_count * index_per_primitive();
 		}
@@ -99,7 +99,7 @@ namespace oe::graphics
 			}
 		}
 
-		static uint16_t* gen_simple(size_t primitive_count)
+		static uint16_t* gen_simple(int32_t primitive_count)
 		{
 			uint16_t* index_array = new uint16_t[primitive_count];
 			for (int i = 0; i < primitive_count; i++) {
@@ -143,7 +143,7 @@ namespace oe::graphics
 		static_array<float> optional_vertex_gen(const void* copied = nullptr) const
 		{
 			float* vb;
-			size_t size = vertex_count() * (size_t)T::component_count;
+			int32_t size = std::abs(vertex_count() * (int32_t)T::component_count);
 			
 			if (copied == nullptr) {
 				vb = nullptr;

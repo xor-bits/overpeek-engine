@@ -7,6 +7,7 @@
 #include "engine/graphics/interface/index_buffer_gen.hpp"
 #include "engine/graphics/interface/framebuffer.hpp"
 #include "engine/graphics/interface/window.hpp"
+#include "engine/graphics/interface/shader.hpp"
 #include "engine/graphics/spritePacker.hpp"
 
 #include "engine/assets/default_shader/default_shader.hpp"
@@ -156,8 +157,7 @@ namespace oe::gui
 			TextureInfo ti;
 			ti.data = checker_img.data;
 			ti.data_format = checker_img.format;
-			ti.size = { static_cast<size_t>(checker_img.width), static_cast<size_t>(checker_img.height) };
-			ti.offset = { 0, 0 };
+			ti.size_offset = { { checker_img.width, 0 }, { checker_img.height, 0 } };
 			ti.wrap = oe::texture_wrap::repeat;
 
 			c_checkerboard = {
@@ -191,8 +191,8 @@ namespace oe::gui
 	};
 	ColorPickerWheelRenderer* ColorPickerWheelRenderer::singleton = nullptr;
 
-	ColorPickerWheel::ColorPickerWheel(const ColorPickerWheelInfo& color_picker_info)
-		: SpritePanel({ color_picker_info.color_picker_info.background_color, color_picker_info.color_picker_info.sprite, 0.0f, false, color_picker_info.color_picker_info.widget_info })
+	ColorPickerWheel::ColorPickerWheel(Widget* parent, GUI& gui_manager, const ColorPickerWheelInfo& color_picker_info)
+		: SpritePanel(parent, gui_manager, { color_picker_info.color_picker_info.background_color, color_picker_info.color_picker_info.sprite, 0.0f, false, color_picker_info.color_picker_info.widget_info })
 		, m_color_picker_info(color_picker_info)
 	{
 		triangle_vertices[0].color = oe::colors::red;
@@ -209,11 +209,11 @@ namespace oe::gui
 		lsp_info.widget_info.size = glm::ivec2{ std::min(m_info.size.x, m_info.size.y - 25) };
 		lsp_info.widget_info.align_parent = oe::alignments::top_center;
 		lsp_info.widget_info.align_render = oe::alignments::top_center;
+		lsp_info.widget_info.toggled = color_picker_info.color_picker_info.widget_info.toggled;
 		lsp_info.sprite = &renderer.c_checkerboard;
 		lsp_info.color = oe::colors::white;
 		lsp_info.sprite_alpha = true;
-		m_framebuffer_panel = new SpritePanel(lsp_info);
-		addSubWidget(m_framebuffer_panel);
+		m_framebuffer_panel = create<SpritePanel>(lsp_info);
 
 		if (color_picker_info.preview)
 		{
@@ -222,21 +222,22 @@ namespace oe::gui
 			sp_info.widget_info.offset_position = { 5, 5 };
 			sp_info.widget_info.align_parent = oe::alignments::top_left;
 			sp_info.widget_info.align_render = oe::alignments::top_left;
+			sp_info.widget_info.toggled = color_picker_info.color_picker_info.widget_info.toggled;
 			sp_info.sprite = renderer.c_circle_sprite;
 			sp_info.sprite_alpha = true;
 			sp_info.color = oe::colors::white;
-			m_preview = new SpritePanel(sp_info);
-			addSubWidget(m_preview);
+			m_preview = create<SpritePanel>(sp_info);
 		}
 
 		if (color_picker_info.alpha)
 		{
 			SliderInfo s_info;
-			s_info.widget_info.size = { color_picker_info.color_picker_info.widget_info.size.x - 10, 15 };
 			s_info.knob_size = { 16, 16 };
+			s_info.widget_info.size = { color_picker_info.color_picker_info.widget_info.size.x - 10, 15 };
 			s_info.widget_info.offset_position = { 0, -5 };
 			s_info.widget_info.align_parent = oe::alignments::bottom_center;
 			s_info.widget_info.align_render = oe::alignments::bottom_center;
+			s_info.widget_info.toggled = color_picker_info.color_picker_info.widget_info.toggled;
 			s_info.slider_sprite = &renderer.c_checkerboard;
 			s_info.knob_sprite = &renderer.c_checkerboard;
 			s_info.value_bounds = { 0.0f, 1.0f };
@@ -245,8 +246,7 @@ namespace oe::gui
 			s_info.slider_lcolor = oe::colors::white;
 			s_info.slider_rcolor = oe::colors::black;
 			s_info.knob_sprite = color_picker_info.color_picker_info.sprite;
-			m_alpha_slider = new Slider(s_info);
-			addSubWidget(m_alpha_slider);
+			m_alpha_slider = create<Slider>(s_info);
 		}
 
 		glm::vec4 tmp = m_color_picker_info.color_picker_info.initial_color;
@@ -266,27 +266,31 @@ namespace oe::gui
 		m_color_picker_info.color_picker_info.initial_color.a = event.value;
 		update();
 	}
-
-	void ColorPickerWheel::managerAssigned()
+	
+	void ColorPickerWheel::virtual_toggle(bool enabled)
 	{
-		wheel_fb = { { m_framebuffer_panel->m_info.size }, m_gui_manager->getWindow() };
-		m_framebuffer_panel->sprite_panel_info.sprite = &wheel_fb->getSprite();
+		SpritePanel::virtual_toggle(enabled);
+		if(enabled)
+		{
+			wheel_fb = { { m_framebuffer_panel->m_info.size }, m_gui_manager.getWindow() };
+			m_framebuffer_panel->sprite_panel_info.sprite = &wheel_fb->getSprite();
 
-		// event listeners
-		m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&ColorPickerWheel::on_render>(this);
-		m_gui_manager->getWindow()->connect_listener<oe::CursorPosEvent, &ColorPickerWheel::on_cursor>(this);
-		m_gui_manager->getWindow()->connect_listener<oe::MouseButtonEvent, &ColorPickerWheel::on_button>(this);
-	}
+			// event listeners
+			std::lock_guard lock(m_gui_manager.getWindow()->dispatcher_mutex);
+			m_cg_render = { m_gui_manager.dispatcher, this };
+			m_cg_cursor = { m_gui_manager.getWindow()->getGameloop().getDispatcher(), this };
+			m_cg_button = { m_gui_manager.getWindow()->getGameloop().getDispatcher(), this };
+		}
+		else
+		{
+			sprite_panel_info.sprite = m_color_picker_info.color_picker_info.sprite;
+			wheel_fb.reset();
 
-	void ColorPickerWheel::managerUnassigned()
-	{
-		sprite_panel_info.sprite = m_color_picker_info.color_picker_info.sprite;
-		wheel_fb.reset();
-
-		// event listeners
-		m_gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&ColorPickerWheel::on_render>(this);
-		m_gui_manager->getWindow()->disconnect_listener<oe::CursorPosEvent, &ColorPickerWheel::on_cursor>(this);
-		m_gui_manager->getWindow()->disconnect_listener<oe::MouseButtonEvent, &ColorPickerWheel::on_button>(this);
+			// event listeners
+			m_cg_render.reset();
+			m_cg_cursor.reset();
+			m_cg_button.reset();
+		}
 	}
 
 	const glm::vec4& ColorPickerWheel::get() const
@@ -399,7 +403,7 @@ namespace oe::gui
 
 		renderer.c_checkerboard.size = m_alpha_slider->m_info.size / 8;
 
-		m_gui_manager->getWindow()->bind();
+		m_gui_manager.getWindow()->bind();
 	}
 
 	void ColorPickerWheel::on_cursor(const CursorPosEvent& event)

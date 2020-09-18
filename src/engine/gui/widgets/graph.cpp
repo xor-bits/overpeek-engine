@@ -2,9 +2,10 @@
 
 #include "engine/gui/gui_manager.hpp"
 #include "engine/assets/default_shader/shader.vert.hpp"
-#include "engine/graphics/interface/renderer.hpp"
+#include "engine/graphics/renderer.hpp"
 #include "engine/graphics/interface/shader.hpp"
 #include "engine/graphics/interface/window.hpp"
+#include "engine/graphics/interface/framebuffer.hpp"
 #include "engine/graphics/spritePacker.hpp"
 #include "engine/utility/random.hpp"
 
@@ -76,7 +77,7 @@ namespace oe::gui
 		GraphRenderer(const GraphRenderer& copy) = delete;
 		GraphRenderer()
 			: g_shader({ "asset:graph_shader", { { oe::shader_stages::vertex_shader, shader_vert_gl }, { oe::shader_stages::fragment_shader, graph_shader_frag } } })
-			, g_renderer(oe::RendererInfo{ 1 })
+			, g_renderer({ 1 })
 			, g_pack()
 		{
 			g_pack.construct();
@@ -85,7 +86,7 @@ namespace oe::gui
 			quad->setPosition({ -1.0f, -1.0f });
 			quad->setSize({ 2.0f, 2.0f });
 			quad->setSprite(g_pack.emptySprite());
-			quad->update(quad);
+			quad->update();
 
 			g_renderer.forget(std::move(quad));
 		}
@@ -101,34 +102,41 @@ namespace oe::gui
 
 
 
-    Graph::Graph(const GraphInfo& info)
-        : SpritePanel(info.bg_panel_info)
+    Graph::Graph(Widget* parent, GUI& gui_manager, const GraphInfo& info)
+        : SpritePanel(parent, gui_manager, info.bg_panel_info)
         , m_graph_info(info)
-		, m_graph({ info.graph_color, info.bg_panel_info.sprite, info.bg_panel_info.rotation, false, info.bg_panel_info.widget_info })
     {
         std::swap(m_graph_info.graph_color, sprite_panel_info.color);
+		m_graph = create<SpritePanel>(SpritePanelInfo{ m_graph_info.graph_color, m_graph_info.bg_panel_info.sprite, m_graph_info.bg_panel_info.rotation, true, m_graph_info.bg_panel_info.widget_info });
+		m_graph->m_info.align_parent = oe::alignments::top_left;
+		m_graph->m_info.align_render = oe::alignments::top_left;
+		m_graph->m_info.offset_position = { 0, 0 };
+		sprite_panel_info.sprite = nullptr;
     }
-
-	void Graph::managerAssigned()
+	
+	void Graph::virtual_toggle(bool enabled)
 	{
-		graph_fb = oe::graphics::FrameBuffer({ m_info.size }, m_gui_manager->getWindow());
+		SpritePanel::virtual_toggle(enabled);
+		if(enabled)
+		{
+			graph_fb = oe::graphics::FrameBuffer({ m_info.size }, m_gui_manager.getWindow());
 
-		// event listeners
-		m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&Graph::on_render>(this);
-	}
+			// event listeners
+			m_cg_render = { m_gui_manager.dispatcher, this };
+		}
+		else
+		{
+			graph_fb.reset();
 
-	void Graph::managerUnassigned()
-	{
-		graph_fb.reset();
-
-		// event listeners
-		m_gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&Graph::on_render>(this);
+			// event listeners
+			m_cg_render.reset();
+		}
 	}
 	
 	void Graph::on_render(const GUIRenderEvent& event)
 	{
 		graph_fb->bind();
-		graph_fb->clear(m_graph_info.graph_color);
+		graph_fb->clear(oe::colors::transparent/* m_graph_info.graph_color */);
 
 		glm::ivec2 viewport = m_info.size;
 		if(m_graph_info.graph_data.size() != 0) viewport += glm::ivec2(m_info.size.x / m_graph_info.graph_data.size(), 0.0f);
@@ -140,7 +148,7 @@ namespace oe::gui
 		graph_renderer.g_shader->setUniform("u_line_w", m_graph_info.graph_line_width);
 		graph_renderer.g_renderer.render();
 
-		m_gui_manager->getWindow()->bind();
+		m_gui_manager.getWindow()->bind();
 
 		sprite_panel_info.sprite = &graph_fb->getSprite();
 	}

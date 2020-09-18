@@ -18,10 +18,10 @@ namespace oe::graphics {
 		RendererInfo m_renderer_info;
 
 	protected:
-		size_t m_vertex_count;
-		size_t m_buffer_pos;
-		size_t m_index_per_primitive;
-		size_t m_vertex_per_primitive;
+		int32_t m_vertex_count;
+		int32_t m_buffer_pos;
+		int32_t m_index_per_primitive;
+		int32_t m_vertex_per_primitive;
 
 	public:
 		IBasicPrimitiveRenderer(const RendererInfo& renderer_info)
@@ -33,23 +33,23 @@ namespace oe::graphics {
 		virtual ~IBasicPrimitiveRenderer()
 		{}
 
-		virtual vertex_type* modifyVertex(size_t vertex_count, size_t first_index = 0) = 0;
-		virtual void submitVertex(const vertex_type* first_vertex, size_t vertex_count, size_t first_index = 0) = 0;
+		virtual vertex_type* modifyVertex(int32_t vertex_count, int32_t first_index = 0) = 0;
+		virtual void submitVertex(const vertex_type* first_vertex, int32_t vertex_count, int32_t first_index = 0) = 0;
 
-		void submitVertex(const vertex_type& vertex, size_t index = 0)
+		void submitVertex(const vertex_type& vertex, int32_t index = 0)
 		{
 			return submitVertex(&vertex, 1, index);
 		}
 		
 		template<typename arr_type>
-		void submitVertex(const arr_type& arr, size_t first_index = 0, typename std::enable_if<oe::is_container<arr_type>::value >::type* = 0)
+		void submitVertex(const arr_type& arr, int32_t first_index = 0, typename std::enable_if<oe::is_container<arr_type>::value >::type* = 0)
 		{
-			return submitVertex(arr.data(), arr.size(), first_index);
+			return submitVertex(arr.data(), static_cast<int32_t>(std::clamp<size_t>(arr.size(), 0, std::numeric_limits<int32_t>::max())), first_index);
 		}
 		
 		virtual void begin() = 0;
 		virtual void end() = 0;
-		virtual void render(size_t override_primitive_count) const = 0;
+		virtual void _render(int32_t override_primitive_offset = 0, int32_t override_primitive_count = std::numeric_limits<int32_t>::max()) const = 0;
 
 	public:
 		void submitVertex(const vertex_type& vertex)
@@ -58,17 +58,22 @@ namespace oe::graphics {
 			m_buffer_pos++;
 		}
 
-		size_t& bufferPos()
+		int32_t& bufferPos()
 		{
 			return m_buffer_pos;
 		}
 
-		size_t& vertexCount() 
+		int32_t& vertexCount()
 		{ 
 			return m_vertex_count; 
 		}
 
-		size_t maxQuadCount() const 
+		int32_t primitiveCount() const
+		{ 
+			return vertexCount() / m_index_per_primitive; 
+		}
+
+		int32_t maxPrimitiveCount() const
 		{ 
 			return m_renderer_info.max_primitive_count; 
 		}
@@ -79,11 +84,10 @@ namespace oe::graphics {
 			m_vertex_count = 0;
 		}
 
-		void render() 
+		void render(int32_t override_primitive_offset = 0, int32_t override_primitive_count = std::numeric_limits<int32_t>::max())
 		{
-			size_t primitive_count = m_vertex_count / m_vertex_per_primitive;
 			Engine::draw_calls++;
-			render(primitive_count);
+			_render(override_primitive_offset, override_primitive_count);
 		}
 
 	};

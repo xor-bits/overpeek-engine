@@ -17,9 +17,11 @@
 
 
 
-namespace oe::graphics {
+namespace oe::graphics
+{
 
-	unsigned int GLShader::loadShader(const std::string_view& name, const std::string_view& source, unsigned int shadertype) {
+	unsigned int GLShader::loadShader(const std::string_view& name, const std::string_view& source, unsigned int shadertype)
+	{
 		//Load and compile
 		const char* shaderChar = source.data();
 
@@ -33,7 +35,8 @@ namespace oe::graphics {
 		return shader;
 	}
 
-	void GLShader::shaderLog(const std::string_view& name, unsigned int shader, unsigned int type) const {
+	void GLShader::shaderLog(const std::string_view& name, unsigned int shader, unsigned int type) const
+	{
 		int success = false;
 		glGetShaderiv(shader, type, &success);
 		if (!success)
@@ -48,7 +51,8 @@ namespace oe::graphics {
 		}
 	}
 
-	void GLShader::programLog(const std::string_view& name, int program, unsigned int type) const {
+	void GLShader::programLog(const std::string_view& name, int program, unsigned int type) const
+	{
 		int success = false;
 		glGetProgramiv(program, type, &success);
 		if (!success)
@@ -139,7 +143,8 @@ namespace oe::graphics {
 		}
 	}
 
-	GLShader::~GLShader() {
+	GLShader::~GLShader()
+	{
 		glDeleteProgram(p_shader_program);
 	}
 

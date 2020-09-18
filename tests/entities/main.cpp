@@ -14,9 +14,9 @@ oe::graphics::Window window;
 oe::assets::DefaultShader* shader;
 oe::graphics::SpritePack* pack;
 oe::graphics::Sprite const* sprite;
-oe::gui::GUI* gui_manager;
-oe::gui::TextPanel* text_label;
 oe::ecs::World* world;
+oe::gui::GUI* gui_manager;
+std::shared_ptr<oe::gui::TextPanel> text_label;
 
 
 
@@ -70,7 +70,7 @@ struct GenericScript : public oe::ecs::Behaviour
 		quad.quad_holder->setPosition({ pos.x, pos.y });
 		quad.quad_holder->setSprite(sprite);
 		quad.quad_holder->setRotation(rotation);
-		quad.quad_holder->update(quad.quad_holder);
+		quad.quad_holder->update();
 	}
 };
 
@@ -125,7 +125,7 @@ void setup()
 }
 
 // render event
-void render(oe::utils::RenderEvent)
+void render(oe::RenderEvent)
 {
 	window->clear(oe::colors::transparent);
 
@@ -153,7 +153,7 @@ void resize(const oe::ResizeEvent& event)
 }
 
 // update event 30 times per second
-void update_30(oe::utils::UpdateEvent<30>)
+void update_30(oe::UpdateEvent<30>)
 {
 	auto& gameloop = window->getGameloop();
 	std::u32string perf_info = fmt::format(U"- frametime: {:3.3f} ms ({} fps)\n- updatetime: {:3.3f} ms ({} ups)", gameloop.getFrametimeMS(), gameloop.getAverageFPS(), gameloop.getUpdatetimeMS<updates_per_second>(), gameloop.getAverageUPS<updates_per_second>());
@@ -170,7 +170,7 @@ void update()
 		src->on_custom_update();
 	});
 
-	box2d_world.Step(inverse_ups, 8, 8);
+	box2d_world.Step(inverse_ups, 8, 3);
 }
 
 void gui()
@@ -186,8 +186,7 @@ void gui()
 		s_info.slider_rcolor = oe::colors::green;
 		s_info.slider_sprite = pack->emptySprite();
 		s_info.value_bounds = { -10.0f, 10.0f, };
-		auto slider = new oe::gui::Slider(s_info);
-		gui_manager->addSubWidget(slider);
+		auto slider = gui_manager->create<oe::gui::Slider>(s_info);
 		auto callback_lambda = [&](const oe::gui::SliderUseEvent& e)
 		{
 			world->m_scene.view<std::unique_ptr<MotorScript>>().each([&e](std::unique_ptr<MotorScript>& src) {
@@ -203,21 +202,20 @@ void gui()
 		tp_info.widget_info.align_parent = oe::alignments::top_left;
 		tp_info.widget_info.align_render = oe::alignments::top_left;
 		tp_info.text = U"placeholder";
-		text_label = new oe::gui::TextPanel(tp_info);
-		gui_manager->addSubWidget(text_label);
+		text_label = gui_manager->create<oe::gui::TextPanel>(tp_info);
 	}
 }
 
-void init(oe::utils::InitEvent)
+void init(oe::InitEvent)
 {
 	auto& engine = oe::Engine::getSingleton();
 	engine.depth(oe::depth_functions::always);
 
 	// connect events (this can also be done in (int main()))
 	window->connect_listener<oe::ResizeEvent, &resize>();
-	window->connect_listener<oe::utils::RenderEvent, &render>();
-	window->connect_listener<oe::utils::UpdateEvent<30>, &update_30>();
-	window->connect_listener<oe::utils::UpdateEvent<updates_per_second>, &update>();
+	window->connect_listener<oe::RenderEvent, &render>();
+	window->connect_listener<oe::UpdateEvent<30>, &update_30>();
+	window->connect_listener<oe::UpdateEvent<updates_per_second>, &update>();
 
 	// instance settings
 	engine.culling(oe::culling_modes::back);
@@ -239,9 +237,10 @@ void init(oe::utils::InitEvent)
 	setup();
 }
 
-void cleanup(oe::utils::CleanupEvent)
+void cleanup(oe::CleanupEvent)
 {
 	// closing
+	text_label.reset();
 	delete gui_manager;
 	delete pack;
 	delete shader;
@@ -265,8 +264,8 @@ int main(int argc, char* argv[])
 	window_info.transparent = true;
 	// window_info.borderless = true;
 	window = oe::graphics::Window(window_info);
-	window->connect_listener<oe::utils::InitEvent, &init>();
-	window->connect_listener<oe::utils::CleanupEvent, &cleanup>();
+	window->connect_listener<oe::InitEvent, &init>();
+	window->connect_listener<oe::CleanupEvent, &cleanup>();
 	
 	window->getGameloop().start();
 	return 0;

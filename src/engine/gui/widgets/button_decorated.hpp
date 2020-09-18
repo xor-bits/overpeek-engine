@@ -14,7 +14,7 @@ namespace oe::gui
 	{
 		glm::ivec2 padding                 = { 8, 8 };
 		std::u32string text                = U"";
-		size_t text_font_size              = 28;
+		uint16_t text_font_size            = 28;
 		std::string text_font_path         = ""; // empty for gui default
 		bool autoresize                    = false;
 		glm::vec4 color                    = oe::colors::dark_grey;
@@ -31,19 +31,20 @@ namespace oe::gui
 		ButtonUseEvent event_use_latest;
 
 	private:
-		SpritePanel* button_background;
-		TextPanel* button_text;
+		std::shared_ptr<SpritePanel> button_background;
+		std::shared_ptr<TextPanel> button_text;
 
 	public:
-		DecoratedButton(const DecoratedButtonInfo& button_info = {});
+		DecoratedButton(Widget* parent, GUI& gui_manager, const DecoratedButtonInfo& button_info = {});
 		~DecoratedButton();
 
-		virtual void managerAssigned() override;
-		virtual void managerUnassigned() override;
-		
+		virtual void virtual_toggle(bool enabled) override;
+	
 	private:
 		// events
 		void on_render(const GUIRenderEvent& event);
+		oe::utils::connect_guard<GUIRenderEvent, &DecoratedButton::on_render, DecoratedButton> m_cg_render;
+		;
 	};
 
 }

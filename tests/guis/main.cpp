@@ -6,15 +6,15 @@
 
 
 oe::gui::GUI* gui;
-oe::gui::TextInput* textbox;
-oe::gui::TextPanel* textpanel;
-oe::gui::SpritePanel* box;
-oe::gui::List* list;
-oe::gui::Checkbox* checkbox;
-oe::gui::VecSlider<4>* quat_slider;
-oe::gui::Graph* graph_fps;
-oe::gui::Graph* graph_ups;
-oe::gui::ColorPicker* color_picker;
+std::shared_ptr<oe::gui::TextInput> textbox;
+std::shared_ptr<oe::gui::TextPanel> textpanel;
+std::shared_ptr<oe::gui::SpritePanel> box;
+std::shared_ptr<oe::gui::List> list;
+std::shared_ptr<oe::gui::Checkbox> checkbox;
+std::shared_ptr<oe::gui::VecSlider<4>> quat_slider;
+std::shared_ptr<oe::gui::Graph> graph_fps;
+std::shared_ptr<oe::gui::Graph> graph_ups;
+std::shared_ptr<oe::gui::ColorPicker> color_picker;
 std::array<float, 200> perf_log_fps;
 std::array<float, 50> perf_log_ups;
 
@@ -37,8 +37,8 @@ class Checkpoint : public oe::gui::TextPanel
 public:
 	glm::quat quaternion;
 
-	Checkpoint(const glm::quat& quat)
-		: TextPanel(tpi)
+	Checkpoint(oe::gui::Widget* parent, oe::gui::GUI& gui_manager, const glm::quat& quat)
+		: TextPanel(parent, gui_manager, tpi)
 	{
 		quaternion = quat;
 		text_panel_info.text = fmt::format(U"{:.1f}", quaternion);
@@ -144,7 +144,7 @@ void cube()
 }
 
 // render event
-void render(oe::utils::RenderEvent)
+void render(oe::RenderEvent)
 {
 	cube();
 
@@ -155,7 +155,7 @@ void render(oe::utils::RenderEvent)
 // framebuffer resize
 void resize(const oe::ResizeEvent& event)
 {
-	if (event.framebuffer_size == glm::ivec2{ 0, 1 }) return;
+	if (event.framebuffer_size == glm::uvec2{ 0, 1 }) return;
 
 	glm::mat4 pr_matrix = glm::perspectiveFov(30.0f, (float)event.framebuffer_size.x, (float)event.framebuffer_size.y, 0.0f, 1000.0f);
 	glm::mat4 vw_matrix = glm::lookAt(glm::vec3(0.0f, 0.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -185,7 +185,7 @@ struct transform_cast
 };
 
 // update 30 times per second
-void update_30(oe::utils::UpdateEvent<30>)
+void update_30(oe::UpdateEvent<30>)
 {
 	auto& gameloop = window->getGameloop(); 
 	std::u32string str = fmt::format(U"frametime: {:3.3f} ms ({} fps) updatetime: {:3.3f} ms ({} ups)", gameloop.getFrametimeMS(), gameloop.getAverageFPS(), gameloop.getUpdatetimeMS<30>(), gameloop.getAverageUPS<30>());
@@ -207,7 +207,7 @@ void update_30(oe::utils::UpdateEvent<30>)
 void append_list(const glm::quat& quat)
 {
 	if(!list) return;
-	list->add(new Checkpoint(quat));
+	// list->add(new Checkpoint(quat));
 }
 
 // gui
@@ -217,16 +217,14 @@ void setup_gui()
 		oe::gui::SpritePanelInfo sprite_panel_info;
 		sprite_panel_info.widget_info = { { 150, 150 }, { 0, 0 }, oe::alignments::bottom_left, oe::alignments::bottom_left };
 		sprite_panel_info.sprite = sprite;
-		box = new oe::gui::SpritePanel(sprite_panel_info);
-		gui->addSubWidget(box);
+		box = gui->create<oe::gui::SpritePanel>(sprite_panel_info);
 	}
 	{
 		oe::gui::TextInputInfo text_input_info;
 		text_input_info.widget_info = { { 200, 80 }, { 0, 0 }, oe::alignments::bottom_right, oe::alignments::bottom_right };
 		text_input_info.font_size = 14;
 		text_input_info.sprite = pack->emptySprite();
-		textbox = new oe::gui::TextInput(text_input_info);
-		gui->addSubWidget(textbox);
+		textbox = gui->create<oe::gui::TextInput>(text_input_info);
 	}
 	{
 		oe::gui::VecSliderInfo<4> vecslider_info;
@@ -237,15 +235,13 @@ void setup_gui()
 		vecslider_info.min_values = { -glm::pi<float>(), -1.0f, -1.0f, -1.0f };
 		vecslider_info.max_values = { glm::pi<float>(), 1.0f, 1.0f, 1.0f };
 		vecslider_info.initial_values = { 0.0f, 1.0f, 1.0f, 1.0f };
-		quat_slider = new oe::gui::VecSlider<4>(vecslider_info);
-		gui->addSubWidget(quat_slider);
+		quat_slider = gui->create<oe::gui::VecSlider<4>>(vecslider_info);
 	}
 	{
 		oe::gui::CheckboxInfo ci;
 		ci.widget_info = { { 24, 24 }, { 0, -35 }, oe::alignments::bottom_center, oe::alignments::bottom_center };
 		ci.sprite = pack->emptySprite();
-		checkbox = new oe::gui::Checkbox(ci);
-		gui->addSubWidget(checkbox);
+		checkbox = gui->create<oe::gui::Checkbox>(ci);
 
 		{
 			oe::gui::DecoratedButtonInfo button_info;
@@ -253,8 +249,7 @@ void setup_gui()
 			button_info.sprite = pack->emptySprite();
 			button_info.text = U"log";
 			button_info.text_font_size = 18;
-			auto button = new oe::gui::DecoratedButton(button_info);
-			checkbox->addSubWidget(button);
+			auto& button = checkbox->create<oe::gui::DecoratedButton>(button_info);
 
 			auto callback_lambda = [&](const oe::gui::ButtonUseEvent& e) {
 				if (e.action == oe::actions::release && e.button == oe::mouse_buttons::button_left) {
@@ -271,8 +266,7 @@ void setup_gui()
 		color_picker_info.widget_info = { { 200, 100 }, { 0, 0 }, oe::alignments::center_left, oe::alignments::center_left };
 		color_picker_info.sprite = pack->emptySprite();
 		color_picker_info.popup_color_picker_wheel = true;
-		color_picker = new oe::gui::ColorPicker(color_picker_info);
-		gui->addSubWidget(color_picker);
+		color_picker = gui->create<oe::gui::ColorPicker>(color_picker_info);
 
 		auto picker_callback_lambda = [&](const oe::gui::ColorPickerUseEvent& e)
 		{
@@ -287,8 +281,7 @@ void setup_gui()
 		text_panel_info.text = U"placeholder";
 		text_panel_info.font_path = oe::default_full_font_path_bolditalic;
 		/* text_panel_info.background_color = oe::colors::translucent_black; */
-		textpanel = new oe::gui::TextPanel(text_panel_info);
-		gui->addSubWidget(textpanel);
+		textpanel = gui->create<oe::gui::TextPanel>(text_panel_info);
 
 		if constexpr (graphs) {
 			oe::gui::GraphInfo graph_info;
@@ -298,13 +291,11 @@ void setup_gui()
 			graph_info.bg_panel_info.widget_info.align_render = oe::alignments::top_left;
 			graph_info.bg_panel_info.sprite = pack->emptySprite();
 			graph_info.graph_color = oe::colors::green;
-			graph_fps = new oe::gui::Graph(graph_info);
-			textpanel->addSubWidget(graph_fps);
+			graph_fps = textpanel->create<oe::gui::Graph>(graph_info);
 			
 			graph_info.bg_panel_info.widget_info.offset_position = { 205, 5 };
 			graph_info.graph_color = oe::colors::blue;
-			graph_ups = new oe::gui::Graph(graph_info);
-			textpanel->addSubWidget(graph_ups);
+			graph_ups = textpanel->create<oe::gui::Graph>(graph_info);
 		}
 	}
 	{
@@ -313,10 +304,7 @@ void setup_gui()
 		list_info.sprite = pack->emptySprite();
 		list_info.title = U"Loglist";
 		list_info.title_height = 28;
-		list = new oe::gui::List(list_info);
-		gui->addSubWidget(list);
-
-		// list->toggle(false); // TODO: fix bug that makes list not disappear, but go to oe::allignments::top_left
+		list = gui->create<oe::gui::List>(list_info);
 	}
 
 	tpi = {};
@@ -348,8 +336,8 @@ int main()
 
 	// connect events
 	window->connect_listener<oe::ResizeEvent, &resize>();
-	window->connect_listener<oe::utils::RenderEvent, &render>();
-	window->connect_listener<oe::utils::UpdateEvent<30>, &update_30>();
+	window->connect_listener<oe::RenderEvent, &render>();
+	window->connect_listener<oe::UpdateEvent<30>, &update_30>();
 
 	// instance settings
 	engine.swapInterval(1);

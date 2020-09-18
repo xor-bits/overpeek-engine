@@ -11,7 +11,7 @@ oe::assets::DefaultShader* shader;
 oe::graphics::Font* font;
 
 oe::graphics::u32TextLabel* label;
-std::shared_ptr<oe::graphics::Quad> quad;
+std::unique_ptr<oe::graphics::Quad> quad;
 
 
 

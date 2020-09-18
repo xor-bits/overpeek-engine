@@ -49,15 +49,16 @@ set(source_list ${source_list}
 	"engine/graphics/textLabel.cpp"
 	"engine/graphics/textLabel.hpp"
 	"engine/graphics/vertexData.hpp"
+	"engine/graphics/primitives.cpp"
+	"engine/graphics/primitives.hpp"
+	"engine/graphics/renderer.cpp"
+	"engine/graphics/renderer.hpp"
 )
 set(source_list ${source_list} 
 	"engine/graphics/interface/framebuffer.cpp"
 	"engine/graphics/interface/framebuffer.hpp"
 	"engine/graphics/interface/index_buffer_gen.hpp"
-	"engine/graphics/interface/instance.cpp"
 	"engine/graphics/interface/instance.hpp"
-	"engine/graphics/interface/renderer.cpp"
-	"engine/graphics/interface/renderer.hpp"
 	"engine/graphics/interface/primitive_renderer.hpp"
 	"engine/graphics/interface/shader.cpp"
 	"engine/graphics/interface/shader.hpp"
@@ -171,6 +172,7 @@ set(source_list ${source_list}
 	"engine/utility/random.hpp"
 	"engine/utility/zip.cpp"
 	"engine/utility/zip.hpp"
+	"engine/utility/connect_guard.hpp"
 )
 
 set(target_name "engine")

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <algorithm>
+#include <numeric>
 
 #include "engine/interfacegen.hpp"
 #include "engine/internal_libs.hpp"
@@ -14,27 +16,62 @@ namespace oe::graphics { class Font; class Renderer; }
 namespace oe::graphics
 {
 	template<typename char_type>
+	struct text_render_input
+	{
+		std::basic_string<char_type> string;
+		std::unordered_map<size_t, glm::vec4> string_color_map;
+
+		text_render_input(const std::vector<std::pair<std::basic_string<char_type>, glm::vec4>>& _string_vec)
+		{
+			string.reserve(std::accumulate(_string_vec.begin(), _string_vec.end(), static_cast<size_t>(0), [](size_t count, const std::pair<std::basic_string<char_type>, glm::vec4>& pair){ return count + pair.first.size(); }));
+			for (const auto& pair : _string_vec)
+			{
+				string_color_map.insert({ string.size(), pair.second });
+				string.insert(string.size(), pair.first);
+			}
+		}
+
+		text_render_input(const std::basic_string<char_type>& _string, const glm::vec4& _color)
+			: string(_string)
+			, string_color_map({ { 0, _color } })
+		{}
+
+		text_render_input(const std::basic_string<char_type>& _string)
+			: text_render_input(_string, oe::colors::white)
+		{}
+
+		text_render_input()
+			: string()
+			, string_color_map({ { 0, oe::colors::white } })
+		{}
+
+		bool operator==(const text_render_input& right)
+		{
+			return string == right.string && string_color_map == right.string_color_map;
+		}
+	};
+
+	template<typename char_type>
 	class BasicText {
 	public:
-		typedef std::basic_string<char_type> string_type;
+		using string_t = text_render_input<char_type>;
 
-		static glm::vec2 size(Font& font, const string_type& text, const glm::vec2& size);
-		static void submit(Renderer& renderer, Font& font, const string_type& text, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align = alignments::top_left, const glm::vec4& bg_color = glm::vec4(0.0f));
-		static void submit(Renderer& renderer, Font& font, const string_type& text, const glm::vec2& pos, float size, const glm::vec2& align = alignments::top_left, const glm::vec4& bg_color = glm::vec4(0.0f)) { submit(renderer, font, text, pos, glm::vec2(size, size), align, bg_color); }
-
+		static glm::vec2 size(Font& font, const string_t& text, const glm::vec2& size);
+		static void submit(Renderer& renderer, Font& font, const string_t& text, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align = alignments::top_left, const glm::vec4& bg_color = glm::vec4(0.0f));
+		static void submit(Renderer& renderer, Font& font, const string_t& text, const glm::vec2& pos, float size, const glm::vec2& align = alignments::top_left, const glm::vec4& bg_color = glm::vec4(0.0f)) { submit(renderer, font, text, pos, glm::vec2(size, size), align, bg_color); }
 	};
 
 	template<typename char_type>
 	class BasicTextLabel
 	{
-		typedef std::basic_string<char_type> string_type;
+		using string_t = text_render_input<char_type>;
 
 		Font& m_font;
 		FrameBuffer m_framebuffer;
 		glm::vec2 m_fb_size;
 		Sprite m_sprite;
 
-		string_type m_text;
+		string_t m_text;
 		glm::vec2 m_size;
 		bool initial_generated = false;
 		
@@ -47,13 +84,13 @@ namespace oe::graphics
 		{}
 
 		// Generate framebuffer and render text to it
-		void generate(const string_type& text, const Window& window, const glm::vec4& color = oe::colors::transparent);
-		void regenerate(const string_type& text, const Window& window, const glm::vec4& color = oe::colors::transparent);
+		void generate(const string_t& text, const Window& window, const glm::vec4& color = oe::colors::transparent);
+		void regenerate(const string_t& text, const Window& window, const glm::vec4& color = oe::colors::transparent);
 
 		inline const FrameBuffer* getFB() const { return &m_framebuffer; }
 		inline const Sprite& getSprite() const { return m_sprite; }
 		inline glm::vec2 getSize() const { return m_size; }
-		inline string_type getText() const { return m_text; }
+		inline string_t getText() const { return m_text; }
 	};
 
 	using TextLabel = BasicTextLabel<char>;

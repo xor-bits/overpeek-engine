@@ -78,7 +78,8 @@ namespace oe {
 		tesselation_evaluation_shader, 
 		geometry_shader, 
 		fragment_shader, 
-		compute_shader
+		compute_shader,
+		none
 	};
 	
 	enum class primitive_types {
@@ -374,21 +375,21 @@ namespace oe {
 	// window open info
 	struct WindowInfo {
 		glm::ivec2 position = { 0, 0 };
-		glm::ivec2 size = { 900, 600 };
+		glm::uvec2 size = { 900, 600 };
 		std::string title = "Overpeek Engine";
-		unsigned char multisamples = 0;
+		uint8_t multisamples = 0;
 		bool borderless = false;
 		bool resizeable = true;
 		bool transparent = false; // does nothing when using emscripten
 		bool fullscreen = false;
 		void* share_handle = nullptr; // pointer to the first window obj for multiwindow setups
-		uint32_t swap_interval = 1;
+		uint8_t swap_interval = 1;
 		size_t main_updatesystem_ups = 60;
 	};
 
 	// renderer create info
 	struct RendererInfo {
-		int max_primitive_count = 10000;
+		int32_t max_primitive_count = 10000;
 		oe::types arrayRenderType = oe::types::dynamic_type;
 		oe::types indexRenderType = oe::types::static_type;
 		void* staticVBOBuffer_data = nullptr;
@@ -429,12 +430,12 @@ namespace oe {
 		texture_wrap wrap = texture_wrap::clamp_to_border;
 		texture_filter filter = texture_filter::nearest;
 
-		std::vector<size_t> size = { 1 };   // must have the same size as (std::vector<size_t> offset)
-		std::vector<size_t> offset = { 0 }; // must have the same size as (std::vector<size_t> size)
+		using size_offset_pair_t = std::pair<int32_t, int32_t>;
+		std::vector<size_offset_pair_t> size_offset = { { 1, 0 } };
 	};
 
 	struct FrameBufferInfo {
-		glm::ivec2 size = { 1, 1 };
+		glm::uvec2 size = { 1, 1 };
 	};
 
 	// events
@@ -446,7 +447,7 @@ namespace oe {
 
     struct CursorPosEvent
     {
-        glm::ivec2 cursor_windowspace = { 0.0f, 0.0f };
+        glm::ivec2 cursor_windowspace = { 0, 0 };
         glm::vec2 cursor_worldspace = { 0.0f, 0.0f };
     };
 
@@ -479,8 +480,8 @@ namespace oe {
 
 	struct ResizeEvent
 	{
-        glm::ivec2 framebuffer_size = { 0, 0 };
-        glm::ivec2 framebuffer_size_old = { 0, 0 };
+        glm::uvec2 framebuffer_size = { 0, 0 };
+        glm::uvec2 framebuffer_size_old = { 0, 0 };
 		float aspect = 0.0f;
 	};
 

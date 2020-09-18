@@ -22,9 +22,9 @@ namespace oe::assets
 		static inline const oe::utils::image_data oe_logo_img = { &oe_logo[0], oe::formats::rgb, 5, 5 };
 
 		// resolution = 2*radius
-		static inline const oe::utils::image_data generate_circle(const size_t radius = 16)
+		static inline const oe::utils::image_data generate_circle(const int radius = 16)
 		{
-			size_t edge_l = 2 * radius;
+			int edge_l = std::abs(2 * radius);
 			oe::utils::image_data img(oe::formats::rgba, edge_l, edge_l);
 
 			for	(size_t i = 0; i < edge_l * edge_l * 4; i += 4)
@@ -43,9 +43,9 @@ namespace oe::assets
 		}
 
 		// resolution = 2*radius
-		static inline const oe::utils::image_data generate_circle_bordered(const size_t radius = 16)
+		static inline const oe::utils::image_data generate_circle_bordered(const int radius = 16)
 		{
-			size_t edge_l = 2 * radius;
+			int edge_l = std::abs(2 * radius);
 			oe::utils::image_data img(oe::formats::rgba, edge_l, edge_l);
 
 			for (size_t i = 0; i < edge_l * edge_l * 4; i += 4)

@@ -12,6 +12,6 @@ namespace oe::ecs
 {
 	struct QuadComponent : public Entity
 	{
-		std::shared_ptr<oe::graphics::Quad> quad_holder;
+		std::unique_ptr<oe::graphics::Quad> quad_holder;
 	};
 }

@@ -10,17 +10,17 @@
 
 
 
-void oe::graphics::native_glDrawElementsPoints(size_t override_index_count)
+void oe::graphics::native_glDrawElementsPoints(const int32_t override_index_offset, const int32_t override_index_count)
 {
-	glDrawElements(GL_POINTS, override_index_count, GL_UNSIGNED_SHORT, 0);
+	glDrawElements(GL_POINTS, std::abs(override_index_count), GL_UNSIGNED_SHORT, reinterpret_cast<void*>(std::abs(override_index_offset) * sizeof(uint16_t)));
 }
 
-void oe::graphics::native_glDrawElementsLines(size_t override_index_count)
+void oe::graphics::native_glDrawElementsLines(const int32_t override_index_offset, const int32_t override_index_count)
 {
-	glDrawElements(GL_LINES, override_index_count, GL_UNSIGNED_SHORT, 0);
+	glDrawElements(GL_LINES, std::abs(override_index_count), GL_UNSIGNED_SHORT, reinterpret_cast<void*>(std::abs(override_index_offset) * sizeof(uint16_t)));
 }
 
-void oe::graphics::native_glDrawElementsTriangles(size_t override_index_count)
+void oe::graphics::native_glDrawElementsTriangles(const int32_t override_index_offset, const int32_t override_index_count)
 {
-	glDrawElements(GL_TRIANGLES, override_index_count, GL_UNSIGNED_SHORT, 0);
+	glDrawElements(GL_TRIANGLES, std::abs(override_index_count), GL_UNSIGNED_SHORT, reinterpret_cast<void*>(std::abs(override_index_offset) * sizeof(uint16_t)));
 }

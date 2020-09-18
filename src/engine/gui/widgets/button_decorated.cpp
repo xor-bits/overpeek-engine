@@ -1,5 +1,6 @@
 #include "button_decorated.hpp"
 #include "engine/gui/gui_manager.hpp"
+#include "engine/graphics/interface/window.hpp"
 
 #include "text_panel.hpp"
 #include "sprite_panel.hpp"
@@ -7,10 +8,10 @@
 
 
 
-namespace oe::gui {
-
-	DecoratedButton::DecoratedButton(const DecoratedButtonInfo& _button_info)
-		: Button(_button_info.button_info)
+namespace oe::gui
+{
+	DecoratedButton::DecoratedButton(Widget* parent, GUI& gui_manager, const DecoratedButtonInfo& _button_info)
+		: Button(parent, gui_manager, _button_info.button_info)
 		, button_info(_button_info)
 	{
 		SpritePanelInfo sp_info;
@@ -19,30 +20,31 @@ namespace oe::gui {
 		sp_info.widget_info.align_render = oe::alignments::center_center;
 		sp_info.sprite = button_info.sprite;
 		sp_info.color = button_info.color;
-		button_background = new oe::gui::SpritePanel(sp_info);
-		addSubWidget(button_background);
+		button_background = create<SpritePanel>(sp_info);
 
 		TextPanelInfo tp_info;
 		tp_info.text = button_info.text;
 		tp_info.font_size = _button_info.text_font_size;
 		tp_info.widget_info.align_parent = oe::alignments::center_center;
 		tp_info.widget_info.align_render = oe::alignments::center_center;
-		button_text = new oe::gui::TextPanel(tp_info);
-		addSubWidget(button_text);
+		button_text = create<TextPanel>(tp_info);
 	}
 
 	DecoratedButton::~DecoratedButton()
 	{
 	}
-
-	void DecoratedButton::managerAssigned()
+	
+	void DecoratedButton::virtual_toggle(bool enabled)
 	{
-		m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&DecoratedButton::on_render>(this);
-	}
-
-	void DecoratedButton::managerUnassigned()
-	{
-		m_gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&DecoratedButton::on_render>(this);
+		Button::virtual_toggle(enabled);
+		if(enabled)
+		{
+			m_cg_render = { m_gui_manager.dispatcher, this };
+		}
+		else
+		{
+			m_cg_render.reset();
+		}
 	}
 
 	void DecoratedButton::on_render(const GUIRenderEvent& event)

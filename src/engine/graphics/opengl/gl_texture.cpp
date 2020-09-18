@@ -79,8 +79,6 @@ namespace oe::graphics
 		m_target = 0;
 		glGenTextures(1, &m_id);
 
-		size_t dimensions = texture_info.size.size();
-		if (dimensions != texture_info.offset.size()) { oe_error_terminate("texture_info.size.size() and texture_info.offset.size() do not match"); }
 
 		// no glTexStorage below gl 4.2, workaround with null texture
 		if(m_texture_info.empty && oe::Engine::getSingleton().instance->versionNumber() < 42)
@@ -90,25 +88,26 @@ namespace oe::graphics
 		}
 
 		// load texture
+		size_t dimensions = texture_info.size_offset.size();
 		switch (dimensions)
 		{
 		case 1:
 			if (m_texture_info.empty)
-				empty1D(texture_info.size[0]);
+				empty1D(texture_info.size_offset[0].first);
 			else
-				load1D(m_texture_info.data, texture_info.size[0]);
+				load1D(m_texture_info.data, texture_info.size_offset[0].first);
 			break;
 		case 2:
 			if (m_texture_info.empty)
-				empty2D(texture_info.size[0], texture_info.size[1]);
+				empty2D(texture_info.size_offset[0].first, texture_info.size_offset[1].first);
 			else
-				load2D(m_texture_info.data, texture_info.size[0], texture_info.size[1]);
+				load2D(m_texture_info.data, texture_info.size_offset[0].first, texture_info.size_offset[1].first);
 			break;
 		case 3:
 			if (m_texture_info.empty)
-				empty3D(texture_info.size[0], texture_info.size[1], texture_info.size[2]);
+				empty3D(texture_info.size_offset[0].first, texture_info.size_offset[1].first, texture_info.size_offset[2].first);
 			else
-				load3D(m_texture_info.data, texture_info.size[0], texture_info.size[1], texture_info.size[2]);
+				load3D(m_texture_info.data, texture_info.size_offset[0].first, texture_info.size_offset[1].first, texture_info.size_offset[2].first);
 			break;
 		default:
 			oe_error_terminate("Unsupported texture dimension ({})", dimensions);
@@ -143,26 +142,33 @@ namespace oe::graphics
 		glBindImageTexture(0, 0, 0, false, 0, GL_WRITE_ONLY, m_gl_internalformat);
 	}
 
-	void GLTexture::setData(const TextureInfo& texture_info) {
-		m_gl_format = gl_format(texture_info.data_format);
-		m_gl_internalformat = gl_internalformat(texture_info.data_format);
-		m_gl_filter = gl_filter(texture_info.filter);
-		m_gl_wrap = gl_wrap(texture_info.wrap);
+	void GLTexture::setData(const TextureInfo& texture_info)
+	{
+		m_texture_info = texture_info;
+		m_gl_format = gl_format(m_texture_info.data_format);
+		m_gl_internalformat = gl_internalformat(m_texture_info.data_format);
+		m_gl_filter = gl_filter(m_texture_info.filter);
+		m_gl_wrap = gl_wrap(m_texture_info.wrap);
 
-		size_t dimensions = texture_info.size.size();
-		if (dimensions != texture_info.offset.size()) { oe_error_terminate("texture_info.size.size() and texture_info.offset.size() do not match"); }
+		size_t dimensions = m_texture_info.size_offset.size();
 
 		// load texture
 		switch (dimensions)
 		{
 		case 1:
-			data1D(m_texture_info.data, texture_info.size[0], texture_info.offset[0]);
+			data1D(m_texture_info.data,
+				m_texture_info.size_offset[0].first, m_texture_info.size_offset[0].second);
 			break;
 		case 2:
-			data2D(m_texture_info.data, texture_info.size[0], texture_info.offset[0], texture_info.size[1], texture_info.offset[1]);
+			data2D(m_texture_info.data,
+				m_texture_info.size_offset[0].first, m_texture_info.size_offset[0].second,
+				m_texture_info.size_offset[1].first, m_texture_info.size_offset[1].second);
 			break;
 		case 3:
-			data3D(m_texture_info.data, texture_info.size[0], texture_info.offset[0], texture_info.size[1], texture_info.offset[1], texture_info.size[2], texture_info.offset[2]);
+			data3D(m_texture_info.data,
+				m_texture_info.size_offset[0].first, m_texture_info.size_offset[0].second,
+				m_texture_info.size_offset[1].first, m_texture_info.size_offset[1].second,
+				m_texture_info.size_offset[2].first, m_texture_info.size_offset[2].second);
 			break;
 		default:
 			oe_error_terminate("Unsupported texture dimension ({})", dimensions);
@@ -177,19 +183,19 @@ namespace oe::graphics
 
 	oe::utils::image_data GLTexture::getImageData() const
 	{
-		if (m_texture_info.size.size() != 2) { oe_error_terminate("Texture dimensions must be 2x2 to getImageData"); }
+		if (m_texture_info.size_offset.size() != 2) { oe_error_terminate("Texture dimensions must be 2x2 to getImageData"); }
 
 		size_t size = 1;
-		size *= m_texture_info.size[0];
-		size *= m_texture_info.size[1];
+		size *= m_texture_info.size_offset[0].first;
+		size *= m_texture_info.size_offset[1].first;
 		size *= oe::sizeofFormat(m_texture_info.data_format);
 
-		uint8_t* data = new uint8_t[size];
+		auto img = oe::utils::image_data(m_texture_info.data_format, m_texture_info.size_offset[0].first, m_texture_info.size_offset[1].first);
 		GLTexture::bind();
 
 #ifndef __EMSCRIPTEN__
 		// OpenGL method for pulling texture pixel data
-		glGetTexImage(m_target, 0, m_gl_format, GL_UNSIGNED_BYTE, data); // read from texture
+		glGetTexImage(m_target, 0, m_gl_format, GL_UNSIGNED_BYTE, img.data); // read from texture
 #else
 		// OpenGL ES method for pulling texture data
 		uint32_t fbo; // generate temporary framebuffer
@@ -204,10 +210,7 @@ namespace oe::graphics
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo_current); // bind the last active fbo back
 		glDeleteFramebuffers(1, &fbo); // and delete the temporary one
 #endif
-
-		auto img = oe::utils::image_data(data, m_texture_info.data_format, m_texture_info.size[0], m_texture_info.size[1]);
 		
-		delete[] data;
 		return img;
 	}
 
@@ -218,7 +221,7 @@ namespace oe::graphics
 #define glTexSubImage1D(m_id, level, x_offset, width, m_gl_format, GL_UNSIGNED_BYTE, data) glTexSubImage2D(m_id, level, x_offset, 0, width, 1, m_gl_format, GL_UNSIGNED_BYTE, data)
 #endif
 
-	void GLTexture::empty1D(size_t width) {
+	void GLTexture::empty1D(int32_t width) {
 		m_target = GL_TEXTURE_1D;
 		GLTexture::bind();
 
@@ -229,7 +232,7 @@ namespace oe::graphics
 		glTexStorage1D(m_target, 1, m_gl_internalformat, width);
 	}
 
-	void GLTexture::empty2D(size_t width, size_t height) {
+	void GLTexture::empty2D(int32_t width, int32_t height) {
 		m_target = GL_TEXTURE_2D;
 		GLTexture::bind();
 
@@ -241,7 +244,7 @@ namespace oe::graphics
 		glTexStorage2D(m_target, 1, m_gl_internalformat, width, height);
 	}
 
-	void GLTexture::empty3D(size_t width, size_t height, size_t depth) {
+	void GLTexture::empty3D(int32_t width, int32_t height, int32_t depth) {
 		m_target = GL_TEXTURE_3D;
 		GLTexture::bind();
 
@@ -254,14 +257,9 @@ namespace oe::graphics
 		glTexStorage3D(m_target, 1, m_gl_internalformat, width, height, depth);
 	}
 
-	void GLTexture::load1D(const uint8_t* data, size_t width) {
+	void GLTexture::load1D(const uint8_t* data, int32_t width) {
 		m_target = GL_TEXTURE_1D;
 		GLTexture::bind();
-
-		GL_REPEAT;
-		GL_MIRRORED_REPEAT;
-		GL_CLAMP_TO_EDGE;
-		GL_CLAMP_TO_BORDER;
 
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, m_gl_wrap);
 		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, m_gl_filter);
@@ -270,7 +268,7 @@ namespace oe::graphics
 		glTexImage1D(m_target, 0, m_gl_internalformat, width, 0, m_gl_format, GL_UNSIGNED_BYTE, data);
 	}
 
-	void GLTexture::load2D(const uint8_t* data, size_t width, size_t height) {
+	void GLTexture::load2D(const uint8_t* data, int32_t width, int32_t height) {
 		m_target = GL_TEXTURE_2D;
 		GLTexture::bind();
 
@@ -282,7 +280,7 @@ namespace oe::graphics
 		glTexImage2D(m_target, 0, m_gl_internalformat, width, height, 0, m_gl_format, GL_UNSIGNED_BYTE, data);
 	}
 
-	void GLTexture::load3D(const uint8_t* data, size_t width, size_t height, size_t depth) {
+	void GLTexture::load3D(const uint8_t* data, int32_t width, int32_t height, int32_t depth) {
 		m_target = GL_TEXTURE_3D;
 		GLTexture::bind();
 
@@ -295,27 +293,48 @@ namespace oe::graphics
 		glTexImage3D(m_target, 0, m_gl_internalformat, width, height, depth, 0, m_gl_format, GL_UNSIGNED_BYTE, data);
 	}
 
-	void GLTexture::data1D(const uint8_t* data, size_t width, size_t x_offset) {
+	void test(size_t size_a, size_t size_b)
+	{
+		if (size_a != size_b)
+			oe_error_terminate("Dimension mismatch {} and {}", size_a, size_b);
+	}
+
+	void GLTexture::data1D(const uint8_t* data, int32_t width, int32_t x_offset)
+	{
+		x_offset = std::abs(x_offset);
+		width = std::clamp(width, 0, m_texture_info.size_offset[0].first - x_offset);
+
+		test(m_texture_info.size_offset.size(), 1);
+
 		GLTexture::bind();
-		if (m_texture_info.size.size() != 1) { oe_error_terminate("Dimension mismatch {} and 1", m_texture_info.size.size()); }
-		if (x_offset + width > m_texture_info.size[0]) 
-			oe_error_terminate("Sub texture bigger than initial texture");
 		glTexSubImage1D(m_id, 0, x_offset, width, m_gl_format, GL_UNSIGNED_BYTE, data);
 	}
 	
-	void GLTexture::data2D(const uint8_t* data, size_t width, size_t x_offset, size_t height, size_t y_offset) {
+	void GLTexture::data2D(const uint8_t* data, int32_t width, int32_t x_offset, int32_t height, int32_t y_offset)
+	{
+		x_offset = std::abs(x_offset);
+		y_offset = std::abs(y_offset);
+		width = std::clamp(width, 0, m_texture_info.size_offset[0].first - x_offset);
+		height = std::clamp(height, 0, m_texture_info.size_offset[1].first - y_offset);
+
+		test(m_texture_info.size_offset.size(), 2);
+
 		GLTexture::bind();
-		if (m_texture_info.size.size() != 1) { oe_error_terminate("Dimension mismatch {} and 2", m_texture_info.size.size()); }
-		if (x_offset + width > m_texture_info.size[0] || y_offset + height > m_texture_info.size[1]) 
-			oe_error_terminate("Sub texture bigger than initial texture");
 		glTexSubImage2D(m_id, 0, x_offset, y_offset, width, height, m_gl_format, GL_UNSIGNED_BYTE, data);
 	}
 	
-	void GLTexture::data3D(const uint8_t* data, size_t width, size_t x_offset, size_t height, size_t y_offset, size_t depth, size_t z_offset) {
+	void GLTexture::data3D(const uint8_t* data, int32_t width, int32_t x_offset, int32_t height, int32_t y_offset, int32_t depth, int32_t z_offset)
+	{
+		x_offset = std::abs(x_offset);
+		y_offset = std::abs(y_offset);
+		z_offset = std::abs(z_offset);
+		width = std::clamp(width, 0, m_texture_info.size_offset[0].first - x_offset);
+		height = std::clamp(height, 0, m_texture_info.size_offset[1].first - y_offset);
+		depth = std::clamp(depth, 0, m_texture_info.size_offset[2].first - z_offset);
+
+		test(m_texture_info.size_offset.size(), 3);
+
 		GLTexture::bind();
-		if (m_texture_info.size.size() != 1) { oe_error_terminate("Dimension mismatch {} and 3", m_texture_info.size.size()); }
-		if (x_offset + width > m_texture_info.size[0] || y_offset + height > m_texture_info.size[1] || z_offset + depth > m_texture_info.size[2]) 
-			oe_error_terminate("Sub texture bigger than initial texture");
 		glTexSubImage3D(m_id, 0, x_offset, y_offset, z_offset, width, height, depth, m_gl_format, GL_UNSIGNED_BYTE, data);
 	}
 

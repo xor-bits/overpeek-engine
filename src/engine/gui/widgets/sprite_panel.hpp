@@ -21,21 +21,21 @@ namespace oe::gui
 	class SpritePanel : public Widget
 	{
 	private:
-		std::shared_ptr<oe::graphics::Quad> quad;
+		std::unique_ptr<oe::graphics::Quad> quad;
 		
 	public:
 		SpritePanelInfo sprite_panel_info;
 
 	public:
-		SpritePanel(const SpritePanelInfo& sprite_panel_info = {});
+		SpritePanel(Widget* parent, GUI& gui_manager, const SpritePanelInfo& sprite_panel_info = {});
 		~SpritePanel();
 
-		virtual void managerAssigned() override;
-		virtual void managerUnassigned() override;
-
+		virtual void virtual_toggle(bool enabled) override;
+	
 	private:
 		// events
 		void on_render(const GUIRenderEvent& event);
+		oe::utils::connect_guard<GUIRenderEvent, &SpritePanel::on_render, SpritePanel> m_cg_render;
 	};
 
 }

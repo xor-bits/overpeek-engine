@@ -2,6 +2,7 @@
 
 #include "engine/interfacegen.hpp"
 #include "engine/engine.hpp"
+#include "widgets/form.hpp"
 #include <entt/entt.hpp>
 
 
@@ -26,7 +27,7 @@ namespace oe::gui
 		entt::dispatcher dispatcher;
 
 	private:
-		Form* m_main_frame;
+		std::shared_ptr<Form> m_main_frame;
 		oe::graphics::Renderer* m_renderer;
 		oe::graphics::Renderer* m_line_renderer;
 		oe::graphics::Renderer* m_late_renderer;
@@ -39,20 +40,27 @@ namespace oe::gui
 		const std::string m_default_font_path;
 
 		glm::ivec2 m_offset;
-		glm::ivec2 m_old_window_size;
+		glm::uvec2 m_old_window_size;
 
 	public:
-		GUI(const oe::graphics::Window& window, const std::string& default_font = oe::default_full_font_path);
+		GUI(const oe::graphics::Window& window, const std::string& default_font = oe::default_full_font_path, int32_t renderer_primitive_count = 100000);
 		~GUI();
 
 		void short_resize();
 		
 		// events
 		void on_resize(const oe::ResizeEvent& event);
-		
-		// this class will take ownership of this pointer
-		void addSubWidget(Widget* widget);
-		void removeSubWidget(Widget* widget);
+
+		template<typename T, typename ... Args>
+		std::shared_ptr<T> create(const Args& ... args)
+		{
+			return m_main_frame->create<T>(args...);
+		}
+		template<typename T>
+		void remove(const std::shared_ptr<T>& widget)
+		{
+			return m_main_frame->remove<T>(widget);
+		}
 		
 		// bind SpritePacker that you used to create Font and all Sprites for StaticTextureViews
 		void render();
@@ -61,14 +69,14 @@ namespace oe::gui
 		// move the whole gui system
 		void offset(const glm::vec2& offset);
 
-		oe::graphics::Renderer* getRenderer() const;
-		oe::graphics::Renderer* getLineRenderer() const;
-		oe::graphics::Renderer* getLateRenderer() const;
-		const oe::graphics::Window& getWindow() const;
-		const oe::assets::DefaultShader* getShaderFill() const;
-		const oe::assets::DefaultShader* getShaderLines() const;
+		inline oe::graphics::Renderer* getRenderer() const { return m_renderer; }
+		inline oe::graphics::Renderer* getLineRenderer() const { return m_line_renderer; }
+		inline oe::graphics::Renderer* getLateRenderer() const { return m_late_renderer; }
+		inline const oe::graphics::Window& getWindow() const { return m_window; }
+		inline const oe::assets::DefaultShader* getShaderFill() const { return m_shader_fill; }
+		inline const oe::assets::DefaultShader* getShaderLines() const { return m_shader_lines; }
 
-		oe::graphics::Font& getFont(size_t resolution, std::string font = "");
+		oe::graphics::Font& getFont(uint16_t resolution, const std::string& font = "");
 	};
 
 }

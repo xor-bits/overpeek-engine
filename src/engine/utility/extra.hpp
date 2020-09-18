@@ -27,6 +27,12 @@ namespace oe::utils {
 		return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
 	}
 
+	template <typename T>
+	bool weak_ptr_test(const std::weak_ptr<T>& ptr)
+	{
+		return !weak.owner_before(std::weak_ptr<T>{}) && !std::weak_ptr<T>{}.owner_before(weak);
+	}
+
 	// { 0 - 1, 0 - 1, 0 - 1 } -> { 0 - 1, 0 - 1, 0 - 1 }
 	// https://stackoverflow.com/a/17897228 modified for glm
 	extern glm::vec3 rgbToHSV(glm::vec3 in);
@@ -68,7 +74,6 @@ namespace oe::utils {
 	template<size_t dim, typename T>
 	bool containerToVec(const std::array<T, dim>& from, glm::vec<dim, T>& to)
 	{
-		glm::vec<dim, T> vec;
 		std::memcpy(&to.x, from.data(), dim * sizeof(T));
 		return true;
 	}

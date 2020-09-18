@@ -134,13 +134,13 @@ namespace oe::utils
 		}
 
 	public:
-		inline uint32_t getAverageFPS() const
+		inline size_t getAverageFPS() const
 		{
 			return m_render_perf_logger.m_per_second;
 			// return (m_cached_average_frametime != 0) ? static_cast<uint32_t>(1000000.0f / m_cached_average_frametime) : 0;
 		}
 		template<size_t ups>
-		inline uint32_t getAverageUPS() const
+		inline size_t getAverageUPS() const
 		{ 
 			return m_update_systems.at(ups)->m_perf_logger.m_per_second;
 			// return (m_cached_average_updatetime != 0) ? static_cast<uint32_t>(1000000.0f / m_cached_average_updatetime) : 0;

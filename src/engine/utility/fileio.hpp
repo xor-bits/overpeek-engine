@@ -2,6 +2,7 @@
 
 #include <string>
 #include <fstream>
+#include <vector>
 
 #include "engine/enum.hpp"
 #include "engine/engine.hpp"
@@ -10,16 +11,7 @@
 
 namespace oe::utils
 {
-	struct byte_string
-	{
-		bool m_destruct = true;
-		std::pair<const uint8_t*, size_t> m_pair;
-
-		byte_string(const bool& destruct, std::pair<const uint8_t*, size_t>&& pair) : m_destruct(destruct), m_pair(std::move(pair)) {};
-		byte_string(const byte_string&) = delete;
-		byte_string(byte_string&& move) : m_destruct(move.m_destruct), m_pair(std::move(move.m_pair)) { move.m_destruct = false; move.m_pair.first = nullptr; move.m_pair.second = 0; };
-		~byte_string() { if (m_destruct) delete m_pair.first; }
-	};
+	using byte_string = std::vector<uint8_t>;
 
 	struct image_data
 	{
@@ -54,6 +46,63 @@ namespace oe::utils
 		~audio_data();
 	};
 
+	// workaround for msvc bug
+	class FileIO;
+	template<typename T>
+	struct FileIOInternal
+	{
+		static T read(const FileIO&) { static_assert(0, "Unknown type to read"); }
+		static void write(const FileIO&, const T&) { static_assert(0, "Unknown type to write"); }
+	};
+	template<>
+	struct FileIOInternal<byte_string>
+	{
+		static byte_string read(const FileIO& path);
+		static void write(const FileIO& path, const byte_string& data);
+	};
+	template<>
+	struct FileIOInternal<image_data>
+	{
+		static image_data read(const FileIO& path, const oe::formats& format = oe::formats::rgba)
+		{
+			auto data = FileIOInternal<byte_string>::read(path);
+			return { data.data(), data.size(), format };
+		};
+
+		static void write(const FileIO& path, const image_data& data)
+		{
+			return FileIOInternal<byte_string>::write(path, data.save());
+		}
+	};
+	template<>
+	struct FileIOInternal<audio_data>
+	{
+		static audio_data read(const FileIO& path)
+		{
+			auto data = FileIOInternal<byte_string>::read(path);
+			return { data.data(), data.size() };
+		};
+
+		static void write(const FileIO& path, const audio_data& data)
+		{
+			return oe_error_terminate("No write fn for audio_data");
+		}
+	};
+	template<>
+	struct FileIOInternal<std::string>
+	{
+		static std::string read(const FileIO& path)
+		{
+			auto data = FileIOInternal<byte_string>::read(path);
+			return { data.data(), data.data() + data.size() };
+		};
+
+		static void write(const FileIO& path, const std::string& data)
+		{
+			return FileIOInternal<byte_string>::write(path, { data.begin(), data.end() });
+		}
+	};
+
 	// std fstream and libzip wrapper
 	// currently supports zip nesting depth just up to max 1
 	class FileIO
@@ -63,8 +112,13 @@ namespace oe::utils
 
 	public:
 		FileIO(const fs::path& path = std::filesystem::current_path());
+		FileIO(const std::string& path) : FileIO(fs::path(path)) {}
+		FileIO(const char* cstr) : FileIO(fs::path(cstr)) {}
 
-		FileIO& open(const std::string& file_or_directory_name); // open directory or directories
+		FileIO& operator+(const FileIO& right) const;
+		FileIO& operator/(const FileIO& right) const;
+
+		FileIO& open(const fs::path& file_or_directory_name); // open directory or directories
 		FileIO& close(size_t n = 1); // go back or close directories
 
 		std::vector<fs::path> items() const;
@@ -77,52 +131,7 @@ namespace oe::utils
 		void remove() const;
 
 		// read/write any
-		template<typename T> T read() const;
-		template<typename T> void write(const T&) const;
-
-		image_data read(oe::formats format) const
-		{
-			auto dat = readBytes();
-			return image_data(dat.m_pair.first, dat.m_pair.second, format);
-		}
-
-		template<>
-		image_data FileIO::read() const
-		{
-			return read(oe::formats::rgba);
-		}
-
-		template<>
-		void FileIO::write(const image_data& image) const
-		{
-			return writeBytes(image.save());
-		}
-
-		template<>
-		audio_data FileIO::read() const
-		{
-			return audio_data(m_current_path);
-		}
-
-		template<> // no def
-		void FileIO::write(const audio_data& audio) const;
-
-		template<>
-		std::string FileIO::read() const
-		{
-			auto dat = readBytes();
-			return { dat.m_pair.first, dat.m_pair.first + dat.m_pair.second };
-		}
-
-		template<>
-		void FileIO::write(const std::string& string) const
-		{
-			byte_string data{ false, std::make_pair(reinterpret_cast<const uint8_t*>(string.data()), string.size()) };
-			return writeBytes(data);
-		}
-
-	private:
-		byte_string readBytes() const;
-		void writeBytes(const byte_string&) const;
+		template<typename T, typename ... Args> inline T read(const Args&& ... args) const { return FileIOInternal<T>::read(m_current_path, args...); }
+		template<typename T, typename ... Args> inline void write(const T& d, const Args&& ... args) const { return FileIOInternal<T>::write(m_current_path, d, args...); }
 	};
 }

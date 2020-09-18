@@ -49,31 +49,32 @@ namespace oe::gui
 		ColorPickerUseEvent m_event_use_latest;
 
 	private:
-		ColorPickerWheel* popup_wheel = nullptr;
-		Button* preview_button = nullptr;
-
-		SpritePanel* preview_panel = nullptr;
+		std::shared_ptr<ColorPickerWheel> popup_wheel;
+		std::shared_ptr<Button> preview_button;
+		std::shared_ptr<SpritePanel> preview_panel;
 
 	public:
-		ColorPicker(const ColorPickerInfo& color_picker_info = {});
+		ColorPicker(Widget* parent, GUI& gui_manager, const ColorPickerInfo& color_picker_info = {});
 		~ColorPicker();
-
-		virtual void managerAssigned() override;
-		virtual void managerUnassigned() override;
 
 		const glm::vec4& get() const;
 		void set(const glm::vec4& color);
 		void update();
 
+		virtual void virtual_toggle(bool enabled) override;
+	
 	private:
+		// events
+		void on_mouse_button(const MouseButtonEvent& e);
+		void on_cursor_pos(const CursorPosEvent& e);
+		oe::utils::connect_guard<MouseButtonEvent, &ColorPicker::on_mouse_button, ColorPicker> m_cg_mouse_button;
+		oe::utils::connect_guard<CursorPosEvent, &ColorPicker::on_cursor_pos, ColorPicker> m_cg_cursor_pos;
 		void on_color_wheel_hover(const ColorPickerHoverEvent& e);
 		void on_color_wheel_use(const ColorPickerUseEvent& e);
 		void on_vec_slider_hover(const VecSliderHoverEvent<4>& e);
 		void on_vec_slider_use(const VecSliderUseEvent<4>& e);
 		void on_button_hover(const ButtonHoverEvent& e);
 		void on_button_use(const ButtonUseEvent& e);
-		void on_mouse_button(const MouseButtonEvent& e);
-		void on_cursor_pos(const CursorPosEvent& e);
 	};
 
 }

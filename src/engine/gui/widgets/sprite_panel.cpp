@@ -1,62 +1,50 @@
 #include "sprite_panel.hpp"
 #include "engine/engine.hpp"
 #include "engine/gui/gui_manager.hpp"
-#include "engine/graphics/interface/renderer.hpp"
+#include "engine/graphics/renderer.hpp"
 
 
 
 namespace oe::gui {
 
-	SpritePanel::SpritePanel(const SpritePanelInfo& _sprite_panel_info)
-		: Widget::Widget(_sprite_panel_info.widget_info)
+	SpritePanel::SpritePanel(Widget* parent, GUI& gui_manager, const SpritePanelInfo& _sprite_panel_info)
+		: Widget::Widget(parent, gui_manager, _sprite_panel_info.widget_info)
 		, sprite_panel_info(_sprite_panel_info)
 	{
 	}
 	
 	SpritePanel::~SpritePanel()
 	{}
-
-	void SpritePanel::managerAssigned()
+	
+	void SpritePanel::virtual_toggle(bool enabled)
 	{
-		if (sprite_panel_info.sprite_alpha)
-			quad = m_gui_manager->getLateRenderer()->create();
+		if(enabled)
+		{
+			if (sprite_panel_info.sprite_alpha)
+				quad = m_gui_manager.getLateRenderer()->create();
+			else
+				quad = m_gui_manager.getRenderer()->create();
+
+			m_cg_render = { m_gui_manager.dispatcher, this };
+		}
 		else
-			quad = m_gui_manager->getRenderer()->create();
-
-		// event listeners
-		m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&SpritePanel::on_render>(this);
-	}
-
-	void SpritePanel::managerUnassigned()
-	{
-		quad.reset();
-
-		// event listeners
-		m_gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&SpritePanel::on_render>(this);
+		{
+			m_cg_render.reset();
+			
+			quad.reset();
+		}
 	}
 
 	void SpritePanel::on_render(const GUIRenderEvent& event)
 	{
-		quad->toggle(m_info.toggled);
-		if (!m_info.toggled)
-		{
-			quad->update(quad);
-			return;
-		}
-
-		NULL_SPRITE_CHECK(sprite_panel_info.sprite);
-
-		quad->setPosition(render_position);
+		quad->setPosition(render_position + oe::alignmentOffset(m_info.size, oe::alignments::center_center));
 		quad->setZ(z);
 		quad->setSize(m_info.size);
 		quad->setColor(sprite_panel_info.color);
 		quad->setSprite(sprite_panel_info.sprite);
-		if (sprite_panel_info.rotation != 0.0f)
-		{
-			quad->setRotation(sprite_panel_info.rotation);
-			quad->setRotationAlignment(oe::alignments::center_center);
-		}
-		quad->update(quad);
+		quad->setRotation(sprite_panel_info.rotation);
+		quad->setRotationAlignment(oe::alignments::center_center);
+		quad->update();
 	}
 
 }

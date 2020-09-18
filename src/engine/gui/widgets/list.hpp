@@ -41,11 +41,8 @@ namespace oe::gui
 		ListInfo m_list_info;
 
 	public:
-		List(const ListInfo& list_info = {});
+		List(Widget* parent, GUI& gui_manager, const ListInfo& list_info = {});
 		~List();
-
-		virtual void managerAssigned() override;
-		virtual void managerUnassigned() override;
 
 		// this class will take ownership of this pointer
 		void add(size_t pos, Widget* widget);
@@ -55,6 +52,8 @@ namespace oe::gui
 
 		const std::vector<Widget*>& get() const { return list; }
 
+		virtual void virtual_toggle(bool enabled) override;
+	
 	private:
 		// events
 		void on_render(const GUIRenderEvent& event);

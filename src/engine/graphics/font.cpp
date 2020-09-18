@@ -7,6 +7,7 @@
 #include "engine/internal_libs.hpp"
 #include "engine/engine.hpp"
 #include "engine/graphics/spritePacker.hpp"
+#include "engine/utility/fileio.hpp"
 
 
 
@@ -27,9 +28,9 @@ namespace oe::graphics {
 
 		// white font
 		uint8_t* data = new uint8_t[g->bitmap.width * g->bitmap.rows * 4]();
-		for (int y = 0; y < g->bitmap.rows; y++) {
-			for (int x = 0; x < g->bitmap.width; x++) {
-				int pixel = (x + y * g->bitmap.width) * 4;
+		for (size_t y = 0; y < g->bitmap.rows; y++) {
+			for (size_t x = 0; x < g->bitmap.width; x++) {
+				size_t pixel = (x + y * g->bitmap.width) * 4;
 
 				data[pixel + 0] = 255;
 				data[pixel + 1] = 255;
@@ -53,26 +54,22 @@ namespace oe::graphics {
 		delete[] data;
 		return true;
 	}
-
-	Font::Font(uint16_t resolution, const std::string& font_path)
+	
+	Font::Font(const oe::utils::byte_string& font_file, uint16_t resolution)
 		: m_sprite_pack(new SpritePack(5))
 		, m_resolution(resolution)
 	{
 		oe_debug_call("font");
 
 		// Freetype library
-		if (FT_Init_FreeType(&ft)) {
+		if (FT_Init_FreeType(&ft))
 			oe_error_terminate("FT_Init_FreeType failed");
-			return;
-		}
 
-		// Font
-		if (FT_New_Face(ft, font_path.c_str(), 0, &face)) {
-			oe_error_terminate("Failed to load font at path {}", font_path.c_str());
-			return;
-		}
-		
-		FT_Set_Pixel_Sizes(face, 0, resolution);
+		// Load font
+		if (FT_New_Memory_Face(ft, font_file.data(), static_cast<int32_t>(std::clamp<size_t>(font_file.size(), 0, std::numeric_limits<int32_t>::max())), 0, &face))
+			oe_error_terminate("Failed to load font in memory {0:x} {1}", (size_t)font_file.data(), font_file.size());
+
+		FT_Set_Pixel_Sizes(face, 0, m_resolution);
 		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
 
 		// all ascii glyphs
@@ -92,6 +89,10 @@ namespace oe::graphics {
 
 		m_sprite_pack->constructRepeat();
 	}
+
+	Font::Font(uint16_t resolution, const std::string& font_path)
+		: Font(oe::utils::FileIO(font_path).read<oe::utils::byte_string>(), resolution)
+	{}
 
 	Font::~Font() {
 		for (auto& g : m_glyphs) {

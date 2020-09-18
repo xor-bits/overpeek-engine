@@ -179,9 +179,11 @@ namespace oe::graphics {
 
 	void GLWindow::updateEvents()
 	{
+		m_processing_events = true;
 		dispatcher_mutex.lock();
 		m_window_gameloop.getDispatcher().update();
 		dispatcher_mutex.unlock();
+		m_processing_events = false;
 	}
 
 	void GLWindow::bump()

@@ -48,10 +48,10 @@ namespace oe::gui
 	{
 	private:
 		oe::graphics::TextLabel* value_label;
-		std::shared_ptr<oe::graphics::Quad> label_quad;
-		std::shared_ptr<oe::graphics::Quad> quad_knob;
-		std::shared_ptr<oe::graphics::Quad> quad_lslider;
-		std::shared_ptr<oe::graphics::Quad> quad_rslider;
+		std::unique_ptr<oe::graphics::Quad> label_quad;
+		std::unique_ptr<oe::graphics::Quad> quad_knob;
+		std::unique_ptr<oe::graphics::Quad> quad_lslider;
+		std::unique_ptr<oe::graphics::Quad> quad_rslider;
 
 	private:
 		bool m_dragging;
@@ -64,18 +64,21 @@ namespace oe::gui
 		SliderUseEvent event_use_latest;
 
 	public:
-		Slider(const SliderInfo& slider_info = {});
+		Slider(Widget* parent, GUI& gui_manager, const SliderInfo& slider_info = {});
 		~Slider();
 
-		virtual void managerAssigned() override;
-		virtual void managerUnassigned() override;
-
+		virtual void virtual_toggle(bool enabled) override;
+	
 	private:
 		// events
 		void on_render(const GUIRenderEvent& event);
 		void on_cursor(const CursorPosEvent& event);
 		void on_button(const MouseButtonEvent& event);
 		void on_scroll(const ScrollEvent& event);
+		oe::utils::connect_guard<GUIRenderEvent, &Slider::on_render, Slider> m_cg_render;
+		oe::utils::connect_guard<CursorPosEvent, &Slider::on_cursor, Slider> m_cg_cursor;
+		oe::utils::connect_guard<MouseButtonEvent, &Slider::on_button, Slider> m_cg_button;
+		oe::utils::connect_guard<ScrollEvent, &Slider::on_scroll, Slider> m_cg_scroll;
 	};
 
 }

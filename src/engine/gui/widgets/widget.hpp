@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/enum.hpp"
+#include "engine/utility/connect_guard.hpp"
 #include <entt/entt.hpp>
 #include <fmt/format.h>
 
@@ -27,18 +28,20 @@ namespace oe::gui
 		bool toggled                       = true;
 	};
 
-	class Widget
+	class Widget : public std::enable_shared_from_this<Widget>
 	{
 	private:
 		Widget* m_parent;
-		std::unordered_set<Widget*> m_nodes;
-		void setParent(Widget* parent);
+		std::unordered_set<std::shared_ptr<Widget>> m_nodes;
 		static float z_acc;
 
+		bool toggle_pending = false;
+		bool toggle_pending_value = false;
+
 	protected:
-		GUI* m_gui_manager;
-		float z;
+		GUI& m_gui_manager;
 		entt::dispatcher dispatcher;
+		float z;
 
 	public:
 		glm::ivec2 topleft_position = { 0, 0 };
@@ -46,7 +49,7 @@ namespace oe::gui
 		WidgetInfo m_info;
 
 	public:
-		Widget(const WidgetInfo& info = {});
+		Widget(Widget* parent, GUI& gui_manager, const WidgetInfo& info = {});
 		virtual ~Widget();
 
 		// connect event
@@ -72,23 +75,31 @@ namespace oe::gui
 			dispatcher.sink<Event>().template disconnect<Listener>();
 		}
 
-		// unassign before reassigning
-		virtual void managerAssigned();
-		virtual void managerUnassigned();
+		template<typename T, typename ... Args>
+		std::shared_ptr<T> create(const Args& ... args)
+		{
+			auto ptr = std::make_shared<T>(this, m_gui_manager, std::forward<const Args&>(args)...);
+			(*m_nodes.insert(ptr).first)->base_toggle(ptr->m_info.toggled);
+			return ptr;
+		}
+		template<typename T>
+		void remove(const std::shared_ptr<T>& widget)
+		{
+			m_nodes.erase(widget);
+		}
 
-		// this class will take ownership of this pointer
-		virtual void addSubWidget(Widget* widget);
-		// will not delete removed subwidget
-		virtual void removeSubWidget(Widget* widget);
-
-		float getZ() { return z; }
-		void overrideZ(float _z) { z = _z; }
-
+		inline float getZ() { return z; }
+		inline void overrideZ(float _z) { z = _z; }
+		
+		// must not be toggled from an event
 		void toggle(bool enabled = true);
+		virtual void virtual_toggle(bool enabled) {};
+		void base_toggle(bool enabled);
 
-	private:
+	protected:
 		// events
 		void on_pre_render(const GUIPreRenderEvent& event);
+		oe::utils::connect_guard<GUIPreRenderEvent, &Widget::on_pre_render, Widget> m_cg_pre_render;
 
 	friend class GUI;
 	};

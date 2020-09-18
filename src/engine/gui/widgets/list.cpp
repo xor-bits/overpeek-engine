@@ -12,11 +12,11 @@
 
 namespace oe::gui
 {
-    List::List(const ListInfo& list_info)
-        : Widget(list_info.widget_info)
+    List::List(Widget* parent, GUI& gui_manager, const ListInfo& list_info)
+        : Widget(parent, gui_manager, list_info.widget_info)
         , m_list_info(list_info)
     {
-        SpritePanelInfo sprite_panel_info;
+        /* SpritePanelInfo sprite_panel_info;
         sprite_panel_info.widget_info = list_info.widget_info;
         sprite_panel_info.sprite = list_info.sprite;
         sprite_panel_info.color = oe::colors::white;
@@ -51,31 +51,33 @@ namespace oe::gui
             slider_info.value_bounds = { 0.0f, 1.0f };
             slider = new Slider(slider_info);
             addSubWidget(slider);
-        }
+        } */
     }
 
     List::~List()
     {}
-
-	void List::managerAssigned()
+	
+	void List::virtual_toggle(bool enabled)
 	{
-        list_gui_manager = new GUI(m_gui_manager->getWindow());
+		if(enabled)
+		{
+			/* list_gui_manager = new GUI(m_gui_manager->getWindow());
         
-        FrameBufferInfo fbi;
-        fbi.size = m_gui_manager->getWindow()->getSize();
-        fb = oe::graphics::FrameBuffer(fbi, m_gui_manager->getWindow());
-        // panel->sprite_panel_info.sprite = &fb_sprite;
+			FrameBufferInfo fbi;
+			fbi.size = m_gui_manager->getWindow()->getSize();
+			fb = oe::graphics::FrameBuffer(fbi, m_gui_manager->getWindow());
+			// panel->sprite_panel_info.sprite = &fb_sprite;
         
-		// event listeners
-        m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&List::on_render>(this);
-	}
-
-	void List::managerUnassigned()
-	{
-        delete list_gui_manager;
+			// event listeners
+			m_gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&List::on_render>(this); */
+		}
+		else
+		{
+			/* delete list_gui_manager;
         
-		// event listeners
-        m_gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&List::on_render>(this);
+			// event listeners
+			m_gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&List::on_render>(this); */
+		}
 	}
 
 	void List::on_render(const GUIRenderEvent& event)
@@ -102,34 +104,34 @@ namespace oe::gui
 
     void List::add(size_t pos, Widget* widget)
     {
-        widget->m_info.align_parent = oe::alignments::top_left;
+        /* widget->m_info.align_parent = oe::alignments::top_left;
         widget->m_info.align_render = oe::alignments::top_left;
         widget->m_info.offset_position = { m_list_info.element_borders, pos == 0 ? m_list_info.title_height + m_list_info.element_borders : offset_accumulator[pos - 1] };
 
         list.insert(list.begin() + pos, widget);
         offset_accumulator.insert(offset_accumulator.begin() + pos, static_cast<int>(widget->m_info.offset_position.y) + m_list_info.element_borders + static_cast<int>(widget->m_info.size.y));
 
-        list_gui_manager->addSubWidget(widget);
+        list_gui_manager->addSubWidget(widget); */
     }
 
     void List::add(Widget* widget)
     {
-        size_t pos = list.size();
-        add(pos, widget);
+        /* size_t pos = list.size();
+        add(pos, widget); */
     }
 
     void List::remove(size_t pos)
     {
-        list_gui_manager->removeSubWidget(list[pos]);
+        /* list_gui_manager->removeSubWidget(list[pos]);
 
         list.erase(list.begin() + pos);
-        offset_accumulator.erase(offset_accumulator.begin() + pos);
+        offset_accumulator.erase(offset_accumulator.begin() + pos); */
     }
 
     void List::remove(Widget* widget)
     {
-        auto iter = std::find(list.begin(), list.end(), widget);
+        /* auto iter = std::find(list.begin(), list.end(), widget);
         if (iter != list.end())
-            remove(iter - list.begin());
+            remove(iter - list.begin()); */
     }
 }

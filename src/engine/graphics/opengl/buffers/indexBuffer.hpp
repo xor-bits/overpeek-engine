@@ -5,11 +5,11 @@
 
 
 
-namespace oe::graphics {
-
-	class IndexBuffer : public Buffer {
+namespace oe::graphics
+{
+	class IndexBuffer : public Buffer
+	{
 	public:
-		IndexBuffer(const void *data, size_t size, oe::types buffer_type);
+		IndexBuffer(const void *data, int32_t size, oe::types buffer_type);
 	};
-
 }

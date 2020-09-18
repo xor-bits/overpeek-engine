@@ -130,9 +130,9 @@ namespace oe::utils
 	{
 		int channels = stb_i_channels(format);
 		int size;
-		const uint8_t* dat = stbi_write_png_to_mem(data, width * channels, width, height, channels, &size);
+		std::unique_ptr<uint8_t[]> data_out(stbi_write_png_to_mem(data, width * channels, width, height, channels, &size));
 
-		return { false, std::make_pair<const uint8_t*, size_t>(std::move(dat), static_cast<size_t>(size)) };
+		return { data_out.get(), data_out.get() + size };
 	}
 
 	audio_data::audio_data(int _format, int _size, int _channels, int _sample_rate)
@@ -262,7 +262,7 @@ namespace oe::utils
 			}
 
 			// add the file
-			auto source = zip_source_buffer(zipper, data.m_pair.first, data.m_pair.second, 0);
+			auto source = zip_source_buffer(zipper, data.data(), data.size(), 0);
 			if (!source)
 				throw std::runtime_error(fmt::format("Failed to create source file from data, {}", zip_strerror(zipper)));
 
@@ -301,10 +301,8 @@ namespace oe::utils
 			if (!file)
 				throw std::runtime_error(fmt::format("Failed to open file {} from zip, {}", generic_in_zip.c_str(), zip_strerror(zipper)));
 
-			uint8_t* data_ptr = new uint8_t[stats.size];
-			data.m_pair.first = data_ptr;
-			data.m_pair.second = stats.size;
-			auto read_size = zip_fread(file, data_ptr, stats.size);
+			data.resize(stats.size);
+			auto read_size = zip_fread(file, data.data(), data.size());
 			if (read_size < 0)
 			{
 				zip_fclose(file);
@@ -354,10 +352,21 @@ namespace oe::utils
 	FileIO::FileIO(const fs::path& path)
 		: m_current_path(path)
 	{}
-	
-	FileIO& FileIO::open(const std::string& file_or_directory_name)
+
+	FileIO& FileIO::operator+(const FileIO& right) const
 	{
-		m_current_path.append(file_or_directory_name);
+		FileIO copy(*this);
+		return copy.open(right.m_current_path);
+	}
+
+	FileIO& FileIO::operator/(const FileIO& right) const
+	{
+		return *this / right;
+	}
+	
+	FileIO& FileIO::open(const fs::path& file_or_directory_name)
+	{
+		m_current_path /= file_or_directory_name;
 		return *this;
 	}
 
@@ -395,12 +404,12 @@ namespace oe::utils
 				
 				fs::path parent_path = fs::path(stats.name).parent_path();
 				if(path_in_zip == parent_path)
-					items.push_back(fs::path(stats.name).filename());
+					items.push_back(path_to_zip / fs::path(stats.name));
 
 				if(last_folder != parent_path && parent_path.parent_path() == path_in_zip)
 				{
 					last_folder = parent_path.generic_string();
-					items.push_back(last_folder);
+					items.push_back(path_to_zip / last_folder);
 				}
 			}
 		}
@@ -437,60 +446,51 @@ namespace oe::utils
 		fs::remove_all(m_current_path);
 	}
 
-	byte_string FileIO::readBytes() const
+	byte_string FileIOInternal<byte_string>::read(const FileIO& path)
 	{
-		byte_string data{ true, std::make_pair<const uint8_t*, size_t>(nullptr, 0) };
-
-		auto iter = first_zip_loc(*this);
+		auto iter = first_zip_loc(path);
 		if (!iter.empty())
 		{
 			fs::path path_to_zip, path_in_zip;
-			zip_paths(iter, m_current_path, path_to_zip, path_in_zip);
+			zip_paths(iter, path.getPath(), path_to_zip, path_in_zip);
 
+			byte_string data;
 			read_from_zip(path_to_zip, path_in_zip, data);
+			return data;
 		}
 		else
 		{
-			std::ifstream input_stream(m_current_path);
+			std::ifstream input_stream(path.getPath(), std::ios_base::binary);
 			if (!input_stream.is_open())
-				throw std::runtime_error(fmt::format("Could not open file: '{}'", m_current_path.string()));
+				throw std::runtime_error(fmt::format("Could not open file: '{}'", path.getPath().generic_string()));
 
-			input_stream.seekg(input_stream.end);
-			size_t data_size = input_stream.tellg();
-			uint8_t* data_ptr = new uint8_t[data_size];
-			data.m_pair.first = data_ptr;
-			data.m_pair.second = data_size;
-			input_stream.read(reinterpret_cast<char*>(data_ptr), data_size);
-			input_stream.close();
+			return { std::istreambuf_iterator<char>(input_stream), {} };
 		}
-
-		return std::move(data);
 	}
 
-	void FileIO::writeBytes(const byte_string& bytes) const
+	void FileIOInternal<byte_string>::write(const FileIO& path, const byte_string& string)
 	{
-		auto iter = first_zip_loc(*this);
+		auto iter = first_zip_loc(path);
 		if (!iter.empty())
 		{
 			fs::path path_to_zip, path_in_zip;
-			zip_paths(iter, m_current_path, path_to_zip, path_in_zip);
+			zip_paths(iter, path.getPath(), path_to_zip, path_in_zip);
 
-			write_in_zip(path_to_zip, path_in_zip, bytes);
+			write_in_zip(path_to_zip, path_in_zip, string);
 		}
 		else
 		{
-			if (!isFile() && exists())
-				throw std::runtime_error(fmt::format("Path: '{}' already exists, but is not a file", m_current_path.string()));
+			if (!path.isFile() && path.exists())
+				throw std::runtime_error(fmt::format("Path: '{}' already exists, but is not a file", path.getPath().generic_string()));
 
-			if (!exists())
-				fs::create_directories(m_current_path.parent_path());
+			if (!path.exists())
+				fs::create_directories(path.getPath().parent_path());
 
-			std::ofstream output_stream(m_current_path);
+			std::ofstream output_stream(path.getPath());
 			if (!output_stream.is_open())
-				throw std::runtime_error(fmt::format("Could not open file: '{}'", m_current_path.string()));
-
-			output_stream.write(reinterpret_cast<const char*>(bytes.m_pair.first), bytes.m_pair.second);
-			output_stream.close();
+				throw std::runtime_error(fmt::format("Could not open file: '{}'", path.getPath().generic_string()));
+			
+    		std::copy(string.begin(), string.end(), std::ostreambuf_iterator<char>(output_stream));
 		}
 	}
 }

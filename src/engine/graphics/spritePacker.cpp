@@ -100,6 +100,7 @@ namespace oe::graphics {
 			
 			sprite->size = glm::vec2(image.width / (float)pack_width, image.height / (float)pack_height);
 			sprite->position = glm::vec2(rectangle.x / (float)pack_width, rectangle.y / (float)pack_height);
+			sprite->opacity = false;
 
 			// conversions
 			switch (image.format)
@@ -134,6 +135,9 @@ namespace oe::graphics {
 						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 1, pack_width, 4)] = image.data[coordsToIndex(x, y, 1, image.width, 4)];
 						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 2, pack_width, 4)] = image.data[coordsToIndex(x, y, 2, image.width, 4)];
 						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 3, pack_width, 4)] = image.data[coordsToIndex(x, y, 3, image.width, 4)];
+						sprite->opacity = 
+							sprite->opacity || 
+							data[coordsToIndex(rectangle.x + x, rectangle.y + y, 3, pack_width, 4)] != 255;
 					}
 				}
 				break;
@@ -144,8 +148,7 @@ namespace oe::graphics {
 		oe::TextureInfo texture_info = {};
 		texture_info.generate_mipmaps = true;
 		texture_info.data = data;
-		texture_info.size = { pack_width, pack_height };
-		texture_info.offset = { 0, 0 };
+		texture_info.size_offset = { { pack_width, 0 }, { pack_height, 0} };
 
 		m_texture = Texture(texture_info);
 		for (auto sprite : m_sprites)

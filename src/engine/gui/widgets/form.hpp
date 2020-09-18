@@ -19,7 +19,7 @@ namespace oe::gui
 		FormInfo form_info;
 
 	public:
-		Form(const FormInfo& form_info = {});
+		Form(Widget* parent, GUI& gui_manager, const FormInfo& form_info = {});
 		~Form();
 
 		friend class GUI;

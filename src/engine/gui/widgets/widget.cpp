@@ -2,6 +2,8 @@
 #include "engine/gui/gui_manager.hpp"
 
 #include "engine/utility/clock.hpp"
+#include "engine/utility/extra.hpp"
+#include "engine/graphics/interface/window.hpp"
 #include <spdlog/spdlog.h>
 
 
@@ -9,106 +11,80 @@
 namespace oe::gui
 {
 	float Widget::z_acc = 1.0f;
-	Widget::Widget(const WidgetInfo& info)
-		: m_parent(nullptr)
-		, m_nodes() 
+	Widget::Widget(Widget* parent, GUI& gui_manager, const WidgetInfo& info)
+		: m_parent(parent)
+		, m_nodes()
 		, topleft_position({ 0, 0 })
 		, render_position({ 0, 0 })
-		, m_gui_manager(nullptr)
+		, m_gui_manager(gui_manager)
 		, m_info(info)
+		, z(z_acc += 0.01f)
+		, m_cg_pre_render()
 	{
-		z = z_acc;
-		z_acc += 0.1f;
+		m_cg_pre_render = { m_gui_manager.dispatcher, this };
 	}
 
 	Widget::~Widget()
 	{
 		toggle(false);
-		for (auto& w : m_nodes)
+	}
+	
+	void Widget::base_toggle(bool enabled)
+	{
+		if(enabled)
 		{
-			delete w;
+			m_cg_pre_render = { m_gui_manager.dispatcher, this };
 		}
-	}
-
-	void Widget::managerAssigned()
-	{
-		m_gui_manager->dispatcher.sink<GUIPreRenderEvent>().connect<&Widget::on_pre_render>(this);
-	}
-
-	void Widget::managerUnassigned()
-	{
-		m_gui_manager->dispatcher.sink<GUIPreRenderEvent>().disconnect<&Widget::on_pre_render>(this);
-	}
-
-	void Widget::setParent(Widget* parent)
-	{
-		m_parent = parent;
-	}
-
-	void Widget::addSubWidget(Widget* widget)
-	{
-		if (this == widget) { spdlog::warn("Subwidget cannot be itself"); return; }
-
-		widget->setParent(this);
-		m_nodes.insert(widget);
-
-		if (!m_gui_manager) return;
-
-		std::function<void(Widget*, GUI*)> lambda;
-		lambda = [&](Widget* root, GUI* gui_manager)
+		else
 		{
-			if (root->m_info.toggled && root->m_gui_manager != m_gui_manager && m_gui_manager != nullptr)
-			{
-				root->m_gui_manager = m_gui_manager;
-				root->managerAssigned();
-			}
-
-			for (auto& w : m_nodes)
-				lambda(w, gui_manager);
-		};
-
-		lambda(this, m_gui_manager);
-	}
-
-	void Widget::removeSubWidget(Widget* widget)
-	{
-		m_nodes.erase(widget);
+			m_cg_pre_render.reset();
+		}
+		virtual_toggle(enabled);
 	}
 
 	void Widget::toggle(bool enabled)
 	{
-		if (!m_gui_manager)
+		if(m_gui_manager.getWindow()->processingEvents())
 		{
-			oe_error_terminate("crash");
-			spdlog::critical("cannot toggle non-assigned widget");
+			toggle_pending_value = enabled;
+			toggle_pending = true;
 			return;
 		}
 
-		std::function<void(Widget*,GUI*)> lambda;
-		lambda = [&](Widget* root, GUI* gui_manager)
-		{
-			if (root->m_info.toggled)
-			{
-				if(root->m_gui_manager != m_gui_manager && root->m_gui_manager != nullptr)
-					root->managerUnassigned();
-
-				if (root->m_gui_manager != m_gui_manager && m_gui_manager != nullptr)
-				{
-					root->m_gui_manager = m_gui_manager;
-					root->managerAssigned();
-				}
-			}
-
+		{ // current node
+			if(m_info.toggled != enabled)
+				base_toggle(enabled);
+		}
+		{ // subnodes
+			m_info.toggled = enabled;
 			for (auto& w : m_nodes)
-				lambda(w, gui_manager);
-		};
-
-		lambda(this, enabled ? m_gui_manager : nullptr);
+			{
+				if(m_info.toggled == w->m_info.toggled)
+					continue;
+				
+				w->toggle(enabled);
+			}
+		}
 	}
 
 	void Widget::on_pre_render(const GUIPreRenderEvent& event)
 	{
-		if (m_parent) render_position = m_info.offset_position + m_parent->render_position + oe::alignmentOffset(m_parent->m_info.size, m_info.align_parent) - oe::alignmentOffset(m_info.size, m_info.align_render);
-		else render_position = m_info.offset_position - oe::alignmentOffset(m_info.size, m_info.align_render);
+		if(toggle_pending)
+		{
+			toggle(toggle_pending_value);
+			toggle_pending = false;
+		}
+
+		if(m_parent)
+			render_position = 
+			+ m_info.offset_position
+			+ m_parent->render_position
+			+ oe::alignmentOffset(m_parent->m_info.size, m_info.align_parent)
+			- oe::alignmentOffset(m_info.size, m_info.align_render);
+
+		else
+			render_position =
+			+ m_info.offset_position
+			- oe::alignmentOffset(m_info.size, m_info.align_render);
 	}
 }

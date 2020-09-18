@@ -30,18 +30,19 @@ namespace oe::gui
 		ButtonUseEvent event_use_latest;
 
 	public:
-		Button(const ButtonInfo& button_info = {});
+		Button(Widget* parent, GUI& gui_manager, const ButtonInfo& button_info = {});
 		~Button();
-
-		virtual void managerAssigned() override;
-		virtual void managerUnassigned() override;
 
 		bool test(const glm::vec2& point);
 
+		virtual void virtual_toggle(bool enabled) override;
+	
 	private:
 		// events
 		void on_cursor(const CursorPosEvent& event);
 		void on_button(const MouseButtonEvent& event);
+		oe::utils::connect_guard<CursorPosEvent, &Button::on_cursor, Button> m_cg_cursor;
+		oe::utils::connect_guard<MouseButtonEvent, &Button::on_button, Button> m_cg_button;
 	};
 
 }

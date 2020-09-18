@@ -25,17 +25,17 @@ namespace oe::gui
         GraphInfo m_graph_info;
 
     private:
-        SpritePanel m_graph;
+        std::shared_ptr<SpritePanel> m_graph;
         oe::graphics::FrameBuffer graph_fb;
 
     public:
-        Graph(const GraphInfo& info = {});
+        Graph(Widget* parent, GUI& gui_manager, const GraphInfo& info = {});
 
-		virtual void managerAssigned() override;
-		virtual void managerUnassigned() override;
-
+		virtual void virtual_toggle(bool enabled) override;
+	
 	private:
 		// events
 		void on_render(const GUIRenderEvent& event);
+		oe::utils::connect_guard<GUIRenderEvent, &Graph::on_render, Graph> m_cg_render;
     };
 }

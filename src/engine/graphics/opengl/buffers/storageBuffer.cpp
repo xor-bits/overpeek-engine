@@ -6,15 +6,15 @@
 
 namespace oe::graphics
 {
-	StorageBuffer::StorageBuffer(const void* data, size_t size, oe::types buffer_type)
+	StorageBuffer::StorageBuffer(const void* data, int32_t size, oe::types buffer_type)
+		: p_size(std::abs(size))
+		, p_target(GL_SHADER_STORAGE_BUFFER)
     {
         GLenum usage = buffer_type == oe::types::dynamic_type ? GL_DYNAMIC_COPY : GL_STATIC_COPY;
-        p_target = GL_SHADER_STORAGE_BUFFER;
-        p_size = size;
 
         glGenBuffers(1, &p_id);
         glBindBuffer(p_target, p_id);
-        glBufferData(p_target, size, data, usage);
+        glBufferData(p_target, p_size, data, usage);
         glBindBufferBase(p_target, 3, p_id);
         glBindBuffer(p_target, 0); // unbind
     }
@@ -29,7 +29,7 @@ namespace oe::graphics
         glBindBuffer(p_target, 0);
     }
 
-    void StorageBuffer::compute(size_t binding) const
+    void StorageBuffer::compute(int32_t binding) const
     {
         bind();
         glBindBufferBase(p_target, binding, p_id);
@@ -47,10 +47,10 @@ namespace oe::graphics
         glUnmapBuffer(p_target);
     }
 
-    void StorageBuffer::setBufferData(const void* data, size_t size)
+    void StorageBuffer::setBufferData(const void* data, int32_t size)
     {
 		bind();
-		glBufferSubData(p_target, 0, size, data);
+		glBufferSubData(p_target, 0, std::abs(size), data);
     }
 
 }

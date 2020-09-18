@@ -12,7 +12,7 @@ namespace oe::gui
 	struct TextPanelInfo
 	{
 		std::u32string text        = U"placeholder";
-		size_t font_size           = 16;
+		uint16_t font_size         = 16;
 		std::string font_path      = ""; // empty for gui default
 		glm::vec4 background_color = oe::colors::transparent;
 		
@@ -24,20 +24,19 @@ namespace oe::gui
 	{
 	private:
 		oe::graphics::u32TextLabel* label;
-		std::shared_ptr<oe::graphics::Quad> text_quad;
+		std::unique_ptr<oe::graphics::Quad> text_quad;
 
 	public:
 		TextPanelInfo text_panel_info;
 
 	public:
-		TextPanel(const TextPanelInfo& text_panel_info = {});
+		TextPanel(Widget* parent, GUI& gui_manager, const TextPanelInfo& text_panel_info = {});
 		~TextPanel();
 
-		virtual void managerAssigned() override;
-		virtual void managerUnassigned() override;
-
-	private:
+	public:
+		virtual void virtual_toggle(bool enabled) override;
 		// events
 		void on_render(const GUIRenderEvent& event);
+		oe::utils::connect_guard<GUIRenderEvent, &TextPanel::on_render, TextPanel> m_cg_render;
 	};
 }

@@ -11,7 +11,7 @@ namespace oe::gui
 {
     enum class arrangements { columns, rows };
 
-    template<size_t dimension = 3>
+    template<glm::length_t dimension = 3>
     struct VecSliderInfo
     {
         arrangements type = arrangements::columns;
@@ -23,11 +23,11 @@ namespace oe::gui
         SliderInfo slider_info;
     };
 
-    template<size_t dimension = 3>
+    template<glm::length_t dimension = 3>
 	struct VecSliderHoverEvent
 	{};
 
-    template<size_t dimension = 3>
+    template<glm::length_t dimension = 3>
 	struct VecSliderUseEvent
 	{
 		oe::actions action;
@@ -36,17 +36,17 @@ namespace oe::gui
 		glm::vec<dimension, float> value;
 	};
 
-    template<size_t dimension = 3>
+    template<glm::length_t dimension = 3>
     class VecSlider : public Widget
     {
     protected:
-        std::array<Slider*, dimension> sliders;
+        std::array<std::shared_ptr<Slider>, dimension> sliders;
 		VecSliderHoverEvent<dimension> event_hover_latest;
 		VecSliderUseEvent<dimension> event_use_latest;
          
     public:
-        VecSlider(VecSliderInfo<dimension> slider_info = {})
-            : Widget(slider_info.slider_info.widget_info)
+        VecSlider(Widget* parent, GUI& gui_manager, VecSliderInfo<dimension> slider_info = {})
+            : Widget(parent, gui_manager, slider_info.slider_info.widget_info)
         {
 			static_assert(dimension != 0, "VecSlider dimension must not be zero");
 
@@ -78,12 +78,11 @@ namespace oe::gui
 			slider_info.slider_info.knob_size = { min_w_or_h, min_w_or_h };
 
             slider_info.slider_info.widget_info = { slider_info.slider_info.widget_info.size, { 0, 0 }, oe::alignments::top_left, oe::alignments::top_left };
-            for(size_t i = 0; i < dimension; i++)
+            for(glm::length_t i = 0; i < dimension; i++)
             {
                 slider_info.slider_info.value_initial = slider_info.initial_values[i];
                 slider_info.slider_info.value_bounds = { slider_info.min_values[i], slider_info.max_values[i] };
-                sliders[i] = new Slider(slider_info.slider_info);
-                addSubWidget(sliders[i]);
+				sliders[i] = create<Slider>(slider_info.slider_info);
                 slider_info.slider_info.widget_info.offset_position += offset_next;
 
 				sliders[i]->template connect_listener<SliderHoverEvent, &VecSlider<dimension>::on_slider_hover>(this);

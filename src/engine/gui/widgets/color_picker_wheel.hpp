@@ -32,9 +32,9 @@ namespace oe::gui
 		glm::ivec2 selector_wheel;
 		glm::ivec2 selector_triangle;
 
-		Slider* m_alpha_slider;
-		SpritePanel* m_framebuffer_panel;
-		SpritePanel* m_preview;
+		std::shared_ptr<Slider> m_alpha_slider;
+		std::shared_ptr<SpritePanel> m_framebuffer_panel;
+		std::shared_ptr<SpritePanel> m_preview;
 
 		constexpr static float wheel_width = 0.1f;
 		constexpr static float triangle_width = 1.0f - wheel_width * 2.5f;
@@ -52,21 +52,23 @@ namespace oe::gui
 		ColorPickerUseEvent m_event_use_latest;
 
 	public:
-		ColorPickerWheel(const ColorPickerWheelInfo& color_picker_info = {});
+		ColorPickerWheel(Widget* parent, GUI& gui_manager, const ColorPickerWheelInfo& color_picker_info = {});
 		~ColorPickerWheel();
-
-		virtual void managerAssigned() override;
-		virtual void managerUnassigned() override;
 
 		const glm::vec4& get() const;
 		void set(const glm::vec4& color);
 		void update();
 
+		virtual void virtual_toggle(bool enabled) override;
+	
 	private:
 		// events
 		void on_render(const GUIRenderEvent& event);
 		void on_cursor(const CursorPosEvent& event);
 		void on_button(const MouseButtonEvent& event);
+		oe::utils::connect_guard<GUIRenderEvent, &ColorPickerWheel::on_render, ColorPickerWheel> m_cg_render;
+		oe::utils::connect_guard<CursorPosEvent, &ColorPickerWheel::on_cursor, ColorPickerWheel> m_cg_cursor;
+		oe::utils::connect_guard<MouseButtonEvent, &ColorPickerWheel::on_button, ColorPickerWheel> m_cg_button;
 		void on_slider_use(const SliderUseEvent& event);
 	};
 }

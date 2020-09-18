@@ -8,10 +8,12 @@
 
 
 
-namespace oe::graphics {
+namespace oe::graphics
+{
 
 	class StorageBuffer;
-	class GLShader : public IShader {
+	class GLShader : public IShader
+	{
 	private:
 		uint32_t p_shader_program;
 		std::unordered_map<std::string, int32_t> m_uniform_lookup_table;
@@ -58,5 +60,4 @@ namespace oe::graphics {
 		virtual void setUniform(const std::string& name, const glm::mat4& value) override;
 		virtual void setUniform(const std::string& name, const size_t count, const glm::mat4* values) override;
 	};
-
 }

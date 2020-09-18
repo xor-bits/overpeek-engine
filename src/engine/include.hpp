@@ -3,11 +3,11 @@
 // Graphics
 #include "graphics/interface/window.hpp"
 #include "graphics/interface/shader.hpp"
-#include "graphics/interface/renderer.hpp"
 #include "graphics/interface/texture.hpp"
 #include "graphics/interface/framebuffer.hpp"
 #include "graphics/interface/instance.hpp"
 #include "graphics/font.hpp"
+#include "graphics/renderer.hpp"
 #include "graphics/textLabel.hpp"
 
 // Audio
@@ -25,6 +25,7 @@
 #include "utility/gameloop.hpp"
 #include "utility/fileio.hpp"
 #include "utility/extra.hpp"
+#include "utility/connect_guard.hpp"
 
 // Gui
 #include "gui/gui_manager.hpp"

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "engine/graphics/interface/instance.hpp"
-#include "engine/graphics/interface/texture.hpp"
 #include "engine/graphics/vertexData.hpp"
 #include "engine/graphics/sprite.hpp"
 #include "engine/internal_libs.hpp"
@@ -34,26 +32,6 @@ namespace oe::graphics
 	public:
 		virtual Texture& getTexture() = 0;
 		inline const FrameBufferInfo& getFrameBufferInfo() { return m_framebuffer_info; }
-
-	};
-
-	class FramebufferMultipass
-	{
-	private:
-		FramebufferMultipass();
-		static FramebufferMultipass* fb_multipasser;
-
-	public:
-		static FramebufferMultipass& getSingleton()
-		{
-			if (!fb_multipasser) fb_multipasser = new FramebufferMultipass();
-			return *fb_multipasser;
-		}
-
-		void multipass(FrameBuffer& fb_0, FrameBuffer& fb_1, const Window& window, const std::array<VertexData, 4>& vertices, size_t count);
-
-	private:
-		void* m_primitive_renderer;
 
 	};
 

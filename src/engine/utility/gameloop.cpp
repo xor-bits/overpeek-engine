@@ -54,7 +54,7 @@ namespace oe::utils {
 			oe::ResizeEvent event;
 			event.framebuffer_size = m_host_window->m_window_info.size;
 			event.framebuffer_size_old = event.framebuffer_size;
-			event.aspect = m_host_window->aspect();
+			event.aspect = m_host_window->getAspect();
 			dispatcher.trigger(event);
 
 			while (m_should_run)

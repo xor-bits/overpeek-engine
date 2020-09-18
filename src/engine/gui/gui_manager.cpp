@@ -1,28 +1,23 @@
 #include "gui_manager.hpp"
 
+#include "engine/assets/default_shader/default_shader.hpp"
 #include "engine/graphics/interface/window.hpp"
-#include "engine/graphics/interface/renderer.hpp"
+#include "engine/graphics/renderer.hpp"
 #include "engine/graphics/font.hpp"
-#include "widgets/form.hpp"
 #include "engine/include.hpp"
 
 
 
 namespace oe::gui
 {
-	GUI::GUI(const oe::graphics::Window& window, const std::string& default_font)
+	GUI::GUI(const oe::graphics::Window& window, const std::string& default_font, int32_t renderer_primitive_count)
 		: m_window(window)
 		, m_default_font_path(default_font)
 	{
 		// renderer
-		oe::RendererInfo renderer_info = {};
-		renderer_info.arrayRenderType = oe::types::dynamic_type;
-		renderer_info.indexRenderType = oe::types::static_type;
-		renderer_info.max_primitive_count = 10000;
-		renderer_info.staticVBOBuffer_data = nullptr;
-		m_renderer = new oe::graphics::Renderer(renderer_info);
-		m_late_renderer = new oe::graphics::Renderer(renderer_info);
-		m_line_renderer = new oe::graphics::Renderer(renderer_info);
+		m_renderer = new oe::graphics::Renderer(renderer_primitive_count);
+		m_late_renderer = new oe::graphics::Renderer(renderer_primitive_count);
+		m_line_renderer = new oe::graphics::Renderer(renderer_primitive_count);
 
 		// shader
 		m_shader_fill = new oe::assets::DefaultShader(oe::polygon_mode::fill);
@@ -30,12 +25,9 @@ namespace oe::gui
 
 		FormInfo form_info;
 		form_info.widget_info = { m_window->getSize() - glm::ivec2(2 * border), { border, border }, oe::alignments::top_left, oe::alignments::top_left };
-		m_main_frame = new oe::gui::Form(form_info);
+		m_main_frame = std::make_shared<Form>(nullptr, *this, form_info);
 		m_offset = { 0, 0 };
 		m_old_window_size = { 0, 0 };
-
-		m_main_frame->m_gui_manager = this;
-		m_main_frame->managerAssigned();
 
 		// initial resize
 		short_resize();
@@ -46,7 +38,6 @@ namespace oe::gui
 
 	GUI::~GUI()
 	{
-		delete m_main_frame;
 		delete m_renderer;
 		delete m_late_renderer;
 		delete m_line_renderer;
@@ -126,49 +117,9 @@ namespace oe::gui
 		m_old_window_size = event.framebuffer_size;
 	}
 
-	void GUI::addSubWidget(Widget* widget)
+	oe::graphics::Font& GUI::getFont(uint16_t resolution, const std::string& _font)
 	{
-		m_main_frame->addSubWidget(widget);
-	}
-
-	void GUI::removeSubWidget(Widget* widget)
-	{
-		m_main_frame->removeSubWidget(widget);
-	}
-
-	oe::graphics::Renderer* GUI::getRenderer() const
-	{
-		return m_renderer;
-	}
-
-	oe::graphics::Renderer* GUI::getLineRenderer() const
-	{
-		return m_line_renderer;
-	}
-
-	oe::graphics::Renderer* GUI::getLateRenderer() const
-	{
-		return m_late_renderer;
-	}
-
-	const oe::graphics::Window& GUI::getWindow() const
-	{
-		return m_window;
-	}
-
-	const oe::assets::DefaultShader* GUI::getShaderFill() const
-	{
-		return m_shader_fill;
-	}
-
-	const oe::assets::DefaultShader* GUI::getShaderLines() const
-	{
-		return m_shader_lines;
-	}
-
-	oe::graphics::Font& GUI::getFont(size_t resolution, std::string font)
-	{
-		if(font.empty()) font = m_default_font_path;
+		const std::string& font = _font.empty() ? m_default_font_path : _font;
 
 		auto sizeiter = m_fontmap.find(resolution);
 		if(sizeiter == m_fontmap.end())
