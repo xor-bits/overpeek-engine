@@ -48,5 +48,7 @@ namespace oe::graphics
 		uint32_t getGLTexture() { return m_id; }
 		int32_t getGLTarget() { return m_target; }
 
+		static int32_t gl_max_texture_size;
+
 	};
 }

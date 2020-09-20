@@ -109,11 +109,6 @@ namespace oe::gui
 		quad->setColor(text_input_info.color);
 		quad->update();
 
-		// vertical bar
-		auto& clock = oe::utils::Clock::getSingleton();
-		float time = clock.getSessionMillisecond();
-		bool bar = m_selected && (timer_key_pressed > clock.getSessionMillisecond() || (int)floor(time) % 2000 > 1000);
-
 		// text
 		const std::u32string& drawn_str = text_input_info.text;
 		label->generate({ drawn_str, text_input_info.default_text_color }, m_gui_manager.getWindow());
@@ -128,6 +123,9 @@ namespace oe::gui
 		text_quad->update();
 		
 		// text bar
+		auto& clock = oe::utils::Clock::getSingleton();
+		float time = clock.getSessionMillisecond();
+		bool bar = m_selected && (timer_key_pressed > clock.getSessionMillisecond() || (int)floor(time) % 1000 > 500);
 		auto& font = m_gui_manager.getFont(text_input_info.font_size, text_input_info.font_path);
 		const glm::ivec2 before_cursor_size = oe::graphics::u32Text::size(font, drawn_str.substr(0, static_cast<STB_TexteditState*>(m_state)->cursor), glm::vec2(font.getResolution()));
 		text_bar_quad->setPosition(static_cast<glm::vec2>(text_label_pos + glm::ivec2{ before_cursor_size.x, 0 }));
@@ -135,6 +133,7 @@ namespace oe::gui
 		text_bar_quad->setSize({ 1, font.getResolution() });
 		text_bar_quad->setSprite(text_input_info.sprite);
 		text_bar_quad->setColor(text_input_info.default_text_color);
+		text_bar_quad->toggle(bar);
 		text_bar_quad->update();
 	}
 

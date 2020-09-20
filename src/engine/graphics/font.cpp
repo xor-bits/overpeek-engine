@@ -16,10 +16,17 @@ namespace oe::graphics {
 	bool Font::gen_codepoint_glyph(char32_t codepoint)
 	{
 		//Load glyph
-		if (FT_Load_Char(face, codepoint, FT_LOAD_RENDER))
+		try
 		{
-			spdlog::warn("Failed to load glyph: {}", (size_t)codepoint);
-			return false;
+			if (FT_Load_Char(face, codepoint, FT_LOAD_RENDER))
+			{
+				spdlog::warn("Failed to load glyph: {}", (size_t)codepoint);
+				return false;
+			}
+		}
+		catch(const std::exception& e)
+		{
+			spdlog::info("{}", e.what());
 		}
 
 		// glyph
@@ -58,6 +65,7 @@ namespace oe::graphics {
 	Font::Font(const oe::utils::byte_string& font_file, uint16_t resolution)
 		: m_sprite_pack(new SpritePack(5))
 		, m_resolution(resolution)
+		, m_font_file(font_file)
 	{
 		oe_debug_call("font");
 
@@ -66,10 +74,11 @@ namespace oe::graphics {
 			oe_error_terminate("FT_Init_FreeType failed");
 
 		// Load font
-		if (FT_New_Memory_Face(ft, font_file.data(), static_cast<int32_t>(std::clamp<size_t>(font_file.size(), 0, std::numeric_limits<int32_t>::max())), 0, &face))
-			oe_error_terminate("Failed to load font in memory {0:x} {1}", (size_t)font_file.data(), font_file.size());
+		if (FT_New_Memory_Face(ft, m_font_file.data(), static_cast<int32_t>(std::clamp<size_t>(m_font_file.size(), 0, std::numeric_limits<int32_t>::max())), 0, &face))
+			oe_error_terminate("Failed to load font in memory {0:x} {1}", (size_t)m_font_file.data(), m_font_file.size());
 
 		FT_Set_Pixel_Sizes(face, 0, m_resolution);
+		FT_Select_Charmap(face, FT_ENCODING_UNICODE);
 		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
 
 		// all ascii glyphs

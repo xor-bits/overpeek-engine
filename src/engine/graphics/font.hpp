@@ -32,6 +32,8 @@ namespace oe::graphics
 		FT_LibraryRec_* ft;
 		FT_FaceRec_* face;
 
+		oe::utils::byte_string m_font_file;
+
 		bool gen_codepoint_glyph(char32_t codepoint);
 	
 	public:

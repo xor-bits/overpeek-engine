@@ -25,7 +25,7 @@ namespace oe::gui
 		info.max_values = glm::vec4(1.0f);
 		
 		info.slider_info.widget_info = color_picker_info.widget_info;
-		info.slider_info.widget_info.size = { slider_width - 10, slider_height - 10 };
+		info.slider_info.widget_info.size = { slider_width, slider_height };
 		info.slider_info.widget_info.offset_position += glm::ivec2{ 5, 5 };
 		
 		if(color_picker_info.draw_value == 2)
@@ -45,14 +45,14 @@ namespace oe::gui
 		, m_color_picker_info(_color_picker_info)
 	{
 		SpritePanelInfo sprite_panel_info;
-		sprite_panel_info.widget_info = { m_color_picker_info.widget_info.size + glm::ivec2{ 55, 10 }, { -5, -5 }, oe::alignments::top_left, oe::alignments::top_left };
+		sprite_panel_info.widget_info = { m_info.size + glm::ivec2{ 55, 10 }, { -5, -5 }, oe::alignments::top_left, oe::alignments::top_left };
 		sprite_panel_info.sprite = m_color_picker_info.sprite;
 		sprite_panel_info.color = m_color_picker_info.background_color;
 		auto bgbox = create<SpritePanel>(sprite_panel_info);
 		bgbox->overrideZ(bgbox->getZ() - 0.5f);
 
 		SpritePanelInfo preview_panel_info;
-		preview_panel_info.widget_info = { { 40, m_color_picker_info.widget_info.size.y }, { -5, 5 }, oe::alignments::top_right, oe::alignments::top_right };
+		preview_panel_info.widget_info = { { 40, m_info.size.y }, { -5, 5 }, oe::alignments::top_right, oe::alignments::top_right };
 		preview_panel_info.color = m_color_picker_info.initial_color;
 		preview_panel_info.sprite = m_color_picker_info.sprite;
 		preview_panel = bgbox->create<SpritePanel>(preview_panel_info);
@@ -199,11 +199,11 @@ namespace oe::gui
 			return;
 		m_color_picker_info.initial_color = color;
 
-		update();
-
 		std::array<float, 4> arr;
 		oe::utils::vecToContainer<4, float>(color, arr);
 		VecSlider<4>::set(arr);
+
+		update();
 	}
 
 	void ColorPicker::update()

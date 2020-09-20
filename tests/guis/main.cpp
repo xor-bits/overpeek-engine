@@ -371,6 +371,15 @@ int main()
 	window->getGameloop().start();
 
 	// cleanup
+	textbox.reset();
+	textpanel.reset();
+	box.reset();
+	list.reset();
+	checkbox.reset();
+	quat_slider.reset();
+	graph_fps.reset();
+	graph_ups.reset();
+	color_picker.reset();
 	delete gui;
 	delete pack;
 	delete shader_fill;

@@ -48,6 +48,8 @@ namespace oe::gui
 		{
 			toggle_pending_value = enabled;
 			toggle_pending = true;
+			m_cg_pre_render = { m_gui_manager.dispatcher, this };
+
 			return;
 		}
 

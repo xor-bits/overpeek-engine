@@ -303,6 +303,7 @@ namespace oe::gui
 		if (m_color_picker_info.color_picker_info.initial_color == color)
 			return;
 		m_color_picker_info.color_picker_info.initial_color = color;
+		m_alpha_slider->slider_info.value_initial = color.a;
 
 		glm::vec3 hsv = oe::utils::rgbToHSV(color);
 		triangle_vertices[0].color = { oe::utils::hsvToRGB({ hsv.x, 1.0f, 1.0f }), 1.0f };

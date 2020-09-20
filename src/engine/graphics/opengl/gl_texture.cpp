@@ -64,7 +64,7 @@ namespace oe::graphics
 		}
 	}
 
-
+	int32_t GLTexture::gl_max_texture_size = -1;
 
 	GLTexture::GLTexture(const TextureInfo& texture_info)
 		: ITexture(texture_info)
@@ -74,6 +74,8 @@ namespace oe::graphics
 		, m_gl_wrap(gl_wrap(texture_info.wrap))
 	{
 		oe_debug_call("gl_texture");
+		if(gl_max_texture_size == -1)
+			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &gl_max_texture_size);
 
 		// generate texture
 		m_target = 0;
@@ -221,9 +223,20 @@ namespace oe::graphics
 #define glTexSubImage1D(m_id, level, x_offset, width, m_gl_format, GL_UNSIGNED_BYTE, data) glTexSubImage2D(m_id, level, x_offset, 0, width, 1, m_gl_format, GL_UNSIGNED_BYTE, data)
 #endif
 
+	void clamp_size(char name, int32_t& dim)
+	{
+		int32_t original = dim;
+		dim = std::min(GLTexture::gl_max_texture_size, dim);
+		
+		if(original != dim)
+			spdlog::warn("Texture dim<{}> {} was clamped to {}", name, original, dim);
+	}
+
 	void GLTexture::empty1D(int32_t width) {
 		m_target = GL_TEXTURE_1D;
 		GLTexture::bind();
+
+		clamp_size('x', width);
 
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, m_gl_wrap);
 		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, m_gl_filter);
@@ -236,6 +249,9 @@ namespace oe::graphics
 		m_target = GL_TEXTURE_2D;
 		GLTexture::bind();
 
+		clamp_size('x', width);
+		clamp_size('y', height);
+
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, m_gl_wrap);
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, m_gl_wrap);
 		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, m_gl_filter);
@@ -247,6 +263,10 @@ namespace oe::graphics
 	void GLTexture::empty3D(int32_t width, int32_t height, int32_t depth) {
 		m_target = GL_TEXTURE_3D;
 		GLTexture::bind();
+
+		clamp_size('x', width);
+		clamp_size('y', height);
+		clamp_size('z', depth);
 
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, m_gl_wrap);
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, m_gl_wrap);
@@ -261,6 +281,8 @@ namespace oe::graphics
 		m_target = GL_TEXTURE_1D;
 		GLTexture::bind();
 
+		clamp_size('x', width);
+
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, m_gl_wrap);
 		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, m_gl_filter);
 		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, m_gl_filter);
@@ -271,6 +293,9 @@ namespace oe::graphics
 	void GLTexture::load2D(const uint8_t* data, int32_t width, int32_t height) {
 		m_target = GL_TEXTURE_2D;
 		GLTexture::bind();
+
+		clamp_size('x', width);
+		clamp_size('y', height);
 
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, m_gl_wrap);
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, m_gl_wrap);
@@ -283,6 +308,10 @@ namespace oe::graphics
 	void GLTexture::load3D(const uint8_t* data, int32_t width, int32_t height, int32_t depth) {
 		m_target = GL_TEXTURE_3D;
 		GLTexture::bind();
+
+		clamp_size('x', width);
+		clamp_size('y', height);
+		clamp_size('z', depth);
 
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, m_gl_wrap);
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, m_gl_wrap);
