@@ -28,7 +28,7 @@ void update_2(oe::UpdateEvent<2>) {
 	oe::graphics::Sprite sprite;
 	sprite.m_owner = font->getSpritePack()->getTexture();
 	quad->setSprite(sprite);
-	quad->update(quad);
+	quad->update();
 }
 
 void resize(const oe::ResizeEvent& event) {
@@ -62,12 +62,7 @@ int main(int argc, char** argv) {
 	engine.blending();
 
 	// renderer
-	oe::RendererInfo renderer_info = {};
-	renderer_info.arrayRenderType = oe::types::dynamic_type;
-	renderer_info.indexRenderType = oe::types::static_type;
-	renderer_info.max_primitive_count = 1000;
-	renderer_info.staticVBOBuffer_data = nullptr;
-	renderer = new oe::graphics::Renderer(renderer_info);
+	renderer = new oe::graphics::Renderer(1000);
 
 	// shader
 	shader = new oe::assets::DefaultShader();
@@ -77,14 +72,18 @@ int main(int argc, char** argv) {
 	
 	// submitting
 	label = new oe::graphics::u32TextLabel(*font);
-	label->generate(U"<#1020ff>\u2116<#ffffff>The quick brown fox<#ff2020>\u263A", window, oe::colors::translucent_black);
+	label->generate({{
+			{ U"\u2116", { 0.06f, 0.13f, 1.0f, 1.0f } },
+			{ U"The quick brown fox!", oe::colors::white },
+			{ U"\u263A", { 1.0f, 0.13f, 0.13f, 1.0f } }
+		}}, window, oe::colors::translucent_black);
 
 	quad = renderer->create();
 	quad->setPosition({ 50, 50 });
 	quad->setSize(label->getSize()); spdlog::debug("{}", label->getSize());
 	quad->setColor(oe::colors::white);
 	quad->setSprite(label->getSprite());
-	quad->update(quad);
+	quad->update();
 	
 	renderer->forget(std::move(quad));
 	
@@ -95,7 +94,7 @@ int main(int argc, char** argv) {
 	quad->setSize({ 200, 200 });
 	quad->setColor(oe::colors::white);
 	quad->setSprite(sprite);
-	quad->update(quad);
+	quad->update();
 	
 	// blue: <#0000ff>
 	// incomplete: <#542>

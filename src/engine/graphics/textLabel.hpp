@@ -40,6 +40,14 @@ namespace oe::graphics
 			: text_render_input(_string, oe::colors::white)
 		{}
 
+		text_render_input(const char_type* _string, const glm::vec4& _color)
+			: text_render_input(std::basic_string<char_type>(_string), _color)
+		{}
+
+		text_render_input(const char_type* _string)
+			: text_render_input(_string, oe::colors::white)
+		{}
+
 		text_render_input()
 			: string()
 			, string_color_map({ { 0, oe::colors::white } })

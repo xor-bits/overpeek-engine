@@ -28,11 +28,13 @@ namespace oe::networking {
 
 	Server::Server() {
 		m_address = new ENetAddress();
+		m_compressor = new ENetCompressor();
 		m_channel_id = 0;
 	}
 
 	Server::~Server() {
 		close();
+		delete m_compressor;
 		delete m_address;
 	}
 
@@ -49,6 +51,8 @@ namespace oe::networking {
 			0,
 			0
 		);
+
+		enet_host_compress(m_server, m_compressor);
 
 		if (!m_server) {
 			spdlog::critical("Failed to create ENet server at port {}", port);
