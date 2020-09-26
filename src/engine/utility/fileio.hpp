@@ -51,8 +51,8 @@ namespace oe::utils
 	template<typename T>
 	struct FileIOInternal
 	{
-		static T read(const FileIO&) { static_assert(0, "Unknown type to read"); }
-		static void write(const FileIO&, const T&) { static_assert(0, "Unknown type to write"); }
+		static T read(const FileIO&);
+		static void write(const FileIO&, const T&);
 	};
 	template<>
 	struct FileIOInternal<byte_string>
@@ -113,12 +113,36 @@ namespace oe::utils
 	public:
 		FileIO(const fs::path& path = std::filesystem::current_path());
 		FileIO(const std::string& path) : FileIO(fs::path(path)) {}
+		FileIO(const std::string_view& path) : FileIO(fs::path(path)) {}
 		FileIO(const char* cstr) : FileIO(fs::path(cstr)) {}
 
-		FileIO& operator+(const FileIO& right) const;
-		FileIO& operator/(const FileIO& right) const;
+		operator fs::path() const
+		{
+			return m_current_path;
+		}
+		
+		template<typename T>
+		FileIO operator/(const T& right) const // open directory or directories
+		{
+			FileIO copy = *this;
+			copy.open(right);
+			return copy;
+		}
+		
+		template<typename T>
+		FileIO operator+(const T& right) const // open directory or directories
+		{
+			FileIO copy = *this;
+			copy.open(right);
+			return copy;
+		}
 
-		FileIO& open(const fs::path& file_or_directory_name); // open directory or directories
+		template<typename T>
+		FileIO& open(const T& file_or_directory_name) // open directory or directories
+		{
+			m_current_path /= file_or_directory_name;
+			return *this;
+		}
 		FileIO& close(size_t n = 1); // go back or close directories
 
 		std::vector<fs::path> items() const;

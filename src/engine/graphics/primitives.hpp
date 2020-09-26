@@ -15,7 +15,6 @@ namespace oe::graphics
 		Renderer& m_renderer;
 		int32_t m_index_in_vbo;
 		bool m_removed                 = false;
-		bool m_sprite_updated          = false;
 		bool m_updated                 = false;
 		bool m_toggled                 = true;
 		bool m_opacitymode             = false;
@@ -60,7 +59,7 @@ namespace oe::graphics
 
 		// sprite setters/getters
 		void expandSprite() { m_updated = true; m_sprite.position = { 0.0f, 0.0f }; m_sprite.size = { 1.0f, 1.0f }; }
-		void setSprite(const Sprite& sprite) { if (m_sprite.m_owner != sprite.m_owner) { m_sprite_updated = true; } else if(m_sprite.position != sprite.position || m_sprite.size != sprite.size) { m_updated = true; } m_sprite = sprite; setOpacityMode(/*auto*/); }
+		void setSprite(const Sprite& sprite) { if (m_sprite.m_owner != sprite.m_owner) { m_updated = true; } else if(m_sprite.position != sprite.position || m_sprite.size != sprite.size) { m_updated = true; } m_sprite = sprite; setOpacityMode(/*auto*/); }
 		void setSprite(const Sprite* sprite) { if(!sprite) return; setSprite(*sprite); }
 		const Sprite* getSprite() const { return &m_sprite; }
 
@@ -73,8 +72,17 @@ namespace oe::graphics
 		bool getOpacityMode() const { return m_opacitymode; }
 
 		// update after modifications
-		void update();
-		void update(VertexData* ptr);
+		// returns true if it was modified
+		bool update();
+		bool update(VertexData* ptr);
+
+		// update after modifications
+		// returns true if it was modified
+		bool updateForce();
+		bool updateForce(VertexData* ptr);
+
+		// returns true if it was modified
+		bool updated() const;
 		
 		// generate vertices, pointer must have room for 4 VertexData obj:s
 		void gen_vertices(VertexData* ref) const;

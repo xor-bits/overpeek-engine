@@ -30,11 +30,12 @@ namespace oe::gui
 		std::shared_ptr<Form> m_main_frame;
 		oe::graphics::Renderer* m_renderer;
 		oe::graphics::Renderer* m_line_renderer;
-		oe::graphics::Renderer* m_late_renderer;
 		oe::assets::DefaultShader* m_shader_fill;
 		oe::assets::DefaultShader* m_shader_lines;
 		oe::ResizeEvent latest_resize_event;
 		const oe::graphics::Window& m_window;
+
+		bool m_needs_sorting = false;
 
 		std::unordered_map<size_t, std::unordered_map<std::string, oe::graphics::Font*>> m_fontmap; // fontsize - ( fontname - font pair) pair
 		const std::string m_default_font_path;
@@ -71,12 +72,12 @@ namespace oe::gui
 
 		inline oe::graphics::Renderer* getRenderer() const { return m_renderer; }
 		inline oe::graphics::Renderer* getLineRenderer() const { return m_line_renderer; }
-		inline oe::graphics::Renderer* getLateRenderer() const { return m_late_renderer; }
 		inline const oe::graphics::Window& getWindow() const { return m_window; }
 		inline const oe::assets::DefaultShader* getShaderFill() const { return m_shader_fill; }
 		inline const oe::assets::DefaultShader* getShaderLines() const { return m_shader_lines; }
 
 		oe::graphics::Font& getFont(uint16_t resolution, const std::string& font = "");
+		inline void update(bool value) { m_needs_sorting |= value; }
 	};
 
 }

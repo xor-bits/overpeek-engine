@@ -51,7 +51,7 @@ namespace oe::gui
 	private:
 		// events
 		void on_render(const GUIRenderEvent& event);
-		oe::utils::connect_guard<GUIRenderEvent, &Checkbox::on_render, Checkbox> m_cg_render;
+		oe::utils::connect_guard m_cg_render;
 		void on_button_use(const ButtonUseEvent& e);
 		void on_button_hover(const ButtonHoverEvent& e);
 	};

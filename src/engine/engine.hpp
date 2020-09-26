@@ -233,7 +233,7 @@ struct fmt::formatter<fs::path> {
 
 	template <typename FormatContext>
 	auto format(const fs::path& p, FormatContext& ctx) {
-		return format_to(ctx.out(), "<{}>", p.generic_string());
+		return format_to(ctx.out(), "{}", p.generic_string());
 	}
 };
 template <>
@@ -243,7 +243,7 @@ struct fmt::formatter<fs::path::const_iterator> {
 
 	template <typename FormatContext>
 	auto format(const fs::path::const_iterator& p, FormatContext& ctx) {
-		return format_to(ctx.out(), "<{}>", p->generic_string());
+		return format_to(ctx.out(), "{}", p->generic_string());
 	}
 };
 

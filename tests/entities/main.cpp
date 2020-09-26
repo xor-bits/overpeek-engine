@@ -198,7 +198,6 @@ void gui()
 	{
 		oe::gui::TextPanelInfo tp_info;
 		tp_info.font_size = 22;
-		// tp_info.widget_info.size = { 250, 30 };
 		tp_info.widget_info.align_parent = oe::alignments::top_left;
 		tp_info.widget_info.align_render = oe::alignments::top_left;
 		tp_info.text = U"placeholder";
@@ -254,7 +253,7 @@ int main(int argc, char* argv[])
 	// engine
 	oe::EngineInfo engine_info = {};
 	engine_info.api = oe::graphics_api::OpenGL;
-	engine_info.debug_messages = false;
+	engine_info.debug_mode = false;
 	engine.init(engine_info);
 
 	// window

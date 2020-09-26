@@ -39,17 +39,18 @@ namespace oe::gui
 		Button::virtual_toggle(enabled);
 		if(enabled)
 		{
-			m_cg_render = { m_gui_manager.dispatcher, this };
+			m_cg_render.connect<GUIRenderEvent, &DecoratedButton::on_render, DecoratedButton>(m_gui_manager.dispatcher, this);
 		}
 		else
 		{
-			m_cg_render.reset();
+			m_cg_render.disconnect();
 		}
 	}
 
 	void DecoratedButton::on_render(const GUIRenderEvent& event)
 	{
-		if (!button_info.autoresize) return;
+		if (!button_info.autoresize || !m_cg_render)
+			return;
 
 		const glm::ivec2 new_size = button_text->m_info.size + button_info.padding * 2;
 		button_background->m_info.size = new_size;

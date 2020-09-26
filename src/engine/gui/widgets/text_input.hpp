@@ -77,9 +77,9 @@ namespace oe::gui
 		void on_codepoint(const CodepointEvent& event);
 		void on_key(const KeyboardEvent& event);
 		void on_button(const MouseButtonEvent& event);
-		oe::utils::connect_guard<GUIRenderEvent, &TextInput::on_render, TextInput> m_cg_render;
-		oe::utils::connect_guard<CodepointEvent, &TextInput::on_codepoint, TextInput> m_cg_codepoint;
-		oe::utils::connect_guard<KeyboardEvent, &TextInput::on_key, TextInput> m_cg_key;
-		oe::utils::connect_guard<MouseButtonEvent, &TextInput::on_button, TextInput> m_cg_button;
+		oe::utils::connect_guard m_cg_render;
+		oe::utils::connect_guard m_cg_codepoint;
+		oe::utils::connect_guard m_cg_key;
+		oe::utils::connect_guard m_cg_button;
 	};
 }

@@ -7,6 +7,7 @@
 
 #include "engine/internal_libs.hpp"
 #include "engine/utility/extra.hpp"
+#include "engine/utility/connect_guard.hpp"
 #include "engine/engine.hpp"
 
 

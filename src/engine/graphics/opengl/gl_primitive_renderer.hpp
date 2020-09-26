@@ -117,7 +117,7 @@ namespace oe::graphics
 		virtual void _render(int32_t override_primitive_offset, int32_t override_primitive_count) const override
 		{
 			if(override_primitive_count == std::numeric_limits<int32_t>::max())
-				override_primitive_count = m_vertex_count / this->m_vertex_per_primitive;
+				override_primitive_count = Interface::m_vertex_count / this->m_vertex_per_primitive;
 
 			if (override_primitive_count > 0) {
 				m_vao->bind();

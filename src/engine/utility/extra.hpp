@@ -30,7 +30,7 @@ namespace oe::utils {
 	template <typename T>
 	bool weak_ptr_test(const std::weak_ptr<T>& ptr)
 	{
-		return !weak.owner_before(std::weak_ptr<T>{}) && !std::weak_ptr<T>{}.owner_before(weak);
+		return !ptr.owner_before(std::weak_ptr<T>{}) && !std::weak_ptr<T>{}.owner_before(ptr);
 	}
 
 	// { 0 - 1, 0 - 1, 0 - 1 } -> { 0 - 1, 0 - 1, 0 - 1 }
@@ -57,7 +57,7 @@ namespace oe::utils {
 	template<size_t dim, typename T>
 	bool containerToVec(const std::vector<T>& from, glm::vec<dim, T>& to)
 	{
-		if (l.size() < dim)
+		if (from.size() < dim)
 			return false;
 
 		glm::vec<dim, T> vec;

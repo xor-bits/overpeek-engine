@@ -231,7 +231,7 @@ if(VCPKG_TOOLCHAIN) # with vcpkg
 	target_link_directories(${target_name} PUBLIC "${_VCPKG_LIB_DIR}")
 	
 # additional glfw3 dependencies for ubuntu:
-# sudo apt install libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev
+# sudo apt install libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev libxrandr-dev
 
 # vcpkg install openal-soft glfw3 glad box2d libzip enet freetype ms-gsl entt spdlog fmt stb minimp3 glm gcem
 # optionally shaderc and/or vulkan' vcpkg install shaderc vulkan

@@ -33,7 +33,7 @@ namespace oe::gui
 			quad_box = m_gui_manager.getRenderer()->create(); // check - box, hehe
 
 			// event listeners
-			m_cg_render = { m_gui_manager.dispatcher, this };
+			m_cg_render.connect<GUIRenderEvent, &Checkbox::on_render, Checkbox>(m_gui_manager.dispatcher, this);
 		}
 		else
 		{
@@ -41,18 +41,21 @@ namespace oe::gui
 			quad_box.reset();
 
 			// event listeners
-			m_cg_render.reset();
+			m_cg_render.disconnect();
 		}
 	}
 
 	void Checkbox::on_render(const GUIRenderEvent& event)
 	{
+		if(!m_cg_render)
+			return;
+
 		quad_box->setPosition(render_position);
 		quad_box->setZ(z);
 		quad_box->setSize(m_info.size);
 		quad_box->setColor(m_checkbox_info.color_back);
 		quad_box->setSprite(m_checkbox_info.sprite);
-		quad_box->update();
+		m_gui_manager.update(quad_box->update());
 
 		if (m_checkbox_info.initial) {
 			quad_check->setSize(static_cast<glm::vec2>(m_info.size) * 0.7f);
@@ -66,7 +69,7 @@ namespace oe::gui
 		quad_check->setColor(m_checkbox_info.color_mark);
 		quad_check->setSprite(m_checkbox_info.sprite);
 		quad_check->setRotationAlignment(oe::alignments::center_center);
-		quad_check->update();
+		m_gui_manager.update(quad_check->update());
 	}
 
 	void Checkbox::on_button_use(const ButtonUseEvent& e)

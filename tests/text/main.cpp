@@ -13,6 +13,10 @@ oe::graphics::Font* font;
 oe::graphics::u32TextLabel* label;
 std::unique_ptr<oe::graphics::Quad> quad;
 
+oe::utils::connect_guard cg_render;
+oe::utils::connect_guard cg_update_2;
+oe::utils::connect_guard cg_resize;
+
 
 
 void render(oe::RenderEvent)
@@ -42,7 +46,7 @@ int main(int argc, char** argv) {
 	// engine
 	oe::EngineInfo engine_info = {};
 	engine_info.api = oe::graphics_api::OpenGL;
-	engine_info.debug_messages = true;
+	engine_info.debug_mode = true;
 	engine.init(engine_info);
 
 	// window
@@ -51,10 +55,10 @@ int main(int argc, char** argv) {
 	window_info.multisamples = 4;
 	window = oe::graphics::Window(window_info);
 
-	// connect events
-	window->connect_listener<oe::ResizeEvent, &resize>();
-	window->connect_listener<oe::RenderEvent, &render>();
-	window->connect_listener<oe::UpdateEvent<2>, &update_2>();
+	// connect events;
+	cg_render.connect<oe::RenderEvent, render>(window->getGameloop().getDispatcher());
+	cg_update_2.connect<oe::UpdateEvent<2>, update_2>(window->getGameloop().getDispatcher());
+	cg_resize.connect<oe::ResizeEvent, resize>(window->getGameloop().getDispatcher());
 	
 	// instance settings
 	engine.culling(oe::culling_modes::back);
@@ -104,6 +108,9 @@ int main(int argc, char** argv) {
 	
 	// start
 	window->getGameloop().start(); // print the average frametime 30 times in a second
+	cg_render.disconnect();
+	cg_update_2.disconnect();
+	cg_resize.disconnect();
 
 	// closing
 	delete font;

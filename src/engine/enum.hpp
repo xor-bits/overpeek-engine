@@ -417,7 +417,7 @@ namespace oe {
 		bool networking = false;
 		graphics_api api = oe::graphics_api::OpenGL;
 		gpu favored_gpu_vulkan = gpu::dedicated;
-		bool debug_messages = false;
+		bool debug_mode = false;
 		bool ignore_errors = true;
 	};
 

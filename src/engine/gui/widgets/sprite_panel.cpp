@@ -20,16 +20,13 @@ namespace oe::gui {
 	{
 		if(enabled)
 		{
-			if (sprite_panel_info.sprite_alpha)
-				quad = m_gui_manager.getLateRenderer()->create();
-			else
-				quad = m_gui_manager.getRenderer()->create();
+			quad = m_gui_manager.getRenderer()->create();
 
-			m_cg_render = { m_gui_manager.dispatcher, this };
+			m_cg_render.connect<GUIRenderEvent, &SpritePanel::on_render, SpritePanel>(m_gui_manager.dispatcher, this);
 		}
 		else
 		{
-			m_cg_render.reset();
+			m_cg_render.disconnect();
 			
 			quad.reset();
 		}
@@ -37,6 +34,9 @@ namespace oe::gui {
 
 	void SpritePanel::on_render(const GUIRenderEvent& event)
 	{
+		if(!m_cg_render)
+			return;
+
 		quad->setPosition(render_position + oe::alignmentOffset(m_info.size, oe::alignments::center_center));
 		quad->setZ(z);
 		quad->setSize(m_info.size);
@@ -44,7 +44,7 @@ namespace oe::gui {
 		quad->setSprite(sprite_panel_info.sprite);
 		quad->setRotation(sprite_panel_info.rotation);
 		quad->setRotationAlignment(oe::alignments::center_center);
-		quad->update();
+		m_gui_manager.update(quad->update());
 	}
 
 }

@@ -46,6 +46,7 @@ namespace oe::graphics
 		sprite.m_owner = m_texture;
 		sprite.position = { 0.0f, 1.0f };
 		sprite.size = { 1.0f, -1.0f };
+		sprite.opacity = true;
 	}
 
 	GLFrameBuffer::~GLFrameBuffer()

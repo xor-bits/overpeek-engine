@@ -81,27 +81,37 @@ namespace oe::utils
 		template<size_t ups>
 		void try_remove()
 		{
-			spdlog::info("try remove ups: {}", ups);
 			std::unordered_map<size_t, std::unique_ptr<UpdateSystemBase>>::iterator iter = m_update_systems.find(ups);
 			if (iter != m_update_systems.end() && dispatcher.sink<oe::UPS<ups>>().empty())
-			{
-				spdlog::info("removed ups: {}", ups);
 				m_update_systems.erase(iter);
-			}
 		}
 
+		template <typename T, typename = void>
+		struct has_system_ups : std::false_type { };
 		template <typename T>
-		class has_system_ups
+		struct has_system_ups <T, std::void_t<decltype(T::system_ups)>> : std::true_type { };
+
+		
+
+		template<typename EventType, auto ListenerFn, typename InstanceOpt = void>
+		static void connect_guard_CFN(GameLoop* gl, InstanceOpt* instance = nullptr)
 		{
-			typedef char one;
-			struct two { char x[2]; };
+			static constexpr bool is_void_t = std::is_same_v<InstanceOpt, void>;
+			if constexpr(is_void_t)
+				gl->connect_listener<EventType, ListenerFn>();
+			else
+				gl->connect_listener<EventType, ListenerFn, InstanceOpt>(*instance);
+		}
 
-			template <typename C> static one test(char[sizeof(&C::system_ups)]) ;
-			template <typename C> static two test(...);    
-
-		public:
-			enum { value = sizeof(test<T>(0)) == sizeof(char) };
-		};
+		template<typename EventType, auto ListenerFn, typename InstanceOpt = void>
+		static void connect_guard_DFN(GameLoop* gl, InstanceOpt* instance = nullptr)
+		{
+			static constexpr bool is_void_t = std::is_same_v<InstanceOpt, void>;
+			if constexpr(is_void_t)
+				gl->disconnect_listener<EventType, ListenerFn>();
+			else
+				gl->disconnect_listener<EventType, ListenerFn, InstanceOpt>(*instance);
+		}
 
 		// events
 		template<typename Event, auto Listener, typename Instance>

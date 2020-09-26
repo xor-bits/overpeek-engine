@@ -140,7 +140,7 @@ namespace oe::graphics {
 
 	GLWindow::GLWindow(const std::unique_ptr<Instance>& instance, const WindowInfo& window_config) 
 		: IWindow::IWindow(instance, window_config)
-		, m_debugging(oe::Engine::getSingleton().engine_info.debug_messages)
+		, m_debugging(oe::Engine::getSingleton().engine_info.debug_mode)
 	{
 		oe_debug_call("gl_window");
 

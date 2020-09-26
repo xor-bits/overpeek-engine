@@ -13,7 +13,6 @@ namespace oe::gui
 		glm::vec4 color                    = oe::colors::white;
 		const oe::graphics::Sprite* sprite = nullptr;
 		float rotation                     = 0.0f;
-		bool sprite_alpha                  = false;
 		
 		WidgetInfo widget_info             = { { 50, 50 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
 	};
@@ -35,7 +34,7 @@ namespace oe::gui
 	private:
 		// events
 		void on_render(const GUIRenderEvent& event);
-		oe::utils::connect_guard<GUIRenderEvent, &SpritePanel::on_render, SpritePanel> m_cg_render;
+		oe::utils::connect_guard m_cg_render;
 	};
 
 }

@@ -87,7 +87,7 @@ namespace oe::graphics
 
 	void Quad::gen_vertices_zero(VertexData* ref)
 	{
-		std::fill(reinterpret_cast<float*>(ref), reinterpret_cast<float*>(ref) + sizeof(VertexData) * 4, 0.0f);
+		std::fill(reinterpret_cast<float*>(ref), reinterpret_cast<float*>(ref + 4), 0.0f);
 	}
 
 	void Quad::setOpacityMode()
@@ -95,20 +95,31 @@ namespace oe::graphics
 		m_opacitymode = m_color.a < 0.9999f || m_sprite.opacity;
 	}
 
-	void Quad::update()
+	bool Quad::update()
 	{
-		if(!m_sprite.m_owner)
-			setSprite(NullSpritePatcher::getSingleton().m_sprite);
-
 		m_renderer.attemptMap();
-		gen_vertices(m_renderer.getPrimitiveRenderer()->modifyVertex(4, m_index_in_vbo));
+		return update(m_renderer.getPrimitiveRenderer()->modifyVertex(4, m_index_in_vbo * 4));
 	}
 	
-	void Quad::update(VertexData* ptr)
+	bool Quad::update(VertexData* ptr)
 	{
+		bool updated = m_updated;
+		m_updated = false;
+		if(!updated)
+			return m_updated;
+
 		if(!m_sprite.m_owner)
 			setSprite(NullSpritePatcher::getSingleton().m_sprite);
-		
 		gen_vertices(ptr);
+		
+		return updated;
+	}
+
+	bool Quad::updateForce() { m_updated = true; return update(); }
+	bool Quad::updateForce(VertexData* ptr)  { m_updated = true; return update(ptr); }
+	
+	bool Quad::updated() const
+	{
+		return m_updated;
 	}
 }

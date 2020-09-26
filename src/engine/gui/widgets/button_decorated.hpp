@@ -43,7 +43,7 @@ namespace oe::gui
 	private:
 		// events
 		void on_render(const GUIRenderEvent& event);
-		oe::utils::connect_guard<GUIRenderEvent, &DecoratedButton::on_render, DecoratedButton> m_cg_render;
+		oe::utils::connect_guard m_cg_render;
 		;
 	};
 

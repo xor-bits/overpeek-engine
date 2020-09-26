@@ -66,9 +66,9 @@ namespace oe::gui
 		void on_render(const GUIRenderEvent& event);
 		void on_cursor(const CursorPosEvent& event);
 		void on_button(const MouseButtonEvent& event);
-		oe::utils::connect_guard<GUIRenderEvent, &ColorPickerWheel::on_render, ColorPickerWheel> m_cg_render;
-		oe::utils::connect_guard<CursorPosEvent, &ColorPickerWheel::on_cursor, ColorPickerWheel> m_cg_cursor;
-		oe::utils::connect_guard<MouseButtonEvent, &ColorPickerWheel::on_button, ColorPickerWheel> m_cg_button;
+		oe::utils::connect_guard m_cg_render;
+		oe::utils::connect_guard m_cg_cursor;
+		oe::utils::connect_guard m_cg_button;
 		void on_slider_use(const SliderUseEvent& event);
 	};
 }

@@ -100,6 +100,26 @@ namespace oe::graphics {
 		const std::string getClipboard() const;
 		void setClipboard(const std::string& str);
 
+		template<typename EventType, auto ListenerFn, typename InstanceOpt = void>
+		static void connect_guard_CFN(IWindow* win, InstanceOpt* instance = nullptr)
+		{
+			static constexpr bool is_void_t = std::is_same_v<InstanceOpt, void>;
+			if constexpr(is_void_t)
+				win->connect_listener<EventType, ListenerFn>();
+			else
+				win->connect_listener<EventType, ListenerFn, InstanceOpt>(*instance);
+		}
+
+		template<typename EventType, auto ListenerFn, typename InstanceOpt = void>
+		static void connect_guard_DFN(IWindow* win, InstanceOpt* instance = nullptr)
+		{
+			static constexpr bool is_void_t = std::is_same_v<InstanceOpt, void>;
+			if constexpr(is_void_t)
+				win->disconnect_listener<EventType, ListenerFn>();
+			else
+				win->disconnect_listener<EventType, ListenerFn, InstanceOpt>(*instance);
+		}
+
 		// -- events --
 		// connect events
 		template<typename Event, auto Listener, typename Instance>
@@ -139,5 +159,4 @@ namespace oe::graphics {
 		virtual std::string getGPU() const = 0;
 		virtual std::string getGPUVendor() const = 0;
 	};
-
 }

@@ -67,8 +67,8 @@ namespace oe::gui
 		// events
 		void on_mouse_button(const MouseButtonEvent& e);
 		void on_cursor_pos(const CursorPosEvent& e);
-		oe::utils::connect_guard<MouseButtonEvent, &ColorPicker::on_mouse_button, ColorPicker> m_cg_mouse_button;
-		oe::utils::connect_guard<CursorPosEvent, &ColorPicker::on_cursor_pos, ColorPicker> m_cg_cursor_pos;
+		oe::utils::connect_guard m_cg_mouse_button;
+		oe::utils::connect_guard m_cg_cursor_pos;
 		void on_color_wheel_hover(const ColorPickerHoverEvent& e);
 		void on_color_wheel_use(const ColorPickerUseEvent& e);
 		void on_vec_slider_hover(const VecSliderHoverEvent<4>& e);

@@ -249,7 +249,7 @@ void setup_gui()
 			button_info.sprite = pack->emptySprite();
 			button_info.text = U"log";
 			button_info.text_font_size = 18;
-			auto& button = checkbox->create<oe::gui::DecoratedButton>(button_info);
+			auto button = checkbox->create<oe::gui::DecoratedButton>(button_info);
 
 			auto callback_lambda = [&](const oe::gui::ButtonUseEvent& e) {
 				if (e.action == oe::actions::release && e.button == oe::mouse_buttons::button_left) {
@@ -324,7 +324,7 @@ int main()
 	// engine
 	oe::EngineInfo engine_info = {};
 	engine_info.api = oe::graphics_api::OpenGL;
-	engine_info.debug_messages = true;
+	engine_info.debug_mode = false;
 	engine_info.ignore_errors = false;
 	engine.init(engine_info);
 

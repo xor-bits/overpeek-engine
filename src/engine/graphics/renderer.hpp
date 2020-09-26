@@ -16,33 +16,51 @@ namespace oe::graphics
 	public:
 		using iter_t = std::vector<Quad*>::iterator;
 		using citer_t = std::vector<Quad*>::const_iterator;
-		using renderpass = std::tuple<int32_t, int32_t>; // first = m_quads index, second = quad count
+		using renderpass = std::tuple<int32_t, int32_t, ITexture*>; // first = first primitive, second = primitive count, third = texture
 		
-		static constexpr auto sort_by_largest_z = [](const Quad* l, const Quad* r)->bool
+		// sort by largest z if not removed and by removed otherwise
+		static constexpr auto sort_lz = [](const Quad* l, const Quad* r)->bool
 		{
-			return (l->getPosition().z < r->getPosition().z);
+			bool removed = (l->getRemoved() || r->getRemoved());
+			return
+				removed  && (l->getRemoved() < r->getRemoved()) ||
+				!removed && (l->getPosition().z < r->getPosition().z);
 		};
-		static constexpr auto sort_by_smallest_z = [](const Quad* l, const Quad* r)->bool
+		
+		// sort by smallest z if not removed and by removed otherwise
+		static constexpr auto sort_sz = [](const Quad* l, const Quad* r)->bool
 		{
-			return (l->getPosition().z > r->getPosition().z);
+			bool removed = (l->getRemoved() || r->getRemoved());
+			return
+				removed  && (l->getRemoved() < r->getRemoved()) ||
+				!removed && (l->getPosition().z > r->getPosition().z);
 		};
-		static constexpr auto sort_by_texture = [](const Quad* l, const Quad* r)->bool
+		
+		// sort by texture id if not removed and by removed otherwise
+		static constexpr auto sort_t = [](const Quad* l, const Quad* r)->bool
 		{
-			return (l->getSprite()->m_owner.get() < l->getSprite()->m_owner.get());
+			bool removed = (l->getRemoved() || r->getRemoved());
+			return
+				removed  && (l->getRemoved() < r->getRemoved()) ||
+				!removed && (l->getSprite()->m_owner.get() < l->getSprite()->m_owner.get());
 		};
-		static constexpr auto sort_by_largest_z_and_texture = [](const Quad* l, const Quad* r)->bool
+		
+		// sort by largest z if opaque and not removed and by texture if not removed and by removed otherwise
+		static constexpr auto sort_lz_t = [](const Quad* l, const Quad* r)->bool
 		{
-			if(l->getOpacityMode() || r->getOpacityMode())
-				return sort_by_largest_z(l, r);
-			else
-				return sort_by_texture(l, r);
+			bool opaque = (l->getOpacityMode() || r->getOpacityMode());
+			return
+				opaque && sort_lz(l, r) ||
+				opaque && sort_t(l, r);
 		};
-		static constexpr auto sort_by_smallest_z_and_texture = [](const Quad* l, const Quad* r)->bool
+		
+		// sort by smallest z if opaque and not removed and by texture if not removed and by removed otherwise
+		static constexpr auto sort_sz_t = [](const Quad* l, const Quad* r)->bool
 		{
-			if(l->getOpacityMode() || r->getOpacityMode())
-				return sort_by_smallest_z(l, r);
-			else
-				return sort_by_texture(l, r);
+			bool opaque = (l->getOpacityMode() || r->getOpacityMode());
+			return
+				opaque && sort_sz(l, r) ||
+				opaque && sort_t(l, r);
 		};
 
 	private:
@@ -55,7 +73,7 @@ namespace oe::graphics
 	public:
 		void attemptMap();
 		void render_c() const;
-		void update_quads();
+		void update_quads(bool sorted);
 		void fill_zeroes(const Quad *);
 	
 	public:
@@ -79,10 +97,10 @@ namespace oe::graphics
 
 		// Will sort all quads in vbo. Default behaviour: largest z first. Useful when dealing with transparencies
 		template<typename Callable>
-		void sort(const Callable& comparator = sort_by_largest_z)
+		void sort(const Callable& comparator, bool removed_are_sorted)
 		{
 			std::sort(m_quads.begin(), m_quads.end(), comparator);
-			update_quads();
+			update_quads(removed_are_sorted);
 		}
 		
 		// Will sort all quads in vbo. Default behaviour: largest z first. Useful when dealing with transparencies

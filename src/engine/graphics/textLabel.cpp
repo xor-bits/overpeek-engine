@@ -38,7 +38,7 @@ namespace oe::graphics {
 	template<typename char_type>
 	void BasicTextLabel<char_type>::generate(const string_t& text, const Window& window, const glm::vec4& color)
 	{
-		if (m_text == text && initial_generated) return; // why render the same text again?
+		if (m_text == text && initial_generated && Engine::getSingleton().engine_info.debug_mode) return; // why render the same text again?
 		regenerate(text, window, color);
 	}
 	

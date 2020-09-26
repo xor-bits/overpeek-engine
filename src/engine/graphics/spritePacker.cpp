@@ -32,20 +32,13 @@ namespace oe::graphics {
 		m_usr_data->m_rectangles = std::vector<rect_type>();
 		m_usr_data->m_images = std::vector<oe::utils::image_data>(); 
 		m_border = border;
-
-		// load empty sprite
-		size_t img_size = 4ul * (size_t)1 * (size_t)1;
-		unsigned char* data = new unsigned char[img_size];
-		std::memset(data, (unsigned char)255, img_size);
-		oe::utils::image_data empty_img(data, oe::formats::rgba, 1, 1);
-		create(empty_img);
-		delete[] data;
+		
+		clear();
 	}
 
 	SpritePack::~SpritePack()
 	{
-		for(auto iter : m_sprites) delete iter;
-		delete m_usr_data;
+		clear();
 	}
 
 	const Sprite* SpritePack::create(const oe::utils::image_data& sprite_texture)
@@ -62,6 +55,22 @@ namespace oe::graphics {
 	const Sprite* SpritePack::create(fs::path sprite_texture)
 	{
 		return create(oe::utils::image_data(sprite_texture));
+	}
+
+	void SpritePack::clear()
+	{
+		for(auto iter : m_sprites) delete iter;
+		m_usr_data->m_images.clear();
+		m_usr_data->m_rectangles.clear();
+		m_sprites.clear();
+
+		// load empty sprite
+		size_t img_size = 4ul * (size_t)1 * (size_t)1;
+		unsigned char* data = new unsigned char[img_size];
+		std::memset(data, (unsigned char)255, img_size);
+		oe::utils::image_data empty_img(data, oe::formats::rgba, 1, 1);
+		create(empty_img);
+		delete[] data;
 	}
 
 	size_t coordsToIndex(size_t x, size_t y, size_t c, size_t width, size_t channels)

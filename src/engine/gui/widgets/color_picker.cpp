@@ -29,7 +29,7 @@ namespace oe::gui
 		info.slider_info.widget_info.offset_position += glm::ivec2{ 5, 5 };
 		
 		if(color_picker_info.draw_value == 2)
-			info.slider_info.draw_format = [](const SliderInfo& info) { return fmt::format("{}", static_cast<int>(info.value_initial * 256.0f)); };
+			info.slider_info.draw_format = [](const SliderInfo& info) { return fmt::format(U"{}", static_cast<int>(info.value_initial * 256.0f)); };
 
 		info.slider_info.draw_value = color_picker_info.draw_value != 0;
 		info.slider_info.slider_sprite = color_picker_info.sprite;
@@ -73,6 +73,7 @@ namespace oe::gui
 			cpw_info.color_picker_info.widget_info.size = { 200, 200 };
 			cpw_info.color_picker_info.widget_info.align_parent = oe::alignments::top_left;
 			cpw_info.color_picker_info.widget_info.align_render = oe::alignments::top_left;
+			cpw_info.color_picker_info.widget_info.offset_position = m_gui_manager.getWindow()->getSize() * 4;
 			cpw_info.color_picker_info.widget_info.toggled = false;
 			popup_wheel = create<ColorPickerWheel>(cpw_info);
 			popup_wheel->connect_listener<ColorPickerUseEvent, &ColorPicker::on_color_wheel_use>(this);
@@ -107,13 +108,13 @@ namespace oe::gui
 		if(enabled)
 		{
 			std::lock_guard(m_gui_manager.getWindow()->dispatcher_mutex);
-			m_cg_mouse_button = { m_gui_manager.getWindow()->getGameloop().getDispatcher(), this };
-			m_cg_cursor_pos = { m_gui_manager.getWindow()->getGameloop().getDispatcher(), this };
+			m_cg_mouse_button.connect<MouseButtonEvent, &ColorPicker::on_mouse_button, ColorPicker>(m_gui_manager.getWindow()->getGameloop().getDispatcher(), this);
+			m_cg_cursor_pos.connect<CursorPosEvent, &ColorPicker::on_cursor_pos, ColorPicker>(m_gui_manager.getWindow()->getGameloop().getDispatcher(), this);
 		}
 		else
 		{
-			m_cg_mouse_button.reset();
-			m_cg_cursor_pos.reset();
+			m_cg_mouse_button.disconnect();
+			m_cg_cursor_pos.disconnect();
 		}
 	}
 
@@ -143,7 +144,8 @@ namespace oe::gui
 
 	void ColorPicker::on_button_hover(const ButtonHoverEvent& e)
 	{
-		if (m_color_picker_info.popup_open != open_fn::in_bbox) return;
+		if (m_color_picker_info.popup_open != open_fn::in_bbox)
+			return;
 
 		popup_wheel->m_info.offset_position = m_gui_manager.getWindow()->getCursorWindow() - render_position + glm::ivec2{ 10, 10 };
 		popup_wheel->toggle(true);
@@ -151,9 +153,11 @@ namespace oe::gui
 
 	void ColorPicker::on_button_use(const ButtonUseEvent& e)
 	{
-		if (m_color_picker_info.popup_open != open_fn::click_in) return;
+		if (m_color_picker_info.popup_open != open_fn::click_in)
+			return;
 
-		if (e.button != oe::mouse_buttons::button_left || e.action != oe::actions::press) return;
+		if (e.button != oe::mouse_buttons::button_left || e.action != oe::actions::press)
+			return;
 
 		popup_wheel->m_info.offset_position = m_gui_manager.getWindow()->getCursorWindow() - render_position + glm::ivec2{ 10, 10 };
 		popup_wheel->toggle(true);
@@ -161,9 +165,11 @@ namespace oe::gui
 
 	void ColorPicker::on_mouse_button(const MouseButtonEvent& e)
 	{
-		if (m_color_picker_info.popup_close != close_fn::click_out) return;
+		if (m_color_picker_info.popup_close != close_fn::click_out || !m_cg_mouse_button)
+			return;
 
-		if (e.button != oe::mouse_buttons::button_left || e.action != oe::actions::press) return;
+		if (e.button != oe::mouse_buttons::button_left || e.action != oe::actions::press)
+			return;
 
 		if (!oe::utils::bounding_box_test(
 			e.cursor_pos.cursor_windowspace,
@@ -176,7 +182,8 @@ namespace oe::gui
 
 	void ColorPicker::on_cursor_pos(const CursorPosEvent& e)
 	{
-		if (m_color_picker_info.popup_close != close_fn::leave_bbox) return;
+		if (m_color_picker_info.popup_close != close_fn::leave_bbox || !m_cg_cursor_pos)
+			return;
 
 		constexpr int bbox_padding = 30;
 		if (!oe::utils::bounding_box_test(

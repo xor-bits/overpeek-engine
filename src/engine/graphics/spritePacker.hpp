@@ -33,6 +33,8 @@ namespace oe::graphics
 		const Sprite* create(const oe::utils::image_data& sprite_texture);
 		const Sprite* create(fs::path sprite_texture);
 		const Sprite* emptySprite() const { return m_sprites.at(0); }
+
+		void clear(); // will invalidate all Sprite pointers
 		
 		void construct(); // sprite pack texture needs to be constructed before using it
 		void constructRepeat(); // may be called multiple times, but will not delete imagedata

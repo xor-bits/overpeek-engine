@@ -353,23 +353,6 @@ namespace oe::utils
 		: m_current_path(path)
 	{}
 
-	FileIO& FileIO::operator+(const FileIO& right) const
-	{
-		FileIO copy(*this);
-		return copy.open(right.m_current_path);
-	}
-
-	FileIO& FileIO::operator/(const FileIO& right) const
-	{
-		return *this / right;
-	}
-	
-	FileIO& FileIO::open(const fs::path& file_or_directory_name)
-	{
-		m_current_path /= file_or_directory_name;
-		return *this;
-	}
-
 	FileIO& FileIO::close(size_t n)
 	{
 		for(size_t i = 0; i < n; i++)

@@ -16,7 +16,6 @@ namespace oe::gui
 	{
 		// renderer
 		m_renderer = new oe::graphics::Renderer(renderer_primitive_count);
-		m_late_renderer = new oe::graphics::Renderer(renderer_primitive_count);
 		m_line_renderer = new oe::graphics::Renderer(renderer_primitive_count);
 
 		// shader
@@ -39,7 +38,6 @@ namespace oe::gui
 	GUI::~GUI()
 	{
 		delete m_renderer;
-		delete m_late_renderer;
 		delete m_line_renderer;
 		delete m_shader_fill;
 		delete m_shader_lines;
@@ -68,8 +66,8 @@ namespace oe::gui
 		render_empty();
 
 		m_shader_fill->bind();
+		if(m_needs_sorting) { m_renderer->sort(); m_needs_sorting = false; }
 		m_renderer->render();
-		m_late_renderer->render();
 		// m_shader_lines->bind();
 		// m_line_renderer->render();
 		
@@ -139,5 +137,4 @@ namespace oe::gui
 
 		return *fontiter->second;
 	}
-
 }

@@ -21,7 +21,7 @@ namespace oe::gui
 		, z(z_acc += 0.01f)
 		, m_cg_pre_render()
 	{
-		m_cg_pre_render = { m_gui_manager.dispatcher, this };
+		toggle(true);
 	}
 
 	Widget::~Widget()
@@ -33,13 +33,28 @@ namespace oe::gui
 	{
 		if(enabled)
 		{
-			m_cg_pre_render = { m_gui_manager.dispatcher, this };
+			m_cg_pre_render.connect<GUIPreRenderEvent, &Widget::on_pre_render, Widget>(m_gui_manager.dispatcher, this);
 		}
 		else
 		{
-			m_cg_pre_render.reset();
+			m_cg_pre_render.disconnect();
 		}
 		virtual_toggle(enabled);
+	}
+
+	void reset_render_pos(Widget* wdgt)
+	{
+		if(wdgt->getParent())
+			wdgt->render_position = 
+			+ wdgt->m_info.offset_position
+			+ wdgt->getParent()->render_position
+			+ oe::alignmentOffset(wdgt->getParent()->m_info.size, wdgt->m_info.align_parent)
+			- oe::alignmentOffset(wdgt->m_info.size, wdgt->m_info.align_render);
+
+		else
+			wdgt->render_position =
+			+ wdgt->m_info.offset_position
+			- oe::alignmentOffset(wdgt->m_info.size, wdgt->m_info.align_render);
 	}
 
 	void Widget::toggle(bool enabled)
@@ -48,12 +63,13 @@ namespace oe::gui
 		{
 			toggle_pending_value = enabled;
 			toggle_pending = true;
-			m_cg_pre_render = { m_gui_manager.dispatcher, this };
+			m_cg_pre_render.connect<GUIPreRenderEvent, &Widget::on_pre_render, Widget>(m_gui_manager.dispatcher, this);
 
 			return;
 		}
-
+		
 		{ // current node
+			reset_render_pos(this);
 			if(m_info.toggled != enabled)
 				base_toggle(enabled);
 		}
@@ -71,22 +87,15 @@ namespace oe::gui
 
 	void Widget::on_pre_render(const GUIPreRenderEvent& event)
 	{
+		if(!m_cg_pre_render)
+			return;
+
 		if(toggle_pending)
 		{
 			toggle(toggle_pending_value);
 			toggle_pending = false;
 		}
 
-		if(m_parent)
-			render_position = 
-			+ m_info.offset_position
-			+ m_parent->render_position
-			+ oe::alignmentOffset(m_parent->m_info.size, m_info.align_parent)
-			- oe::alignmentOffset(m_info.size, m_info.align_render);
-
-		else
-			render_position =
-			+ m_info.offset_position
-			- oe::alignmentOffset(m_info.size, m_info.align_render);
+		reset_render_pos(this);
 	}
 }

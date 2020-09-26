@@ -192,7 +192,7 @@ namespace oe::gui
 	ColorPickerWheelRenderer* ColorPickerWheelRenderer::singleton = nullptr;
 
 	ColorPickerWheel::ColorPickerWheel(Widget* parent, GUI& gui_manager, const ColorPickerWheelInfo& color_picker_info)
-		: SpritePanel(parent, gui_manager, { color_picker_info.color_picker_info.background_color, color_picker_info.color_picker_info.sprite, 0.0f, false, color_picker_info.color_picker_info.widget_info })
+		: SpritePanel(parent, gui_manager, { color_picker_info.color_picker_info.background_color, color_picker_info.color_picker_info.sprite, 0.0f, color_picker_info.color_picker_info.widget_info })
 		, m_color_picker_info(color_picker_info)
 	{
 		triangle_vertices[0].color = oe::colors::red;
@@ -212,7 +212,6 @@ namespace oe::gui
 		lsp_info.widget_info.toggled = color_picker_info.color_picker_info.widget_info.toggled;
 		lsp_info.sprite = &renderer.c_checkerboard;
 		lsp_info.color = oe::colors::white;
-		lsp_info.sprite_alpha = true;
 		m_framebuffer_panel = create<SpritePanel>(lsp_info);
 
 		if (color_picker_info.preview)
@@ -224,7 +223,6 @@ namespace oe::gui
 			sp_info.widget_info.align_render = oe::alignments::top_left;
 			sp_info.widget_info.toggled = color_picker_info.color_picker_info.widget_info.toggled;
 			sp_info.sprite = renderer.c_circle_sprite;
-			sp_info.sprite_alpha = true;
 			sp_info.color = oe::colors::white;
 			m_preview = create<SpritePanel>(sp_info);
 		}
@@ -277,9 +275,9 @@ namespace oe::gui
 
 			// event listeners
 			std::lock_guard lock(m_gui_manager.getWindow()->dispatcher_mutex);
-			m_cg_render = { m_gui_manager.dispatcher, this };
-			m_cg_cursor = { m_gui_manager.getWindow()->getGameloop().getDispatcher(), this };
-			m_cg_button = { m_gui_manager.getWindow()->getGameloop().getDispatcher(), this };
+			m_cg_render.connect<GUIRenderEvent, &ColorPickerWheel::on_render, ColorPickerWheel>(m_gui_manager.dispatcher, this);
+			m_cg_cursor.connect<CursorPosEvent, &ColorPickerWheel::on_cursor, ColorPickerWheel>(m_gui_manager.getWindow()->getGameloop().getDispatcher(), this);
+			m_cg_button.connect<MouseButtonEvent, &ColorPickerWheel::on_button, ColorPickerWheel>(m_gui_manager.getWindow()->getGameloop().getDispatcher(), this);
 		}
 		else
 		{
@@ -287,9 +285,9 @@ namespace oe::gui
 			wheel_fb.reset();
 
 			// event listeners
-			m_cg_render.reset();
-			m_cg_cursor.reset();
-			m_cg_button.reset();
+			m_cg_render.disconnect();
+			m_cg_cursor.disconnect();
+			m_cg_button.disconnect();
 		}
 	}
 
@@ -362,6 +360,9 @@ namespace oe::gui
 
 	void ColorPickerWheel::on_render(const GUIRenderEvent& event)
 	{
+		if(!m_cg_render)
+			return;
+
 		wheel_fb->bind();
 		wheel_fb->clear(oe::colors::transparent);
 
@@ -409,6 +410,8 @@ namespace oe::gui
 
 	void ColorPickerWheel::on_cursor(const CursorPosEvent& event)
 	{
+		if(!m_cg_cursor)
+			return;
 		// relative_pos
 		glm::vec2 r_pos = relative_pos(event.cursor_windowspace, m_framebuffer_panel->render_position, m_framebuffer_panel->m_info.size);
 
@@ -442,6 +445,9 @@ namespace oe::gui
 
 	void ColorPickerWheel::on_button(const MouseButtonEvent& event)
 	{
+		if(!m_cg_button)
+			return;
+
 		m_event_use_latest.action = event.action;
 		m_event_use_latest.button = event.button;
 		m_event_use_latest.modifier = event.mods;

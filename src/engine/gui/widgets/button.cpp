@@ -23,14 +23,14 @@ namespace oe::gui
 		{
 			// event listeners
 			std::lock_guard(m_gui_manager.getWindow()->dispatcher_mutex);
-			m_cg_cursor = { m_gui_manager.getWindow()->getGameloop().getDispatcher(), this };
-			m_cg_button = { m_gui_manager.getWindow()->getGameloop().getDispatcher(), this };
+			m_cg_cursor.connect<CursorPosEvent, &Button::on_cursor, Button>(m_gui_manager.getWindow()->getGameloop().getDispatcher(), this);
+			m_cg_button.connect<MouseButtonEvent, &Button::on_button, Button>(m_gui_manager.getWindow()->getGameloop().getDispatcher(), this);
 		}
 		else
 		{
 			// event listeners
-			m_cg_cursor.reset();
-			m_cg_button.reset();
+			m_cg_cursor.disconnect();
+			m_cg_button.disconnect();
 		}
 	}
 
@@ -41,6 +41,9 @@ namespace oe::gui
 		
 	void Button::on_cursor(const CursorPosEvent& event)
 	{
+		if(!m_cg_cursor)
+			return;
+
 		if (test(event.cursor_windowspace))
 		{
 			dispatcher.trigger(event_hover_latest);
@@ -49,6 +52,9 @@ namespace oe::gui
 
 	void Button::on_button(const MouseButtonEvent& event)
 	{
+		if(!m_cg_button)
+			return;
+
 		if (test(event.cursor_pos.cursor_windowspace))
 		{
 			event_use_latest.action = event.action;

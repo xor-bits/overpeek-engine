@@ -95,11 +95,12 @@ namespace oe::gui
 		void toggle(bool enabled = true);
 		virtual void virtual_toggle(bool enabled) {};
 		void base_toggle(bool enabled);
+		inline Widget* getParent() const { return m_parent; }
 
 	protected:
 		// events
 		void on_pre_render(const GUIPreRenderEvent& event);
-		oe::utils::connect_guard<GUIPreRenderEvent, &Widget::on_pre_render, Widget> m_cg_pre_render;
+		oe::utils::connect_guard m_cg_pre_render;
 
 	friend class GUI;
 	};

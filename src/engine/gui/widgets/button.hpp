@@ -41,8 +41,8 @@ namespace oe::gui
 		// events
 		void on_cursor(const CursorPosEvent& event);
 		void on_button(const MouseButtonEvent& event);
-		oe::utils::connect_guard<CursorPosEvent, &Button::on_cursor, Button> m_cg_cursor;
-		oe::utils::connect_guard<MouseButtonEvent, &Button::on_button, Button> m_cg_button;
+		oe::utils::connect_guard m_cg_cursor;
+		oe::utils::connect_guard m_cg_button;
 	};
 
 }
