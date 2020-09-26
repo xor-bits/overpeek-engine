@@ -53,6 +53,7 @@ namespace oe::graphics {
 				event.aspect = this_class->getAspect();
 				
 				this_class->dispatcher_mutex.lock();
+				this_class->m_window_gameloop.getDispatcher().clear<oe::ResizeEvent>();
 				this_class->m_window_gameloop.getDispatcher().enqueue(event);
 				this_class->dispatcher_mutex.unlock();
 				//if (this_class->m_window_info.resize_callback) this_class->m_window_info.resize_callback(this_class->m_window_info.size);
@@ -73,6 +74,7 @@ namespace oe::graphics {
 				event.cursor_worldspace = this_class->m_cursor_transformed;
 
 				this_class->dispatcher_mutex.lock();
+				this_class->m_window_gameloop.getDispatcher().clear<oe::CursorPosEvent>(); // should multiple cursor pos events be sent to the application per frame 
 				this_class->m_window_gameloop.getDispatcher().enqueue(event);
 				this_class->dispatcher_mutex.unlock();
 				// if (this_class->m_window_info.cursor_callback) this_class->m_window_info.cursor_callback(this_class->m_cursor_transformed, this_class->m_cursor_window);
