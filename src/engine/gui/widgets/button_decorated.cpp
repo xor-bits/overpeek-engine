@@ -1,6 +1,7 @@
 #include "button_decorated.hpp"
 #include "engine/gui/gui_manager.hpp"
 #include "engine/graphics/interface/window.hpp"
+#include "engine/utility/connect_guard_additions.hpp"
 
 #include "text_panel.hpp"
 #include "sprite_panel.hpp"

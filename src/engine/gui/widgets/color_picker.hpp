@@ -19,8 +19,8 @@ namespace oe::gui
 
 	struct ColorPickerInfo
 	{
-		uint8_t draw_value                 = 2; // (false/0) = no draw, (true/1) = draw 0.0-1.0, 2 = draw 0-256
 		glm::vec4 initial_color            = oe::colors::red;
+		uint8_t draw_value                 = 2; // (false/0) = no draw, (true/1) = draw 0.0-1.0, 2 = draw 0-256
 		glm::vec4 background_color         = oe::colors::dark_grey;
 		const oe::graphics::Sprite* sprite = nullptr;
 		bool popup_color_picker_wheel      = true;
@@ -45,28 +45,33 @@ namespace oe::gui
 	{
 	public:
 		ColorPickerInfo m_color_picker_info;
+		glm::vec4& m_value;
 		ColorPickerHoverEvent m_event_hover_latest;
 		ColorPickerUseEvent m_event_use_latest;
 
 	private:
-		std::shared_ptr<ColorPickerWheel> popup_wheel;
-		std::shared_ptr<Button> preview_button;
-		std::shared_ptr<SpritePanel> preview_panel;
+		std::shared_ptr<ColorPickerWheel> m_popup_wheel;
+		std::shared_ptr<Button> m_preview_button;
+		std::shared_ptr<SpritePanel> m_preview_panel;
+		
+		glm::vec4 m_value_last;
 
 	public:
-		ColorPicker(Widget* parent, GUI& gui_manager, const ColorPickerInfo& color_picker_info = {});
+		ColorPicker(Widget* parent, GUI& gui_manager, glm::vec4& value_ref, const ColorPickerInfo& color_picker_info = {});
+		ColorPicker(Widget* parent, GUI& gui_manager, const ColorPickerInfo& color_picker_info = {})
+			: ColorPicker(parent, gui_manager, m_color_picker_info.initial_color, color_picker_info)
+		{}
 		~ColorPicker();
-
-		const glm::vec4& get() const;
-		void set(const glm::vec4& color);
-		void update();
 
 		virtual void virtual_toggle(bool enabled) override;
 	
 	private:
+		void update();
 		// events
+		void on_render(const GUIRenderEvent& event);
 		void on_mouse_button(const MouseButtonEvent& e);
 		void on_cursor_pos(const CursorPosEvent& e);
+		oe::utils::connect_guard m_cg_render;
 		oe::utils::connect_guard m_cg_mouse_button;
 		oe::utils::connect_guard m_cg_cursor_pos;
 		void on_color_wheel_hover(const ColorPickerHoverEvent& e);

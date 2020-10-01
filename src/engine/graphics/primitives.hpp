@@ -14,7 +14,6 @@ namespace oe::graphics
 	private:
 		Renderer& m_renderer;
 		int32_t m_index_in_vbo;
-		bool m_removed                 = false;
 		bool m_updated                 = false;
 		bool m_toggled                 = true;
 		bool m_opacitymode             = false;
@@ -32,7 +31,7 @@ namespace oe::graphics
 
 		// subrenderer quad render index
 		int32_t getQuadIndex() const { return m_index_in_vbo; }
-		void setQuadIndex(int32_t index) { m_index_in_vbo = index; };
+		void setQuadIndex(int32_t index) { if(m_index_in_vbo != index) { m_updated = true; } m_index_in_vbo = index; };
 
 		// visible
 		void toggle(bool enabled) { if (m_toggled != enabled) { m_updated = true; } m_toggled = enabled; };
@@ -73,13 +72,13 @@ namespace oe::graphics
 
 		// update after modifications
 		// returns true if it was modified
-		bool update();
-		bool update(VertexData* ptr);
+		/* bool update(); */
+		bool update(VertexData* vbo);
 
 		// update after modifications
 		// returns true if it was modified
-		bool updateForce();
-		bool updateForce(VertexData* ptr);
+		/* bool updateForce();
+		bool updateForce(VertexData* vbo); */
 
 		// returns true if it was modified
 		bool updated() const;
@@ -87,7 +86,5 @@ namespace oe::graphics
 		// generate vertices, pointer must have room for 4 VertexData obj:s
 		void gen_vertices(VertexData* ref) const;
 		static void gen_vertices_zero(VertexData* ref);
-		bool getRemoved() const { return m_removed; }
-		void setRemoved(bool state) { m_removed = state; };
 	};
 }

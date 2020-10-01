@@ -4,6 +4,7 @@
 #include "engine/gui/gui_manager.hpp"
 #include "engine/graphics/renderer.hpp"
 #include "engine/utility/extra.hpp"
+#include "engine/utility/connect_guard_additions.hpp"
 
 
 
@@ -24,7 +25,7 @@ namespace oe::gui
 		if(enabled)
 		{
 			text_quad = m_gui_manager.getRenderer()->create();
-			label = new oe::graphics::u32TextLabel(m_gui_manager.getFont(text_panel_info.font_size, text_panel_info.font_path));
+			label = new oe::graphics::u32TextLabel(m_gui_manager.getFont(text_panel_info.font_size, text_panel_info.font_file));
 
 			m_cg_render.connect<GUIRenderEvent, &TextPanel::on_render, TextPanel>(m_gui_manager.dispatcher, this);
 		}
@@ -51,7 +52,6 @@ namespace oe::gui
 		text_quad->setSize(m_info.size);
 		text_quad->setSprite(label->getSprite());
 		text_quad->setColor(oe::colors::white);
-		m_gui_manager.update(text_quad->update());
 	}
 
 }

@@ -48,9 +48,6 @@ namespace oe {
 			networking::enet::initEnet();
 		}
 
-		srand(oe::utils::Clock::getSingleton().getMicroseconds());
-
-
 		switch (engine_info.api)
 		{
 		case graphics_api::OpenGL:

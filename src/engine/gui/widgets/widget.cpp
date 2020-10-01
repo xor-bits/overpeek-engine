@@ -3,6 +3,7 @@
 
 #include "engine/utility/clock.hpp"
 #include "engine/utility/extra.hpp"
+#include "engine/utility/connect_guard_additions.hpp"
 #include "engine/graphics/interface/window.hpp"
 #include <spdlog/spdlog.h>
 
@@ -72,9 +73,9 @@ namespace oe::gui
 			reset_render_pos(this);
 			if(m_info.toggled != enabled)
 				base_toggle(enabled);
+			m_info.toggled = enabled;
 		}
 		{ // subnodes
-			m_info.toggled = enabled;
 			for (auto& w : m_nodes)
 			{
 				if(m_info.toggled == w->m_info.toggled)

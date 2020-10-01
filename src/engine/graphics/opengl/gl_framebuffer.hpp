@@ -20,7 +20,7 @@ namespace oe::graphics
 		static uint32_t bound_fbo_id;
 
 	public:
-		GLFrameBuffer(const FrameBufferInfo& framebuffer_info, const Window& window);
+		GLFrameBuffer(const FrameBufferInfo& framebuffer_info);
 		~GLFrameBuffer();
 
 		virtual void bind() override;

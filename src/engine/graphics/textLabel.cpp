@@ -58,7 +58,7 @@ namespace oe::graphics {
 			// create new framebuffer
 			oe::FrameBufferInfo fb_info = {};
 			fb_info.size = static_cast<glm::ivec2>(m_size) * 2; // double the required size, to make room for future reuse
-			m_framebuffer = FrameBuffer(fb_info, window);
+			m_framebuffer = FrameBuffer(fb_info);
 			
 			m_fb_size = fb_info.size;
 		}
@@ -185,7 +185,6 @@ namespace oe::graphics {
 			quad->setSize(glyph->size * size);
 			quad->setSprite(glyph->sprite);
 			quad->setColor(color);
-			quad->update();
 			
 			renderer.forget(std::move(quad));
 

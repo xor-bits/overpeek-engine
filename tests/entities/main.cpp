@@ -70,7 +70,6 @@ struct GenericScript : public oe::ecs::Behaviour
 		quad.quad_holder->setPosition({ pos.x, pos.y });
 		quad.quad_holder->setSprite(sprite);
 		quad.quad_holder->setRotation(rotation);
-		quad.quad_holder->update();
 	}
 };
 
@@ -184,8 +183,10 @@ void gui()
 		s_info.widget_info.offset_position = { 0, 50 };
 		s_info.slider_lcolor = oe::colors::red;
 		s_info.slider_rcolor = oe::colors::green;
+		s_info.linear_color = true;
 		s_info.slider_sprite = pack->emptySprite();
 		s_info.value_bounds = { -10.0f, 10.0f, };
+		s_info.draw_value = true;
 		auto slider = gui_manager->create<oe::gui::Slider>(s_info);
 		auto callback_lambda = [&](const oe::gui::SliderUseEvent& e)
 		{

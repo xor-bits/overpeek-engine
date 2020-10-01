@@ -6,6 +6,7 @@
 #include "engine/graphics/font.hpp"
 #include "engine/gui/gui_manager.hpp"
 #include "engine/utility/clock.hpp"
+#include "engine/utility/connect_guard_additions.hpp"
 
 bool insertchars(std::u32string *obj, int i, char32_t *chars, int n) {
 	obj->insert(i, chars, n);
@@ -75,14 +76,13 @@ namespace oe::gui
 			quad = m_gui_manager.getRenderer()->create();
 			text_quad = m_gui_manager.getRenderer()->create();
 			text_bar_quad = m_gui_manager.getRenderer()->create();
-			label = new oe::graphics::u32TextLabel(m_gui_manager.getFont(text_input_info.font_size, text_input_info.font_path));
+			label = new oe::graphics::u32TextLabel(m_gui_manager.getFont(text_input_info.font_size, text_input_info.font_file));
 
 			// event listeners
-			std::lock_guard(m_gui_manager.getWindow()->dispatcher_mutex);
 			m_cg_render.connect<GUIRenderEvent, &TextInput::on_render, TextInput>(m_gui_manager.dispatcher, this);
-			m_cg_codepoint.connect<CodepointEvent, &TextInput::on_codepoint, TextInput>(m_gui_manager.getWindow()->getGameloop().getDispatcher(), this );
-			m_cg_key.connect<KeyboardEvent, &TextInput::on_key, TextInput>(m_gui_manager.getWindow()->getGameloop().getDispatcher(), this);
-			m_cg_button.connect<MouseButtonEvent, &TextInput::on_button, TextInput>(m_gui_manager.getWindow()->getGameloop().getDispatcher(), this);
+			m_cg_codepoint.connect<CodepointEvent, &TextInput::on_codepoint, TextInput>(m_gui_manager.dispatcher, this );
+			m_cg_key.connect<KeyboardEvent, &TextInput::on_key, TextInput>(m_gui_manager.dispatcher, this);
+			m_cg_button.connect<MouseButtonEvent, &TextInput::on_button, TextInput>(m_gui_manager.dispatcher, this);
 		}
 		else
 		{
@@ -110,7 +110,6 @@ namespace oe::gui
 		quad->setSize(static_cast<glm::vec2>(m_info.size));
 		quad->setSprite(text_input_info.sprite);
 		quad->setColor(text_input_info.color);
-		m_gui_manager.update(quad->update());
 
 		// text
 		const std::u32string& drawn_str = text_input_info.text;
@@ -123,13 +122,12 @@ namespace oe::gui
 		text_quad->setSize(label->getSize());
 		text_quad->setSprite(label->getSprite());
 		text_quad->setColor(oe::colors::white);
-		m_gui_manager.update(text_quad->update());
 		
 		// text bar
 		auto& clock = oe::utils::Clock::getSingleton();
 		float time = clock.getSessionMillisecond();
 		bool bar = m_selected && (timer_key_pressed > clock.getSessionMillisecond() || (int)floor(time) % 1000 > 500);
-		auto& font = m_gui_manager.getFont(text_input_info.font_size, text_input_info.font_path);
+		auto& font = m_gui_manager.getFont(text_input_info.font_size, text_input_info.font_file);
 		const glm::ivec2 before_cursor_size = oe::graphics::u32Text::size(font, drawn_str.substr(0, static_cast<STB_TexteditState*>(m_state)->cursor), glm::vec2(font.getResolution()));
 		text_bar_quad->setPosition(static_cast<glm::vec2>(text_label_pos + glm::ivec2{ before_cursor_size.x, 0 }));
 		text_bar_quad->setZ(z + 0.05f);
@@ -137,7 +135,6 @@ namespace oe::gui
 		text_bar_quad->setSprite(text_input_info.sprite);
 		text_bar_quad->setColor(text_input_info.default_text_color);
 		text_bar_quad->toggle(bar);
-		m_gui_manager.update(text_bar_quad->update());
 	}
 
 	void TextInput::on_codepoint(const CodepointEvent& event)

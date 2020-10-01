@@ -2,6 +2,7 @@
 
 #include "engine/internal_libs.hpp"
 #include "engine/enum.hpp"
+#include "engine/utility/fileio.hpp"
 
 #include <string>
 #include <unordered_map>
@@ -10,11 +11,11 @@
 
 struct FT_LibraryRec_; struct FT_FaceRec_;
 namespace oe::graphics { struct Sprite; class SpritePack; }
-namespace oe::utils { using byte_string = std::vector<uint8_t>; };
 
 namespace oe::graphics
 {
-	class Font {
+	class Font
+	{
 	public:
 		struct Glyph {
 			char32_t codepoint;
@@ -27,7 +28,7 @@ namespace oe::graphics
 
 	private:
 		SpritePack* m_sprite_pack;
-		std::unordered_map<char32_t, Glyph*> m_glyphs;
+		std::unordered_map<char32_t, Glyph> m_glyphs;
 		uint16_t m_resolution;
 		FT_LibraryRec_* ft;
 		FT_FaceRec_* face;
@@ -43,8 +44,7 @@ namespace oe::graphics
 		windows: C:/Windows/Fonts/
 		macos: *workdir*
 		*/
-		Font(const oe::utils::byte_string& font_file, uint16_t resolution = 64u);
-		Font(uint16_t resolution = 64u, const std::string& font_path = oe::default_full_font_path);
+		Font(uint16_t resolution = 64u, const oe::utils::FontFile& font_file = {});
 		~Font();
 
 		const Glyph* getGlyph(char32_t c);

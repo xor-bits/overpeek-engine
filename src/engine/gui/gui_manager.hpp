@@ -2,6 +2,7 @@
 
 #include "engine/interfacegen.hpp"
 #include "engine/engine.hpp"
+#include "engine/utility/fileio.hpp"
 #include "widgets/form.hpp"
 #include <entt/entt.hpp>
 
@@ -33,27 +34,28 @@ namespace oe::gui
 		oe::assets::DefaultShader* m_shader_fill;
 		oe::assets::DefaultShader* m_shader_lines;
 		oe::ResizeEvent latest_resize_event;
-		const oe::graphics::Window& m_window;
+		oe::graphics::Window m_window;
 
-		bool m_needs_sorting = false;
+		std::unordered_map<size_t, std::unordered_map<oe::utils::FontFile, oe::graphics::Font>> m_fontmap; // fontsize - ( fontfile - font pair) pair
+		const oe::utils::FontFile m_default_font_file;
 
-		std::unordered_map<size_t, std::unordered_map<std::string, oe::graphics::Font*>> m_fontmap; // fontsize - ( fontname - font pair) pair
-		const std::string m_default_font_path;
+		glm::vec2 m_old_render_size;
 
-		glm::ivec2 m_offset;
-		glm::uvec2 m_old_window_size;
+		glm::vec2 m_offset;
+		glm::vec2 m_size_mult;
+		glm::mat4 m_render_ml_matrix;
+		glm::mat4 m_cursor_ml_matrix;
+
+		void updateModelMatrix();
 
 	public:
-		GUI(const oe::graphics::Window& window, const std::string& default_font = oe::default_full_font_path, int32_t renderer_primitive_count = 100000);
+		GUI(const oe::graphics::Window& window, const oe::utils::FontFile& font_file = {}, int32_t renderer_primitive_count = 100000);
 		~GUI();
 
 		void short_resize();
-		
-		// events
-		void on_resize(const oe::ResizeEvent& event);
 
 		template<typename T, typename ... Args>
-		std::shared_ptr<T> create(const Args& ... args)
+		std::shared_ptr<T> create(Args& ... args)
 		{
 			return m_main_frame->create<T>(args...);
 		}
@@ -70,14 +72,31 @@ namespace oe::gui
 		// move the whole gui system
 		void offset(const glm::vec2& offset);
 
+		// used for application debugging
+		void zoom(const glm::vec2& mult);
+
 		inline oe::graphics::Renderer* getRenderer() const { return m_renderer; }
 		inline oe::graphics::Renderer* getLineRenderer() const { return m_line_renderer; }
 		inline const oe::graphics::Window& getWindow() const { return m_window; }
 		inline const oe::assets::DefaultShader* getShaderFill() const { return m_shader_fill; }
 		inline const oe::assets::DefaultShader* getShaderLines() const { return m_shader_lines; }
 
-		oe::graphics::Font& getFont(uint16_t resolution, const std::string& font = "");
-		inline void update(bool value) { m_needs_sorting |= value; }
+		oe::graphics::Font& getFont(uint16_t resolution, const oe::utils::FontFile& font = {});
+
+	private:
+		// events
+		void on_resize(const ResizeEvent& event);
+		void on_codepoint(const CodepointEvent& event);
+		void on_key(const KeyboardEvent& event);
+		void on_cursor_pos(const CursorPosEvent& event);
+		void on_button(const MouseButtonEvent& event);
+		void on_scroll(const ScrollEvent& event);
+		oe::utils::connect_guard m_cg_resize;
+		oe::utils::connect_guard m_cg_codepoint;
+		oe::utils::connect_guard m_cg_key;
+		oe::utils::connect_guard m_cg_cursor_pos;
+		oe::utils::connect_guard m_cg_button;
+		oe::utils::connect_guard m_cg_scroll;
 	};
 
 }

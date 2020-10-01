@@ -32,7 +32,6 @@ void update_2(oe::UpdateEvent<2>) {
 	oe::graphics::Sprite sprite;
 	sprite.m_owner = font->getSpritePack()->getTexture();
 	quad->setSprite(sprite);
-	quad->update();
 }
 
 void resize(const oe::ResizeEvent& event) {
@@ -62,7 +61,7 @@ int main(int argc, char** argv) {
 	
 	// instance settings
 	engine.culling(oe::culling_modes::back);
-	engine.swapInterval(0);
+	engine.swapInterval(1);
 	engine.blending();
 
 	// renderer
@@ -72,7 +71,7 @@ int main(int argc, char** argv) {
 	shader = new oe::assets::DefaultShader();
 
 	// sprites
-	font = new oe::graphics::Font(64, oe::default_full_font_path_bold);
+	font = new oe::graphics::Font(64, { oe::default_full_font_path_bold });
 	
 	// submitting
 	label = new oe::graphics::u32TextLabel(*font);
@@ -84,10 +83,9 @@ int main(int argc, char** argv) {
 
 	quad = renderer->create();
 	quad->setPosition({ 50, 50 });
-	quad->setSize(label->getSize()); spdlog::debug("{}", label->getSize());
+	quad->setSize(label->getSize());
 	quad->setColor(oe::colors::white);
 	quad->setSprite(label->getSprite());
-	quad->update();
 	
 	renderer->forget(std::move(quad));
 	
@@ -98,13 +96,6 @@ int main(int argc, char** argv) {
 	quad->setSize({ 200, 200 });
 	quad->setColor(oe::colors::white);
 	quad->setSprite(sprite);
-	quad->update();
-	
-	// blue: <#0000ff>
-	// incomplete: <#542>
-	// faulty: <#5f>>>>>>>>>
-	// with 0x: <#0x4354>
-	// negative: <#-43531>
 	
 	// start
 	window->getGameloop().start(); // print the average frametime 30 times in a second
@@ -113,6 +104,8 @@ int main(int argc, char** argv) {
 	cg_resize.disconnect();
 
 	// closing
+	delete label;
+	delete renderer;
 	delete font;
 	delete shader;
 

@@ -2,6 +2,7 @@
 
 #include "widget.hpp"
 #include "engine/graphics/textLabel.hpp"
+#include "engine/utility/fileio.hpp"
 
 
 
@@ -13,7 +14,7 @@ namespace oe::gui
 	{
 		oe::graphics::text_render_input<char32_t> text = U"placeholder";
 		uint16_t font_size                             = 16;
-		std::string font_path                          = ""; // empty for gui default
+		oe::utils::FontFile font_file                  = {}; // empty for gui default
 		glm::vec4 background_color                     = oe::colors::transparent;
 	
 		WidgetInfo widget_info                         = { { 0, 0 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };

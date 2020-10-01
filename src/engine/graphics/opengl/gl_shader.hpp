@@ -48,14 +48,23 @@ namespace oe::graphics
 		virtual void setUniform(const std::string& name, const size_t count, const glm::fvec3* values) override;
 		virtual void setUniform(const std::string& name, const size_t count, const glm::fvec4* values) override;
 		
-		virtual void setUniform(const std::string& name, const int value) override;
+		virtual void setUniform(const std::string& name, const int32_t value) override;
 		virtual void setUniform(const std::string& name, const glm::ivec2& value) override;
 		virtual void setUniform(const std::string& name, const glm::ivec3& value) override;
 		virtual void setUniform(const std::string& name, const glm::ivec4& value) override;
-		virtual void setUniform(const std::string& name, const size_t count, const int* values) override;
+		virtual void setUniform(const std::string& name, const size_t count, const int32_t* values) override;
 		virtual void setUniform(const std::string& name, const size_t count, const glm::ivec2* values) override;
 		virtual void setUniform(const std::string& name, const size_t count, const glm::ivec3* values) override;
 		virtual void setUniform(const std::string& name, const size_t count, const glm::ivec4* values) override;
+		
+		virtual void setUniform(const std::string& name, const uint32_t value) override;
+		virtual void setUniform(const std::string& name, const glm::uvec2& value) override;
+		virtual void setUniform(const std::string& name, const glm::uvec3& value) override;
+		virtual void setUniform(const std::string& name, const glm::uvec4& value) override;
+		virtual void setUniform(const std::string& name, const size_t count, const uint32_t* values) override;
+		virtual void setUniform(const std::string& name, const size_t count, const glm::uvec2* values) override;
+		virtual void setUniform(const std::string& name, const size_t count, const glm::uvec3* values) override;
+		virtual void setUniform(const std::string& name, const size_t count, const glm::uvec4* values) override;
 
 		virtual void setUniform(const std::string& name, const glm::mat4& value) override;
 		virtual void setUniform(const std::string& name, const size_t count, const glm::mat4* values) override;

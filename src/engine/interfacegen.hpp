@@ -113,7 +113,7 @@ namespace oe::graphics
 		std::shared_ptr<IFrameBuffer> m_obj;
 	public:
 		FrameBuffer() {}
-		FrameBuffer(const FrameBufferInfo& obj_info, const Window& window);
+		FrameBuffer(const FrameBufferInfo& obj_info);
 		FrameBuffer(const FrameBuffer& copy) { m_obj = copy.m_obj; }
 		FrameBuffer(const FrameBuffer&& move) { m_obj = std::move(move.m_obj); }
 

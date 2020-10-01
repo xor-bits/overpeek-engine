@@ -214,14 +214,23 @@ namespace oe::graphics
 	void GLShader::setUniform(const std::string& name, const size_t count, const glm::fvec3* values) { glUniform3fv(location(this, name), count, glm::value_ptr(values[0])); }
 	void GLShader::setUniform(const std::string& name, const size_t count, const glm::fvec4* values) { glUniform4fv(location(this, name), count, glm::value_ptr(values[0])); }
 	
-	void GLShader::setUniform(const std::string& name, const int value) { glUniform1i(location(this, name), value); }
+	void GLShader::setUniform(const std::string& name, const int32_t value) { glUniform1i(location(this, name), value); }
 	void GLShader::setUniform(const std::string& name, const glm::ivec2& value) { glUniform2i(location(this, name), value.x, value.y); }
 	void GLShader::setUniform(const std::string& name, const glm::ivec3& value) { glUniform3i(location(this, name), value.x, value.y, value.z); }
 	void GLShader::setUniform(const std::string& name, const glm::ivec4& value) { glUniform4i(location(this, name), value.x, value.y, value.z, value.w); }
-	void GLShader::setUniform(const std::string& name, const size_t count, const int* values) { glUniform1iv(location(this, name), count, values); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const int32_t* values) { glUniform1iv(location(this, name), count, values); }
 	void GLShader::setUniform(const std::string& name, const size_t count, const glm::ivec2* values) { glUniform2iv(location(this, name), count, glm::value_ptr(values[0])); }
 	void GLShader::setUniform(const std::string& name, const size_t count, const glm::ivec3* values) { glUniform3iv(location(this, name), count, glm::value_ptr(values[0])); }
 	void GLShader::setUniform(const std::string& name, const size_t count, const glm::ivec4* values) { glUniform4iv(location(this, name), count, glm::value_ptr(values[0])); }
+	
+	void GLShader::setUniform(const std::string& name, const uint32_t value) { glUniform1ui(location(this, name), value); }
+	void GLShader::setUniform(const std::string& name, const glm::uvec2& value) { glUniform2ui(location(this, name), value.x, value.y); }
+	void GLShader::setUniform(const std::string& name, const glm::uvec3& value) { glUniform3ui(location(this, name), value.x, value.y, value.z); }
+	void GLShader::setUniform(const std::string& name, const glm::uvec4& value) { glUniform4ui(location(this, name), value.x, value.y, value.z, value.w); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const uint32_t* values) { glUniform1uiv(location(this, name), count, values); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const glm::uvec2* values) { glUniform2uiv(location(this, name), count, glm::value_ptr(values[0])); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const glm::uvec3* values) { glUniform3uiv(location(this, name), count, glm::value_ptr(values[0])); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const glm::uvec4* values) { glUniform4uiv(location(this, name), count, glm::value_ptr(values[0])); }
 	
 	void GLShader::setUniform(const std::string& name, const glm::mat4& value) { glUniformMatrix4fv(location(this, name), 1, GL_FALSE, glm::value_ptr(value)); }
 	void GLShader::setUniform(const std::string& name, const size_t count, const glm::mat4* value) { glUniformMatrix4fv(location(this, name), count, GL_FALSE, glm::value_ptr(value[0])); }

@@ -115,11 +115,11 @@ namespace oe::utils
 
 		// events
 		template<typename Event, auto Listener, typename Instance>
-		void connect_listener(const Instance& instance)
+		void connect_listener(Instance* instance)
 		{
 			if constexpr (has_system_ups<Event>::value)
 				try_create<Event::system_ups>();
-			dispatcher.sink<Event>().template connect<Listener>(instance);
+			dispatcher.sink<Event>().template connect<Listener>(*instance);
 		}
 		template<typename Event, auto Listener>
 		void connect_listener()
@@ -129,9 +129,9 @@ namespace oe::utils
 			dispatcher.sink<Event>().template connect<Listener>();
 		}
 		template<typename Event, auto Listener, typename Instance>
-		void disconnect_listener(const Instance& instance)
+		void disconnect_listener(Instance* instance)
 		{
-			dispatcher.sink<Event>().template disconnect<Listener>(instance);
+			dispatcher.sink<Event>().template disconnect<Listener>(*instance);
 			if constexpr (has_system_ups<Event>::value)
 				try_remove<Event::system_ups>();
 		}

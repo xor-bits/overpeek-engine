@@ -42,8 +42,7 @@ namespace oe::graphics
 
 	Quad::~Quad()
 	{
-		if(!m_removed)
-			m_renderer.remove(this);
+		m_renderer.remove(this);
 	}
 
 	void gen_points(const glm::vec2& position, const glm::vec2& size, const glm::vec2& align, float angle, glm::vec2& pointA, glm::vec2& pointB, glm::vec2& pointC, glm::vec2& pointD)
@@ -95,13 +94,15 @@ namespace oe::graphics
 		m_opacitymode = m_color.a < 0.9999f || m_sprite.opacity;
 	}
 
-	bool Quad::update()
+	/* bool Quad::update()
 	{
+		if(m_index_in_vbo == -1)
+			return false;
 		m_renderer.attemptMap();
 		return update(m_renderer.getPrimitiveRenderer()->modifyVertex(4, m_index_in_vbo * 4));
-	}
+	} */
 	
-	bool Quad::update(VertexData* ptr)
+	bool Quad::update(VertexData* vbo)
 	{
 		bool updated = m_updated;
 		m_updated = false;
@@ -110,13 +111,13 @@ namespace oe::graphics
 
 		if(!m_sprite.m_owner)
 			setSprite(NullSpritePatcher::getSingleton().m_sprite);
-		gen_vertices(ptr);
+		gen_vertices(vbo + m_index_in_vbo * 4);
 		
 		return updated;
 	}
 
-	bool Quad::updateForce() { m_updated = true; return update(); }
-	bool Quad::updateForce(VertexData* ptr)  { m_updated = true; return update(ptr); }
+	/* bool Quad::updateForce() { m_updated = true; return update(); }
+	bool Quad::updateForce(VertexData* vbo)  { m_updated = true; return update(vbo); } */
 	
 	bool Quad::updated() const
 	{

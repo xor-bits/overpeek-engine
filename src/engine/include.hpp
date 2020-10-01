@@ -26,6 +26,7 @@
 #include "utility/fileio.hpp"
 #include "utility/extra.hpp"
 #include "utility/connect_guard.hpp"
+#include "utility/connect_guard_additions.hpp"
 
 // Gui
 #include "gui/gui_manager.hpp"

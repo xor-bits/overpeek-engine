@@ -2,6 +2,7 @@
 
 #include "widget.hpp"
 #include "engine/graphics/textLabel.hpp"
+#include "engine/utility/fileio.hpp"
 
 
 
@@ -11,14 +12,14 @@ namespace oe::gui
 {
 	struct SliderInfo
 	{
-		glm::vec2 value_bounds                                       = { -1.0f, 1.0f };
 		float value_initial                                          = 0.0f;
+		glm::vec2 value_bounds                                       = { -1.0f, 1.0f };
 		float value_steps                                            = 1e5;
 		bool interactable                                            = true;
 		bool draw_value                                              = false;
-		int draw_font_size                                           = 14;
-		std::string draw_font_path                                   = ""; // empty for gui default
-		std::function<std::u32string(const SliderInfo&)> draw_format = &SliderInfo::default_formatter;
+		int font_size                                                = 14;
+		oe::utils::FontFile font_file                                = {}; // empty for gui default
+		std::function<std::u32string(const float&)> draw_format      = &SliderInfo::default_formatter;
 		bool vertical                                                = false;
 		bool scroll                                                  = false;
 		glm::ivec2 knob_size                                         = { 30, 30 };
@@ -29,7 +30,7 @@ namespace oe::gui
 		const oe::graphics::Sprite* knob_sprite                      = nullptr;
 		const oe::graphics::Sprite* slider_sprite                    = nullptr;
 
-		static std::u32string default_formatter(const SliderInfo& info);
+		static std::u32string default_formatter(const float& val);
 
 		WidgetInfo widget_info                    = { { 150, 30 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
 	};
@@ -60,12 +61,14 @@ namespace oe::gui
 		void clamp();
 
 	public:
-		SliderInfo slider_info;
-		SliderHoverEvent event_hover_latest;
-		SliderUseEvent event_use_latest;
+		SliderInfo m_slider_info;
+		float& m_value;
+		SliderHoverEvent m_event_hover_latest;
+		SliderUseEvent m_event_use_latest;
 
 	public:
-		Slider(Widget* parent, GUI& gui_manager, const SliderInfo& slider_info = {});
+		Slider(Widget* parent, GUI& gui_manager, float& value_ref, const SliderInfo& slider_info = {});
+		Slider(Widget* parent, GUI& gui_manager, const SliderInfo& slider_info = {}) : Slider(parent, gui_manager, m_slider_info.value_initial, slider_info) {}
 		~Slider();
 
 		virtual void virtual_toggle(bool enabled) override;

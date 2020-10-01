@@ -2,6 +2,7 @@
 #include "engine/engine.hpp"
 #include "engine/gui/gui_manager.hpp"
 #include "engine/graphics/renderer.hpp"
+#include "engine/utility/connect_guard_additions.hpp"
 
 
 
@@ -44,7 +45,6 @@ namespace oe::gui {
 		quad->setSprite(sprite_panel_info.sprite);
 		quad->setRotation(sprite_panel_info.rotation);
 		quad->setRotationAlignment(oe::alignments::center_center);
-		m_gui_manager.update(quad->update());
 	}
 
 }

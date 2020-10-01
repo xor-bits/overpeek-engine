@@ -8,6 +8,7 @@
 #include "engine/graphics/interface/framebuffer.hpp"
 #include "engine/graphics/spritePacker.hpp"
 #include "engine/utility/random.hpp"
+#include "engine/utility/connect_guard_additions.hpp"
 
 
 
@@ -86,7 +87,6 @@ namespace oe::gui
 			quad->setPosition({ -1.0f, -1.0f });
 			quad->setSize({ 2.0f, 2.0f });
 			quad->setSprite(g_pack.emptySprite());
-			quad->update();
 
 			g_renderer.forget(std::move(quad));
 		}
@@ -118,7 +118,7 @@ namespace oe::gui
 		SpritePanel::virtual_toggle(enabled);
 		if(enabled)
 		{
-			graph_fb = oe::graphics::FrameBuffer({ m_info.size }, m_gui_manager.getWindow());
+			graph_fb = oe::graphics::FrameBuffer({ m_info.size });
 
 			// event listeners
 			m_cg_render.connect<GUIRenderEvent, &Graph::on_render, Graph>(m_gui_manager.dispatcher, this);

@@ -2,6 +2,7 @@
 #include "engine/gui/gui_manager.hpp"
 #include "engine/graphics/interface/window.hpp"
 #include "engine/utility/extra.hpp"
+#include "engine/utility/connect_guard_additions.hpp"
 
 
 
@@ -22,9 +23,8 @@ namespace oe::gui
 		if(enabled)
 		{
 			// event listeners
-			std::lock_guard(m_gui_manager.getWindow()->dispatcher_mutex);
-			m_cg_cursor.connect<CursorPosEvent, &Button::on_cursor, Button>(m_gui_manager.getWindow()->getGameloop().getDispatcher(), this);
-			m_cg_button.connect<MouseButtonEvent, &Button::on_button, Button>(m_gui_manager.getWindow()->getGameloop().getDispatcher(), this);
+			m_cg_cursor.connect<CursorPosEvent, &Button::on_cursor, Button>(m_gui_manager.dispatcher, this);
+			m_cg_button.connect<MouseButtonEvent, &Button::on_button, Button>(m_gui_manager.dispatcher, this);
 		}
 		else
 		{

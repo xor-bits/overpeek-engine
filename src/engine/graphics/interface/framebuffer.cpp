@@ -27,7 +27,7 @@ namespace oe::graphics
 			return *fb_multipasser;
 		}
 
-		void multipass(FrameBuffer& fb_0, FrameBuffer& fb_1, const Window& window, const std::array<VertexData, 4>& vertices, size_t count)
+		void multipass(FrameBuffer& fb_0, FrameBuffer& fb_1, const std::array<VertexData, 4>& vertices, size_t count)
 		{
 			PrimitiveRenderer& pr = *reinterpret_cast<PrimitiveRenderer*>(m_primitive_renderer);
 			pr->begin();
@@ -46,7 +46,6 @@ namespace oe::graphics
 				fb_1->getTexture()->bind();
 				pr->render(1);
 			}
-			window->bind();
 		}
 
 	private:
@@ -57,7 +56,7 @@ namespace oe::graphics
 
 
 
-	IFrameBuffer::IFrameBuffer(const FrameBufferInfo& framebuffer_info, const Window& window)
+	IFrameBuffer::IFrameBuffer(const FrameBufferInfo& framebuffer_info)
 		: m_framebuffer_info(framebuffer_info) 
 	{
 
@@ -68,9 +67,9 @@ namespace oe::graphics
 
 	}
 
-	void IFrameBuffer::multipass(FrameBuffer& fb_0, FrameBuffer& fb_1, const Window& window, const std::array<VertexData, 4>& vertices, size_t count)
+	void IFrameBuffer::multipass(FrameBuffer& fb_0, FrameBuffer& fb_1, const std::array<VertexData, 4>& vertices, size_t count)
 	{
-		FramebufferMultipass::getSingleton().multipass(fb_0, fb_1, window, vertices, count);
+		FramebufferMultipass::getSingleton().multipass(fb_0, fb_1, vertices, count);
 	}
 
 }

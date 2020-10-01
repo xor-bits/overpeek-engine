@@ -118,7 +118,7 @@ namespace oe::assets {
 
 		try {
 			m_shader = oe::graphics::Shader(default_shader_info.at(Engine::getSingleton().engine_info.api).at(mode));
-		} catch(const std::exception& e) {
+		} catch(...) {
 			oe_error_terminate("Unknown polygonmode: {} or graphics api: {}", static_cast<int>(mode), static_cast<int>(Engine::getSingleton().engine_info.api));
 		}
 	}

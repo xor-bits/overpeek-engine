@@ -11,8 +11,8 @@
 
 
 
-namespace oe::graphics {
-
+namespace oe::graphics
+{
 	bool Font::gen_codepoint_glyph(char32_t codepoint)
 	{
 		//Load glyph
@@ -47,7 +47,7 @@ namespace oe::graphics {
 		}
 
 		//Now store character for later use
-		Font::Glyph* glyph = new Font::Glyph{
+		m_glyphs.insert(std::make_pair(codepoint, Font::Glyph{
 			codepoint,
 			glm::vec2(g->bitmap.width, g->bitmap.rows) / (float)m_resolution,
 			glm::vec2(g->bitmap_left, -g->bitmap_top) / (float)m_resolution,
@@ -55,17 +55,16 @@ namespace oe::graphics {
 
 			// add glyph to sprite packer
 			m_sprite_pack->create(std::move(oe::utils::image_data(data, oe::formats::rgba, g->bitmap.width, g->bitmap.rows)))
-		};
-		m_glyphs.insert(std::make_pair(codepoint, glyph));
+		}));
 
 		delete[] data;
 		return true;
 	}
 	
-	Font::Font(const oe::utils::byte_string& font_file, uint16_t resolution)
+	Font::Font(uint16_t resolution, const oe::utils::FontFile& font_file)
 		: m_sprite_pack(new SpritePack(5))
 		, m_resolution(resolution)
-		, m_font_file(font_file)
+		, m_font_file(font_file.fontFile())
 	{
 		oe_debug_call("font");
 
@@ -87,26 +86,18 @@ namespace oe::graphics {
 		}
 
 		// whitespace
-		Glyph* glyph = new Glyph{
+		m_glyphs.insert(std::make_pair(' ', Glyph{
 			L' ',
 			glm::vec2(0.0f),
 			glm::vec2(0.0f),
 			glm::vec2(0.3f),
 			m_sprite_pack->emptySprite()
-		};
-		m_glyphs.insert(std::make_pair(' ', glyph));
+		}));
 
 		m_sprite_pack->constructRepeat();
 	}
 
-	Font::Font(uint16_t resolution, const std::string& font_path)
-		: Font(oe::utils::FileIO(font_path).read<oe::utils::byte_string>(), resolution)
-	{}
-
 	Font::~Font() {
-		for (auto& g : m_glyphs) {
-			if (g.second) delete g.second;
-		}
 		delete m_sprite_pack;
 
 		FT_Done_Face(face);
@@ -118,7 +109,7 @@ namespace oe::graphics {
 		if (m_glyphs.find(c) != m_glyphs.end()) 
 		{
 			// glyph found
-			return m_glyphs.at(c); 
+			return &m_glyphs.at(c); 
 		}
 		else
 		{
@@ -130,7 +121,7 @@ namespace oe::graphics {
 			if (m_glyphs.find(c) != m_glyphs.end()) 
 			{
 				// glyph found
-				return m_glyphs.at(c); 
+				return &m_glyphs.at(c); 
 			}
 			else 
 			{

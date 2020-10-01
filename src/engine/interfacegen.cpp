@@ -53,14 +53,14 @@ namespace oe::graphics
 #endif
 	}
 
-	FrameBuffer::FrameBuffer(const FrameBufferInfo& obj_info, const Window& window)
+	FrameBuffer::FrameBuffer(const FrameBufferInfo& obj_info)
 	{
 		auto& engine = oe::Engine::getSingleton();
 		if (engine.engine_info.api == graphics_api::OpenGL)
-			m_obj = std::make_shared<GLFrameBuffer>(obj_info, window);
+			m_obj = std::make_shared<GLFrameBuffer>(obj_info);
 #ifdef BUILD_VULKAN
 		else
-			m_obj = std::make_shared<VKFrameBuffer>(obj_info, window);
+			m_obj = std::make_shared<VKFrameBuffer>(obj_info);
 #endif
 	}
 }

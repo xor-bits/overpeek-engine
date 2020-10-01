@@ -98,40 +98,47 @@ void initCube()
 void cube()
 {
 	// shader and model matrix
+	glm::vec4 quat_slider_val = quat_slider ? quat_slider->m_value : glm::vec4(0.0f);
 	if (checkbox && checkbox->m_checkbox_info.initial)
 	{
-		glm::vec4 quat_slider_val = quat_slider->getGLM();
 		cube_rotation = glm::angleAxis(quat_slider_val.w, glm::normalize(glm::vec3(quat_slider_val.x, quat_slider_val.y, quat_slider_val.z)));
 	}
 	else
 	{
-		if(!list) return;
-		auto points = list->get();
-		size_t list_len = points.size();
-		if (list_len == 0)
+		if(list)
 		{
-			// nothing
-		}
-		else if (list_len == 1)
-		{
-			// single point
-			cube_rotation = reinterpret_cast<Checkpoint*>(points.at(0))->quaternion;
+			auto points = list->get();
+			size_t list_len = points.size();
+			if (list_len == 0)
+			{
+				// nothing
+			}
+			else if (list_len == 1)
+			{
+				// single point
+				cube_rotation = reinterpret_cast<Checkpoint*>(points.at(0))->quaternion;
+			}
+			else
+			{
+				// lerp
+				float t = oe::utils::Clock::getSingleton().getSessionMillisecond() / 500.0f;
+				t = (sin(t) * 0.5f + 0.5f) * (list_len - 1);
+				t = ::fmodf(t, static_cast<float>(list_len - 1));
+
+				size_t index = t;
+				float modt = ::fmodf(t, 1.0f);
+				
+				const glm::quat& a = reinterpret_cast<Checkpoint*>(points.at(index))->quaternion;
+				const glm::quat& b = reinterpret_cast<Checkpoint*>(points.at(index + 1))->quaternion;
+
+				cube_rotation = glm::mix(a, b, modt);
+			}
 		}
 		else
 		{
-			// lerp
-			float t = oe::utils::Clock::getSingleton().getSessionMillisecond() / 500.0f;
-			t = (sin(t) * 0.5f + 0.5f) * (list_len - 1);
-			t = ::fmodf(t, static_cast<float>(list_len - 1));
-
-			size_t index = t;
-			float modt = ::fmodf(t, 1.0f);
-			
-			const glm::quat& a = reinterpret_cast<Checkpoint*>(points.at(index))->quaternion;
-			const glm::quat& b = reinterpret_cast<Checkpoint*>(points.at(index + 1))->quaternion;
-
-			cube_rotation = glm::mix(a, b, modt);
+			cube_rotation = glm::angleAxis(-quat_slider_val.w, glm::normalize(glm::vec3(quat_slider_val.x, quat_slider_val.y, quat_slider_val.z)));
 		}
+		
 	}
 	ml_matrix = glm::mat4_cast(cube_rotation);
 
@@ -196,12 +203,12 @@ void update_30(oe::UpdateEvent<30>)
 	auto& fps_log = window->getGameloop().getPerfLoggerFPS();
 	std::transform(fps_log.m_average_time.begin(), fps_log.m_average_time.begin() + perf_log_fps.size(), perf_log_fps.begin(), transform_cast<float>(fps_log.m_min_time, fps_log.m_max_time));
 	std::rotate(perf_log_fps.begin(), perf_log_fps.begin() + (fps_log.m_total_count % perf_log_fps.size()), perf_log_fps.end());
-	graph_fps->m_graph_info.graph_data = { perf_log_fps.data(), perf_log_fps.size() };
+	if (graph_fps) graph_fps->m_graph_info.graph_data = { perf_log_fps.data(), perf_log_fps.size() };
 
 	auto& ups_log = window->getGameloop().getPerfLoggerUPS<30>();
 	std::transform(ups_log.m_average_time.begin(), ups_log.m_average_time.begin() + perf_log_ups.size(), perf_log_ups.begin(), transform_cast<float>(ups_log.m_min_time, ups_log.m_max_time));
 	std::rotate(perf_log_ups.begin(), perf_log_ups.begin() + (ups_log.m_total_count % perf_log_ups.size()), perf_log_ups.end());
-	graph_ups->m_graph_info.graph_data = { perf_log_ups.data(), perf_log_ups.size() };
+	if (graph_ups) graph_ups->m_graph_info.graph_data = { perf_log_ups.data(), perf_log_ups.size() };
 }
 
 void append_list(const glm::quat& quat)
@@ -253,7 +260,7 @@ void setup_gui()
 
 			auto callback_lambda = [&](const oe::gui::ButtonUseEvent& e) {
 				if (e.action == oe::actions::release && e.button == oe::mouse_buttons::button_left) {
-					glm::vec4 quat_slider_val = quat_slider->getGLM();
+					glm::vec4 quat_slider_val = quat_slider->m_value;
 					append_list(glm::angleAxis(quat_slider_val.w, glm::normalize(glm::vec3(quat_slider_val.x, quat_slider_val.y, quat_slider_val.z))));
 				}
 			};
@@ -279,7 +286,7 @@ void setup_gui()
 		text_panel_info.widget_info = { { 0, 0 }, { 0, 0 }, oe::alignments::top_left, oe::alignments::top_left };
 		text_panel_info.font_size = 20;
 		text_panel_info.text = U"placeholder";
-		text_panel_info.font_path = oe::default_full_font_path_bolditalic;
+		text_panel_info.font_file = oe::utils::FontFile{ oe::default_full_font_path_bolditalic };
 		/* text_panel_info.background_color = oe::colors::translucent_black; */
 		textpanel = gui->create<oe::gui::TextPanel>(text_panel_info);
 
@@ -298,7 +305,7 @@ void setup_gui()
 			graph_ups = textpanel->create<oe::gui::Graph>(graph_info);
 		}
 	}
-	{
+	if constexpr(false) {
 		oe::gui::ListInfo list_info;
 		list_info.widget_info = { { 200, 400 }, { 0, 0 }, oe::alignments::top_right, oe::alignments::top_right };
 		list_info.sprite = pack->emptySprite();
@@ -364,7 +371,7 @@ int main()
 	pack->construct();
 
 	// gui
-	gui = new oe::gui::GUI(window, oe::default_full_font_path_bold);
+	gui = new oe::gui::GUI(window, oe::utils::FontFile{ oe::default_full_font_path_bold });
 	setup_gui();
 
 	// start

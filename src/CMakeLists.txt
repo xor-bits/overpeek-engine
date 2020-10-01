@@ -173,6 +173,7 @@ set(source_list ${source_list}
 	"engine/utility/zip.cpp"
 	"engine/utility/zip.hpp"
 	"engine/utility/connect_guard.hpp"
+	"engine/utility/connect_guard_additions.hpp"
 )
 
 set(target_name "engine")

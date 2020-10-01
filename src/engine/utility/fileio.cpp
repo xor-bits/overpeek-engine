@@ -232,6 +232,24 @@ namespace oe::utils
 
 namespace oe::utils
 {
+	std::unordered_map<size_t, oe::utils::byte_string> font_file_map;
+	FontFile::FontFile(const oe::utils::FileIO& path)
+	{
+		id = std::hash<std::string>{}(path.getPath().generic_string());
+		if(font_file_map.find(id) == font_file_map.end())
+			font_file_map[id] = path.read<oe::utils::byte_string>();
+	};
+
+	const oe::utils::byte_string& FontFile::fontFile() const
+	{
+		return getFontFile(id);
+	}
+
+	const oe::utils::byte_string& FontFile::getFontFile(const size_t id)
+	{
+		return font_file_map.at(id);
+	}
+
 	auto zip_open_error(int error)
 	{
 		zip_error_t ziperror;

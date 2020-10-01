@@ -40,13 +40,13 @@ namespace oe::gui
 
 	protected:
 		GUI& m_gui_manager;
-		entt::dispatcher dispatcher;
 		float z;
 
 	public:
 		glm::ivec2 topleft_position = { 0, 0 };
 		glm::ivec2 render_position = { 0, 0 };
 		WidgetInfo m_info;
+		entt::dispatcher dispatcher;
 
 	public:
 		Widget(Widget* parent, GUI& gui_manager, const WidgetInfo& info = {});
@@ -76,9 +76,9 @@ namespace oe::gui
 		}
 
 		template<typename T, typename ... Args>
-		std::shared_ptr<T> create(const Args& ... args)
+		std::shared_ptr<T> create(Args& ... args)
 		{
-			auto ptr = std::make_shared<T>(this, m_gui_manager, std::forward<const Args&>(args)...);
+			auto ptr = std::make_shared<T>(this, m_gui_manager, args...);
 			(*m_nodes.insert(ptr).first)->base_toggle(ptr->m_info.toggled);
 			return ptr;
 		}

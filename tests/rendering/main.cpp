@@ -24,7 +24,6 @@ void create_scene()
 	quads[0]->setRotationAlignment(oe::alignments::center_center);
 	quads[0]->setSprite(sprite_white);
 	quads[0]->setColor({ 0.0f, 0.0f, 1.0f, 0.5f });
-	quads[0]->update();
 	
 	quads[1] = renderer->create();
 	quads[1]->setPosition({ 0.5f, 0.0f, 1.0f });
@@ -32,7 +31,6 @@ void create_scene()
 	quads[1]->setRotationAlignment(oe::alignments::center_center);
 	quads[1]->setSprite(sprite);
 	quads[1]->setColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-	quads[1]->update();
 }
 
 void resize(const oe::ResizeEvent& event)
@@ -49,13 +47,10 @@ void render(oe::RenderEvent)
 	// modify scene
 	float t = oe::utils::Clock::getSingleton().getSessionMillisecond() / 300.0f;
 	quads[0]->setRotation(std::sin(t));
-	quads[0]->update();
 	quads[1]->setRotation(t);
-	quads[1]->update();
 
 	// render scene
 	shader->bind();
-	renderer->sort(oe::graphics::Renderer::sort_by_largest_z_and_texture);
 	renderer->render();
 }
 

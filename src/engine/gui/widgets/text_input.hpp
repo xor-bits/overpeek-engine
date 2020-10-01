@@ -2,6 +2,7 @@
 
 #include "widget.hpp"
 #include "engine/graphics/textLabel.hpp"
+#include "engine/utility/fileio.hpp"
 
 
 
@@ -17,12 +18,11 @@ namespace oe::gui
 
 	struct TextInputInfo
 	{
-		glm::ivec2 offset_position         = { 0, 0 };
 		glm::vec2 align_text               = oe::alignments::center_center;
 		std::u32string text                = U"";
 		std::u32string filter              = filter_none;
 		uint16_t font_size                 = 16;
-		std::string font_path              = ""; // empty for gui default
+		oe::utils::FontFile font_file      = {}; // empty for gui default
 		glm::vec4 color                    = oe::colors::dark_grey;
 		glm::vec4 default_text_color       = oe::colors::black;
 		const oe::graphics::Sprite* sprite = nullptr;

@@ -16,6 +16,6 @@ namespace oe::graphics
 	void VertexBuffer::attrib(uint32_t index, int32_t components, int32_t startBytes) const
 	{
 		glEnableVertexAttribArray(index);
-		glVertexAttribPointer(index, std::abs(components), GL_FLOAT, false, p_components_per_vertex * sizeof(float), (void*)std::abs(startBytes));
+		glVertexAttribPointer(index, std::abs(components), GL_FLOAT, false, p_components_per_vertex * sizeof(float), reinterpret_cast<void*>(static_cast<size_t>(std::abs(startBytes))));
 	}
 }

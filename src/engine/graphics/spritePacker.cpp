@@ -38,7 +38,10 @@ namespace oe::graphics {
 
 	SpritePack::~SpritePack()
 	{
-		clear();
+		for(auto iter : m_sprites) delete iter;
+		m_usr_data->m_images.clear();
+		m_usr_data->m_rectangles.clear();
+		m_sprites.clear();
 	}
 
 	const Sprite* SpritePack::create(const oe::utils::image_data& sprite_texture)
