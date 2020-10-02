@@ -65,4 +65,4 @@ optionally shaderc and/or vulkan' ```vcpkg install shaderc vulkan```
 ![entities](/.github/tests/entities.png)
 
 ## Why?
-I created this as I am making my game entirely from scratch and I thought someone could find this project somewhat useful. Or so I hope.
+I created this as I am making my game and it's own 'engine' and I thought someone could find this project somewhat useful. Or so I hope.
