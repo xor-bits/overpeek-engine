@@ -30,6 +30,11 @@ namespace oe::gui
 		toggle(false);
 	}
 
+	void Widget::clear()
+	{
+		m_nodes.clear();
+	}
+
 	oe::utils::connect_guard& Widget::create_event_cg()
 		{
 			m_user_event_cg_guards.push_back({});

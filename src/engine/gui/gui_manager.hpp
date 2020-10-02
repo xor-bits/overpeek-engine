@@ -3,7 +3,7 @@
 #include "engine/interfacegen.hpp"
 #include "engine/engine.hpp"
 #include "engine/utility/fileio.hpp"
-#include "widgets/form.hpp"
+#include "engine/utility/connect_guard.hpp"
 #include <entt/entt.hpp>
 
 
@@ -69,10 +69,7 @@ namespace oe::gui
 		}
 
 		// remove all subwidgets
-		void clear()
-		{
-			m_main_frame->clear();
-		}
+		void clear();
 		
 		// bind SpritePacker that you used to create Font and all Sprites for StaticTextureViews
 		void render();

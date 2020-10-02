@@ -104,10 +104,7 @@ namespace oe::gui
 		}
 
 		// remove all subwidgets
-		void clear()
-		{
-			m_nodes.clear();
-		}
+		void clear();
 
 		// refrence will be invalidated after the next call to create_event_cg or clear_event_cg
 		[[nodiscard]] oe::utils::connect_guard& create_event_cg();

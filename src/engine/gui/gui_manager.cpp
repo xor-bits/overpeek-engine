@@ -86,6 +86,11 @@ namespace oe::gui
 		m_shader_lines->setModelMatrix(m_render_ml_matrix);
 	}
 
+	void GUI::clear()
+	{
+		m_main_frame->clear();
+	}
+
 	void GUI::render()
 	{
 		auto& engine = oe::Engine::getSingleton();

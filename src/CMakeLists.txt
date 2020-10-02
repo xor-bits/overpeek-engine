@@ -135,8 +135,6 @@ set(source_list ${source_list}
 	"engine/gui/widgets/color_slider.hpp"
 	"engine/gui/widgets/color_picker.cpp"
 	"engine/gui/widgets/color_picker.hpp"
-	"engine/gui/widgets/form.cpp"
-	"engine/gui/widgets/form.hpp"
 	"engine/gui/widgets/slider.cpp"
 	"engine/gui/widgets/slider.hpp"
 	"engine/gui/widgets/vec_slider.hpp"
