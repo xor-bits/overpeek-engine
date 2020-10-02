@@ -49,11 +49,13 @@ I created this as I am making my game entirely from scratch and I thought someon
 
 ### Demo images
 # tests/guis
-Simple gui demo
+- Simple gui demo
+- List Widget is under developement so the quad is not animated
 
 ![guis](/.github/tests/guis.png)
 
 # tests/entities
-Box2D physics and entt entities
+- Box2D physics and entt entities
+- Translucent bordered window
 
 ![entities](/.github/tests/entities.png)
