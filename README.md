@@ -48,7 +48,9 @@ cmake -DBUILD_TESTS=TRUE -DBUILD_VULKAN=TRUE ..
 I created this as I am making my game entirely from scratch and I thought someone could find this project somewhat useful. Or so I hope.
 
 ### Demo images
-## tests/guis
+# tests/guis
+Simple gui demo
 ![Logo](/.github/tests/guis.png)
-## tests/entities
+# tests/entities
+Box2D physics and entt entities
 ![Logo](/.github/tests/entities.png)
