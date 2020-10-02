@@ -50,7 +50,10 @@ I created this as I am making my game entirely from scratch and I thought someon
 ### Demo images
 # tests/guis
 Simple gui demo
-![Logo](/.github/tests/guis.png)
+
+![guis](/.github/tests/guis.png)
+
 # tests/entities
 Box2D physics and entt entities
-![Logo](/.github/tests/entities.png)
+
+![entities](/.github/tests/entities.png)
