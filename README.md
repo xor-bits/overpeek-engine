@@ -5,7 +5,7 @@ Primary focus on 2D side.
 Should be easy to use.
  - Windows
  - Linux
- - OSX, possibly (not tested)
+ - OSX, (most likely not working, as I do not own any Apple devices)
 
 ## Cloning
 ```
