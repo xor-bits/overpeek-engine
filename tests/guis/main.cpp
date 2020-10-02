@@ -41,7 +41,7 @@ public:
 		: TextPanel(parent, gui_manager, tpi)
 	{
 		quaternion = quat;
-		text_panel_info.text = fmt::format(U"{:.1f}", quaternion);
+		// text_panel_info.text = fmt::format(U"{:.1f}", quaternion);
 	}
 };
 
@@ -178,28 +178,15 @@ void resize(const oe::ResizeEvent& event)
 	shader_lines->setViewMatrix(vw_matrix);
 }
 
-/* template <typename to>
-struct transform_cast
-{
-	to inmin, inmax;
-	transform_cast(to mi, to mx) : inmin(mi), inmax(mx) {}
-
-	template <typename from>
-	to operator()(const from& x) const
-	{
-		return oe::utils::map(static_cast<to>(x), inmin, inmax, static_cast<to>(0.0f), static_cast<to>(1.0f));
-	}
-}; */
-
 // update 30 times per second
 void update_30(oe::UpdateEvent<30>)
 {
 	auto& gameloop = window->getGameloop(); 
 	std::u32string str = fmt::format(
 		U"frametime: {:3.3f} ms ({} fps) updatetime: {:3.3f} ms ({} ups)",
-		std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gameloop.getFrametime()),
+		std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gameloop.getFrametime()).count(),
 		gameloop.getAverageFPS(),
-		std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gameloop.getUpdatetime<30>()),
+		std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gameloop.getUpdatetime<30>()).count(),
 		gameloop.getAverageUPS<30>());
 	if(textpanel) textpanel->text_panel_info.text = str;
 

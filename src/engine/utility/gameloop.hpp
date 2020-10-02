@@ -38,14 +38,14 @@ namespace oe::utils
 			m_average_time[m_total_count % mc_average_size] = duration;
 
 			
-			m_cached_average_time = {};
+			m_cached_average_time = std::chrono::nanoseconds::zero();
 			m_max_time = std::chrono::nanoseconds::min();
 			m_min_time = std::chrono::nanoseconds::max();
 			for(int i = 0; i < mc_average_size; i++) 
 			{
 				m_cached_average_time += m_average_time[i];
-				m_average_time[i] = std::max(m_max_time, m_average_time[i]);
-				m_average_time[i] = std::min(m_max_time, m_average_time[i]);
+				m_max_time = std::max(m_max_time, m_average_time[i]);
+				m_min_time = std::min(m_min_time, m_average_time[i]);
 			}
 			m_cached_average_time /= mc_average_size;
 		}
@@ -208,7 +208,8 @@ namespace oe::utils
 		{
 			m_update_start = std::chrono::high_resolution_clock::now();
 			m_update_previous = m_update_start;
-			m_update_time_target = 1000000 / ups;
+			m_update_time_target = std::chrono::seconds(1);
+			m_update_time_target /= ups;
 		}
 
 		virtual void update_attempt(GameLoop& loop) override

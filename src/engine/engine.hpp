@@ -2,6 +2,7 @@
 
 #include "engine/enum.hpp"
 #include <utility>
+#include <glm/glm.hpp>
 #include <fmt/format.h>
 
 #ifndef __has_include
