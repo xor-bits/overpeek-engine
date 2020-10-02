@@ -178,7 +178,7 @@ void resize(const oe::ResizeEvent& event)
 	shader_lines->setViewMatrix(vw_matrix);
 }
 
-template <typename to>
+/* template <typename to>
 struct transform_cast
 {
 	to inmin, inmax;
@@ -189,24 +189,42 @@ struct transform_cast
 	{
 		return oe::utils::map(static_cast<to>(x), inmin, inmax, static_cast<to>(0.0f), static_cast<to>(1.0f));
 	}
-};
+}; */
 
 // update 30 times per second
 void update_30(oe::UpdateEvent<30>)
 {
 	auto& gameloop = window->getGameloop(); 
-	std::u32string str = fmt::format(U"frametime: {:3.3f} ms ({} fps) updatetime: {:3.3f} ms ({} ups)", gameloop.getFrametimeMS(), gameloop.getAverageFPS(), gameloop.getUpdatetimeMS<30>(), gameloop.getAverageUPS<30>());
+	std::u32string str = fmt::format(
+		U"frametime: {:3.3f} ms ({} fps) updatetime: {:3.3f} ms ({} ups)",
+		std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gameloop.getFrametime()),
+		gameloop.getAverageFPS(),
+		std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gameloop.getUpdatetime<30>()),
+		gameloop.getAverageUPS<30>());
 	if(textpanel) textpanel->text_panel_info.text = str;
 
 	if constexpr (!graphs) return;
 
-	auto& fps_log = window->getGameloop().getPerfLoggerFPS();
-	std::transform(fps_log.m_average_time.begin(), fps_log.m_average_time.begin() + perf_log_fps.size(), perf_log_fps.begin(), transform_cast<float>(fps_log.m_min_time, fps_log.m_max_time));
+	auto lambda_transform_gen = [](const oe::utils::PerfLogger& logger){
+		return [&logger](std::chrono::nanoseconds ns)->float{
+			auto cast_to_float_millis = [](auto dur){ return std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(dur); };
+			return oe::utils::map(
+				cast_to_float_millis(ns).count(),
+				cast_to_float_millis(logger.m_min_time).count(),
+				cast_to_float_millis(logger.m_max_time).count(),
+				0.0f,
+				1.0f
+			);
+		};
+	};
+
+	auto& fps_log = window->getGameloop().getFramePerfLogger();
+	std::transform(fps_log.m_average_time.begin(), fps_log.m_average_time.begin() + perf_log_fps.size(), perf_log_fps.begin(), lambda_transform_gen(fps_log));
 	std::rotate(perf_log_fps.begin(), perf_log_fps.begin() + (fps_log.m_total_count % perf_log_fps.size()), perf_log_fps.end());
 	if (graph_fps) graph_fps->m_graph_info.graph_data = { perf_log_fps.data(), perf_log_fps.size() };
 
-	auto& ups_log = window->getGameloop().getPerfLoggerUPS<30>();
-	std::transform(ups_log.m_average_time.begin(), ups_log.m_average_time.begin() + perf_log_ups.size(), perf_log_ups.begin(), transform_cast<float>(ups_log.m_min_time, ups_log.m_max_time));
+	auto& ups_log = window->getGameloop().getUpdatePerfLogger<30>();
+	std::transform(ups_log.m_average_time.begin(), ups_log.m_average_time.begin() + perf_log_ups.size(), perf_log_ups.begin(), lambda_transform_gen(ups_log));
 	std::rotate(perf_log_ups.begin(), perf_log_ups.begin() + (ups_log.m_total_count % perf_log_ups.size()), perf_log_ups.end());
 	if (graph_ups) graph_ups->m_graph_info.graph_data = { perf_log_ups.data(), perf_log_ups.size() };
 }

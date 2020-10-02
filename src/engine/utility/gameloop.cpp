@@ -5,33 +5,8 @@
 
 
 
-namespace oe::utils {
-
-	PerfLogger::PerfLogger()
-	{
-		m_average_time.fill(0);
-	}
-
-	void PerfLogger::log(size_t time)
-	{
-		m_total_count++;
-		m_periodical_count++;
-
-		m_average_time[m_total_count % mc_average_size] = time;
-
-		
-		m_cached_average_time = 0;
-		m_max_time = 0;
-		m_min_time = std::numeric_limits<size_t>::max();
-		for(int i = 0; i < mc_average_size; i++) 
-		{
-			m_cached_average_time += m_average_time[i];
-			if(m_max_time < m_average_time[i]) m_max_time = m_average_time[i];
-			if(m_min_time > m_average_time[i]) m_min_time = m_average_time[i];
-		}
-		m_cached_average_time /= mc_average_size;
-	}
-
+namespace oe::utils
+{
 	GameLoop::GameLoop(oe::graphics::IWindow* window)
 	{
 		m_host_window = window;
@@ -85,14 +60,14 @@ namespace oe::utils {
 		}
 
 		// start profiling the frame
-		size_t timeframe = clock.getMicroseconds();
+		auto timepoint = std::chrono::high_resolution_clock::now();
 
 		// render callback
 		m_host_window->clear();
 		dispatcher.trigger(RenderEvent{});
 
 		// time used on the frame
-		size_t frame_time = clock.getMicroseconds() - timeframe;
+		auto frame_time = (std::chrono::high_resolution_clock::now() - timepoint);
 
 		// swap the framebuffers out of the timer
 		m_host_window->update();
@@ -102,7 +77,7 @@ namespace oe::utils {
 		m_render_perf_logger.log(frame_time);
 
 		// counters
-		float frame_counter_now = clock.getSessionMillisecond();
+		auto frame_counter_now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
 		if (m_frame_counter_start < frame_counter_now) {
 			// frame counter
 			m_render_perf_logger.m_per_second = m_render_perf_logger.m_periodical_count;
@@ -116,7 +91,7 @@ namespace oe::utils {
 			}
 
 			// reset timer
-			m_frame_counter_start = frame_counter_now + 1000.0f;
+			m_frame_counter_start = frame_counter_now + std::chrono::seconds(1);
 		}
 	}
 
