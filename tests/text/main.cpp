@@ -49,7 +49,6 @@ int main(int argc, char** argv) {
 	// engine
 	oe::EngineInfo engine_info = {};
 	engine_info.api = oe::graphics_api::OpenGL;
-	engine_info.debug_mode = true;
 	engine.init(engine_info);
 
 	// window

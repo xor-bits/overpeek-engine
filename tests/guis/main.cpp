@@ -336,8 +336,6 @@ int main()
 	// engine
 	oe::EngineInfo engine_info = {};
 	engine_info.api = oe::graphics_api::OpenGL;
-	engine_info.debug_mode = false;
-	engine_info.ignore_errors = false;
 	engine.init(engine_info);
 
 	// window
@@ -352,7 +350,7 @@ int main()
 	window->connect_listener<oe::UpdateEvent<30>, &update_30>();
 
 	// instance settings
-	engine.swapInterval(1);
+	engine.swapInterval(0);
 	engine.culling(oe::culling_modes::neither);
 	engine.blending(oe::modes::enable);
 
