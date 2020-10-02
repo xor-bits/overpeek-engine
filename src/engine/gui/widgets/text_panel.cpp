@@ -16,9 +16,6 @@ namespace oe::gui
 	{
 		m_info.size = glm::ivec2(_text_panel_info.font_size);
 	}
-
-	TextPanel::~TextPanel()
-	{}
 	
 	void TextPanel::virtual_toggle(bool enabled)
 	{

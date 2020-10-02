@@ -14,7 +14,7 @@ std::shared_ptr<oe::gui::Checkbox> checkbox;
 std::shared_ptr<oe::gui::VecSlider<4>> quat_slider;
 std::shared_ptr<oe::gui::Graph> graph_fps;
 std::shared_ptr<oe::gui::Graph> graph_ups;
-std::shared_ptr<oe::gui::ColorPicker> color_picker;
+std::shared_ptr<oe::gui::ColorSlider> color_slider;
 std::array<float, 200> perf_log_fps;
 std::array<float, 50> perf_log_ups;
 
@@ -272,14 +272,14 @@ void setup_gui()
 		}
 	}
 	{
-		oe::gui::ColorPickerInfo color_picker_info;
+		oe::gui::ColorSliderInfo color_picker_info;
 		color_picker_info.initial_color = color;
 		color_picker_info.widget_info = { { 200, 100 }, { 0, 0 }, oe::alignments::center_left, oe::alignments::center_left };
 		color_picker_info.sprite = pack->emptySprite();
-		color_picker_info.popup_color_picker_wheel = true;
-		color_picker = gui->create<oe::gui::ColorPicker>(color_picker_info);
+		color_picker_info.popup_color_picker = true;
+		color_slider = gui->create<oe::gui::ColorSlider>(color_picker_info);
 
-		color_picker->create_event_cg().connect<oe::gui::ColorPickerUseEvent>(color_picker->dispatcher, [&](const oe::gui::ColorPickerUseEvent& e)
+		color_slider->create_event_cg().connect<oe::gui::ColorSliderUseEvent>(color_slider->dispatcher, [&](const oe::gui::ColorSliderUseEvent& e)
 		{
 			color = e.value;
 		});
@@ -387,7 +387,7 @@ int main()
 	quat_slider.reset();
 	graph_fps.reset();
 	graph_ups.reset();
-	color_picker.reset();
+	color_slider.reset();
 	delete gui;
 	delete pack;
 	delete shader_fill;

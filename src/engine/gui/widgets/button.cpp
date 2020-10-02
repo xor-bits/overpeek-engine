@@ -13,10 +13,6 @@ namespace oe::gui
 		, button_info(_button_info)
 	{
 	}
-
-	Button::~Button()
-	{
-	}
 	
 	void Button::virtual_toggle(bool enabled)
 	{

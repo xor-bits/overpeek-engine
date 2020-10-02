@@ -15,13 +15,11 @@ namespace oe::gui
 		float value_initial                                          = 0.0f;
 		glm::vec2 value_bounds                                       = { -1.0f, 1.0f };
 		float value_steps                                            = 1e5;
-		bool interactable                                            = true;
 		bool draw_value                                              = false;
 		int font_size                                                = 14;
 		oe::utils::FontFile font_file                                = {}; // empty for gui default
 		std::function<std::u32string(const float&)> draw_format      = &SliderInfo::default_formatter;
 		bool vertical                                                = false;
-		bool scroll                                                  = false;
 		glm::ivec2 knob_size                                         = { 30, 30 };
 		glm::vec4 knob_color                                         = oe::colors::grey;
 		glm::vec4 slider_lcolor                                      = oe::colors::dark_grey;
@@ -29,10 +27,13 @@ namespace oe::gui
 		bool linear_color                                            = false;
 		const oe::graphics::Sprite* knob_sprite                      = nullptr;
 		const oe::graphics::Sprite* slider_sprite                    = nullptr;
+		
+		interact_type_flags interact_flags                           = interact_type_flags::cursor | interact_type_flags::keyboard | interact_type_flags::scroll;
 
+		WidgetInfo widget_info                                       = { { 150, 30 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
+		
+		//
 		static std::u32string default_formatter(const float& val);
-
-		WidgetInfo widget_info                    = { { 150, 30 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
 	};
 
 	struct SliderHoverEvent
@@ -69,7 +70,6 @@ namespace oe::gui
 	public:
 		Slider(Widget* parent, GUI& gui_manager, float& value_ref, const SliderInfo& slider_info = {});
 		Slider(Widget* parent, GUI& gui_manager, const SliderInfo& slider_info = {}) : Slider(parent, gui_manager, m_slider_info.value_initial, slider_info) {}
-		~Slider();
 
 		virtual void virtual_toggle(bool enabled) override;
 	

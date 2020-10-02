@@ -53,9 +53,6 @@ namespace oe::gui
             addSubWidget(slider);
         } */
     }
-
-    List::~List()
-    {}
 	
 	void List::virtual_toggle(bool enabled)
 	{

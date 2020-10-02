@@ -30,10 +30,6 @@ namespace oe::gui
 		tp_info.widget_info.align_render = oe::alignments::center_center;
 		button_text = create<TextPanel>(tp_info);
 	}
-
-	DecoratedButton::~DecoratedButton()
-	{
-	}
 	
 	void DecoratedButton::virtual_toggle(bool enabled)
 	{

@@ -31,7 +31,6 @@ namespace oe::gui
 
 	public:
 		Button(Widget* parent, GUI& gui_manager, const ButtonInfo& button_info = {});
-		~Button();
 
 		bool test(const glm::vec2& point);
 

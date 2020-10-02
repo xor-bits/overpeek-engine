@@ -45,9 +45,6 @@ namespace oe::gui
 		if (!m_slider_info.slider_sprite) m_slider_info.slider_sprite = m_slider_info.knob_sprite;
 		if (!m_slider_info.knob_sprite)   m_slider_info.knob_sprite   = m_slider_info.slider_sprite;
 	}
-
-	Slider::~Slider()
-	{}
 	
 	void Slider::virtual_toggle(bool enabled)
 	{
@@ -226,7 +223,7 @@ namespace oe::gui
 
 	void Slider::on_cursor(const CursorPosEvent& event)
 	{
-		if(!m_slider_info.interactable || !m_cg_cursor)
+		if(!(m_slider_info.interact_flags & interact_type_flags::cursor))
 			return;
 
 		if (oe::utils::bounding_box_test(event.cursor_windowspace, render_position, m_info.size))
@@ -262,7 +259,7 @@ namespace oe::gui
 
 	void Slider::on_button(const MouseButtonEvent& event)
 	{
-		if(!m_slider_info.interactable || !m_cg_button)
+		if(!(m_slider_info.interact_flags & interact_type_flags::cursor))
 			return;
 
 		if (oe::utils::bounding_box_test(event.cursor_pos.cursor_windowspace, render_position, m_info.size))
@@ -297,7 +294,7 @@ namespace oe::gui
 
 	void Slider::on_scroll(const ScrollEvent& event)
 	{
-		if (!m_slider_info.scroll || !m_slider_info.interactable || !m_cg_scroll)
+		if (!(m_slider_info.interact_flags & interact_type_flags::scroll))
 			return;
 
 		const glm::vec2& cursor_window = m_gui_manager.getWindow()->getCursorWindow();

@@ -28,7 +28,7 @@ namespace oe::gui
 		entt::dispatcher dispatcher;
 
 	private:
-		std::shared_ptr<Form> m_main_frame;
+		std::shared_ptr<Widget> m_main_frame;
 		oe::graphics::Renderer* m_renderer;
 		oe::graphics::Renderer* m_line_renderer;
 		oe::assets::DefaultShader* m_shader_fill;

@@ -22,9 +22,8 @@ namespace oe::gui
 		m_shader_fill = new oe::assets::DefaultShader(oe::polygon_mode::fill);
 		m_shader_lines = new oe::assets::DefaultShader(oe::polygon_mode::lines);
 
-		FormInfo form_info;
-		form_info.widget_info = { m_window->getSize() - glm::ivec2(2 * border), { border, border }, oe::alignments::top_left, oe::alignments::top_left };
-		m_main_frame = std::make_shared<Form>(nullptr, *this, form_info);
+		WidgetInfo widget_info = { m_window->getSize() - glm::ivec2(2 * border), { border, border }, oe::alignments::top_left, oe::alignments::top_left };
+		m_main_frame = std::make_shared<Widget>(nullptr, *this, widget_info);
 		m_old_render_size = { 0.0f, 0.0f };
 		
 		m_offset = { 0, 0 };

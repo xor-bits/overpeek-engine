@@ -19,6 +19,16 @@ namespace oe::gui { struct GUIRenderEvent; struct GUIPreRenderEvent; class GUI; 
 
 namespace oe::gui
 {
+	enum interact_type_flags
+	{
+		cursor = 1<<0, scroll = 1<<1, keyboard = 1<<2
+	};
+
+	[[nodiscard]] constexpr inline interact_type_flags operator|(interact_type_flags a, interact_type_flags b)
+	{
+		return static_cast<interact_type_flags>(static_cast<int>(a) | static_cast<int>(b));
+	}
+
 	struct WidgetInfo
 	{
 		glm::ivec2 size                    = { 50, 50 };

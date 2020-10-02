@@ -42,7 +42,6 @@ namespace oe::gui
 
 	public:
 		List(Widget* parent, GUI& gui_manager, const ListInfo& list_info = {});
-		~List();
 
 		// this class will take ownership of this pointer
 		void add(size_t pos, Widget* widget);

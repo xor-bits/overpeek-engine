@@ -1,6 +1,7 @@
 #pragma once
 
 #include "widget.hpp"
+#include "engine/graphics/primitives.hpp"
 
 
 
@@ -27,7 +28,6 @@ namespace oe::gui
 
 	public:
 		SpritePanel(Widget* parent, GUI& gui_manager, const SpritePanelInfo& sprite_panel_info = {});
-		~SpritePanel();
 
 		virtual void virtual_toggle(bool enabled) override;
 	

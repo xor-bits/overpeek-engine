@@ -14,9 +14,6 @@ namespace oe::gui {
 	{
 	}
 	
-	SpritePanel::~SpritePanel()
-	{}
-	
 	void SpritePanel::virtual_toggle(bool enabled)
 	{
 		if(enabled)
