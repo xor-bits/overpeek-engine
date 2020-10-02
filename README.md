@@ -7,12 +7,12 @@ Should be easy to use.
  - Linux
  - OSX, possibly (not tested)
 
-### Cloning
+## Cloning
 ```
 git clone --recursive https://github.com/Overpeek/overpeek-engine.git
 ```
 
-### CMake
+#### CMake
 ```
 mkdir build
 cd build
@@ -51,10 +51,7 @@ sudo apt install libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev libxra
 - Networking (basic)
 - General utility tools (that I find useful)
 
-### Why?
-I created this as I am making my game entirely from scratch and I thought someone could find this project somewhat useful. Or so I hope.
-
-### Demo images
+## Demo images
 #### tests/guis
 - Simple gui demo
 - List Widget is under developement so the quad is not animated
@@ -66,3 +63,6 @@ I created this as I am making my game entirely from scratch and I thought someon
 - Translucent bordered window
 
 ![entities](/.github/tests/entities.png)
+
+## Why?
+I created this as I am making my game entirely from scratch and I thought someone could find this project somewhat useful. Or so I hope.
