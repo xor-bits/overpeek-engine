@@ -41,7 +41,7 @@ optionally shaderc and/or vulkan' ```vcpkg install shaderc vulkan```
 #### additional glfw3 dependencies for ubuntu:
 sudo apt install libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev libxrandr-dev
 
-### Features
+## Features
 - Window creation (glfw) 
 - Audio (OpenAL) 
 - Rendering (OpenGL)
