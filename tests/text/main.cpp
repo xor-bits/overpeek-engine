@@ -27,7 +27,11 @@ void render(oe::RenderEvent)
 
 void update_2(oe::UpdateEvent<2>) {
 	auto& gameloop = window->getGameloop();
-	spdlog::debug("frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
+	spdlog::debug("- frametime: {:3.3f} ms ({} fps)\n- updatetime: {:3.3f} ms ({} ups)",
+		std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gameloop.getFrametime()).count(),
+		gameloop.getAverageFPS(),
+		std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gameloop.getUpdatetime<30>()).count(),
+		gameloop.getAverageUPS<30>());
 	
 	oe::graphics::Sprite sprite;
 	sprite.m_owner = font->getSpritePack()->getTexture();
