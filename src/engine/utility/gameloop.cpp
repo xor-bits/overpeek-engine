@@ -7,15 +7,8 @@
 
 namespace oe::utils
 {
-	GameLoop::GameLoop(oe::graphics::IWindow* window)
+	void GameLoop::start()
 	{
-		m_host_window = window;
-	}
-
-	GameLoop::~GameLoop()
-	{}
-
-	void GameLoop::start() {
 		oe_debug_call("gameloop");
 
 		m_should_run = true;
@@ -50,7 +43,8 @@ namespace oe::utils
 		m_host_window->active_context();
 	}
 
-	void GameLoop::loop() {
+	void GameLoop::loop()
+	{
 		auto& clock = oe::utils::Clock::getSingleton();
 
 		// updates
@@ -95,7 +89,8 @@ namespace oe::utils
 		}
 	}
 
-	void GameLoop::stop() {
+	void GameLoop::stop() noexcept
+	{
 		m_should_run = false;
 	}
 

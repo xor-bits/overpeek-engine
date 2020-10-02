@@ -83,15 +83,14 @@ namespace oe::utils
 		void loop();
 
 	public:
-		GameLoop(oe::graphics::IWindow* window);
-		GameLoop(const GameLoop&) = delete;
-		~GameLoop();
+		GameLoop(oe::graphics::IWindow* window) noexcept : m_host_window(window) {}
+		constexpr GameLoop(const GameLoop&) noexcept = delete;
 
 		void start();
-		void stop();
+		void stop() noexcept;
 
 		template<size_t ups>
-		void try_create()
+		void try_create() noexcept
 		{
 			auto iter = m_update_systems.find(ups);
 			if (iter == m_update_systems.end())
@@ -99,7 +98,7 @@ namespace oe::utils
 		}
 
 		template<size_t ups>
-		void try_remove()
+		void try_remove() noexcept
 		{
 			auto iter = m_update_systems.find(ups);
 			if (iter != m_update_systems.end() && dispatcher.sink<oe::UPS<ups>>().empty())
@@ -204,7 +203,7 @@ namespace oe::utils
 	{
 		static constexpr size_t system_ups = ups;
 
-		UpdateSystem()
+		UpdateSystem() noexcept
 		{
 			m_update_start = std::chrono::high_resolution_clock::now();
 			m_update_previous = m_update_start;
