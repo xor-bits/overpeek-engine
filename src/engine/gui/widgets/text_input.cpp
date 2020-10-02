@@ -2,8 +2,11 @@
 
 #include "engine/graphics/interface/window.hpp"
 #include "engine/graphics/textLabel.hpp"
+#include "engine/graphics/renderer.hpp"
+#include "engine/graphics/font.hpp"
 #include "engine/gui/gui_manager.hpp"
 #include "engine/utility/clock.hpp"
+#include "engine/utility/connect_guard_additions.hpp"
 
 bool insertchars(std::u32string *obj, int i, char32_t *chars, int n) {
 	obj->insert(i, chars, n);
@@ -51,88 +54,93 @@ namespace oe::gui
 		timer_key_pressed = clock.getSessionMillisecond() + 1000.0f;
 	}
 	
-	TextInput::TextInput(const TextInputInfo& _text_input_info)
-		: Widget(_text_input_info.size, _text_input_info.align_parent, _text_input_info.align_render, _text_input_info.offset_position)
+	TextInput::TextInput(Widget* parent, GUI& gui_manager, const TextInputInfo& _text_input_info)
+		: Widget(parent, gui_manager, _text_input_info.widget_info)
 		, text_input_info(_text_input_info)
 		, m_selected(false)
 		, m_filtering(_text_input_info.filter != filter_none)
 	{
 		m_state = new STB_TexteditState();
-		static_cast<STB_TexteditState*>(m_state)->cursor = text_input_info.text.size();
+		static_cast<STB_TexteditState*>(m_state)->cursor = static_cast<int>(text_input_info.text.size());
 	}
 
 	TextInput::~TextInput()
 	{
-		delete m_state;
+		delete static_cast<STB_TexteditState*>(m_state);
 	}
-
-	void TextInput::managerAssigned(GUI* gui_manager)
+	
+	void TextInput::virtual_toggle(bool enabled)
 	{
-		quad = gui_manager->getRenderer()->create();
-		text_quad = gui_manager->getLateRenderer()->create();
-		label = new oe::graphics::u32TextLabel(gui_manager->getFont(text_input_info.font_size, text_input_info.font_path));
+		if(enabled)
+		{
+			quad = m_gui_manager.getRenderer()->create();
+			text_quad = m_gui_manager.getRenderer()->create();
+			text_bar_quad = m_gui_manager.getRenderer()->create();
+			label = new oe::graphics::u32TextLabel(m_gui_manager.getFont(text_input_info.font_size, text_input_info.font_file));
 
-		// event listeners
-		gui_manager->getWindow()->connect_listener<oe::MouseButtonEvent, &TextInput::on_button>(this);
-		gui_manager->getWindow()->connect_listener<oe::CodepointEvent, &TextInput::on_codepoint>(this);
-		gui_manager->getWindow()->connect_listener<oe::KeyboardEvent, &TextInput::on_key>(this);
-		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&TextInput::on_render>(this);
+			// event listeners
+			m_cg_render.connect<GUIRenderEvent, &TextInput::on_render, TextInput>(m_gui_manager.dispatcher, this);
+			m_cg_codepoint.connect<CodepointEvent, &TextInput::on_codepoint, TextInput>(m_gui_manager.dispatcher, this );
+			m_cg_key.connect<KeyboardEvent, &TextInput::on_key, TextInput>(m_gui_manager.dispatcher, this);
+			m_cg_button.connect<MouseButtonEvent, &TextInput::on_button, TextInput>(m_gui_manager.dispatcher, this);
+		}
+		else
+		{
+			quad.reset();
+			text_quad.reset();
+			text_bar_quad.reset();
+			delete label;
 
-		Widget::managerAssigned(gui_manager);
-	}
-
-	void TextInput::managerUnassigned(GUI* gui_manager)
-	{
-		quad.reset();
-		text_quad.reset();
-		delete label;
-
-		// event listeners
-		gui_manager->getWindow()->disconnect_listener<oe::MouseButtonEvent, &TextInput::on_button>(this);
-		gui_manager->getWindow()->disconnect_listener<oe::CodepointEvent, &TextInput::on_codepoint>(this);
-		gui_manager->getWindow()->disconnect_listener<oe::KeyboardEvent, &TextInput::on_key>(this);
-		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&TextInput::on_render>(this);
-
-		Widget::managerUnassigned(gui_manager);
+			// event listeners
+			m_cg_render.disconnect();
+			m_cg_codepoint.disconnect();
+			m_cg_key.disconnect();
+			m_cg_button.disconnect();
+		}
 	}
 	
 	void TextInput::on_render(const GUIRenderEvent& event)
 	{
-		if (!toggled) { quad->reset(); text_quad->reset(); return; }
-
-		NULL_SPRITE_CHECK(text_input_info.sprite);
+		if(!m_cg_render)
+			return;
 
 		// bounding box
 		quad->setPosition(render_position);
 		quad->setZ(z);
-		quad->setSize(static_cast<glm::vec2>(size));
+		quad->setSize(static_cast<glm::vec2>(m_info.size));
 		quad->setSprite(text_input_info.sprite);
 		quad->setColor(text_input_info.color);
-		quad->update();
-
-		// vertical bar
-		std::u32string bar = U"";
-		auto& clock = oe::utils::Clock::getSingleton();
-		float time = clock.getSessionMillisecond();
-		if (m_selected && (timer_key_pressed > clock.getSessionMillisecond() || (int)floor(time) % 2000 > 1000))
-		{
-			bar = U"|";
-		}
 
 		// text
-		const std::u32string drawn_str = fmt::format(U"<#000000>{}{}", text_input_info.text, bar);
-		label->generate(drawn_str, m_gui_manager->getWindow());
-		text_quad->setPosition(static_cast<glm::vec2>(render_position + oe::alignmentOffset(size, text_input_info.align_text) - oe::alignmentOffset(static_cast<glm::ivec2>(label->getSize()), text_input_info.align_text)));
-		text_quad->setZ(z + 0.05f);
+		const std::u32string& drawn_str = text_input_info.text;
+		label->generate({ drawn_str, text_input_info.default_text_color }, m_gui_manager.getWindow());
+		const glm::ivec2 text_label_pos = render_position + oe::alignmentOffset(m_info.size, text_input_info.align_text) - oe::alignmentOffset(static_cast<glm::ivec2>(label->getSize()), text_input_info.align_text);
+		
+		// text label
+		text_quad->setPosition(static_cast<glm::vec2>(text_label_pos));
+		text_quad->setZ(z + 0.025f);
 		text_quad->setSize(label->getSize());
 		text_quad->setSprite(label->getSprite());
 		text_quad->setColor(oe::colors::white);
-		text_quad->update();
+		
+		// text bar
+		auto& clock = oe::utils::Clock::getSingleton();
+		float time = clock.getSessionMillisecond();
+		bool bar = m_selected && (timer_key_pressed > clock.getSessionMillisecond() || (int)floor(time) % 1000 > 500);
+		auto& font = m_gui_manager.getFont(text_input_info.font_size, text_input_info.font_file);
+		const glm::ivec2 before_cursor_size = oe::graphics::u32Text::size(font, drawn_str.substr(0, static_cast<STB_TexteditState*>(m_state)->cursor), glm::vec2(font.getResolution()));
+		text_bar_quad->setPosition(static_cast<glm::vec2>(text_label_pos + glm::ivec2{ before_cursor_size.x, 0 }));
+		text_bar_quad->setZ(z + 0.05f);
+		text_bar_quad->setSize({ 1, font.getResolution() });
+		text_bar_quad->setSprite(text_input_info.sprite);
+		text_bar_quad->setColor(text_input_info.default_text_color);
+		text_bar_quad->toggle(bar);
 	}
 
 	void TextInput::on_codepoint(const CodepointEvent& event)
 	{
-		if (!m_selected) return;
+		if (!m_selected || !m_cg_codepoint)
+			return;
 		char32_t character = event.codepoint;
 
 		if (m_filtering) {
@@ -150,7 +158,8 @@ namespace oe::gui
 	
 	void TextInput::on_key(const KeyboardEvent& event)
 	{
-		if (!m_selected) return;
+		if (!m_selected || !m_cg_key)
+			return;
 
 		if (event.action != oe::actions::release)
 		{
@@ -167,12 +176,12 @@ namespace oe::gui
 			else if (event.key == oe::keys::key_right && event.mods == oe::modifiers::control)
 				stb_textedit_key(&text_input_info.text, reinterpret_cast<STB_TexteditState*>(m_state), STB_TEXTEDIT_K_WORDRIGHT);
 			else if (event.key == oe::keys::key_v && event.mods == oe::modifiers::control) { // ctrl + v
-				std::u32string cb = oe::utils::convertUTF<std::string, std::u32string>(m_gui_manager->getWindow()->getClipboard());
-				stb_textedit_paste(&text_input_info.text, reinterpret_cast<STB_TexteditState*>(m_state), cb.c_str(), cb.size());
+				std::u32string cb = oe::utils::convertUTF<std::string, std::u32string>(m_gui_manager.getWindow()->getClipboard());
+				stb_textedit_paste(&text_input_info.text, reinterpret_cast<STB_TexteditState*>(m_state), cb.c_str(), static_cast<int>(cb.size()));
 			}
 			else if (event.key == oe::keys::key_c && event.mods == oe::modifiers::control) { // ctrl + c
 				std::u32string copied = text_input_info.text.substr(reinterpret_cast<STB_TexteditState*>(m_state)->select_start, reinterpret_cast<STB_TexteditState*>(m_state)->select_end - reinterpret_cast<STB_TexteditState*>(m_state)->select_start);
-				m_gui_manager->getWindow()->setClipboard(oe::utils::convertUTF<std::u32string, std::string>(copied));
+				m_gui_manager.getWindow()->setClipboard(oe::utils::convertUTF<std::u32string, std::string>(copied));
 				stb_textedit_cut(&text_input_info.text, reinterpret_cast<STB_TexteditState*>(m_state));
 			}
 			else if (event.key == oe::keys::key_enter) {
@@ -191,11 +200,14 @@ namespace oe::gui
 	
 	void TextInput::on_button(const MouseButtonEvent& event)
 	{
+		if(!m_cg_button)
+			return;
+
 		if (event.button == oe::mouse_buttons::button_left && event.action == oe::actions::press) {
 			if (event.cursor_pos.cursor_windowspace.x >= render_position.x &&
-				event.cursor_pos.cursor_windowspace.x < render_position.x + size.x &&
+				event.cursor_pos.cursor_windowspace.x < render_position.x + m_info.size.x &&
 				event.cursor_pos.cursor_windowspace.y >= render_position.y &&
-				event.cursor_pos.cursor_windowspace.y < render_position.y + size.y
+				event.cursor_pos.cursor_windowspace.y < render_position.y + m_info.size.y
 			/*if (*/ )
 			{
 				m_selected = true;

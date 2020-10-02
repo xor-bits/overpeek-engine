@@ -48,9 +48,6 @@ namespace oe {
 			networking::enet::initEnet();
 		}
 
-		srand(oe::utils::Clock::getSingleton().getMicroseconds());
-
-
 		switch (engine_info.api)
 		{
 		case graphics_api::OpenGL:
@@ -65,6 +62,11 @@ namespace oe {
 			instance = nullptr;
 			break;
 		}
+
+#ifdef OE_BUILD_MODE_SHADERC
+		spdlog::debug("Using Shaderc for glsl optimization / spir-v compilation");
+#endif // OE_BUILD_MODE_SHADERC
+
 	}
 
 	void Engine::deinit()
@@ -85,10 +87,15 @@ namespace oe {
 
 	void Engine::__error(std::string error_msg, int line, std::string file)
 	{
-		spdlog::error("error: {}\nline: {}\nfile: {}", error_msg, line, file);
+		std::string error_str = fmt::format("error: {}\nline: {}\nfile: {}", error_msg, line, file);
+#ifdef OE_TERMINATE_IS_THROW
+		throw std::runtime_error(error_str);
+#else
+		spdlog::error("{}", error_str);
 
 		if (!engine_info.ignore_errors)
 			oe::Engine::terminate();
+#endif
 	}
 
 

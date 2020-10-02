@@ -1,42 +1,50 @@
 #include "button.hpp"
 #include "engine/gui/gui_manager.hpp"
 #include "engine/graphics/interface/window.hpp"
+#include "engine/utility/extra.hpp"
+#include "engine/utility/connect_guard_additions.hpp"
 
 
 
-namespace oe::gui {
-
-	Button::Button(const ButtonInfo& _button_info)
-		: Widget(_button_info.size, _button_info.align_parent, _button_info.align_render, _button_info.offset_position)
+namespace oe::gui
+{
+	Button::Button(Widget* parent, GUI& gui_manager, const ButtonInfo& _button_info)
+		: Widget(parent, gui_manager, _button_info.widget_info)
 		, button_info(_button_info)
-	{}
+	{
+	}
 
 	Button::~Button()
-	{}
-
-	void Button::managerAssigned(GUI* gui_manager)
 	{
-		// event listeners
-		gui_manager->getWindow()->connect_listener<oe::CursorPosEvent, &Button::on_cursor>(this);
-		gui_manager->getWindow()->connect_listener<oe::MouseButtonEvent, &Button::on_button>(this);
-
-		Widget::managerAssigned(gui_manager);
+	}
+	
+	void Button::virtual_toggle(bool enabled)
+	{
+		if(enabled)
+		{
+			// event listeners
+			m_cg_cursor.connect<CursorPosEvent, &Button::on_cursor, Button>(m_gui_manager.dispatcher, this);
+			m_cg_button.connect<MouseButtonEvent, &Button::on_button, Button>(m_gui_manager.dispatcher, this);
+		}
+		else
+		{
+			// event listeners
+			m_cg_cursor.disconnect();
+			m_cg_button.disconnect();
+		}
 	}
 
-	void Button::managerUnassigned(GUI* gui_manager)
+	bool Button::test(const glm::vec2& point)
 	{
-		// event listeners
-		gui_manager->getWindow()->disconnect_listener<oe::CursorPosEvent, &Button::on_cursor>(this);
-		gui_manager->getWindow()->disconnect_listener<oe::MouseButtonEvent, &Button::on_button>(this);
-
-		Widget::managerUnassigned(gui_manager);
+		return oe::utils::bounding_box_test(point, render_position, m_info.size);
 	}
-
-	bool check_inside(const glm::vec2& point, const glm::vec2& top_left, const glm::vec2& size); // slider.cpp has the definition
 		
 	void Button::on_cursor(const CursorPosEvent& event)
 	{
-		if (check_inside(event.cursor_windowspace, render_position, size)) 
+		if(!m_cg_cursor)
+			return;
+
+		if (test(event.cursor_windowspace))
 		{
 			dispatcher.trigger(event_hover_latest);
 		}
@@ -44,7 +52,10 @@ namespace oe::gui {
 
 	void Button::on_button(const MouseButtonEvent& event)
 	{
-		if (check_inside(event.cursor_pos.cursor_windowspace, render_position, size)) 
+		if(!m_cg_button)
+			return;
+
+		if (test(event.cursor_pos.cursor_windowspace))
 		{
 			event_use_latest.action = event.action;
 			event_use_latest.button = event.button;

@@ -12,7 +12,8 @@ namespace oe::graphics {
 	struct Sprite {
 		Texture m_owner;
 		glm::vec2 position = { 0, 0 }; // position in packed texture
-		glm::vec2 size = { 1, 1 };     // size in packed texture
+		glm::vec2 size     = { 1, 1 };     // size in packed texture
+		bool opacity       = false;
 	};
 
 }

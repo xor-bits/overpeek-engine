@@ -5,22 +5,29 @@
 
 
 
-namespace oe::gui { class Slider; class SpritePanel; }
-namespace oe::graphics { class Sprite; }
+namespace oe::gui {	class Slider; class SpritePanel; class ColorPickerWheel; class Button; struct ButtonHoverEvent; struct ButtonUseEvent; }
+namespace oe::graphics { struct Sprite; }
 
 namespace oe::gui
 {
-	struct ColorPickerInfo {
-		float min_value                    = -1.0f;
-		float max_value                    = 1.0f;
-		int draw_value                     = 2; // (false/0) = no draw, (true/1) = draw 0.0-1.0, 2 = draw 0-256
-		glm::vec4 initial_color            = oe::colors::white;
+	enum class close_fn {
+		never, immediately, leave_bbox, click_out
+	};
+	enum class open_fn {
+		never, immediately, in_bbox, click_in
+	};
+
+	struct ColorPickerInfo
+	{
+		glm::vec4 initial_color            = oe::colors::red;
+		uint8_t draw_value                 = 2; // (false/0) = no draw, (true/1) = draw 0.0-1.0, 2 = draw 0-256
 		glm::vec4 background_color         = oe::colors::dark_grey;
-		glm::ivec2 size                    = { 200, 100 };
-		const oe::graphics::Sprite* sprite = nullptr; // must be set
-		glm::ivec2 offset_position         = { 0, 0 };
-		glm::vec2 align_parent             = oe::alignments::center_center;
-		glm::vec2 align_render             = oe::alignments::center_center;
+		const oe::graphics::Sprite* sprite = nullptr;
+		bool popup_color_picker_wheel      = true;
+		close_fn popup_close               = close_fn::leave_bbox;
+		open_fn popup_open                 = open_fn::click_in;
+
+		WidgetInfo widget_info = { { 200, 100 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
 	};
 
 	struct ColorPickerHoverEvent
@@ -34,28 +41,45 @@ namespace oe::gui
 		glm::vec4 value;
 	};
 
-	class ColorPicker : public VecSlider<4> 
+	class ColorPicker : public VecSlider<4>
 	{
 	public:
-		ColorPickerInfo color_picker_info;
-		ColorPickerHoverEvent event_hover_latest;
-		ColorPickerUseEvent event_use_latest;
+		ColorPickerInfo m_color_picker_info;
+		glm::vec4& m_value;
+		ColorPickerHoverEvent m_event_hover_latest;
+		ColorPickerUseEvent m_event_use_latest;
 
 	private:
-		SpritePanel* preview_panel = nullptr;
-		const float mult;
+		std::shared_ptr<ColorPickerWheel> m_popup_wheel;
+		std::shared_ptr<Button> m_preview_button;
+		std::shared_ptr<SpritePanel> m_preview_panel;
+		
+		glm::vec4 m_value_last;
 
 	public:
-		ColorPicker(const ColorPickerInfo& color_picker_info);
+		ColorPicker(Widget* parent, GUI& gui_manager, glm::vec4& value_ref, const ColorPickerInfo& color_picker_info = {});
+		ColorPicker(Widget* parent, GUI& gui_manager, const ColorPickerInfo& color_picker_info = {})
+			: ColorPicker(parent, gui_manager, m_color_picker_info.initial_color, color_picker_info)
+		{}
 		~ColorPicker();
 
-		const glm::vec4& get() const;
-		void set(const glm::vec4& color);
-		void update();
-
+		virtual void virtual_toggle(bool enabled) override;
+	
 	private:
+		void update();
+		// events
+		void on_render(const GUIRenderEvent& event);
+		void on_mouse_button(const MouseButtonEvent& e);
+		void on_cursor_pos(const CursorPosEvent& e);
+		oe::utils::connect_guard m_cg_render;
+		oe::utils::connect_guard m_cg_mouse_button;
+		oe::utils::connect_guard m_cg_cursor_pos;
+		void on_color_wheel_hover(const ColorPickerHoverEvent& e);
+		void on_color_wheel_use(const ColorPickerUseEvent& e);
 		void on_vec_slider_hover(const VecSliderHoverEvent<4>& e);
 		void on_vec_slider_use(const VecSliderUseEvent<4>& e);
+		void on_button_hover(const ButtonHoverEvent& e);
+		void on_button_use(const ButtonUseEvent& e);
 	};
 
 }

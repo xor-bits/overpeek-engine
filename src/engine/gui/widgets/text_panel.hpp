@@ -2,22 +2,22 @@
 
 #include "widget.hpp"
 #include "engine/graphics/textLabel.hpp"
+#include "engine/utility/fileio.hpp"
 
 
 
-namespace oe::graphics { struct Quad; }
+namespace oe::graphics { class Quad; }
 
 namespace oe::gui
 {
 	struct TextPanelInfo
 	{
-		std::u32string text        = U"";
-		int font_size              = 16;
-		std::string font_path      = ""; // empty for gui default
-		glm::vec4 background_color = oe::colors::transparent;
-		glm::ivec2 offset_position = { 0, 0 };
-		glm::vec2 align_parent     = oe::alignments::center_center;
-		glm::vec2 align_render     = oe::alignments::center_center;
+		oe::graphics::text_render_input<char32_t> text = U"placeholder";
+		uint16_t font_size                             = 16;
+		oe::utils::FontFile font_file                  = {}; // empty for gui default
+		glm::vec4 background_color                     = oe::colors::transparent;
+	
+		WidgetInfo widget_info                         = { { 0, 0 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
 	};
 
 
@@ -25,20 +25,19 @@ namespace oe::gui
 	{
 	private:
 		oe::graphics::u32TextLabel* label;
-		std::shared_ptr<oe::graphics::Quad> text_quad;
+		std::unique_ptr<oe::graphics::Quad> text_quad;
 
 	public:
 		TextPanelInfo text_panel_info;
 
 	public:
-		TextPanel(const TextPanelInfo& text_panel_info);
+		TextPanel(Widget* parent, GUI& gui_manager, const TextPanelInfo& text_panel_info = {});
 		~TextPanel();
 
-		virtual void managerAssigned(GUI* gui_manager) override;
-		virtual void managerUnassigned(GUI* gui_manager) override;
-
-	private:
+	public:
+		virtual void virtual_toggle(bool enabled) override;
 		// events
 		void on_render(const GUIRenderEvent& event);
+		oe::utils::connect_guard m_cg_render;
 	};
 }

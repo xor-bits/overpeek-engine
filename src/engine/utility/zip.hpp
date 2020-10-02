@@ -8,7 +8,7 @@
 
 namespace oe::utils {
 
-	class Compression {
+	/* class Compression {
 	private:
 		static Compression* singleton;
 		Compression() {}
@@ -35,6 +35,6 @@ namespace oe::utils {
 
 		std::string data_to_string(const std::vector<uint8_t>& input);
 		std::vector<uint8_t> string_to_data(const std::string& input);
-	};
+	}; */
 
 }

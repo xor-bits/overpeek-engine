@@ -3,13 +3,13 @@
 
 
 
-namespace oe::graphics {
-
-	class IWindow; class IShader; class ITexture; class IFrameBuffer; class Renderer;
-	class GLInstance : public Instance {
+namespace oe::graphics
+{
+	class GLInstance : public Instance
+	{
 	public:
 		GLInstance();
-		~GLInstance();
+		virtual ~GLInstance();
 	
 	public:
 		virtual void blending(oe::modes mode = oe::modes::enable) const override;
@@ -19,6 +19,7 @@ namespace oe::graphics {
 		virtual void lineWidth(float w = 1.0f) const override;
 		virtual void pointRadius(float w = 1.0f) const override;
 		virtual void polygonMode(oe::polygon_mode p = oe::polygon_mode::fill) const override;
+		virtual void viewport(int x, int y, size_t w, size_t h) const override;
+		virtual int versionNumber() override;
 	};
-
 }

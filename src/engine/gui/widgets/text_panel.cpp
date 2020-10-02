@@ -2,55 +2,56 @@
 
 #include "engine/graphics/textLabel.hpp"
 #include "engine/gui/gui_manager.hpp"
-#include "engine/graphics/interface/renderer.hpp"
+#include "engine/graphics/renderer.hpp"
+#include "engine/utility/extra.hpp"
+#include "engine/utility/connect_guard_additions.hpp"
 
 
 
 namespace oe::gui
 {
-	TextPanel::TextPanel(const TextPanelInfo& _text_panel_info) 
-		: Widget(glm::vec2(static_cast<float>(_text_panel_info.font_size)), _text_panel_info.align_parent, _text_panel_info.align_render, _text_panel_info.offset_position)
+	TextPanel::TextPanel(Widget* parent, GUI& gui_manager, const TextPanelInfo& _text_panel_info) 
+		: Widget(parent, gui_manager, _text_panel_info.widget_info)
 		, text_panel_info(_text_panel_info)
-	{}
+	{
+		m_info.size = glm::ivec2(_text_panel_info.font_size);
+	}
 
 	TextPanel::~TextPanel()
 	{}
-
-	void TextPanel::managerAssigned(GUI* gui_manager)
+	
+	void TextPanel::virtual_toggle(bool enabled)
 	{
-		text_quad = gui_manager->getLateRenderer()->create();
-		label = new oe::graphics::u32TextLabel(gui_manager->getFont(text_panel_info.font_size, text_panel_info.font_path));
+		if(enabled)
+		{
+			text_quad = m_gui_manager.getRenderer()->create();
+			label = new oe::graphics::u32TextLabel(m_gui_manager.getFont(text_panel_info.font_size, text_panel_info.font_file));
 
-		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&TextPanel::on_render>(this);
+			m_cg_render.connect<GUIRenderEvent, &TextPanel::on_render, TextPanel>(m_gui_manager.dispatcher, this);
+		}
+		else
+		{
+			m_cg_render.disconnect();
 
-		Widget::managerAssigned(gui_manager);
-	}
-
-	void TextPanel::managerUnassigned(GUI* gui_manager)
-	{
-		text_quad.reset();
-		delete label;
-
-		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&TextPanel::on_render>(this);
-
-		Widget::managerUnassigned(gui_manager);
+			delete label;
+			text_quad.reset();
+		}
 	}
 
 	void TextPanel::on_render(const GUIRenderEvent& event)
 	{
-		if (!toggled) { text_quad->reset(); return; }
+		if(!m_cg_render)
+			return;
 
-		label->generate(text_panel_info.text, m_gui_manager->getWindow(), text_panel_info.background_color);
-		size = label->getSize();
-		text_quad->setPosition(static_cast<glm::vec2>(render_position + oe::alignmentOffset(size, align_render)));
+		label->generate(text_panel_info.text, m_gui_manager.getWindow(), text_panel_info.background_color);
+		m_info.size = label->getSize();
+		Widget::on_pre_render(GUIPreRenderEvent{});
+
+		text_quad->setPosition(render_position);
 		text_quad->setZ(z);
-		text_quad->setSize(size);
+		text_quad->setSize(m_info.size);
 		text_quad->setSprite(label->getSprite());
 		text_quad->setColor(oe::colors::white);
-		text_quad->setRotationAlignment(align_render);
-		text_quad->update();
 	}
 
 }

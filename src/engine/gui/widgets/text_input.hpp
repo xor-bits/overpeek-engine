@@ -2,10 +2,11 @@
 
 #include "widget.hpp"
 #include "engine/graphics/textLabel.hpp"
+#include "engine/utility/fileio.hpp"
 
 
 
-namespace oe::graphics { struct Quad; }
+namespace oe::graphics { class Quad; }
 
 namespace oe::gui
 {
@@ -17,18 +18,16 @@ namespace oe::gui
 
 	struct TextInputInfo
 	{
-		glm::ivec2 size                    = { 100, 100 };
-		glm::ivec2 padding                 = { 3, 3 };
-		glm::ivec2 offset_position         = { 0, 0 };
-		glm::vec2 align_parent             = oe::alignments::center_center;
-		glm::vec2 align_render             = oe::alignments::center_center;
 		glm::vec2 align_text               = oe::alignments::center_center;
 		std::u32string text                = U"";
 		std::u32string filter              = filter_none;
-		int font_size                      = 16;
-		std::string font_path              = ""; // empty for gui default
+		uint16_t font_size                 = 16;
+		oe::utils::FontFile font_file      = {}; // empty for gui default
 		glm::vec4 color                    = oe::colors::dark_grey;
-		const oe::graphics::Sprite* sprite = nullptr; // must be set
+		glm::vec4 default_text_color       = oe::colors::black;
+		const oe::graphics::Sprite* sprite = nullptr;
+		
+		WidgetInfo widget_info             = { { 100, 100 }, { 3, 3 }, oe::alignments::center_center, oe::alignments::center_center };
 	};
 
 	struct TextInputHoverEvent
@@ -51,8 +50,9 @@ namespace oe::gui
 	{
 	private:
 		oe::graphics::u32TextLabel* label;
-		std::shared_ptr<oe::graphics::Quad> quad;
-		std::shared_ptr<oe::graphics::Quad> text_quad;
+		std::unique_ptr<oe::graphics::Quad> quad;
+		std::unique_ptr<oe::graphics::Quad> text_quad;
+		std::unique_ptr<oe::graphics::Quad> text_bar_quad;
 
 	public:
 		TextInputInfo text_input_info;
@@ -64,19 +64,22 @@ namespace oe::gui
 
 	public:
 		// window_handle is used for clipboard
-		TextInput(const TextInputInfo& text_input_info);
+		TextInput(Widget* parent, GUI& gui_manager, const TextInputInfo& text_input_info = {});
 		~TextInput();
-
-		virtual void managerAssigned(GUI* gui_manager) override;
-		virtual void managerUnassigned(GUI* gui_manager) override;
 
 		oe::graphics::u32TextLabel* debug() { return label; };
 
+		virtual void virtual_toggle(bool enabled) override;
+	
 	private:
 		// events
 		void on_render(const GUIRenderEvent& event);
 		void on_codepoint(const CodepointEvent& event);
 		void on_key(const KeyboardEvent& event);
 		void on_button(const MouseButtonEvent& event);
+		oe::utils::connect_guard m_cg_render;
+		oe::utils::connect_guard m_cg_codepoint;
+		oe::utils::connect_guard m_cg_key;
+		oe::utils::connect_guard m_cg_button;
 	};
 }

@@ -1,42 +1,36 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 
-namespace oe::graphics {
-
-	class Buffer {
+namespace oe::graphics
+{
+	class Buffer
+	{
 	protected:
 		unsigned int p_id;
-		size_t p_size;
+		int32_t p_size;
 		int p_target;
 		bool p_mapped;
 
-		// size_t size (in bytes)
-		Buffer(const void* data, size_t size, int target, unsigned int usage);
+		// int32_t size (in bytes)
+		Buffer(const void* data, int32_t size, int target, unsigned int usage);
 
 	public:
-		~Buffer();
+		virtual ~Buffer();
 		
 		// Binding
-
 		virtual void bind();
 		virtual void unbind();
-
-		
 		
 		// Data
-
 		virtual void* mapBuffer();
 		virtual void unmapBuffer();
-		virtual void setBufferData(const void* data, size_t size);
-
-
+		virtual void setBufferData(const void* data, int32_t size);
 
 		// Getters/setters
-		
-		inline size_t getSize() const { return p_size; }
-		inline size_t getId() const { return p_id; }
-		inline size_t getTarget() const { return p_target; }
+		inline int32_t getSize() const { return p_size; }
+		inline int32_t getId() const { return p_id; }
+		inline int32_t getTarget() const { return p_target; }
 	};
-
 }

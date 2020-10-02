@@ -9,10 +9,7 @@ namespace oe::gui
 {
 	struct ButtonInfo
 	{
-		glm::ivec2 size              = { 50, 50 };
-		glm::ivec2 offset_position   = { 0, 0 };
-		glm::vec2 align_parent       = oe::alignments::center_center;
-		glm::vec2 align_render       = oe::alignments::center_center;
+		WidgetInfo widget_info = { { 50, 50 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
 	};
 
 	struct ButtonHoverEvent
@@ -33,16 +30,19 @@ namespace oe::gui
 		ButtonUseEvent event_use_latest;
 
 	public:
-		Button(const ButtonInfo& button_info);
+		Button(Widget* parent, GUI& gui_manager, const ButtonInfo& button_info = {});
 		~Button();
 
-		virtual void managerAssigned(GUI* gui_manager) override;
-		virtual void managerUnassigned(GUI* gui_manager) override;
+		bool test(const glm::vec2& point);
 
+		virtual void virtual_toggle(bool enabled) override;
+	
 	private:
 		// events
 		void on_cursor(const CursorPosEvent& event);
 		void on_button(const MouseButtonEvent& event);
+		oe::utils::connect_guard m_cg_cursor;
+		oe::utils::connect_guard m_cg_button;
 	};
 
 }

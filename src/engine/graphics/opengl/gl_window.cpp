@@ -140,7 +140,7 @@ namespace oe::graphics {
 
 	GLWindow::GLWindow(const std::unique_ptr<Instance>& instance, const WindowInfo& window_config) 
 		: IWindow::IWindow(instance, window_config)
-		, m_debugging(oe::Engine::getSingleton().engine_info.debug_messages)
+		, m_debugging(oe::Engine::getSingleton().engine_info.debug_mode)
 	{
 		oe_debug_call("gl_window");
 
@@ -179,9 +179,11 @@ namespace oe::graphics {
 
 	void GLWindow::updateEvents()
 	{
+		m_processing_events = true;
 		dispatcher_mutex.lock();
-		dispatcher.update();
+		m_window_gameloop.getDispatcher().update();
 		dispatcher_mutex.unlock();
+		m_processing_events = false;
 	}
 
 	void GLWindow::bump()
@@ -196,6 +198,8 @@ namespace oe::graphics {
 
 	void GLWindow::clear(const glm::vec4& color)
 	{
+		bind();
+
 		glClearColor(color.r, color.g, color.b, color.a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
@@ -221,6 +225,9 @@ namespace oe::graphics {
 	
 	void GLWindow::bind() const
 	{
+		if (GLFrameBuffer::bound_fbo_id == 0) return;
+		GLFrameBuffer::bound_fbo_id = 0;
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		viewport();
 	}

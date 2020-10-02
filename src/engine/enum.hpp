@@ -6,9 +6,8 @@
 #include <array>
 #include <vector>
 #include <functional>
-
-#include "engine/graphics/interface/index_buffer_gen.hpp"
-#include "engine/graphics/vertexData.hpp"
+#include <gsl/span>
+#include <gcem.hpp>
 
 
 
@@ -79,7 +78,16 @@ namespace oe {
 		tesselation_evaluation_shader, 
 		geometry_shader, 
 		fragment_shader, 
-		compute_shader
+		compute_shader,
+		none
+	};
+	
+	enum class primitive_types {
+		points,
+		lines,
+		triangles, // independent triangles
+		quads,     // independent quads
+		custom,    // user defined
 	};
 
 	// supported graphics apis
@@ -295,6 +303,14 @@ namespace oe {
 		gamepad_triangle = gamepad_y
 	};
 
+	enum class texture_wrap {
+		repeat, mirrored_repeat, clamp_to_edge, clamp_to_border
+	};
+
+	enum class texture_filter {
+		nearest, linear
+	};
+
 	// some predefined colors
 	struct colors {
 		static constexpr glm::vec4 translucent_black = glm::vec4(0.0f, 0.0f, 0.0f, 0.25f);
@@ -342,11 +358,9 @@ namespace oe {
 		static constexpr glm::vec2 center_right = glm::vec2(1.0f, 0.5f);
 		static constexpr glm::vec2 bottom_right = glm::vec2(1.0f, 1.0f);
 	};
-	static glm::vec2 alignmentOffset(const glm::vec2& size, const glm::vec2& alignment) {
-		return size * alignment;
-	}
-	static glm::ivec2 alignmentOffset(const glm::ivec2& size, const glm::vec2& alignment) {
-		return static_cast<glm::ivec2>(static_cast<glm::vec2>(size) * alignment);
+	template<typename T = glm::vec2>
+	T alignmentOffset(const T& size, const glm::vec2& alignment) {
+		return static_cast<T>(static_cast<glm::vec2>(size) * alignment);
 	}
 
 	typedef std::function<void(oe::keys key, oe::actions action, oe::modifiers mods)> fun_key_callback;
@@ -361,21 +375,21 @@ namespace oe {
 	// window open info
 	struct WindowInfo {
 		glm::ivec2 position = { 0, 0 };
-		glm::ivec2 size = { 900, 600 };
+		glm::uvec2 size = { 900, 600 };
 		std::string title = "Overpeek Engine";
-		unsigned char multisamples = 0;
+		uint8_t multisamples = 0;
 		bool borderless = false;
 		bool resizeable = true;
 		bool transparent = false; // does nothing when using emscripten
 		bool fullscreen = false;
 		void* share_handle = nullptr; // pointer to the first window obj for multiwindow setups
-		uint32_t swap_interval = 1;
+		uint8_t swap_interval = 1;
 		size_t main_updatesystem_ups = 60;
 	};
 
 	// renderer create info
 	struct RendererInfo {
-		int max_primitive_count = 10000;
+		int32_t max_primitive_count = 10000;
 		oe::types arrayRenderType = oe::types::dynamic_type;
 		oe::types indexRenderType = oe::types::static_type;
 		void* staticVBOBuffer_data = nullptr;
@@ -392,6 +406,9 @@ namespace oe {
 	struct ShaderInfo {
 		std::string name;
 		std::vector<ShaderStageInfo> shader_stages;
+#ifdef OE_BUILD_MODE_SHADERC
+		bool shaderc_optimize = true;
+#endif // OE_BUILD_MODE_SHADERC
 	};
 
 	// engine create info
@@ -400,7 +417,7 @@ namespace oe {
 		bool networking = false;
 		graphics_api api = oe::graphics_api::OpenGL;
 		gpu favored_gpu_vulkan = gpu::dedicated;
-		bool debug_messages = false;
+		bool debug_mode = false;
 		bool ignore_errors = true;
 	};
 
@@ -410,18 +427,27 @@ namespace oe {
 		oe::formats data_format = oe::formats::rgba;
 		bool generate_mipmaps = false;
 
-		std::vector<size_t> size = { 1 };   // must have the same size as (std::vector<size_t> offset)
-		std::vector<size_t> offset = { 0 }; // must have the same size as (std::vector<size_t> size)
+		texture_wrap wrap = texture_wrap::clamp_to_border;
+		texture_filter filter = texture_filter::nearest;
+
+		using size_offset_pair_t = std::pair<int32_t, int32_t>;
+		std::vector<size_offset_pair_t> size_offset = { { 1, 0 } };
 	};
 
 	struct FrameBufferInfo {
-		glm::ivec2 size = { 1, 1 };
+		glm::uvec2 size = { 1, 1 };
 	};
 
 	// events
+	template<size_t ups> struct UPS { static constexpr size_t system_ups = ups; };
+	template<size_t ups> using UpdateEvent = UPS<ups>;
+	struct InitEvent {};
+	struct CleanupEvent {};
+	struct RenderEvent {};
+
     struct CursorPosEvent
     {
-        glm::ivec2 cursor_windowspace = { 0.0f, 0.0f };
+        glm::ivec2 cursor_windowspace = { 0, 0 };
         glm::vec2 cursor_worldspace = { 0.0f, 0.0f };
     };
 
@@ -454,29 +480,70 @@ namespace oe {
 
 	struct ResizeEvent
 	{
-        glm::ivec2 framebuffer_size = { 0, 0 };
-        glm::ivec2 framebuffer_size_old = { 0, 0 };
+        glm::uvec2 framebuffer_size = { 0, 0 };
+        glm::uvec2 framebuffer_size_old = { 0, 0 };
 		float aspect = 0.0f;
 	};
 
 #ifdef WIN32
-#define __OE_FONT_NAME				"Arial.ttf"
+#define __OE_FONT_NAME_R			"Arial.ttf"
+#define __OE_FONT_NAME_B			"Arialbd.ttf"
+#define __OE_FONT_NAME_I			"Ariali.ttf"
+#define __OE_FONT_NAME_BI			"Arialbi.ttf"
 #define __OE_FONT_PATH				"C:/Windows/Fonts/"
-#define __OE_FULL_FONT_PATH			__OE_FONT_PATH __OE_FONT_NAME
 #elif __linux__
-#define __OE_FONT_NAME				"LiberationSans-Regular.ttf"
+#define __OE_FONT_NAME_R			"LiberationSans-Regular.ttf"
+#define __OE_FONT_NAME_B			"LiberationSans-Bold.ttf"
+#define __OE_FONT_NAME_I			"LiberationSans-Italic.ttf"
+#define __OE_FONT_NAME_BI			"LiberationSans-BoldItalic.ttf"
 #define __OE_FONT_PATH				"/usr/share/fonts/truetype/liberation/"
-#define __OE_FULL_FONT_PATH			__OE_FONT_PATH __OE_FONT_NAME
 #else
-#define __OE_FONT_NAME				"LiberationSans-Regular.ttf"
+#define __OE_FONT_NAME_R			"LiberationSans-Regular.ttf"
+#define __OE_FONT_NAME_B			"LiberationSans-Bold.ttf"
+#define __OE_FONT_NAME_I			"LiberationSans-Italic.ttf"
+#define __OE_FONT_NAME_BI			"LiberationSans-BoldItalic.ttf"
 #define __OE_FONT_PATH				"/System/Library/Fonts"  /* I have no idea about fonts with MacOS */
-#define __OE_FULL_FONT_PATH			__OE_FONT_PATH __OE_FONT_NAME
 #endif
+
+#define __OE_FULL_FONT_PATH_R		__OE_FONT_PATH __OE_FONT_NAME_R
+#define __OE_FULL_FONT_PATH_B		__OE_FONT_PATH __OE_FONT_NAME_B
+#define __OE_FULL_FONT_PATH_I		__OE_FONT_PATH __OE_FONT_NAME_I
+#define __OE_FULL_FONT_PATH_BI		__OE_FONT_PATH __OE_FONT_NAME_BI
+#define __OE_FONT_NAME				__OE_FONT_NAME_R
+#define __OE_FULL_FONT_PATH_R		__OE_FONT_PATH __OE_FONT_NAME_R
+#define __OE_FULL_FONT_PATH_B		__OE_FONT_PATH __OE_FONT_NAME_B
+#define __OE_FULL_FONT_PATH_I		__OE_FONT_PATH __OE_FONT_NAME_I
+#define __OE_FULL_FONT_PATH_BI		__OE_FONT_PATH __OE_FONT_NAME_BI
+#define __OE_FULL_FONT_PATH			__OE_FULL_FONT_PATH_R
 	
+	constexpr char default_font_name_regular[] = __OE_FONT_NAME_R;
+	constexpr char default_font_name_bold[] = __OE_FONT_NAME_B;
+	constexpr char default_font_name_italic[] = __OE_FONT_NAME_I;
+	constexpr char default_font_name_bolditalic[] = __OE_FONT_NAME_BI;
 	constexpr char default_font_name[] = __OE_FONT_NAME;
+
 	constexpr char default_font_path[] = __OE_FONT_PATH;
+	
+	constexpr char default_full_font_path_regular[] = __OE_FULL_FONT_PATH_R;
+	constexpr char default_full_font_path_bold[] = __OE_FULL_FONT_PATH_B;
+	constexpr char default_full_font_path_italic[] = __OE_FULL_FONT_PATH_I;
+	constexpr char default_full_font_path_bolditalic[] = __OE_FULL_FONT_PATH_BI;
 	constexpr char default_full_font_path[] = __OE_FULL_FONT_PATH;
 
-#undef __FONT_NAME
-#undef __OE_DEFAULT_FONT__
+#undef __OE_FONT_NAME_R
+#undef __OE_FONT_NAME_B
+#undef __OE_FONT_NAME_I
+#undef __OE_FONT_NAME_BI
+#undef __OE_FONT_PATH
+
+#undef __OE_FULL_FONT_PATH_R
+#undef __OE_FULL_FONT_PATH_B
+#undef __OE_FULL_FONT_PATH_I
+#undef __OE_FULL_FONT_PATH_BI
+#undef __OE_FONT_NAME
+#undef __OE_FULL_FONT_PATH_R
+#undef __OE_FULL_FONT_PATH_B
+#undef __OE_FULL_FONT_PATH_I
+#undef __OE_FULL_FONT_PATH_BI
+#undef __OE_FULL_FONT_PATH
 }

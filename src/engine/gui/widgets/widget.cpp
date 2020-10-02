@@ -2,91 +2,101 @@
 #include "engine/gui/gui_manager.hpp"
 
 #include "engine/utility/clock.hpp"
+#include "engine/utility/extra.hpp"
+#include "engine/utility/connect_guard_additions.hpp"
+#include "engine/graphics/interface/window.hpp"
+#include <spdlog/spdlog.h>
 
 
 
 namespace oe::gui
 {
-	float Widget::z_acc = -99999.0f;
-	Widget::Widget(const glm::ivec2& _size, const glm::vec2& _align_parent, const glm::vec2& _align_render, const glm::ivec2& _offset_position)
-		: size(_size)
-		, align_parent(_align_parent)
-		, align_render(_align_render)
-		, offset_position(_offset_position)
-		, render_position({ 0, 0 })
+	float Widget::z_acc = 1.0f;
+	Widget::Widget(Widget* parent, GUI& gui_manager, const WidgetInfo& info)
+		: m_parent(parent)
+		, m_nodes()
 		, topleft_position({ 0, 0 })
-		, m_nodes() 
-		, m_parent(nullptr)
-		, m_gui_manager(nullptr)
+		, render_position({ 0, 0 })
+		, m_gui_manager(gui_manager)
+		, m_info(info)
+		, z(z_acc += 0.01f)
+		, m_cg_pre_render()
 	{
-		z = z_acc;
-		z_acc += 0.1f;
+		toggle(true);
 	}
 
 	Widget::~Widget()
 	{
-		if (m_gui_manager) managerUnassigned(m_gui_manager);
-		for (auto& w : m_nodes)
+		toggle(false);
+	}
+	
+	void Widget::base_toggle(bool enabled)
+	{
+		if(enabled)
 		{
-			delete w;
+			m_cg_pre_render.connect<GUIPreRenderEvent, &Widget::on_pre_render, Widget>(m_gui_manager.dispatcher, this);
 		}
+		else
+		{
+			m_cg_pre_render.disconnect();
+		}
+		virtual_toggle(enabled);
 	}
 
-	void Widget::managerAssigned(GUI* gui_manager)
+	void reset_render_pos(Widget* wdgt)
 	{
-		m_gui_manager = gui_manager;
+		if(wdgt->getParent())
+			wdgt->render_position = 
+			+ wdgt->m_info.offset_position
+			+ wdgt->getParent()->render_position
+			+ oe::alignmentOffset(wdgt->getParent()->m_info.size, wdgt->m_info.align_parent)
+			- oe::alignmentOffset(wdgt->m_info.size, wdgt->m_info.align_render);
 
-		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&Widget::on_render>(this);
+		else
+			wdgt->render_position =
+			+ wdgt->m_info.offset_position
+			- oe::alignmentOffset(wdgt->m_info.size, wdgt->m_info.align_render);
+	}
+
+	void Widget::toggle(bool enabled)
+	{
+		if(m_gui_manager.getWindow()->processingEvents())
+		{
+			toggle_pending_value = enabled;
+			toggle_pending = true;
+			m_cg_pre_render.connect<GUIPreRenderEvent, &Widget::on_pre_render, Widget>(m_gui_manager.dispatcher, this);
+
+			return;
+		}
 		
-		for (auto& w : m_nodes)
-		{
-			w->managerAssigned(gui_manager);
+		{ // current node
+			reset_render_pos(this);
+			if(m_info.toggled != enabled)
+				base_toggle(enabled);
+			m_info.toggled = enabled;
+		}
+		{ // subnodes
+			for (auto& w : m_nodes)
+			{
+				if(m_info.toggled == w->m_info.toggled)
+					continue;
+				
+				w->toggle(enabled);
+			}
 		}
 	}
 
-	void Widget::managerUnassigned(GUI* gui_manager)
+	void Widget::on_pre_render(const GUIPreRenderEvent& event)
 	{
-		m_gui_manager = nullptr;
+		if(!m_cg_pre_render)
+			return;
 
-		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&Widget::on_render>(this);
-		
-		for (auto& w : m_nodes)
+		if(toggle_pending)
 		{
-			w->managerUnassigned(gui_manager);
+			toggle(toggle_pending_value);
+			toggle_pending = false;
 		}
-	}
 
-	void Widget::setParent(Widget* parent)
-	{
-		m_parent = parent;
-	}
-
-	void Widget::addSubWidget(Widget* widget)
-	{
-		widget->setParent(this);
-		m_nodes.insert(widget);
-		if (m_gui_manager)
-		{
-			widget->managerAssigned(m_gui_manager);
-			m_gui_manager->render_empty();
-		}
-	}
-
-	void Widget::removeSubWidget(Widget* widget)
-	{
-		m_nodes.erase(widget);
-		if (m_gui_manager)
-		{
-			widget->managerUnassigned(m_gui_manager);
-			m_gui_manager->render_empty();
-		}
-	}
-
-	void Widget::on_render(const GUIRenderEvent& event)
-	{
-		if (m_parent) render_position = offset_position + m_parent->render_position + oe::alignmentOffset(m_parent->size, align_parent) - oe::alignmentOffset(size, align_render);
-		else render_position = offset_position - oe::alignmentOffset(size, align_render);
+		reset_render_pos(this);
 	}
 }

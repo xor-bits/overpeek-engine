@@ -3,6 +3,9 @@
 #ifdef __EMSCRIPTEN__
 #include <AL/al.h>
 #include <AL/alc.h>
+#elif defined(VCPKG_TOOLCHAIN)
+#include <AL/al.h>
+#include <AL/alc.h>
 #else
 #include <al.h>
 #include <alc.h>
@@ -70,6 +73,9 @@ namespace oe::audio {
 	}
 
 	Audio::Audio(const oe::utils::audio_data& audio) {
+		if(!Engine::getSingleton().engine_info.audio)
+			oe_error_terminate("Engine audio was not enabled");
+
 		alGenBuffers(1, &buffer_id);
 		alBufferData(buffer_id, audio.format, audio.data, audio.size, audio.sample_rate);
 		checkALErrors();

@@ -1,6 +1,7 @@
 #include "checkbox.hpp"
 #include "engine/gui/gui_manager.hpp"
-#include "engine/graphics/interface/renderer.hpp"
+#include "engine/graphics/renderer.hpp"
+#include "engine/utility/connect_guard_additions.hpp"
 
 #include "button.hpp"
 
@@ -8,74 +9,66 @@
 
 namespace oe::gui
 {
-	Checkbox::Checkbox(const CheckboxInfo& _checkbox_info)
-		: Widget(_checkbox_info.size, _checkbox_info.align_parent, _checkbox_info.align_render, _checkbox_info.offset_position)
+	Checkbox::Checkbox(Widget* parent, GUI& gui_manager, const CheckboxInfo& _checkbox_info)
+		: Widget(parent, gui_manager, _checkbox_info.widget_info)
 		, m_checkbox_info(_checkbox_info)
 	{
 		ButtonInfo button_info;
-		button_info.size = _checkbox_info.size;
-		button_info.offset_position = { 0, 0 };
-		button_info.align_parent = oe::alignments::center_center;
-		button_info.align_render = oe::alignments::center_center;
-		m_button = new Button(button_info);
-		addSubWidget(m_button);
+		button_info.widget_info = { m_info.size, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
+		m_button = create<Button>(button_info);
+		m_button->connect_listener<ButtonUseEvent, &Checkbox::on_button_use>(this);
+		m_button->connect_listener<ButtonHoverEvent, &Checkbox::on_button_hover>(this);
 	}
 
 	Checkbox::~Checkbox()
-	{}
-
-	void Checkbox::managerAssigned(GUI* gui_manager)
 	{
-		quad_check = gui_manager->getRenderer()->create();
-		quad_box = gui_manager->getRenderer()->create(); // check - box, hehe
-
-		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().connect<&Checkbox::on_render>(this);
-		m_button->connect_listener<ButtonUseEvent, &Checkbox::on_button_use>(this);
-		m_button->connect_listener<ButtonHoverEvent, &Checkbox::on_button_hover>(this);
-
-		Widget::managerAssigned(gui_manager);
-	}
-
-	void Checkbox::managerUnassigned(GUI* gui_manager)
-	{
-		quad_check.reset();
-		quad_box.reset();
-
-		// event listeners
-		gui_manager->dispatcher.sink<GUIRenderEvent>().disconnect<&Checkbox::on_render>(this);
 		m_button->disconnect_listener<ButtonUseEvent, &Checkbox::on_button_use>(this);
 		m_button->disconnect_listener<ButtonHoverEvent, &Checkbox::on_button_hover>(this);
+	}
+	
+	void Checkbox::virtual_toggle(bool enabled)
+	{
+		if(enabled)
+		{
+			quad_check = m_gui_manager.getRenderer()->create();
+			quad_box = m_gui_manager.getRenderer()->create(); // check - box, hehe
 
-		Widget::managerUnassigned(gui_manager);
+			// event listeners
+			m_cg_render.connect<GUIRenderEvent, &Checkbox::on_render, Checkbox>(m_gui_manager.dispatcher, this);
+		}
+		else
+		{
+			quad_check.reset();
+			quad_box.reset();
+
+			// event listeners
+			m_cg_render.disconnect();
+		}
 	}
 
 	void Checkbox::on_render(const GUIRenderEvent& event)
 	{
-		if (!toggled) { quad_check->reset(); quad_box->reset(); return; }
-
-		NULL_SPRITE_CHECK(m_checkbox_info.sprite);
+		if(!m_cg_render)
+			return;
 
 		quad_box->setPosition(render_position);
 		quad_box->setZ(z);
-		quad_box->setSize(size);
+		quad_box->setSize(m_info.size);
 		quad_box->setColor(m_checkbox_info.color_back);
 		quad_box->setSprite(m_checkbox_info.sprite);
-		quad_box->update();
 
 		if (m_checkbox_info.initial) {
-			quad_check->setSize(static_cast<glm::vec2>(size) * 0.7f);
+			quad_check->setSize(static_cast<glm::vec2>(m_info.size) * 0.7f);
 		}
 		else
 		{
 			quad_check->setSize({ 0.0f, 0.0f });
 		}
-		quad_check->setPosition(static_cast<glm::vec2>(render_position + size / 2));
+		quad_check->setPosition(static_cast<glm::vec2>(render_position + m_info.size / 2));
 		quad_check->setZ(z + 0.05f);
 		quad_check->setColor(m_checkbox_info.color_mark);
 		quad_check->setSprite(m_checkbox_info.sprite);
 		quad_check->setRotationAlignment(oe::alignments::center_center);
-		quad_check->update();
 	}
 
 	void Checkbox::on_button_use(const ButtonUseEvent& e)

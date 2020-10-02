@@ -2,6 +2,8 @@
 
 #include "enum.hpp"
 
+#include <memory>
+
 
 
 namespace oe::graphics
@@ -22,10 +24,16 @@ namespace oe::graphics
 	class IFrameBuffer;
 	class GLFrameBuffer;
 	class VKFrameBuffer;
-	
+
 	template<primitive_types type, typename buffer_gen, typename vertex_type>
-	class IBasicPrimitiveRenderer;
-	using IPrimitiveRenderer = IBasicPrimitiveRenderer<primitive_types::quads, BasicBufferGen<primitive_types::quads>, VertexData>;
+	class BasicPrimitiveRenderer;
+	template<oe::primitive_types type>
+	struct BasicBufferGen;
+	struct VertexData;
+
+	using TrianglePrimitiveRenderer = BasicPrimitiveRenderer<primitive_types::triangles, BasicBufferGen<primitive_types::triangles>, VertexData>;
+	using QuadPrimitiveRenderer = BasicPrimitiveRenderer<primitive_types::quads, BasicBufferGen<primitive_types::quads>, VertexData>;
+	using PrimitiveRenderer = QuadPrimitiveRenderer;
 	/* -- forward declarations -- */
 
 
@@ -105,7 +113,7 @@ namespace oe::graphics
 		std::shared_ptr<IFrameBuffer> m_obj;
 	public:
 		FrameBuffer() {}
-		FrameBuffer(const FrameBufferInfo& obj_info, const Window& window);
+		FrameBuffer(const FrameBufferInfo& obj_info);
 		FrameBuffer(const FrameBuffer& copy) { m_obj = copy.m_obj; }
 		FrameBuffer(const FrameBuffer&& move) { m_obj = std::move(move.m_obj); }
 
@@ -121,28 +129,4 @@ namespace oe::graphics
 
 		inline void reset() { m_obj.reset(); }
 	};
-	
-	class PrimitiveRenderer
-	{
-	private:
-		std::shared_ptr<IPrimitiveRenderer> m_obj;
-	public:
-		PrimitiveRenderer() {}
-		PrimitiveRenderer(const RendererInfo& obj_info);
-		PrimitiveRenderer(const PrimitiveRenderer& copy) { m_obj = copy.m_obj; }
-		PrimitiveRenderer(const PrimitiveRenderer&& move) { m_obj = std::move(move.m_obj); }
-
-		inline IPrimitiveRenderer* get() const { return m_obj.get(); }
-		// inline GLPrimitiveRenderer* getGL() const { return reinterpret_cast<GLPrimitiveRenderer*>(m_obj.get()); }
-		// inline VKPrimitiveRenderer* getVK() const { return reinterpret_cast<VKPrimitiveRenderer*>(m_obj.get()); }
-
-		inline IPrimitiveRenderer* operator->() const { return get(); }
-		inline PrimitiveRenderer& operator=(const PrimitiveRenderer& other) { m_obj = other.m_obj; return *this; }
-		inline bool operator==(const PrimitiveRenderer& other) const { return get() == other.get(); }
-		inline bool operator!=(const PrimitiveRenderer& other) const { return get() != other.get(); }
-		inline operator bool() const { return get(); }
-
-		inline void reset() { m_obj.reset(); }
-	};
-	
 }

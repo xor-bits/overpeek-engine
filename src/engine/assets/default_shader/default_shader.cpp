@@ -10,6 +10,7 @@
 
 #include "engine/engine.hpp"
 #include "engine/graphics/interface/shader.hpp"
+#include "engine/graphics/interface/instance.hpp"
 
 
 
@@ -107,26 +108,31 @@ namespace oe::assets {
 	};
 
 	DefaultShader::DefaultShader(oe::polygon_mode mode)
+		: m_mode(oe::polygon_mode::fill)
 	{
-		const auto& info_map_iter = default_shader_info.find(Engine::getSingleton().engine_info.api);
-		if(info_map_iter == default_shader_info.end()) { oe_error_terminate("Unknown graphics api"); }
-		const auto& info_map = info_map_iter->second;
-		
-		const auto& info_iter = info_map.find(mode);
-		if(info_map_iter == default_shader_info.end()) { oe_error_terminate("Unknown polygonmode"); }
-		const auto& info = info_iter->second;
+		if(oe::Engine::getSingleton().instance->versionNumber() < 33)
+		{
+			m_mode = mode; // glPolygonmode for gl 3.2 or earlier
+			mode = oe::polygon_mode::fill; // construct shader without geometry stage
+		}
 
-		m_shader = oe::graphics::Shader(info);
+		try {
+			m_shader = oe::graphics::Shader(default_shader_info.at(Engine::getSingleton().engine_info.api).at(mode));
+		} catch(...) {
+			oe_error_terminate("Unknown polygonmode: {} or graphics api: {}", static_cast<int>(mode), static_cast<int>(Engine::getSingleton().engine_info.api));
+		}
 	}
 
 	void DefaultShader::bind() const
 	{
 		m_shader->bind();
+		if(m_mode != oe::polygon_mode::fill) oe::Engine::getSingleton().polygonMode(m_mode);
 	}
 
 	void DefaultShader::unbind() const
 	{
 		m_shader->unbind();
+		oe::Engine::getSingleton().polygonMode(oe::polygon_mode::fill);
 	}
 
 	void DefaultShader::setProjectionMatrix(const glm::mat4& pr_mat)
@@ -152,17 +158,17 @@ namespace oe::assets {
 
 	void DefaultShader::updateMVP() const
 	{
-		m_shader->setUniformMat4("mvp_matrix", m_pr_mat * m_vw_mat * m_ml_mat);
+		m_shader->setUniform("mvp_matrix", m_pr_mat * m_vw_mat * m_ml_mat);
 	}
 
 	void DefaultShader::setColor(const glm::vec4& color) const
 	{
-		m_shader->setUniform4f("u_color", color);
+		m_shader->setUniform("u_color", color);
 	}
 
 	void DefaultShader::setTexture(bool use) const
 	{
-		m_shader->setUniform1i("u_usetex", use);
+		m_shader->setUniform("u_usetex", (int)use);
 	}
 
 }

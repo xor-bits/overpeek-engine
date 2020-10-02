@@ -10,10 +10,6 @@ namespace oe::gui
 {
     struct ListInfo
     {
-		glm::ivec2 size                    = { 100, 300 };
-		glm::ivec2 offset_position         = { 0, 0 };
-		glm::vec2 align_parent             = oe::alignments::top_left;
-		glm::vec2 align_render             = oe::alignments::top_left;
         bool scrollable                    = true;
         int element_borders                = 5;
 		glm::vec4 bg_color                 = { 0.17f, 0.17f, 0.17f, 1.0f };
@@ -22,7 +18,9 @@ namespace oe::gui
         glm::vec4 title_bg_color           = oe::colors::darker_grey;
         int title_height                   = 0; // 28
         int title_font_size                = 16;
-		const oe::graphics::Sprite* sprite = nullptr; // must be set
+		const oe::graphics::Sprite* sprite = nullptr;
+
+		WidgetInfo widget_info = { { 100, 300 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
     };
 
 	class SpritePanel;
@@ -43,11 +41,8 @@ namespace oe::gui
 		ListInfo m_list_info;
 
 	public:
-		List(const ListInfo& list_info);
+		List(Widget* parent, GUI& gui_manager, const ListInfo& list_info = {});
 		~List();
-
-		virtual void managerAssigned(GUI* gui_manager) override;
-		virtual void managerUnassigned(GUI* gui_manager) override;
 
 		// this class will take ownership of this pointer
 		void add(size_t pos, Widget* widget);
@@ -57,6 +52,8 @@ namespace oe::gui
 
 		const std::vector<Widget*>& get() const { return list; }
 
+		virtual void virtual_toggle(bool enabled) override;
+	
 	private:
 		// events
 		void on_render(const GUIRenderEvent& event);
