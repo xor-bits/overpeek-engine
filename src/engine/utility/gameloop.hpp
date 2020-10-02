@@ -183,14 +183,14 @@ namespace oe::utils
 		}
 
 		template<size_t ups> // for smooth animations when ups is low < 0.0f - 1.0f >
-		[[nodiscard]] inline std::chrono::nanoseconds getUpdateLag() const
+		[[nodiscard]] inline float getUpdateLag() const
 		{
 			auto iter = m_update_systems.find(ups);
 			if(iter == m_update_systems.end())
 				0.0f;
 			
 			auto cast_to_float_dur = [](auto dur){ return std::chrono::duration_cast<std::chrono::duration<float, std::nano>>(dur); };
-			return cast_to_float_dur(updatesystem->m_update_time_target).count() / cast_to_float_dur(updatesystem->m_update_time_target).count();
+			return cast_to_float_dur(iter->second->m_update_time_target).count() / cast_to_float_dur(iter->second->m_update_time_target).count();
 		};
 
 		inline entt::dispatcher& getDispatcher() { return dispatcher; }

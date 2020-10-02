@@ -155,7 +155,12 @@ void resize(const oe::ResizeEvent& event)
 void update_30(oe::UpdateEvent<30>)
 {
 	auto& gameloop = window->getGameloop();
-	std::u32string perf_info = fmt::format(U"- frametime: {:3.3f} ms ({} fps)\n- updatetime: {:3.3f} ms ({} ups)", gameloop.getFrametimeMS(), gameloop.getAverageFPS(), gameloop.getUpdatetimeMS<updates_per_second>(), gameloop.getAverageUPS<updates_per_second>());
+	std::u32string perf_info = fmt::format(
+		U"- frametime: {:3.3f} ms ({} fps)\n- updatetime: {:3.3f} ms ({} ups)",
+		std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gameloop.getFrametime()).count(),
+		gameloop.getAverageFPS(),
+		std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gameloop.getUpdatetime<30>()).count(),
+		gameloop.getAverageUPS<30>());
 	text_label->text_panel_info.text = perf_info;
 }
 

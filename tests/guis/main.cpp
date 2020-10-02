@@ -183,7 +183,7 @@ void update_30(oe::UpdateEvent<30>)
 {
 	auto& gameloop = window->getGameloop(); 
 	std::u32string str = fmt::format(
-		U"frametime: {:3.3f} ms ({} fps) updatetime: {:3.3f} ms ({} ups)",
+		U"- frametime: {:3.3f} ms ({} fps)\n- updatetime: {:3.3f} ms ({} ups)",
 		std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gameloop.getFrametime()).count(),
 		gameloop.getAverageFPS(),
 		std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gameloop.getUpdatetime<30>()).count(),
