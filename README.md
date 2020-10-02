@@ -27,7 +27,8 @@ node: Vulkan build is experimental and still lacking basic features
 - OpenGL
 - Vulkan (if BUILD_VULKAN=TRUE)
 - OpenAL
-- vcpkg
+- CMake
+- Vcpkg
 
 #### vcpkg packages
 ```vcpkg install openal-soft glfw3 glad box2d libzip enet freetype ms-gsl entt spdlog fmt stb minimp3 glm gcem```
