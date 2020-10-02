@@ -35,10 +35,10 @@ cmake -DBUILD_TESTS=TRUE -DBUILD_VULKAN=TRUE ..
 - OpenAL
 - vcpkg
 
-# vcpkg packages
+#### vcpkg packages
 ```vcpkg install openal-soft glfw3 glad box2d libzip enet freetype ms-gsl entt spdlog fmt stb minimp3 glm gcem```
 optionally shaderc and/or vulkan' ```vcpkg install shaderc vulkan```
-# additional glfw3 dependencies for ubuntu:
+#### additional glfw3 dependencies for ubuntu:
 sudo apt install libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev libxrandr-dev
 
 ### Features
@@ -55,13 +55,13 @@ sudo apt install libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev libxra
 I created this as I am making my game entirely from scratch and I thought someone could find this project somewhat useful. Or so I hope.
 
 ### Demo images
-# tests/guis
+#### tests/guis
 - Simple gui demo
 - List Widget is under developement so the quad is not animated
 
 ![guis](/.github/tests/guis.png)
 
-# tests/entities
+#### tests/entities
 - Box2D physics and entt entities
 - Translucent bordered window
 
