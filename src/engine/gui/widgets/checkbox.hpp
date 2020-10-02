@@ -39,11 +39,13 @@ namespace oe::gui
 
 	public:
 		CheckboxInfo m_checkbox_info;
+		bool& m_value;
 		CheckboxHoverEvent event_hover_latest;
 		CheckboxUseEvent event_use_latest;
 
 	public:
-		Checkbox(Widget* parent, GUI& gui_manager, const CheckboxInfo& checkbox_info = {});
+		Checkbox(Widget* parent, GUI& gui_manager, bool& value_ref, const CheckboxInfo& checkbox_info = {});
+		Checkbox(Widget* parent, GUI& gui_manager, const CheckboxInfo& checkbox_info = {}) : Checkbox(parent, gui_manager, m_checkbox_info.initial, checkbox_info) {}
 		~Checkbox();
 
 		virtual void virtual_toggle(bool enabled) override;

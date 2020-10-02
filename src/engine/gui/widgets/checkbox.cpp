@@ -9,9 +9,10 @@
 
 namespace oe::gui
 {
-	Checkbox::Checkbox(Widget* parent, GUI& gui_manager, const CheckboxInfo& _checkbox_info)
+	Checkbox::Checkbox(Widget* parent, GUI& gui_manager, bool& value_ref, const CheckboxInfo& _checkbox_info)
 		: Widget(parent, gui_manager, _checkbox_info.widget_info)
 		, m_checkbox_info(_checkbox_info)
+		, m_value(value_ref)
 	{
 		ButtonInfo button_info;
 		button_info.widget_info = { m_info.size, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
@@ -57,13 +58,7 @@ namespace oe::gui
 		quad_box->setColor(m_checkbox_info.color_back);
 		quad_box->setSprite(m_checkbox_info.sprite);
 
-		if (m_checkbox_info.initial) {
-			quad_check->setSize(static_cast<glm::vec2>(m_info.size) * 0.7f);
-		}
-		else
-		{
-			quad_check->setSize({ 0.0f, 0.0f });
-		}
+		quad_check->setSize(m_value ? static_cast<glm::vec2>(m_info.size) * 0.7f : glm::vec2{ 0.0f, 0.0f });
 		quad_check->setPosition(static_cast<glm::vec2>(render_position + m_info.size / 2));
 		quad_check->setZ(z + 0.05f);
 		quad_check->setColor(m_checkbox_info.color_mark);
@@ -73,14 +68,13 @@ namespace oe::gui
 
 	void Checkbox::on_button_use(const ButtonUseEvent& e)
 	{
-		if (e.button == oe::mouse_buttons::button_left && e.action == oe::actions::release) {
-			m_checkbox_info.initial = !m_checkbox_info.initial;
-		}
+		if (e.button == oe::mouse_buttons::button_left && e.action == oe::actions::release)
+			m_value = !m_value;
 		
 		event_use_latest.action = e.action;
 		event_use_latest.button = e.button;
 		event_use_latest.modifier = e.modifier;
-		event_use_latest.value = m_checkbox_info.initial;
+		event_use_latest.value = m_value;
 		dispatcher.trigger(event_use_latest);
 	}
 

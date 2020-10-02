@@ -99,7 +99,7 @@ void cube()
 {
 	// shader and model matrix
 	glm::vec4 quat_slider_val = quat_slider ? quat_slider->m_value : glm::vec4(0.0f);
-	if (checkbox && checkbox->m_checkbox_info.initial)
+	if (checkbox && checkbox->m_value)
 	{
 		cube_rotation = glm::angleAxis(quat_slider_val.w, glm::normalize(glm::vec3(quat_slider_val.x, quat_slider_val.y, quat_slider_val.z)));
 	}
