@@ -71,7 +71,7 @@ namespace oe::utils
 	{
 	private:
 		PerfLogger m_render_perf_logger;
-		std::chrono::seconds m_frame_counter_start = std::chrono::seconds::zero();
+		std::chrono::duration<float> m_frame_counter_start = std::chrono::duration<float>::zero();
 		entt::dispatcher dispatcher;
 
 		std::unordered_map<size_t, std::unique_ptr<UpdateSystemBase>> m_update_systems;
@@ -84,7 +84,7 @@ namespace oe::utils
 
 	public:
 		GameLoop(oe::graphics::IWindow* window) noexcept : m_host_window(window) {}
-		constexpr GameLoop(const GameLoop&) noexcept = delete;
+		GameLoop(const GameLoop&) = delete;
 
 		void start();
 		void stop() noexcept;
