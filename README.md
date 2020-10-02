@@ -7,27 +7,21 @@ Should be easy to use.
  - Linux
  - OSX, (most likely not working, as I do not own any Apple devices)
 
-## Cloning
-```
-git clone --recursive https://github.com/Overpeek/overpeek-engine.git
-```
-
-#### CMake
+## Building
+#### Building
 ```
 mkdir build
 cd build
 cmake ..
 ```
-```
-mkdir build
-cd build
-cmake -DBUILD_TESTS=TRUE ..
-```
-```
-mkdir build
-cd build
-cmake -DBUILD_TESTS=TRUE -DBUILD_VULKAN=TRUE ..
-```
+possible cmake arguments:
+-DBUILD_TESTS=(ON/OFF)
+-DOE_BUILD_MODE=(0/1/2)
+
+buildmode 0 being OpenGL only,
+buildmode 1 being OpenGL with shaderc and
+buildmode 2 being Vulkan/OpenGL with shaderc
+node: Vulkan build is experimental and still lacking basic features
 
 #### Depends on:
 - OpenGL
