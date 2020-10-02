@@ -33,6 +33,13 @@ cmake -DBUILD_TESTS=TRUE -DBUILD_VULKAN=TRUE ..
 - OpenGL
 - Vulkan (if BUILD_VULKAN=TRUE)
 - OpenAL
+- vcpkg
+
+# vcpkg packages
+```vcpkg install openal-soft glfw3 glad box2d libzip enet freetype ms-gsl entt spdlog fmt stb minimp3 glm gcem```
+optionally shaderc and/or vulkan' ```vcpkg install shaderc vulkan```
+# additional glfw3 dependencies for ubuntu:
+sudo apt install libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev libxrandr-dev
 
 ### Features
 - Window creation (glfw) 
