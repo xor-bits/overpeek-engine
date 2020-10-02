@@ -34,9 +34,11 @@ namespace oe::gui
 		Widget* m_parent;
 		std::unordered_set<std::shared_ptr<Widget>> m_nodes;
 		static float z_acc;
-
+		
 		bool toggle_pending = false;
 		bool toggle_pending_value = false;
+
+		std::vector<oe::utils::connect_guard> m_user_event_cg_guards;
 
 	protected:
 		GUI& m_gui_manager;
@@ -75,6 +77,7 @@ namespace oe::gui
 			dispatcher.sink<Event>().template disconnect<Listener>();
 		}
 
+		// create subwidget
 		template<typename T, typename ... Args>
 		std::shared_ptr<T> create(Args& ... args)
 		{
@@ -82,12 +85,25 @@ namespace oe::gui
 			(*m_nodes.insert(ptr).first)->base_toggle(ptr->m_info.toggled);
 			return ptr;
 		}
+
+		// remove subwidget
 		template<typename T>
 		void remove(const std::shared_ptr<T>& widget)
 		{
 			m_nodes.erase(widget);
 		}
 
+		// remove all subwidgets
+		void clear()
+		{
+			m_nodes.clear();
+		}
+
+		// refrence will be invalidated after the next call to create_event_cg or clear_event_cg
+		[[nodiscard]] oe::utils::connect_guard& create_event_cg();
+		void clear_event_cg() noexcept;
+
+		// for internal render sorting
 		inline float getZ() { return z; }
 		inline void overrideZ(float _z) { z = _z; }
 		

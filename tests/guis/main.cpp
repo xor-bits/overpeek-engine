@@ -263,13 +263,12 @@ void setup_gui()
 			button_info.text_font_size = 18;
 			auto button = checkbox->create<oe::gui::DecoratedButton>(button_info);
 
-			auto callback_lambda = [&](const oe::gui::ButtonUseEvent& e) {
+			button->create_event_cg().connect<oe::gui::ButtonUseEvent>(button->dispatcher, [&](const oe::gui::ButtonUseEvent& e) {
 				if (e.action == oe::actions::release && e.button == oe::mouse_buttons::button_left) {
 					glm::vec4 quat_slider_val = quat_slider->m_value;
 					append_list(glm::angleAxis(quat_slider_val.w, glm::normalize(glm::vec3(quat_slider_val.x, quat_slider_val.y, quat_slider_val.z))));
 				}
-			};
-			button->connect_listener<oe::gui::ButtonUseEvent, &decltype(callback_lambda)::operator()>(callback_lambda);
+			});
 		}
 	}
 	{
@@ -280,11 +279,10 @@ void setup_gui()
 		color_picker_info.popup_color_picker_wheel = true;
 		color_picker = gui->create<oe::gui::ColorPicker>(color_picker_info);
 
-		auto picker_callback_lambda = [&](const oe::gui::ColorPickerUseEvent& e)
+		color_picker->create_event_cg().connect<oe::gui::ColorPickerUseEvent>(color_picker->dispatcher, [&](const oe::gui::ColorPickerUseEvent& e)
 		{
 			color = e.value;
-		};
-		color_picker->connect_listener<oe::gui::ColorPickerUseEvent, &decltype(picker_callback_lambda)::operator()>(picker_callback_lambda);
+		});
 	}
 	{
 		oe::gui::TextPanelInfo text_panel_info;

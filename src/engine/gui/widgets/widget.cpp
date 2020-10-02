@@ -29,6 +29,17 @@ namespace oe::gui
 	{
 		toggle(false);
 	}
+
+	oe::utils::connect_guard& Widget::create_event_cg()
+		{
+			m_user_event_cg_guards.push_back({});
+			return m_user_event_cg_guards.back();
+		}
+
+	void Widget::clear_event_cg() noexcept
+	{
+		m_user_event_cg_guards.clear();
+	}
 	
 	void Widget::base_toggle(bool enabled)
 	{

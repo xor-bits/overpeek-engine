@@ -54,15 +54,24 @@ namespace oe::gui
 
 		void short_resize();
 
+		// create subwidget
 		template<typename T, typename ... Args>
 		std::shared_ptr<T> create(Args& ... args)
 		{
 			return m_main_frame->create<T>(args...);
 		}
+
+		// remove subwidget
 		template<typename T>
 		void remove(const std::shared_ptr<T>& widget)
 		{
-			return m_main_frame->remove<T>(widget);
+			m_main_frame->remove<T>(widget);
+		}
+
+		// remove all subwidgets
+		void clear()
+		{
+			m_main_frame->clear();
 		}
 		
 		// bind SpritePacker that you used to create Font and all Sprites for StaticTextureViews

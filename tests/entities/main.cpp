@@ -182,7 +182,7 @@ void gui()
 	gui_manager = new oe::gui::GUI(window);
 	{
 		oe::gui::SliderInfo s_info;
-		s_info.widget_info.size = { 250, 30 };
+		s_info.widget_info.size = { 50, 16 };
 		s_info.widget_info.align_parent = oe::alignments::top_left;
 		s_info.widget_info.align_render = oe::alignments::top_left;
 		s_info.widget_info.offset_position = { 0, 50 };
@@ -193,13 +193,34 @@ void gui()
 		s_info.value_bounds = { -10.0f, 10.0f, };
 		s_info.draw_value = true;
 		auto slider = gui_manager->create<oe::gui::Slider>(s_info);
-		auto callback_lambda = [&](const oe::gui::SliderUseEvent& e)
+
+		slider->create_event_cg().connect<oe::gui::SliderUseEvent>(slider->dispatcher, [&](const oe::gui::SliderUseEvent& e)
 		{
 			world->m_scene.view<std::unique_ptr<MotorScript>>().each([&e](std::unique_ptr<MotorScript>& src) {
 				src->motor_joint->SetMotorSpeed(e.value);
 			});
-		};
-		slider->connect_listener<oe::gui::SliderUseEvent, &decltype(callback_lambda)::operator()>(callback_lambda);
+		});
+	}
+	{
+		oe::gui::SliderInfo s_info;
+		s_info.widget_info.size = { 50, 16 };
+		s_info.widget_info.align_parent = oe::alignments::top_left;
+		s_info.widget_info.align_render = oe::alignments::top_left;
+		s_info.widget_info.offset_position = { 0, 50 };
+		s_info.slider_lcolor = oe::colors::red;
+		s_info.slider_rcolor = oe::colors::green;
+		s_info.linear_color = true;
+		s_info.slider_sprite = pack->emptySprite();
+		s_info.value_bounds = { -10.0f, 10.0f, };
+		s_info.draw_value = true;
+		auto slider = gui_manager->create<oe::gui::Slider>(s_info);
+
+		slider->create_event_cg().connect<oe::gui::SliderUseEvent>(slider->dispatcher, [&](const oe::gui::SliderUseEvent& e)
+		{
+			world->m_scene.view<std::unique_ptr<MotorScript>>().each([&e](std::unique_ptr<MotorScript>& src) {
+				src->motor_joint->SetMotorSpeed(e.value);
+			});
+		});
 	}
 	{
 		oe::gui::TextPanelInfo tp_info;
