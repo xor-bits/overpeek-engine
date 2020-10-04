@@ -285,6 +285,13 @@ void setup_gui()
 		});
 	}
 	{
+		oe::gui::NumberInputInfo number_input_info;
+		number_input_info.initial_value = 42.0f;
+		number_input_info.widget_info = { { 30, 18 }, { 0, 0 }, oe::alignments::top_center, oe::alignments::top_center };
+		number_input_info.sprite = pack->emptySprite();
+		auto number_input = gui->create<oe::gui::NumberInput>(number_input_info);
+	}
+	{
 		oe::gui::TextPanelInfo text_panel_info;
 		text_panel_info.widget_info = { { 0, 0 }, { 0, 0 }, oe::alignments::top_left, oe::alignments::top_left };
 		text_panel_info.font_size = 20;

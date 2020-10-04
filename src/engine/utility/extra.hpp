@@ -61,26 +61,26 @@ namespace oe::utils {
 			return false;
 
 		glm::vec<dim, T> vec;
-		std::memcpy(&to.x, from.data(), dim * sizeof(T));
+		std::memcpy(glm::value_ptr(to), from.data(), dim * sizeof(T));
 		return true;
 	}
 	template<size_t dim, typename T>
 	bool vecToContainer(const glm::vec<dim, T>& from, std::vector<T>& to)
 	{
 		to.resize(dim);
-		std::memcpy(to.data(), &from.x, dim * sizeof(T));
+		std::memcpy(to.data(), glm::value_ptr(from), dim * sizeof(T));
 		return true;
 	}
 	template<size_t dim, typename T>
 	bool containerToVec(const std::array<T, dim>& from, glm::vec<dim, T>& to)
 	{
-		std::memcpy(&to.x, from.data(), dim * sizeof(T));
+		std::memcpy(glm::value_ptr(to), from.data(), dim * sizeof(T));
 		return true;
 	}
 	template<size_t dim, typename T>
 	bool vecToContainer(const glm::vec<dim, T>& from, std::array<T, dim>& to)
 	{
-		std::memcpy(to.data(), &from.x, dim * sizeof(T));
+		std::memcpy(to.data(), glm::value_ptr(from), dim * sizeof(T));
 		return true;
 	}
 	

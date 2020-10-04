@@ -2,6 +2,7 @@
 
 #include "widget.hpp"
 #include "engine/graphics/primitives.hpp"
+#include "engine/enum.hpp"
 
 
 

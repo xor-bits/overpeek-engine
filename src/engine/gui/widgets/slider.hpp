@@ -3,6 +3,7 @@
 #include "widget.hpp"
 #include "engine/graphics/textLabel.hpp"
 #include "engine/utility/fileio.hpp"
+#include "engine/enum.hpp"
 
 
 

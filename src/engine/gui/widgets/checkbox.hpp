@@ -1,6 +1,7 @@
 #pragma once
 
 #include "widget.hpp"
+#include "engine/enum.hpp"
 
 
 

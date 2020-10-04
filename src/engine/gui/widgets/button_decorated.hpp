@@ -2,6 +2,7 @@
 
 #include "widget.hpp"
 #include "button.hpp"
+#include "engine/enum.hpp"
 
 
 

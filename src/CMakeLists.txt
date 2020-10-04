@@ -173,6 +173,12 @@ set(source_list ${source_list}
 	"engine/utility/zip.hpp"
 	"engine/utility/connect_guard.hpp"
 	"engine/utility/connect_guard_additions.hpp"
+	"engine/utility/text_edit.hpp"
+	"engine/utility/text_edit_common.hpp"
+	"engine/utility/text_edit_char.cpp"
+	"engine/utility/text_edit_wchar_t.cpp"
+	"engine/utility/text_edit_char16_t.cpp"
+	"engine/utility/text_edit_char32_t.cpp"
 )
 
 set(target_name "engine")
