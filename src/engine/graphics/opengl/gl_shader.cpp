@@ -17,9 +17,11 @@
 
 
 
-namespace oe::graphics {
+namespace oe::graphics
+{
 
-	unsigned int GLShader::loadShader(const std::string_view& name, const std::string_view& source, unsigned int shadertype) {
+	unsigned int GLShader::loadShader(const std::string_view& name, const std::string_view& source, unsigned int shadertype)
+	{
 		//Load and compile
 		const char* shaderChar = source.data();
 
@@ -33,7 +35,8 @@ namespace oe::graphics {
 		return shader;
 	}
 
-	void GLShader::shaderLog(const std::string_view& name, unsigned int shader, unsigned int type) const {
+	void GLShader::shaderLog(const std::string_view& name, unsigned int shader, unsigned int type) const
+	{
 		int success = false;
 		glGetShaderiv(shader, type, &success);
 		if (!success)
@@ -48,7 +51,8 @@ namespace oe::graphics {
 		}
 	}
 
-	void GLShader::programLog(const std::string_view& name, int program, unsigned int type) const {
+	void GLShader::programLog(const std::string_view& name, int program, unsigned int type) const
+	{
 		int success = false;
 		glGetProgramiv(program, type, &success);
 		if (!success)
@@ -82,7 +86,8 @@ namespace oe::graphics {
 
 			shaderc::Compiler compiler = shaderc::Compiler();
 			shaderc::CompileOptions options = shaderc::CompileOptions();
-			options.SetOptimizationLevel(shaderc_optimization_level::shaderc_optimization_level_performance);
+			if(shader_info.shaderc_optimize)
+				options.SetOptimizationLevel(shaderc_optimization_level::shaderc_optimization_level_performance);
 			options.SetIncluder(std::move(includer));
 			auto result = compiler.PreprocessGlsl(stage.source.data(), shader_kind(stage.stage), shader_module_name(shader_info.name.data(), stage.stage).c_str(), options);
 			size_t code_size = (result.end() - result.begin()) * sizeof(uint32_t);
@@ -138,7 +143,8 @@ namespace oe::graphics {
 		}
 	}
 
-	GLShader::~GLShader() {
+	GLShader::~GLShader()
+	{
 		glDeleteProgram(p_shader_program);
 	}
 
@@ -199,13 +205,33 @@ namespace oe::graphics {
 		return location;
 	}
 
-	void GLShader::setUniform1f(const std::string& name, float value) { glUniform1f(location(this, name), value); }
-	void GLShader::setUniform2f(const std::string& name, const glm::fvec2& value) { glUniform2f(location(this, name), value.x, value.y); }
-	void GLShader::setUniform3f(const std::string& name, const glm::fvec3& value) { glUniform3f(location(this, name), value.x, value.y, value.z); }
-	void GLShader::setUniform4f(const std::string& name, const glm::fvec4& value) { glUniform4f(location(this, name), value.x, value.y, value.z, value.w); }
-	void GLShader::setUniform1i(const std::string& name, int value) { glUniform1i(location(this, name), value); }
-	void GLShader::setUniform2i(const std::string& name, const glm::ivec2& value) { glUniform2i(location(this, name), value.x, value.y); }
-	void GLShader::setUniform3i(const std::string& name, const glm::ivec3& value) { glUniform3i(location(this, name), value.x, value.y, value.z); }
-	void GLShader::setUniform4i(const std::string& name, const glm::ivec4& value) { glUniform4i(location(this, name), value.x, value.y, value.z, value.w); }
-	void GLShader::setUniformMat4(const std::string& name, const glm::mat4& value) { glUniformMatrix4fv(location(this, name), 1, GL_FALSE, glm::value_ptr(value)); }
+	void GLShader::setUniform(const std::string& name, const float value) { glUniform1f(location(this, name), value); }
+	void GLShader::setUniform(const std::string& name, const glm::fvec2& value) { glUniform2f(location(this, name), value.x, value.y); }
+	void GLShader::setUniform(const std::string& name, const glm::fvec3& value) { glUniform3f(location(this, name), value.x, value.y, value.z); }
+	void GLShader::setUniform(const std::string& name, const glm::fvec4& value) { glUniform4f(location(this, name), value.x, value.y, value.z, value.w); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const float* values) { glUniform1fv(location(this, name), count, values); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const glm::fvec2* values) { glUniform2fv(location(this, name), count, glm::value_ptr(values[0])); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const glm::fvec3* values) { glUniform3fv(location(this, name), count, glm::value_ptr(values[0])); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const glm::fvec4* values) { glUniform4fv(location(this, name), count, glm::value_ptr(values[0])); }
+	
+	void GLShader::setUniform(const std::string& name, const int32_t value) { glUniform1i(location(this, name), value); }
+	void GLShader::setUniform(const std::string& name, const glm::ivec2& value) { glUniform2i(location(this, name), value.x, value.y); }
+	void GLShader::setUniform(const std::string& name, const glm::ivec3& value) { glUniform3i(location(this, name), value.x, value.y, value.z); }
+	void GLShader::setUniform(const std::string& name, const glm::ivec4& value) { glUniform4i(location(this, name), value.x, value.y, value.z, value.w); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const int32_t* values) { glUniform1iv(location(this, name), count, values); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const glm::ivec2* values) { glUniform2iv(location(this, name), count, glm::value_ptr(values[0])); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const glm::ivec3* values) { glUniform3iv(location(this, name), count, glm::value_ptr(values[0])); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const glm::ivec4* values) { glUniform4iv(location(this, name), count, glm::value_ptr(values[0])); }
+	
+	void GLShader::setUniform(const std::string& name, const uint32_t value) { glUniform1ui(location(this, name), value); }
+	void GLShader::setUniform(const std::string& name, const glm::uvec2& value) { glUniform2ui(location(this, name), value.x, value.y); }
+	void GLShader::setUniform(const std::string& name, const glm::uvec3& value) { glUniform3ui(location(this, name), value.x, value.y, value.z); }
+	void GLShader::setUniform(const std::string& name, const glm::uvec4& value) { glUniform4ui(location(this, name), value.x, value.y, value.z, value.w); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const uint32_t* values) { glUniform1uiv(location(this, name), count, values); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const glm::uvec2* values) { glUniform2uiv(location(this, name), count, glm::value_ptr(values[0])); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const glm::uvec3* values) { glUniform3uiv(location(this, name), count, glm::value_ptr(values[0])); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const glm::uvec4* values) { glUniform4uiv(location(this, name), count, glm::value_ptr(values[0])); }
+	
+	void GLShader::setUniform(const std::string& name, const glm::mat4& value) { glUniformMatrix4fv(location(this, name), 1, GL_FALSE, glm::value_ptr(value)); }
+	void GLShader::setUniform(const std::string& name, const size_t count, const glm::mat4* value) { glUniformMatrix4fv(location(this, name), count, GL_FALSE, glm::value_ptr(value[0])); }
 }

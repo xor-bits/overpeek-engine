@@ -11,23 +11,23 @@ namespace oe::graphics
 	{
 	private:
 		unsigned int p_id;
-		size_t p_size;
+		int32_t p_size;
 		int p_target;
 
 	public:
-		StorageBuffer(const void* data, size_t size, oe::types buffer_type);
+		StorageBuffer(const void* data, int32_t size, oe::types buffer_type);
 
 		void bind() const;
 		void unbind() const;
-		void compute(size_t binding) const;
+		void compute(int32_t binding) const;
 
 		void* mapBuffer();
 		void unmapBuffer();
-		void setBufferData(const void* data, size_t size);
+		void setBufferData(const void* data, int32_t size);
 
-		inline size_t getSize() const { return p_size; }
-		inline size_t getId() const { return p_id; }
-		inline size_t getTarget() const { return p_target; }
+		inline int32_t getSize() const { return p_size; }
+		inline int32_t getId() const { return p_id; }
+		inline int32_t getTarget() const { return p_target; }
 
 	};
 }

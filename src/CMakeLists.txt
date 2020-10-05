@@ -5,14 +5,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_USE_RELATIVE_PATHS TRUE)
 set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
-# packages
-set(OpenGL_GL_PREFERENCE GLVND) # required
-find_package(OpenGL REQUIRED)
-find_package(OpenAL REQUIRED)
-if(OE_BUILD_MODE EQUAL 2)
-	find_package(Vulkan REQUIRED)
-endif()
-
 # sources
 set(source_list "")
 set(source_list ${source_list} 
@@ -23,6 +15,7 @@ set(source_list ${source_list}
 	"engine/include.hpp"
 	"engine/interfacegen.hpp"
 	"engine/interfacegen.cpp"
+	"engine/interfacegen_renderer.hpp"
 )
 set(source_list ${source_list} 
 	"engine/assets/default_shader/default_shader.cpp"
@@ -39,6 +32,14 @@ set(source_list ${source_list}
 	"engine/audio/audio.hpp"
 )
 set(source_list ${source_list} 
+	"engine/ecs/components/all.hpp"
+	"engine/ecs/components/quad.hpp"
+	"engine/ecs/entity.cpp"
+	"engine/ecs/entity.hpp"
+	"engine/ecs/world.hpp"
+	"engine/ecs/world.cpp"
+)
+set(source_list ${source_list} 
 	"engine/graphics/font.cpp"
 	"engine/graphics/font.hpp"
 	"engine/graphics/sprite.cpp"
@@ -48,15 +49,16 @@ set(source_list ${source_list}
 	"engine/graphics/textLabel.cpp"
 	"engine/graphics/textLabel.hpp"
 	"engine/graphics/vertexData.hpp"
+	"engine/graphics/primitives.cpp"
+	"engine/graphics/primitives.hpp"
+	"engine/graphics/renderer.cpp"
+	"engine/graphics/renderer.hpp"
 )
 set(source_list ${source_list} 
 	"engine/graphics/interface/framebuffer.cpp"
 	"engine/graphics/interface/framebuffer.hpp"
 	"engine/graphics/interface/index_buffer_gen.hpp"
-	"engine/graphics/interface/instance.cpp"
 	"engine/graphics/interface/instance.hpp"
-	"engine/graphics/interface/renderer.cpp"
-	"engine/graphics/interface/renderer.hpp"
 	"engine/graphics/interface/primitive_renderer.hpp"
 	"engine/graphics/interface/shader.cpp"
 	"engine/graphics/interface/shader.hpp"
@@ -129,10 +131,10 @@ set(source_list ${source_list}
 	"engine/gui/widgets/button_decorated.hpp"
 	"engine/gui/widgets/checkbox.cpp"
 	"engine/gui/widgets/checkbox.hpp"
+	"engine/gui/widgets/color_slider.cpp"
+	"engine/gui/widgets/color_slider.hpp"
 	"engine/gui/widgets/color_picker.cpp"
 	"engine/gui/widgets/color_picker.hpp"
-	"engine/gui/widgets/form.cpp"
-	"engine/gui/widgets/form.hpp"
 	"engine/gui/widgets/slider.cpp"
 	"engine/gui/widgets/slider.hpp"
 	"engine/gui/widgets/vec_slider.hpp"
@@ -140,13 +142,16 @@ set(source_list ${source_list}
 	"engine/gui/widgets/sprite_panel.hpp"
 	"engine/gui/widgets/text_input.cpp"
 	"engine/gui/widgets/text_input.hpp"
+	"engine/gui/widgets/number_input.hpp"
 	"engine/gui/widgets/text_panel.cpp"
 	"engine/gui/widgets/text_panel.hpp"
 	"engine/gui/widgets/widget.cpp"
 	"engine/gui/widgets/widget.hpp"
 	"engine/gui/widgets/list.cpp"
 	"engine/gui/widgets/list.hpp"
-)
+	"engine/gui/widgets/graph.cpp"
+	"engine/gui/widgets/graph.hpp"
+	)
 set(source_list ${source_list} 
 	"engine/networking/client.cpp"
 	"engine/networking/client.hpp"
@@ -166,22 +171,18 @@ set(source_list ${source_list}
 	"engine/utility/random.hpp"
 	"engine/utility/zip.cpp"
 	"engine/utility/zip.hpp"
+	"engine/utility/connect_guard.hpp"
+	"engine/utility/connect_guard_additions.hpp"
+	"engine/utility/text_edit.hpp"
+	"engine/utility/text_edit_common.hpp"
+	"engine/utility/text_edit_char.cpp"
+	"engine/utility/text_edit_wchar_t.cpp"
+	"engine/utility/text_edit_char16_t.cpp"
+	"engine/utility/text_edit_char32_t.cpp"
 )
-# source grouping
-foreach(source IN ITEMS ${source_list})
-    get_filename_component(source_path "${CMAKE_CURRENT_SOURCE_DIR}/${source}" PATH)
-    file(RELATIVE_PATH relative_source_path "${CMAKE_CURRENT_SOURCE_DIR}" "${source_path}")
-	if(MSVC)
-		string(REPLACE "/" "\\" group ${relative_source_path})
-    else()
-		set(group ${relative_source_path})
-	endif()
-	source_group("${group}" FILES "${CMAKE_CURRENT_SOURCE_DIR}/${source}")
-endforeach()
 
-# engine
 set(target_name "engine")
-add_library(${target_name} STATIC ${source_list})
+add_library(${target_name} STATIC ${source_list} "engine/ecs/world.hpp" "engine/ecs/world.cpp"    "engine/interfacegen_renderer.hpp")
 set_target_properties(${target_name} PROPERTIES FOLDER engine)
 if(OE_BUILD_MODE EQUAL 0)
 	target_compile_definitions(${target_name} PUBLIC "OE_BUILD_MODE_GL")
@@ -190,16 +191,18 @@ elseif(OE_BUILD_MODE EQUAL 1)
 elseif(OE_BUILD_MODE EQUAL 2)
 	target_compile_definitions(${target_name} PUBLIC "OE_BUILD_MODE_VULKAN")
 endif()
+if(VCPKG_TOOLCHAIN)
+	target_compile_definitions(${target_name} PUBLIC "VCPKG_TOOLCHAIN")
+endif()
 
 # platform specific
 if (MSVC)
-set_target_properties(${target_name} PROPERTIES COMPILE_FLAGS "/MP") # multicore compile
-target_link_libraries(${target_name} PRIVATE "Ws2_32") # required by enet
-target_link_libraries(${target_name} PRIVATE "Winmm")  # required by enet
+	target_link_libraries(${target_name} PRIVATE "Ws2_32") # required by enet
+	target_link_libraries(${target_name} PRIVATE "Winmm")  # required by enet
 elseif(EMSCRIPTEN)
-# 
+	# 
 else()
-target_link_libraries(${target_name} PRIVATE "stdc++fs")
+	target_link_libraries(${target_name} PRIVATE "stdc++fs")
 endif()
 
 
@@ -211,74 +214,88 @@ set(${target_name}_INCLUDE_DIRS
 
 
 
-set(GLFW_INSTALL FALSE)
-set(GLFW_BUILD_DOCS FALSE)
-
-# add dependencies
-# box2d
-add_subdirectory("vendor/box2d")
-target_include_directories(${target_name} PUBLIC "vendor/box2d/include")
-target_link_libraries(${target_name} PRIVATE box2d)
-# glfw
-if (NOT EMSCRIPTEN)
-	add_subdirectory("vendor/glfw")
-	set_target_properties(glfw PROPERTIES FOLDER "engine/vendor")
-	target_include_directories(${target_name} PRIVATE ${glfw_INCLUDE_DIRS})
-	target_link_libraries(${target_name} PRIVATE glfw)
-else()
-	find_package(glfw3 3 REQUIRED)
-	target_link_libraries(${target_name} PRIVATE glfw)
-endif()
-# glad
-add_subdirectory("vendor/glad")
-set_target_properties(glad PROPERTIES FOLDER "engine/vendor")
-target_include_directories(${target_name} PRIVATE ${glad_INCLUDE_DIRS})
-target_link_libraries(${target_name} PRIVATE glad)
-# enet
-add_subdirectory("vendor/enet")
-set_target_properties(enet PROPERTIES FOLDER "engine/vendor")
-target_include_directories(${target_name} PRIVATE "vendor/enet/include")
-target_link_libraries(${target_name} PRIVATE enet)
-# miniz
-add_subdirectory("vendor/miniz")
-set_target_properties(miniz PROPERTIES FOLDER "engine/vendor")
-target_include_directories(${target_name} PUBLIC ${miniz_INCLUDE_DIRS})
-target_link_libraries(${target_name} PRIVATE miniz)
-# freetype
-add_subdirectory("vendor/freetype")
-set_target_properties(freetype PROPERTIES FOLDER "engine/vendor")
-target_include_directories(${target_name} PRIVATE ${freetype_INCLUDE_DIRS})
-target_link_libraries(${target_name} PRIVATE freetype)
-# glm
-target_include_directories(${target_name} PUBLIC "vendor/glm/include")
-# stb
-target_include_directories(${target_name} PRIVATE "vendor/stb/include")
-# entt
-target_include_directories(${target_name} PUBLIC "vendor/entt/include")
-# spdlog
-target_include_directories(${target_name} PUBLIC "vendor/spdlog/include")
-# minimp3
-target_include_directories(${target_name} PRIVATE "vendor/minimp3/include")
-# rectpack2D
-target_include_directories(${target_name} PRIVATE "vendor/rectpack2D/include")
-# vulkan
+# add deps
+set(OpenGL_GL_PREFERENCE GLVND)
+find_package(OpenGL REQUIRED)
 if(OE_BUILD_MODE EQUAL 2)
-	target_include_directories(${target_name} PRIVATE ${Vulkan_INCLUDE_DIRS})
-	target_link_libraries(${target_name} PRIVATE ${Vulkan_LIBRARIES})
+	find_package(Vulkan REQUIRED)
 endif()
-# openal
-if (NOT EMSCRIPTEN)
-	target_include_directories(${target_name} PRIVATE ${OPENAL_INCLUDE_DIR})
-	target_link_libraries(${target_name} PRIVATE ${OPENAL_LIBRARY})
-else()
-	target_link_libraries(${target_name} PRIVATE openal)
-endif()
-# opengl
-target_link_libraries(${target_name} PRIVATE ${OPENGL_LIBRARY})
-# shaderc
-if(OE_BUILD_MODE GREATER_EQUAL 1)
-	add_subdirectory("vendor/shaderc/src")
-	target_link_libraries(${target_name} PRIVATE shaderc)
-	target_include_directories(${target_name} PRIVATE "vendor/shaderc/src/libshaderc/include")
-	set_target_properties(shaderc PROPERTIES FOLDER "engine/vendor")
+if(VCPKG_TOOLCHAIN) # with vcpkg
+	message("OE using vcpkg")
+	target_link_libraries(${target_name} PRIVATE ${OPENGL_LIBRARY})
+
+	
+	if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+		set(_VCPKG_LIB_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/lib")
+	else()
+		set(_VCPKG_LIB_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
+	endif()
+	set(_VCPKG_INC_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
+	
+	target_include_directories(${target_name} PUBLIC "vendor/rectpack2D/include") # no rectpack2D in vcpkg
+	target_include_directories(${target_name} PUBLIC "${_VCPKG_INC_DIR}")
+	target_link_directories(${target_name} PUBLIC "${_VCPKG_LIB_DIR}")
+	
+# additional glfw3 dependencies for ubuntu:
+# sudo apt install libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev libxrandr-dev
+
+# vcpkg install openal-soft glfw3 glad box2d libzip enet freetype ms-gsl entt spdlog fmt stb minimp3 glm gcem
+# optionally shaderc and/or vulkan' vcpkg install shaderc vulkan
+	if(NOT UNIX)
+		find_package(OpenAL CONFIG REQUIRED)
+		target_link_libraries(${target_name} PRIVATE OpenAL::OpenAL)
+		find_package(freetype CONFIG REQUIRED)
+		target_link_libraries(${target_name} PRIVATE freetype)
+	else()
+		find_package(OpenAL REQUIRED)
+		target_link_libraries(${target_name} PRIVATE ${OPENAL_LIBRARY})
+		target_include_directories(${target_name} PUBLIC ${OPENAL_INCLUDE_DIR})
+		find_package(Freetype REQUIRED)
+		target_link_libraries(${target_name} PRIVATE ${FREETYPE_LIBRARIES})
+		target_include_directories(${target_name} PUBLIC ${FREETYPE_INCLUDE_DIRS})
+	endif()
+	find_package(glfw3 CONFIG REQUIRED)
+	target_link_libraries(${target_name} PRIVATE glfw)
+	find_package(glad CONFIG REQUIRED)
+	target_link_libraries(${target_name} PRIVATE glad::glad)
+	find_package(unofficial-box2d CONFIG REQUIRED)
+	target_link_libraries(${target_name} PRIVATE unofficial::box2d::box2d)
+	find_package(libzip CONFIG REQUIRED)
+    target_link_libraries(${target_name} PRIVATE zip)
+	target_link_libraries(${target_name} PRIVATE enet)
+	find_package(Microsoft.GSL CONFIG REQUIRED)
+	target_link_libraries(${target_name} PRIVATE Microsoft.GSL::GSL)
+	find_package(EnTT CONFIG REQUIRED)
+    target_link_libraries(${target_name} PRIVATE EnTT::EnTT)
+	find_package(spdlog CONFIG REQUIRED)
+	target_link_libraries(${target_name} PRIVATE spdlog::spdlog_header_only)
+	find_package(fmt CONFIG REQUIRED)
+	target_link_libraries(${target_name} PRIVATE fmt::fmt-header-only)
+	find_path(STB_INCLUDE_DIRS "stb.h")
+	target_include_directories(${target_name} PRIVATE ${STB_INCLUDE_DIRS})
+	find_path(MINIMP3_INCLUDE_DIRS "minimp3/minimp3.h")
+    target_include_directories(${target_name} PRIVATE ${MINIMP3_INCLUDE_DIRS})
+	find_package(gcem CONFIG REQUIRED)
+    target_link_libraries(${target_name} PRIVATE gcem)
+
+	# optional deps
+	if(OE_BUILD_MODE GREATER_EQUAL 1)
+		target_link_libraries(${target_name} PRIVATE shaderc_combined)
+	endif()
+	if(OE_BUILD_MODE EQUAL 2)
+		target_link_libraries(${target_name} PRIVATE vulkan)
+	endif()
+elseif(EMSCRIPTEN) # with emscripten
+	message("OE using emscripten")
+	# target_link_libraries(${target_name} PRIVATE ${OPENGL_LIBRARY})
+
+	# find_package(glfw3 3 REQUIRED)
+	# find_package(OpenAL REQUIRED)
+	
+	# target_include_directories(${target_name} PRIVATE ${OPENAL_INCLUDE_DIR})
+	
+	# target_link_libraries(${target_name} PRIVATE glfw)
+	# target_link_libraries(${target_name} PRIVATE openal)
+else() # dependency sources
+	message("OE using cmake deps")
 endif()

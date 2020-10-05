@@ -15,13 +15,19 @@
 #include <stb_image_write.h>
 
 #define MINIMP3_IMPLEMENTATION
-#include "minimp3_ex.h"
+#include <minimp3/minimp3_ex.h>
 
 #ifdef __EMSCRIPTEN__
 #include <AL/al.h>
+#elif defined(VCPKG_TOOLCHAIN)
+#include <AL/al.h>
+#include <AL/alc.h>
 #else
 #include <al.h>
 #endif
+
+// #include <miniz/miniz_zip.h>
+#include <zip.h>
 
 
 
@@ -63,9 +69,22 @@ namespace oe::utils
 	{
 		int channels;
 		data = stbi_load(path.string().c_str(), &width, &height, &channels, stb_i_format(_format));
-
+		
 		if (!data) {
 			oe_error_terminate("Failed to load imagefile \"{}\"", std::string(path.string().c_str()));
+		}
+
+		format = _format;
+		size = static_cast<size_t>(width) * static_cast<size_t>(height) * static_cast<size_t>(channels);
+	}
+
+	image_data::image_data(const uint8_t* _data, size_t data_size, oe::formats _format)
+	{
+		int channels;
+		data = stbi_load_from_memory(_data, data_size, &width, &height, &channels, stb_i_format(_format));
+		
+		if (!data) {
+			oe_error_terminate("Failed to load imagedata {}:{}", (size_t)_data, data_size);
 		}
 
 		format = _format;
@@ -90,9 +109,30 @@ namespace oe::utils
 		std::memcpy(data, _copied.data, size);
 	}
 
+	image_data::image_data(image_data&& move)
+		: format(move.format)
+		, width(move.width), height(move.height)
+		, size(move.size)
+		, data(move.data)
+	{
+		move.format = oe::formats::mono;
+		move.width = 0; move.height = 0;
+		move.size = 0;
+		move.data = 0;
+	}
+
 	image_data::~image_data()
 	{
 		delete data;
+	}
+
+	byte_string image_data::save() const
+	{
+		int channels = stb_i_channels(format);
+		int size;
+		std::unique_ptr<uint8_t[]> data_out(stbi_write_png_to_mem(data, width * channels, width, height, channels, &size));
+
+		return { data_out.get(), data_out.get() + size };
 	}
 
 	audio_data::audio_data(int _format, int _size, int _channels, int _sample_rate)
@@ -108,9 +148,32 @@ namespace oe::utils
 	{
 		mp3dec_t mp3d;
 		mp3dec_file_info_t info;
-		if (mp3dec_load(&mp3d, path.string().c_str(), &info, NULL, NULL)) {
+		if (mp3dec_load(&mp3d, path.string().c_str(), &info, NULL, NULL))
 			oe_error_terminate("Failed to load audiofile \"{}\"", std::string(path.string().c_str()));
+
+		size = info.samples * sizeof(int16_t);
+		data = info.buffer;
+		channels = info.channels;
+		sample_rate = info.hz;
+
+		// Format
+		format = -1;
+		if (info.channels == 1) {
+			format = AL_FORMAT_MONO16;
 		}
+		else if (info.channels == 2) {
+			format = AL_FORMAT_STEREO16;
+		}
+	}
+
+	audio_data::audio_data(const uint8_t* _data, size_t data_size)
+	{
+		mp3dec_t mp3d;
+		mp3dec_file_info_t info;
+		mp3dec_load_buf(&mp3d, _data, data_size, &info, NULL, NULL);
+		if (!info.buffer)
+			oe_error_terminate("Failed to load audiodata {}:{}", (size_t)_data, data_size);
+		
 
 		size = info.samples * sizeof(int16_t);
 		data = info.buffer;
@@ -147,62 +210,288 @@ namespace oe::utils
 		std::memcpy(data, _copied.data, size);
 	}
 
+	audio_data::audio_data(audio_data&& move)
+		: format(move.format)
+		, size(move.size)
+		, channels(move.channels)
+		, sample_rate(move.sample_rate)
+		, data(move.data)
+	{
+		move.format = 0;
+		move.size = 0;
+		move.channels = 0;
+		move.sample_rate = 0;
+		move.data = 0;
+	}
+
 	audio_data::~audio_data() {
 		delete data;
 	}
 
 }
 
-namespace oe::utils { // just to make the code look prettier
+namespace oe::utils
+{
+	std::unordered_map<size_t, oe::utils::byte_string> font_file_map;
+	FontFile::FontFile(const oe::utils::FileIO& path)
+	{
+		id = std::hash<std::string>{}(path.getPath().generic_string());
+		if(font_file_map.find(id) == font_file_map.end())
+			font_file_map[id] = path.read<oe::utils::byte_string>();
+	};
 
-	FileIO* FileIO::singleton = nullptr;
-
-	FileIO::FileIO() {
-		utils::Clock::getSingleton(); // init to start the timer
+	const oe::utils::byte_string& FontFile::fontFile() const
+	{
+		return getFontFile(id);
 	}
 
-
-	bool FileIO::fileExists(fs::path path)
+	const oe::utils::byte_string& FontFile::getFontFile(const size_t id)
 	{
-		return fs::exists(path);
+		return font_file_map.at(id);
 	}
 
-	void FileIO::readString(std::string& string, fs::path path)
+	auto zip_open_error(int error)
 	{
-		std::ifstream input_file_stream = std::ifstream(path);
-		if (!input_file_stream.is_open()) {
-			oe_error_terminate("Failed to open file \"{}\"", std::string(path.string().c_str()));
+		zip_error_t ziperror;
+		zip_error_init_with_code(&ziperror, error);
+		return std::string(zip_error_strerror(&ziperror));
+	}
+
+	void write_in_zip(const fs::path& path_to_zip, const fs::path& path_in_zip, const byte_string& data)
+	{
+		auto generic_to_zip = path_to_zip.generic_string();
+		auto generic_in_zip = path_in_zip.generic_string();
+
+		int error;
+		auto zipper = zip_open(generic_to_zip.c_str(), ZIP_CREATE, &error);
+		if (!zipper)
+			throw std::runtime_error(fmt::format("Failed to open {}, {}", generic_to_zip, zip_open_error(error)));
+
+		try
+		{
+			// create folder structure
+			for (fs::path::const_iterator iter = path_in_zip.begin(); ; iter++)
+			{
+				if (iter == path_in_zip.end() || std::next(iter) == path_in_zip.end())
+					break;
+
+				auto filename = iter->generic_string();
+				zip_dir_add(zipper, filename.c_str(), ZIP_FL_ENC_UTF_8);
+			}
+
+			// add the file
+			auto source = zip_source_buffer(zipper, data.data(), data.size(), 0);
+			if (!source)
+				throw std::runtime_error(fmt::format("Failed to create source file from data, {}", zip_strerror(zipper)));
+
+			auto size = zip_file_add(zipper, generic_in_zip.c_str(), source, ZIP_FL_ENC_UTF_8 | ZIP_FL_OVERWRITE);
+			if (size < 0)
+			{
+				zip_source_free(source);
+				throw std::runtime_error(fmt::format("Failed to add file {} to zip, {}", generic_in_zip, zip_strerror(zipper)));
+			}
+		}
+		catch (const std::exception& e)
+		{
+			zip_close(zipper);
+			throw e;
 		}
 
-		std::stringstream buffer;
-		buffer << input_file_stream.rdbuf();
-		input_file_stream.close();
-		string = buffer.str();
+		zip_close(zipper);
 	}
+
+	void read_from_zip(const fs::path& path_to_zip, const fs::path& path_in_zip, byte_string& data)
+	{
+		auto generic_to_zip = path_to_zip.generic_string();
+		auto generic_in_zip = path_in_zip.generic_string();
+
+		int error;
+		auto zipper = zip_open(generic_to_zip.c_str(), 0, &error);
+		if (!zipper)
+			throw std::runtime_error(fmt::format("Failed to open {}, {}", path_to_zip, zip_open_error(error)));
+
+		try
+		{
+			zip_stat_t stats;
+			zip_stat(zipper, generic_in_zip.c_str(), 0, &stats);
+
+			auto file = zip_fopen(zipper, generic_in_zip.c_str(), 0);
+			if (!file)
+				throw std::runtime_error(fmt::format("Failed to open file {} from zip, {}", generic_in_zip.c_str(), zip_strerror(zipper)));
+
+			data.resize(stats.size);
+			auto read_size = zip_fread(file, data.data(), data.size());
+			if (read_size < 0)
+			{
+				zip_fclose(file);
+				throw std::runtime_error(fmt::format("Failed to read file {} from zip, {}", generic_in_zip.c_str(), zip_strerror(zipper)));
+			}
+			zip_fclose(file);
+		}
+		catch (const std::exception& e)
+		{
+			zip_close(zipper);
+			throw e;
+		}
+
+		zip_close(zipper);
+	}
+
+	void zip_entries(const fs::path& path_to_zip, const fs::path& path_in_zip, std::vector<fs::path>& vec)
+	{
+
+	}
+
+	void zip_paths(const std::vector<fs::path::const_iterator>& iter, const fs::path& current_path, fs::path& path_to_zip, fs::path& path_in_zip)
+	{
+		for (auto left_iter = current_path.begin(); left_iter != std::next(iter[0]); left_iter++)
+			path_to_zip.append(left_iter->generic_string());
+
+		for (auto right_iter = std::next(iter[0]); right_iter != current_path.end(); right_iter++)
+			path_in_zip.append(right_iter->generic_string());
+
+		if (!fs::is_regular_file(path_to_zip) && fs::exists(path_to_zip))
+			throw std::runtime_error(fmt::format("Path: '{}' already exists, but is not a file", path_to_zip.generic_string()));
+	}
+
+	std::vector<fs::path::const_iterator> first_zip_loc(const FileIO& fileio)
+	{
+		std::vector<fs::path::const_iterator> vec;
+
+		for (fs::path::const_iterator iter = fileio.getPath().begin(); iter != fileio.getPath().end(); iter++)
+		{
+			if(iter->extension() == ".zip")
+				vec.push_back(iter);
+		}
+
+		return vec;
+	}
+
+	FileIO::FileIO(const fs::path& path)
+		: m_current_path(path)
+	{}
+
+	FileIO& FileIO::close(size_t n)
+	{
+		for(size_t i = 0; i < n; i++)
+			m_current_path = m_current_path.parent_path();
+		return *this;
+	}
+	
+	std::vector<fs::path> FileIO::items() const
+	{
+		std::vector<fs::path> items;
 		
-	void FileIO::writeString(const std::string& string, fs::path path)
-	{
-		std::ofstream output_file_stream = std::ofstream(path);
-		if (!output_file_stream.is_open()) {
-			oe_error_terminate("Failed to open file \"{}\"", std::string(path.string().c_str()));
+		auto iter = first_zip_loc(*this);
+		if (!iter.empty())
+		{
+			fs::path path_to_zip, path_in_zip;
+			zip_paths(iter, m_current_path, path_to_zip, path_in_zip);
+
+			auto generic_to_zip = path_to_zip.generic_string();
+			auto generic_in_zip = path_in_zip.generic_string();
+
+			int error;
+			auto zipper = zip_open(generic_to_zip.c_str(), 0, &error);
+			if (!zipper)
+				throw std::runtime_error(fmt::format("Failed to open {}, {}", path_to_zip, zip_open_error(error)));
+
+			auto n = zip_get_num_entries(zipper, 0);
+			std::string last_folder;
+			for(decltype(n) ni = 0; ni < n; ni++)
+			{
+				zip_stat_t stats;
+				zip_stat_index(zipper, ni, 0, &stats);
+				
+				fs::path parent_path = fs::path(stats.name).parent_path();
+				if(path_in_zip == parent_path)
+					items.push_back(path_to_zip / fs::path(stats.name));
+
+				if(last_folder != parent_path && parent_path.parent_path() == path_in_zip)
+				{
+					last_folder = parent_path.generic_string();
+					items.push_back(path_to_zip / last_folder);
+				}
+			}
 		}
-
-		output_file_stream << string;
-		output_file_stream.close();
+		else
+		{
+			for(auto& iter : fs::directory_iterator(m_current_path))
+				items.push_back(iter);
+		}
+		return items;
 	}
-
-	void FileIO::saveImage(fs::path path, const image_data& image)
+	
+	const fs::path& FileIO::getPath() const
 	{
-		int channels = stb_i_channels(image.format);
-		stbi_write_png(path.string().c_str(), image.width, image.height, channels, image.data, image.width * channels);
+		return m_current_path;
 	}
 
-	image_data FileIO::loadImage(fs::path path, oe::formats format) {
-		return image_data(path, format);
+	bool FileIO::isDirectory() const
+	{
+		return fs::is_directory(m_current_path);
 	}
 
-	audio_data loadAudio(fs::path path) {
-		return audio_data(path);
+	bool FileIO::isFile() const
+	{
+		return fs::is_regular_file(m_current_path);
+	}
+	
+	bool FileIO::exists() const
+	{
+		return fs::exists(m_current_path);
 	}
 
+	void FileIO::remove() const
+	{
+		fs::remove_all(m_current_path);
+	}
+
+	byte_string FileIOInternal<byte_string>::read(const FileIO& path)
+	{
+		auto iter = first_zip_loc(path);
+		if (!iter.empty())
+		{
+			fs::path path_to_zip, path_in_zip;
+			zip_paths(iter, path.getPath(), path_to_zip, path_in_zip);
+
+			byte_string data;
+			read_from_zip(path_to_zip, path_in_zip, data);
+			return data;
+		}
+		else
+		{
+			std::ifstream input_stream(path.getPath(), std::ios_base::binary);
+			if (!input_stream.is_open())
+				throw std::runtime_error(fmt::format("Could not open file: '{}'", path.getPath().generic_string()));
+
+			return { std::istreambuf_iterator<char>(input_stream), {} };
+		}
+	}
+
+	void FileIOInternal<byte_string>::write(const FileIO& path, const byte_string& string)
+	{
+		auto iter = first_zip_loc(path);
+		if (!iter.empty())
+		{
+			fs::path path_to_zip, path_in_zip;
+			zip_paths(iter, path.getPath(), path_to_zip, path_in_zip);
+
+			write_in_zip(path_to_zip, path_in_zip, string);
+		}
+		else
+		{
+			if (!path.isFile() && path.exists())
+				throw std::runtime_error(fmt::format("Path: '{}' already exists, but is not a file", path.getPath().generic_string()));
+
+			if (!path.exists())
+				fs::create_directories(path.getPath().parent_path());
+
+			std::ofstream output_stream(path.getPath());
+			if (!output_stream.is_open())
+				throw std::runtime_error(fmt::format("Could not open file: '{}'", path.getPath().generic_string()));
+			
+    		std::copy(string.begin(), string.end(), std::ostreambuf_iterator<char>(output_stream));
+		}
+	}
 }

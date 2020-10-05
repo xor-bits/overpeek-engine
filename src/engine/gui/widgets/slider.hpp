@@ -2,33 +2,39 @@
 
 #include "widget.hpp"
 #include "engine/graphics/textLabel.hpp"
+#include "engine/utility/fileio.hpp"
+#include "engine/enum.hpp"
 
 
 
-namespace oe::graphics { struct Quad; }
+namespace oe::graphics { class Quad; }
 
-namespace oe::gui {
-
+namespace oe::gui
+{
 	struct SliderInfo
 	{
-		float min_value                           = -1.0f;
-		float max_value                           = 1.0f;
-		float initial_value                       = 0.0f;
-		bool draw_value                           = false;
-		int draw_font_size                        = 14;
-		std::string draw_font_path                = ""; // empty for gui default
-		bool vertical                             = false;
-		bool scroll                               = false;
-		glm::ivec2 slider_size                    = { 50, 50 };
-		glm::ivec2 knob_size                      = { 50, 50 };
-		glm::vec4 knob_color                      = oe::colors::grey;
-		glm::vec4 slider_lcolor                   = oe::colors::dark_grey;
-		glm::vec4 slider_rcolor                   = oe::colors::darker_grey;
-		const oe::graphics::Sprite* knob_sprite   = nullptr; // must be set
-		const oe::graphics::Sprite* slider_sprite = nullptr; // must be set
-		glm::ivec2 offset_position                = { 0, 0 };
-		glm::vec2 align_parent                    = oe::alignments::center_center;
-		glm::vec2 align_render                    = oe::alignments::center_center;
+		float value_initial                                          = 0.0f;
+		glm::vec2 value_bounds                                       = { -1.0f, 1.0f };
+		float value_steps                                            = 1e5;
+		bool draw_value                                              = false;
+		int font_size                                                = 14;
+		oe::utils::FontFile font_file                                = {}; // empty for gui default
+		std::function<std::u32string(const float&)> draw_format      = &SliderInfo::default_formatter;
+		bool vertical                                                = false;
+		glm::ivec2 knob_size                                         = { 30, 30 };
+		glm::vec4 knob_color                                         = oe::colors::grey;
+		glm::vec4 slider_lcolor                                      = oe::colors::dark_grey;
+		glm::vec4 slider_rcolor                                      = oe::colors::darker_grey;
+		bool linear_color                                            = false;
+		const oe::graphics::Sprite* knob_sprite                      = nullptr;
+		const oe::graphics::Sprite* slider_sprite                    = nullptr;
+		
+		interact_type_flags interact_flags                           = interact_type_flags::cursor | interact_type_flags::keyboard | interact_type_flags::scroll;
+
+		WidgetInfo widget_info                                       = { { 150, 30 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
+		
+		//
+		static std::u32string default_formatter(const float& val);
 	};
 
 	struct SliderHoverEvent
@@ -42,13 +48,14 @@ namespace oe::gui {
 		float value;
 	};
 
-	class Slider : public Widget {
+	class Slider : public Widget
+	{
 	private:
-		oe::graphics::TextLabel* value_label;
-		std::shared_ptr<oe::graphics::Quad> label_quad;
-		std::shared_ptr<oe::graphics::Quad> quad_knob;
-		std::shared_ptr<oe::graphics::Quad> quad_lslider;
-		std::shared_ptr<oe::graphics::Quad> quad_rslider;
+		oe::graphics::u32TextLabel* value_label;
+		std::unique_ptr<oe::graphics::Quad> label_quad;
+		std::unique_ptr<oe::graphics::Quad> quad_knob;
+		std::unique_ptr<oe::graphics::Quad> quad_lslider;
+		std::unique_ptr<oe::graphics::Quad> quad_rslider;
 
 	private:
 		bool m_dragging;
@@ -56,23 +63,27 @@ namespace oe::gui {
 		void clamp();
 
 	public:
-		SliderInfo slider_info;
-		SliderHoverEvent event_hover_latest;
-		SliderUseEvent event_use_latest;
+		SliderInfo m_slider_info;
+		float& m_value;
+		SliderHoverEvent m_event_hover_latest;
+		SliderUseEvent m_event_use_latest;
 
 	public:
-		Slider(const SliderInfo& slider_info);
-		~Slider();
+		Slider(Widget* parent, GUI& gui_manager, float& value_ref, const SliderInfo& slider_info = {});
+		Slider(Widget* parent, GUI& gui_manager, const SliderInfo& slider_info = {}) : Slider(parent, gui_manager, m_slider_info.value_initial, slider_info) {}
 
-		virtual void managerAssigned(GUI* gui_manager) override;
-		virtual void managerUnassigned(GUI* gui_manager) override;
-
+		virtual void virtual_toggle(bool enabled) override;
+	
 	private:
 		// events
 		void on_render(const GUIRenderEvent& event);
 		void on_cursor(const CursorPosEvent& event);
 		void on_button(const MouseButtonEvent& event);
 		void on_scroll(const ScrollEvent& event);
+		oe::utils::connect_guard m_cg_render;
+		oe::utils::connect_guard m_cg_cursor;
+		oe::utils::connect_guard m_cg_button;
+		oe::utils::connect_guard m_cg_scroll;
 	};
 
 }

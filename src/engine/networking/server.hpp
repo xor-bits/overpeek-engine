@@ -9,7 +9,7 @@
 
 
 
-struct _ENetHost; struct _ENetAddress; struct _ENetPeer;
+struct _ENetHost; struct _ENetAddress; struct _ENetPeer; struct _ENetCompressor;
 namespace oe::networking {
 
 	class enet {
@@ -25,6 +25,7 @@ namespace oe::networking {
 	private:
 		_ENetAddress* m_address = nullptr;
 		_ENetHost* m_server = nullptr;
+		_ENetCompressor* m_compressor = nullptr;
 
 		std::mutex mtx;
 

@@ -2,6 +2,9 @@
 
 #include "engine/interfacegen.hpp"
 #include "engine/engine.hpp"
+#include "engine/utility/fileio.hpp"
+#include "engine/utility/connect_guard.hpp"
+#include <entt/entt.hpp>
 
 
 
@@ -17,39 +20,56 @@ namespace oe::gui
 {
 	constexpr int border = 5;
 
-	struct GUIRenderEvent
-	{};
+	struct GUIRenderEvent {};
+	struct GUIPreRenderEvent {};
 	
 	class GUI {
 	public:
 		entt::dispatcher dispatcher;
 
 	private:
-		Form* m_main_frame;
+		std::shared_ptr<Widget> m_main_frame;
 		oe::graphics::Renderer* m_renderer;
-		oe::graphics::Renderer* m_late_renderer;
-		oe::assets::DefaultShader* m_shader;
+		oe::graphics::Renderer* m_line_renderer;
+		oe::assets::DefaultShader* m_shader_fill;
+		oe::assets::DefaultShader* m_shader_lines;
 		oe::ResizeEvent latest_resize_event;
-		const oe::graphics::Window& m_window;
+		oe::graphics::Window m_window;
 
-		std::unordered_map<size_t, std::unordered_map<std::string, oe::graphics::Font*>> m_fontmap; // fontsize - ( fontname - font pair) pair
-		const std::string m_default_font_path;
+		std::unordered_map<size_t, std::unordered_map<oe::utils::FontFile, oe::graphics::Font>> m_fontmap; // fontsize - ( fontfile - font pair) pair
+		const oe::utils::FontFile m_default_font_file;
 
-		glm::ivec2 m_offset;
-		glm::ivec2 m_old_window_size;
+		glm::vec2 m_old_render_size;
+
+		glm::vec2 m_offset;
+		glm::vec2 m_size_mult;
+		glm::mat4 m_render_ml_matrix;
+		glm::mat4 m_cursor_ml_matrix;
+
+		void updateModelMatrix();
 
 	public:
-		GUI(const oe::graphics::Window& window, const std::string& default_font = oe::default_full_font_path);
+		GUI(const oe::graphics::Window& window, const oe::utils::FontFile& font_file = {}, int32_t renderer_primitive_count = 100000);
 		~GUI();
 
 		void short_resize();
-		
-		// events
-		void on_resize(const oe::ResizeEvent& event);
-		
-		// this class will take ownership of this pointer
-		void addSubWidget(Widget* widget);
-		void removeSubWidget(Widget* widget);
+
+		// create subwidget
+		template<typename T, typename ... Args>
+		std::shared_ptr<T> create(Args& ... args)
+		{
+			return m_main_frame->create<T>(args...);
+		}
+
+		// remove subwidget
+		template<typename T>
+		void remove(const std::shared_ptr<T>& widget)
+		{
+			m_main_frame->remove<T>(widget);
+		}
+
+		// remove all subwidgets
+		void clear();
 		
 		// bind SpritePacker that you used to create Font and all Sprites for StaticTextureViews
 		void render();
@@ -58,11 +78,31 @@ namespace oe::gui
 		// move the whole gui system
 		void offset(const glm::vec2& offset);
 
-		oe::graphics::Renderer* getRenderer() const;
-		oe::graphics::Renderer* getLateRenderer() const;
-		const oe::graphics::Window& getWindow() const;
+		// used for application debugging
+		void zoom(const glm::vec2& mult);
 
-		oe::graphics::Font& getFont(size_t resolution, std::string font = "");
+		inline oe::graphics::Renderer* getRenderer() const { return m_renderer; }
+		inline oe::graphics::Renderer* getLineRenderer() const { return m_line_renderer; }
+		inline const oe::graphics::Window& getWindow() const { return m_window; }
+		inline const oe::assets::DefaultShader* getShaderFill() const { return m_shader_fill; }
+		inline const oe::assets::DefaultShader* getShaderLines() const { return m_shader_lines; }
+
+		oe::graphics::Font& getFont(uint16_t resolution, const oe::utils::FontFile& font = {});
+
+	private:
+		// events
+		void on_resize(const ResizeEvent& event);
+		void on_codepoint(const CodepointEvent& event);
+		void on_key(const KeyboardEvent& event);
+		void on_cursor_pos(const CursorPosEvent& event);
+		void on_button(const MouseButtonEvent& event);
+		void on_scroll(const ScrollEvent& event);
+		oe::utils::connect_guard m_cg_resize;
+		oe::utils::connect_guard m_cg_codepoint;
+		oe::utils::connect_guard m_cg_key;
+		oe::utils::connect_guard m_cg_cursor_pos;
+		oe::utils::connect_guard m_cg_button;
+		oe::utils::connect_guard m_cg_scroll;
 	};
 
 }

@@ -6,19 +6,18 @@
 
 
 
-namespace oe::graphics {
-
+namespace oe::graphics
+{
 	class VertexBuffer : public Buffer
 	{
 	private:
-		size_t p_components_per_vertex;
+		int32_t p_components_per_vertex;
 
 	public:
-		VertexBuffer(const void* data, size_t size, unsigned int components_per_vertex, oe::types buffer_type);
+		VertexBuffer(const void* data, int32_t size, unsigned int components_per_vertex, oe::types buffer_type);
 
-		void attrib(int index, int components, size_t startBytes) const;
+		void attrib(uint32_t index, int32_t components, int32_t startBytes) const;
 
-		inline size_t getComponentsPerVertex() { return p_components_per_vertex; }
+		inline int32_t getComponentsPerVertex() { return p_components_per_vertex; }
 	};
-
 }

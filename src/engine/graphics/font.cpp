@@ -7,17 +7,26 @@
 #include "engine/internal_libs.hpp"
 #include "engine/engine.hpp"
 #include "engine/graphics/spritePacker.hpp"
+#include "engine/utility/fileio.hpp"
 
 
 
-namespace oe::graphics {
-
+namespace oe::graphics
+{
 	bool Font::gen_codepoint_glyph(char32_t codepoint)
 	{
 		//Load glyph
-		if (FT_Load_Char(face, codepoint, FT_LOAD_RENDER)) {
-			spdlog::warn("Failed to load glyph: {}", (size_t)codepoint);
-			return false;
+		try
+		{
+			if (FT_Load_Char(face, codepoint, FT_LOAD_RENDER))
+			{
+				spdlog::warn("Failed to load glyph: {}", (size_t)codepoint);
+				return false;
+			}
+		}
+		catch(const std::exception& e)
+		{
+			spdlog::info("{}", e.what());
 		}
 
 		// glyph
@@ -26,9 +35,9 @@ namespace oe::graphics {
 
 		// white font
 		uint8_t* data = new uint8_t[g->bitmap.width * g->bitmap.rows * 4]();
-		for (int y = 0; y < g->bitmap.rows; y++) {
-			for (int x = 0; x < g->bitmap.width; x++) {
-				int pixel = (x + y * g->bitmap.width) * 4;
+		for (size_t y = 0; y < g->bitmap.rows; y++) {
+			for (size_t x = 0; x < g->bitmap.width; x++) {
+				size_t pixel = (x + y * g->bitmap.width) * 4;
 
 				data[pixel + 0] = 255;
 				data[pixel + 1] = 255;
@@ -38,7 +47,7 @@ namespace oe::graphics {
 		}
 
 		//Now store character for later use
-		Font::Glyph* glyph = new Font::Glyph{
+		m_glyphs.insert(std::make_pair(codepoint, Font::Glyph{
 			codepoint,
 			glm::vec2(g->bitmap.width, g->bitmap.rows) / (float)m_resolution,
 			glm::vec2(g->bitmap_left, -g->bitmap_top) / (float)m_resolution,
@@ -46,34 +55,29 @@ namespace oe::graphics {
 
 			// add glyph to sprite packer
 			m_sprite_pack->create(std::move(oe::utils::image_data(data, oe::formats::rgba, g->bitmap.width, g->bitmap.rows)))
-		};
-		m_glyphs.insert(std::make_pair(codepoint, glyph));
-
-		FT_Outline_Embolden;
+		}));
 
 		delete[] data;
 		return true;
 	}
-
-	Font::Font(uint16_t resolution, const std::string& font_path)
-		: m_resolution(resolution)
-		, m_sprite_pack(new SpritePack(5))
+	
+	Font::Font(uint16_t resolution, const oe::utils::FontFile& font_file)
+		: m_sprite_pack(new SpritePack(5))
+		, m_resolution(resolution)
+		, m_font_file(font_file.fontFile())
 	{
 		oe_debug_call("font");
 
 		// Freetype library
-		if (FT_Init_FreeType(&ft)) {
+		if (FT_Init_FreeType(&ft))
 			oe_error_terminate("FT_Init_FreeType failed");
-			return;
-		}
 
-		// Font
-		if (FT_New_Face(ft, font_path.c_str(), 0, &face)) {
-			oe_error_terminate("Failed to load font at path {}", font_path.c_str());
-			return;
-		}
-		
-		FT_Set_Pixel_Sizes(face, 0, resolution);
+		// Load font
+		if (FT_New_Memory_Face(ft, m_font_file.data(), static_cast<int32_t>(std::clamp<size_t>(m_font_file.size(), 0, std::numeric_limits<int32_t>::max())), 0, &face))
+			oe_error_terminate("Failed to load font in memory {0:x} {1}", (size_t)m_font_file.data(), m_font_file.size());
+
+		FT_Set_Pixel_Sizes(face, 0, m_resolution);
+		FT_Select_Charmap(face, FT_ENCODING_UNICODE);
 		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
 
 		// all ascii glyphs
@@ -82,22 +86,18 @@ namespace oe::graphics {
 		}
 
 		// whitespace
-		Glyph* glyph = new Glyph{
+		m_glyphs.insert(std::make_pair(' ', Glyph{
 			L' ',
 			glm::vec2(0.0f),
 			glm::vec2(0.0f),
 			glm::vec2(0.3f),
 			m_sprite_pack->emptySprite()
-		};
-		m_glyphs.insert(std::make_pair(' ', glyph));
+		}));
 
 		m_sprite_pack->constructRepeat();
 	}
 
 	Font::~Font() {
-		for (auto& g : m_glyphs) {
-			if (g.second) delete g.second;
-		}
 		delete m_sprite_pack;
 
 		FT_Done_Face(face);
@@ -109,7 +109,7 @@ namespace oe::graphics {
 		if (m_glyphs.find(c) != m_glyphs.end()) 
 		{
 			// glyph found
-			return m_glyphs.at(c); 
+			return &m_glyphs.at(c); 
 		}
 		else
 		{
@@ -121,7 +121,7 @@ namespace oe::graphics {
 			if (m_glyphs.find(c) != m_glyphs.end()) 
 			{
 				// glyph found
-				return m_glyphs.at(c); 
+				return &m_glyphs.at(c); 
 			}
 			else 
 			{

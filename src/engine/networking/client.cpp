@@ -100,6 +100,8 @@ namespace oe::networking {
 				if (m_callback_disconnect) m_callback_disconnect();
 				m_connected = false;
 				return 0;
+			default:
+				break; // ignore
 			}
 		}
 

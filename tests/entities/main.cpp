@@ -5,72 +5,102 @@
 
 
 
-constexpr unsigned int updates_per_second = 60;
+constexpr size_t updates_per_second = 60;
 constexpr float inverse_ups = 1.0f / updates_per_second;
+constexpr size_t entities = 200;
+b2World box2d_world(b2Vec2(0.0f, 9.81f));
 
 oe::graphics::Window window;
-oe::graphics::Renderer* renderer;
 oe::assets::DefaultShader* shader;
 oe::graphics::SpritePack* pack;
-const oe::graphics::Sprite* sprite;
-
-const int entities = 200;
-entt::registry entity_registry;
-b2World box2d_world(b2Vec2(0.0f, 9.81f));
-b2RevoluteJoint* motor_joint;
+oe::graphics::Sprite const* sprite;
+oe::ecs::World* world;
+oe::gui::GUI* gui_manager;
+std::shared_ptr<oe::gui::TextPanel> text_label;
 
 
-// <<<<----- box2d stuff
-struct component_renderable
+
+struct GenericScript : public oe::ecs::Behaviour
 {
-	std::shared_ptr<oe::graphics::Quad> quad;
+	b2Body* m_body{};
+
+	void on_init(b2BodyType body_type, const glm::vec2& pos, const glm::vec2& size, float angle, const glm::vec4& color, float density)
+	{
+		b2BodyDef bodydef = {};
+		bodydef.gravityScale = 1.0f;
+		bodydef.position = { pos.x, pos.y };
+		bodydef.type = body_type;
+		bodydef.angle = angle;
+		b2PolygonShape polygonshape = {};
+		polygonshape.SetAsBox(size.x / 2.0f, size.y / 2.0f);
+		b2FixtureDef fixturedef = {};
+		fixturedef.density = density;
+		fixturedef.friction = 1.0f;
+		fixturedef.restitution = 0.1f;
+		fixturedef.shape = &polygonshape;
+		
+		m_body = box2d_world.CreateBody(&bodydef);
+		m_body->CreateFixture(&fixturedef);
+		
+		auto& quad = setComponent<oe::ecs::QuadComponent>();
+		quad.quad_holder = m_world->m_renderer.create();
+		quad.quad_holder->setColor(color);
+		quad.quad_holder->setSize(size);
+		quad.quad_holder->setSprite(sprite);
+		quad.quad_holder->setRotationAlignment(oe::alignments::center_center);
+	}
+
+	void on_custom_update()
+	{
+		auto& pos = m_body->GetPosition();
+		if (pos.y >= 20.0f) { m_body->SetTransform(b2Vec2(0.0f, -20.0f), 0.0f); m_body->SetLinearVelocity(b2Vec2(0.0f, 0.0f)); }
+	}
+
+	void on_custom_render(float update_fraction)
+	{
+		auto& quad = getComponent<oe::ecs::QuadComponent>();
+
+		// rendering
+		auto pos = m_body->GetPosition();
+		auto vel = m_body->GetLinearVelocity();
+		auto rotation = m_body->GetAngle();
+		pos.x += (vel.x * update_fraction * inverse_ups);
+		pos.y += (vel.y * update_fraction * inverse_ups);
+
+		quad.quad_holder->setPosition({ pos.x, pos.y });
+		quad.quad_holder->setSprite(sprite);
+		quad.quad_holder->setRotation(rotation);
+	}
 };
 
-struct component_body
+struct MotorScript : public oe::ecs::Behaviour
 {
-	b2Body* body;
+	b2RevoluteJoint* motor_joint{};
+
+	void on_init(const oe::ecs::Entity& attached_to)
+	{
+		auto& generic_src_a = getScriptComponent<GenericScript>();
+		auto& generic_src_b = attached_to.getScriptComponent<GenericScript>();
+
+		b2RevoluteJointDef jointDef = {};
+		jointDef.bodyA = generic_src_a.m_body;
+		jointDef.bodyB = generic_src_b.m_body;
+		jointDef.enableMotor = true;
+		jointDef.motorSpeed = 0.0f;
+		jointDef.maxMotorTorque = std::numeric_limits<float>::max();
+
+		motor_joint = static_cast<b2RevoluteJoint*>(box2d_world.CreateJoint(&jointDef));
+	}
+
+	void on_custom_update()
+	{
+		auto& generic_src = getScriptComponent<GenericScript>();
+
+		auto force = window->getCursorTransformed() - glm::vec2{ generic_src.m_body->GetPosition().x, generic_src.m_body->GetPosition().y } / 20.0f;
+		force *= 500.0f;
+		generic_src.m_body->SetLinearVelocity({ force.x, force.y });
+	}
 };
-
-b2Body* box(bool is_static, const glm::vec2& pos, const glm::vec2& size, float angle, const glm::vec4& color, float density = 1.0f)
-{
-	b2BodyDef bodydef = {};
-	b2FixtureDef fixturedef = {};
-	b2PolygonShape polygonshape = {};
-	bodydef.gravityScale = 1.0f;
-	fixturedef.density = density;
-	fixturedef.friction = 1.0f;
-	fixturedef.restitution = 0.1f;
-
-	bodydef.position = { pos.x, pos.y };
-	bodydef.type = is_static ? b2BodyType::b2_staticBody : b2BodyType::b2_dynamicBody;
-	bodydef.angle = angle;
-	auto body = box2d_world.CreateBody(&bodydef);
-	polygonshape.SetAsBox(size.x / 2.0f, size.y / 2.0f);
-	fixturedef.shape = &polygonshape;
-	body->CreateFixture(&fixturedef);
-	auto entity = entity_registry.create();
-	auto quad = renderer->create();
-	quad->setSize(size);
-	quad->setRotationAlignment(oe::alignments::center_center);
-	quad->setColor(color);
-	entity_registry.assign<component_renderable>(entity, quad);
-	entity_registry.assign<component_body>(entity, body);
-
-	return body;
-}
-
-b2RevoluteJoint* joint(b2Body* a, b2Body* b)
-{
-	b2RevoluteJointDef jointDef = {};
-	jointDef.bodyA = a;
-	jointDef.bodyB = b;
-	jointDef.enableMotor = true;
-	jointDef.motorSpeed = 3.0f;
-	jointDef.maxMotorTorque = 1e20f;
-	
-	return static_cast<b2RevoluteJoint*>(box2d_world.CreateJoint(&jointDef));
-}
-// box2d stuff ----->>>>
 
 // scene setup
 void setup()
@@ -78,100 +108,145 @@ void setup()
 	auto& random = oe::utils::Random::getSingleton();
 
 	// ground box
-	auto body_0 = box(false, { 10.0f, 15.0f }, { 1.5f, 15.0f }, glm::quarter_pi<float>(), glm::vec4(random.randomVec3(0.0f, 1.0f), 1.0f), 0.1f);
-	auto body_1 = box(true, { 0.0f, 15.0f }, { 1.0f, 1.0f }, glm::quarter_pi<float>(), glm::vec4(random.randomVec3(0.0f, 1.0f), 1.0f));
-	motor_joint = joint(body_0, body_1);
+	auto box = world->create(); // world::create()
+	auto motor_mid = oe::ecs::Entity(world); // or Entity constructor
+	auto& generic_src_box = box.setScriptComponent<GenericScript>(b2BodyType::b2_dynamicBody, glm::vec2{ 10.0f, 15.0f }, glm::vec2{ 1.5f, 15.0f }, glm::quarter_pi<float>(), glm::vec4(random.randomVec3(0.0f, 1.0f), 1.0f), 0.1f);
+	auto& generic_src_motor = motor_mid.setScriptComponent<GenericScript>(b2BodyType::b2_kinematicBody, glm::vec2{ 0.0f, 15.0f }, glm::vec2{ 1.0f, 1.0f }, glm::quarter_pi<float>(), glm::vec4(random.randomVec3(0.0f, 1.0f), 1.0f), 1.0f);
+	motor_mid.setScriptComponent<MotorScript>(box);
 
 	// random falling boxes
 	for (auto i = 2; i < entities; ++i) {
 		glm::vec2 pos = { random.randomf(-2.0f, 2.0f), random.randomf(-30.0f, 5.0f) };
 		glm::vec2 size = random.randomVec2(0.1f, 1.0f);
-		box(false, pos, size, random.randomf(0.0f, glm::two_pi<float>()), glm::vec4(random.randomVec3(0.0f, 1.0f), 1.0f));
+		auto entity = world->create();
+		entity.setScriptComponent<GenericScript>(b2BodyType::b2_dynamicBody, pos, size, random.randomf(0.0f, glm::two_pi<float>()), glm::vec4(random.randomVec3(0.0f, 1.0f), 1.0f), 1.0f);
 	}
-
 }
 
 // render event
-void render(float update_fraction)
+void render(oe::RenderEvent)
 {
 	window->clear(oe::colors::transparent);
 
 	// submitting
-	entity_registry.view<component_renderable, component_body>().each([&](entt::entity entity, component_renderable& renderable, component_body& body)
-	{
-		// rendering
-		auto pos = body.body->GetPosition();
-		auto vel = body.body->GetLinearVelocity();
-		auto rotation = body.body->GetAngle();
-		pos.x += (vel.x * update_fraction * inverse_ups);
-		pos.y += (vel.y * update_fraction * inverse_ups);
-
-		renderable.quad->setPosition({ pos.x, pos.y });
-		renderable.quad->setSprite(sprite);
-		renderable.quad->setRotation(rotation);
-		renderable.quad->update();
+	float update_fraction = window->getGameloop().getUpdateLag<updates_per_second>();
+	world->m_scene.view<std::unique_ptr<GenericScript>>().each([update_fraction](std::unique_ptr<GenericScript>& src) {
+		src->on_custom_render(update_fraction);
 	});
-
+	
 	// stop submitting and render
 	shader->bind();
-	renderer->render();
-}
+	world->m_renderer.render();
+	shader->unbind();
 
+	gui_manager->render();
+
+}
 // framebuffer resize
 void resize(const oe::ResizeEvent& event)
 {
 	glm::mat4 pr_matrix = glm::ortho(-20.0f * event.aspect, 20.0f * event.aspect, 20.0f, -20.0f);
 	shader->bind();
 	shader->setProjectionMatrix(pr_matrix);
-	shader->useTexture(true);
+	shader->setTexture(true);
 }
 
-// update event 2 times per second
-void update_2()
+// update event 30 times per second
+void update_30(oe::UpdateEvent<30>)
 {
-	auto& gameloop = window->getGameloop(); 
-	spdlog::info("frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
+	auto& gameloop = window->getGameloop();
+	std::u32string perf_info = fmt::format(
+		U"- frametime: {:3.3f} ms ({} fps)\n- updatetime: {:3.3f} ms ({} ups)",
+		std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gameloop.getFrametime()).count(),
+		gameloop.getAverageFPS(),
+		std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gameloop.getUpdatetime<30>()).count(),
+		gameloop.getAverageUPS<30>());
+	text_label->text_panel_info.text = perf_info;
 }
 
-// update event 60 times per second
+// update event <updates_per_second> times per second
 void update()
 {
-	entity_registry.view<component_body>().each([&](entt::entity entity, component_body& body)
-	{
-		// rendering
-		auto& pos = body.body->GetPosition();
-		if (pos.y >= 20.0f) { body.body->SetTransform(b2Vec2(0.0f, -20.0f), 0.0f); body.body->SetLinearVelocity(b2Vec2(0.0f, 0.0f)); }
+	world->m_scene.view<std::unique_ptr<GenericScript>>().each([](std::unique_ptr<GenericScript>& src) {
+		src->on_custom_update();
+	});
+	world->m_scene.view<std::unique_ptr<MotorScript>>().each([](std::unique_ptr<MotorScript>& src) {
+		src->on_custom_update();
 	});
 
-	float motor_joint_speed = std::pow(window->getCursorTransformed().x * 2.0f, 3.0f);
-	motor_joint->SetMotorSpeed(motor_joint_speed);
-
-	box2d_world.Step(inverse_ups, 8, 8);
+	box2d_world.Step(inverse_ups, 8, 3);
 }
 
-void init()
+void gui()
+{
+	gui_manager = new oe::gui::GUI(window);
+	{
+		oe::gui::SliderInfo s_info;
+		s_info.widget_info.size = { 50, 16 };
+		s_info.widget_info.align_parent = oe::alignments::top_left;
+		s_info.widget_info.align_render = oe::alignments::top_left;
+		s_info.widget_info.offset_position = { 0, 50 };
+		s_info.slider_lcolor = oe::colors::red;
+		s_info.slider_rcolor = oe::colors::green;
+		s_info.linear_color = true;
+		s_info.slider_sprite = pack->emptySprite();
+		s_info.value_bounds = { -10.0f, 10.0f, };
+		s_info.draw_value = true;
+		auto slider = gui_manager->create<oe::gui::Slider>(s_info);
+
+		slider->create_event_cg().connect<oe::gui::SliderUseEvent>(slider->dispatcher, [&](const oe::gui::SliderUseEvent& e)
+		{
+			world->m_scene.view<std::unique_ptr<MotorScript>>().each([&e](std::unique_ptr<MotorScript>& src) {
+				src->motor_joint->SetMotorSpeed(e.value);
+			});
+		});
+	}
+	{
+		oe::gui::SliderInfo s_info;
+		s_info.widget_info.size = { 50, 16 };
+		s_info.widget_info.align_parent = oe::alignments::top_left;
+		s_info.widget_info.align_render = oe::alignments::top_left;
+		s_info.widget_info.offset_position = { 0, 50 };
+		s_info.slider_lcolor = oe::colors::red;
+		s_info.slider_rcolor = oe::colors::green;
+		s_info.linear_color = true;
+		s_info.slider_sprite = pack->emptySprite();
+		s_info.value_bounds = { -10.0f, 10.0f, };
+		s_info.draw_value = true;
+		auto slider = gui_manager->create<oe::gui::Slider>(s_info);
+
+		slider->create_event_cg().connect<oe::gui::SliderUseEvent>(slider->dispatcher, [&](const oe::gui::SliderUseEvent& e)
+		{
+			world->m_scene.view<std::unique_ptr<MotorScript>>().each([&e](std::unique_ptr<MotorScript>& src) {
+				src->motor_joint->SetMotorSpeed(e.value);
+			});
+		});
+	}
+	{
+		oe::gui::TextPanelInfo tp_info;
+		tp_info.font_size = 22;
+		tp_info.widget_info.align_parent = oe::alignments::top_left;
+		tp_info.widget_info.align_render = oe::alignments::top_left;
+		tp_info.text = U"placeholder";
+		text_label = gui_manager->create<oe::gui::TextPanel>(tp_info);
+	}
+}
+
+void init(oe::InitEvent)
 {
 	auto& engine = oe::Engine::getSingleton();
+	engine.depth(oe::depth_functions::always);
 
 	// connect events (this can also be done in (int main()))
 	window->connect_listener<oe::ResizeEvent, &resize>();
-	window->connect_render_listener<&render>();
-	window->connect_update_listener<2, &update_2>();
-	window->connect_update_listener<updates_per_second, &update>();
+	window->connect_listener<oe::RenderEvent, &render>();
+	window->connect_listener<oe::UpdateEvent<30>, &update_30>();
+	window->connect_listener<oe::UpdateEvent<updates_per_second>, &update>();
 
 	// instance settings
 	engine.culling(oe::culling_modes::back);
 	engine.swapInterval(0);
 	engine.blending();
-
-	// renderer
-	oe::RendererInfo renderer_info = {};
-	renderer_info.arrayRenderType = oe::types::dynamic_type;
-	renderer_info.indexRenderType = oe::types::static_type;
-	renderer_info.max_primitive_count = entities;
-	renderer_info.staticVBOBuffer_data = nullptr;
-	renderer = new oe::graphics::Renderer(renderer_info);
-	setup();
 
 	// shader
 	shader = new oe::assets::DefaultShader();
@@ -180,15 +255,22 @@ void init()
 	pack = new oe::graphics::SpritePack();
 	sprite = pack->emptySprite();
 	pack->construct();
+
+	gui();
+
+	// entities
+	world = new oe::ecs::World();
+	setup();
 }
 
-void cleanup()
+void cleanup(oe::CleanupEvent)
 {
 	// closing
+	text_label.reset();
+	delete gui_manager;
 	delete pack;
 	delete shader;
-	delete renderer;
-	window.reset();
+	delete world;
 }
 
 int main(int argc, char* argv[])
@@ -198,7 +280,6 @@ int main(int argc, char* argv[])
 	// engine
 	oe::EngineInfo engine_info = {};
 	engine_info.api = oe::graphics_api::OpenGL;
-	engine_info.debug_messages = false;
 	engine.init(engine_info);
 
 	// window
@@ -208,8 +289,8 @@ int main(int argc, char* argv[])
 	window_info.transparent = true;
 	// window_info.borderless = true;
 	window = oe::graphics::Window(window_info);
-	window->connect_init_listener<&init>();
-	window->connect_cleanup_listener<&cleanup>();
+	window->connect_listener<oe::InitEvent, &init>();
+	window->connect_listener<oe::CleanupEvent, &cleanup>();
 	
 	window->getGameloop().start();
 	return 0;

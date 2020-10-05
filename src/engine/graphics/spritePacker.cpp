@@ -14,7 +14,8 @@ namespace oe::graphics {
 	using spaces_type = rectpack2D::empty_spaces<allow_flip, rectpack2D::default_empty_spaces>;
 	using rect_type = rectpack2D::output_rect_t<spaces_type>;
 
-	struct __usr_data {
+	struct __usr_data
+	{
 		std::vector<rect_type> m_rectangles;
 		std::vector<oe::utils::image_data> m_images;
 	};
@@ -27,34 +28,28 @@ namespace oe::graphics {
 
 		m_constructed = false;
 		m_usr_data = new __usr_data();
-		auto usr_data = static_cast<__usr_data*>(m_usr_data);
 
-		usr_data->m_rectangles = std::vector<rect_type>();
-		usr_data->m_images = std::vector<oe::utils::image_data>(); 
+		m_usr_data->m_rectangles = std::vector<rect_type>();
+		m_usr_data->m_images = std::vector<oe::utils::image_data>(); 
 		m_border = border;
-
-		// load empty sprite
-		size_t img_size = 4ul * (size_t)1 * (size_t)1;
-		unsigned char* data = new unsigned char[img_size];
-		std::memset(data, (unsigned char)255, img_size);
-		oe::utils::image_data empty_img(data, oe::formats::rgba, 1, 1);
-		create(empty_img);
-		delete[] data;
+		
+		clear();
 	}
 
 	SpritePack::~SpritePack()
 	{
 		for(auto iter : m_sprites) delete iter;
-		delete m_usr_data;
+		m_usr_data->m_images.clear();
+		m_usr_data->m_rectangles.clear();
+		m_sprites.clear();
 	}
 
 	const Sprite* SpritePack::create(const oe::utils::image_data& sprite_texture)
 	{
-		auto usr_data = static_cast<__usr_data*>(m_usr_data);
 		auto sprite = new Sprite();
 		
-		usr_data->m_rectangles.push_back(rectpack2D::rect_xywh(0, 0, sprite_texture.width + m_border, sprite_texture.height + m_border));
-		usr_data->m_images.push_back(sprite_texture);
+		m_usr_data->m_rectangles.push_back(rectpack2D::rect_xywh(0, 0, sprite_texture.width + m_border, sprite_texture.height + m_border));
+		m_usr_data->m_images.push_back(sprite_texture);
 		m_sprites.push_back(sprite);
 
 		return sprite;
@@ -65,6 +60,22 @@ namespace oe::graphics {
 		return create(oe::utils::image_data(sprite_texture));
 	}
 
+	void SpritePack::clear()
+	{
+		for(auto iter : m_sprites) delete iter;
+		m_usr_data->m_images.clear();
+		m_usr_data->m_rectangles.clear();
+		m_sprites.clear();
+
+		// load empty sprite
+		size_t img_size = 4ul * (size_t)1 * (size_t)1;
+		unsigned char* data = new unsigned char[img_size];
+		std::memset(data, (unsigned char)255, img_size);
+		oe::utils::image_data empty_img(data, oe::formats::rgba, 1, 1);
+		create(empty_img);
+		delete[] data;
+	}
+
 	size_t coordsToIndex(size_t x, size_t y, size_t c, size_t width, size_t channels)
 	{
 		return channels * (x + y * width) + c;
@@ -72,8 +83,6 @@ namespace oe::graphics {
 
 	void SpritePack::constructRepeat()
 	{
-		auto usr_data = static_cast<__usr_data*>(m_usr_data);
-
 		// pack sprites
 		const auto max_side = 10000;
 		const auto discard_step = 1;
@@ -82,7 +91,7 @@ namespace oe::graphics {
 		auto report_unsuccessful = [](rect_type&) { return rectpack2D::callback_result::ABORT_PACKING; };
 
 		const auto result_size = rectpack2D::find_best_packing<spaces_type>(
-			usr_data->m_rectangles,
+			m_usr_data->m_rectangles,
 			rectpack2D::make_finder_input(
 				max_side,
 				discard_step,
@@ -96,13 +105,14 @@ namespace oe::graphics {
 		size_t pack_width = result_size.w;
 		size_t pack_height = result_size.h;
 		unsigned char* data = new unsigned char[pack_width * pack_height * 4]();
-		for (size_t i = 0; i < usr_data->m_rectangles.size(); i++) {
-			auto& rectangle = usr_data->m_rectangles.at(i);
-			auto& image = usr_data->m_images.at(i);
+		for (size_t i = 0; i < m_usr_data->m_rectangles.size(); i++) {
+			auto& rectangle = m_usr_data->m_rectangles.at(i);
+			auto& image = m_usr_data->m_images.at(i);
 			auto& sprite = m_sprites.at(i);
 			
 			sprite->size = glm::vec2(image.width / (float)pack_width, image.height / (float)pack_height);
 			sprite->position = glm::vec2(rectangle.x / (float)pack_width, rectangle.y / (float)pack_height);
+			sprite->opacity = false;
 
 			// conversions
 			switch (image.format)
@@ -137,6 +147,9 @@ namespace oe::graphics {
 						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 1, pack_width, 4)] = image.data[coordsToIndex(x, y, 1, image.width, 4)];
 						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 2, pack_width, 4)] = image.data[coordsToIndex(x, y, 2, image.width, 4)];
 						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 3, pack_width, 4)] = image.data[coordsToIndex(x, y, 3, image.width, 4)];
+						sprite->opacity = 
+							sprite->opacity || 
+							data[coordsToIndex(rectangle.x + x, rectangle.y + y, 3, pack_width, 4)] != 255;
 					}
 				}
 				break;
@@ -147,8 +160,7 @@ namespace oe::graphics {
 		oe::TextureInfo texture_info = {};
 		texture_info.generate_mipmaps = true;
 		texture_info.data = data;
-		texture_info.size = { pack_width, pack_height };
-		texture_info.offset = { 0, 0 };
+		texture_info.size_offset = { { pack_width, 0 }, { pack_height, 0} };
 
 		m_texture = Texture(texture_info);
 		for (auto sprite : m_sprites)
@@ -164,8 +176,7 @@ namespace oe::graphics {
 	{
 		constructRepeat();
 
-		auto usr_data = static_cast<__usr_data*>(m_usr_data);
-		usr_data->m_images.clear();
+		m_usr_data->m_images.clear();
 	}
 
 	void SpritePack::bind()

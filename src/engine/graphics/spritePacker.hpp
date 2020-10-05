@@ -7,16 +7,17 @@
 
 
 
-namespace oe::graphics {
-
+namespace oe::graphics
+{
+	struct __usr_data;
 
 	// 2D only sprite packer
-	class SpritePack {
+	class SpritePack
+	{
 	private:
-		void* m_usr_data;
+		__usr_data* m_usr_data;
 
 	private:
-		glm::vec2 m_size;     // size of the packed texture
 		int m_border;
 		bool m_constructed;
 
@@ -32,6 +33,8 @@ namespace oe::graphics {
 		const Sprite* create(const oe::utils::image_data& sprite_texture);
 		const Sprite* create(fs::path sprite_texture);
 		const Sprite* emptySprite() const { return m_sprites.at(0); }
+
+		void clear(); // will invalidate all Sprite pointers
 		
 		void construct(); // sprite pack texture needs to be constructed before using it
 		void constructRepeat(); // may be called multiple times, but will not delete imagedata

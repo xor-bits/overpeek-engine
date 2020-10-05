@@ -11,30 +11,37 @@ oe::assets::DefaultShader* shader;
 oe::graphics::Font* font;
 
 oe::graphics::u32TextLabel* label;
-std::shared_ptr<oe::graphics::Quad> quad;
+std::unique_ptr<oe::graphics::Quad> quad;
+
+oe::utils::connect_guard cg_render;
+oe::utils::connect_guard cg_update_2;
+oe::utils::connect_guard cg_resize;
 
 
 
-void render(float update_fraction)
+void render(oe::RenderEvent)
 {
 	shader->bind();
 	renderer->render();
 }
 
-void update_2() {
+void update_2(oe::UpdateEvent<2>) {
 	auto& gameloop = window->getGameloop();
-	spdlog::debug("frametime: {:3.3f} ms ({} fps)", gameloop.getFrametimeMS(), gameloop.getAverageFPS());
+	spdlog::debug("- frametime: {:3.3f} ms ({} fps)\n- updatetime: {:3.3f} ms ({} ups)",
+		std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gameloop.getFrametime()).count(),
+		gameloop.getAverageFPS(),
+		std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gameloop.getUpdatetime<30>()).count(),
+		gameloop.getAverageUPS<30>());
 	
 	oe::graphics::Sprite sprite;
 	sprite.m_owner = font->getSpritePack()->getTexture();
 	quad->setSprite(sprite);
-	quad->update();
 }
 
 void resize(const oe::ResizeEvent& event) {
 	glm::mat4 pr_matrix = glm::ortho(0.0f, (float)event.framebuffer_size.x, (float)event.framebuffer_size.y, 0.0f);
 	shader->setProjectionMatrix(pr_matrix);
-	shader->useTexture(true);
+	shader->setTexture(true);
 }
 
 int main(int argc, char** argv) {
@@ -42,7 +49,6 @@ int main(int argc, char** argv) {
 	// engine
 	oe::EngineInfo engine_info = {};
 	engine_info.api = oe::graphics_api::OpenGL;
-	engine_info.debug_messages = true;
 	engine.init(engine_info);
 
 	// window
@@ -51,40 +57,38 @@ int main(int argc, char** argv) {
 	window_info.multisamples = 4;
 	window = oe::graphics::Window(window_info);
 
-	// connect events
-	window->connect_listener<oe::ResizeEvent, &resize>();
-	window->connect_render_listener<&render>();
-	window->connect_update_listener<2, &update_2>();
+	// connect events;
+	cg_render.connect<oe::RenderEvent, render>(window->getGameloop().getDispatcher());
+	cg_update_2.connect<oe::UpdateEvent<2>, update_2>(window->getGameloop().getDispatcher());
+	cg_resize.connect<oe::ResizeEvent, resize>(window->getGameloop().getDispatcher());
 	
 	// instance settings
 	engine.culling(oe::culling_modes::back);
-	engine.swapInterval(0);
+	engine.swapInterval(1);
 	engine.blending();
 
 	// renderer
-	oe::RendererInfo renderer_info = {};
-	renderer_info.arrayRenderType = oe::types::dynamic_type;
-	renderer_info.indexRenderType = oe::types::static_type;
-	renderer_info.max_primitive_count = 1000;
-	renderer_info.staticVBOBuffer_data = nullptr;
-	renderer = new oe::graphics::Renderer(renderer_info);
+	renderer = new oe::graphics::Renderer(1000);
 
 	// shader
 	shader = new oe::assets::DefaultShader();
 
 	// sprites
-	font = new oe::graphics::Font(64);
+	font = new oe::graphics::Font(64, { oe::default_full_font_path_bold });
 	
 	// submitting
 	label = new oe::graphics::u32TextLabel(*font);
-	label->generate(U"<#1020ff>\u2116<#ffffff>The quick brown fox<#ff2020>\u263A", window, oe::colors::translucent_black);
+	label->generate({{
+			{ U"\u2116", { 0.06f, 0.13f, 1.0f, 1.0f } },
+			{ U"The quick brown fox!", oe::colors::white },
+			{ U"\u263A", { 1.0f, 0.13f, 0.13f, 1.0f } }
+		}}, window, oe::colors::translucent_black);
 
 	quad = renderer->create();
 	quad->setPosition({ 50, 50 });
-	quad->setSize(label->getSize()); spdlog::debug("{}", label->getSize());
+	quad->setSize(label->getSize());
 	quad->setColor(oe::colors::white);
 	quad->setSprite(label->getSprite());
-	quad->update();
 	
 	renderer->forget(std::move(quad));
 	
@@ -95,19 +99,16 @@ int main(int argc, char** argv) {
 	quad->setSize({ 200, 200 });
 	quad->setColor(oe::colors::white);
 	quad->setSprite(sprite);
-	quad->update();
-	
-	// blue: <#0000ff>
-	// incomplete: <#542>
-	// faulty: <#5f>>>>>>>>>
-	// with 0x: <#0x4354>
-	// negative: <#-43531>
-
 	
 	// start
 	window->getGameloop().start(); // print the average frametime 30 times in a second
+	cg_render.disconnect();
+	cg_update_2.disconnect();
+	cg_resize.disconnect();
 
 	// closing
+	delete label;
+	delete renderer;
 	delete font;
 	delete shader;
 

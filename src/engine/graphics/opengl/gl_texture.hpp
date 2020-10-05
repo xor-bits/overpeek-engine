@@ -4,27 +4,31 @@
 
 
 
-namespace oe::graphics {
-
-	class GLTexture : public ITexture {
+namespace oe::graphics
+{
+	class GLTexture : public ITexture
+	{
 	private:
 		uint32_t m_id;
 		int32_t m_target;
+
 		uint32_t m_gl_format;
 		uint32_t m_gl_internalformat;
+		uint32_t m_gl_filter;
+		uint32_t m_gl_wrap;
 		
 	private:
-		void empty1D(size_t width);
-		void empty2D(size_t width, size_t height);
-		void empty3D(size_t width, size_t height, size_t depth);
+		void empty1D(int32_t width);
+		void empty2D(int32_t width, int32_t height);
+		void empty3D(int32_t width, int32_t height, int32_t depth);
 
-		void load1D(const uint8_t* data, size_t width);
-		void load2D(const uint8_t* data, size_t width, size_t height);
-		void load3D(const uint8_t* data, size_t width, size_t height, size_t depth);
+		void load1D(const uint8_t* data, int32_t width);
+		void load2D(const uint8_t* data, int32_t width, int32_t height);
+		void load3D(const uint8_t* data, int32_t width, int32_t height, int32_t depth);
 
-		void data1D(const uint8_t* data, size_t width, size_t x_offset);
-		void data2D(const uint8_t* data, size_t width, size_t x_offset, size_t height, size_t y_offset);
-		void data3D(const uint8_t* data, size_t width, size_t x_offset, size_t height, size_t y_offset, size_t depth, size_t z_offset);
+		void data1D(const uint8_t* data, int32_t width, int32_t x_offset);
+		void data2D(const uint8_t* data, int32_t width, int32_t x_offset, int32_t height, int32_t y_offset);
+		void data3D(const uint8_t* data, int32_t width, int32_t x_offset, int32_t height, int32_t y_offset, int32_t depth, int32_t z_offset);
 
 	public:
 		GLTexture(const TextureInfo& texture_info);
@@ -44,6 +48,7 @@ namespace oe::graphics {
 		uint32_t getGLTexture() { return m_id; }
 		int32_t getGLTarget() { return m_target; }
 
-	};
+		static int32_t gl_max_texture_size;
 
+	};
 }

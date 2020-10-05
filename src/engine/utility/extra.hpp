@@ -15,6 +15,7 @@ namespace oe::utils {
 	extern std::string boolToString(bool b);
 	extern bool isInRange(int input, int min, int max);
 	extern int sign(float n);
+	extern bool bounding_box_test(const glm::vec2& point, const glm::vec2& top_left, const glm::vec2& size);
 
 	template<typename T>
 	T clamp(const T _val, const T _min, const T _max) {
@@ -26,8 +27,14 @@ namespace oe::utils {
 		return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
 	}
 
-    // rgb/hsv algorthms by
-    // https://stackoverflow.com/a/6930407/12147216
+	template <typename T>
+	bool weak_ptr_test(const std::weak_ptr<T>& ptr)
+	{
+		return !ptr.owner_before(std::weak_ptr<T>{}) && !std::weak_ptr<T>{}.owner_before(ptr);
+	}
+
+	// { 0 - 1, 0 - 1, 0 - 1 } -> { 0 - 1, 0 - 1, 0 - 1 }
+	// https://stackoverflow.com/a/17897228 modified for glm
 	extern glm::vec3 rgbToHSV(glm::vec3 in);
 	extern glm::vec3 hsvToRGB(glm::vec3 in);
 
@@ -47,25 +54,34 @@ namespace oe::utils {
 	template<typename chr_type> bool checkChar(const std::basic_string<chr_type>& text, chr_type character, size_t position);
 
 	// vector conversions
-	template<int dim, typename T>
-	glm::vec<dim, T> listToVec(const void* first)
+	template<size_t dim, typename T>
+	bool containerToVec(const std::vector<T>& from, glm::vec<dim, T>& to)
 	{
+		if (from.size() < dim)
+			return false;
+
 		glm::vec<dim, T> vec;
-		std::memcpy(&vec.x, first, dim * sizeof(T));
-		return vec;
+		std::memcpy(glm::value_ptr(to), from.data(), dim * sizeof(T));
+		return true;
 	}
-	template<int dim, typename T>
-	glm::vec<dim, T> listToVec(const std::vector<T>& l)
+	template<size_t dim, typename T>
+	bool vecToContainer(const glm::vec<dim, T>& from, std::vector<T>& to)
 	{
-		glm::vec<dim, T> vec;
-		std::copy(l.begin(), l.begin() + dim, &vec.x);
-		return vec;
+		to.resize(dim);
+		std::memcpy(to.data(), glm::value_ptr(from), dim * sizeof(T));
+		return true;
 	}
-	template<int dim, typename T>
-	std::vector<T> vecToList(const glm::vec<dim, T>& vec)
+	template<size_t dim, typename T>
+	bool containerToVec(const std::array<T, dim>& from, glm::vec<dim, T>& to)
 	{
-		const std::vector<T> l(&vec.x, &vec.x + dim);
-		return l;
+		std::memcpy(glm::value_ptr(to), from.data(), dim * sizeof(T));
+		return true;
+	}
+	template<size_t dim, typename T>
+	bool vecToContainer(const glm::vec<dim, T>& from, std::array<T, dim>& to)
+	{
+		std::memcpy(to.data(), glm::value_ptr(from), dim * sizeof(T));
+		return true;
 	}
 	
 	// templates

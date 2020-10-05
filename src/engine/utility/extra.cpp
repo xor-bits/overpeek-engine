@@ -1,6 +1,5 @@
-#pragma once
-
 #include "extra.hpp"
+
 #include <string>
 #include <sstream>
 
@@ -48,107 +47,34 @@ int oe::utils::sign(float n)
     return n < 0 ? -1 : 1;
 }
 
-glm::vec3 oe::utils::rgbToHSV(glm::vec3 in)
+bool oe::utils::bounding_box_test(const glm::vec2& point, const glm::vec2& top_left, const glm::vec2& size)
 {
-    glm::vec3   out;
-    float      min, max, delta;
-
-    min = in.r < in.g ? in.r : in.g;
-    min = min < in.b ? min : in.b;
-
-    max = in.r > in.g ? in.r : in.g;
-    max = max > in.b ? max : in.b;
-
-    out.z = max;                                // v
-    delta = max - min;
-    if (delta < 0.00001)
-    {
-        out.s = 0;
-        out.r = 0; // undefined, maybe nan?
-        return out;
-    }
-    if (max > 0.0) { // NOTE: if Max is == 0, this divide would cause a crash
-        out.y = (delta / max);                  // s
-    }
-    else {
-        // if max is 0, then r = g = b = 0              
-        // s = 0, h is undefined
-        out.s = 0.0;
-        out.x = NAN;                            // its now undefined
-        return out;
-    }
-    if (in.r >= max)
-        out.x = (in.g - in.b) / delta;        // between yellow & magenta
-    else
-        if (in.g >= max)
-            out.x = 2.0 + (in.b - in.r) / delta;  // between cyan & yellow
-        else
-            out.x = 4.0 + (in.r - in.g) / delta;  // between magenta & cyan
-
-    out.x *= 60.0;                              // degrees
-
-    if (out.x < 0.0)
-        out.x += 360.0;
-
-    return out;
+    return (point.x >= top_left.x &&
+        point.x < top_left.x + size.x &&
+        point.y >= top_left.y &&
+        point.y < top_left.y + size.y);
 }
 
+// { 0 - 1, 0 - 1, 0 - 1 } -> { 0 - 1, 0 - 1, 0 - 1 }
+// https://stackoverflow.com/a/17897228 modified for glm
+glm::vec3 oe::utils::rgbToHSV(glm::vec3 in)
+{
+    glm::vec4 K = glm::vec4(0.0f, -1.0f / 3.0f, 2.0f / 3.0f, -1.0f);
+    glm::vec4 p = glm::mix(glm::vec4(glm::vec2(in.b, in.g), glm::vec2(K.w, K.z)), glm::vec4(glm::vec2(in.g, in.b), glm::vec2(K.x, K.y)), glm::step(in.b, in.g));
+    glm::vec4 q = glm::mix(glm::vec4(glm::vec3(p.x, p.y, p.w), in.r), glm::vec4(in.r, glm::vec3(p.y, p.z, p.x)), glm::step(p.x, in.r));
+
+    float d = q.x - glm::min(q.w, q.y);
+    float e = 1.0e-10f;
+    return glm::vec3(glm::abs(q.z + (q.w - q.y) / (6.0f * d + e)), d / (q.x + e), q.x);
+}
+
+// { 0 - 1, 0 - 1, 0 - 1 } -> { 0 - 1, 0 - 1, 0 - 1 }
+// https://stackoverflow.com/a/17897228 modified for glm
 glm::vec3 oe::utils::hsvToRGB(glm::vec3 in)
 {
-    float      hh, p, q, t, ff;
-    long        i;
-    glm::vec3   out;
-
-    if (in.s <= 0.0) {
-        out.r = in.y;
-        out.g = in.y;
-        out.b = in.y;
-        return out;
-    }
-    hh = in.x;
-    if (hh >= 360.0) hh = 0.0;
-    hh /= 60.0;
-    i = (long)hh;
-    ff = hh - i;
-    p = in.z * (1.0 - in.y);
-    q = in.z * (1.0 - (in.y * ff));
-    t = in.z * (1.0 - (in.y * (1.0 - ff)));
-
-    switch (i) {
-    case 0:
-        out.r = in.z;
-        out.g = t;
-        out.b = p;
-        break;
-    case 1:
-        out.r = q;
-        out.g = in.z;
-        out.b = p;
-        break;
-    case 2:
-        out.r = p;
-        out.g = in.z;
-        out.b = t;
-        break;
-
-    case 3:
-        out.r = p;
-        out.g = q;
-        out.b = in.z;
-        break;
-    case 4:
-        out.r = t;
-        out.g = p;
-        out.b = in.z;
-        break;
-    case 5:
-    default:
-        out.r = in.z;
-        out.g = p;
-        out.b = q;
-        break;
-    }
-    return out;
+    glm::vec4 K = glm::vec4(1.0f, 2.0f / 3.0f, 1.0f / 3.0f, 3.0f);
+    glm::vec3 p = glm::abs(glm::fract(glm::vec3(in.x) + glm::vec3(K)) * 6.0f - glm::vec3(K.w));
+    return in.z * glm::mix(glm::vec3(K.x), glm::clamp(p - glm::vec3(K.x), 0.0f, 1.0f), in.y);
 }
 
 
@@ -163,7 +89,7 @@ glm::ivec3 oe::utils::hexToRGB(unsigned long hex)
 
 unsigned long oe::utils::RGBtoHex(glm::ivec3 rgb)
 {
-    return rgb.x << 16 + rgb.y << 8 + rgb.z << 0;
+    return (rgb.x << 16) + (rgb.y << 8) + (rgb.z << 0);
 }
 
 std::string oe::utils::hexToString(unsigned long hex)

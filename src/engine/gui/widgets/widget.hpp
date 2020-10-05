@@ -1,44 +1,67 @@
 #pragma once
 
 #include "engine/enum.hpp"
+#include "engine/utility/connect_guard.hpp"
+#include <entt/entt.hpp>
+#include <fmt/format.h>
 
 #include <unordered_set>
 
-#ifndef DISABLE_NULL_SPRITE_CHECK
+#ifdef ENABLE_NULL_SPRITE_CHECK
 #define NULL_SPRITE_CHECK(x) if (!x) { spdlog::warn("No sprite for {}", typeid(*this).name()); return; }
+#else
+#define NULL_SPRITE_CHECK(x)
 #endif /* NULL_SPRITE_CHECK */
 
 
 
-namespace oe::gui { struct GUIRenderEvent; class GUI; }
+namespace oe::gui { struct GUIRenderEvent; struct GUIPreRenderEvent; class GUI; }
 
 namespace oe::gui
 {
-	class Widget
+	enum interact_type_flags
+	{
+		cursor = 1<<0, scroll = 1<<1, keyboard = 1<<2
+	};
+
+	[[nodiscard]] constexpr inline interact_type_flags operator|(interact_type_flags a, interact_type_flags b)
+	{
+		return static_cast<interact_type_flags>(static_cast<int>(a) | static_cast<int>(b));
+	}
+
+	struct WidgetInfo
+	{
+		glm::ivec2 size                    = { 50, 50 };
+		glm::ivec2 offset_position         = { 0, 0 };
+		glm::vec2 align_parent             = oe::alignments::center_center;
+		glm::vec2 align_render             = oe::alignments::center_center;
+		bool toggled                       = true;
+	};
+
+	class Widget : public std::enable_shared_from_this<Widget>
 	{
 	private:
 		Widget* m_parent;
-		std::unordered_set<Widget*> m_nodes;
-		void setParent(Widget* parent);
+		std::unordered_set<std::shared_ptr<Widget>> m_nodes;
 		static float z_acc;
+		
+		bool toggle_pending = false;
+		bool toggle_pending_value = false;
+
+		std::vector<oe::utils::connect_guard> m_user_event_cg_guards;
 
 	protected:
+		GUI& m_gui_manager;
+		float z;
+
+	public:
 		glm::ivec2 topleft_position = { 0, 0 };
 		glm::ivec2 render_position = { 0, 0 };
-
-		GUI* m_gui_manager;
-		float z;
+		WidgetInfo m_info;
 		entt::dispatcher dispatcher;
 
 	public:
-		glm::ivec2 size = { 0, 0 };
-		glm::ivec2 offset_position = { 0, 0 };
-		glm::vec2 align_parent = ::oe::alignments::center_center;
-		glm::vec2 align_render = ::oe::alignments::center_center;
-		bool toggled = true;
-
-	public:
-		Widget(const glm::ivec2& size, const glm::vec2& align_parent, const glm::vec2& align_render, const glm::ivec2& offset_position);
+		Widget(Widget* parent, GUI& gui_manager, const WidgetInfo& info = {});
 		virtual ~Widget();
 
 		// connect event
@@ -64,21 +87,55 @@ namespace oe::gui
 			dispatcher.sink<Event>().template disconnect<Listener>();
 		}
 
-		// unassign before reassigning
-		virtual void managerAssigned(GUI* gui_manager);
-		virtual void managerUnassigned(GUI* gui_manager);
+		// create subwidget
+		template<typename T, typename ... Args>
+		std::shared_ptr<T> create(Args& ... args)
+		{
+			auto ptr = std::make_shared<T>(this, m_gui_manager, args...);
+			(*m_nodes.insert(ptr).first)->base_toggle(ptr->m_info.toggled);
+			return ptr;
+		}
 
-		// this class will take ownership of this pointer
-		virtual void addSubWidget(Widget* widget);
-		virtual void removeSubWidget(Widget* widget);
+		// remove subwidget
+		template<typename T>
+		void remove(const std::shared_ptr<T>& widget)
+		{
+			m_nodes.erase(widget);
+		}
 
-		float getZ() { return z; }
-		void overrideZ(float _z) { z = _z; }
+		// remove all subwidgets
+		void clear();
 
-	private:
+		// refrence will be invalidated after the next call to create_event_cg or clear_event_cg
+		[[nodiscard]] oe::utils::connect_guard& create_event_cg();
+		void clear_event_cg() noexcept;
+
+		// for internal render sorting
+		inline float getZ() { return z; }
+		inline void overrideZ(float _z) { z = _z; }
+		
+		// must not be toggled from an event
+		void toggle(bool enabled = true);
+		virtual void virtual_toggle(bool enabled) {};
+		void base_toggle(bool enabled);
+		inline Widget* getParent() const { return m_parent; }
+
+	protected:
 		// events
-		void on_render(const GUIRenderEvent& event);
+		void on_pre_render(const GUIPreRenderEvent& event);
+		oe::utils::connect_guard m_cg_pre_render;
 
 	friend class GUI;
 	};
 }
+
+template <>
+struct fmt::formatter<oe::gui::WidgetInfo> {
+	template <typename ParseContext>
+	constexpr auto parse(ParseContext& ctx) { return ctx.begin(); }
+
+	template <typename FormatContext>
+	auto format(const oe::gui::WidgetInfo& i, FormatContext& ctx) {
+		return format_to(ctx.out(), "[ s: {}, o: {}, a0: {}, a1: {}, t: {} ]", i.size, i.offset_position, i.align_parent, i.align_render, i.toggled);
+	}
+};

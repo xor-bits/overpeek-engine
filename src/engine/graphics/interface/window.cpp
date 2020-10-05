@@ -7,6 +7,7 @@
 
 #include "engine/internal_libs.hpp"
 #include "engine/utility/extra.hpp"
+#include "engine/utility/connect_guard.hpp"
 #include "engine/engine.hpp"
 
 
@@ -30,7 +31,7 @@ namespace oe::graphics {
 				event.codepoint = codepoint;
 
 				this_class->dispatcher_mutex.lock();
-				this_class->dispatcher.enqueue(event);
+				this_class->m_window_gameloop.getDispatcher().enqueue(event);
 				this_class->dispatcher_mutex.unlock();
 				// if (this_class->m_window_info.text_callback) this_class->m_window_info.text_callback(static_cast<uint32_t>(codepoint), static_cast<oe::modifiers>(mods));
 			});
@@ -49,10 +50,11 @@ namespace oe::graphics {
 				oe::ResizeEvent event;
 				event.framebuffer_size = this_class->m_window_info.size;
 				event.framebuffer_size_old = old;
-				event.aspect = this_class->aspect();
+				event.aspect = this_class->getAspect();
 				
 				this_class->dispatcher_mutex.lock();
-				this_class->dispatcher.enqueue(event);
+				this_class->m_window_gameloop.getDispatcher().clear<oe::ResizeEvent>();
+				this_class->m_window_gameloop.getDispatcher().enqueue(event);
 				this_class->dispatcher_mutex.unlock();
 				//if (this_class->m_window_info.resize_callback) this_class->m_window_info.resize_callback(this_class->m_window_info.size);
 			});
@@ -72,7 +74,8 @@ namespace oe::graphics {
 				event.cursor_worldspace = this_class->m_cursor_transformed;
 
 				this_class->dispatcher_mutex.lock();
-				this_class->dispatcher.enqueue(event);
+				this_class->m_window_gameloop.getDispatcher().clear<oe::CursorPosEvent>(); // should multiple cursor pos events be sent to the application per frame 
+				this_class->m_window_gameloop.getDispatcher().enqueue(event);
 				this_class->dispatcher_mutex.unlock();
 				// if (this_class->m_window_info.cursor_callback) this_class->m_window_info.cursor_callback(this_class->m_cursor_transformed, this_class->m_cursor_window);
 			});
@@ -94,7 +97,7 @@ namespace oe::graphics {
 				event.cursor_pos.cursor_worldspace = this_class->m_cursor_transformed;
 
 				this_class->dispatcher_mutex.lock();
-				this_class->dispatcher.enqueue(event);
+				this_class->m_window_gameloop.getDispatcher().enqueue(event);
 				this_class->dispatcher_mutex.unlock();
 				// if (this_class->m_window_info.button_callback) this_class->m_window_info.button_callback(static_cast<oe::mouse_buttons>(button), static_cast<oe::actions>(action));
 			});
@@ -114,7 +117,7 @@ namespace oe::graphics {
 				event.mods = static_cast<oe::modifiers>(mods);
 
 				this_class->dispatcher_mutex.lock();
-				this_class->dispatcher.enqueue(event);
+				this_class->m_window_gameloop.getDispatcher().enqueue(event);
 				this_class->dispatcher_mutex.unlock();
 				// if (this_class->m_window_info.key_callback) this_class->m_window_info.key_callback(static_cast<oe::keys>(key), static_cast<oe::actions>(action), static_cast<oe::modifiers>(mods));
 			});
@@ -127,7 +130,7 @@ namespace oe::graphics {
 				event.scroll_delta = { xoffset, yoffset };
 
 				this_class->dispatcher_mutex.lock();
-				this_class->dispatcher.enqueue(event);
+				this_class->m_window_gameloop.getDispatcher().enqueue(event);
 				this_class->dispatcher_mutex.unlock();
 				// if (this_class->m_window_info.scroll_callback) this_class->m_window_info.scroll_callback(yoffset);
 			});
@@ -143,9 +146,9 @@ namespace oe::graphics {
 
 	IWindow::IWindow(const std::unique_ptr<Instance>& instance, const WindowInfo& window_config) 
 		: m_window_info(window_config)
-		, m_window_gameloop(this, m_window_info.main_updatesystem_ups)
+		, m_window_gameloop(this)
 	{
-		m_window_info.size.y = std::max(m_window_info.size.y, 1);
+		m_window_info.size.y = std::max(m_window_info.size.y, static_cast<uint32_t>(1));
 		m_aspect_ratio = static_cast<float>(m_window_info.size.x) / static_cast<float>(m_window_info.size.y);
 
 		for (size_t i = 0; i < M_NUM_KEYS; i++)
@@ -198,40 +201,40 @@ namespace oe::graphics {
 
 
 	// getters/setters
-	float IWindow::aspect() { return m_aspect_ratio; };
-	float IWindow::button(oe::mouse_buttons button) { int32_t num = static_cast<int32_t>(button); if (num >= M_NUM_BUTTONS || num < 0) oe_error_terminate("Invalid button {}", button); else return m_buttons[num]; }
-	float IWindow::key(oe::keys key) { int32_t num = static_cast<int32_t>(key); if (num >= M_NUM_KEYS || num < 0) oe_error_terminate("Invalid key {}", key); else return m_keys[num]; }
+	float IWindow::getAspect() const { return m_aspect_ratio; };
+	float IWindow::getButton(oe::mouse_buttons button) const { int32_t num = static_cast<int32_t>(button); if (num >= M_NUM_BUTTONS || num < 0) oe_error_terminate("Invalid button {}", button); else return m_buttons[num]; }
+	float IWindow::getKey(oe::keys key) const { int32_t num = static_cast<int32_t>(key); if (num >= M_NUM_KEYS || num < 0) oe_error_terminate("Invalid key {}", key); else return m_keys[num]; }
 
-	const glm::ivec2& IWindow::getPosition() { return m_window_info.position; }
+	const glm::ivec2& IWindow::getPosition() const { return m_window_info.position; }
 	void IWindow::setPosition(const glm::ivec2& pos) { m_window_info.position = pos; glfwSetWindowPos(m_window_handle, m_window_info.position.x, m_window_info.position.y); }
 
-	const glm::ivec2& IWindow::getSize() { return m_window_info.size; }
+	const glm::ivec2& IWindow::getSize() const { return m_window_info.size; }
 	void IWindow::setSize(const glm::ivec2& size) { m_window_info.size = size; glfwSetWindowSize(m_window_handle, size.x, size.y); }
 
-	const std::string& IWindow::getTitle() { return m_window_info.title; }
+	const std::string& IWindow::getTitle() const { return m_window_info.title; }
 	void IWindow::setTitle(const std::string& title) { m_window_info.title = title; glfwSetWindowTitle(m_window_handle, title.c_str()); }
 
 #ifndef __EMSCRIPTEN__ /* WebGL does not support borderless or non-resizeable glfw windows */
-	bool IWindow::getBorderless() { return m_window_info.borderless; }
+	bool IWindow::getBorderless() const { return m_window_info.borderless; }
 	void IWindow::setBorderless(bool borderless) { m_window_info.borderless = borderless; glfwSetWindowAttrib(m_window_handle, GLFW_DECORATED, !m_window_info.resizeable); }
 
-	bool IWindow::getResizeable() { return m_window_info.resizeable; }
+	bool IWindow::getResizeable() const { return m_window_info.resizeable; }
 	void IWindow::setResizeable(bool resizeable) { m_window_info.resizeable = resizeable; glfwSetWindowAttrib(m_window_handle, GLFW_RESIZABLE, m_window_info.resizeable); }
 #else /* __EMSCRIPTEN__ */
-	bool IWindow::getBorderless() { return false; }
+	bool IWindow::getBorderless() const { return false; }
 	void IWindow::setBorderless(bool borderless) { }
 
-	bool IWindow::getResizeable() { return false; }
+	bool IWindow::getResizeable() const { return false; }
 	void IWindow::setResizeable(bool resizeable) { }
 #endif /* __EMSCRIPTEN__ */
 
-	bool IWindow::getFullscreen() { return m_window_info.fullscreen; }
+	bool IWindow::getFullscreen() const { return m_window_info.fullscreen; }
 	void IWindow::setFullscreen(bool fullscreen) { m_window_info.fullscreen = fullscreen; m_window_info.fullscreen ? makeFullscreen(m_window_handle, m_window_info) : makeWindowed(m_window_handle, m_window_info); }
 
-	const glm::ivec2& IWindow::getCursorWindow() { return m_cursor_window; }
+	const glm::ivec2& IWindow::getCursorWindow() const { return m_cursor_window; }
 	void IWindow::setCursorWindow(const glm::ivec2& cursor_at_window) { m_cursor_window = cursor_at_window; glfwSetCursorPos(m_window_handle, m_cursor_window.x, m_cursor_window.y); }
 
-	const glm::vec2& IWindow::getCursorTransformed() { return m_cursor_transformed; }
+	const glm::vec2& IWindow::getCursorTransformed() const { return m_cursor_transformed; }
 	void IWindow::setCursorTransformed(const glm::vec2& cursor_at_world_space) 
 	{
 		m_cursor_transformed = cursor_at_world_space;
@@ -240,7 +243,7 @@ namespace oe::graphics {
 		glfwSetCursorPos(m_window_handle, m_cursor_transformed.x, m_cursor_transformed.y);
 	}
 
-	const std::string IWindow::getClipboard() { return glfwGetClipboardString(m_window_handle); }
+	const std::string IWindow::getClipboard() const { return glfwGetClipboardString(m_window_handle); }
 	
 	void IWindow::setClipboard(const std::string& str) { glfwSetClipboardString(m_window_handle, str.c_str()); }
 
