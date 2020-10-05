@@ -11,7 +11,7 @@ namespace oe::graphics { class Quad; }
 
 namespace oe::gui
 {
-	struct SliderInfo
+	struct SliderInputInfo
 	{
 		float value_initial                                          = 0.0f;
 		glm::vec2 value_bounds                                       = { -1.0f, 1.0f };
@@ -19,7 +19,7 @@ namespace oe::gui
 		bool draw_value                                              = false;
 		int font_size                                                = 14;
 		oe::utils::FontFile font_file                                = {}; // empty for gui default
-		std::function<std::u32string(const float&)> draw_format      = &SliderInfo::default_formatter;
+		std::function<std::u32string(const float&)> draw_format      = &SliderInputInfo::default_formatter;
 		bool vertical                                                = false;
 		glm::ivec2 knob_size                                         = { 30, 30 };
 		glm::vec4 knob_color                                         = oe::colors::grey;
@@ -37,10 +37,10 @@ namespace oe::gui
 		static std::u32string default_formatter(const float& val);
 	};
 
-	struct SliderHoverEvent
+	struct SliderInputHoverEvent
 	{};
 
-	struct SliderUseEvent
+	struct SliderInputUseEvent
 	{
 		oe::actions action;
 		oe::mouse_buttons button;
@@ -48,7 +48,7 @@ namespace oe::gui
 		float value;
 	};
 
-	class Slider : public Widget
+	class SliderInput : public Widget
 	{
 	private:
 		oe::graphics::u32TextLabel* value_label;
@@ -63,14 +63,14 @@ namespace oe::gui
 		void clamp();
 
 	public:
-		SliderInfo m_slider_info;
+		SliderInputInfo m_slider_info;
 		float& m_value;
-		SliderHoverEvent m_event_hover_latest;
-		SliderUseEvent m_event_use_latest;
+		SliderInputHoverEvent m_event_hover_latest;
+		SliderInputUseEvent m_event_use_latest;
 
 	public:
-		Slider(Widget* parent, GUI& gui_manager, float& value_ref, const SliderInfo& slider_info = {});
-		Slider(Widget* parent, GUI& gui_manager, const SliderInfo& slider_info = {}) : Slider(parent, gui_manager, m_slider_info.value_initial, slider_info) {}
+		SliderInput(Widget* parent, GUI& gui_manager, float& value_ref, const SliderInputInfo& slider_info = {});
+		SliderInput(Widget* parent, GUI& gui_manager, const SliderInputInfo& slider_info = {}) : SliderInput(parent, gui_manager, m_slider_info.value_initial, slider_info) {}
 
 		virtual void virtual_toggle(bool enabled) override;
 	

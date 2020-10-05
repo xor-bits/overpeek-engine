@@ -24,7 +24,7 @@ namespace oe::gui
     };
 
 	class SpritePanel;
-	class Slider;
+	class SliderInput;
     class List : public Widget
     {
     private:
@@ -34,7 +34,7 @@ namespace oe::gui
 
         oe::graphics::FrameBuffer fb;
         SpritePanel* panel;
-        Slider* slider;
+        SliderInput* slider;
         oe::graphics::Sprite fb_sprite;
 
 	public:

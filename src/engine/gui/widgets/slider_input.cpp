@@ -1,4 +1,4 @@
-#include "slider.hpp"
+#include "slider_input.hpp"
 
 #include "engine/gui/gui_manager.hpp"
 #include "engine/graphics/textLabel.hpp"
@@ -31,12 +31,12 @@ namespace oe::gui
 	};
 	SliderLinearRenderer* SliderLinearRenderer::singleton = nullptr;
 
-	std::u32string SliderInfo::default_formatter(const float& val)
+	std::u32string SliderInputInfo::default_formatter(const float& val)
 	{
 		return fmt::format(U"{:.1f}", val);
 	}
 
-	Slider::Slider(Widget* parent, GUI& gui_manager, float& value_ref, const SliderInfo& slider_info) 
+	SliderInput::SliderInput(Widget* parent, GUI& gui_manager, float& value_ref, const SliderInputInfo& slider_info) 
 		: Widget(parent, gui_manager, slider_info.widget_info)
 		, m_dragging(false)
 		, m_slider_info(slider_info)
@@ -46,7 +46,7 @@ namespace oe::gui
 		if (!m_slider_info.knob_sprite)   m_slider_info.knob_sprite   = m_slider_info.slider_sprite;
 	}
 	
-	void Slider::virtual_toggle(bool enabled)
+	void SliderInput::virtual_toggle(bool enabled)
 	{
 		if(enabled)
 		{
@@ -63,10 +63,10 @@ namespace oe::gui
 			}
 
 			// event listeners
-			m_cg_render.connect<GUIRenderEvent, &Slider::on_render, Slider>(m_gui_manager.dispatcher, this);
-			m_cg_cursor.connect<CursorPosEvent, &Slider::on_cursor, Slider>(m_gui_manager.dispatcher, this);
-			m_cg_button.connect<MouseButtonEvent, &Slider::on_button, Slider>(m_gui_manager.dispatcher, this);
-			m_cg_scroll.connect<ScrollEvent, &Slider::on_scroll, Slider>(m_gui_manager.dispatcher, this);
+			m_cg_render.connect<GUIRenderEvent, &SliderInput::on_render, SliderInput>(m_gui_manager.dispatcher, this);
+			m_cg_cursor.connect<CursorPosEvent, &SliderInput::on_cursor, SliderInput>(m_gui_manager.dispatcher, this);
+			m_cg_button.connect<MouseButtonEvent, &SliderInput::on_button, SliderInput>(m_gui_manager.dispatcher, this);
+			m_cg_scroll.connect<ScrollEvent, &SliderInput::on_scroll, SliderInput>(m_gui_manager.dispatcher, this);
 		}
 		else
 		{
@@ -90,7 +90,7 @@ namespace oe::gui
 		}
 	}
 	
-	void Slider::on_render(const GUIRenderEvent& event)
+	void SliderInput::on_render(const GUIRenderEvent& event)
 	{
 		if(!m_cg_render)
 			return;
@@ -212,7 +212,7 @@ namespace oe::gui
 		}
 	}
 	
-	void Slider::clamp()
+	void SliderInput::clamp()
 	{
 		m_value = oe::utils::clamp(m_value, m_slider_info.value_bounds.x, m_slider_info.value_bounds.y);
 		const float range = std::fabs(m_slider_info.value_bounds.x - m_slider_info.value_bounds.y);
@@ -221,7 +221,7 @@ namespace oe::gui
 		m_value /= range * m_slider_info.value_steps;
 	}
 
-	void Slider::on_cursor(const CursorPosEvent& event)
+	void SliderInput::on_cursor(const CursorPosEvent& event)
 	{
 		if(!(m_slider_info.interact_flags & interact_type_flags::cursor))
 			return;
@@ -257,7 +257,7 @@ namespace oe::gui
 		}
 	}
 
-	void Slider::on_button(const MouseButtonEvent& event)
+	void SliderInput::on_button(const MouseButtonEvent& event)
 	{
 		if(!(m_slider_info.interact_flags & interact_type_flags::cursor))
 			return;
@@ -292,7 +292,7 @@ namespace oe::gui
 		}
 	}
 
-	void Slider::on_scroll(const ScrollEvent& event)
+	void SliderInput::on_scroll(const ScrollEvent& event)
 	{
 		if (!(m_slider_info.interact_flags & interact_type_flags::scroll))
 			return;

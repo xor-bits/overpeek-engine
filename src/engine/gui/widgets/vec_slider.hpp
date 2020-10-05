@@ -1,6 +1,6 @@
 #pragma once
 
-#include "slider.hpp"
+#include "slider_input.hpp"
 #include "engine/utility/extra.hpp"
 
 #include <array>
@@ -20,7 +20,7 @@ namespace oe::gui
         glm::vec<dimension, float> min_values     = glm::vec<dimension, float>(-1.0f);
         glm::vec<dimension, float> max_values     = glm::vec<dimension, float>(1.0f);
 
-        SliderInfo slider_info;
+        SliderInputInfo slider_info;
     };
 
     template<glm::length_t dimension = 3>
@@ -40,7 +40,7 @@ namespace oe::gui
     class VecSlider : public Widget
     {
     protected:
-        std::array<std::shared_ptr<Slider>, dimension> m_sliders;
+        std::array<std::shared_ptr<SliderInput>, dimension> m_sliders;
 		VecSliderHoverEvent<dimension> m_event_hover_latest;
 		VecSliderUseEvent<dimension> m_event_use_latest;
          
@@ -86,11 +86,11 @@ namespace oe::gui
             for(glm::length_t i = 0; i < dimension; i++)
             {
                 slider_info.slider_info.value_bounds = { slider_info.min_values[i], slider_info.max_values[i] };
-				m_sliders[i] = create<Slider>(*(&m_value[0] + i), slider_info.slider_info);
+				m_sliders[i] = create<SliderInput>(*(&m_value[0] + i), slider_info.slider_info);
                 slider_info.slider_info.widget_info.offset_position += offset_next;
 
-				m_sliders[i]->template connect_listener<SliderHoverEvent, &VecSlider<dimension>::on_slider_hover>(this);
-				m_sliders[i]->template connect_listener<SliderUseEvent, &VecSlider<dimension>::on_slider_use>(this);
+				m_sliders[i]->template connect_listener<SliderInputHoverEvent, &VecSlider<dimension>::on_slider_hover>(this);
+				m_sliders[i]->template connect_listener<SliderInputUseEvent, &VecSlider<dimension>::on_slider_use>(this);
             }
         }
 		VecSlider(Widget* parent, GUI& gui_manager, VecSliderInfo<dimension> slider_info = {})
@@ -101,18 +101,18 @@ namespace oe::gui
 		{
 			for(size_t i = 0; i < dimension; i++)
             {
-				m_sliders[i]->template disconnect_listener<SliderHoverEvent, &VecSlider<dimension>::on_slider_hover>(this);
-				m_sliders[i]->template disconnect_listener<SliderUseEvent, &VecSlider<dimension>::on_slider_use>(this);
+				m_sliders[i]->template disconnect_listener<SliderInputHoverEvent, &VecSlider<dimension>::on_slider_hover>(this);
+				m_sliders[i]->template disconnect_listener<SliderInputUseEvent, &VecSlider<dimension>::on_slider_use>(this);
             }
 		}
 
 	private:
-		void on_slider_hover(const SliderHoverEvent& e)
+		void on_slider_hover(const SliderInputHoverEvent& e)
 		{
 			dispatcher.trigger(m_event_hover_latest);
 		}
 
-		void on_slider_use(const SliderUseEvent& e)
+		void on_slider_use(const SliderInputUseEvent& e)
 		{
 			m_event_use_latest.action = e.action;
 			m_event_use_latest.modifier = e.modifier;

@@ -10,7 +10,7 @@
 
 namespace oe::gui
 {
-	class Slider;
+	class SliderInput;
 
 	struct ColorPickerInfo
 	{
@@ -36,7 +36,7 @@ namespace oe::gui
 		glm::ivec2 m_selector_triangle;
 		glm::vec4 m_value_last;
 
-		std::shared_ptr<Slider> m_alpha_slider;
+		std::shared_ptr<SliderInput> m_alpha_slider;
 		std::shared_ptr<SpritePanel> m_framebuffer_panel;
 		std::shared_ptr<SpritePanel> m_preview;
 
@@ -75,6 +75,6 @@ namespace oe::gui
 		oe::utils::connect_guard m_cg_render;
 		oe::utils::connect_guard m_cg_cursor;
 		oe::utils::connect_guard m_cg_button;
-		void on_slider_use(const SliderUseEvent& event);
+		void on_slider_use(const SliderInputUseEvent& event);
 	};
 }

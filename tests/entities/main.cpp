@@ -181,7 +181,7 @@ void gui()
 {
 	gui_manager = new oe::gui::GUI(window);
 	{
-		oe::gui::SliderInfo s_info;
+		oe::gui::SliderInputInfo s_info;
 		s_info.widget_info.size = { 50, 16 };
 		s_info.widget_info.align_parent = oe::alignments::top_left;
 		s_info.widget_info.align_render = oe::alignments::top_left;
@@ -192,9 +192,9 @@ void gui()
 		s_info.slider_sprite = pack->emptySprite();
 		s_info.value_bounds = { -10.0f, 10.0f, };
 		s_info.draw_value = true;
-		auto slider = gui_manager->create<oe::gui::Slider>(s_info);
+		auto slider = gui_manager->create<oe::gui::SliderInput>(s_info);
 
-		slider->create_event_cg().connect<oe::gui::SliderUseEvent>(slider->dispatcher, [&](const oe::gui::SliderUseEvent& e)
+		slider->create_event_cg().connect<oe::gui::SliderInputUseEvent>(slider->dispatcher, [&](const oe::gui::SliderInputUseEvent& e)
 		{
 			world->m_scene.view<std::unique_ptr<MotorScript>>().each([&e](std::unique_ptr<MotorScript>& src) {
 				src->motor_joint->SetMotorSpeed(e.value);
@@ -202,7 +202,7 @@ void gui()
 		});
 	}
 	{
-		oe::gui::SliderInfo s_info;
+		oe::gui::SliderInputInfo s_info;
 		s_info.widget_info.size = { 50, 16 };
 		s_info.widget_info.align_parent = oe::alignments::top_left;
 		s_info.widget_info.align_render = oe::alignments::top_left;
@@ -213,9 +213,9 @@ void gui()
 		s_info.slider_sprite = pack->emptySprite();
 		s_info.value_bounds = { -10.0f, 10.0f, };
 		s_info.draw_value = true;
-		auto slider = gui_manager->create<oe::gui::Slider>(s_info);
+		auto slider = gui_manager->create<oe::gui::SliderInput>(s_info);
 
-		slider->create_event_cg().connect<oe::gui::SliderUseEvent>(slider->dispatcher, [&](const oe::gui::SliderUseEvent& e)
+		slider->create_event_cg().connect<oe::gui::SliderInputUseEvent>(slider->dispatcher, [&](const oe::gui::SliderInputUseEvent& e)
 		{
 			world->m_scene.view<std::unique_ptr<MotorScript>>().each([&e](std::unique_ptr<MotorScript>& src) {
 				src->motor_joint->SetMotorSpeed(e.value);

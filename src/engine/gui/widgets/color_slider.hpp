@@ -5,7 +5,7 @@
 
 
 
-namespace oe::gui {	class Slider; class SpritePanel; class ColorPicker; class Button; struct ButtonHoverEvent; struct ButtonUseEvent; }
+namespace oe::gui {	class SliderInput; class SpritePanel; class ColorPicker; class Button; struct ButtonHoverEvent; struct ButtonUseEvent; }
 namespace oe::graphics { struct Sprite; }
 
 namespace oe::gui

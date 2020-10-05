@@ -1,7 +1,7 @@
 #include "list.hpp"
 
 #include "sprite_panel.hpp"
-#include "slider.hpp"
+#include "slider_input.hpp"
 #include "text_panel.hpp"
 #include "engine/gui/gui_manager.hpp"
 #include "engine/graphics/interface/window.hpp"
@@ -41,7 +41,7 @@ namespace oe::gui
 
         if (list_info.scrollable)
         {
-            SliderInfo slider_info;
+            SliderInputInfo slider_info;
             slider_info.widget_info = { { 20, m_info.size.y }, m_info.offset_position, oe::alignments::top_right, oe::alignments::top_right, false };
             slider_info.slider_sprite = list_info.sprite;
             slider_info.knob_sprite = list_info.sprite;
@@ -49,7 +49,7 @@ namespace oe::gui
             slider_info.slider_lcolor = slider_info.slider_rcolor;
             slider_info.vertical = true;
             slider_info.value_bounds = { 0.0f, 1.0f };
-            slider = new Slider(slider_info);
+            slider = new SliderInput(slider_info);
             addSubWidget(slider);
         } */
     }

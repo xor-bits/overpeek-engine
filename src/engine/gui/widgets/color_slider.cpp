@@ -1,6 +1,6 @@
 #include "color_slider.hpp"
 
-#include "slider.hpp"
+#include "slider_input.hpp"
 #include "sprite_panel.hpp"
 #include "engine/engine.hpp"
 #include "color_picker.hpp"

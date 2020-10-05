@@ -230,7 +230,7 @@ namespace oe::gui
 
 		if (color_picker_info.alpha)
 		{
-			SliderInfo s_info;
+			SliderInputInfo s_info;
 			s_info.knob_size = { 16, 16 };
 			s_info.widget_info.size = { color_picker_info.color_slider_info.widget_info.size.x - 10, 15 };
 			s_info.widget_info.offset_position = { 0, -5 };
@@ -244,21 +244,21 @@ namespace oe::gui
 			s_info.slider_lcolor = oe::colors::white;
 			s_info.slider_rcolor = oe::colors::black;
 			s_info.knob_sprite = color_picker_info.color_slider_info.sprite;
-			m_alpha_slider = create<Slider>(m_value.a, s_info);
+			m_alpha_slider = create<SliderInput>(m_value.a, s_info);
 		}
 
 		m_value_last = m_value + 1.0f;
 		sprite_panel_info.sprite = m_color_picker_info.color_slider_info.sprite;
 
-		m_alpha_slider->connect_listener<SliderUseEvent, &ColorPicker::on_slider_use>(this);
+		m_alpha_slider->connect_listener<SliderInputUseEvent, &ColorPicker::on_slider_use>(this);
 	}
 
 	ColorPicker::~ColorPicker()
 	{
-		m_alpha_slider->disconnect_listener<SliderUseEvent, &ColorPicker::on_slider_use>(this);
+		m_alpha_slider->disconnect_listener<SliderInputUseEvent, &ColorPicker::on_slider_use>(this);
 	}
 
-	void ColorPicker::on_slider_use(const SliderUseEvent& event)
+	void ColorPicker::on_slider_use(const SliderInputUseEvent& event)
 	{
 		m_value.a = event.value;
 	}
