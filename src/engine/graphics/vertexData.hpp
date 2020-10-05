@@ -11,15 +11,15 @@ namespace oe::graphics {
 		glm::fvec2 uv;
 		glm::fvec4 color;
 
-		VertexData_internal()
+		constexpr VertexData_internal() noexcept
 			: position(0.0f), uv(0.0f), color(0.0f)
 		{}
 
-		VertexData_internal(glm::fvec3 _position, glm::fvec2 _uv, glm::fvec4 _color)
+		constexpr VertexData_internal(glm::fvec3 _position, glm::fvec2 _uv, glm::fvec4 _color) noexcept
 			: position(_position), uv(_uv), color(_color)
 		{}
 
-		VertexData_internal(glm::fvec2 _position, glm::fvec2 _uv, glm::fvec4 _color)
+		constexpr VertexData_internal(glm::fvec2 _position, glm::fvec2 _uv, glm::fvec4 _color) noexcept
 			: position(_position, 0.0f), uv(_uv), color(_color)
 		{}
 	};
@@ -30,15 +30,15 @@ namespace oe::graphics {
 		static constexpr size_t uv_offset = offsetof(VertexData_internal, uv);
 		static constexpr size_t col_offset = offsetof(VertexData_internal, color);
 
-		VertexData()
+		constexpr VertexData() noexcept
 			: VertexData_internal()
 		{}
 
-		VertexData(glm::fvec3 position, glm::fvec2 uv, glm::fvec4 color)
+		constexpr VertexData(glm::fvec3 position, glm::fvec2 uv, glm::fvec4 color) noexcept
 			: VertexData_internal(position, uv, color)
 		{}
 
-		VertexData(glm::fvec2 position, glm::fvec2 uv, glm::fvec4 color)
+		constexpr VertexData(glm::fvec2 position, glm::fvec2 uv, glm::fvec4 color) noexcept
 			: VertexData_internal(position, uv, color)
 		{}
 

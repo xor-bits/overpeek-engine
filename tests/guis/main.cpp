@@ -43,7 +43,7 @@ public:
 void initCube()
 {
 	// vertices
-	const std::vector<oe::graphics::VertexData> box_vertices = 
+	constexpr static std::array<oe::graphics::VertexData, 24> box_vertices = 
 	{
 		// front
 		{ { -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
