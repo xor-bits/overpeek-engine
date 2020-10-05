@@ -6,7 +6,7 @@
 
 
 oe::gui::GUI* gui;
-std::shared_ptr<oe::gui::TextInput> textbox;
+std::shared_ptr<oe::gui::BasicTextInput<char32_t>> textbox;
 std::shared_ptr<oe::gui::TextPanel> textpanel;
 std::shared_ptr<oe::gui::SpritePanel> box;
 std::shared_ptr<oe::gui::List> list;
@@ -50,7 +50,7 @@ void initCube()
 {
 	// vertices
 	constexpr static std::array<oe::graphics::VertexData, 24> box_vertices = 
-	{
+	{{
 		// front
 		{ { -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
 		{ { -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
@@ -86,7 +86,7 @@ void initCube()
 		{ {  1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
 		{ {  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
 		{ {  1.0f,  1.0f, -1.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
-	};
+	}};
 
 	// submit
 	renderer->begin();
@@ -232,11 +232,11 @@ void setup_gui()
 		box = gui->create<oe::gui::SpritePanel>(sprite_panel_info);
 	}
 	{
-		oe::gui::TextInputInfo text_input_info;
+		oe::gui::BasicTextInputInfo<char32_t> text_input_info;
 		text_input_info.widget_info = { { 200, 80 }, { 0, 0 }, oe::alignments::bottom_right, oe::alignments::bottom_right };
 		text_input_info.font_size = 14;
 		text_input_info.sprite = pack->emptySprite();
-		textbox = gui->create<oe::gui::TextInput>(text_input_info);
+		textbox = gui->create<oe::gui::BasicTextInput<char32_t>>(text_input_info);
 	}
 	{
 		oe::gui::VecSliderInfo<4> vecslider_info;
@@ -285,11 +285,12 @@ void setup_gui()
 		});
 	}
 	{
-		oe::gui::NumberInputInfo number_input_info;
+		oe::gui::BasicNumberInputInfo<int> number_input_info;
 		number_input_info.initial_value = 42.0f;
+		number_input_info.value_bounds = { 30.0f, 50.0f };
 		number_input_info.widget_info = { { 30, 18 }, { 0, 0 }, oe::alignments::top_center, oe::alignments::top_center };
 		number_input_info.sprite = pack->emptySprite();
-		auto number_input = gui->create<oe::gui::NumberInput>(number_input_info);
+		auto number_input = gui->create<oe::gui::BasicNumberInput<int>>(number_input_info);
 	}
 	{
 		oe::gui::TextPanelInfo text_panel_info;

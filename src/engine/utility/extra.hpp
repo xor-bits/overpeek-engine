@@ -39,7 +39,7 @@ namespace oe::utils {
 	extern glm::vec3 hsvToRGB(glm::vec3 in);
 
 	// https://github.com/coder0xff/Plange/blob/master/source/utilities/utf.cpp
-	template<typename from, typename to>
+	template<typename to, typename from>
 	to convertUTF(const from&);
 
 	// hex conversions

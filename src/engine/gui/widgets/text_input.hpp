@@ -13,53 +13,34 @@ namespace oe::graphics { class Quad; }
 
 namespace oe::gui
 {
-	// text
-	template<typename char_type> static constexpr std::basic_string_view<char_type> filter_any                            = R"regex(/^.*$/gm)regex";
-	template<typename char_type> static constexpr std::basic_string_view<char_type> filter_multiline_any                  = R"regex(/^.*$/gm)regex";
-	template<typename char_type> static constexpr std::basic_string_view<char_type> filter_letters_upper                  = R"regex(/^[A-Z]$/gm)regex";
-	template<typename char_type> static constexpr std::basic_string_view<char_type> filter_letters_lower                  = R"regex(/^[a-z]$/gm)regex";
-	template<typename char_type> static constexpr std::basic_string_view<char_type> filter_multiline_letters_upper        = R"regex(/^[A-Z]$/gm)regex";
-	template<typename char_type> static constexpr std::basic_string_view<char_type> filter_multiline_letters_lower        = R"regex(/^[a-z]$/gm)regex";
-	
-	// numbers
-	template<typename char_type> static constexpr std::basic_string_view<char_type> filter_integer_numbers                = R"regex(/^[-+]?\d*\.?\d+$/gm)regex";
-	template<typename char_type> static constexpr std::basic_string_view<char_type> filter_integer_numbers_empty          = R"regex(/^([-+]?\d*\.?\d+)?$/gm)regex";
-	template<typename char_type> static constexpr std::basic_string_view<char_type> filter_float_numbers                  = R"regex(/^[-+]?\d+$/gm)regex";
-	template<typename char_type> static constexpr std::basic_string_view<char_type> filter_float_numbers_empty            = R"regex(/^([-+]?\d+)?$/gm)regex";
-	
-	template<typename char_type> static constexpr std::basic_string_view<char_type> filter_positive_integer_numbers       = R"regex(/^\+?\d*\.?\d+$/gm)regex";
-	template<typename char_type> static constexpr std::basic_string_view<char_type> filter_positive_integer_numbers_empty = R"regex(/^(\+?\d*\.?\d+)?$/gm)regex";
-	template<typename char_type> static constexpr std::basic_string_view<char_type> filter_positive_float_numbers         = R"regex(/^\+?\d+$/gm)regex";
-	template<typename char_type> static constexpr std::basic_string_view<char_type> filter_positive_float_numbers_empty   = R"regex(/^(\+?\d+)?$/gm)regex";
-	
-	template<typename char_type> static constexpr std::basic_string_view<char_type> filter_negative_integer_numbers       = R"regex(/^-\d*\.?\d+$/gm)regex";
-	template<typename char_type> static constexpr std::basic_string_view<char_type> filter_negative_integer_numbers_empty = R"regex(/^(-\d*\.?\d+)?$/gm)regex";
-	template<typename char_type> static constexpr std::basic_string_view<char_type> filter_negative_float_numbers         = R"regex(/^-\d+$/gm)regex";
-	template<typename char_type> static constexpr std::basic_string_view<char_type> filter_negative_float_numbers_empty   = R"regex(/^(-\d+)?$/gm)regex";
-
 	template<typename char_type>
-	struct TextInputInfo
+	struct BasicTextInputInfo
 	{
-		glm::vec2 align_text                           = oe::alignments::center_center;
-		std::basic_string<char_type> initial_value     = {};
-		std::basic_string<char_type> placeholder       = {};
-		std::basic_string_view<char_type> regex_filter = filter_any<char_type>; // regex filter only works when the type of char_type is either char or wchar_t
-		bool allow_newline                             = false;
-		uint16_t font_size                             = 16;
-		oe::utils::FontFile font_file                  = {}; // empty for gui default
-		glm::vec4 color                                = oe::colors::dark_grey;
-		glm::vec4 default_text_color                   = oe::colors::black;
-		const oe::graphics::Sprite* sprite             = nullptr;
+		glm::vec2 align_text                                         = oe::alignments::center_center;
+		std::basic_string<char_type> initial_value                   = {};
+		std::basic_string<char_type> placeholder                     = {};
+		std::basic_string_view<char_type> whitelist                  = {};
+		std::basic_string_view<char_type> blacklist                  = {};
+		std::function<void(std::basic_string<char_type>&)> formatter = &default_formatter;
+		bool allow_newline                                           = false;
+		uint16_t font_size                                           = 16;
+		oe::utils::FontFile font_file                                = {}; // empty for gui default
+		glm::vec4 color                                              = oe::colors::dark_grey;
+		glm::vec4 default_text_color                                 = oe::colors::black;
+		const oe::graphics::Sprite* sprite                           = nullptr;
 		
-		WidgetInfo widget_info                         = { { 100, 100 }, { 3, 3 }, oe::alignments::center_center, oe::alignments::center_center };
+		WidgetInfo widget_info                                       = { { 100, 100 }, { 3, 3 }, oe::alignments::center_center, oe::alignments::center_center };
+	
+		//
+		static void default_formatter(std::basic_string<char_type>& val) {}
 	};
 
 	template<typename char_type>
-	struct TextInputHoverEvent
+	struct BasicTextInputHoverEvent
 	{};
 
 	template<typename char_type>
-	struct TextInputUseEvent
+	struct BasicTextInputUseEvent
 	{
 		oe::actions action;
 		oe::mouse_buttons button;
@@ -67,36 +48,14 @@ namespace oe::gui
 	};
 
 	template<typename char_type>
-	struct TextInputChangedEvent
+	struct BasicTextInputChangedEvent
 	{
-		char_type character;
+		char32_t codepoint;
 		std::basic_string_view<char_type> value;
 	};
 
-	template<typename char_type, typename enable = void>
-	class __TextInputBase;
-
 	template<typename char_type>
-	class __TextInputBase<char_type, std::enable_if_t<!std::is_same<char_type, char>::value && !std::is_same<char_type, wchar_t>::value>>
-	{
-	public:
-		__TextInputBase(std::basic_string_view<char_type> str_view)
-		{}
-	};
-
-	template<typename char_type>
-	class __TextInputBase<char_type, std::enable_if_t<std::is_same<char_type, char>::value || std::is_same<char_type, wchar_t>::value>>
-	{
-	public:
-		__TextInputBase(std::basic_string_view<char_type> str_view)
-			: m_regex(str_view.data(), std::regex_constants::optimize)
-		{}
-	protected:
-		std::basic_regex<char_type> m_regex;
-	};
-
-	template<typename char_type>
-	class TextInput : public __TextInputBase<char_type>, public Widget
+	class BasicTextInput : public Widget
 	{
 	private:
 		oe::graphics::BasicTextLabel<char_type>* m_label;
@@ -105,7 +64,7 @@ namespace oe::gui
 		std::unique_ptr<oe::graphics::Quad> m_text_bar_quad;
 
 	public:
-		TextInputInfo<char_type> m_text_input_info;
+		BasicTextInputInfo<char_type> m_text_input_info;
 		std::basic_string<char_type>& m_value;
 	
 	private:
@@ -116,13 +75,14 @@ namespace oe::gui
 
 	public:
 		// window_handle is used for clipboard
-		TextInput(Widget* parent, GUI& gui_manager, std::basic_string<char_type>& m_value_ref, const TextInputInfo<char_type>& text_input_info = {});
-		TextInput(Widget* parent, GUI& gui_manager, const TextInputInfo<char_type>& text_input_info = {})
-			: TextInput(parent, gui_manager, m_text_input_info.initial_value, text_input_info)
+		BasicTextInput(Widget* parent, GUI& gui_manager, std::basic_string<char_type>& m_value_ref, const BasicTextInputInfo<char_type>& text_input_info = {});
+		BasicTextInput(Widget* parent, GUI& gui_manager, const BasicTextInputInfo<char_type>& text_input_info = {})
+			: BasicTextInput(parent, gui_manager, m_text_input_info.initial_value, text_input_info)
 		{}
 
 		virtual void virtual_toggle(bool enabled) override;
 		void resetTimer() noexcept;
+		void reformat() noexcept;
 	
 	private:
 		// events
@@ -135,4 +95,29 @@ namespace oe::gui
 		oe::utils::connect_guard m_cg_key;
 		oe::utils::connect_guard m_cg_button;
 	};
+
+	using TextInput = BasicTextInput<char>;
+	using wTextInput = BasicTextInput<wchar_t>;
+	using u16TextInput = BasicTextInput<char16_t>;
+	using u32TextInput = BasicTextInput<char32_t>;
+	
+	using TextInputInfo = BasicTextInputInfo<char>;
+	using wTextInputInfo = BasicTextInputInfo<wchar_t>;
+	using u16TextInputInfo = BasicTextInputInfo<char16_t>;
+	using u32TextInputInfo = BasicTextInputInfo<char32_t>;
+
+	using TextInputHoverEvent = BasicTextInputHoverEvent<char>;
+	using wTextInputHoverEvent = BasicTextInputHoverEvent<wchar_t>;
+	using u16TextInputHoverEvent = BasicTextInputHoverEvent<char16_t>;
+	using u32TextInputHoverEvent = BasicTextInputHoverEvent<char32_t>;
+
+	using TextInputUseEvent = BasicTextInputUseEvent<char>;
+	using wTextInputUseEvent = BasicTextInputUseEvent<wchar_t>;
+	using u16TextInputUseEvent = BasicTextInputUseEvent<char16_t>;
+	using u32TextInputUseEvent = BasicTextInputUseEvent<char32_t>;
+
+	using TextInputChangedEvent = BasicTextInputChangedEvent<char>;
+	using wTextInputChangedEvent = BasicTextInputChangedEvent<wchar_t>;
+	using u16TextInputChangedEvent = BasicTextInputChangedEvent<char16_t>;
+	using u32TextInputChangedEvent = BasicTextInputChangedEvent<char32_t>;
 }

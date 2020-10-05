@@ -13,33 +13,32 @@
 namespace oe::gui
 {
 	template<typename char_type>
-	TextInput<char_type>::TextInput(Widget* parent, GUI& gui_manager, std::basic_string<char_type>& m_value_ref, const TextInputInfo<char_type>& text_input_info)
-		: __TextInputBase<char_type>(m_text_input_info.regex_filter)
-		, Widget(parent, gui_manager, text_input_info.widget_info)
+	BasicTextInput<char_type>::BasicTextInput(Widget* parent, GUI& gui_manager, std::basic_string<char_type>& m_value_ref, const BasicTextInputInfo<char_type>& text_input_info)
+		: Widget(parent, gui_manager, text_input_info.widget_info)
 		, m_text_input_info(text_input_info)
 		, m_value(m_value_ref)
 		, m_state()
 		, m_selected(false)
-		, m_timer_key_pressed(std::chrono::high_resolution_clock::now)
+		, m_timer_key_pressed(std::chrono::high_resolution_clock::now())
 	{
-		m_state.cursor() = static_cast<int>(m_text_input_info.initial_value.size() - 1);
+		m_state.cursor() = 0;
 	}
 	
 	template<typename char_type>
-	void TextInput<char_type>::virtual_toggle(bool enabled)
+	void BasicTextInput<char_type>::virtual_toggle(bool enabled)
 	{
 		if(enabled)
 		{
 			m_quad = m_gui_manager.getRenderer()->create();
 			m_text_quad = m_gui_manager.getRenderer()->create();
 			m_text_bar_quad = m_gui_manager.getRenderer()->create();
-			m_label = new oe::graphics::u32TextLabel(m_gui_manager.getFont(m_text_input_info.font_size, m_text_input_info.font_file));
+			m_label = new oe::graphics::BasicTextLabel<char_type>(m_gui_manager.getFont(m_text_input_info.font_size, m_text_input_info.font_file));
 
 			// event listeners
-			m_cg_render.connect<GUIRenderEvent, &TextInput::on_render, TextInput>(m_gui_manager.dispatcher, this);
-			m_cg_codepoint.connect<CodepointEvent, &TextInput::on_codepoint, TextInput>(m_gui_manager.dispatcher, this );
-			m_cg_key.connect<KeyboardEvent, &TextInput::on_key, TextInput>(m_gui_manager.dispatcher, this);
-			m_cg_button.connect<MouseButtonEvent, &TextInput::on_button, TextInput>(m_gui_manager.dispatcher, this);
+			m_cg_render.connect<GUIRenderEvent, &BasicTextInput::on_render, BasicTextInput>(m_gui_manager.dispatcher, this);
+			m_cg_codepoint.connect<CodepointEvent, &BasicTextInput::on_codepoint, BasicTextInput>(m_gui_manager.dispatcher, this );
+			m_cg_key.connect<KeyboardEvent, &BasicTextInput::on_key, BasicTextInput>(m_gui_manager.dispatcher, this);
+			m_cg_button.connect<MouseButtonEvent, &BasicTextInput::on_button, BasicTextInput>(m_gui_manager.dispatcher, this);
 		}
 		else
 		{
@@ -57,13 +56,19 @@ namespace oe::gui
 	}
 
 	template<typename char_type>
-	void TextInput<char_type>::resetTimer() noexcept
+	void BasicTextInput<char_type>::resetTimer() noexcept
 	{
-		timer_key_pressed = std::chrono::high_resolution_clock::now().time_since_epoch() + std::chrono::seconds(1);
+		m_timer_key_pressed = std::chrono::high_resolution_clock::now();
 	}
 	
 	template<typename char_type>
-	void TextInput<char_type>::on_render(const GUIRenderEvent& event)
+	void BasicTextInput<char_type>::reformat() noexcept
+	{
+		m_text_input_info.formatter(m_value);
+	}
+	
+	template<typename char_type>
+	void BasicTextInput<char_type>::on_render(const GUIRenderEvent& event)
 	{
 		if(!m_cg_render)
 			return;
@@ -89,9 +94,9 @@ namespace oe::gui
 		// text bar
 		auto& clock = oe::utils::Clock::getSingleton();
 		float time = clock.getSessionMillisecond();
-		bool bar = m_selected && (timer_key_pressed > clock.getSessionMillisecond() || (int)floor(time) % 1000 > 500);
+		bool bar = m_selected && (m_timer_key_pressed + std::chrono::seconds(1) > std::chrono::high_resolution_clock::now() || (int)floor(time) % 1000 > 500);
 		auto& font = m_gui_manager.getFont(m_text_input_info.font_size, m_text_input_info.font_file);
-		const glm::ivec2 before_cursor_size = oe::graphics::u32Text::size(font, m_value.substr(0, m_state.cursor()), glm::vec2(font.getResolution()));
+		const glm::ivec2 before_cursor_size = oe::graphics::BasicText<char_type>::size(font, m_value.substr(0, m_state.cursor()), glm::vec2(font.getResolution()));
 		m_text_bar_quad->setPosition(static_cast<glm::vec2>(text_label_pos + glm::ivec2{ before_cursor_size.x, 0 }));
 		m_text_bar_quad->setZ(z + 0.05f);
 		m_text_bar_quad->setSize({ 1, font.getResolution() });
@@ -101,67 +106,79 @@ namespace oe::gui
 	}
 
 	template<typename char_type>
-	void TextInput<char_type>::on_codepoint(const CodepointEvent& event)
+	void BasicTextInput<char_type>::on_codepoint(const CodepointEvent& event)
 	{
 		if (!m_selected || !m_cg_codepoint)
 			return;
-		char32_t character = event.codepoint;
 
-		m_state.key(m_value, character);
-		if (!std::regex_search(m_value, m_regex))
-			stb_textedit_key(&m_value, reinterpret_cast<STB_TexteditState*>(m_state), STB_TEXTEDIT_K_UNDO);
+		uint32_t ch = static_cast<uint32_t>(event.codepoint);
+		if (ch > std::numeric_limits<std::make_unsigned_t<char_type>>::max())
+			return;
+		char_type c = static_cast<char_type>(event.codepoint);
+
+		if((m_text_input_info.whitelist.find(c) == std::basic_string_view<char_type>::npos) ||
+		   (m_text_input_info.blacklist.find(c) != std::basic_string_view<char_type>::npos))
+			return;
+		m_state.key(m_value, c);
+		reformat();
 		
-		TextInputChangedEvent e { character, m_value };
+		BasicTextInputChangedEvent<char_type> e { event.codepoint, m_value };
 		dispatcher.trigger(e);
 		resetTimer();
 	}
 	
 	template<typename char_type>
-	void TextInput<char_type>::on_key(const KeyboardEvent& event)
+	void BasicTextInput<char_type>::on_key(const KeyboardEvent& event)
 	{
 		if (!m_selected || !m_cg_key || event.action == oe::actions::release)
 			return;
 
-		char32_t character = 0;
+		char_type character = 0;
 
 		if (event.key == oe::keys::key_backspace)
-			stb_textedit_key(&m_value, reinterpret_cast<STB_TexteditState*>(m_state), STB_TEXTEDIT_K_BACKSPACE);
+			m_state.key(m_value, oe::utils::text_keys::backspace);
 		else if (event.key == oe::keys::key_delete)
-			stb_textedit_key(&m_value, reinterpret_cast<STB_TexteditState*>(m_state), STB_TEXTEDIT_K_DELETE);
+			m_state.key(m_value, oe::utils::text_keys::del);
 		else if (event.key == oe::keys::key_left && event.mods == oe::modifiers::none)
-			stb_textedit_key(&m_value, reinterpret_cast<STB_TexteditState*>(m_state), STB_TEXTEDIT_K_LEFT);
+			m_state.key(m_value, oe::utils::text_keys::left);
 		else if (event.key == oe::keys::key_left && event.mods == oe::modifiers::control)
-			stb_textedit_key(&m_value, reinterpret_cast<STB_TexteditState*>(m_state), STB_TEXTEDIT_K_WORDLEFT);
+			m_state.key(m_value, oe::utils::text_keys::c_left);
 		else if (event.key == oe::keys::key_right && event.mods == oe::modifiers::none)
-			stb_textedit_key(&m_value, reinterpret_cast<STB_TexteditState*>(m_state), STB_TEXTEDIT_K_RIGHT);
+			m_state.key(m_value, oe::utils::text_keys::right);
 		else if (event.key == oe::keys::key_right && event.mods == oe::modifiers::control)
-			stb_textedit_key(&m_value, reinterpret_cast<STB_TexteditState*>(m_state), STB_TEXTEDIT_K_WORDRIGHT);
+			m_state.key(m_value, oe::utils::text_keys::c_right);
+		else if (event.key == oe::keys::key_z && event.mods == oe::modifiers::control)
+			m_state.key(m_value, oe::utils::text_keys::undo);
+		else if (event.key == oe::keys::key_y && event.mods == oe::modifiers::control)
+			m_state.key(m_value, oe::utils::text_keys::redo);
 		else if (event.key == oe::keys::key_v && event.mods == oe::modifiers::control) // ctrl + v
 		{
-			std::u32string cb = oe::utils::convertUTF<std::string, std::u32string>(m_gui_manager.getWindow()->getClipboard());
-			stb_textedit_paste(&m_value, reinterpret_cast<STB_TexteditState*>(m_state), cb.c_str(), static_cast<int>(cb.size()));
-			if (!std::regex_search(m_value, m_regex))
-				stb_textedit_key(&m_value, reinterpret_cast<STB_TexteditState*>(m_state), STB_TEXTEDIT_K_UNDO);
+			auto cb = oe::utils::convertUTF<std::basic_string<char_type>>(m_gui_manager.getWindow()->getClipboard());
+			m_state.paste(m_value, cb);
 		}
 		else if (event.key == oe::keys::key_c && event.mods == oe::modifiers::control) // ctrl + c
 		{
-			std::u32string copied = m_value.substr(reinterpret_cast<STB_TexteditState*>(m_state)->select_start, reinterpret_cast<STB_TexteditState*>(m_state)->select_end - reinterpret_cast<STB_TexteditState*>(m_state)->select_start);
-			m_gui_manager.getWindow()->setClipboard(oe::utils::convertUTF<std::u32string, std::string>(copied));
-			stb_textedit_cut(&m_value, reinterpret_cast<STB_TexteditState*>(m_state));
+			std::basic_string<char_type> cb;
+			m_state.copy(m_value, cb);
+			m_gui_manager.getWindow()->setClipboard(oe::utils::convertUTF<std::string>(cb));
 		}
-		else if (event.key == oe::keys::key_enter && m_text_input_info.allow_newline)
+		else if (event.key == oe::keys::key_x && event.mods == oe::modifiers::control) // ctrl + c
 		{
-			character = U'\n';
-			m_value += character;
+			std::basic_string<char_type> cb;
+			m_state.cut(m_value, cb);
+			m_gui_manager.getWindow()->setClipboard(oe::utils::convertUTF<std::string>(cb));
 		}
+		else if (event.key == oe::keys::key_enter)
+			m_state.key(m_value, '\n');
+		reformat();
 
-		TextInputChangedEvent e { character, m_value };
+		BasicTextInputChangedEvent<char_type> e { static_cast<char32_t>(character), m_value };
 		dispatcher.trigger(e);
 		resetTimer();
 	}
 	
 	template<typename char_type>
-	void TextInput<char_type>::on_button(const MouseButtonEvent& event)
+	void BasicTextInput<char_type>::on_button(const MouseButtonEvent& event)
 	{
 		if(!m_cg_button)
 			return;
@@ -172,5 +189,10 @@ namespace oe::gui
 			resetTimer();
 		}
 	}
+	
+	template class BasicTextInput<char>;
+	template class BasicTextInput<wchar_t>;
+	template class BasicTextInput<char16_t>;
+	template class BasicTextInput<char32_t>;
 
 }
