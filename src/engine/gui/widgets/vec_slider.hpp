@@ -11,115 +11,122 @@ namespace oe::gui
 {
     enum class arrangements { columns, rows };
 
-    template<glm::length_t dimension = 3>
-    struct VecSliderInfo
+    template<typename ElementType = SliderInput, uint16_t dimension = 3>
+    struct VecInfo
     {
-        arrangements type                         = arrangements::columns;
-		int slider_borders                        = 3;
-        glm::vec<dimension, float> initial_values = glm::vec<dimension, float>(0.0f);
-        glm::vec<dimension, float> min_values     = glm::vec<dimension, float>(-1.0f);
-        glm::vec<dimension, float> max_values     = glm::vec<dimension, float>(1.0f);
-
-        SliderInputInfo slider_info;
+        arrangements type                                          = arrangements::columns;
+		int padding                                                = 3;
+		int borders                                                = 0;
+		bool auto_size                                             = false;
+        
+		std::array<typename ElementType::info_t, dimension> common = {};
+		WidgetInfo                                     widget_info = {};
     };
 
-    template<glm::length_t dimension = 3>
-	struct VecSliderHoverEvent
-	{};
-
-    template<glm::length_t dimension = 3>
-	struct VecSliderUseEvent
+	template<typename ElementType = SliderInput, uint16_t dimension = 3, bool glm_array = true>
+	struct VecValueTHelper;
+	
+	template<typename ElementType, uint16_t dimension>
+	struct VecValueTHelper<ElementType, dimension, true>
 	{
-		oe::actions action;
-		oe::mouse_buttons button;
-		oe::modifiers modifier;
-		glm::vec<dimension, float> value;
+		using value_t = glm::vec<dimension, typename ElementType::value_t>;
+	};
+	
+	template<typename ElementType, uint16_t dimension>
+	struct VecValueTHelper<ElementType, dimension, false>
+	{
+		using value_t = std::array<typename ElementType::value_t, dimension>;
 	};
 
-    template<glm::length_t dimension = 3>
-    class VecSlider : public Widget
+    template<typename ElementType = SliderInput, uint16_t dimension = 3, bool glm_array = true>
+    class Vec : public Widget
     {
-    protected:
-        std::array<std::shared_ptr<SliderInput>, dimension> m_sliders;
-		VecSliderHoverEvent<dimension> m_event_hover_latest;
-		VecSliderUseEvent<dimension> m_event_use_latest;
-         
+	public:
+		using value_t = typename VecValueTHelper<ElementType, dimension, glm_array>::value_t;
+		using info_t = VecInfo<ElementType, dimension>;
+		static_assert(dimension != 0, "VecSlider dimension must not be zero");
+    
     public:
-		glm::vec<dimension, float> m_initial_values;
-		glm::vec<dimension, float>& m_value;
+        std::array<std::shared_ptr<ElementType>, dimension> m_elements;
+		value_t m_initial_values{};
+		value_t& m_value;
 
 	public:
-		VecSlider(Widget* parent, GUI& gui_manager, glm::vec<dimension, float>& m_value_ref, VecSliderInfo<dimension> slider_info = {})
-            : Widget(parent, gui_manager, slider_info.slider_info.widget_info)
-			, m_value(m_value_ref)
+		Vec(Widget* parent, GUI& gui_manager, value_t& m_value_ref, VecInfo<ElementType, dimension> vec_info = {})
+            : Widget(parent, gui_manager, vec_info.widget_info)
+			, m_value(std::move(m_value_ref))
         {
-			static_assert(dimension != 0, "VecSlider dimension must not be zero");
-
-            glm::ivec2 offset_next = { 0, 0 };
-            switch (slider_info.type)
-            {
-            case arrangements::columns:
-                slider_info.slider_info.widget_info.size = { (slider_info.slider_info.widget_info.size.x - (dimension - 1) * slider_info.slider_borders) / dimension, slider_info.slider_info.widget_info.size.y };
-                offset_next = glm::ivec2(slider_info.slider_info.widget_info.size.x + slider_info.slider_borders, 0);
-				m_info.size = {
-					slider_info.slider_info.widget_info.size.x * dimension + (dimension - 1) * slider_info.slider_borders,
-					slider_info.slider_info.widget_info.size.y
+			const bool rows = (vec_info.type == arrangements::rows);
+			if(vec_info.auto_size)
+			{
+				const glm::ivec2 element_size = {
+					!rows * (vec_info.widget_info.size.x - 2 * vec_info.borders - (dimension - 1) * vec_info.padding) / dimension +
+					 rows * (vec_info.widget_info.size.x - 2 * vec_info.borders),
+					
+					!rows * (vec_info.widget_info.size.y - 2 * vec_info.borders) +
+					 rows * (vec_info.widget_info.size.y - 2 * vec_info.borders - (dimension - 1) * vec_info.padding) / dimension
 				};
-                break;
-            case arrangements::rows:
-                slider_info.slider_info.widget_info.size = { slider_info.slider_info.widget_info.size.x, (slider_info.slider_info.widget_info.size.y - (dimension - 1) * slider_info.slider_borders) / dimension };
-                offset_next = glm::ivec2(0, slider_info.slider_info.widget_info.size.y + slider_info.slider_borders);
-				m_info.size = {
-					slider_info.slider_info.widget_info.size.x,
-					slider_info.slider_info.widget_info.size.y * dimension + (dimension - 1) * slider_info.slider_borders
-				};
-                break;
-            default:
-                break;
-            }
+            	for(size_t i = 0; i < dimension; i++)
+					vec_info.common[i].widget_info.size = element_size;
+			}
 
+            const glm::ivec2 offset_mul = {
+				static_cast<int>(!rows),
+				static_cast<int>(rows)
+			};
+            const glm::ivec2 offset_add = {
+				vec_info.padding * static_cast<int>(!rows),
+				vec_info.padding * static_cast<int>(rows)
+			};
+            const glm::ivec2 largest_element = [this, &vec_info](){
+				glm::ivec2 temp = { 0, 0 };
+				for(size_t i = 0; i < dimension; i++)
+					temp = glm::max(temp, vec_info.common[i].widget_info.size);
+				return temp;
+			}();
+            const glm::ivec2 size_add = {
+				largest_element.x * static_cast<int>(rows),
+				largest_element.y * static_cast<int>(!rows)
+			};
 
-			size_t min_w_or_h = std::min(slider_info.slider_info.widget_info.size.x, slider_info.slider_info.widget_info.size.y);
-			slider_info.slider_info.knob_size = { min_w_or_h, min_w_or_h };
-
-            slider_info.slider_info.widget_info = { slider_info.slider_info.widget_info.size, { 0, 0 }, oe::alignments::top_left, oe::alignments::top_left };
-            for(glm::length_t i = 0; i < dimension; i++)
+			glm::ivec2 accumulated_offset = { vec_info.borders, vec_info.borders };
+            for(size_t i = 0; i < dimension; i++)
             {
-                slider_info.slider_info.value_bounds = { slider_info.min_values[i], slider_info.max_values[i] };
-				m_sliders[i] = create<SliderInput>(*(&m_value[0] + i), slider_info.slider_info);
-                slider_info.slider_info.widget_info.offset_position += offset_next;
+				// ref value
+				typename ElementType::value_t* type_name;
+				if constexpr(glm_array)
+					type_name = glm::value_ptr(m_value);
+				else
+					type_name = m_value[0];
 
-				m_sliders[i]->template connect_listener<SliderInputHoverEvent, &VecSlider<dimension>::on_slider_hover>(this);
-				m_sliders[i]->template connect_listener<SliderInputUseEvent, &VecSlider<dimension>::on_slider_use>(this);
+				// widget
+            	vec_info.common[i].widget_info.align_parent = oe::alignments::top_left;
+            	vec_info.common[i].widget_info.align_render = oe::alignments::top_left;
+            	vec_info.common[i].widget_info.offset_position = accumulated_offset;
+				m_elements[i] = create<ElementType>(*(type_name + i), vec_info.common[i]);
+
+				// next widget offset
+				if(i + 1 != dimension)
+					accumulated_offset += offset_mul * vec_info.common[i].widget_info.size + offset_add;
+				else
+					accumulated_offset += offset_mul * vec_info.common[i].widget_info.size;
             }
+			accumulated_offset += glm::ivec2{ vec_info.borders, vec_info.borders };
+			m_info.size = accumulated_offset + size_add;
         }
-		VecSlider(Widget* parent, GUI& gui_manager, VecSliderInfo<dimension> slider_info = {})
-			: VecSlider(parent, gui_manager, m_initial_values, slider_info)
-		{ m_initial_values = slider_info.initial_values; }
-
-		~VecSlider()
+		Vec(Widget* parent, GUI& gui_manager, VecInfo<ElementType, dimension> vec_info = {})
+			: Vec(parent, gui_manager, m_initial_values, vec_info)
 		{
-			for(size_t i = 0; i < dimension; i++)
-            {
-				m_sliders[i]->template disconnect_listener<SliderInputHoverEvent, &VecSlider<dimension>::on_slider_hover>(this);
-				m_sliders[i]->template disconnect_listener<SliderInputUseEvent, &VecSlider<dimension>::on_slider_use>(this);
-            }
+			if constexpr(glm_array)
+            	for(size_t i = 0; i < dimension; i++)
+					*(glm::value_ptr(m_initial_values) + i) = vec_info.common[i].initial_value;
+			else
+				m_initial_values.fill(vec_info.common.value_initial);
 		}
 
-	private:
-		void on_slider_hover(const SliderInputHoverEvent& e)
+		[[nodiscard]] constexpr std::shared_ptr<ElementType>& operator[](size_t i) const noexcept
 		{
-			dispatcher.trigger(m_event_hover_latest);
-		}
-
-		void on_slider_use(const SliderInputUseEvent& e)
-		{
-			m_event_use_latest.action = e.action;
-			m_event_use_latest.modifier = e.modifier;
-			m_event_use_latest.button = e.button;
-			m_event_use_latest.value = m_value;
-			
-			dispatcher.trigger(m_event_use_latest);
+			return m_elements[i];
 		}
     };
 }

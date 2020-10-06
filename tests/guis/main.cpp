@@ -11,10 +11,9 @@ std::shared_ptr<oe::gui::TextPanel> textpanel;
 std::shared_ptr<oe::gui::SpritePanel> box;
 std::shared_ptr<oe::gui::List> list;
 std::shared_ptr<oe::gui::Checkbox> checkbox;
-std::shared_ptr<oe::gui::VecSlider<4>> quat_slider;
+std::shared_ptr<oe::gui::Vec<oe::gui::SliderInput, 4>> quat_slider;
 std::shared_ptr<oe::gui::Graph> graph_fps;
 std::shared_ptr<oe::gui::Graph> graph_ups;
-std::shared_ptr<oe::gui::ColorSlider> color_slider;
 std::array<float, 200> perf_log_fps;
 std::array<float, 50> perf_log_ups;
 
@@ -98,7 +97,8 @@ void initCube()
 void cube()
 {
 	// shader and model matrix
-	glm::vec4 quat_slider_val = quat_slider ? quat_slider->m_value : glm::vec4(0.0f);
+	const glm::vec4 quat_slider_val = quat_slider ? quat_slider->m_value : glm::vec4(0.0f);
+	
 	if (checkbox && checkbox->m_value)
 	{
 		cube_rotation = glm::angleAxis(quat_slider_val.w, glm::normalize(glm::vec3(quat_slider_val.x, quat_slider_val.y, quat_slider_val.z)));
@@ -239,15 +239,18 @@ void setup_gui()
 		textbox = gui->create<oe::gui::BasicTextInput<char32_t>>(text_input_info);
 	}
 	{
-		oe::gui::VecSliderInfo<4> vecslider_info;
-		vecslider_info.slider_info.widget_info = { { 400, 30 }, { 0, 0 }, oe::alignments::bottom_center, oe::alignments::bottom_center };
-		vecslider_info.slider_info.slider_sprite = pack->emptySprite();
-		vecslider_info.slider_info.knob_sprite = sprite;
-		vecslider_info.slider_info.draw_value = true;
-		vecslider_info.min_values = { -glm::pi<float>(), -1.0f, -1.0f, -1.0f };
-		vecslider_info.max_values = { glm::pi<float>(), 1.0f, 1.0f, 1.0f };
-		vecslider_info.initial_values = { 0.0f, 1.0f, 1.0f, 1.0f };
-		quat_slider = gui->create<oe::gui::VecSlider<4>>(vecslider_info);
+		oe::gui::VecInfo<oe::gui::SliderInput, 4> vecslider_info;
+		vecslider_info.widget_info = { { 400, 30 }, { 0, 0 }, oe::alignments::bottom_center, oe::alignments::bottom_center };
+		vecslider_info.auto_size = true;
+		oe::gui::SliderInputInfo common;
+		common.slider_sprite = pack->emptySprite();
+		common.draw_value = true;
+		common.value_bounds = { -1.0f, 1.0f };
+		common.initial_value = 1.0f;
+		vecslider_info.common.fill(common);
+		vecslider_info.common[0].value_bounds *= glm::pi<float>();
+		vecslider_info.common[0].initial_value = 0.0f;
+		quat_slider = gui->create<oe::gui::Vec<oe::gui::SliderInput, 4>>(vecslider_info);
 	}
 	{
 		oe::gui::CheckboxInfo ci;
@@ -271,18 +274,29 @@ void setup_gui()
 			});
 		}
 	}
-	{
-		oe::gui::ColorSliderInfo color_picker_info;
-		color_picker_info.initial_color = color;
-		color_picker_info.widget_info = { { 200, 100 }, { 0, 0 }, oe::alignments::center_left, oe::alignments::center_left };
+	{ // color picker 1
+		oe::gui::ColorInputInfo color_picker_info;
+		color_picker_info.widget_info = { { 200, 120 }, { 0, 35 }, oe::alignments::center_left, oe::alignments::center_left };
 		color_picker_info.sprite = pack->emptySprite();
 		color_picker_info.popup_color_picker = true;
-		color_slider = gui->create<oe::gui::ColorSlider>(color_picker_info);
-
-		color_slider->create_event_cg().connect<oe::gui::ColorSliderUseEvent>(color_slider->dispatcher, [&](const oe::gui::ColorSliderUseEvent& e)
-		{
-			color = e.value;
-		});
+		color_picker_info.primary_input = oe::gui::input_type::slider;
+		gui->create<oe::gui::ColorInput>(color, color_picker_info);
+	}
+	{ // color picker 2
+		oe::gui::ColorInputInfo color_picker_info;
+		color_picker_info.widget_info = { { 200, 20 }, { 0, -40 }, oe::alignments::center_left, oe::alignments::center_left };
+		color_picker_info.sprite = pack->emptySprite();
+		color_picker_info.popup_color_picker = true;
+		color_picker_info.primary_input = oe::gui::input_type::dragger;
+		gui->create<oe::gui::ColorInput>(color, color_picker_info);
+	}
+	{ // color picker 3
+		oe::gui::ColorInputInfo color_picker_info;
+		color_picker_info.widget_info = { { 20, 20 }, { 0, -65 }, oe::alignments::center_left, oe::alignments::center_left };
+		color_picker_info.sprite = pack->emptySprite();
+		color_picker_info.popup_color_picker = true;
+		color_picker_info.primary_input = oe::gui::input_type::none;
+		gui->create<oe::gui::ColorInput>(color, color_picker_info);
 	}
 	{
 		oe::gui::BasicNumberInputInfo<int> number_input_info;
@@ -395,7 +409,6 @@ int main()
 	quat_slider.reset();
 	graph_fps.reset();
 	graph_ups.reset();
-	color_slider.reset();
 	delete gui;
 	delete pack;
 	delete shader_fill;

@@ -358,9 +358,15 @@ namespace oe {
 		static constexpr glm::vec2 center_right = glm::vec2(1.0f, 0.5f);
 		static constexpr glm::vec2 bottom_right = glm::vec2(1.0f, 1.0f);
 	};
-	template<typename T = glm::vec2>
-	T alignmentOffset(const T& size, const glm::vec2& alignment) {
-		return static_cast<T>(static_cast<glm::vec2>(size) * alignment);
+	template<typename T = float>
+	glm::vec<2, T> alignmentOffset(const glm::vec<2, T>& size, const glm::vec2& alignment)
+	{
+		return static_cast<glm::vec<2, T>>((static_cast<glm::vec2>(size) * alignment));
+	}
+	template<typename T = float>
+	glm::vec<2, T> alignmentOffsetRound(const glm::vec<2, T>& size, const glm::vec2& alignment)
+	{
+		return static_cast<glm::vec<2, T>>(glm::round(static_cast<glm::vec2>(size) * alignment));
 	}
 
 	typedef std::function<void(oe::keys key, oe::actions action, oe::modifiers mods)> fun_key_callback;

@@ -57,6 +57,10 @@ namespace oe::gui
 	template<typename char_type>
 	class BasicTextInput : public Widget
 	{
+	public:
+		using value_t = std::basic_string<char_type>;
+		using info_t = BasicTextInputInfo<char_type>;
+		
 	private:
 		oe::graphics::BasicTextLabel<char_type>* m_label;
 		std::unique_ptr<oe::graphics::Quad> m_quad;
@@ -65,17 +69,16 @@ namespace oe::gui
 
 	public:
 		BasicTextInputInfo<char_type> m_text_input_info;
-		std::basic_string<char_type>& m_value;
+		value_t& m_value;
+		bool m_selected;
 	
 	private:
 		oe::utils::stb_textedit<char_type> m_state;
-		bool m_selected;
 
 		std::chrono::high_resolution_clock::time_point m_timer_key_pressed;
 
 	public:
-		// window_handle is used for clipboard
-		BasicTextInput(Widget* parent, GUI& gui_manager, std::basic_string<char_type>& m_value_ref, const BasicTextInputInfo<char_type>& text_input_info = {});
+		BasicTextInput(Widget* parent, GUI& gui_manager, value_t& m_value_ref, const BasicTextInputInfo<char_type>& text_input_info = {});
 		BasicTextInput(Widget* parent, GUI& gui_manager, const BasicTextInputInfo<char_type>& text_input_info = {})
 			: BasicTextInput(parent, gui_manager, m_text_input_info.initial_value, text_input_info)
 		{}

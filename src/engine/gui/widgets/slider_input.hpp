@@ -13,13 +13,13 @@ namespace oe::gui
 {
 	struct SliderInputInfo
 	{
-		float value_initial                                          = 0.0f;
+		float initial_value                                          = 0.0f;
 		glm::vec2 value_bounds                                       = { -1.0f, 1.0f };
 		float value_steps                                            = 1e5;
 		bool draw_value                                              = false;
+		std::function<std::u32string(const float&)> draw_format      = &SliderInputInfo::default_formatter;
 		int font_size                                                = 14;
 		oe::utils::FontFile font_file                                = {}; // empty for gui default
-		std::function<std::u32string(const float&)> draw_format      = &SliderInputInfo::default_formatter;
 		bool vertical                                                = false;
 		glm::ivec2 knob_size                                         = { 30, 30 };
 		glm::vec4 knob_color                                         = oe::colors::grey;
@@ -50,6 +50,10 @@ namespace oe::gui
 
 	class SliderInput : public Widget
 	{
+	public:
+		using value_t = float;
+		using info_t = SliderInputInfo;
+
 	private:
 		oe::graphics::u32TextLabel* value_label;
 		std::unique_ptr<oe::graphics::Quad> label_quad;
@@ -64,13 +68,13 @@ namespace oe::gui
 
 	public:
 		SliderInputInfo m_slider_info;
-		float& m_value;
+		value_t& m_value;
 		SliderInputHoverEvent m_event_hover_latest;
 		SliderInputUseEvent m_event_use_latest;
 
 	public:
-		SliderInput(Widget* parent, GUI& gui_manager, float& value_ref, const SliderInputInfo& slider_info = {});
-		SliderInput(Widget* parent, GUI& gui_manager, const SliderInputInfo& slider_info = {}) : SliderInput(parent, gui_manager, m_slider_info.value_initial, slider_info) {}
+		SliderInput(Widget* parent, GUI& gui_manager, value_t& value_ref, const SliderInputInfo& slider_info = {});
+		SliderInput(Widget* parent, GUI& gui_manager, const SliderInputInfo& slider_info = {}) : SliderInput(parent, gui_manager, m_slider_info.initial_value, slider_info) {}
 
 		virtual void virtual_toggle(bool enabled) override;
 	

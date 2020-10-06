@@ -10,31 +10,42 @@ namespace oe::gui
 	template<typename T>
 	struct BasicNumberInputInfo
 	{
-		glm::vec2 align_text               = oe::alignments::center_center;
-		T initial_value                    = { 0 };
-		T stepsize                         = { 1 };
-		glm::vec<2,T> value_bounds         = { std::numeric_limits<T>::min(), std::numeric_limits<T>::max() };
-		uint16_t font_size                 = 16;
-		oe::utils::FontFile font_file      = {}; // empty for gui default
-		glm::vec4 color                    = oe::colors::dark_grey;
-		glm::vec4 default_text_color       = oe::colors::black;
-		const oe::graphics::Sprite* sprite = nullptr;
+		glm::vec2 align_text                                = oe::alignments::center_center;
+		T initial_value                                     = { 0 };
+		T stepsize                                          = { 1 };
+		glm::vec<2,T> value_bounds                          = { std::numeric_limits<T>::min(), std::numeric_limits<T>::max() };
+		std::function<std::string(const T&)> draw_format = &BasicNumberInputInfo::default_formatter; // only when keyboard input is disabled
+		uint16_t font_size                                  = 16;
+		oe::utils::FontFile font_file                       = {}; // empty for gui default
+		glm::vec4 color                                     = oe::colors::dark_grey;
+		glm::vec4 default_text_color                        = oe::colors::black;
+		const oe::graphics::Sprite* sprite                  = nullptr;
 
-		interact_type_flags interact_flags = interact_type_flags::cursor | interact_type_flags::keyboard | interact_type_flags::scroll;
+		interact_type_flags interact_flags                  = interact_type_flags::cursor | interact_type_flags::keyboard | interact_type_flags::scroll;
 
-		WidgetInfo widget_info             = { { 100, 100 }, { 3, 3 }, oe::alignments::center_center, oe::alignments::center_center };
+		WidgetInfo widget_info                              = { { 100, 100 }, { 3, 3 }, oe::alignments::center_center, oe::alignments::center_center };
+	
+		//
+		static std::string BasicNumberInputInfo::default_formatter(const T& val)
+		{
+			return fmt::format("V: {:.1f}", val);
+		}	
 	};
 
 	template<typename T>
 	class BasicNumberInput : public TextInput
 	{
 	public:
+		using value_t = T;
+		using info_t = BasicNumberInputInfo<T>;
+
+	public:
 		BasicNumberInputInfo<T> m_number_input_info;
 	
 	private:
-		T& m_value;
+		value_t& m_value;
 		bool m_dragging = false;
-		T m_value_start = {};
+		value_t m_value_start = {};
 		glm::ivec2 m_drag_start = { 0, 0 };
 
 		[[nodiscard]] static auto pick_formatter(bool& first, bool& dot) noexcept
@@ -106,7 +117,7 @@ namespace oe::gui
 		template<> static long double stoT(const std::string& str) { return std::stold(str); }
 
 	public:
-		BasicNumberInput(Widget* parent, GUI& gui_manager, T& value_ref, const BasicNumberInputInfo<T>& number_input_info = {})
+		BasicNumberInput(Widget* parent, GUI& gui_manager, value_t& value_ref, const BasicNumberInputInfo<T>& number_input_info = {})
 			: TextInput(parent, gui_manager, getTextInputInfo(number_input_info))
 			, m_number_input_info(number_input_info)
 			, m_value(value_ref)
@@ -129,10 +140,19 @@ namespace oe::gui
 		// events
 		void on_pre_render(const oe::gui::GUIPreRenderEvent&)
 		{
-			TextInput::m_value = fmt::format("{}", m_value);
+			if(!(m_number_input_info.interact_flags & interact_type_flags::keyboard))
+			{
+				TextInput::m_value = m_number_input_info.draw_format(m_value);
+				TextInput::m_selected = false;
+			}
+			else
+				TextInput::m_value = fmt::format("{}", m_value);
 		}
 		void on_text_change(const oe::gui::TextInputChangedEvent& e)
 		{
+			if(!(m_number_input_info.interact_flags & interact_type_flags::keyboard))
+				return;
+			
 			try{
 				m_value = stoT<T>(std::string(e.value));
 			}catch(...){
@@ -190,6 +210,15 @@ namespace oe::gui
 		oe::utils::connect_guard cg_button;
 		oe::utils::connect_guard cg_cursor;
 		oe::utils::connect_guard cg_scroll;
-
 	};
+
+	using fNumberInput = BasicNumberInput<float>;
+	using iNumberInput = BasicNumberInput<int32_t>;
+	using uNumberInput = BasicNumberInput<uint32_t>;
+	using NumberInput = fNumberInput;
+
+	using fNumberInputInfo = BasicNumberInputInfo<float>;
+	using iNumberInputInfo = BasicNumberInputInfo<int32_t>;
+	using uNumberInputInfo = BasicNumberInputInfo<uint32_t>;
+	using NumberInputInfo = fNumberInputInfo;
 }

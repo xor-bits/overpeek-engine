@@ -36,7 +36,7 @@ namespace oe::gui
 		return fmt::format(U"{:.1f}", val);
 	}
 
-	SliderInput::SliderInput(Widget* parent, GUI& gui_manager, float& value_ref, const SliderInputInfo& slider_info) 
+	SliderInput::SliderInput(Widget* parent, GUI& gui_manager, value_t& value_ref, const SliderInputInfo& slider_info) 
 		: Widget(parent, gui_manager, slider_info.widget_info)
 		, m_dragging(false)
 		, m_slider_info(slider_info)

@@ -22,6 +22,9 @@ namespace oe::gui
     class Graph : public SpritePanel
     {
     public:
+		using info_t = GraphInfo;
+		
+    public:
         GraphInfo m_graph_info;
 
     private:

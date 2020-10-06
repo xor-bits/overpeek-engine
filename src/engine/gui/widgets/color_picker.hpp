@@ -1,7 +1,8 @@
 #pragma once
 
-#include "color_slider.hpp"
+#include "color_input.hpp"
 #include "sprite_panel.hpp"
+#include "slider_input.hpp"
 #include "engine/graphics/vertexData.hpp"
 
 #include "engine/interfacegen.hpp"
@@ -16,14 +17,18 @@ namespace oe::gui
 	{
 		bool preview                      = true;
 		bool alpha                        = true;
-		ColorSliderInfo color_slider_info = { oe::colors::red, 2, oe::colors::dark_grey, nullptr, false, close_fn::never, open_fn::never, { { 200, 225 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center } };
+		ColorInputInfo color_input_info = { oe::colors::red, 2, oe::colors::dark_grey, nullptr, input_type::slider, false, close_fn::never, open_fn::never, { { 200, 225 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center } };
 	};
 
-	using ColorPickerHoverEvent = ColorSliderHoverEvent;
-	using ColorPickerUseEvent = ColorSliderUseEvent;
+	using ColorPickerHoverEvent = ColorInputHoverEvent;
+	using ColorPickerUseEvent = ColorInputUseEvent;
 
 	class ColorPicker : public SpritePanel
 	{
+	public:
+		using value_t = glm::vec4;
+		using info_t = ColorPickerInfo;
+	
 	private:
 		oe::graphics::FrameBuffer m_wheel_fb;
 
@@ -34,7 +39,7 @@ namespace oe::gui
 		glm::vec3 m_barycentric_pos_triangle;
 		glm::ivec2 m_selector_wheel;
 		glm::ivec2 m_selector_triangle;
-		glm::vec4 m_value_last;
+		value_t m_value_last;
 
 		std::shared_ptr<SliderInput> m_alpha_slider;
 		std::shared_ptr<SpritePanel> m_framebuffer_panel;
@@ -52,14 +57,14 @@ namespace oe::gui
 
 	public:
 		ColorPickerInfo m_color_picker_info;
-		glm::vec4& m_value;
+		value_t& m_value;
 		ColorPickerHoverEvent m_event_hover_latest;
 		ColorPickerUseEvent m_event_use_latest;
 
 	public:
-		ColorPicker(Widget* parent, GUI& gui_manager, glm::vec4& m_value_ref, const ColorPickerInfo& color_picker_info = {});
+		ColorPicker(Widget* parent, GUI& gui_manager, value_t& m_value_ref, const ColorPickerInfo& color_picker_info = {});
 		ColorPicker(Widget* parent, GUI& gui_manager, const ColorPickerInfo& color_picker_info = {})
-			: ColorPicker(parent, gui_manager, m_color_picker_info.color_slider_info.initial_color, color_picker_info)
+			: ColorPicker(parent, gui_manager, m_color_picker_info.color_input_info.initial_color, color_picker_info)
 		{}
 		~ColorPicker();
 

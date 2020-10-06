@@ -23,6 +23,9 @@ namespace oe::gui
 
 	class TextPanel : public Widget
 	{
+	public:
+		using info_t = TextPanelInfo;
+		
 	private:
 		oe::graphics::u32TextLabel* label;
 		std::unique_ptr<oe::graphics::Quad> text_quad;

@@ -27,7 +27,10 @@ namespace oe::gui
 	class SliderInput;
     class List : public Widget
     {
-    private:
+	public:
+		using info_t = ListInfo;
+    
+	private:
         GUI* list_gui_manager;
         std::vector<Widget*> list; // max size 500
         std::vector<int> offset_accumulator; // max size 500

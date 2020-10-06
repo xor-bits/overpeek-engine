@@ -9,7 +9,7 @@
 
 namespace oe::gui
 {
-	Checkbox::Checkbox(Widget* parent, GUI& gui_manager, bool& value_ref, const CheckboxInfo& _checkbox_info)
+	Checkbox::Checkbox(Widget* parent, GUI& gui_manager, value_t& value_ref, const CheckboxInfo& _checkbox_info)
 		: Widget(parent, gui_manager, _checkbox_info.widget_info)
 		, m_checkbox_info(_checkbox_info)
 		, m_value(value_ref)

@@ -33,6 +33,10 @@ namespace oe::gui
 
 	class Checkbox : public Widget
 	{
+	public:
+		using value_t = bool;
+		using info_t = CheckboxInfo;
+	
 	private:
 		std::unique_ptr<oe::graphics::Quad> quad_check;
 		std::unique_ptr<oe::graphics::Quad> quad_box; // hehe
@@ -40,12 +44,12 @@ namespace oe::gui
 
 	public:
 		CheckboxInfo m_checkbox_info;
-		bool& m_value;
+		value_t& m_value;
 		CheckboxHoverEvent event_hover_latest;
 		CheckboxUseEvent event_use_latest;
 
 	public:
-		Checkbox(Widget* parent, GUI& gui_manager, bool& value_ref, const CheckboxInfo& checkbox_info = {});
+		Checkbox(Widget* parent, GUI& gui_manager, value_t& value_ref, const CheckboxInfo& checkbox_info = {});
 		Checkbox(Widget* parent, GUI& gui_manager, const CheckboxInfo& checkbox_info = {}) : Checkbox(parent, gui_manager, m_checkbox_info.initial, checkbox_info) {}
 		~Checkbox();
 

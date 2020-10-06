@@ -27,6 +27,9 @@ namespace oe::gui
 	class DecoratedButton : public Button
 	{
 	public:
+		using info_t = DecoratedButtonInfo;
+	
+	public:
 		DecoratedButtonInfo button_info;
 		ButtonHoverEvent event_hover_latest;
 		ButtonUseEvent event_use_latest;

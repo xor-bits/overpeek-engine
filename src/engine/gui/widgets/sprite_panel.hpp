@@ -21,6 +21,9 @@ namespace oe::gui
 	
 	class SpritePanel : public Widget
 	{
+	public:
+		using info_t = SpritePanelInfo;
+		
 	private:
 		std::unique_ptr<oe::graphics::Quad> quad;
 		

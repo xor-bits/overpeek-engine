@@ -191,8 +191,8 @@ namespace oe::gui
 	};
 	ColorPickerRenderer* ColorPickerRenderer::singleton = nullptr;
 
-	ColorPicker::ColorPicker(Widget* parent, GUI& gui_manager, glm::vec4& value_ref, const ColorPickerInfo& color_picker_info)
-		: SpritePanel(parent, gui_manager, { color_picker_info.color_slider_info.background_color, color_picker_info.color_slider_info.sprite, 0.0f, color_picker_info.color_slider_info.widget_info })
+	ColorPicker::ColorPicker(Widget* parent, GUI& gui_manager, value_t& value_ref, const ColorPickerInfo& color_picker_info)
+		: SpritePanel(parent, gui_manager, { color_picker_info.color_input_info.background_color, color_picker_info.color_input_info.sprite, 0.0f, color_picker_info.color_input_info.widget_info })
 		, m_color_picker_info(color_picker_info)
 		, m_value(value_ref)
 	{
@@ -210,7 +210,7 @@ namespace oe::gui
 		lsp_info.widget_info.size = glm::ivec2{ std::min(m_info.size.x, m_info.size.y - 25) };
 		lsp_info.widget_info.align_parent = oe::alignments::top_center;
 		lsp_info.widget_info.align_render = oe::alignments::top_center;
-		lsp_info.widget_info.toggled = color_picker_info.color_slider_info.widget_info.toggled;
+		lsp_info.widget_info.toggled = color_picker_info.color_input_info.widget_info.toggled;
 		lsp_info.sprite = &renderer.c_checkerboard;
 		lsp_info.color = oe::colors::white;
 		m_framebuffer_panel = create<SpritePanel>(lsp_info);
@@ -222,7 +222,7 @@ namespace oe::gui
 			sp_info.widget_info.offset_position = { 5, 5 };
 			sp_info.widget_info.align_parent = oe::alignments::top_left;
 			sp_info.widget_info.align_render = oe::alignments::top_left;
-			sp_info.widget_info.toggled = color_picker_info.color_slider_info.widget_info.toggled;
+			sp_info.widget_info.toggled = color_picker_info.color_input_info.widget_info.toggled;
 			sp_info.sprite = renderer.c_circle_sprite;
 			sp_info.color = oe::colors::white;
 			m_preview = create<SpritePanel>(sp_info);
@@ -232,23 +232,23 @@ namespace oe::gui
 		{
 			SliderInputInfo s_info;
 			s_info.knob_size = { 16, 16 };
-			s_info.widget_info.size = { color_picker_info.color_slider_info.widget_info.size.x - 10, 15 };
+			s_info.widget_info.size = { color_picker_info.color_input_info.widget_info.size.x - 10, 15 };
 			s_info.widget_info.offset_position = { 0, -5 };
 			s_info.widget_info.align_parent = oe::alignments::bottom_center;
 			s_info.widget_info.align_render = oe::alignments::bottom_center;
-			s_info.widget_info.toggled = color_picker_info.color_slider_info.widget_info.toggled;
+			s_info.widget_info.toggled = color_picker_info.color_input_info.widget_info.toggled;
 			s_info.slider_sprite = &renderer.c_checkerboard;
 			s_info.knob_sprite = &renderer.c_checkerboard;
 			s_info.value_bounds = { 0.0f, 1.0f };
 			s_info.linear_color = true;
 			s_info.slider_lcolor = oe::colors::white;
 			s_info.slider_rcolor = oe::colors::black;
-			s_info.knob_sprite = color_picker_info.color_slider_info.sprite;
+			s_info.knob_sprite = color_picker_info.color_input_info.sprite;
 			m_alpha_slider = create<SliderInput>(m_value.a, s_info);
 		}
 
 		m_value_last = m_value + 1.0f;
-		sprite_panel_info.sprite = m_color_picker_info.color_slider_info.sprite;
+		sprite_panel_info.sprite = m_color_picker_info.color_input_info.sprite;
 
 		m_alpha_slider->connect_listener<SliderInputUseEvent, &ColorPicker::on_slider_use>(this);
 	}

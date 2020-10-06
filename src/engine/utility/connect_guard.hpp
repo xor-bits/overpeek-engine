@@ -18,9 +18,15 @@ namespace oe::utils
 	public:
 		struct data_t { virtual ~data_t() {}; };
 		template<typename EventType>
-		struct data_t_e : data_t {
-			std::function<void(EventType)> fn;
+		struct data_t_e : data_t
+		{
+			const std::function<void(EventType)> fn;
+
+			template<typename Callable>
+			data_t_e(Callable&& f) : fn(f) { if(!fn) throw std::runtime_error("Callable was empty"); }
+
 			void call(const EventType& e) { fn(e); }
+			
 			~data_t_e() {}
 		};
 		
@@ -106,8 +112,8 @@ namespace oe::utils
 			constexpr auto connector = connector_disconnector_getter<Connection>::connector<EventType, &data_t_e<EventType>::call, data_t_e<EventType>>()();
 			constexpr auto disconnector = connector_disconnector_getter<Connection>::disconnector<EventType, &data_t_e<EventType>::call, data_t_e<EventType>>()();
 			
-			auto data = std::make_unique<data_t_e<EventType>>();
-			data->fn = lambda;
+			disconnect();
+			auto data = std::make_unique<data_t_e<EventType>>(lambda);
 			m_data = std::move(data);
 			auto data_e_ptr = dynamic_cast<data_t_e<EventType>*>(m_data.get());
 			

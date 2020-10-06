@@ -65,13 +65,13 @@ namespace oe::gui
 			wdgt->render_position = 
 			+ wdgt->m_info.offset_position
 			+ wdgt->getParent()->render_position
-			+ oe::alignmentOffset(wdgt->getParent()->m_info.size, wdgt->m_info.align_parent)
-			- oe::alignmentOffset(wdgt->m_info.size, wdgt->m_info.align_render);
+			+ oe::alignmentOffsetRound(wdgt->getParent()->m_info.size, wdgt->m_info.align_parent)
+			- oe::alignmentOffsetRound(wdgt->m_info.size, wdgt->m_info.align_render);
 
 		else
 			wdgt->render_position =
 			+ wdgt->m_info.offset_position
-			- oe::alignmentOffset(wdgt->m_info.size, wdgt->m_info.align_render);
+			- oe::alignmentOffsetRound(wdgt->m_info.size, wdgt->m_info.align_render);
 	}
 
 	void Widget::toggle(bool enabled)

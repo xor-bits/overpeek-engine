@@ -25,6 +25,9 @@ namespace oe::gui
 	class Button : public Widget
 	{
 	public:
+		using info_t = ButtonInfo;
+
+	public:
 		ButtonInfo button_info;
 		ButtonHoverEvent event_hover_latest;
 		ButtonUseEvent event_use_latest;

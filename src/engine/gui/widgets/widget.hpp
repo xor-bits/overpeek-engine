@@ -40,6 +40,9 @@ namespace oe::gui
 
 	class Widget : public std::enable_shared_from_this<Widget>
 	{
+	public:
+		using info_t = WidgetInfo;
+		
 	private:
 		Widget* m_parent;
 		std::unordered_set<std::shared_ptr<Widget>> m_nodes;
