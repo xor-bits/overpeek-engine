@@ -21,7 +21,7 @@ namespace oe::gui
 {
 	enum interact_type_flags
 	{
-		cursor = 1<<0, scroll = 1<<1, keyboard = 1<<2
+		none = 0<<0, cursor = 1<<0, scroll = 1<<1, keyboard = 1<<2
 	};
 
 	[[nodiscard]] constexpr inline interact_type_flags operator|(interact_type_flags a, interact_type_flags b)

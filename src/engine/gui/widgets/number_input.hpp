@@ -41,9 +41,9 @@ namespace oe::gui
 
 	public:
 		BasicNumberInputInfo<T> m_number_input_info;
+		value_t& m_value;
 	
 	private:
-		value_t& m_value;
 		bool m_dragging = false;
 		value_t m_value_start = {};
 		glm::ivec2 m_drag_start = { 0, 0 };
@@ -109,7 +109,7 @@ namespace oe::gui
 		template<> static int stoT(const std::string& str) { return std::stoi(str); }
 		template<> static long stoT(const std::string& str) { return std::stol(str); }
 		template<> static long long stoT(const std::string& str) { return std::stoll(str); }
-		template<> static unsigned int stoT(const std::string& str) { return std::stoui(str); }
+		template<> static unsigned int stoT(const std::string& str) { return std::stoul(str); }
 		template<> static unsigned long stoT(const std::string& str) { return std::stoul(str); }
 		template<> static unsigned long long stoT(const std::string& str) { return std::stoull(str); }
 		template<> static float stoT(const std::string& str) { return std::stof(str); }
@@ -163,7 +163,7 @@ namespace oe::gui
 		}
 		void on_keyboard(const oe::KeyboardEvent& e)
 		{
-			if(e.action == oe::actions::release || !(m_number_input_info.interact_flags & interact_type_flags::keyboard))
+			if(e.action == oe::actions::release || !m_selected || !(m_number_input_info.interact_flags & interact_type_flags::keyboard))
 				return;
 
 			if(e.key == oe::keys::key_down)
@@ -198,7 +198,7 @@ namespace oe::gui
 		}
 		void on_scroll(const oe::ScrollEvent& e)
 		{
-			if(!(m_number_input_info.interact_flags & interact_type_flags::scroll))
+			if(!m_selected || !(m_number_input_info.interact_flags & interact_type_flags::scroll))
 				return;
 
 			m_value += (e.scroll_delta.y - e.scroll_delta.x) * m_number_input_info.stepsize;
