@@ -116,8 +116,8 @@ namespace oe::gui
 			return;
 		char_type c = static_cast<char_type>(event.codepoint);
 
-		if((m_text_input_info.whitelist.find(c) == std::basic_string_view<char_type>::npos) ||
-		   (m_text_input_info.blacklist.find(c) != std::basic_string_view<char_type>::npos))
+		if((!m_text_input_info.whitelist.empty() && m_text_input_info.whitelist.find(c) == std::basic_string_view<char_type>::npos) ||
+		   (!m_text_input_info.blacklist.empty() && m_text_input_info.blacklist.find(c) != std::basic_string_view<char_type>::npos))
 			return;
 		m_state.key(m_value, c);
 		reformat();
