@@ -171,15 +171,17 @@ namespace oe::gui
 		else
 			m_info.size.x = 4;
 
+		m_info.size += glm::ivec2{ 44, 0 };
+
 		SpritePanelInfo sprite_panel_info;
-		sprite_panel_info.widget_info = { m_info.size + glm::ivec2{ 44, 0 }, { 0, 0 }, oe::alignments::top_left, oe::alignments::top_left };
+		sprite_panel_info.widget_info = { m_info.size, { 0, 0 }, oe::alignments::top_left, oe::alignments::top_left };
 		sprite_panel_info.sprite = m_color_input_info.sprite;
 		sprite_panel_info.color = m_color_input_info.background_color;
 		auto bgbox = create<SpritePanel>(sprite_panel_info);
 		bgbox->overrideZ(bgbox->getZ() - 0.5f);
 
 		SpritePanelInfo preview_panel_info;
-		preview_panel_info.widget_info = { { 40, m_info.size.y - 8 }, { 0, 4 }, oe::alignments::top_right, oe::alignments::top_left };
+		preview_panel_info.widget_info = { { 40, m_info.size.y - 8 }, { -4, 4 }, oe::alignments::top_right, oe::alignments::top_right };
 		preview_panel_info.color = m_value;
 		preview_panel_info.sprite = m_color_input_info.sprite;
 		m_preview_panel = create<SpritePanel>(preview_panel_info);
@@ -197,6 +199,7 @@ namespace oe::gui
 			cpw_info.color_input_info.widget_info.offset_position = m_gui_manager.getWindow()->getSize() * 4;
 			cpw_info.color_input_info.widget_info.toggled = true;
 			m_popup_picker = create<ColorPicker>(m_value, cpw_info);
+			m_popup_picker->addZ(1e2f);
 			
 			m_popup_picker->connect_listener<ColorPickerHoverEvent, &ColorInput::on_color_picker_hover>(this);
 			m_popup_picker->connect_listener<ColorPickerUseEvent, &ColorInput::on_color_picker_use>(this);

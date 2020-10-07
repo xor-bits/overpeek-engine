@@ -17,6 +17,7 @@ namespace oe::gui
 	struct BasicTextInputInfo
 	{
 		glm::vec2 align_text                                         = oe::alignments::center_center;
+		size_t max_characters                                        = std::numeric_limits<size_t>::max();
 		std::basic_string<char_type> initial_value                   = {};
 		std::basic_string<char_type> placeholder                     = {};
 		std::basic_string_view<char_type> whitelist                  = {};
@@ -80,6 +81,7 @@ namespace oe::gui
 	private:
 		oe::utils::stb_textedit<char_type> m_state;
 		bool m_dragging = false;
+		std::chrono::milliseconds m_double_click_delay = std::chrono::milliseconds(500);
 
 		std::chrono::high_resolution_clock::time_point m_timer_key_pressed;
 

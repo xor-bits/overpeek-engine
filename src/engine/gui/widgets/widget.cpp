@@ -74,6 +74,13 @@ namespace oe::gui
 			- oe::alignmentOffsetRound(wdgt->m_info.size, wdgt->m_info.align_render);
 	}
 
+	void Widget::addZ(float add_to_z) noexcept
+	{
+		z += add_to_z;
+		for (auto& w : m_nodes)
+			w->addZ(add_to_z);
+	}
+
 	void Widget::toggle(bool enabled)
 	{
 		if(m_gui_manager.getWindow()->processingEvents())

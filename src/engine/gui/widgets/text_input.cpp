@@ -13,12 +13,21 @@
 namespace oe::gui
 {
 	template<typename char_type>
+	oe::utils::text_flags state_flags(const BasicTextInputInfo<char_type>& text_input_info)
+	{
+		oe::utils::text_flags flags = oe::utils::text_flags::none;
+		if(text_input_info.allow_newline)
+			flags = flags | oe::utils::text_flags::allow_newline;
+		return flags;
+	}
+
+	template<typename char_type>
 	BasicTextInput<char_type>::BasicTextInput(Widget* parent, GUI& gui_manager, std::basic_string<char_type>& m_value_ref, const BasicTextInputInfo<char_type>& text_input_info)
 		: Widget(parent, gui_manager, text_input_info.widget_info)
 		, m_text_label_pos({ 0, 0 })
 		, m_text_input_info(text_input_info)
 		, m_value(m_value_ref)
-		, m_state()
+		, m_state(m_text_input_info.max_characters, state_flags(text_input_info))
 		, m_selected(false)
 		, m_timer_key_pressed(std::chrono::high_resolution_clock::now())
 	{
@@ -93,7 +102,7 @@ namespace oe::gui
 
 	template<typename char_type>
 	void BasicTextInput<char_type>::resetTimer() noexcept
-	{
+	{	
 		m_timer_key_pressed = std::chrono::high_resolution_clock::now();
 	}
 	
@@ -269,6 +278,17 @@ namespace oe::gui
 				m_state.drag(m_value, m_label->getFont(), event.cursor_pos.cursor_windowspace - m_text_label_pos);
 			else
 				m_state.click(m_value, m_label->getFont(), event.cursor_pos.cursor_windowspace - m_text_label_pos);
+				
+			// double click
+			auto since_last = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch() - m_timer_key_pressed.time_since_epoch());
+			if(since_last < m_double_click_delay)
+			{
+				std::get<0>(selection()) = m_value.size();
+				std::get<1>(selection()) = 0;
+				m_state.clamp(m_value);
+			}
+
+			// 
 			resetTimer();
 		}
 		else

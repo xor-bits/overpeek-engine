@@ -4,13 +4,16 @@
 #include <stb_textedit.h>
 #include "engine/utility/extra.hpp"
 
+static oe::graphics::Font* last_font = nullptr;
+static size_t* last_max_characters = nullptr;
 static bool insertchars(std::basic_string<char_type> *obj, uint32_t i, char_type *chars, uint32_t n)
 {
+	if(last_max_characters && obj->size() + n > *last_max_characters)
+		return false;
 	obj->insert(i, chars, n);
 	return true;
 }
 
-static oe::graphics::Font* last_font = nullptr;
 static float getwidth(std::basic_string<char_type> *obj, uint32_t n, uint32_t i)
 {
 	float advance = 0.0f;
@@ -83,10 +86,11 @@ static void layoutrow(StbTexteditRow* r, std::basic_string<char_type> *obj, uint
 namespace oe::utils
 {
 	template<>
-	stb_textedit<char_type>::stb_textedit(text_flags f)
+	stb_textedit<char_type>::stb_textedit(size_t& max_chars, text_flags f)
 		: m_state(new STB_TexteditState())
 		, m_cursor(reinterpret_cast<STB_TexteditState*>(m_state)->cursor)
 		, m_selection({ reinterpret_cast<STB_TexteditState*>(m_state)->select_end, reinterpret_cast<STB_TexteditState*>(m_state)->select_start })
+		, max_characters(max_chars)
 	{
 		auto state = reinterpret_cast<STB_TexteditState*>(m_state);
 		state->single_line = !(f | text_flags::allow_newline);
@@ -104,6 +108,7 @@ namespace oe::utils
 	{
 		auto state = reinterpret_cast<STB_TexteditState*>(m_state);
 		last_font = &font;
+		last_max_characters = &max_characters;
 
 		if(!key)
 			return;
@@ -139,6 +144,7 @@ namespace oe::utils
 	void stb_textedit<char_type>::key(std::basic_string<char_type>& string, oe::graphics::Font& font, oe::keys key_enum, oe::modifiers mods)
 	{
 		last_font = &font;
+		last_max_characters = &max_characters;
 
 		uint32_t code = 0;
 		switch (key_enum)
@@ -200,6 +206,7 @@ namespace oe::utils
 	void stb_textedit<char_type>::flush()
 	{
 		auto state = reinterpret_cast<STB_TexteditState*>(m_state);
+		last_max_characters = &max_characters;
 		stb_textedit_flush_redo(&state->undostate);
 	}
 	
@@ -207,6 +214,7 @@ namespace oe::utils
 	void stb_textedit<char_type>::clamp(std::basic_string<char_type>& string)
 	{
 		auto state = reinterpret_cast<STB_TexteditState*>(m_state);
+		last_max_characters = &max_characters;
 		stb_textedit_clamp(&string, state);
 	}
 	
@@ -216,6 +224,7 @@ namespace oe::utils
 		// spdlog::debug("c:{}", cursor);
 		auto state = reinterpret_cast<STB_TexteditState*>(m_state);
 		last_font = &font;
+		last_max_characters = &max_characters;
 		stb_textedit_click(&string, state, cursor.x, cursor.y);
 	}
 
@@ -224,6 +233,7 @@ namespace oe::utils
 	{
 		auto state = reinterpret_cast<STB_TexteditState*>(m_state);
 		last_font = &font;
+		last_max_characters = &max_characters;
 		stb_textedit_drag(&string, state, cursor.x, cursor.y);
 	}
 	

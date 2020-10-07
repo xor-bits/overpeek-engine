@@ -119,8 +119,9 @@ namespace oe::gui
 		void clear_event_cg() noexcept;
 
 		// for internal render sorting
-		inline float getZ() { return z; }
-		inline void overrideZ(float _z) { z = _z; }
+		[[nodiscard]] constexpr inline float getZ() const noexcept { return z; }
+		constexpr inline void overrideZ(float _z) noexcept { z = _z; }
+		void addZ(float add_to_z) noexcept;
 		
 		// must not be toggled from an event
 		void toggle(bool enabled = true);

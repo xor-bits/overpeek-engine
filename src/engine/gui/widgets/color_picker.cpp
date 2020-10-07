@@ -191,6 +191,8 @@ namespace oe::gui
 	};
 	ColorPickerRenderer* ColorPickerRenderer::singleton = nullptr;
 
+
+
 	ColorPicker::ColorPicker(Widget* parent, GUI& gui_manager, value_t& value_ref, const ColorPickerInfo& color_picker_info)
 		: SpritePanel(parent, gui_manager, { color_picker_info.color_input_info.background_color, color_picker_info.color_input_info.sprite, 0.0f, color_picker_info.color_input_info.widget_info })
 		, m_color_picker_info(color_picker_info)
