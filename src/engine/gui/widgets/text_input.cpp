@@ -126,11 +126,19 @@ namespace oe::gui
 		m_text_quad->setSize(m_label->getSize());
 		m_text_quad->setSprite(m_label->getSprite());
 		m_text_quad->setColor(oe::colors::white);
+
+		m_state.clamp(m_value);
+		m_text_bar_quad->toggle(m_selected);
+		m_text_selection_quads[0]->toggle(m_selected);
+		m_text_selection_quads[1]->toggle(m_selected);
+		m_text_selection_quads[2]->toggle(m_selected);
+		if(!m_selected)
+			return;
 		
 		// text bar
 		auto& clock = oe::utils::Clock::getSingleton();
 		float time = clock.getSessionMillisecond();
-		bool bar = m_selected && (m_timer_key_pressed + std::chrono::seconds(1) > std::chrono::high_resolution_clock::now() || (int)floor(time) % 1000 > 500);
+		bool bar = (m_timer_key_pressed + std::chrono::seconds(1) > std::chrono::high_resolution_clock::now() || (int)floor(time) % 1000 > 500);
 		auto& font = m_gui_manager.getFont(m_text_input_info.font_size, m_text_input_info.font_file);
 		const glm::ivec2 before_cursor_size = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, m_state.cursor(), { 0.0f, 0.0f }, glm::vec2(font.getResolution()), { 0.0f, 0.0f });
 		m_text_bar_quad->setPosition(static_cast<glm::vec2>(m_text_label_pos + before_cursor_size));
@@ -209,7 +217,7 @@ namespace oe::gui
 
 		// spdlog::debug("on codepoint <{}>", (size_t)c);
 
-		m_state.key(m_value, c);
+		m_state.key(m_value, m_label->getFont(), c);
 		reformat();
 		
 		BasicTextInputChangedEvent<char_type> e { event.codepoint, m_value };
@@ -227,7 +235,7 @@ namespace oe::gui
 
 		// spdlog::debug("on key <{},{}>", static_cast<int>(event.key), static_cast<int>(event.mods));
 
-		m_state.key(m_value, event.key, event.mods);
+		m_state.key(m_value, m_label->getFont(), event.key, event.mods);
 		reformat();
 
 		BasicTextInputChangedEvent<char_type> e { static_cast<char32_t>(character), m_value };

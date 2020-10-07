@@ -32,9 +32,10 @@ namespace oe::utils
 
 		stb_textedit(text_flags f = static_cast<text_flags>(0));
 		~stb_textedit();
-		void key(std::basic_string<char_type>& string, uint32_t key, oe::modifiers mods = oe::modifiers::none);
-		void key(std::basic_string<char_type>& string, oe::keys key, oe::modifiers mods = oe::modifiers::none);
+		void key(std::basic_string<char_type>& string, oe::graphics::Font& font, uint32_t key, oe::modifiers mods = oe::modifiers::none);
+		void key(std::basic_string<char_type>& string, oe::graphics::Font& font, oe::keys key, oe::modifiers mods = oe::modifiers::none);
 		void flush(); // flush redo que without key input
+		void clamp(std::basic_string<char_type>& string); // fix cursor and selection positions
 		void click(std::basic_string<char_type>& string, oe::graphics::Font& font, const glm::ivec2& cursor);
 		void drag(std::basic_string<char_type>& string, oe::graphics::Font& font, const glm::ivec2& cursor);
 		[[nodiscard]] int& cursor() const noexcept;

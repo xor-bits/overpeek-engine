@@ -77,7 +77,7 @@ namespace oe::graphics
                                                 size_t include_depth) override
         {
             auto data = new include_result();
-            oe::utils::FileIO::getSingleton().readString(data->content_cpp_string, relative / requested_source);
+            data->content_cpp_string = oe::utils::FileIO(relative / requested_source).read<std::string>();
             data->source_name_cpp_string = fs::path(requested_source).filename().string();
             data->content = data->content_cpp_string.c_str();
             data->content_length = data->content_cpp_string.size();

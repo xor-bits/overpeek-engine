@@ -278,7 +278,7 @@ xxxxxxxxxxxxxxxxxxxxx)";
 			});
 		}
 	}
-	if constexpr(false) { // color picker 1
+	{ // color picker 1
 		oe::gui::ColorInputInfo color_picker_info;
 		color_picker_info.widget_info = { { 200, 120 }, { 0, 35 }, oe::alignments::center_left, oe::alignments::center_left };
 		color_picker_info.sprite = pack->emptySprite();
@@ -286,7 +286,7 @@ xxxxxxxxxxxxxxxxxxxxx)";
 		color_picker_info.primary_input = oe::gui::input_type::slider;
 		gui->create<oe::gui::ColorInput>(color, color_picker_info);
 	}
-	if constexpr(false) { // color picker 2
+	{ // color picker 2
 		oe::gui::ColorInputInfo color_picker_info;
 		color_picker_info.widget_info = { { 200, 20 }, { 0, -40 }, oe::alignments::center_left, oe::alignments::center_left };
 		color_picker_info.sprite = pack->emptySprite();
@@ -294,7 +294,7 @@ xxxxxxxxxxxxxxxxxxxxx)";
 		color_picker_info.primary_input = oe::gui::input_type::dragger;
 		gui->create<oe::gui::ColorInput>(color, color_picker_info);
 	}
-	if constexpr(false) { // color picker 3
+	{ // color picker 3
 		oe::gui::ColorInputInfo color_picker_info;
 		color_picker_info.widget_info = { { 20, 20 }, { 0, -65 }, oe::alignments::center_left, oe::alignments::center_left };
 		color_picker_info.sprite = pack->emptySprite();
@@ -302,13 +302,13 @@ xxxxxxxxxxxxxxxxxxxxx)";
 		color_picker_info.primary_input = oe::gui::input_type::none;
 		gui->create<oe::gui::ColorInput>(color, color_picker_info);
 	}
-	if constexpr(false) {
-		oe::gui::BasicNumberInputInfo<int> number_input_info;
-		number_input_info.initial_value = 42.0f;
-		number_input_info.value_bounds = { 30.0f, 50.0f };
-		number_input_info.widget_info = { { 30, 18 }, { 0, 0 }, oe::alignments::top_center, oe::alignments::top_center };
+	{
+		oe::gui::BasicNumberInputInfo<uint32_t> number_input_info;
+		number_input_info.initial_value = 42;
+		number_input_info.value_bounds = { std::numeric_limits<uint32_t>::min(), std::numeric_limits<uint32_t>::max() };
+		number_input_info.widget_info = { { 50, 20 }, { 0, 0 }, oe::alignments::top_center, oe::alignments::top_center };
 		number_input_info.sprite = pack->emptySprite();
-		auto number_input = gui->create<oe::gui::BasicNumberInput<int>>(number_input_info);
+		gui->create<oe::gui::BasicNumberInput<uint32_t>>(number_input_info);
 	}
 	{
 		oe::gui::TextPanelInfo text_panel_info;

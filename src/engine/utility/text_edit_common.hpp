@@ -17,8 +17,8 @@ static float getwidth(std::basic_string<char_type> *obj, uint32_t n, uint32_t i)
 	if(!last_font)
 		return advance;
 	
-	advance = last_font->getGlyph(obj->at(n))->advance.x * last_font->getResolution();
-	// spdlog::info("n:{}, advance:{}",n,advance);
+	advance = last_font->getGlyph(obj->at(i))->advance.x * last_font->getResolution();
+	// spdlog::debug("i:{}, c:{}, advance:{}, font:{:X}",n,(char)obj->at(i),advance,(size_t)last_font);
 	return advance;
 }
 
@@ -40,7 +40,7 @@ static void layoutrow(StbTexteditRow* r, std::basic_string<char_type> *obj, uint
 	r->num_chars = count;
 	r->x0 = 0.0f;
 	r->x1 = text_size.x;
-	// spdlog::info("n:{}, ymax:{}, ymin:{}, baseline_y_delta:{}, num_chars:{}, x0:{}, x1:{}",n,r->ymax,r->ymin,r->baseline_y_delta,r->num_chars,r->x0,r->x1);
+	// spdlog::debug("n:{}, font:{:X}, ymax:{}, ymin:{}, baseline_y_delta:{}, num_chars:{}, x0:{}, x1:{}",n,(size_t)last_font,r->ymax,r->ymin,r->baseline_y_delta,r->num_chars,r->x0,r->x1);
 }
 
 #define KEYDOWN_BIT                             0x8000000
@@ -100,9 +100,11 @@ namespace oe::utils
 	}
 	
 	template<>
-	void stb_textedit<char_type>::key(std::basic_string<char_type>& string, uint32_t key, oe::modifiers mods)
+	void stb_textedit<char_type>::key(std::basic_string<char_type>& string, oe::graphics::Font& font, uint32_t key, oe::modifiers mods)
 	{
 		auto state = reinterpret_cast<STB_TexteditState*>(m_state);
+		last_font = &font;
+
 		if(!key)
 			return;
 		
@@ -134,8 +136,10 @@ namespace oe::utils
 	}
 	
 	template<>
-	void stb_textedit<char_type>::key(std::basic_string<char_type>& string, oe::keys key_enum, oe::modifiers mods)
+	void stb_textedit<char_type>::key(std::basic_string<char_type>& string, oe::graphics::Font& font, oe::keys key_enum, oe::modifiers mods)
 	{
+		last_font = &font;
+
 		uint32_t code = 0;
 		switch (key_enum)
 		{
@@ -189,7 +193,7 @@ namespace oe::utils
 			break;
 		}
 		
-		key(string, code, mods);
+		key(string, font, code, mods);
 	}
 
 	template<>
@@ -200,8 +204,16 @@ namespace oe::utils
 	}
 	
 	template<>
+	void stb_textedit<char_type>::clamp(std::basic_string<char_type>& string)
+	{
+		auto state = reinterpret_cast<STB_TexteditState*>(m_state);
+		stb_textedit_clamp(&string, state);
+	}
+	
+	template<>
 	void stb_textedit<char_type>::click(std::basic_string<char_type>& string, oe::graphics::Font& font, const glm::ivec2& cursor)
 	{
+		// spdlog::debug("c:{}", cursor);
 		auto state = reinterpret_cast<STB_TexteditState*>(m_state);
 		last_font = &font;
 		stb_textedit_click(&string, state, cursor.x, cursor.y);
