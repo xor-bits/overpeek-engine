@@ -104,13 +104,18 @@ namespace oe {
 	};
 
 	// modifiers
-	enum class modifiers {
+	enum modifiers {
 		none = 0,
-		shift = 0x0001,
-		control = 0x0002,
-		alt = 0x0004,
-		super = 0x0008
+		shift = 1<<0,
+		control = 1<<1,
+		alt = 1<<2,
+		super = 1<<3
 	};
+
+	[[nodiscard]] constexpr inline modifiers operator|(modifiers a, modifiers b)
+	{
+		return static_cast<modifiers>(static_cast<int>(a) | static_cast<int>(b));
+	}
 
 	// buttons
 	enum class mouse_buttons {

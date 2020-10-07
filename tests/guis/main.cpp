@@ -233,6 +233,10 @@ void setup_gui()
 	}
 	{
 		oe::gui::BasicTextInputInfo<char32_t> text_input_info;
+		text_input_info.initial_value = UR"(xxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxx)";
 		text_input_info.widget_info = { { 200, 80 }, { 0, 0 }, oe::alignments::bottom_right, oe::alignments::bottom_right };
 		text_input_info.font_size = 14;
 		text_input_info.sprite = pack->emptySprite();
@@ -274,7 +278,7 @@ void setup_gui()
 			});
 		}
 	}
-	{ // color picker 1
+	if constexpr(false) { // color picker 1
 		oe::gui::ColorInputInfo color_picker_info;
 		color_picker_info.widget_info = { { 200, 120 }, { 0, 35 }, oe::alignments::center_left, oe::alignments::center_left };
 		color_picker_info.sprite = pack->emptySprite();
@@ -282,7 +286,7 @@ void setup_gui()
 		color_picker_info.primary_input = oe::gui::input_type::slider;
 		gui->create<oe::gui::ColorInput>(color, color_picker_info);
 	}
-	{ // color picker 2
+	if constexpr(false) { // color picker 2
 		oe::gui::ColorInputInfo color_picker_info;
 		color_picker_info.widget_info = { { 200, 20 }, { 0, -40 }, oe::alignments::center_left, oe::alignments::center_left };
 		color_picker_info.sprite = pack->emptySprite();
@@ -290,7 +294,7 @@ void setup_gui()
 		color_picker_info.primary_input = oe::gui::input_type::dragger;
 		gui->create<oe::gui::ColorInput>(color, color_picker_info);
 	}
-	{ // color picker 3
+	if constexpr(false) { // color picker 3
 		oe::gui::ColorInputInfo color_picker_info;
 		color_picker_info.widget_info = { { 20, 20 }, { 0, -65 }, oe::alignments::center_left, oe::alignments::center_left };
 		color_picker_info.sprite = pack->emptySprite();
@@ -298,7 +302,7 @@ void setup_gui()
 		color_picker_info.primary_input = oe::gui::input_type::none;
 		gui->create<oe::gui::ColorInput>(color, color_picker_info);
 	}
-	{
+	if constexpr(false) {
 		oe::gui::BasicNumberInputInfo<int> number_input_info;
 		number_input_info.initial_value = 42.0f;
 		number_input_info.value_bounds = { 30.0f, 50.0f };

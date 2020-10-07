@@ -15,13 +15,31 @@ namespace oe::gui
 	template<typename char_type>
 	BasicTextInput<char_type>::BasicTextInput(Widget* parent, GUI& gui_manager, std::basic_string<char_type>& m_value_ref, const BasicTextInputInfo<char_type>& text_input_info)
 		: Widget(parent, gui_manager, text_input_info.widget_info)
+		, m_text_label_pos({ 0, 0 })
 		, m_text_input_info(text_input_info)
 		, m_value(m_value_ref)
 		, m_state()
 		, m_selected(false)
 		, m_timer_key_pressed(std::chrono::high_resolution_clock::now())
 	{
-		m_state.cursor() = 0;
+		m_state.m_copy_to_clipboard = [this](const std::string& cb){ m_gui_manager.getWindow()->setClipboard(cb); };
+		m_state.m_paste_from_clipboard = [this](std::string& cb){ cb = m_gui_manager.getWindow()->getClipboard(); };
+
+		cursor() = 0;
+		std::get<0>(selection()) = 0;
+		std::get<1>(selection()) = 0;
+	}
+
+	template<typename char_type>
+	[[nodiscard]] int& BasicTextInput<char_type>::cursor() const noexcept
+	{
+		return m_state.cursor();
+	}
+	
+	template<typename char_type>
+	[[nodiscard]] const std::tuple<int&, int&>& BasicTextInput<char_type>::selection() const noexcept
+	{
+		return m_state.selection();
 	}
 	
 	template<typename char_type>
@@ -32,12 +50,26 @@ namespace oe::gui
 			m_quad = m_gui_manager.getRenderer()->create();
 			m_text_quad = m_gui_manager.getRenderer()->create();
 			m_text_bar_quad = m_gui_manager.getRenderer()->create();
+			m_text_selection_quads[0] = m_gui_manager.getRenderer()->create();
+			m_text_selection_quads[1] = m_gui_manager.getRenderer()->create();
+			m_text_selection_quads[2] = m_gui_manager.getRenderer()->create();
 			m_label = new oe::graphics::BasicTextLabel<char_type>(m_gui_manager.getFont(m_text_input_info.font_size, m_text_input_info.font_file));
+			
+			m_text_selection_quads[0]->setZ(z + 0.05f);
+			m_text_selection_quads[1]->setZ(z + 0.06f);
+			m_text_selection_quads[2]->setZ(z + 0.07f);			
+			m_text_selection_quads[0]->setSprite(m_text_input_info.sprite);
+			m_text_selection_quads[1]->setSprite(m_text_input_info.sprite);
+			m_text_selection_quads[2]->setSprite(m_text_input_info.sprite);
+			m_text_selection_quads[0]->setColor(m_text_input_info.selection_color);
+			m_text_selection_quads[1]->setColor(m_text_input_info.selection_color);
+			m_text_selection_quads[2]->setColor(m_text_input_info.selection_color);
 
 			// event listeners
 			m_cg_render.connect<GUIRenderEvent, &BasicTextInput::on_render, BasicTextInput>(m_gui_manager.dispatcher, this);
 			m_cg_codepoint.connect<CodepointEvent, &BasicTextInput::on_codepoint, BasicTextInput>(m_gui_manager.dispatcher, this );
 			m_cg_key.connect<KeyboardEvent, &BasicTextInput::on_key, BasicTextInput>(m_gui_manager.dispatcher, this);
+			m_cg_cursor.connect<CursorPosEvent, &BasicTextInput::on_cursor, BasicTextInput>(m_gui_manager.dispatcher, this);
 			m_cg_button.connect<MouseButtonEvent, &BasicTextInput::on_button, BasicTextInput>(m_gui_manager.dispatcher, this);
 		}
 		else
@@ -45,12 +77,16 @@ namespace oe::gui
 			m_quad.reset();
 			m_text_quad.reset();
 			m_text_bar_quad.reset();
+			m_text_selection_quads[0].reset();
+			m_text_selection_quads[1].reset();
+			m_text_selection_quads[2].reset();
 			delete m_label;
 
 			// event listeners
 			m_cg_render.disconnect();
 			m_cg_codepoint.disconnect();
 			m_cg_key.disconnect();
+			m_cg_cursor.disconnect();
 			m_cg_button.disconnect();
 		}
 	}
@@ -82,10 +118,10 @@ namespace oe::gui
 
 		// text
 		m_label->generate({ m_value, m_text_input_info.default_text_color }, m_gui_manager.getWindow());
-		const glm::ivec2 text_label_pos = render_position + oe::alignmentOffset(m_info.size, m_text_input_info.align_text) - oe::alignmentOffset(static_cast<glm::ivec2>(m_label->getSize()), m_text_input_info.align_text);
+		m_text_label_pos = render_position + oe::alignmentOffset(m_info.size, m_text_input_info.align_text) - oe::alignmentOffset(static_cast<glm::ivec2>(m_label->getSize()), m_text_input_info.align_text);
 		
 		// text label
-		m_text_quad->setPosition(static_cast<glm::vec2>(text_label_pos));
+		m_text_quad->setPosition(static_cast<glm::vec2>(m_text_label_pos));
 		m_text_quad->setZ(z + 0.025f);
 		m_text_quad->setSize(m_label->getSize());
 		m_text_quad->setSprite(m_label->getSprite());
@@ -96,13 +132,64 @@ namespace oe::gui
 		float time = clock.getSessionMillisecond();
 		bool bar = m_selected && (m_timer_key_pressed + std::chrono::seconds(1) > std::chrono::high_resolution_clock::now() || (int)floor(time) % 1000 > 500);
 		auto& font = m_gui_manager.getFont(m_text_input_info.font_size, m_text_input_info.font_file);
-		const glm::ivec2 before_cursor_size = oe::graphics::BasicText<char_type>::size(font, m_value.substr(0, m_state.cursor()), glm::vec2(font.getResolution()));
-		m_text_bar_quad->setPosition(static_cast<glm::vec2>(text_label_pos + glm::ivec2{ before_cursor_size.x, 0 }));
+		const glm::ivec2 before_cursor_size = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, m_state.cursor(), { 0.0f, 0.0f }, glm::vec2(font.getResolution()), { 0.0f, 0.0f });
+		m_text_bar_quad->setPosition(static_cast<glm::vec2>(m_text_label_pos + before_cursor_size));
 		m_text_bar_quad->setZ(z + 0.05f);
 		m_text_bar_quad->setSize({ 1, font.getResolution() });
 		m_text_bar_quad->setSprite(m_text_input_info.sprite);
 		m_text_bar_quad->setColor(m_text_input_info.default_text_color);
 		m_text_bar_quad->toggle(bar);
+
+		// text selection
+		const glm::ivec2 selection = { std::min(std::get<0>(m_state.selection()), std::get<1>(m_state.selection())), std::max(std::get<0>(m_state.selection()), std::get<1>(m_state.selection())) };
+		const size_t lines = std::accumulate(
+			m_value.begin() + selection.x,
+			m_value.begin() + selection.y,
+			size_t(1),
+			[](size_t so_far, char_type ch){ return so_far + static_cast<int>(ch == '\n'); });
+		const size_t lines_before = std::accumulate(
+			m_value.begin(),
+			m_value.begin() + selection.x,
+			size_t(0),
+			[](size_t so_far, char_type ch){ return so_far + static_cast<int>(ch == '\n'); });
+
+		switch (lines)
+		{
+		case 1:
+			{
+				m_text_selection_quads[1]->setSize({ 0.0f, 0.0f });
+				m_text_selection_quads[2]->setSize({ 0.0f, 0.0f });
+				
+				const glm::ivec2 selection_start_pos = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, selection.x, { 0.0f, 0.0f }, glm::vec2(font.getResolution()), { 0.0f, 0.0f });
+				const glm::ivec2 selection_end_pos = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, selection.y, { 0.0f, 0.0f }, glm::vec2(font.getResolution()), { 0.0f, 0.0f });
+
+				m_text_selection_quads[0]->setPosition(static_cast<glm::vec2>(m_text_label_pos + selection_start_pos));
+				m_text_selection_quads[0]->setSize({ selection_end_pos.x - selection_start_pos.x, font.getResolution() });
+			}
+			break;
+		default: // 3 or more
+			{
+				m_text_selection_quads[2]->setSize({ 0.0f, 0.0f });
+				
+				m_text_selection_quads[1]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ -font.getResolution(), (lines_before + 1) * font.getResolution() }));
+				m_text_selection_quads[1]->setSize({ m_label->getSize().x + 2 * font.getResolution(), (lines - 2) *font.getResolution() });
+			}
+			[[fallthrough]];
+		case 2:
+			{
+				if(lines == 2)
+					m_text_selection_quads[1]->setSize({ 0.0f, 0.0f });
+
+				const glm::ivec2 selection_a_start_pos = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, selection.x, { 0.0f, 0.0f }, glm::vec2(font.getResolution()), { 0.0f, 0.0f });
+				const glm::ivec2 selection_b_end_pos = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, selection.y, { 0.0f, 0.0f }, glm::vec2(font.getResolution()), { 0.0f, 0.0f });
+
+				m_text_selection_quads[0]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ selection_a_start_pos.x, lines_before * font.getResolution() }));
+				m_text_selection_quads[0]->setSize({ font.getResolution() + m_label->getSize().x - selection_a_start_pos.x, font.getResolution() });
+				m_text_selection_quads[2]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ -font.getResolution(), (lines_before + lines - 1) * font.getResolution() }));
+				m_text_selection_quads[2]->setSize({ font.getResolution() + selection_b_end_pos.x, font.getResolution() });
+			}
+			break;
+		}
 	}
 
 	template<typename char_type>
@@ -119,6 +206,9 @@ namespace oe::gui
 		if((!m_text_input_info.whitelist.empty() && m_text_input_info.whitelist.find(c) == std::basic_string_view<char_type>::npos) ||
 		   (!m_text_input_info.blacklist.empty() && m_text_input_info.blacklist.find(c) != std::basic_string_view<char_type>::npos))
 			return;
+
+		// spdlog::debug("on codepoint <{}>", (size_t)c);
+
 		m_state.key(m_value, c);
 		reformat();
 		
@@ -135,46 +225,23 @@ namespace oe::gui
 
 		char_type character = 0;
 
-		if (event.key == oe::keys::key_backspace)
-			m_state.key(m_value, oe::utils::text_keys::backspace);
-		else if (event.key == oe::keys::key_delete)
-			m_state.key(m_value, oe::utils::text_keys::del);
-		else if (event.key == oe::keys::key_left && event.mods == oe::modifiers::none)
-			m_state.key(m_value, oe::utils::text_keys::left);
-		else if (event.key == oe::keys::key_left && event.mods == oe::modifiers::control)
-			m_state.key(m_value, oe::utils::text_keys::c_left);
-		else if (event.key == oe::keys::key_right && event.mods == oe::modifiers::none)
-			m_state.key(m_value, oe::utils::text_keys::right);
-		else if (event.key == oe::keys::key_right && event.mods == oe::modifiers::control)
-			m_state.key(m_value, oe::utils::text_keys::c_right);
-		else if (event.key == oe::keys::key_z && event.mods == oe::modifiers::control)
-			m_state.key(m_value, oe::utils::text_keys::undo);
-		else if (event.key == oe::keys::key_y && event.mods == oe::modifiers::control)
-			m_state.key(m_value, oe::utils::text_keys::redo);
-		else if (event.key == oe::keys::key_v && event.mods == oe::modifiers::control) // ctrl + v
-		{
-			auto cb = oe::utils::convertUTF<std::basic_string<char_type>>(m_gui_manager.getWindow()->getClipboard());
-			m_state.paste(m_value, cb);
-		}
-		else if (event.key == oe::keys::key_c && event.mods == oe::modifiers::control) // ctrl + c
-		{
-			std::basic_string<char_type> cb;
-			m_state.copy(m_value, cb);
-			m_gui_manager.getWindow()->setClipboard(oe::utils::convertUTF<std::string>(cb));
-		}
-		else if (event.key == oe::keys::key_x && event.mods == oe::modifiers::control) // ctrl + c
-		{
-			std::basic_string<char_type> cb;
-			m_state.cut(m_value, cb);
-			m_gui_manager.getWindow()->setClipboard(oe::utils::convertUTF<std::string>(cb));
-		}
-		else if (event.key == oe::keys::key_enter)
-			m_state.key(m_value, '\n');
+		// spdlog::debug("on key <{},{}>", static_cast<int>(event.key), static_cast<int>(event.mods));
+
+		m_state.key(m_value, event.key, event.mods);
 		reformat();
 
 		BasicTextInputChangedEvent<char_type> e { static_cast<char32_t>(character), m_value };
 		dispatcher.trigger(e);
 		resetTimer();
+	}
+
+	template<typename char_type>
+	void BasicTextInput<char_type>::on_cursor(const CursorPosEvent& event)
+	{
+		if(!m_cg_cursor || !m_dragging)
+			return;
+		
+		m_state.drag(m_value, m_label->getFont(), event.cursor_windowspace - m_text_label_pos);
 	}
 	
 	template<typename char_type>
@@ -183,11 +250,24 @@ namespace oe::gui
 		if(!m_cg_button)
 			return;
 
-		if (event.button == oe::mouse_buttons::button_left && event.action == oe::actions::press)
+		if (event.button == oe::mouse_buttons::button_left && event.action != oe::actions::release)
 		{
 			m_selected = oe::utils::bounding_box_test(event.cursor_pos.cursor_windowspace, render_position, m_info.size);
+			if(!m_selected)
+				return;
+			
+			m_dragging = true;
+			if(event.mods == oe::modifiers::shift) 
+				m_state.drag(m_value, m_label->getFont(), event.cursor_pos.cursor_windowspace - m_text_label_pos);
+			else
+				m_state.click(m_value, m_label->getFont(), event.cursor_pos.cursor_windowspace - m_text_label_pos);
 			resetTimer();
 		}
+		else
+		{
+			m_dragging = false;
+		}
+		
 	}
 	
 	template class BasicTextInput<char>;

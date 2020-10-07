@@ -26,7 +26,8 @@ namespace oe::gui
 		uint16_t font_size                                           = 16;
 		oe::utils::FontFile font_file                                = {}; // empty for gui default
 		glm::vec4 color                                              = oe::colors::dark_grey;
-		glm::vec4 default_text_color                                 = oe::colors::black;
+		glm::vec4 selection_color                                    = { 0.5f, 0.5f, 1.0f, 0.4f };
+		glm::vec4 default_text_color                                 = oe::colors::white;
 		const oe::graphics::Sprite* sprite                           = nullptr;
 		
 		WidgetInfo widget_info                                       = { { 100, 100 }, { 3, 3 }, oe::alignments::center_center, oe::alignments::center_center };
@@ -67,13 +68,18 @@ namespace oe::gui
 		std::unique_ptr<oe::graphics::Quad> m_text_quad;
 		std::unique_ptr<oe::graphics::Quad> m_text_bar_quad;
 
+		std::array<std::unique_ptr<oe::graphics::Quad>, 3> m_text_selection_quads;
+		
+		glm::ivec2 m_text_label_pos;
+
 	public:
 		BasicTextInputInfo<char_type> m_text_input_info;
 		value_t& m_value;
-		bool m_selected;
+		bool m_selected = false;
 	
 	private:
 		oe::utils::stb_textedit<char_type> m_state;
+		bool m_dragging = false;
 
 		std::chrono::high_resolution_clock::time_point m_timer_key_pressed;
 
@@ -82,6 +88,9 @@ namespace oe::gui
 		BasicTextInput(Widget* parent, GUI& gui_manager, const BasicTextInputInfo<char_type>& text_input_info = {})
 			: BasicTextInput(parent, gui_manager, m_text_input_info.initial_value, text_input_info)
 		{}
+
+		[[nodiscard]] int& cursor() const noexcept;
+		[[nodiscard]] const std::tuple<int&, int&>& selection() const noexcept;
 
 		virtual void virtual_toggle(bool enabled) override;
 		void resetTimer() noexcept;
@@ -92,10 +101,12 @@ namespace oe::gui
 		void on_render(const GUIRenderEvent& event);
 		void on_codepoint(const CodepointEvent& event);
 		void on_key(const KeyboardEvent& event);
+		void on_cursor(const CursorPosEvent& event);
 		void on_button(const MouseButtonEvent& event);
 		oe::utils::connect_guard m_cg_render;
 		oe::utils::connect_guard m_cg_codepoint;
 		oe::utils::connect_guard m_cg_key;
+		oe::utils::connect_guard m_cg_cursor;
 		oe::utils::connect_guard m_cg_button;
 	};
 

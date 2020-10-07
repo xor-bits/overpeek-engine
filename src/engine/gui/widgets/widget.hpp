@@ -29,6 +29,11 @@ namespace oe::gui
 		return static_cast<interact_type_flags>(static_cast<int>(a) | static_cast<int>(b));
 	}
 
+	[[nodiscard]] constexpr inline interact_type_flags operator&(interact_type_flags a, interact_type_flags b)
+	{
+		return static_cast<interact_type_flags>(static_cast<int>(a) & static_cast<int>(b));
+	}
+
 	struct WidgetInfo
 	{
 		glm::ivec2 size                    = { 50, 50 };

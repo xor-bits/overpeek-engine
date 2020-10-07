@@ -18,7 +18,7 @@ namespace oe::gui
 		uint16_t font_size                                  = 16;
 		oe::utils::FontFile font_file                       = {}; // empty for gui default
 		glm::vec4 color                                     = oe::colors::dark_grey;
-		glm::vec4 default_text_color                        = oe::colors::black;
+		glm::vec4 default_text_color                        = oe::colors::white;
 		const oe::graphics::Sprite* sprite                  = nullptr;
 
 		interact_type_flags interact_flags                  = interact_type_flags::cursor | interact_type_flags::keyboard | interact_type_flags::scroll;

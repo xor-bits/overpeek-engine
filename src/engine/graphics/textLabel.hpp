@@ -21,6 +21,16 @@ namespace oe::graphics
 		std::basic_string<char_type> string;
 		std::unordered_map<size_t, glm::vec4> string_color_map;
 
+		text_render_input(const std::vector<std::pair<std::basic_string_view<char_type>, glm::vec4>>& _string_vec)
+		{
+			string.reserve(std::accumulate(_string_vec.begin(), _string_vec.end(), static_cast<size_t>(0), [](size_t count, const std::pair<std::basic_string<char_type>, glm::vec4>& pair){ return count + pair.first.size(); }));
+			for (const auto& pair : _string_vec)
+			{
+				string_color_map.insert({ string.size(), pair.second });
+				string.insert(string.size(), pair.first);
+			}
+		}
+
 		text_render_input(const std::vector<std::pair<std::basic_string<char_type>, glm::vec4>>& _string_vec)
 		{
 			string.reserve(std::accumulate(_string_vec.begin(), _string_vec.end(), static_cast<size_t>(0), [](size_t count, const std::pair<std::basic_string<char_type>, glm::vec4>& pair){ return count + pair.first.size(); }));
@@ -31,9 +41,18 @@ namespace oe::graphics
 			}
 		}
 
+		text_render_input(const std::basic_string_view<char_type>& _string, const glm::vec4& _color)
+			: string(_string)
+			, string_color_map({ { 0, _color } })
+		{}
+
 		text_render_input(const std::basic_string<char_type>& _string, const glm::vec4& _color)
 			: string(_string)
 			, string_color_map({ { 0, _color } })
+		{}
+
+		text_render_input(const std::basic_string_view<char_type>& _string)
+			: text_render_input(_string, oe::colors::white)
 		{}
 
 		text_render_input(const std::basic_string<char_type>& _string)
@@ -65,6 +84,7 @@ namespace oe::graphics
 		using string_t = text_render_input<char_type>;
 
 		static glm::vec2 size(Font& font, const string_t& text, const glm::vec2& size);
+		static glm::vec2 charpos(Font& font, const string_t& text, size_t first, size_t i, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align);
 		static void submit(Renderer& renderer, Font& font, const string_t& text, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align = alignments::top_left, const glm::vec4& bg_color = glm::vec4(0.0f));
 		static void submit(Renderer& renderer, Font& font, const string_t& text, const glm::vec2& pos, float size, const glm::vec2& align = alignments::top_left, const glm::vec4& bg_color = glm::vec4(0.0f)) { submit(renderer, font, text, pos, glm::vec2(size, size), align, bg_color); }
 	};
@@ -97,6 +117,7 @@ namespace oe::graphics
 
 		inline const FrameBuffer* getFB() const { return &m_framebuffer; }
 		inline const Sprite& getSprite() const { return m_sprite; }
+		inline Font& getFont() const { return m_font; }
 		inline glm::vec2 getSize() const { return m_size; }
 		inline string_t getText() const { return m_text; }
 	};

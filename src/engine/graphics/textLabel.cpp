@@ -160,13 +160,31 @@ namespace oe::graphics {
 	}
 
 	template<typename char_type>
+	glm::vec2 BasicText<char_type>::charpos(Font& font, const string_t& text, size_t first, size_t idx, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align)
+	{
+		// get width
+		glm::vec2 advance = (align == glm::vec2{ 0.0f, 0.0f } ? align : alignmentOffset(-calculate_final_size<char_type>(text, size, font), align));
+		const oe::graphics::Font::Glyph* glyph;
+		for (size_t i = first; i < idx; i++) {
+			char_type c;
+			if (index_to_char(i, c, glyph, text, advance, size, font))
+			{
+				continue;
+			}
+
+			advance += glm::vec2(glyph->advance.x, 0.0f) * size;
+		}
+
+		return pos + advance;
+	}
+
+	template<typename char_type>
 	void BasicText<char_type>::submit(Renderer& renderer, Font& font, const string_t& text, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align, const glm::vec4& bg_color)
 	{
-		const glm::vec2 final_size = calculate_final_size<char_type>(text, size, font);
 		const float avg_top = font.getGlyph('|')->top_left.y;
 	
 		// get width
-		glm::vec2 advance = alignmentOffset(-final_size, align);
+		glm::vec2 advance = (align == glm::vec2{ 0.0f, 0.0f } ? align : alignmentOffset(-calculate_final_size<char_type>(text, size, font), align));
 		const oe::graphics::Font::Glyph* glyph;
 		glm::vec4 color = text.string_color_map.at(0);
 		for (size_t i = 0; i < text.string.size(); i++) {
