@@ -165,7 +165,7 @@ namespace oe::graphics {
 		// get width
 		glm::vec2 advance = (align == glm::vec2{ 0.0f, 0.0f } ? align : alignmentOffset(-calculate_final_size<char_type>(text, size, font), align));
 		const oe::graphics::Font::Glyph* glyph;
-		for (size_t i = first; i < idx; i++) {
+		for (size_t i = first; i < std::min(idx, text.string.size()); i++) {
 			char_type c;
 			if (index_to_char(i, c, glyph, text, advance, size, font))
 			{
