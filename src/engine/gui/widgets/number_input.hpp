@@ -102,20 +102,6 @@ namespace oe::gui
 			return info;
 		}
 
-		// string to T
-		template<class number>
-		static number stoT(const std::string& str);
-		
-		template<> static int stoT(const std::string& str) { return std::stoi(str); }
-		template<> static long stoT(const std::string& str) { return std::stol(str); }
-		template<> static long long stoT(const std::string& str) { return std::stoll(str); }
-		template<> static unsigned int stoT(const std::string& str) { return std::stoul(str); }
-		template<> static unsigned long stoT(const std::string& str) { return std::stoul(str); }
-		template<> static unsigned long long stoT(const std::string& str) { return std::stoull(str); }
-		template<> static float stoT(const std::string& str) { return std::stof(str); }
-		template<> static double stoT(const std::string& str) { return std::stod(str); }
-		template<> static long double stoT(const std::string& str) { return std::stold(str); }
-
 	public:
 		BasicNumberInput(Widget* parent, GUI& gui_manager, value_t& value_ref, const BasicNumberInputInfo<T>& number_input_info = {})
 			: TextInput(parent, gui_manager, getTextInputInfo(number_input_info))
@@ -154,7 +140,7 @@ namespace oe::gui
 				return;
 			
 			try{
-				m_value = stoT<T>(std::string(e.value));
+				m_value = oe::utils::stoT<T>(std::string(e.value));
 			}catch(...){
 				spdlog::warn("Parse error");
 				m_value = {};

@@ -53,6 +53,20 @@ namespace oe::utils {
 	template<typename chr_type> const chr_type* strchr(const chr_type* input, chr_type c);
 	template<typename chr_type> bool checkChar(const std::basic_string<chr_type>& text, chr_type character, size_t position);
 
+	// string to T where T is any integer or float type
+	template<class number>
+	static number stoT(const std::string& str);
+	
+	template<> static int stoT(const std::string& str) { return std::stoi(str); }
+	template<> static long stoT(const std::string& str) { return std::stol(str); }
+	template<> static long long stoT(const std::string& str) { return std::stoll(str); }
+	template<> static unsigned int stoT(const std::string& str) { return std::stoul(str); }
+	template<> static unsigned long stoT(const std::string& str) { return std::stoul(str); }
+	template<> static unsigned long long stoT(const std::string& str) { return std::stoull(str); }
+	template<> static float stoT(const std::string& str) { return std::stof(str); }
+	template<> static double stoT(const std::string& str) { return std::stod(str); }
+	template<> static long double stoT(const std::string& str) { return std::stold(str); }
+
 	// vector conversions
 	template<size_t dim, typename T>
 	bool containerToVec(const std::vector<T>& from, glm::vec<dim, T>& to)
