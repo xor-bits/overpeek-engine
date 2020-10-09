@@ -28,8 +28,11 @@ namespace oe::gui
 		//
 		static std::string BasicNumberInputInfo::default_formatter(const T& val)
 		{
-			return fmt::format("V: {:.1f}", val);
-		}	
+			if constexpr(std::is_floating_point_v<T>)
+				return fmt::format("V: {:.1f}", val);
+			else
+				return fmt::format("V: {}", val);
+		}
 	};
 
 	template<typename T>

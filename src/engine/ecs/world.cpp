@@ -20,6 +20,16 @@ namespace oe::ecs
 		return Entity{ entity, this };
 	}
 
+	void World::destroy(Entity entity)
+	{
+		destroy(entity.m_entity);
+	}
+
+	void World::destroy(entt::entity entity)
+	{
+		m_scene.destroy(entity);
+	}
+
 	void World::clear()
 	{
 		m_scene.clear();

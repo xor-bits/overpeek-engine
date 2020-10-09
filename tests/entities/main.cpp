@@ -7,14 +7,16 @@
 
 constexpr size_t updates_per_second = 60;
 constexpr float inverse_ups = 1.0f / updates_per_second;
-constexpr size_t entities = 200;
+int32_t entity_count;
 b2World box2d_world(b2Vec2(0.0f, 9.81f));
+
 
 oe::graphics::Window window;
 oe::assets::DefaultShader* shader;
 oe::graphics::SpritePack* pack;
 oe::graphics::Sprite const* sprite;
 oe::ecs::World* world;
+std::vector<oe::ecs::Entity> entities;
 oe::gui::GUI* gui_manager;
 std::shared_ptr<oe::gui::TextPanel> text_label;
 
@@ -23,6 +25,11 @@ std::shared_ptr<oe::gui::TextPanel> text_label;
 struct GenericScript : public oe::ecs::Behaviour
 {
 	b2Body* m_body{};
+
+	void stop()
+	{
+		m_body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+	}
 
 	void on_init(b2BodyType body_type, const glm::vec2& pos, const glm::vec2& size, float angle, const glm::vec4& color, float density)
 	{
@@ -52,8 +59,15 @@ struct GenericScript : public oe::ecs::Behaviour
 
 	void on_custom_update()
 	{
-		auto& pos = m_body->GetPosition();
-		if (pos.y >= 20.0f) { m_body->SetTransform(b2Vec2(0.0f, -20.0f), 0.0f); m_body->SetLinearVelocity(b2Vec2(0.0f, 0.0f)); }
+		const auto& pos = m_body->GetPosition();
+		if (pos.y > 20.0f)
+			m_body->SetTransform(b2Vec2(pos.x, -20.0f), 0.0f);
+		if (pos.y < -20.0f)
+			m_body->SetTransform(b2Vec2(pos.x, 20.0f), 0.0f);
+		if (pos.x > 20.0f * window->getAspect())
+			m_body->SetTransform(b2Vec2(-20.0f * window->getAspect(), pos.y), 0.0f);
+		if (pos.x < -20.0f * window->getAspect())
+			m_body->SetTransform(b2Vec2(20.0f * window->getAspect(), pos.y), 0.0f);
 	}
 
 	void on_custom_render(float update_fraction)
@@ -107,20 +121,16 @@ void setup()
 {
 	auto& random = oe::utils::Random::getSingleton();
 
-	// ground box
+	// rotor box
 	auto box = world->create(); // world::create()
 	auto motor_mid = oe::ecs::Entity(world); // or Entity constructor
 	auto& generic_src_box = box.setScriptComponent<GenericScript>(b2BodyType::b2_dynamicBody, glm::vec2{ 10.0f, 15.0f }, glm::vec2{ 1.5f, 15.0f }, glm::quarter_pi<float>(), glm::vec4(random.randomVec3(0.0f, 1.0f), 1.0f), 0.1f);
 	auto& generic_src_motor = motor_mid.setScriptComponent<GenericScript>(b2BodyType::b2_kinematicBody, glm::vec2{ 0.0f, 15.0f }, glm::vec2{ 1.0f, 1.0f }, glm::quarter_pi<float>(), glm::vec4(random.randomVec3(0.0f, 1.0f), 1.0f), 1.0f);
 	motor_mid.setScriptComponent<MotorScript>(box);
-
-	// random falling boxes
-	for (auto i = 2; i < entities; ++i) {
-		glm::vec2 pos = { random.randomf(-2.0f, 2.0f), random.randomf(-30.0f, 5.0f) };
-		glm::vec2 size = random.randomVec2(0.1f, 1.0f);
-		auto entity = world->create();
-		entity.setScriptComponent<GenericScript>(b2BodyType::b2_dynamicBody, pos, size, random.randomf(0.0f, glm::two_pi<float>()), glm::vec4(random.randomVec3(0.0f, 1.0f), 1.0f), 1.0f);
-	}
+	
+	// ground box
+	auto gbox = world->create(); // world::create()
+	gbox.setScriptComponent<GenericScript>(b2BodyType::b2_staticBody, glm::vec2{ -15.0f, 0.0f }, glm::vec2{ 10.0f, 2.0f }, 0.0f, glm::vec4(random.randomVec3(0.0f, 1.0f), 1.0f), 0.1f);
 }
 
 // render event
@@ -167,6 +177,24 @@ void update_30(oe::UpdateEvent<30>)
 // update event <updates_per_second> times per second
 void update()
 {
+	auto& random = oe::utils::Random::getSingleton();
+
+	if(std::max(0, entity_count) > entities.size())
+		for(size_t i = 0; i < std::max(0, entity_count) - entities.size(); i++)
+		{
+			glm::vec2 pos = { random.randomf(-2.0f, 2.0f), random.randomf(-30.0f, 5.0f) };
+			glm::vec2 size = random.randomVec2(0.1f, 1.0f);
+			auto entity = world->create();
+			entity.setScriptComponent<GenericScript>(b2BodyType::b2_dynamicBody, pos, size, random.randomf(0.0f, glm::two_pi<float>()), glm::vec4(random.randomVec3(0.0f, 1.0f), 1.0f), 1.0f);
+			entities.push_back(entity);
+		}
+	if(std::max(0, entity_count) < entities.size())
+		for(size_t i = 0; i < entities.size() - std::max(0, entity_count); i++)
+		{
+			entities.back().destroy();
+			entities.pop_back();
+		}
+
 	world->m_scene.view<std::unique_ptr<GenericScript>>().each([](std::unique_ptr<GenericScript>& src) {
 		src->on_custom_update();
 	});
@@ -181,54 +209,58 @@ void gui()
 {
 	gui_manager = new oe::gui::GUI(window);
 	{
-		oe::gui::SliderInputInfo s_info;
-		s_info.widget_info.size = { 50, 16 };
-		s_info.widget_info.align_parent = oe::alignments::top_left;
-		s_info.widget_info.align_render = oe::alignments::top_left;
-		s_info.widget_info.offset_position = { 0, 50 };
-		s_info.slider_lcolor = oe::colors::red;
-		s_info.slider_rcolor = oe::colors::green;
-		s_info.linear_color = true;
-		s_info.slider_sprite = pack->emptySprite();
-		s_info.value_bounds = { -10.0f, 10.0f, };
-		s_info.draw_value = true;
-		auto slider = gui_manager->create<oe::gui::SliderInput>(s_info);
-
-		slider->create_event_cg().connect<oe::gui::SliderInputUseEvent>(slider->dispatcher, [&](const oe::gui::SliderInputUseEvent& e)
-		{
-			world->m_scene.view<std::unique_ptr<MotorScript>>().each([&e](std::unique_ptr<MotorScript>& src) {
-				src->motor_joint->SetMotorSpeed(e.value);
-			});
-		});
-	}
-	{
-		oe::gui::SliderInputInfo s_info;
-		s_info.widget_info.size = { 50, 16 };
-		s_info.widget_info.align_parent = oe::alignments::top_left;
-		s_info.widget_info.align_render = oe::alignments::top_left;
-		s_info.widget_info.offset_position = { 0, 50 };
-		s_info.slider_lcolor = oe::colors::red;
-		s_info.slider_rcolor = oe::colors::green;
-		s_info.linear_color = true;
-		s_info.slider_sprite = pack->emptySprite();
-		s_info.value_bounds = { -10.0f, 10.0f, };
-		s_info.draw_value = true;
-		auto slider = gui_manager->create<oe::gui::SliderInput>(s_info);
-
-		slider->create_event_cg().connect<oe::gui::SliderInputUseEvent>(slider->dispatcher, [&](const oe::gui::SliderInputUseEvent& e)
-		{
-			world->m_scene.view<std::unique_ptr<MotorScript>>().each([&e](std::unique_ptr<MotorScript>& src) {
-				src->motor_joint->SetMotorSpeed(e.value);
-			});
-		});
-	}
-	{
 		oe::gui::TextPanelInfo tp_info;
 		tp_info.font_size = 22;
 		tp_info.widget_info.align_parent = oe::alignments::top_left;
 		tp_info.widget_info.align_render = oe::alignments::top_left;
 		tp_info.text = U"placeholder";
 		text_label = gui_manager->create<oe::gui::TextPanel>(tp_info);
+	}
+	{
+		oe::gui::SliderInputInfo s_info;
+		s_info.knob_size = { 6, 16 };
+		s_info.widget_info.size = { 150, 16 };
+		s_info.widget_info.align_parent = oe::alignments::top_left;
+		s_info.widget_info.align_render = oe::alignments::top_left;
+		s_info.widget_info.offset_position = { 0, 50 };
+		s_info.slider_lcolor = oe::colors::red;
+		s_info.slider_rcolor = oe::colors::green;
+		s_info.linear_color = true;
+		s_info.slider_sprite = pack->emptySprite();
+		s_info.value_bounds = { -10.0f, 10.0f, };
+		s_info.draw_value = true;
+		auto slider = gui_manager->create<oe::gui::SliderInput>(s_info);
+
+		slider->create_event_cg().connect<oe::gui::SliderInputUseEvent>(slider->dispatcher, [&](const oe::gui::SliderInputUseEvent& e)
+		{
+			world->m_scene.view<std::unique_ptr<MotorScript>>().each([&e](std::unique_ptr<MotorScript>& src) {
+				src->motor_joint->SetMotorSpeed(e.value);
+			});
+		});
+	}
+	{
+		oe::gui::iNumberInputInfo n_info;
+		n_info.widget_info.size = { 50, 20 };
+		n_info.widget_info.align_parent = oe::alignments::top_left;
+		n_info.widget_info.align_render = oe::alignments::top_left;
+		n_info.widget_info.offset_position = { 0, 80 };
+		n_info.initial_value = 200;
+		n_info.interact_flags = oe::gui::interact_type_flags::scroll | oe::gui::interact_type_flags::cursor;
+		auto count_input = gui_manager->create<oe::gui::iNumberInput>(entity_count, n_info);
+	}
+	{
+		oe::gui::DecoratedButtonInfo b_info;
+		b_info.button_info.widget_info.size = { 50, 40 };
+		b_info.button_info.widget_info.align_parent = oe::alignments::top_left;
+		b_info.button_info.widget_info.align_render = oe::alignments::top_left;
+		b_info.button_info.widget_info.offset_position = { 0, 110 };
+		b_info.text = U"R";
+		auto reset_btn = gui_manager->create<oe::gui::DecoratedButton>(b_info);
+
+		reset_btn->create_event_cg().connect<oe::gui::ButtonUseEvent>(reset_btn->dispatcher, [](const oe::gui::ButtonUseEvent& e){
+			for(size_t i = 0; i < entities.size(); i++)
+				entities[i].getScriptComponent<GenericScript>().stop();
+		});
 	}
 }
 
@@ -245,7 +277,7 @@ void init(oe::InitEvent)
 
 	// instance settings
 	engine.culling(oe::culling_modes::back);
-	engine.swapInterval(0);
+	engine.swapInterval(1);
 	engine.blending();
 
 	// shader
@@ -291,7 +323,26 @@ int main(int argc, char* argv[])
 	window = oe::graphics::Window(window_info);
 	window->connect_listener<oe::InitEvent, &init>();
 	window->connect_listener<oe::CleanupEvent, &cleanup>();
+
+	// auto close ctest after 2 seconds
+	std::thread ctest_close_thread;
+	for (size_t i = 0; i < argc; i++)
+		if(std::strcmp(argv[i], "--ctest") == 0)
+		{
+			ctest_close_thread = std::thread([](){
+				// test for 2 seconds
+				std::this_thread::sleep_for(std::chrono::seconds(2));
+
+				// then stop the gameloop
+				window->getGameloop().stop();
+			});
+			break;
+		}
 	
 	window->getGameloop().start();
+
+	if(ctest_close_thread.joinable())
+		ctest_close_thread.join();
+
 	return 0;
 }

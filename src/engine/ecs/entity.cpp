@@ -22,4 +22,9 @@ namespace oe::ecs
 	{
 		return m_world->m_scene.valid(m_entity);
 	}
+	
+	void Entity::destroy()
+	{
+		m_world->destroy(m_entity);
+	}
 }

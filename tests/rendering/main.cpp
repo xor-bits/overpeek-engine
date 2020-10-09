@@ -79,7 +79,7 @@ void keyboard(const oe::KeyboardEvent& event)
 	}
 }
 
-void init()
+void init(int argc, char** argv)
 {
 	auto& engine = oe::Engine::getSingleton();
 
@@ -120,9 +120,27 @@ void init()
 	pack_0->construct();
 	pack_1->construct();
 
+	// auto close ctest after 2 seconds
+	std::thread ctest_close_thread;
+	for (size_t i = 0; i < argc; i++)
+		if(std::strcmp(argv[i], "--ctest") != 0)
+		{
+			ctest_close_thread = std::thread([](){
+				// test for 2 seconds
+				std::this_thread::sleep_for(std::chrono::seconds(2));
+
+				// then stop the gameloop
+				window->getGameloop().stop();
+			});
+			break;
+		}
+
 	// start
 	create_scene();
 	window->getGameloop().start(); // print the average frametime 30 times in a second
+
+	if(ctest_close_thread.joinable())
+		ctest_close_thread.join();
 
 	// closing
 	delete pack_0;
@@ -135,7 +153,7 @@ int main(int argc, char** argv)
 {
 	try
 	{
-		init();
+		init(argc, argv);
 		return 0;
 	}
 	catch (const std::exception& e)

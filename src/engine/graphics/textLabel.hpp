@@ -21,9 +21,15 @@ namespace oe::graphics
 		std::basic_string<char_type> string;
 		std::unordered_map<size_t, glm::vec4> string_color_map;
 
-		text_render_input(const std::vector<std::pair<std::basic_string_view<char_type>, glm::vec4>>& _string_vec)
+		using string_view_color = std::pair<std::basic_string_view<char_type>, glm::vec4>;
+		using string_color = std::pair<std::basic_string<char_type>, glm::vec4>;
+		
+		using string_view_color_vec = std::vector<string_view_color>;
+		using string_color_vec = std::vector<string_color>;
+
+		text_render_input(const string_view_color_vec& _string_vec)
 		{
-			string.reserve(std::accumulate(_string_vec.begin(), _string_vec.end(), static_cast<size_t>(0), [](size_t count, const std::pair<std::basic_string<char_type>, glm::vec4>& pair){ return count + pair.first.size(); }));
+			string.reserve(std::accumulate(_string_vec.begin(), _string_vec.end(), static_cast<size_t>(0), [](size_t count, const string_view_color& pair){ return count + pair.first.size(); }));
 			for (const auto& pair : _string_vec)
 			{
 				string_color_map.insert({ string.size(), pair.second });
@@ -31,9 +37,9 @@ namespace oe::graphics
 			}
 		}
 
-		text_render_input(const std::vector<std::pair<std::basic_string<char_type>, glm::vec4>>& _string_vec)
+		text_render_input(const string_color_vec& _string_vec)
 		{
-			string.reserve(std::accumulate(_string_vec.begin(), _string_vec.end(), static_cast<size_t>(0), [](size_t count, const std::pair<std::basic_string<char_type>, glm::vec4>& pair){ return count + pair.first.size(); }));
+			string.reserve(std::accumulate(_string_vec.begin(), _string_vec.end(), static_cast<size_t>(0), [](size_t count, const string_color& pair){ return count + pair.first.size(); }));
 			for (const auto& pair : _string_vec)
 			{
 				string_color_map.insert({ string.size(), pair.second });

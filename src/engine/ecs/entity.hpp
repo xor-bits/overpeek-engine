@@ -98,6 +98,8 @@ namespace oe::ecs
 
 		bool valid() const;
 
+		void destroy();
+
 	public:
 		entt::entity m_entity{};
 		World* m_world{};

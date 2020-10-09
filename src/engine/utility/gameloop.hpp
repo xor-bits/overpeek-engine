@@ -6,6 +6,7 @@
 #include <entt/entt.hpp>
 #include <optional>
 #include <chrono>
+#include <atomic>
 #include "engine/enum.hpp"
 
 
@@ -77,7 +78,7 @@ namespace oe::utils
 		std::unordered_map<size_t, std::unique_ptr<UpdateSystemBase>> m_update_systems;
 
 		oe::graphics::IWindow* m_host_window;
-		bool m_should_run = false;
+		std::atomic<bool> m_should_run = false;
 
 	private:
 		void loop();

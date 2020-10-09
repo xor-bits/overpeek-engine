@@ -12,15 +12,18 @@ namespace oe::utils {
 		gen = std::mt19937(value);
 	}
 
-	glm::vec2 Random::randomVec2(float min, float max) {
+	[[nodiscard]] glm::vec2 Random::randomVec2(float min, float max) noexcept
+	{
 		return glm::vec2(randomf(min, max), randomf(min, max));
 	}
 
-	glm::vec3 Random::randomVec3(float min, float max) {
+	[[nodiscard]] glm::vec3 Random::randomVec3(float min, float max) noexcept
+	{
 		return glm::vec3(randomf(min, max), randomf(min, max), randomf(min, max));
 	}
 
-	glm::vec4 Random::randomVec4(float min, float max) {
+	[[nodiscard]] glm::vec4 Random::randomVec4(float min, float max) noexcept
+	{
 		return glm::vec4(randomf(min, max), randomf(min, max), randomf(min, max), randomf(min, max));
 	}
 

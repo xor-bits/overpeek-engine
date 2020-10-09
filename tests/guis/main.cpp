@@ -353,7 +353,7 @@ xxxxxxxxxxxxxxxxxxxxx)";
 	for(int i = 0; i < 5; i++) append_list(glm::angleAxis(random.randomf(-glm::pi<float>(), glm::pi<float>()), glm::normalize(random.randomVec3(-1.0f, 1.0f))));
 }
 
-int main()
+int main(int argc, char** argv)
 {
 	auto& engine = oe::Engine::getSingleton();
 
@@ -401,8 +401,26 @@ int main()
 	gui = new oe::gui::GUI(window, oe::utils::FontFile{ oe::default_full_font_path_bold });
 	setup_gui();
 
+	// auto close ctest after 2 seconds
+	std::thread ctest_close_thread;
+	for (size_t i = 0; i < argc; i++)
+		if(std::strcmp(argv[i], "--ctest") == 0)
+		{
+			ctest_close_thread = std::thread([](){
+				// test for 2 seconds
+				std::this_thread::sleep_for(std::chrono::seconds(2));
+
+				// then stop the gameloop
+				window->getGameloop().stop();
+			});
+			break;
+		}
+
 	// start
 	window->getGameloop().start();
+
+	if(ctest_close_thread.joinable())
+		ctest_close_thread.join();
 
 	// cleanup
 	textbox.reset();

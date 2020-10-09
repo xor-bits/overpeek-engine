@@ -25,6 +25,10 @@ namespace oe::ecs
 
 		Entity create(); // create new entity
 		Entity create(entt::entity entity); // find existing entity
+
+		void destroy(Entity entity);
+		void destroy(entt::entity entity);
+		
 		void clear();
 		size_t count() const;
 	};

@@ -78,7 +78,7 @@ int main(int argc, char** argv) {
 	
 	// submitting
 	label = new oe::graphics::u32TextLabel(*font);
-	label->generate({{
+	label->generate(oe::graphics::text_render_input<char32_t>{oe::graphics::text_render_input<char32_t>::string_view_color_vec{
 			{ U"\u2116", { 0.06f, 0.13f, 1.0f, 1.0f } },
 			{ U"The quick brown fox!", oe::colors::white },
 			{ U"\u263A", { 1.0f, 0.13f, 0.13f, 1.0f } }
@@ -99,12 +99,27 @@ int main(int argc, char** argv) {
 	quad->setSize({ 200, 200 });
 	quad->setColor(oe::colors::white);
 	quad->setSprite(sprite);
+
+	// auto close ctest after 2 seconds
+	std::thread ctest_close_thread;
+	for (size_t i = 0; i < argc; i++)
+		if(std::strcmp(argv[i], "--ctest") == 0)
+		{
+			ctest_close_thread = std::thread([](){
+				// test for 2 seconds
+				std::this_thread::sleep_for(std::chrono::seconds(2));
+
+				// then stop the gameloop
+				window->getGameloop().stop();
+			});
+			break;
+		}
 	
 	// start
 	window->getGameloop().start(); // print the average frametime 30 times in a second
-	cg_render.disconnect();
-	cg_update_2.disconnect();
-	cg_resize.disconnect();
+
+	if(ctest_close_thread.joinable())
+		ctest_close_thread.join();
 
 	// closing
 	delete label;
