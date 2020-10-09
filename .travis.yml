@@ -23,6 +23,7 @@ matrix:
             - xorg-dev
             - libglu1-mesa-dev
             - libxrandr-dev
+            - libx11-xcb-dev
 
 
 install:

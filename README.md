@@ -1,4 +1,5 @@
 ![Logo](/.github/oe_logo.png)
+[![Build Status](https://travis-ci.com/Overpeek/overpeek-engine.svg?branch=master)](https://travis-ci.com/Overpeek/overpeek-engine)
 # overpeek-engine
 Minimal game engine/library.
 Primary focus on 2D side.
@@ -33,7 +34,7 @@ node: Vulkan build is experimental and still lacking basic features
 - (multiple conan packages)
 
 #### additional glfw3 dependencies for ubuntu:
-```sudo apt install libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev libxrandr-dev```
+```sudo apt install libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev libxrandr-dev libx11-xcb-dev```
 
 
 ## Features
