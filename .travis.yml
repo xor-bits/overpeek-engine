@@ -12,6 +12,7 @@ script:
   - cd ..
   - mkdir build
   - cd build
-  - cmake "-DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake" -S .. -B .
+  - cmake -S .. -B . "-DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake"
   - cd tests
+  - ninja
   - ctest
