@@ -17,6 +17,8 @@ matrix:
           packages:
             - python3-pip
             - clang-10
+            - libstdc++-10-dev
+            - libc++abi-10-dev
             - ninja-build
             - libxinerama-dev
             - libxcursor-dev
@@ -65,10 +67,8 @@ matrix:
         directories:
           - "%HOMEDRIVE%%HOMEPATH%/.conan/data"
 
-      install:
-        - choco install conan cmake ninja
-
       script:
+        - choco install conan cmake ninja
         - RefreshEnv.cmd
         - conan --version
         - cmake --version
