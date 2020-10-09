@@ -5,14 +5,14 @@ matrix:
   include:
     - name: "Linux - Clang"
       os: linux
-      env: CXX_EXE=/usr/bin/clang++-10 CC_EXE=/usr/bin/clang-10
+      env: CXX_EXE=/usr/bin/clang++ CC_EXE=/usr/bin/clang
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
           packages:
             - python3-pip
-            - clang-10
+            - clang
             - libxinerama-dev
             - libxcursor-dev
             - xorg-dev
