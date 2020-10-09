@@ -1,0 +1,12 @@
+language: cpp
+compiler: clang
+os: windows
+
+script:
+  - export VCPKG_DEFAULT_TRIPLET=x86-windows
+  - git clone https://github.com/Microsoft/vcpkg.git
+  - cd vcpkg
+  - ./bootstrap-vcpkg.bat
+  - ./vcpkg integrate install
+  - travis_wait 30
+  - ./vcpkg install openal-soft glfw3 glad box2d libzip enet freetype ms-gsl entt spdlog fmt stb minimp3 glm gcem
