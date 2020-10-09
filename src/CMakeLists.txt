@@ -5,6 +5,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_USE_RELATIVE_PATHS TRUE)
 set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
+# include conan
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
+
 # sources
 set(source_list "")
 set(source_list ${source_list} 
@@ -191,9 +195,6 @@ elseif(OE_BUILD_MODE EQUAL 1)
 elseif(OE_BUILD_MODE EQUAL 2)
 	target_compile_definitions(${target_name} PUBLIC "OE_BUILD_MODE_VULKAN")
 endif()
-if(VCPKG_TOOLCHAIN)
-	target_compile_definitions(${target_name} PUBLIC "VCPKG_TOOLCHAIN")
-endif()
 
 # platform specific
 if (MSVC)
@@ -206,96 +207,26 @@ else()
 endif()
 
 
-# engine_INCLUDE_DIRS
-set(${target_name}_INCLUDE_DIRS
-	${CMAKE_CURRENT_SOURCE_DIR}
-    CACHE INTERNAL "${target_name}: Include Directories" FORCE
-)
 
-
-
-# add deps
+# conan
+target_link_libraries(${target_name} PUBLIC ${CONAN_LIBS})
+target_link_directories(${target_name} PUBLIC ${CONAN_LIB_DIRS})
+target_include_directories(${target_name} PUBLIC ${CONAN_INCLUDE_DIRS})
+target_compile_definitions(${target_name} PUBLIC SPDLOG_FMT_EXTERNAL)
+# additional non-conan dependencies
+# opengl
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 if(OE_BUILD_MODE EQUAL 2)
 	find_package(Vulkan REQUIRED)
 endif()
-if(VCPKG_TOOLCHAIN) # with vcpkg
-	message("OE using vcpkg")
-	target_link_libraries(${target_name} PRIVATE ${OPENGL_LIBRARY})
+# rectpack2D
+target_include_directories(${target_name} PUBLIC "vendor/rectpack2D/include")
 
-	
-	if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-		set(_VCPKG_LIB_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/lib")
-	else()
-		set(_VCPKG_LIB_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
-	endif()
-	set(_VCPKG_INC_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
-	
-	target_include_directories(${target_name} PUBLIC "vendor/rectpack2D/include") # no rectpack2D in vcpkg
-	target_include_directories(${target_name} PUBLIC "${_VCPKG_INC_DIR}")
-	target_link_directories(${target_name} PUBLIC "${_VCPKG_LIB_DIR}")
-	
-# additional glfw3 dependencies for ubuntu:
-# sudo apt install libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev libxrandr-dev
 
-# vcpkg install openal-soft glfw3 glad box2d libzip enet freetype ms-gsl entt spdlog fmt stb minimp3 glm gcem
-# optionally shaderc and/or vulkan' vcpkg install shaderc vulkan
-	if(NOT UNIX)
-		find_package(OpenAL CONFIG REQUIRED)
-		target_link_libraries(${target_name} PRIVATE OpenAL::OpenAL)
-		find_package(freetype CONFIG REQUIRED)
-		target_link_libraries(${target_name} PRIVATE freetype)
-	else()
-		find_package(OpenAL REQUIRED)
-		target_link_libraries(${target_name} PRIVATE ${OPENAL_LIBRARY})
-		target_include_directories(${target_name} PUBLIC ${OPENAL_INCLUDE_DIR})
-		find_package(Freetype REQUIRED)
-		target_link_libraries(${target_name} PRIVATE ${FREETYPE_LIBRARIES})
-		target_include_directories(${target_name} PUBLIC ${FREETYPE_INCLUDE_DIRS})
-	endif()
-	find_package(glfw3 CONFIG REQUIRED)
-	target_link_libraries(${target_name} PRIVATE glfw)
-	find_package(glad CONFIG REQUIRED)
-	target_link_libraries(${target_name} PRIVATE glad::glad)
-	find_package(unofficial-box2d CONFIG REQUIRED)
-	target_link_libraries(${target_name} PRIVATE unofficial::box2d::box2d)
-	find_package(libzip CONFIG REQUIRED)
-    target_link_libraries(${target_name} PRIVATE zip)
-	target_link_libraries(${target_name} PRIVATE enet)
-	find_package(Microsoft.GSL CONFIG REQUIRED)
-	target_link_libraries(${target_name} PRIVATE Microsoft.GSL::GSL)
-	find_package(EnTT CONFIG REQUIRED)
-    target_link_libraries(${target_name} PRIVATE EnTT::EnTT)
-	find_package(spdlog CONFIG REQUIRED)
-	target_link_libraries(${target_name} PRIVATE spdlog::spdlog_header_only)
-	find_package(fmt CONFIG REQUIRED)
-	target_link_libraries(${target_name} PRIVATE fmt::fmt-header-only)
-	find_path(STB_INCLUDE_DIRS "stb.h")
-	target_include_directories(${target_name} PRIVATE ${STB_INCLUDE_DIRS})
-	find_path(MINIMP3_INCLUDE_DIRS "minimp3/minimp3.h")
-    target_include_directories(${target_name} PRIVATE ${MINIMP3_INCLUDE_DIRS})
-	find_package(gcem CONFIG REQUIRED)
-    target_link_libraries(${target_name} PRIVATE gcem)
 
-	# optional deps
-	if(OE_BUILD_MODE GREATER_EQUAL 1)
-		target_link_libraries(${target_name} PRIVATE shaderc_combined)
-	endif()
-	if(OE_BUILD_MODE EQUAL 2)
-		target_link_libraries(${target_name} PRIVATE vulkan)
-	endif()
-elseif(EMSCRIPTEN) # with emscripten
-	message("OE using emscripten")
-	# target_link_libraries(${target_name} PRIVATE ${OPENGL_LIBRARY})
-
-	# find_package(glfw3 3 REQUIRED)
-	# find_package(OpenAL REQUIRED)
-	
-	# target_include_directories(${target_name} PRIVATE ${OPENAL_INCLUDE_DIR})
-	
-	# target_link_libraries(${target_name} PRIVATE glfw)
-	# target_link_libraries(${target_name} PRIVATE openal)
-else() # dependency sources
-	message("OE using cmake deps")
-endif()
+# engine_INCLUDE_DIRS
+set(${target_name}_INCLUDE_DIRS
+	${CMAKE_CURRENT_SOURCE_DIR}
+    CACHE INTERNAL "${target_name}: Include Directories" FORCE
+)

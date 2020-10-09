@@ -1,10 +1,5 @@
 #pragma once
 
-// #define SPDLOG_HEADER_ONLY
-// #define SPDLOG_FMT_EXTERNAL
-#ifndef FMT_HEADER_ONLY
-#  define FMT_HEADER_ONLY 1
-#endif
 #include <spdlog/spdlog.h>
 
 #include <glm/glm.hpp>

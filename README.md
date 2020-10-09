@@ -9,10 +9,10 @@ Should be easy to use.
 
 
 ## Building
-#### Building
+#### Build with Conan
 ```
-mkdir build
-cd build
+mkdir build && cd build
+conan install .. -s build_type=Debug -s compiler.runtime=MDd --build missing
 cmake ..
 ```
 possible cmake arguments:
@@ -29,12 +29,9 @@ node: Vulkan build is experimental and still lacking basic features
 - Vulkan (if BUILD_VULKAN=TRUE)
 - OpenAL
 - CMake
-- Vcpkg
-- (Multiple vcpkg packages listed in the next section)
+- Conan
+- (multiple conan packages)
 
-#### vcpkg packages
-```vcpkg install openal-soft glfw3 glad box2d libzip enet freetype ms-gsl entt spdlog fmt stb minimp3 glm gcem```
-optionally shaderc and/or vulkan' ```vcpkg install shaderc vulkan```
 #### additional glfw3 dependencies for ubuntu:
 ```sudo apt install libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev libxrandr-dev```
 
