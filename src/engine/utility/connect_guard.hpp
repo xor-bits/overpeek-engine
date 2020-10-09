@@ -92,8 +92,8 @@ namespace oe::utils
 		template<typename EventType, auto ListenerFn, typename InstanceOpt = void, typename Connection>
 		void connect(Connection* connection, InstanceOpt* instance = nullptr)
 		{
-			constexpr auto connector = connector_disconnector_getter<Connection>::connector<EventType, ListenerFn, InstanceOpt>()();
-			constexpr auto disconnector = connector_disconnector_getter<Connection>::disconnector<EventType, ListenerFn, InstanceOpt>()();
+			constexpr auto connector = connector_disconnector_getter<Connection>::template connector<EventType, ListenerFn, InstanceOpt>()();
+			constexpr auto disconnector = connector_disconnector_getter<Connection>::template disconnector<EventType, ListenerFn, InstanceOpt>()();
 			basic_connect<Connection, InstanceOpt, connector, disconnector>(connection, instance);
 		}
 		template<typename EventType, auto ListenerFn, typename InstanceOpt = void, typename Connection>
@@ -109,8 +109,8 @@ namespace oe::utils
 		template<typename EventType, typename Connection>
 		void connect(Connection* connection, const std::function<void(EventType)>& lambda)
 		{
-			constexpr auto connector = connector_disconnector_getter<Connection>::connector<EventType, &data_t_e<EventType>::call, data_t_e<EventType>>()();
-			constexpr auto disconnector = connector_disconnector_getter<Connection>::disconnector<EventType, &data_t_e<EventType>::call, data_t_e<EventType>>()();
+			constexpr auto connector = connector_disconnector_getter<Connection>::template connector<EventType, &data_t_e<EventType>::call, data_t_e<EventType>>()();
+			constexpr auto disconnector = connector_disconnector_getter<Connection>::template disconnector<EventType, &data_t_e<EventType>::call, data_t_e<EventType>>()();
 			
 			disconnect();
 			auto data = std::make_unique<data_t_e<EventType>>(lambda);
