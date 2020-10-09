@@ -1,5 +1,6 @@
 [requires]
 opengl/system
+xorg/system
 openal/1.20.1
 glfw/3.3.2
 glad/0.1.33
