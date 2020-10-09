@@ -52,11 +52,7 @@ namespace oe::graphics
 	void Renderer::remove(iter_t iter)
 	{
 		if(iter == m_quads.end())
-		{
-			spdlog::warn("removal skipped");
-			__debugbreak();
 			return;
-		}
 
 		m_primitive_renderer->vertexCount() -= 4;
 		m_quads.erase(iter);
