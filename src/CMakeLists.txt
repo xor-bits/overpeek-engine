@@ -6,6 +6,7 @@ set(CMAKE_USE_RELATIVE_PATHS TRUE)
 set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
 # include conan
+set(CONAN_DISABLE_CHECK_COMPILER TRUE)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 

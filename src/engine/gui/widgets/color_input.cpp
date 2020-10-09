@@ -137,7 +137,8 @@ namespace oe::gui
 
 		if(m_color_input_info.primary_input == input_type::slider)
 		{
-			auto vec = create<Vec<SliderInput, vec_size>>(m_value, create_vec_slider_info(color_input_info));
+			auto vec_info = create_vec_slider_info(color_input_info);
+			auto vec = Widget::create<Vec<SliderInput, vec_size>>(m_value, vec_info);
 			
 			for (size_t i = 0; i < vec_size; i++)
 			{
@@ -159,7 +160,8 @@ namespace oe::gui
 		}
 		else if(m_color_input_info.primary_input == input_type::dragger)
 		{
-			auto vec = create<Vec<NumberInput, vec_size>>(m_value, create_vec_number_info(color_input_info));
+			auto vec_info = create_vec_number_info(color_input_info);
+			auto vec = Widget::create<Vec<NumberInput, vec_size>>(m_value, vec_info);
 
 			for (size_t i = 0; i < 4; i++)
 				m_cg_vec_use[i].connect<SliderInputUseEvent>(vec->m_elements[i]->dispatcher, use_event);

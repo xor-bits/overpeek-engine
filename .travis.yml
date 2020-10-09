@@ -3,6 +3,7 @@ language: cpp
 
 matrix:
   include:
+    # linux focal build
     - name: "Linux - Clang - Ubuntu 20.04 LTS"
       os: linux
       dist: focal
@@ -41,19 +42,39 @@ matrix:
             - libxcb-xv0-dev
             - libxcb-xvmc0-dev
 
+      install:
+        - pip install conan cmake
+        - conan user
 
-install:
-  - pip install conan cmake
-  - conan user
+      script:
+        - conan --version
+        - cmake --version
+        - mkdir build && cd build
+        - conan install .. -s compiler=clang -s compiler.version=10 -s build_type=Debug --build missing
+        - cmake .. -GNinja
+        - cmake --build .
+        - cd tests
+        - ctest
 
+    # windows build
+    - name: "Windows - MSVC"
+      os: windows
+      arch: amd64
+      
+      cache:
+        directories:
+          - "%HOMEDRIVE%%HOMEPATH%/.conan/data"
 
-script:
-  - conan --version
-  - cmake --version
-  - mkdir build
-  - cd build
-  - conan install .. -s compiler=clang -s compiler.version=10 -s build_type=Debug --build missing
-  - cmake .. -GNinja
-  - cmake --build .
-  - cd tests
-  - ctest
+      install:
+        - choco install conan cmake ninja
+
+      script:
+        - RefreshEnv.cmd
+        - conan --version
+        - cmake --version
+        - mkdir build && cd build
+        - conan install .. -s compiler.runtime=MDd -s build_type=Debug --build missing
+        - cmake .. -GNinja
+        - cmake --build .
+        - cd tests
+        - ctest

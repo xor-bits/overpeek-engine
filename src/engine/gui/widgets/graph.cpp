@@ -106,7 +106,8 @@ namespace oe::gui
         : SpritePanel(parent, gui_manager, info.bg_panel_info)
         , m_graph_info(info)
     {
-		m_graph = create<SpritePanel>(SpritePanelInfo{ oe::colors::transparent, m_graph_info.bg_panel_info.sprite, m_graph_info.bg_panel_info.rotation, m_graph_info.bg_panel_info.widget_info });
+		SpritePanelInfo spi = { oe::colors::transparent, m_graph_info.bg_panel_info.sprite, m_graph_info.bg_panel_info.rotation, m_graph_info.bg_panel_info.widget_info };
+		m_graph = create<SpritePanel, SpritePanelInfo>(spi);
 		m_graph->m_info.align_parent = oe::alignments::top_left;
 		m_graph->m_info.align_render = oe::alignments::top_left;
 		m_graph->m_info.offset_position = { 0, 0 };

@@ -54,7 +54,7 @@ namespace oe::gui
 	public:
 		Vec(Widget* parent, GUI& gui_manager, value_t& m_value_ref, VecInfo<ElementType, dimension> vec_info = {})
             : Widget(parent, gui_manager, vec_info.widget_info)
-			, m_value(std::move(m_value_ref))
+			, m_value(m_value_ref)
         {
 			const bool rows = (vec_info.type == arrangements::rows);
 			if(vec_info.auto_size)
