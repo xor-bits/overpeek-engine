@@ -12,6 +12,6 @@ script:
   - cd ..
   - mkdir build
   - cd build
-  - cmake --build .. --target rendering text guis entities networking
+  - cmake "-DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake" -S .. -B .
   - cd tests
   - ctest
