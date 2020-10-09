@@ -22,15 +22,18 @@ matrix:
             - xorg-dev
             - libglu1-mesa-dev
             - libxrandr-dev
-            - libxcb-randr0-dev
-            - libxcb1-dev
             - libx11-xcb-dev
+            - libxcb1-dev
             - libxcb-render-util0-dev
+            - libxcb-randr0-dev
             - libxcb-xkb-dev
             - libxcb-icccm4-dev
             - libxcb-image0-dev
             - libxcb-keysyms1-dev
             - libxcb-shape0-dev
+            - libxcb-sync-dev
+            - libxcb-util0-dev
+            - libxcb-xfixes0-dev
 
 
 install:
