@@ -32,7 +32,7 @@ script:
   - cmake --version
   - mkdir build
   - cd build
-  - conan install .. -s compiler=clang -s compiler.runtime=MDd -s compiler.version=10 -s build_type=Debug --build missing
+  - conan install .. -s compiler=clang -s compiler.version=10 -s build_type=Debug --build missing
   - cmake ..
   - cmake --build . -- -j8
   - cd tests
