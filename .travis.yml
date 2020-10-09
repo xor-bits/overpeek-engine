@@ -1,10 +1,14 @@
+os: linux
 language: python
 python: "3.7"
-compiler: clang
-os: windows
+compiler:
+  - clang
+
 
 install:
   - pip install conan cmake
+  - conan user
+
 
 script:
   - conan --version
