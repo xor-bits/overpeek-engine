@@ -30,6 +30,7 @@ matrix:
             - libxcb-icccm4-dev
             - libxcb-image0-dev
             - libxcb-keysyms1-dev
+            - libxcb-shape0-dev
 
 
 install:
