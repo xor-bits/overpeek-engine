@@ -1,8 +1,23 @@
-os: linux
-language: python
-python: "3.7"
-compiler:
-  - clang
+language: cpp
+
+
+matrix:
+  include:
+    - name: "Linux - Clang"
+      os: linux
+      env: CXX_EXE=/usr/bin/clang++-10 CC_EXE=/usr/bin/clang-10
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - python3-pip
+            - clang-10
+            - libxinerama-dev
+            - libxcursor-dev
+            - xorg-dev
+            - libglu1-mesa-dev
+            - libxrandr-dev
 
 
 install:
