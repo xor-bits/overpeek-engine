@@ -71,7 +71,7 @@ matrix:
         - choco install conan cmake ninja --params="'/AddToPath:1'"
 
       script:
-        - cmd //c “RefreshEnv.cmd"
+        - cmd //c "RefreshEnv.cmd"
         - conan --version
         - cmake --version
         - mkdir build && cd build
