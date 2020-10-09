@@ -18,13 +18,14 @@ matrix:
           packages:
             - python3-pip
             - clang-10
+            - ninja-build
             - libxinerama-dev
             - libxcursor-dev
             - xorg-dev
             - libglu1-mesa-dev
             - libxrandr-dev
             - libx11-xcb-dev
-            - ninja-build
+            - libxcb-render-util0-dev
 
 
 install:
