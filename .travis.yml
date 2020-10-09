@@ -26,7 +26,6 @@ matrix:
             - libxcb1-dev
             - libxcb-render-util0-dev
             - libxcb-randr0-dev
-            - libxcb-xkb-dev
             - libxcb-icccm4-dev
             - libxcb-image0-dev
             - libxcb-keysyms1-dev
@@ -34,6 +33,13 @@ matrix:
             - libxcb-sync-dev
             - libxcb-util0-dev
             - libxcb-xfixes0-dev
+            - libxcb-xinerama0-dev
+            - libxcb-xinput-dev
+            - libxcb-xkb-dev
+            - libxcb-xrm-dev
+            - libxcb-xtest0-dev
+            - libxcb-xv0-dev
+            - libxcb-xvmc0-dev
 
 
 install:
