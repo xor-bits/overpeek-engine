@@ -7,7 +7,7 @@ matrix:
       os: linux
       dist: focal
       arch: amd64
-      env: CXX_EXE=/usr/bin/clang++ CC_EXE=/usr/bin/clang
+      env: CXX_EXE=/usr/bin/clang++-10 CC_EXE=/usr/bin/clang-10
       compiler: clang
       addons:
         apt:
@@ -15,7 +15,7 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - python3-pip
-            - clang
+            - clang-10
             - libxinerama-dev
             - libxcursor-dev
             - xorg-dev
