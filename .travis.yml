@@ -9,6 +9,9 @@ matrix:
       arch: amd64
       env: CXX_EXE=/usr/bin/clang++-10 CC_EXE=/usr/bin/clang-10
       compiler: clang
+      cache:
+        directories:
+          - $HOME/.conan/data
       addons:
         apt:
           sources:
