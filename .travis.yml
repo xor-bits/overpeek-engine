@@ -10,3 +10,9 @@ script:
   - ./vcpkg integrate install
   - travis_wait 30
   - ./vcpkg install openal-soft glfw3 glad box2d libzip enet freetype ms-gsl entt spdlog fmt stb minimp3 glm gcem
+  - cd ..
+  - mkdir build
+  - cd build
+  - cmake --build .. --target rendering text guis entities networking
+  - cd tests
+  - ctest
