@@ -3,10 +3,8 @@ set(CMAKE_CXX_STANDARD 17)
 # include(CTest)
 enable_testing()
 
-if(TRAVIS_CTEST)
-	if(UNIX)
-		add_compile_options("-stdlib=libc++ -lc++abi")
-	endif()
+if (CLANG)
+	add_compile_options("-stdlib=libc++ -lc++abi")
 endif()
 
 add_executable(rendering "rendering/main.cpp")

@@ -2,15 +2,16 @@
 
 #include "engine/interfacegen.hpp"
 #include "engine/engine.hpp"
-#include "engine/utility/fileio.hpp"
 #include "engine/utility/connect_guard.hpp"
+#include "engine/utility/fileio.hpp"
+#include "engine/graphics/font.hpp"
 #include <entt/entt.hpp>
 
 
 
 /* -- forward declarations -- */
 namespace oe::assets { class DefaultShader; }
-namespace oe::graphics { class kokokookoo; class Font; class Renderer; }
+namespace oe::graphics { class Font; class Renderer; }
 namespace oe::gui { class Widget; class Form; class GUI; }
 /* -- forward declarations -- */
 
