@@ -24,6 +24,7 @@ matrix:
             - libglu1-mesa-dev
             - libxrandr-dev
             - libx11-xcb-dev
+            - ninja-build
 
 
 install:
@@ -37,7 +38,7 @@ script:
   - mkdir build
   - cd build
   - conan install .. -s compiler=clang -s compiler.version=10 -s build_type=Debug --build missing
-  - cmake ..
-  - cmake --build . -- -j8
+  - cmake .. -GNinja
+  - cmake --build .
   - cd tests
   - ctest
