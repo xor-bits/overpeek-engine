@@ -26,6 +26,7 @@ matrix:
             - libxcb-render-util0-dev
             - libxcb-xkb-dev
             - libxcb-icccm4-dev
+            - libxcb-image0-dev
 
 
 install:
