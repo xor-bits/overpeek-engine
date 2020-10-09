@@ -8,6 +8,7 @@ matrix:
       dist: focal
       arch: amd64
       env: CXX_EXE=/usr/bin/clang++ CC_EXE=/usr/bin/clang
+      compiler: clang
       addons:
         apt:
           sources:
