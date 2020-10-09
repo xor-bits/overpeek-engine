@@ -5,6 +5,9 @@
 #include "engine/utility/connect_guard.hpp"
 #include "engine/utility/fileio.hpp"
 #include "engine/graphics/font.hpp"
+
+#include "widgets/widget.hpp"
+
 #include <entt/entt.hpp>
 
 
