@@ -3,8 +3,10 @@ language: cpp
 
 matrix:
   include:
-    - name: "Linux - Clang"
+    - name: "Linux - Clang - Ubuntu 20.04 LTS"
       os: linux
+      dist: focal
+      arch: amd64
       env: CXX_EXE=/usr/bin/clang++ CC_EXE=/usr/bin/clang
       addons:
         apt:
@@ -30,7 +32,7 @@ script:
   - cmake --version
   - mkdir build
   - cd build
-  - conan install .. -s build_type=Debug -s compiler.runtime=MDd --build missing
+  - conan install .. -s compiler=clang -s build_type=Debug -s compiler.runtime=MDd --build missing
   - cmake ..
   - cmake --build . -- -j8
   - cd tests
