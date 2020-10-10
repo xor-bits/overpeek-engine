@@ -1,6 +1,7 @@
 #pragma once
 
 #include "text_input.hpp"
+#include "engine/gui/gui_manager.hpp"
 
 
 
@@ -111,12 +112,12 @@ namespace oe::gui
 			, m_number_input_info(number_input_info)
 			, m_value(value_ref)
 		{
-			cg_keyboard.connect<oe::gui::TextInputChangedEvent, &BasicNumberInput::on_text_change>(dispatcher, this);
+			cg_text_change.connect<oe::gui::TextInputChangedEvent, &BasicNumberInput::on_text_change>(dispatcher, this);
 			cg_keyboard.connect<oe::KeyboardEvent, &BasicNumberInput::on_keyboard>(m_gui_manager.dispatcher, this);
-			cg_keyboard.connect<oe::CursorPosEvent, &BasicNumberInput::on_cursor>(m_gui_manager.dispatcher, this);
-			cg_keyboard.connect<oe::MouseButtonEvent, &BasicNumberInput::on_button>(m_gui_manager.dispatcher, this);
-			cg_keyboard.connect<oe::ScrollEvent, &BasicNumberInput::on_scroll>(m_gui_manager.dispatcher, this);
-			cg_keyboard.connect<oe::gui::GUIPreRenderEvent, &BasicNumberInput::on_pre_render>(m_gui_manager.dispatcher, this);
+			cg_cursor.connect<oe::CursorPosEvent, &BasicNumberInput::on_cursor>(m_gui_manager.dispatcher, this);
+			cg_button.connect<oe::MouseButtonEvent, &BasicNumberInput::on_button>(m_gui_manager.dispatcher, this);
+			cg_scroll.connect<oe::ScrollEvent, &BasicNumberInput::on_scroll>(m_gui_manager.dispatcher, this);
+			cg_pre_render.connect<oe::gui::GUIPreRenderEvent, &BasicNumberInput::on_pre_render>(m_gui_manager.dispatcher, this);
 		}
 		BasicNumberInput(Widget* parent, GUI& gui_manager, const BasicNumberInputInfo<T>& number_input_info = {}) : BasicNumberInput(parent, gui_manager, m_number_input_info.initial_value, number_input_info) {}
 
@@ -199,6 +200,7 @@ namespace oe::gui
 		oe::utils::connect_guard cg_button;
 		oe::utils::connect_guard cg_cursor;
 		oe::utils::connect_guard cg_scroll;
+		oe::utils::connect_guard cg_pre_render;
 	};
 
 	using fNumberInput = BasicNumberInput<float>;
