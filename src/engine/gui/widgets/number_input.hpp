@@ -14,7 +14,7 @@ namespace oe::gui
 		T initial_value                                     = { 0 };
 		T stepsize                                          = { 1 };
 		glm::vec<2,T> value_bounds                          = { std::numeric_limits<T>::min(), std::numeric_limits<T>::max() };
-		std::function<std::string(const T&)> draw_format = &BasicNumberInputInfo::default_formatter; // only when keyboard input is disabled
+		std::function<std::string(const T&)> draw_format    = &BasicNumberInputInfo::default_formatter; // only when keyboard input is disabled
 		uint16_t font_size                                  = 16;
 		oe::utils::FontFile font_file                       = {}; // empty for gui default
 		glm::vec4 color                                     = oe::colors::dark_grey;
@@ -26,7 +26,7 @@ namespace oe::gui
 		WidgetInfo widget_info                              = { { 100, 100 }, { 3, 3 }, oe::alignments::center_center, oe::alignments::center_center };
 	
 		//
-		static std::string BasicNumberInputInfo::default_formatter(const T& val)
+		static std::string default_formatter(const T& val)
 		{
 			if constexpr(std::is_floating_point_v<T>)
 				return fmt::format("V: {:.1f}", val);
