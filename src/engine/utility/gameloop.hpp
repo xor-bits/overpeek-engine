@@ -7,6 +7,7 @@
 #include <optional>
 #include <chrono>
 #include <atomic>
+#include <fmt/format.h>
 #include "engine/enum.hpp"
 
 
