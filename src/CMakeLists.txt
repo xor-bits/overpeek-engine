@@ -214,6 +214,7 @@ target_link_libraries(${target_name} PUBLIC ${CONAN_LIBS})
 target_link_directories(${target_name} PUBLIC ${CONAN_LIB_DIRS})
 target_include_directories(${target_name} PUBLIC ${CONAN_INCLUDE_DIRS})
 target_compile_definitions(${target_name} PUBLIC SPDLOG_FMT_EXTERNAL)
+target_compile_definitions(${target_name} PUBLIC FMT_HEADER_ONLY)
 # additional non-conan dependencies
 # opengl
 set(OpenGL_GL_PREFERENCE GLVND)
