@@ -1,10 +1,8 @@
-language: cpp
-
-
 matrix:
   include:
     # linux focal build
     - name: "Linux - Clang - Ubuntu 20.04 LTS"
+      language: cpp
       os: linux
       dist: focal
       arch: amd64
@@ -60,6 +58,7 @@ matrix:
 
     # windows build
     - name: "Windows - MSVC"
+      language: python
       os: windows
       arch: amd64
       
@@ -68,12 +67,10 @@ matrix:
           - "%HOMEDRIVE%%HOMEPATH%/.conan/data"
 
       install:
-        - choco install python pip ninja --params="'/AddToPath:1'"
+        - pip install conan cmake ninja
         - RefreshEnv.cmd
-        - pip install conan cmake
 
       script:
-        - RefreshEnv.cmd
         - conan --version
         - cmake --version
         - mkdir build && cd build
