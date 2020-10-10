@@ -2,6 +2,7 @@
 
 #include "text_input.hpp"
 #include "engine/gui/gui_manager.hpp"
+#include "engine/utility/extra.hpp"
 
 
 
