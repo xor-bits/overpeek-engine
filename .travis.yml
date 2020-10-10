@@ -68,10 +68,10 @@ matrix:
           - "%HOMEDRIVE%%HOMEPATH%/.conan/data"
 
       install:
-        - choco install conan cmake ninja --params="'/AddToPath:1'"
+        - choco install python ninja --params="'/AddToPath:1'"
 
       script:
-        - cmd //c "RefreshEnv.cmd"
+        - RefreshEnv.cmd
         - conan --version
         - cmake --version
         - mkdir build && cd build
