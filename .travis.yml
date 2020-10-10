@@ -69,6 +69,8 @@ matrix:
 
       install:
         - choco install python ninja --params="'/AddToPath:1'"
+        - RefreshEnv.cmd
+        - pip install conan cmake
 
       script:
         - RefreshEnv.cmd
