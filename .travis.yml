@@ -56,26 +56,26 @@ matrix:
         - cd tests
         - ctest
 
-    # windows build
-    - name: "Windows - MSVC"
-      language: python
-      os: windows
-      arch: amd64
-      
-      cache:
-        directories:
-          - "%HOMEDRIVE%%HOMEPATH%/.conan/data"
-
-      install:
-        - pip install conan cmake ninja
-        - RefreshEnv.cmd
-
-      script:
-        - conan --version
-        - cmake --version
-        - mkdir build && cd build
-        - conan install .. -s compiler.runtime=MDd -s build_type=Debug --build missing
-        - cmake .. -GNinja
-        - cmake --build .
-        - cd tests
-        - ctest
+#     # windows build
+#     - name: "Windows - MSVC"
+#       language: python
+#       os: windows
+#       arch: amd64
+#       
+#       cache:
+#         directories:
+#           - "%HOMEDRIVE%%HOMEPATH%/.conan/data"
+# 
+#       install:
+#         - pip install conan cmake ninja
+#         - RefreshEnv.cmd
+# 
+#       script:
+#         - conan --version
+#         - cmake --version
+#         - mkdir build && cd build
+#         - conan install .. -s compiler.runtime=MDd -s build_type=Debug --build missing
+#         - cmake .. -GNinja
+#         - cmake --build .
+#         - cd tests
+#         - ctest
