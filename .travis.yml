@@ -23,6 +23,7 @@ matrix:
             - libstdc++-10-dev
             - libc++abi-10-dev
             - ninja-build
+            - libgl1-mesa-dev
 
       install:
         - pip install conan cmake
