@@ -12,8 +12,11 @@
 
 
 
-namespace oe::graphics {
+int oe_glfw_decorated = GLFW_DECORATED;
+int oe_glfw_resizeable = GLFW_RESIZABLE;
 
+namespace oe::graphics
+{
 	void resize_viewport(const oe::ResizeEvent& e)
 	{
 		glViewport(0, 0, e.framebuffer_size.x, e.framebuffer_size.y);
@@ -84,7 +87,8 @@ namespace oe::graphics {
 			{
 				IWindow* this_class = reinterpret_cast<IWindow*>(glfwGetWindowUserPointer(window));
 
-				if (button >= M_NUM_BUTTONS || button < 0) return;
+				if (!oe::utils::isInRange(button, 0, max_number_of_buttons))
+					return;
 
 				if (action == GLFW_PRESS) this_class->m_buttons[button] = true;
 				else if (action == GLFW_RELEASE) this_class->m_buttons[button] = false;
@@ -106,7 +110,8 @@ namespace oe::graphics {
 			{
 				IWindow* this_class = reinterpret_cast<IWindow*>(glfwGetWindowUserPointer(window));
 
-				if (key >= M_NUM_KEYS || key < 0) return;
+				if (!oe::utils::isInRange(key, 0, max_number_of_keys))
+					return;
 
 				if (action == GLFW_PRESS) this_class->m_keys[key] = true;
 				else if (action == GLFW_RELEASE) this_class->m_keys[key] = false;
@@ -151,14 +156,8 @@ namespace oe::graphics {
 		m_window_info.size.y = std::max(m_window_info.size.y, static_cast<uint32_t>(1));
 		m_aspect_ratio = static_cast<float>(m_window_info.size.x) / static_cast<float>(m_window_info.size.y);
 
-		for (size_t i = 0; i < M_NUM_KEYS; i++)
-		{
-			m_keys[i] = false;
-		}
-		for (size_t i = 0; i < M_NUM_BUTTONS; i++)
-		{
-			m_buttons[i] = false;
-		}
+		m_keys.fill(false);
+		m_buttons.fill(false);
 	}
 
 	IWindow::~IWindow() 
@@ -186,72 +185,14 @@ namespace oe::graphics {
 		else glfwSetInputMode(m_window_handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 
-
-
-	void makeFullscreen(GLFWwindow* window_handle, const WindowInfo& window) 
+	void IWindow::makeFullscreen() 
 	{
-		glfwSetWindowMonitor(window_handle, glfwGetPrimaryMonitor(), window.position.x, window.position.y, window.size.x, window.size.y, 0);
+		glfwSetWindowMonitor(m_window_handle, glfwGetPrimaryMonitor(), m_window_info.position.x, m_window_info.position.y, m_window_info.size.x, m_window_info.size.y, 0);
 	}
 
-	void makeWindowed(GLFWwindow* window_handle, const WindowInfo& window) 
+	void IWindow::makeWindowed() 
 	{
-		glfwSetWindowMonitor(window_handle, NULL, window.position.x, window.position.y, window.size.x, window.size.y, 0);
-	}
-
-
-
-	// getters/setters
-	float IWindow::getAspect() const { return m_aspect_ratio; };
-	float IWindow::getButton(oe::mouse_buttons button) const { int32_t num = static_cast<int32_t>(button); if (num >= M_NUM_BUTTONS || num < 0) oe_error_terminate("Invalid button {}", button); else return m_buttons[num]; }
-	float IWindow::getKey(oe::keys key) const { int32_t num = static_cast<int32_t>(key); if (num >= M_NUM_KEYS || num < 0) oe_error_terminate("Invalid key {}", key); else return m_keys[num]; }
-
-	const glm::ivec2& IWindow::getPosition() const { return m_window_info.position; }
-	void IWindow::setPosition(const glm::ivec2& pos) { m_window_info.position = pos; glfwSetWindowPos(m_window_handle, m_window_info.position.x, m_window_info.position.y); }
-
-	const glm::ivec2& IWindow::getSize() const { return m_window_info.size; }
-	void IWindow::setSize(const glm::ivec2& size) { m_window_info.size = size; glfwSetWindowSize(m_window_handle, size.x, size.y); }
-
-	const std::string& IWindow::getTitle() const { return m_window_info.title; }
-	void IWindow::setTitle(const std::string& title) { m_window_info.title = title; glfwSetWindowTitle(m_window_handle, title.c_str()); }
-
-#ifndef __EMSCRIPTEN__ /* WebGL does not support borderless or non-resizeable glfw windows */
-	bool IWindow::getBorderless() const { return m_window_info.borderless; }
-	void IWindow::setBorderless(bool borderless) { m_window_info.borderless = borderless; glfwSetWindowAttrib(m_window_handle, GLFW_DECORATED, !m_window_info.resizeable); }
-
-	bool IWindow::getResizeable() const { return m_window_info.resizeable; }
-	void IWindow::setResizeable(bool resizeable) { m_window_info.resizeable = resizeable; glfwSetWindowAttrib(m_window_handle, GLFW_RESIZABLE, m_window_info.resizeable); }
-#else /* __EMSCRIPTEN__ */
-	bool IWindow::getBorderless() const { return false; }
-	void IWindow::setBorderless(bool borderless) { }
-
-	bool IWindow::getResizeable() const { return false; }
-	void IWindow::setResizeable(bool resizeable) { }
-#endif /* __EMSCRIPTEN__ */
-
-	bool IWindow::getFullscreen() const { return m_window_info.fullscreen; }
-	void IWindow::setFullscreen(bool fullscreen) { m_window_info.fullscreen = fullscreen; m_window_info.fullscreen ? makeFullscreen(m_window_handle, m_window_info) : makeWindowed(m_window_handle, m_window_info); }
-
-	const glm::ivec2& IWindow::getCursorWindow() const { return m_cursor_window; }
-	void IWindow::setCursorWindow(const glm::ivec2& cursor_at_window) { m_cursor_window = cursor_at_window; glfwSetCursorPos(m_window_handle, m_cursor_window.x, m_cursor_window.y); }
-
-	const glm::vec2& IWindow::getCursorTransformed() const { return m_cursor_transformed; }
-	void IWindow::setCursorTransformed(const glm::vec2& cursor_at_world_space) 
-	{
-		m_cursor_transformed = cursor_at_world_space;
-		m_cursor_transformed.x = oe::utils::map((float)m_cursor_transformed.x, (float)-m_aspect_ratio, (float)m_aspect_ratio, (float)0.0, (float)m_window_info.size.x);
-		m_cursor_transformed.y = oe::utils::map((float)m_cursor_transformed.y, (float)-1.0, (float)1.0, (float)0.0, (float)m_window_info.size.y);
-		glfwSetCursorPos(m_window_handle, m_cursor_transformed.x, m_cursor_transformed.y);
-	}
-
-	const std::string IWindow::getClipboard() const
-	{
-		const char* cb = glfwGetClipboardString(m_window_handle);
-		return (!cb) ? "" : cb; 
-	}
-	
-	void IWindow::setClipboard(const std::string& str)
-	{
-		glfwSetClipboardString(m_window_handle, str.c_str());
+		glfwSetWindowMonitor(m_window_handle, NULL, m_window_info.position.x, m_window_info.position.y, m_window_info.size.x, m_window_info.size.y, 0);
 	}
 
 }

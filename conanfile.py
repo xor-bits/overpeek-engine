@@ -16,20 +16,20 @@ class OverpeekEngineConan(ConanFile):
     default_options = {"shared": False, "glad:gl_version": "4.6", "fmt:header_only": True, "spdlog:header_only": True,
                        "openal:shared": True, "glfw:shared": True, "box2d:shared": True, "libzip:shared": True, "zlib:shared": True, "freetype:shared": True}
     keep_imports = True
+    exports_sources = "*"
 
     def source(self):
         # This small hack might be useful to guarantee proper /MT /MD linkage
         # in MSVC if the packaged project doesn't have variables to set it
         # properly
-        tools.replace_in_file("overpeek-engine/CMakeLists.txt", 'project("engine")',
-                              '''project("engine")
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+        tools.replace_in_file("CMakeLists.txt", 'project("engine")', '''project("engine")
+include(conanbuildinfo.cmake)
 conan_basic_setup()''')
 
     def build(self):
         cmake = CMake(self)
         cmake.verbose = True
-        cmake.configure(source_folder=".", build_folder="build")
+        cmake.configure(build_folder="build")
         cmake.build()
 
         # Explicit way:
@@ -44,7 +44,7 @@ conan_basic_setup()''')
         self.copy("*.dll", dst="tests", keep_path=False)
 
     def package(self):
-        self.copy("*.hpp", dst="include", src="src/engine")
+        self.copy("*.hpp", dst="include/engine", src="src/engine")
         self.copy("*.exe", dst="bin", keep_path=False)
         self.copy("entities", dst="bin", keep_path=False)
         self.copy("guis", dst="bin", keep_path=False)

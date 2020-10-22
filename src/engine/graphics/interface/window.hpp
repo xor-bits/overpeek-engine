@@ -7,26 +7,43 @@
 #include "engine/enum.hpp"
 #include "engine/utility/fileio.hpp"
 #include "engine/utility/gameloop.hpp"
-
-
-#define M_NUM_KEYS		2048
-#define M_NUM_BUTTONS	1024
+#include "engine/utility/extra.hpp"
 
 
 
+// glfw forwards
+// window
 class GLFWwindow;
-namespace oe::graphics {
+extern "C" {
+void 	glfwSetWindowPos (GLFWwindow *window, int xpos, int ypos);
+void 	glfwSetWindowSize (GLFWwindow *window, int width, int height);
+void 	glfwSetWindowTitle (GLFWwindow *window, const char *title);
+void 	glfwSetWindowAttrib (GLFWwindow *window, int attrib, int value);
+// io
+void 	glfwSetCursorPos (GLFWwindow *window, double xpos, double ypos);
+void 	glfwSetClipboardString (GLFWwindow *window, const char *string);
+const char * 	glfwGetClipboardString (GLFWwindow *window);
+}
+// macros
+extern int oe_glfw_decorated;
+extern int oe_glfw_resizeable;
 
-	class IWindow {
+namespace oe::graphics
+{
+	class IWindow
+	{
 	public:
-		WindowInfo m_window_info;
-		std::mutex dispatcher_mutex;
+		WindowInfo m_window_info{};
+		std::mutex dispatcher_mutex{};
+
+		constexpr static size_t max_number_of_keys = 2048;
+		constexpr static size_t max_number_of_buttons = 1024;
 
 	protected:
 		GLFWwindow* m_window_handle = nullptr;
 
-		bool m_keys[M_NUM_KEYS];
-		bool m_buttons[M_NUM_BUTTONS];
+		std::array<bool, max_number_of_keys> m_keys{};
+		std::array<bool, max_number_of_buttons> m_buttons{};
 
 		glm::vec2 m_cursor_transformed = { 0.0f, 0.0f };
 		glm::ivec2 m_cursor_window = { 0, 0 };
@@ -37,6 +54,8 @@ namespace oe::graphics {
 		bool m_processing_events = false;
 
 		void postglfw();
+		void makeFullscreen();
+		void makeWindowed();
 
 	public:
 		IWindow(const std::unique_ptr<Instance>& instance, const WindowInfo& window_config);
@@ -66,41 +85,173 @@ namespace oe::graphics {
 		virtual void inactive_context() const = 0;
 
 	public:
-		inline const WindowInfo& getWindowInfo() { return m_window_info; }
-		inline oe::utils::GameLoop& getGameloop() {return m_window_gameloop; }
+		[[nodiscard]] constexpr inline const WindowInfo& getWindowInfo() const noexcept
+		{
+			return m_window_info;
+		}
 
-		float getAspect() const;
-		float getButton(oe::mouse_buttons button) const;
-		float getKey(oe::keys key) const;
+		[[nodiscard]] constexpr inline oe::utils::GameLoop& getGameloop() noexcept
+		{
+			return m_window_gameloop;
+		}
+		
+		// ----------------------------
+		// immediate io getters/setters
+		// ----------------------------
+		
+		[[nodiscard]] inline bool getButton(oe::mouse_buttons button) const
+		{
+			int32_t num = static_cast<int32_t>(button);
+			if (!oe::utils::isInRange(num, 0, max_number_of_buttons))
+			{
+				spdlog::warn("Invalid button '{}' queried", button);
+				return false;
+			}
+			else
+				return m_buttons[num];
+		}
 
-		const glm::ivec2& getPosition() const;
-		void setPosition(const glm::ivec2& pos);
+		[[nodiscard]] inline bool getKey(oe::keys key) const
+		{
+			int32_t num = static_cast<int32_t>(key);
+			if (!oe::utils::isInRange(num, 0, max_number_of_keys))
+			{
+				spdlog::warn("Invalid key '{}' queried", key);
+				return false;
+			}
+			else
+				return m_keys[num];
+		}
 
-		const glm::ivec2& getSize() const;
-		void setSize(const glm::ivec2& size);
+		[[nodiscard]] inline const std::string_view getClipboard() const
+		{
+			constexpr const std::string_view empty_response = "";
+			const char* cb = glfwGetClipboardString(m_window_handle);
+			return cb == nullptr ? empty_response : cb;
+		}
+		
+		inline void setClipboard(const std::string& str) const
+		{
+			glfwSetClipboardString(m_window_handle, str.c_str());
+		}
+		
+		// ---------------------------------
+		// window appearance getters/setters
+		// ---------------------------------
 
-		const std::string& getTitle() const;
-		void setTitle(const std::string& title);
+		[[nodiscard]] constexpr inline float getAspect() const noexcept
+		{
+			return m_aspect_ratio;
+		}
+		
+		[[nodiscard]] constexpr inline const glm::ivec2& getPosition() const noexcept
+		{
+			return m_window_info.position;
+		}
+		
+		inline void setPosition(const glm::ivec2& pos)
+		{
+			m_window_info.position = pos;
+			glfwSetWindowPos(m_window_handle, m_window_info.position.x, m_window_info.position.y);
+		}
 
-		bool getBorderless() const;
-		void setBorderless(bool borderless);
+		[[nodiscard]] constexpr inline const glm::ivec2& getSize() const noexcept
+		{
+			return m_window_info.size;
+		}
 
-		bool getResizeable() const;
-		void setResizeable(bool resizeable);
+		inline void setSize(const glm::ivec2& size)
+		{
+			m_window_info.size = size;
+			glfwSetWindowSize(m_window_handle, size.x, size.y);
+		}
 
-		bool getFullscreen() const;
-		void setFullscreen(bool fullscreen);
+		[[nodiscard]] constexpr inline const std::string& getTitle() const noexcept
+		{
+			return m_window_info.title;
+		}
 
-		const glm::ivec2& getCursorWindow() const;
-		void setCursorWindow(const glm::ivec2& cursor_at_window);
+		inline void setTitle(const std::string& title)
+		{
+			m_window_info.title = title;
+			glfwSetWindowTitle(m_window_handle, title.c_str());
+		}
 
-		const glm::vec2& getCursorTransformed() const;
-		void setCursorTransformed(const glm::vec2& cursor_at_world_space);
+#ifndef __EMSCRIPTEN__ /* WebGL does not support borderless or non-resizeable glfw windows */
+		[[nodiscard]] constexpr inline bool getBorderless() const noexcept
+		{
+			return m_window_info.borderless;
+		}
 
-		const std::string getClipboard() const;
-		void setClipboard(const std::string& str);
+		inline void setBorderless(bool borderless)
+		{
+			m_window_info.borderless = borderless;
+			glfwSetWindowAttrib(m_window_handle, oe_glfw_decorated, !m_window_info.resizeable);
+		}
 
-		// -- events --
+		[[nodiscard]] constexpr inline bool getResizeable() const noexcept
+		{
+			return m_window_info.resizeable;
+		}
+
+		inline void setResizeable(bool resizeable)
+		{
+			m_window_info.resizeable = resizeable;
+			glfwSetWindowAttrib(m_window_handle, oe_glfw_resizeable, m_window_info.resizeable);
+		}
+#else /* __EMSCRIPTEN__ */
+		[[nodiscard]] constexpr inline bool getBorderless() const noexcept { return false; }
+		inline void setBorderless(bool borderless) { }
+		[[nodiscard]] constexpr inline bool getResizeable() const noexcept { return false; }
+		inline void setResizeable(bool resizeable) { }
+#endif /* __EMSCRIPTEN__ */
+
+		[[nodiscard]] constexpr inline bool getFullscreen() const noexcept
+		{
+			return m_window_info.fullscreen;
+		}
+		
+		inline void setFullscreen(bool fullscreen)
+		{
+			m_window_info.fullscreen = fullscreen;
+			if(m_window_info.fullscreen)
+				makeFullscreen();
+			else
+				makeWindowed();
+		}
+
+		// -------------------------------
+		// cursor position getters/setters
+		// -------------------------------
+
+		[[nodiscard]] constexpr inline const glm::ivec2& getCursorWindow() const noexcept
+		{
+			return m_cursor_window;
+		}
+		
+		inline void setCursorWindow(const glm::ivec2& cursor_at_window)
+		{
+			m_cursor_window = cursor_at_window;
+			glfwSetCursorPos(m_window_handle, m_cursor_window.x, m_cursor_window.y);
+		}
+
+		[[nodiscard]] constexpr inline const glm::vec2& getCursorTransformed() const noexcept
+		{
+			return m_cursor_transformed;
+		}
+
+		inline void setCursorTransformed(const glm::vec2& cursor_at_world_space) 
+		{
+			m_cursor_transformed = cursor_at_world_space;
+			m_cursor_transformed.x = oe::utils::map((float)m_cursor_transformed.x, (float)-m_aspect_ratio, (float)m_aspect_ratio, (float)0.0, (float)m_window_info.size.x);
+			m_cursor_transformed.y = oe::utils::map((float)m_cursor_transformed.y, (float)-1.0, (float)1.0, (float)0.0, (float)m_window_info.size.y);
+			glfwSetCursorPos(m_window_handle, m_cursor_transformed.x, m_cursor_transformed.y);
+		}
+
+		// ----------------------------------
+		// window + gameloop event connectors
+		// ----------------------------------
+
 		// connect events
 		template<typename Event, auto Listener, typename Instance>
 		void connect_listener(Instance* instance)
@@ -132,7 +283,9 @@ namespace oe::graphics {
 			dispatcher_mutex.unlock();
 		}
 
-
+		// --------------------
+		// graphics api queries
+		// --------------------
 
 		virtual std::string getAPI() const = 0;
 		virtual std::string getAPIVersion() const = 0;

@@ -6,7 +6,12 @@ matrix:
       os: linux
       dist: focal
       arch: amd64
-      env: CXX_EXE=/usr/bin/clang++-10 CC_EXE=/usr/bin/clang-10 CXX=/usr/bin/clang++-10 CC=/usr/bin/clang-10
+      env: 
+        - CXX_EXE=/usr/bin/clang++-10
+        - CC_EXE=/usr/bin/clang-10
+        - CXX=/usr/bin/clang++-10
+        - CC=/usr/bin/clang-10
+        - CONAN_SYSREQUIRES_MODE=enabled
       cache:
         directories:
           - $HOME/.conan/data
@@ -18,33 +23,9 @@ matrix:
             - libstdc++-10-dev
             - libc++abi-10-dev
             - ninja-build
-            - libxinerama-dev
-            - libxcursor-dev
-            - xorg-dev
-            - libglu1-mesa-dev
-            - libxrandr-dev
-            - libx11-xcb-dev
-            - libxcb1-dev
-            - libxcb-render-util0-dev
-            - libxcb-randr0-dev
-            - libxcb-icccm4-dev
-            - libxcb-image0-dev
-            - libxcb-keysyms1-dev
-            - libxcb-shape0-dev
-            - libxcb-sync-dev
-            - libxcb-util0-dev
-            - libxcb-xfixes0-dev
-            - libxcb-xinerama0-dev
-            - libxcb-xinput-dev
-            - libxcb-xkb-dev
-            - libxcb-xrm-dev
-            - libxcb-xtest0-dev
-            - libxcb-xv0-dev
-            - libxcb-xvmc0-dev
 
       install:
         - pip install conan cmake
-        - conan user
 
       script:
         - conan --version

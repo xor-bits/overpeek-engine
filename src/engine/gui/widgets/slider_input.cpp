@@ -214,7 +214,7 @@ namespace oe::gui
 	
 	void SliderInput::clamp()
 	{
-		m_value = oe::utils::clamp(m_value, m_slider_info.value_bounds.x, m_slider_info.value_bounds.y);
+		m_value = std::clamp(m_value, m_slider_info.value_bounds.x, m_slider_info.value_bounds.y);
 		const float range = std::fabs(m_slider_info.value_bounds.x - m_slider_info.value_bounds.y);
 		m_value *= range * m_slider_info.value_steps;
 		m_value = std::round(m_value);

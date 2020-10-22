@@ -5,11 +5,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_USE_RELATIVE_PATHS TRUE)
 set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
-# include conan
-set(CONAN_DISABLE_CHECK_COMPILER TRUE)
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
-
 # sources
 set(source_list "")
 set(source_list ${source_list} 
@@ -213,8 +208,6 @@ endif()
 target_link_libraries(${target_name} PUBLIC ${CONAN_LIBS})
 target_link_directories(${target_name} PUBLIC ${CONAN_LIB_DIRS})
 target_include_directories(${target_name} PUBLIC ${CONAN_INCLUDE_DIRS})
-target_compile_definitions(${target_name} PUBLIC SPDLOG_FMT_EXTERNAL)
-target_compile_definitions(${target_name} PUBLIC FMT_HEADER_ONLY)
 # additional non-conan dependencies
 # opengl
 set(OpenGL_GL_PREFERENCE GLVND)

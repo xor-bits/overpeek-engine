@@ -46,8 +46,8 @@ namespace oe {
 		void init(EngineInfo engine_info);
 		void deinit();
 
-		void terminate();
-		void __error(std::string error_msg, int line, std::string file);
+		[[noreturn]] void terminate();
+		[[noreturn]] void __error(std::string error_msg, int line, std::string file);
 
 		// set blending mode
 		void blending(oe::modes mode = oe::modes::enable) const;

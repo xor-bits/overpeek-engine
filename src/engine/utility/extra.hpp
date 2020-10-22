@@ -18,17 +18,13 @@ namespace oe::utils {
 	extern bool bounding_box_test(const glm::vec2& point, const glm::vec2& top_left, const glm::vec2& size);
 
 	template<typename T>
-	T clamp(const T _val, const T _min, const T _max) {
-		return std::max(std::min(_val, _max), _min);
-	}
-
-	template<typename T>
-	T map(const T value, const T low1, const T high1, const T low2, const T high2) {
+	[[nodiscard]] T map(const T value, const T low1, const T high1, const T low2, const T high2)
+	{
 		return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
 	}
 
 	template <typename T>
-	bool weak_ptr_test(const std::weak_ptr<T>& ptr)
+	[[nodiscard]] bool weak_ptr_test(const std::weak_ptr<T>& ptr)
 	{
 		return !ptr.owner_before(std::weak_ptr<T>{}) && !std::weak_ptr<T>{}.owner_before(ptr);
 	}
