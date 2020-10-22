@@ -149,13 +149,13 @@ namespace oe::graphics
 			return m_window_info.position;
 		}
 		
-		inline void setPosition(const glm::ivec2& pos)
+		inline void setPosition(const glm::uvec2& pos)
 		{
 			m_window_info.position = pos;
 			glfwSetWindowPos(m_window_handle, m_window_info.position.x, m_window_info.position.y);
 		}
 
-		[[nodiscard]] constexpr inline const glm::ivec2& getSize() const noexcept
+		[[nodiscard]] constexpr inline const glm::uvec2& getSize() const noexcept
 		{
 			return m_window_info.size;
 		}
