@@ -6,6 +6,10 @@ matrix:
       os: linux
       dist: focal
       env:
+        - CXX_EXE=/usr/bin/clang++-10
+        - CC_EXE=/usr/bin/clang-10
+        - CXX=/usr/bin/clang++-10
+        - CC=/usr/bin/clang-10
         - CONAN_SYSREQUIRES_MODE=enabled
       cache:
         directories:
