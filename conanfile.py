@@ -1,4 +1,5 @@
 from conans import ConanFile, CMake, tools
+import os
 
 
 class OverpeekEngineConan(ConanFile):
@@ -28,18 +29,14 @@ conan_basic_setup()''')
 
     def build(self):
         cmake = CMake(self)
-        cmake.verbose = True
-        cmake.configure(build_folder="build")
+        cmake.configure()
         cmake.build()
-
-        # Explicit way:
-        # self.run('cmake %s/hello %s'
-        #          % (self.source_folder, cmake.command_line))
-        # self.run("cmake --build . %s" % cmake.build_config)
+        if tools.get_env("OE_RUN_TESTS", False):
+            self.run("cd tests && ctest -j{} --output-on-failure".format(tools.cpu_count()))
 
     def imports(self):
-        self.copy("*.dylib", dst="lib", keep_path=False)
-        self.copy("*.so", dst="lib", keep_path=False)
+        """ self.copy("*.dylib", dst="lib", keep_path=False)
+        self.copy("*.so", dst="lib", keep_path=False) """
         self.copy("*.dll", dst="bin", keep_path=False)
         self.copy("*.dll", dst="tests", keep_path=False)
 
@@ -50,6 +47,7 @@ conan_basic_setup()''')
         self.copy("guis", dst="bin", keep_path=False)
         self.copy("networking", dst="bin", keep_path=False)
         self.copy("rendering", dst="bin", keep_path=False)
+        self.copy("tests/CTestTestfile.cmake", dst="bin", keep_path=False)
         self.copy("text", dst="bin", keep_path=False)
         self.copy("*.lib", dst="lib", keep_path=False)
         self.copy("*.dll", dst="bin", keep_path=False)

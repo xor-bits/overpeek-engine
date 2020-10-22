@@ -5,12 +5,7 @@ matrix:
       language: cpp
       os: linux
       dist: focal
-      arch: amd64
-      env: 
-        - CXX_EXE=/usr/bin/clang++-10
-        - CC_EXE=/usr/bin/clang-10
-        - CXX=/usr/bin/clang++-10
-        - CC=/usr/bin/clang-10
+      env:
         - CONAN_SYSREQUIRES_MODE=enabled
       cache:
         directories:
@@ -26,17 +21,13 @@ matrix:
             - libgl1-mesa-dev
 
       install:
-        - pip install conan cmake
+        - pip3 install conan cmake
+        - conan user
 
       script:
         - conan --version
         - cmake --version
-        - mkdir build && cd build
-        - conan install .. -s compiler=clang -s compiler.version=10 -s build_type=Release --build=missing
-        - cmake .. -GNinja
-        - cmake --build .
-        - cd tests
-        - ctest
+        - conan create . -s compiler=clang -s compiler.version=10 -s build_type=Release --build=missing
 
 #     # windows build
 #     - name: "Windows - MSVC"
