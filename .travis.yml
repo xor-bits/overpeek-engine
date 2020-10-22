@@ -31,7 +31,7 @@ matrix:
         - conan --version
         - cmake --version
         - mkdir build && cd build
-        - conan install .. -s compiler=clang -s compiler.version=10 -s build_type=Debug --build missing
+        - conan install .. -s compiler=clang -s compiler.version=10 -s build_type=Release --build=missing
         - cmake .. -GNinja
         - cmake --build .
         - cd tests
