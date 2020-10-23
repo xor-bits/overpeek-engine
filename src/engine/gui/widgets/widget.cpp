@@ -15,11 +15,11 @@ namespace oe::gui
 	Widget::Widget(Widget* parent, GUI& gui_manager, const WidgetInfo& info)
 		: m_parent(parent)
 		, m_nodes()
+		, m_gui_manager(gui_manager)
+		, z(z_acc += 0.01f)
 		, topleft_position({ 0, 0 })
 		, render_position({ 0, 0 })
-		, m_gui_manager(gui_manager)
 		, m_info(info)
-		, z(z_acc += 0.01f)
 		, m_cg_pre_render()
 	{
 		toggle(true);
@@ -109,7 +109,7 @@ namespace oe::gui
 		}
 	}
 
-	void Widget::on_pre_render(const GUIPreRenderEvent& event)
+	void Widget::on_pre_render(const GUIPreRenderEvent& /* event */)
 	{
 		if(!m_cg_pre_render)
 			return;

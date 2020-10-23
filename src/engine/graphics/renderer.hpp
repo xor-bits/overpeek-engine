@@ -27,7 +27,7 @@ namespace oe::graphics
 	// sort by texture id
 	static constexpr auto sort_t = [](const Quad* l, const Quad* r)->bool
 	{
-		return (l->getSprite()->m_owner.get() < l->getSprite()->m_owner.get());
+		return (l->getSprite()->m_owner.get() < r->getSprite()->m_owner.get());
 	};
 	
 	// sort by largest z if opaque and by texture otherwise
@@ -36,9 +36,9 @@ namespace oe::graphics
 		const bool opaque = (l->getOpacityMode() || r->getOpacityMode());
 		const bool opaque_diff = (l->getOpacityMode() != r->getOpacityMode());
 		return
-			opaque  && !opaque_diff && sort_lz(l, r) ||
-			!opaque && !opaque_diff && sort_t(l, r) ||
-			opaque_diff && (l->getOpacityMode() < r->getOpacityMode());
+			(opaque  && !opaque_diff && sort_lz(l, r)) ||
+			(!opaque && !opaque_diff && sort_t(l, r)) ||
+			(opaque_diff && (l->getOpacityMode() < r->getOpacityMode()));
 	};
 	
 	// sort by smallest z if opaque and by texture otherwise
@@ -47,9 +47,9 @@ namespace oe::graphics
 		const bool opaque = (l->getOpacityMode() || r->getOpacityMode());
 		const bool opaque_diff = (l->getOpacityMode() != r->getOpacityMode());
 		return
-			opaque  && sort_sz(l, r) ||
-			!opaque && sort_t(l, r) ||
-			opaque_diff && (l->getOpacityMode() < r->getOpacityMode());
+			(opaque  && sort_sz(l, r)) ||
+			(!opaque && sort_t(l, r)) ||
+			(opaque_diff && (l->getOpacityMode() < r->getOpacityMode()));
 	};
 	
 	class Renderer

@@ -9,7 +9,7 @@ oe::gui::GUI* gui;
 std::shared_ptr<oe::gui::BasicTextInput<char32_t>> textbox;
 std::shared_ptr<oe::gui::TextPanel> textpanel;
 std::shared_ptr<oe::gui::SpritePanel> box;
-std::shared_ptr<oe::gui::List> list;
+/* std::shared_ptr<oe::gui::List> list; */
 std::shared_ptr<oe::gui::Checkbox> checkbox;
 std::shared_ptr<oe::gui::Vec<oe::gui::SliderInput, 4>> quat_slider;
 std::shared_ptr<oe::gui::Graph> graph_fps;
@@ -105,7 +105,7 @@ void cube()
 	}
 	else
 	{
-		if(list)
+		/* if(list)
 		{
 			auto points = list->get();
 			size_t list_len = points.size();
@@ -134,7 +134,7 @@ void cube()
 				cube_rotation = glm::mix(a, b, modt);
 			}
 		}
-		else
+		else */
 		{
 			cube_rotation = glm::angleAxis(-quat_slider_val.w, glm::normalize(glm::vec3(quat_slider_val.x, quat_slider_val.y, quat_slider_val.z)));
 		}
@@ -218,7 +218,7 @@ void update_30(oe::UpdateEvent<30>)
 
 void append_list(const glm::quat& quat)
 {
-	if(!list) return;
+	/* if(!list) return; */
 	// list->add(new Checkpoint(quat));
 }
 
@@ -334,14 +334,14 @@ xxxxxxxxxxxxxxxxxxxxx)";
 			graph_ups = textpanel->create<oe::gui::Graph>(graph_info);
 		}
 	}
-	if constexpr(false) {
+	/* if constexpr(false) {
 		oe::gui::ListInfo list_info;
 		list_info.widget_info = { { 200, 400 }, { 0, 0 }, oe::alignments::top_right, oe::alignments::top_right };
 		list_info.sprite = pack->emptySprite();
 		list_info.title = U"Loglist";
 		list_info.title_height = 28;
 		list = gui->create<oe::gui::List>(list_info);
-	}
+	} */
 
 	tpi = {};
 	tpi.font_size = 14;
@@ -426,7 +426,7 @@ int main(int argc, char** argv)
 	textbox.reset();
 	textpanel.reset();
 	box.reset();
-	list.reset();
+	/* list.reset(); */
 	checkbox.reset();
 	quat_slider.reset();
 	graph_fps.reset();

@@ -51,19 +51,19 @@ namespace oe::utils {
 
 	// string to T where T is any integer or float type
 	template<class number>
-	static number stoT(const std::string& str);
+	number stoT(const std::string& str);
 	
-	template<> static int stoT(const std::string& str) { return std::stoi(str); }
-	template<> static long stoT(const std::string& str) { return std::stol(str); }
-	template<> static long long stoT(const std::string& str) { return std::stoll(str); }
-	template<> static unsigned int stoT(const std::string& str) { return std::stoul(str); }
-	template<> static unsigned long stoT(const std::string& str) { return std::stoul(str); }
-	template<> static unsigned long long stoT(const std::string& str) { return std::stoull(str); }
-	template<> static float stoT(const std::string& str) { return std::stof(str); }
-	template<> static double stoT(const std::string& str) { return std::stod(str); }
-	template<> static long double stoT(const std::string& str) { return std::stold(str); }
+	template<> int stoT(const std::string& str);
+	template<> long stoT(const std::string& str);
+	template<> long long stoT(const std::string& str);
+	template<> unsigned int stoT(const std::string& str);
+	template<> unsigned long stoT(const std::string& str);
+	template<> unsigned long long stoT(const std::string& str);
+	template<> float stoT(const std::string& str);
+	template<> double stoT(const std::string& str);
+	template<> long double stoT(const std::string& str);
 
-	// vector conversions
+	// glm::vec conversions
 	template<size_t dim, typename T>
 	bool containerToVec(const std::vector<T>& from, glm::vec<dim, T>& to)
 	{
@@ -94,8 +94,8 @@ namespace oe::utils {
 		return true;
 	}
 	
-	// templates
-	template<typename chr_type> unsigned long stringToHex(const std::basic_string<chr_type>& str)
+	template<typename chr_type>
+	unsigned long stringToHex(const std::basic_string<chr_type>& str)
 	{
 		if (!checkChar(str, (chr_type)'#', 0)) return -1; // not a hexcode
 
@@ -104,13 +104,19 @@ namespace oe::utils {
 
 		return hex;
 	}
-	template<typename chr_type> bool isNumber(const std::basic_string<chr_type>& input)
+	
+	// check(er) functions
+
+	template<typename chr_type>
+	bool isNumber(const std::basic_string<chr_type>& input)
 	{
 		auto iter = input.begin();
 		while (iter != input.end() && std::isdigit(*iter)) iter++;
 		return !input.empty() && iter == input.end();
 	}
-	template<typename chr_type> const chr_type* strchr(const chr_type* input, chr_type c)
+	
+	template<typename chr_type>
+	const chr_type* strchr(const chr_type* input, chr_type c)
 	{
 		for (; *input != '\0'; ++input)
 		{
@@ -119,7 +125,9 @@ namespace oe::utils {
 		}
 		return nullptr;
 	}
-	template<typename chr_type> bool checkChar(const std::basic_string<chr_type>& text, chr_type character, size_t position)
+	
+	template<typename chr_type>
+	bool checkChar(const std::basic_string<chr_type>& text, chr_type character, size_t position)
 	{
 		if (position < text.size() && text[position] == character)
 		{

@@ -1,5 +1,8 @@
-#define STB_TEXTEDIT_CHARTYPE					char_type
+#ifdef STB_TEXTEDIT_KEYTYPE
+#undef STB_TEXTEDIT_KEYTYPE
+#endif
 #define STB_TEXTEDIT_KEYTYPE                    uint32_t
+#define STB_TEXTEDIT_CHARTYPE					char_type
 #define STB_TEXTEDIT_STRING						std::basic_string<char_type>
 #include <stb_textedit.h>
 #include "engine/utility/extra.hpp"
@@ -14,7 +17,7 @@ static bool insertchars(std::basic_string<char_type> *obj, uint32_t i, char_type
 	return true;
 }
 
-static float getwidth(std::basic_string<char_type> *obj, uint32_t n, uint32_t i)
+static float getwidth(std::basic_string<char_type> *obj, uint32_t /* n */, uint32_t i)
 {
 	float advance = 0.0f;
 	if(!last_font)
@@ -48,7 +51,7 @@ static void layoutrow(StbTexteditRow* r, std::basic_string<char_type> *obj, uint
 
 #define KEYDOWN_BIT                             0x8000000
 
-#define STB_TEXTEDIT_STRINGLEN(obj)				obj->size()
+#define STB_TEXTEDIT_STRINGLEN(obj)				static_cast<int>(std::min(obj->size(), static_cast<size_t>(std::numeric_limits<int>::max())))
 #define STB_TEXTEDIT_LAYOUTROW(r,obj,n)			layoutrow(r, obj, n)
 #define STB_TEXTEDIT_GETWIDTH(obj,n,i)			getwidth(obj, n, i)
 #define STB_TEXTEDIT_GETCHAR(obj,i)				obj->at(i)
@@ -80,8 +83,24 @@ static void layoutrow(StbTexteditRow* r, std::basic_string<char_type> *obj, uint
 #define K_CUT                                   (KEYDOWN_BIT | STB_TEXTEDIT_K_CONTROL | 'x')
 #define K_PASTE                                 (KEYDOWN_BIT | STB_TEXTEDIT_K_CONTROL | 'v')
 
+// ignore external warnings
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#elif __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
 #define STB_TEXTEDIT_IMPLEMENTATION
 #include <stb_textedit.h>
+
+// ignore external warnings
+#ifdef __clang__
+#pragma clang diagnostic pop
+#elif __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 namespace oe::utils
 {

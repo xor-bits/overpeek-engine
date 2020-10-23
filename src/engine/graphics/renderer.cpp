@@ -84,7 +84,7 @@ namespace oe::graphics
 		std::vector<renderpass> renderpasses;
 		ITexture* latest_texture_ptr = nullptr;
 		renderpasses.reserve(m_quads.size());
-		size_t index = 0;
+		int32_t index = 0;
 		std::sort(m_quads.begin(), m_quads.end(), m_comparator);
 		for(const auto& quad : m_quads)
 		{

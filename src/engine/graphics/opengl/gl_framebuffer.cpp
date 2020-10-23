@@ -1,6 +1,7 @@
 #include "gl_framebuffer.hpp"
 #include "engine/engine.hpp"
 #include "engine/graphics/interface/window.hpp"
+#include "engine/utility/formatted_error.hpp"
 
 #include "gl_include.hpp"
 #include <GLFW/glfw3.h>
@@ -46,7 +47,7 @@ namespace oe::graphics
 		// FBO
 		int fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
-			oe_error_terminate("Framebuffer not complete {}", fboStatus);
+			throw oe::utils::formatted_error("Framebuffer not complete {}", fboStatus);
 
 		GLFrameBuffer::clear();
 		

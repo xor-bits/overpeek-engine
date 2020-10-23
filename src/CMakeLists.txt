@@ -165,12 +165,11 @@ set(source_list ${source_list}
 	"engine/utility/extra.hpp"
 	"engine/utility/fileio.cpp"
 	"engine/utility/fileio.hpp"
+	"engine/utility/formatted_error.hpp"
 	"engine/utility/gameloop.cpp"
 	"engine/utility/gameloop.hpp"
 	"engine/utility/random.cpp"
 	"engine/utility/random.hpp"
-	"engine/utility/zip.cpp"
-	"engine/utility/zip.hpp"
 	"engine/utility/connect_guard.hpp"
 	"engine/utility/connect_guard_additions.hpp"
 	"engine/utility/text_edit.hpp"
@@ -196,10 +195,12 @@ endif()
 if (MSVC)
 	target_link_libraries(${target_name} PRIVATE "Ws2_32") # required by enet
 	target_link_libraries(${target_name} PRIVATE "Winmm")  # required by enet
+	target_compile_options(${target_name} PRIVATE "/W4" "/WX" "/permissive-")
 elseif(EMSCRIPTEN)
 	# 
 else()
 	target_link_libraries(${target_name} PRIVATE "stdc++fs")
+	target_compile_options(${target_name} PRIVATE "-Werror" "-Wall" "-Wextra" "-Wpedantic")
 endif()
 
 

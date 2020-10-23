@@ -22,12 +22,14 @@ namespace oe::assets
 		static inline const oe::utils::image_data oe_logo_img = { &oe_logo[0], oe::formats::rgb, 5, 5 };
 
 		// resolution = 2*radius
-		static inline const oe::utils::image_data generate_circle(const int radius = 16)
+		static inline const oe::utils::image_data generate_circle(int radius = 16)
 		{
-			int edge_l = std::abs(2 * radius);
+			radius = std::abs(radius);
+			int edge_l = 2 * radius;
 			oe::utils::image_data img(oe::formats::rgba, edge_l, edge_l);
+			const size_t radius_pow_2 = static_cast<size_t>(radius * radius);
 
-			for	(size_t i = 0; i < edge_l * edge_l * 4; i += 4)
+			for	(size_t i = 0; i < static_cast<size_t>(edge_l * edge_l * 4); i += 4)
 			{
 				const size_t pixel_i = i / 4;
 				const size_t x_mid = (pixel_i % edge_l) - radius;
@@ -36,28 +38,30 @@ namespace oe::assets
 				img.data[i + 0] = 0xff;
 				img.data[i + 1] = 0xff;
 				img.data[i + 2] = 0xff;
-				img.data[i + 3] = x_mid*x_mid + y_mid*y_mid <= radius*radius ? 0xff : 0x00;
+				img.data[i + 3] = x_mid*x_mid + y_mid*y_mid <= radius_pow_2 ? 0xff : 0x00;
 			}
 
 			return img;
 		}
 
 		// resolution = 2*radius
-		static inline const oe::utils::image_data generate_circle_bordered(const int radius = 16)
+		static inline const oe::utils::image_data generate_circle_bordered(int radius = 16)
 		{
-			int edge_l = std::abs(2 * radius);
+			radius = std::abs(radius);
+			const int edge_l = 2 * radius;
+			const size_t radius_pow_2 = static_cast<size_t>(radius * radius);
 			oe::utils::image_data img(oe::formats::rgba, edge_l, edge_l);
 
-			for (size_t i = 0; i < edge_l * edge_l * 4; i += 4)
+			for (size_t i = 0; i < static_cast<size_t>(edge_l * edge_l * 4); i += 4)
 			{
 				const size_t pixel_i = i / 4;
 				const size_t x_mid = (pixel_i % edge_l) - radius;
 				const size_t y_mid = (pixel_i / edge_l) - radius;
 
-				img.data[i + 0] = x_mid * x_mid + y_mid * y_mid <= radius * radius * 0.65 ? 0xff : 0x00;
+				img.data[i + 0] = x_mid * x_mid + y_mid * y_mid <= radius_pow_2 * 0.65 ? 0xff : 0x00;
 				img.data[i + 1] = img.data[i + 0];
 				img.data[i + 2] = img.data[i + 0];
-				img.data[i + 3] = x_mid * x_mid + y_mid * y_mid <= radius * radius ? 0xff : 0x00;
+				img.data[i + 3] = x_mid * x_mid + y_mid * y_mid <= radius_pow_2 ? 0xff : 0x00;
 			}
 
 			return img;

@@ -13,7 +13,7 @@
 
 // glfw forwards
 // window
-class GLFWwindow;
+struct GLFWwindow;
 extern "C" {
 void 	glfwSetWindowPos (GLFWwindow *window, int xpos, int ypos);
 void 	glfwSetWindowSize (GLFWwindow *window, int width, int height);

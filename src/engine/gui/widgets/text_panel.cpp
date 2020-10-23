@@ -35,7 +35,7 @@ namespace oe::gui
 		}
 	}
 
-	void TextPanel::on_render(const GUIRenderEvent& event)
+	void TextPanel::on_render(const GUIRenderEvent& /* event */)
 	{
 		if(!m_cg_render)
 			return;

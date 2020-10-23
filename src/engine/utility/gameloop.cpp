@@ -45,8 +45,6 @@ namespace oe::utils
 
 	void GameLoop::loop()
 	{
-		auto& clock = oe::utils::Clock::getSingleton();
-
 		// updates
 		for(auto& system : m_update_systems)
 		{

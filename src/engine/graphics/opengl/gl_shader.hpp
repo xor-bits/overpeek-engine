@@ -34,7 +34,7 @@ namespace oe::graphics
 		glm::vec<3, size_t> workGroupSize();
 
 		void bindSSBO(const std::string& block_name, const StorageBuffer* buffer, size_t binding);
-		void unbindSSBO(const std::string& block_name, const StorageBuffer* buffer, size_t binding);
+		void unbindSSBO(const StorageBuffer* buffer);
 
 		// uniforms
 		virtual int32_t getUniformLocation(const std::string& name) override;

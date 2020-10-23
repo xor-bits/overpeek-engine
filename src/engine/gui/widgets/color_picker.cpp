@@ -148,7 +148,7 @@ namespace oe::gui
 		static ColorPickerRenderer* singleton;
 		ColorPickerRenderer(const ColorPickerRenderer& copy) = delete;
 		ColorPickerRenderer()
-			: c_shader({ "asset:graph_shader", { { oe::shader_stages::vertex_shader, shader_vert_gl }, { oe::shader_stages::fragment_shader, color_picker_shader_frag } } })
+			: c_shader({ "asset:graph_shader", { { oe::shader_stages::vertex_shader, shader_vert_gl, {} }, { oe::shader_stages::fragment_shader, color_picker_shader_frag, {} } } })
 			, c_renderer_circle(oe::RendererInfo{ 1 })
 			, c_renderer_triangle(oe::RendererInfo{ 1 })
 			, c_pack()
@@ -386,7 +386,7 @@ namespace oe::gui
 		dispatcher.trigger(m_event_use_latest);
 	}
 
-	void ColorPicker::on_render(const GUIRenderEvent& event)
+	void ColorPicker::on_render(const GUIRenderEvent& /* event */)
 	{
 		if(!m_cg_render)
 			return;

@@ -7,6 +7,7 @@
 
 #include "engine/internal_libs.hpp"
 #include "engine/utility/clock.hpp"
+#include "engine/utility/formatted_error.hpp"
 #include "engine/engine.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -26,8 +27,26 @@
 #include <al.h>
 #endif
 
+
+
+// ignore external warnings
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wnullability-extension"
+#elif __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnullability-extension"
+#endif
+
 // #include <miniz/miniz_zip.h>
 #include <zip.h>
+
+// ignore external warnings
+#ifdef __clang__
+#pragma clang diagnostic pop
+#elif __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 
 
@@ -70,9 +89,8 @@ namespace oe::utils
 		int channels;
 		data = stbi_load(path.string().c_str(), &width, &height, &channels, stb_i_format(_format));
 		
-		if (!data) {
-			oe_error_terminate("Failed to load imagefile \"{}\"", std::string(path.string().c_str()));
-		}
+		if (!data)
+			throw oe::utils::formatted_error("Failed to load imagefile \"{}\"", path.string().c_str());
 
 		format = _format;
 		size = static_cast<size_t>(width) * static_cast<size_t>(height) * static_cast<size_t>(channels);
@@ -83,9 +101,8 @@ namespace oe::utils
 		int channels;
 		data = stbi_load_from_memory(_data, data_size, &width, &height, &channels, stb_i_format(_format));
 		
-		if (!data) {
-			oe_error_terminate("Failed to load imagedata {}:{}", (size_t)_data, data_size);
-		}
+		if (!data)
+			throw oe::utils::formatted_error("Failed to load imagedata {}:{}", (size_t)_data, data_size);
 
 		format = _format;
 		size = static_cast<size_t>(width) * static_cast<size_t>(height) * static_cast<size_t>(channels);
@@ -110,10 +127,10 @@ namespace oe::utils
 	}
 
 	image_data::image_data(image_data&& move)
-		: format(move.format)
+		: data(move.data)
+		, format(move.format)
 		, width(move.width), height(move.height)
 		, size(move.size)
-		, data(move.data)
 	{
 		move.format = oe::formats::mono;
 		move.width = 0; move.height = 0;
@@ -149,7 +166,7 @@ namespace oe::utils
 		mp3dec_t mp3d;
 		mp3dec_file_info_t info;
 		if (mp3dec_load(&mp3d, path.string().c_str(), &info, NULL, NULL))
-			oe_error_terminate("Failed to load audiofile \"{}\"", std::string(path.string().c_str()));
+			throw oe::utils::formatted_error("Failed to load audiofile \"{}\"", std::string(path.string().c_str()));
 
 		size = info.samples * sizeof(int16_t);
 		data = info.buffer;
@@ -172,7 +189,7 @@ namespace oe::utils
 		mp3dec_file_info_t info;
 		mp3dec_load_buf(&mp3d, _data, data_size, &info, NULL, NULL);
 		if (!info.buffer)
-			oe_error_terminate("Failed to load audiodata {}:{}", (size_t)_data, data_size);
+			throw oe::utils::formatted_error("Failed to load audiodata {}:{}", (size_t)_data, data_size);
 		
 
 		size = info.samples * sizeof(int16_t);
@@ -211,11 +228,11 @@ namespace oe::utils
 	}
 
 	audio_data::audio_data(audio_data&& move)
-		: format(move.format)
+		: data(move.data)
+		, format(move.format)
 		, size(move.size)
 		, channels(move.channels)
 		, sample_rate(move.sample_rate)
-		, data(move.data)
 	{
 		move.format = 0;
 		move.size = 0;
@@ -265,7 +282,7 @@ namespace oe::utils
 		int error;
 		auto zipper = zip_open(generic_to_zip.c_str(), ZIP_CREATE, &error);
 		if (!zipper)
-			throw std::runtime_error(fmt::format("Failed to open {}, {}", generic_to_zip, zip_open_error(error)));
+			throw oe::utils::formatted_error("Failed to open {}, {}", generic_to_zip, zip_open_error(error));
 
 		try
 		{
@@ -282,13 +299,13 @@ namespace oe::utils
 			// add the file
 			auto source = zip_source_buffer(zipper, data.data(), data.size(), 0);
 			if (!source)
-				throw std::runtime_error(fmt::format("Failed to create source file from data, {}", zip_strerror(zipper)));
+				throw oe::utils::formatted_error("Failed to create source file from data, {}", zip_strerror(zipper));
 
 			auto size = zip_file_add(zipper, generic_in_zip.c_str(), source, ZIP_FL_ENC_UTF_8 | ZIP_FL_OVERWRITE);
 			if (size < 0)
 			{
 				zip_source_free(source);
-				throw std::runtime_error(fmt::format("Failed to add file {} to zip, {}", generic_in_zip, zip_strerror(zipper)));
+				throw oe::utils::formatted_error("Failed to add file {} to zip, {}", generic_in_zip, zip_strerror(zipper));
 			}
 		}
 		catch (const std::exception& e)
@@ -308,7 +325,7 @@ namespace oe::utils
 		int error;
 		auto zipper = zip_open(generic_to_zip.c_str(), 0, &error);
 		if (!zipper)
-			throw std::runtime_error(fmt::format("Failed to open {}, {}", path_to_zip, zip_open_error(error)));
+			throw oe::utils::formatted_error("Failed to open {}, {}", path_to_zip, zip_open_error(error));
 
 		try
 		{
@@ -317,14 +334,14 @@ namespace oe::utils
 
 			auto file = zip_fopen(zipper, generic_in_zip.c_str(), 0);
 			if (!file)
-				throw std::runtime_error(fmt::format("Failed to open file {} from zip, {}", generic_in_zip.c_str(), zip_strerror(zipper)));
+				throw oe::utils::formatted_error("Failed to open file {} from zip, {}", generic_in_zip.c_str(), zip_strerror(zipper));
 
 			data.resize(stats.size);
 			auto read_size = zip_fread(file, data.data(), data.size());
 			if (read_size < 0)
 			{
 				zip_fclose(file);
-				throw std::runtime_error(fmt::format("Failed to read file {} from zip, {}", generic_in_zip.c_str(), zip_strerror(zipper)));
+				throw oe::utils::formatted_error("Failed to read file {} from zip, {}", generic_in_zip.c_str(), zip_strerror(zipper));
 			}
 			zip_fclose(file);
 		}
@@ -337,11 +354,6 @@ namespace oe::utils
 		zip_close(zipper);
 	}
 
-	void zip_entries(const fs::path& path_to_zip, const fs::path& path_in_zip, std::vector<fs::path>& vec)
-	{
-
-	}
-
 	void zip_paths(const std::vector<fs::path::const_iterator>& iter, const fs::path& current_path, fs::path& path_to_zip, fs::path& path_in_zip)
 	{
 		for (auto left_iter = current_path.begin(); left_iter != std::next(iter[0]); left_iter++)
@@ -351,7 +363,7 @@ namespace oe::utils
 			path_in_zip.append(right_iter->generic_string());
 
 		if (!fs::is_regular_file(path_to_zip) && fs::exists(path_to_zip))
-			throw std::runtime_error(fmt::format("Path: '{}' already exists, but is not a file", path_to_zip.generic_string()));
+			throw oe::utils::formatted_error("Path: '{}' already exists, but is not a file", path_to_zip.generic_string());
 	}
 
 	std::vector<fs::path::const_iterator> first_zip_loc(const FileIO& fileio)
@@ -394,7 +406,7 @@ namespace oe::utils
 			int error;
 			auto zipper = zip_open(generic_to_zip.c_str(), 0, &error);
 			if (!zipper)
-				throw std::runtime_error(fmt::format("Failed to open {}, {}", path_to_zip, zip_open_error(error)));
+				throw oe::utils::formatted_error("Failed to open {}, {}", path_to_zip, zip_open_error(error));
 
 			auto n = zip_get_num_entries(zipper, 0);
 			std::string last_folder;
@@ -463,7 +475,7 @@ namespace oe::utils
 		{
 			std::ifstream input_stream(path.getPath(), std::ios_base::binary);
 			if (!input_stream.is_open())
-				throw std::runtime_error(fmt::format("Could not open file: '{}'", path.getPath().generic_string()));
+				throw oe::utils::formatted_error("Could not open file: '{}'", path.getPath().generic_string());
 
 			return { std::istreambuf_iterator<char>(input_stream), {} };
 		}
@@ -482,14 +494,14 @@ namespace oe::utils
 		else
 		{
 			if (!path.isFile() && path.exists())
-				throw std::runtime_error(fmt::format("Path: '{}' already exists, but is not a file", path.getPath().generic_string()));
+				throw oe::utils::formatted_error("Path: '{}' already exists, but is not a file", path.getPath().generic_string());
 
 			if (!path.exists())
 				fs::create_directories(path.getPath().parent_path());
 
 			std::ofstream output_stream(path.getPath());
 			if (!output_stream.is_open())
-				throw std::runtime_error(fmt::format("Could not open file: '{}'", path.getPath().generic_string()));
+				throw oe::utils::formatted_error("Could not open file: '{}'", path.getPath().generic_string());
 			
     		std::copy(string.begin(), string.end(), std::ostreambuf_iterator<char>(output_stream));
 		}

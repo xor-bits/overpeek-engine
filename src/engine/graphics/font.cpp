@@ -8,6 +8,7 @@
 #include "engine/engine.hpp"
 #include "engine/graphics/spritePacker.hpp"
 #include "engine/utility/fileio.hpp"
+#include "engine/utility/formatted_error.hpp"
 
 
 
@@ -70,20 +71,19 @@ namespace oe::graphics
 
 		// Freetype library
 		if (FT_Init_FreeType(&ft))
-			oe_error_terminate("FT_Init_FreeType failed");
+			throw oe::utils::formatted_error("FT_Init_FreeType failed");
 
 		// Load font
 		if (FT_New_Memory_Face(ft, m_font_file.data(), static_cast<int32_t>(std::clamp<size_t>(m_font_file.size(), 0, std::numeric_limits<int32_t>::max())), 0, &face))
-			oe_error_terminate("Failed to load font in memory {0:x} {1}", (size_t)m_font_file.data(), m_font_file.size());
+			throw oe::utils::formatted_error("Failed to load font in memory {0:x} {1}", (size_t)m_font_file.data(), m_font_file.size());
 
 		FT_Set_Pixel_Sizes(face, 0, m_resolution);
 		FT_Select_Charmap(face, FT_ENCODING_UNICODE);
 		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
 
 		// all ascii glyphs
-		for (char32_t i = 32; i < 127; i++) {
+		for (char32_t i = 32; i < 127; i++)
 			gen_codepoint_glyph(i);
-		}
 
 		// whitespace
 		m_glyphs.insert(std::make_pair(' ', Glyph{

@@ -32,6 +32,7 @@ namespace oe::graphics
 
 				oe::CodepointEvent event;
 				event.codepoint = codepoint;
+				event.mods = static_cast<modifiers>(mods);
 
 				this_class->dispatcher_mutex.lock();
 				this_class->m_window_gameloop.getDispatcher().enqueue(event);
@@ -106,7 +107,7 @@ namespace oe::graphics
 				// if (this_class->m_window_info.button_callback) this_class->m_window_info.button_callback(static_cast<oe::mouse_buttons>(button), static_cast<oe::actions>(action));
 			});
 		
-		glfwSetKeyCallback(m_window_handle, [](GLFWwindow* window, int key, int scancode, int action, int mods)    
+		glfwSetKeyCallback(m_window_handle, [](GLFWwindow* window, int key, int /* scancode */, int action, int mods)    
 			{
 				IWindow* this_class = reinterpret_cast<IWindow*>(glfwGetWindowUserPointer(window));
 
@@ -149,7 +150,7 @@ namespace oe::graphics
 		connect_listener<oe::ResizeEvent, &resize_viewport>();
 	}
 
-	IWindow::IWindow(const std::unique_ptr<Instance>& instance, const WindowInfo& window_config) 
+	IWindow::IWindow(const std::unique_ptr<Instance>& /* instance */, const WindowInfo& window_config) 
 		: m_window_info(window_config)
 		, m_window_gameloop(this)
 	{

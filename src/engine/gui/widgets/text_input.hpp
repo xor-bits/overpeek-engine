@@ -34,7 +34,7 @@ namespace oe::gui
 		WidgetInfo widget_info                                       = { { 100, 100 }, { 3, 3 }, oe::alignments::center_center, oe::alignments::center_center };
 	
 		//
-		static void default_formatter(std::basic_string<char_type>& val) {}
+		static void default_formatter(std::basic_string<char_type>& /* val */) {}
 	};
 
 	template<typename char_type>

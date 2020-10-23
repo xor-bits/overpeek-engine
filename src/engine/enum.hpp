@@ -425,7 +425,10 @@ namespace oe {
 	// engine create info
 	struct EngineInfo {
 		bool audio = false;
+		bool audio_init_noexcept = false;
 		bool networking = false;
+		bool networking_init_noexcept = false;
+
 		graphics_api api = oe::graphics_api::OpenGL;
 		gpu favored_gpu_vulkan = gpu::dedicated;
 		bool debug_mode = true;
@@ -487,6 +490,7 @@ namespace oe {
 	{
         // unicode text input
         char32_t codepoint = 0;
+        oe::modifiers mods = oe::modifiers::none;
 	};
 
 	struct ResizeEvent

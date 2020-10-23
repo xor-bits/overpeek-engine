@@ -102,16 +102,21 @@ namespace oe::graphics {
 		);
 
 		// create texture and add sprites
-		size_t pack_width = result_size.w;
-		size_t pack_height = result_size.h;
+		size_t pack_width = static_cast<size_t>(std::abs(result_size.w));
+		size_t pack_height = static_cast<size_t>(std::abs(result_size.h));
 		unsigned char* data = new unsigned char[pack_width * pack_height * 4]();
 		for (size_t i = 0; i < m_usr_data->m_rectangles.size(); i++) {
-			auto& rectangle = m_usr_data->m_rectangles.at(i);
-			auto& image = m_usr_data->m_images.at(i);
+			const auto& rectangle = m_usr_data->m_rectangles.at(i);
+			const auto& image = m_usr_data->m_images.at(i);
+			const size_t rect_x = static_cast<size_t>(std::abs(rectangle.x));
+			const size_t rect_y = static_cast<size_t>(std::abs(rectangle.y));
+			const size_t rect_w = static_cast<size_t>(std::abs(image.width));
+			const size_t rect_h = static_cast<size_t>(std::abs(image.height));
 			auto& sprite = m_sprites.at(i);
 			
-			sprite->size = glm::vec2(image.width / (float)pack_width, image.height / (float)pack_height);
-			sprite->position = glm::vec2(rectangle.x / (float)pack_width, rectangle.y / (float)pack_height);
+			
+			sprite->size = glm::vec2(rect_w / (float)pack_width, rect_h / (float)pack_height);
+			sprite->position = glm::vec2(rect_x / (float)pack_width, rect_y / (float)pack_height);
 			sprite->opacity = false;
 
 			// conversions
@@ -119,37 +124,39 @@ namespace oe::graphics {
 			{
 			case oe::formats::mono:
 				// mono format to rgba
-				for (size_t y = 0; y < image.height; y++) {
-					for (size_t x = 0; x < image.width; x++) {
-						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 0, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, image.width, 1)];
-						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 1, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, image.width, 1)];
-						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 2, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, image.width, 1)];
-						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 3, pack_width, 4)] = 255;
+				for (size_t y = 0; y < rect_h; y++) {
+					for (size_t x = 0; x < rect_w; x++) {
+						data[coordsToIndex(rect_x + x, rect_y + y, 0, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, rect_w, 1)];
+						data[coordsToIndex(rect_x + x, rect_y + y, 1, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, rect_w, 1)];
+						data[coordsToIndex(rect_x + x, rect_y + y, 2, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, rect_w, 1)];
+						data[coordsToIndex(rect_x + x, rect_y + y, 3, pack_width, 4)] = 255;
 					}
 				}
 				break;
 			case oe::formats::rgb:
 				// rgb format to rgba
-				for (size_t y = 0; y < image.height; y++) {
-					for (size_t x = 0; x < image.width; x++) {
-						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 0, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, image.width, 3)];
-						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 1, pack_width, 4)] = image.data[coordsToIndex(x, y, 1, image.width, 3)];
-						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 2, pack_width, 4)] = image.data[coordsToIndex(x, y, 2, image.width, 3)];
-						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 3, pack_width, 4)] = 255;
+				for (size_t y = 0; y < rect_h; y++) {
+					for (size_t x = 0; x < rect_w; x++) {
+						data[coordsToIndex(rect_x + x, rect_y + y, 0, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, rect_w, 3)];
+						data[coordsToIndex(rect_x + x, rect_y + y, 1, pack_width, 4)] = image.data[coordsToIndex(x, y, 1, rect_w, 3)];
+						data[coordsToIndex(rect_x + x, rect_y + y, 2, pack_width, 4)] = image.data[coordsToIndex(x, y, 2, rect_w, 3)];
+						data[coordsToIndex(rect_x + x, rect_y + y, 3, pack_width, 4)] = 255;
 					}
 				}
 				break;
 			case oe::formats::rgba:
 				// no conversion
-				for (size_t y = 0; y < image.height; y++) {
-					for (size_t x = 0; x < image.width; x++) {
-						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 0, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, image.width, 4)];
-						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 1, pack_width, 4)] = image.data[coordsToIndex(x, y, 1, image.width, 4)];
-						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 2, pack_width, 4)] = image.data[coordsToIndex(x, y, 2, image.width, 4)];
-						data[coordsToIndex(rectangle.x + x, rectangle.y + y, 3, pack_width, 4)] = image.data[coordsToIndex(x, y, 3, image.width, 4)];
+				for (size_t y = 0; y < rect_h; y++) {
+					for (size_t x = 0; x < rect_w; x++) {
+						data[coordsToIndex(rect_x + x, rect_y + y, 0, pack_width, 4)] = image.data[coordsToIndex(x, y, 0, rect_w, 4)];
+						data[coordsToIndex(rect_x + x, rect_y + y, 1, pack_width, 4)] = image.data[coordsToIndex(x, y, 1, rect_w, 4)];
+						data[coordsToIndex(rect_x + x, rect_y + y, 2, pack_width, 4)] = image.data[coordsToIndex(x, y, 2, rect_w, 4)];
+						data[coordsToIndex(rect_x + x, rect_y + y, 3, pack_width, 4)] = image.data[coordsToIndex(x, y, 3, rect_w, 4)];
+						
+						// automatic translucency detector
 						sprite->opacity = 
 							sprite->opacity || 
-							data[coordsToIndex(rectangle.x + x, rectangle.y + y, 3, pack_width, 4)] != 255;
+							data[coordsToIndex(rect_x, rect_y + y, 3, pack_width, 4)] != 255;
 					}
 				}
 				break;

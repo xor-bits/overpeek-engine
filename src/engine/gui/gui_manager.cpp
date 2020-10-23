@@ -22,7 +22,7 @@ namespace oe::gui
 		m_shader_fill = new oe::assets::DefaultShader(oe::polygon_mode::fill);
 		m_shader_lines = new oe::assets::DefaultShader(oe::polygon_mode::lines);
 
-		WidgetInfo widget_info = { m_window->getSize() - glm::ivec2(2 * border), { border, border }, oe::alignments::top_left, oe::alignments::top_left };
+		WidgetInfo widget_info = { static_cast<glm::ivec2>(m_window->getSize()) - glm::ivec2(2 * border), { border, border }, oe::alignments::top_left, oe::alignments::top_left };
 		m_main_frame = std::make_shared<Widget>(nullptr, *this, widget_info);
 		m_old_render_size = { 0.0f, 0.0f };
 		
@@ -118,7 +118,7 @@ namespace oe::gui
 	void GUI::short_resize()
 	{
 		latest_resize_event.framebuffer_size_old = latest_resize_event.framebuffer_size;
-		latest_resize_event.framebuffer_size = m_window->getWindowInfo().size;
+		latest_resize_event.framebuffer_size = m_window->getSize();
 		on_resize(latest_resize_event);
 	}
 

@@ -7,6 +7,7 @@
 
 #include "engine/engine.hpp"
 #include "engine/internal_libs.hpp"
+#include "engine/utility/formatted_error.hpp"
 
 
 
@@ -112,8 +113,7 @@ namespace oe::graphics
 				load3D(m_texture_info.data, texture_info.size_offset[0].first, texture_info.size_offset[1].first, texture_info.size_offset[2].first);
 			break;
 		default:
-			oe_error_terminate("Unsupported texture dimension ({})", dimensions);
-			break;
+			throw oe::utils::formatted_error("Unsupported texture dimension ({})", dimensions);
 		}
 
 		// mipmaps
@@ -173,7 +173,7 @@ namespace oe::graphics
 				m_texture_info.size_offset[2].first, m_texture_info.size_offset[2].second);
 			break;
 		default:
-			oe_error_terminate("Unsupported texture dimension ({})", dimensions);
+			throw oe::utils::formatted_error("Unsupported texture dimension ({})", dimensions);
 			break;
 		}
 
@@ -185,7 +185,8 @@ namespace oe::graphics
 
 	oe::utils::image_data GLTexture::getImageData() const
 	{
-		if (m_texture_info.size_offset.size() != 2) { oe_error_terminate("Texture dimensions must be 2x2 to getImageData"); }
+		if (m_texture_info.size_offset.size() != 2)
+			throw oe::utils::formatted_error("Texture dimensions must be 2x2 to getImageData");
 
 		size_t size = 1;
 		size *= m_texture_info.size_offset[0].first;
@@ -325,7 +326,7 @@ namespace oe::graphics
 	void test(size_t size_a, size_t size_b)
 	{
 		if (size_a != size_b)
-			oe_error_terminate("Dimension mismatch {} and {}", size_a, size_b);
+			throw oe::utils::formatted_error("Dimension mismatch {} and {}", size_a, size_b);
 	}
 
 	void GLTexture::data1D(const uint8_t* data, int32_t width, int32_t x_offset)

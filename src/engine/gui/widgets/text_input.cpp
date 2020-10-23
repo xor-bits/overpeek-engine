@@ -27,8 +27,8 @@ namespace oe::gui
 		, m_text_label_pos({ 0, 0 })
 		, m_text_input_info(text_input_info)
 		, m_value(m_value_ref)
-		, m_state(m_text_input_info.max_characters, state_flags(text_input_info))
 		, m_selected(false)
+		, m_state(m_text_input_info.max_characters, state_flags(text_input_info))
 		, m_timer_key_pressed(std::chrono::high_resolution_clock::now())
 	{
 		m_state.m_copy_to_clipboard = [this](const std::string& cb){ m_gui_manager.getWindow()->setClipboard(cb); };
@@ -113,7 +113,7 @@ namespace oe::gui
 	}
 	
 	template<typename char_type>
-	void BasicTextInput<char_type>::on_render(const GUIRenderEvent& event)
+	void BasicTextInput<char_type>::on_render(const GUIRenderEvent& /* event */)
 	{
 		if(!m_cg_render)
 			return;

@@ -13,7 +13,7 @@
 
 
 #ifndef __EMSCRIPTEN__
-void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* /* userParam */) {
 	// ignore non-significant error/warning codes
 	if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
 
@@ -56,19 +56,24 @@ void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum seve
 		case GL_DEBUG_SEVERITY_NOTIFICATION: log_severity = "Severity: notification"; break;
 	}
 
-	std::cout << fmt::format("Message       :   ({}): {}", id, message) << std::endl;
+	std::cout << fmt::format("Message       :   ({}): {}", id, std::string_view(message, length)) << std::endl;
 	std::cout << fmt::format("Source        :   {}", log_source) << std::endl;
 	std::cout << fmt::format("Description   :   {}", log_type) << std::endl;
 	std::cout << fmt::format("Line          :   {}", log_severity) << std::endl;
 	std::cout << std::endl;
 
-	if (severity == GL_DEBUG_SEVERITY_HIGH) oe_error_terminate("OpenGL error");
+
+	constexpr const std::string_view formatted_error = "OpenAL error";
+	if(oe::Engine::getSingleton().engine_info.ignore_errors && severity == GL_DEBUG_SEVERITY_HIGH)
+		spdlog::warn("{}", formatted_error);
+	else
+		throw std::runtime_error(std::string{ formatted_error });
 }
 #endif
 
 namespace oe::graphics {
 
-	void GLWindow::glfw(const std::unique_ptr<Instance>& instance) {
+	void GLWindow::glfw(const std::unique_ptr<Instance>& /* instance */) {
 		// Window hints
 		glfwWindowHint(GLFW_SAMPLES, m_window_info.multisamples);
 		glfwWindowHint(GLFW_RESIZABLE, m_window_info.resizeable);
@@ -82,7 +87,8 @@ namespace oe::graphics {
 		// Window creation
 		GLFWwindow* share_handle = m_window_info.share_handle != nullptr ? ((GLWindow*)m_window_info.share_handle)->m_window_handle : nullptr;
 		m_window_handle = glfwCreateWindow(m_window_info.size.x, m_window_info.size.y, m_window_info.title.data(), m_window_info.fullscreen ? glfwGetPrimaryMonitor() : NULL, share_handle);
-		if (!m_window_handle) oe_error_terminate("Failed to create window!");
+		if (!m_window_handle)
+			throw std::runtime_error("Failed to create window!");
 
 #ifndef __EMSCRIPTEN__ // window is stuck in the browser so it cant move
 		//Center the window
@@ -99,7 +105,8 @@ namespace oe::graphics {
 	void GLWindow::glad(const std::unique_ptr<Instance>& instance) {
 		// Init glad
 #ifndef __EMSCRIPTEN__
-		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) oe_error_terminate("Failed to init glad");
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+			throw std::runtime_error("Failed to init glad");
 #endif
 
 		int gl_v_major, gl_v_minor;

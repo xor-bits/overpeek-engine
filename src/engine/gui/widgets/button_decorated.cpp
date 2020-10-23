@@ -44,7 +44,7 @@ namespace oe::gui
 		}
 	}
 
-	void DecoratedButton::on_render(const GUIRenderEvent& event)
+	void DecoratedButton::on_render(const GUIRenderEvent& /* event */)
 	{
 		if (!button_info.autoresize || !m_cg_render)
 			return;

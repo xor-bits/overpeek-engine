@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <sstream>
 #include <cstddef>
+#include <spdlog/spdlog.h>
 
 #include "engine/engine.hpp"
 
@@ -12,8 +13,8 @@
 namespace oe::graphics {
 
 	Buffer::Buffer(const void* data, int32_t size, int target, unsigned int usage)
-		: p_target(target)
-		, p_size(std::abs(size))
+		: p_size(std::abs(size))
+		, p_target(target)
 		, p_mapped(false)
 	{
 		oe_debug_call("gl_buffer");
@@ -48,7 +49,12 @@ namespace oe::graphics {
 
 	void Buffer::unmapBuffer()
 	{
-		if (!p_mapped) oe_error_terminate("buffer was not mapped");
+		if (!p_mapped)
+		{
+			spdlog::warn("buffer was not mapped");
+			return;
+		}
+		
 		bind();
 		glUnmapBuffer(p_target);
 		p_mapped = false;

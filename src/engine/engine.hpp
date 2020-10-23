@@ -1,9 +1,8 @@
 #pragma once
 
 #include "engine/enum.hpp"
+#include "engine/internal_libs.hpp"
 #include <utility>
-#include <glm/glm.hpp>
-#include <fmt/format.h>
 
 #ifndef __has_include
 #error __has_include not supported
@@ -46,8 +45,8 @@ namespace oe {
 		void init(EngineInfo engine_info);
 		void deinit();
 
-		[[noreturn]] void terminate();
-		[[noreturn]] void __error(std::string error_msg, int line, std::string file);
+		void terminate();
+		void __error(const std::string& error_msg, int line, const std::string& file);
 
 		// set blending mode
 		void blending(oe::modes mode = oe::modes::enable) const;
@@ -250,9 +249,6 @@ struct fmt::formatter<fs::path::const_iterator> {
 
 // (input) -> ("input: {} line file", input)
 #define quickDebug(x) spdlog::debug(#x ## ": {} at line {} in file {}", x, __LINE__, __FILE__)
-
-#define oe_error_terminate(error_msg, ...) oe::Engine::getSingleton().__error(fmt::format(error_msg, ##__VA_ARGS__), __LINE__, __FILE__)
-#define oe_terminate() oe::Engine::getSingleton().terminate()
 
 // #define OE_DEBUGGING
 #ifdef OE_DEBUGGING

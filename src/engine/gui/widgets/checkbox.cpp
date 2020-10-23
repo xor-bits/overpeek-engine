@@ -47,7 +47,7 @@ namespace oe::gui
 		}
 	}
 
-	void Checkbox::on_render(const GUIRenderEvent& event)
+	void Checkbox::on_render(const GUIRenderEvent& /* event */)
 	{
 		if(!m_cg_render)
 			return;
@@ -78,7 +78,7 @@ namespace oe::gui
 		dispatcher.trigger(event_use_latest);
 	}
 
-	void Checkbox::on_button_hover(const ButtonHoverEvent& e)
+	void Checkbox::on_button_hover(const ButtonHoverEvent& /* e */)
 	{
 		dispatcher.trigger(event_hover_latest);
 	}

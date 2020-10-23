@@ -76,8 +76,11 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityF
 		break;
 	}
 
-	if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
-		oe_error_terminate("vulkan error");
+	constexpr const std::string_view formatted_error = "OpenAL error";
+	if(oe::Engine::getSingleton().engine_info.ignore_errors && messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+		spdlog::warn("{}", formatted_error);
+	else
+		throw std::runtime_error(std::string{ formatted_error });
 	
 	std::cout << std::endl;
 

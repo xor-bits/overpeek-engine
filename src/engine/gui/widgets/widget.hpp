@@ -2,8 +2,7 @@
 
 #include "engine/enum.hpp"
 #include "engine/utility/connect_guard.hpp"
-#include <entt/entt.hpp>
-#include <fmt/format.h>
+#include "engine/internal_libs.hpp"
 
 #include <unordered_set>
 
@@ -125,7 +124,7 @@ namespace oe::gui
 		
 		// must not be toggled from an event
 		void toggle(bool enabled = true);
-		virtual void virtual_toggle(bool enabled) {};
+		virtual void virtual_toggle(bool /* enabled */) {};
 		void base_toggle(bool enabled);
 		inline Widget* getParent() const { return m_parent; }
 

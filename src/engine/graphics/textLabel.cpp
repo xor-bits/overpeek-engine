@@ -68,7 +68,7 @@ namespace oe::graphics {
 
 		// render to the framebuffer
 		auto& tbr = TextLabelRenderer::getSingleton();
-		BasicText<char_type>::submit(tbr.fb_renderer, m_font, text, { 0.0f, 0.0f }, m_font.getResolution(), alignments::top_left, glm::vec4(1.0f));
+		BasicText<char_type>::submit(tbr.fb_renderer, m_font, text, { 0.0f, 0.0f }, m_font.getResolution(), alignments::top_left);
 		glm::mat4 pr_matrix = glm::ortho(0.0f, m_fb_size.x, m_fb_size.y, 0.0f);
 		tbr.fb_shader.setProjectionMatrix(pr_matrix);
 		tbr.fb_shader.bind();
@@ -122,8 +122,10 @@ namespace oe::graphics {
 		}
 
 		glyph = font.getGlyph(c);
-		if (!glyph) glyph = font.getGlyph(0);
-		if (!glyph) oe_error_terminate("NULL glyph in 0");
+		if (!glyph)
+			glyph = font.getGlyph(0);
+		if (!glyph)
+			throw std::runtime_error("Unexpected NULL glyph at slot 0");
 		
 		return false;
 	}
@@ -179,7 +181,7 @@ namespace oe::graphics {
 	}
 
 	template<typename char_type>
-	void BasicText<char_type>::submit(Renderer& renderer, Font& font, const string_t& text, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align, const glm::vec4& bg_color)
+	void BasicText<char_type>::submit(Renderer& renderer, Font& font, const string_t& text, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align)
 	{
 		const float avg_top = font.getGlyph('|')->top_left.y;
 	

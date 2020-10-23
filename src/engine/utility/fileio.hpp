@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <spdlog/spdlog.h>
 
 #include "engine/enum.hpp"
 #include "engine/engine.hpp"
@@ -83,9 +84,9 @@ namespace oe::utils
 			return { data.data(), data.size() };
 		};
 
-		static void write(const FileIO& path, const audio_data& data)
+		static void write(const FileIO&, const audio_data&)
 		{
-			return oe_error_terminate("No write fn for audio_data");
+			spdlog::warn("No write fn for audio_data");
 		}
 	};
 	template<>

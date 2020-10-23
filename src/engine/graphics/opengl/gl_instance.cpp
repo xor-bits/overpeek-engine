@@ -13,7 +13,7 @@
 
 namespace oe::graphics
 {
-	const int get_gl_version_number()
+	int get_gl_version_number()
 	{
 		int gl_v_major, gl_v_minor;
 		glGetIntegerv(GL_MAJOR_VERSION, &gl_v_major);
@@ -146,7 +146,9 @@ namespace oe::graphics
 
 	void GLInstance::viewport(int x, int y, size_t w, size_t h) const
 	{
-		glViewport(x, y, w, h);
+		int gl_w = static_cast<int>(std::clamp<size_t>(w, 0, static_cast<size_t>(std::numeric_limits<int>::max())));
+		int gl_h = static_cast<int>(std::clamp<size_t>(h, 0, static_cast<size_t>(std::numeric_limits<int>::max())));
+		glViewport(x, y, gl_w, gl_h);
 	}
 
 	int GLInstance::versionNumber()

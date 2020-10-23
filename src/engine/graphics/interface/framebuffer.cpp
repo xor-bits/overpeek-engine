@@ -35,7 +35,7 @@ namespace oe::graphics
 			pr->submitVertex(vertices, 0);
 			pr->end();
 
-			for (int i = 0; i < count; i++) {
+			for (size_t i = 0; i < count; i++) {
 				fb_1->bind();
 				fb_1->clear();
 				fb_0->getTexture()->bind();

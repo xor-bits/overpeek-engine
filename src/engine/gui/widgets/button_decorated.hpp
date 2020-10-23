@@ -47,7 +47,6 @@ namespace oe::gui
 		// events
 		void on_render(const GUIRenderEvent& event);
 		oe::utils::connect_guard m_cg_render;
-		;
 	};
 
 }

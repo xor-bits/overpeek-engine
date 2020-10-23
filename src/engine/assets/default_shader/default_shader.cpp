@@ -11,6 +11,7 @@
 #include "engine/engine.hpp"
 #include "engine/graphics/interface/shader.hpp"
 #include "engine/graphics/interface/instance.hpp"
+#include "engine/utility/formatted_error.hpp"
 
 
 
@@ -28,11 +29,13 @@ namespace oe::assets {
 						{
 							ShaderStageInfo {
 								shader_stages::vertex_shader,
-								shader_vert_gl
+								shader_vert_gl,
+								{}
 							},
 							ShaderStageInfo {
 								shader_stages::fragment_shader,
-								shader_frag_gl
+								shader_frag_gl,
+								{}
 							}
 						}
 					}
@@ -44,15 +47,18 @@ namespace oe::assets {
 						{
 							ShaderStageInfo {
 								shader_stages::vertex_shader,
-								shader_vert_geom_gl
+								shader_vert_geom_gl,
+								{}
 							},
 							ShaderStageInfo {
 								shader_stages::geometry_shader,
-								shader_geom_lines_gl
+								shader_geom_lines_gl,
+								{}
 							},
 							ShaderStageInfo {
 								shader_stages::fragment_shader,
-								shader_frag_gl
+								shader_frag_gl,
+								{}
 							}
 						}
 					}
@@ -64,15 +70,18 @@ namespace oe::assets {
 						{
 							ShaderStageInfo {
 								shader_stages::vertex_shader,
-								shader_vert_geom_gl
+								shader_vert_geom_gl,
+								{}
 							},
 							ShaderStageInfo {
 								shader_stages::geometry_shader,
-								shader_geom_points_gl
+								shader_geom_points_gl,
+								{}
 							},
 							ShaderStageInfo {
 								shader_stages::fragment_shader,
-								shader_frag_gl
+								shader_frag_gl,
+								{}
 							}
 						}
 					}
@@ -89,11 +98,13 @@ namespace oe::assets {
 						{
 							ShaderStageInfo {
 								shader_stages::vertex_shader,
-								shader_vert_vk
+								shader_vert_vk,
+								{}
 							},
 							ShaderStageInfo {
 								shader_stages::fragment_shader,
-								shader_frag_vk
+								shader_frag_vk,
+								{}
 							}
 						}
 					}
@@ -116,10 +127,10 @@ namespace oe::assets {
 			mode = oe::polygon_mode::fill; // construct shader without geometry stage
 		}
 
-		try {
+		try{
 			m_shader = oe::graphics::Shader(default_shader_info.at(Engine::getSingleton().engine_info.api).at(mode));
-		} catch(...) {
-			oe_error_terminate("Unknown polygonmode: {} or graphics api: {}", static_cast<int>(mode), static_cast<int>(Engine::getSingleton().engine_info.api));
+		}catch(...){
+			throw oe::utils::formatted_error("Unknown polygonmode: {} or graphics api: {}", static_cast<int>(mode), static_cast<int>(Engine::getSingleton().engine_info.api));
 		}
 	}
 

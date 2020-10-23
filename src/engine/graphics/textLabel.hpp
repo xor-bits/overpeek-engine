@@ -91,8 +91,8 @@ namespace oe::graphics
 
 		static glm::vec2 size(Font& font, const string_t& text, const glm::vec2& size);
 		static glm::vec2 charpos(Font& font, const string_t& text, size_t first, size_t i, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align);
-		static void submit(Renderer& renderer, Font& font, const string_t& text, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align = alignments::top_left, const glm::vec4& bg_color = glm::vec4(0.0f));
-		static void submit(Renderer& renderer, Font& font, const string_t& text, const glm::vec2& pos, float size, const glm::vec2& align = alignments::top_left, const glm::vec4& bg_color = glm::vec4(0.0f)) { submit(renderer, font, text, pos, glm::vec2(size, size), align, bg_color); }
+		static void submit(Renderer& renderer, Font& font, const string_t& text, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align = alignments::top_left);
+		static void submit(Renderer& renderer, Font& font, const string_t& text, const glm::vec2& pos, float size, const glm::vec2& align = alignments::top_left) { submit(renderer, font, text, pos, glm::vec2(size, size), align); }
 	};
 
 	template<typename char_type>

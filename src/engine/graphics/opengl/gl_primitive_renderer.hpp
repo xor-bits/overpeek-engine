@@ -63,7 +63,11 @@ namespace oe::graphics
 				native_glDrawElementsPrimitive = &native_glDrawElementsTriangles;
 				break;
 			default:
-				oe_error_terminate("Non primitive oe::primitive_types asked: {}", static_cast<int>(ptype));
+				const std::string formatted_error = fmt::format("Non primitive oe::primitive_types asked: {}", static_cast<int>(ptype));
+				if(Engine::getSingleton().engine_info.ignore_errors)
+					spdlog::warn("{}", formatted_error);
+				else
+					throw std::runtime_error(formatted_error);
 				native_glDrawElementsPrimitive = &native_glDrawElementsTriangles;
 				break;
 			}
@@ -80,7 +84,10 @@ namespace oe::graphics
 		virtual vertex_type* modifyVertex(int32_t vertex_count, int32_t first_index) override
 		{
 			if (!m_mapped_buffer)
-				oe_error_terminate("Buffer not mapped!");
+			{
+				spdlog::warn("Buffer not mapped!");
+				return nullptr;
+			}
 
 			if (first_index + vertex_count > m_vbo->getSize() || vertex_count < 0 || first_index < 0)
 				return nullptr;
@@ -91,7 +98,10 @@ namespace oe::graphics
 		virtual void submitVertex(const vertex_type* first_vertex, int32_t vertex_count, int32_t first_index) override
 		{
 			if (!m_mapped_buffer)
-				oe_error_terminate("Buffer not mapped!");
+			{
+				spdlog::warn("Buffer not mapped!");
+				return;
+			}
 
 			first_index = std::abs(first_index);
 			vertex_count = std::clamp(vertex_count, 0, m_vbo->getSize() * static_cast<int32_t>(sizeof(vertex_type)) - first_index);

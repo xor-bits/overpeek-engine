@@ -18,28 +18,28 @@ namespace oe::gui
 {
 	constexpr size_t vec_size = 4;
 
-	constexpr std::array<std::string_view, 4> channel_names = {{
+	[[maybe_unused]] constexpr std::array<std::string_view, 4> channel_names = {{
 		"R",
 		"G",
 		"B",
 		"A",
 	}};
 
-	constexpr std::array<std::string_view, 4> channel_full_names = {{
+	[[maybe_unused]] constexpr std::array<std::string_view, 4> channel_full_names = {{
 		"Red",
 		"Green",
 		"Blue",
 		"Alpha",
 	}};
 
-	constexpr std::array<std::u32string_view, 4> u32channel_names = {{
+	[[maybe_unused]] constexpr std::array<std::u32string_view, 4> u32channel_names = {{
 		U"R",
 		U"G",
 		U"B",
 		U"A",
 	}};
 
-	constexpr std::array<std::u32string_view, 4> u32channel_full_names = {{
+	[[maybe_unused]] constexpr std::array<std::u32string_view, 4> u32channel_full_names = {{
 		U"Red",
 		U"Green",
 		U"Blue",
@@ -198,7 +198,7 @@ namespace oe::gui
 			cpw_info.color_input_info.widget_info.size = { 200, 200 };
 			cpw_info.color_input_info.widget_info.align_parent = oe::alignments::top_left;
 			cpw_info.color_input_info.widget_info.align_render = oe::alignments::top_left;
-			cpw_info.color_input_info.widget_info.offset_position = m_gui_manager.getWindow()->getSize() * 4;
+			cpw_info.color_input_info.widget_info.offset_position = static_cast<glm::ivec2>(m_gui_manager.getWindow()->getSize()) * 4;
 			cpw_info.color_input_info.widget_info.toggled = true;
 			m_popup_picker = create<ColorPicker>(m_value, cpw_info);
 			m_popup_picker->addZ(1e2f);
@@ -251,13 +251,13 @@ namespace oe::gui
 		m_preview_panel->sprite_panel_info.color = m_value;
 	}
 	
-	void ColorInput::on_render(const GUIRenderEvent& event)
+	void ColorInput::on_render(const GUIRenderEvent& /* event */)
 	{
 		if(m_value_last != m_value)
 			update();
 	}
 	
-	void ColorInput::on_color_picker_hover(const ColorPickerHoverEvent& e)
+	void ColorInput::on_color_picker_hover(const ColorPickerHoverEvent& /* e */)
 	{
 
 	}
@@ -269,7 +269,7 @@ namespace oe::gui
 		dispatcher.trigger(m_event_use_latest);
 	}
 
-	void ColorInput::on_button_hover(const ButtonHoverEvent& e)
+	void ColorInput::on_button_hover(const ButtonHoverEvent& /* e */)
 	{
 		if (m_color_input_info.popup_open != open_fn::in_bbox)
 			return;

@@ -30,7 +30,7 @@ namespace oe::gui {
 		}
 	}
 
-	void SpritePanel::on_render(const GUIRenderEvent& event)
+	void SpritePanel::on_render(const GUIRenderEvent& /* event */)
 	{
 		if(!m_cg_render)
 			return;

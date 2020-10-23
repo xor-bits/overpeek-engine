@@ -19,11 +19,11 @@
 #include "ecs/entity.hpp"
 
 // Logic
-#include "utility/zip.hpp"
 #include "utility/clock.hpp"
 #include "utility/random.hpp"
 #include "utility/gameloop.hpp"
 #include "utility/fileio.hpp"
+#include "utility/formatted_error.hpp"
 #include "utility/extra.hpp"
 #include "utility/connect_guard.hpp"
 #include "utility/connect_guard_additions.hpp"

@@ -137,3 +137,13 @@ template<> std::string oe::utils::convertUTF(const std::string& from)
 {
 	return from;
 }
+
+template<> int oe::utils::stoT(const std::string& str) { return std::stoi(str); }
+template<> long oe::utils::stoT(const std::string& str) { return std::stol(str); }
+template<> long long oe::utils::stoT(const std::string& str) { return std::stoll(str); }
+template<> unsigned int oe::utils::stoT(const std::string& str) { return std::stoul(str); }
+template<> unsigned long oe::utils::stoT(const std::string& str) { return std::stoul(str); }
+template<> unsigned long long oe::utils::stoT(const std::string& str) { return std::stoull(str); }
+template<> float oe::utils::stoT(const std::string& str) { return std::stof(str); }
+template<> double oe::utils::stoT(const std::string& str) { return std::stod(str); }
+template<> long double oe::utils::stoT(const std::string& str) { return std::stold(str); }

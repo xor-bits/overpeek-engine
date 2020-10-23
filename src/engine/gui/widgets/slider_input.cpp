@@ -90,7 +90,7 @@ namespace oe::gui
 		}
 	}
 	
-	void SliderInput::on_render(const GUIRenderEvent& event)
+	void SliderInput::on_render(const GUIRenderEvent& /* event */)
 	{
 		if(!m_cg_render)
 			return;

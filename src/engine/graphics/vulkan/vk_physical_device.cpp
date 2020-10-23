@@ -89,20 +89,17 @@ namespace oe::graphics {
 
 		// count all suitable GPUs
 		size_t suitable = 0;
-		for (auto gpu : candidates) {
+		for (auto gpu : candidates)
 			if (gpu.first > 0) suitable++;
-		}
 
 		// check if any
-		if (suitable == 0) {
-			oe_error_terminate("No suitable GPUs");
-		}
+		if (suitable == 0)
+			throw std::runtime_error("No suitable GPUs");
 
 		// check if the best GPU is even suitable
 		auto best = candidates.rbegin();
-		if (best->first > 0) {
+		if (best->first > 0)
 			return best->second;
-		}
 	}
 
 	void VKPhysicalDevice::pickPhysicalDevice() {
@@ -110,9 +107,8 @@ namespace oe::graphics {
 		uint32_t deviceCount = 0;
 
 		std::vector<vk::PhysicalDevice> devices = m_instance->m_vk_instance.enumeratePhysicalDevices();
-		if (devices.size() == 0) {
-			oe_error_terminate("No GPUs with Vulkan support");
-		}
+		if (devices.size() == 0)
+			throw std::runtime_error("No GPUs with Vulkan support");
 
 		// select GPU
 		m_physical_device = bestPhysicalDevice(devices);

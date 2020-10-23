@@ -3,12 +3,12 @@
 #include <cstdint>
 #include <functional>
 #include <array>
-#include <entt/entt.hpp>
 #include <optional>
 #include <chrono>
 #include <atomic>
-#include <fmt/format.h>
 #include "engine/enum.hpp"
+#include "engine/utility/formatted_error.hpp"
+#include "engine/internal_libs.hpp"
 
 
 namespace oe::graphics { class IWindow; }
@@ -43,7 +43,7 @@ namespace oe::utils
 			m_cached_average_time = std::chrono::nanoseconds::zero();
 			m_max_time = std::chrono::nanoseconds::min();
 			m_min_time = std::chrono::nanoseconds::max();
-			for(int i = 0; i < mc_average_size; i++) 
+			for(size_t i = 0; i < mc_average_size; i++) 
 			{
 				m_cached_average_time += m_average_time[i];
 				m_max_time = std::max(m_max_time, m_average_time[i]);
@@ -63,6 +63,7 @@ namespace oe::utils
 		std::chrono::nanoseconds m_update_time_lag = std::chrono::nanoseconds::zero();
 		std::chrono::nanoseconds m_update_time_target = std::chrono::nanoseconds::zero();
 
+		virtual ~UpdateSystemBase() noexcept {}
 		virtual void update_attempt(GameLoop& loop) = 0;
 	};
 
@@ -179,7 +180,7 @@ namespace oe::utils
 		{
 			auto iter = m_update_systems.find(ups);
 			if(iter == m_update_systems.end())
-				throw std::runtime_error(fmt::format("No PerfLogger for {}ups was found", ups));
+				throw oe::utils::formatted_error("No PerfLogger for {}ups was found", ups);
 			return m_update_systems.at(ups)->m_perf_logger;
 		}
 
@@ -188,7 +189,7 @@ namespace oe::utils
 		{
 			auto iter = m_update_systems.find(ups);
 			if(iter == m_update_systems.end())
-				0.0f;
+				return 0.0f;
 			
 			auto cast_to_float_dur = [](auto dur){ return std::chrono::duration_cast<std::chrono::duration<float, std::nano>>(dur); };
 			return cast_to_float_dur(iter->second->m_update_time_target).count() / cast_to_float_dur(iter->second->m_update_time_target).count();
@@ -212,6 +213,8 @@ namespace oe::utils
 			m_update_time_target = std::chrono::seconds(1);
 			m_update_time_target /= ups;
 		}
+		
+		virtual ~UpdateSystem() noexcept override {}
 
 		virtual void update_attempt(GameLoop& loop) override
 		{

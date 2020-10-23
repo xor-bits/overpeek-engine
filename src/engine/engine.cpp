@@ -39,14 +39,25 @@ namespace oe {
 		engine_info = _engine_info;
 
 		glfwSetErrorCallback(glfw_error_func);
-		if (!glfwInit()) oe_error_terminate("Failed to initialize GLFW!");
+		if (!glfwInit())
+			throw std::runtime_error("Failed to initialize GLFW!");
 		
-		if (engine_info.audio) {
-			audio::Audio::init();
-		}
-		if (engine_info.networking) {
-			networking::enet::initEnet();
-		}
+		if (engine_info.audio)
+			try{
+				audio::Audio::init();
+			}catch(const std::exception& e){
+				spdlog::warn(e.what());
+				if(!engine_info.audio_init_noexcept)
+					throw e;
+			}
+		if (engine_info.networking)
+			try{
+				networking::enet::initEnet();
+			}catch(const std::exception& e){
+				spdlog::warn(e.what());
+				if(!engine_info.networking_init_noexcept)
+					throw e;
+			}
 
 		switch (engine_info.api)
 		{
@@ -85,7 +96,7 @@ namespace oe {
 		assert(0);
 	}
 
-	void Engine::__error(std::string error_msg, int line, std::string file)
+	void Engine::__error(const std::string& error_msg, int line, const std::string& file)
 	{
 		std::string error_str = fmt::format("error: {}\nline: {}\nfile: {}", error_msg, line, file);
 #ifdef OE_TERMINATE_IS_THROW

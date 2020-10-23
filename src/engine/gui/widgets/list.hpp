@@ -8,7 +8,7 @@
 
 namespace oe::gui
 {
-    struct ListInfo
+    /* struct ListInfo
     {
         bool scrollable                    = true;
         int element_borders                = 5;
@@ -59,5 +59,5 @@ namespace oe::gui
 	private:
 		// events
 		void on_render(const GUIRenderEvent& event);
-    };
+    }; */
 }

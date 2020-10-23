@@ -14,6 +14,7 @@
 #include "engine/utility/fileio.hpp"
 #include "engine/engine.hpp"
 #include "engine/graphics/opengl/buffers/storageBuffer.hpp"
+#include "engine/utility/formatted_error.hpp"
 
 
 
@@ -46,7 +47,7 @@ namespace oe::graphics
 			char* infoLog = new char[infoLogLength]();
 			glGetShaderInfoLog(shader, 512, nullptr, infoLog);
 
-			oe_error_terminate("{}: shader compilation: \n{}", name, infoLog);
+			throw oe::utils::formatted_error("{}: shader compilation: \n{}", name, infoLog);
 			delete[] infoLog;
 		}
 	}
@@ -62,7 +63,7 @@ namespace oe::graphics
 			char* infoLog = new char[infoLogLength]();
 			glGetProgramInfoLog(program, 512, nullptr, infoLog);
 
-			oe_error_terminate("{}: program linking: \n{}", name, infoLog);
+			throw oe::utils::formatted_error("{}: program linking: \n{}", name, infoLog);
 			delete[] infoLog;
 		}
 	}
@@ -92,9 +93,8 @@ namespace oe::graphics
 			auto result = compiler.PreprocessGlsl(stage.source.data(), shader_kind(stage.stage), shader_module_name(shader_info.name.data(), stage.stage).c_str(), options);
 			size_t code_size = (result.end() - result.begin()) * sizeof(uint32_t);
 
-			if (result.GetNumErrors() != 0) {
-				oe_error_terminate("IShader ({}) compilation failed: {}", shader_info.name, result.GetErrorMessage());
-			}
+			if (result.GetNumErrors() != 0)
+				throw oe::utils::formatted_error("IShader ({}) compilation failed: {}", shader_info.name, result.GetErrorMessage());
 			std::string_view preprocessed_glsl = result.begin();
 #else  // DON'T OPTIMIZE GLSL
 			std::string_view preprocessed_glsl = stage.source.data();
@@ -122,6 +122,8 @@ namespace oe::graphics
 			case oe::shader_stages::compute_shader:
 				stage_id = GL_COMPUTE_SHADER;
 				break;
+			case oe::shader_stages::none:
+				continue;
 			}
 
 			// shader compilation
@@ -177,7 +179,7 @@ namespace oe::graphics
 #endif
 	}
 
-	void GLShader::unbindSSBO(const std::string& block_name, const StorageBuffer* buffer, size_t binding)
+	void GLShader::unbindSSBO(const StorageBuffer* buffer)
 	{
 		buffer->unbind();
 	}

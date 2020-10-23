@@ -78,7 +78,7 @@ namespace oe::gui
 				vec_info.padding * static_cast<int>(!rows),
 				vec_info.padding * static_cast<int>(rows)
 			};
-            const glm::ivec2 largest_element = [this, &vec_info](){
+            const glm::ivec2 largest_element = [&vec_info](){
 				glm::ivec2 temp = { 0, 0 };
 				for(size_t i = 0; i < dimension; i++)
 					temp = glm::max(temp, vec_info.common[i].widget_info.size);
