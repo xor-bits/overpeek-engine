@@ -14,9 +14,7 @@ Should be easy to use.
 ## Building
 #### Build with Conan
 ```
-mkdir build && cd build
-conan install .. -s build_type=Debug -s compiler.runtime=MDd --build missing
-cmake ..
+conan create . --build=missing
 ```
 possible cmake arguments:
 -DBUILD_TESTS=(ON/OFF)
@@ -29,7 +27,7 @@ node: Vulkan build is experimental and still lacking basic features
 
 #### Depends on:
 - OpenGL
-- Vulkan (if BUILD_VULKAN=TRUE)
+- Vulkan (if OE_BUILD_MODE=2)
 - OpenAL
 - CMake
 - Conan
@@ -53,7 +51,7 @@ node: Vulkan build is experimental and still lacking basic features
 ## Demo images
 #### tests/guis
 - Simple gui demo
-- List Widget is under developement so the quad is not animated
+- List Widget is under developement so the cube is not animated
 
 ![guis](/.github/tests/guis.png)
 
