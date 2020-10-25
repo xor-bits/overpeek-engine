@@ -195,7 +195,7 @@ endif()
 if (MSVC)
 	target_link_libraries(${target_name} PRIVATE "Ws2_32") # required by enet
 	target_link_libraries(${target_name} PRIVATE "Winmm")  # required by enet
-	target_compile_options(${target_name} PRIVATE "/W4" "/WX" "/permissive-")
+	target_compile_options(${target_name} PRIVATE "/W4")
 elseif(EMSCRIPTEN)
 	# 
 else()
