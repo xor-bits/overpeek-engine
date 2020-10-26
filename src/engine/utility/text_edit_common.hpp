@@ -158,6 +158,45 @@ namespace oe::utils
 		
 		stb_textedit_key(&string, state, key);
 	}
+
+	constexpr uint32_t key_enum_to_code(oe::keys key_enum)
+	{
+		switch (key_enum)
+		{
+		default:
+			return 0;
+		case oe::keys::key_left:
+			return STB_TEXTEDIT_K_LEFT;
+		case oe::keys::key_right:
+			return STB_TEXTEDIT_K_RIGHT;
+		case oe::keys::key_up:
+			return STB_TEXTEDIT_K_UP;
+		case oe::keys::key_down:
+			return STB_TEXTEDIT_K_DOWN;
+		case oe::keys::key_home:
+			return STB_TEXTEDIT_K_LINESTART;
+		case oe::keys::key_end:
+			return STB_TEXTEDIT_K_LINEEND;
+		case oe::keys::key_delete:
+			return STB_TEXTEDIT_K_DELETE;
+		case oe::keys::key_backspace:
+			return STB_TEXTEDIT_K_BACKSPACE;
+		case oe::keys::key_insert:
+			return STB_TEXTEDIT_K_INSERT;
+		case oe::keys::key_page_up:
+			return STB_TEXTEDIT_K_PGUP;
+		case oe::keys::key_page_down:
+			return STB_TEXTEDIT_K_PGDOWN;
+		case oe::keys::key_c:
+			return K_COPY;
+		case oe::keys::key_x:
+			return K_CUT;
+		case oe::keys::key_v:
+			return K_PASTE;
+		case oe::keys::key_enter:
+			return static_cast<uint32_t>('\n');
+		}
+	}
 	
 	template<>
 	void stb_textedit<char_type>::key(std::basic_string<char_type>& string, oe::graphics::Font& font, oe::keys key_enum, oe::modifiers mods)
@@ -165,59 +204,7 @@ namespace oe::utils
 		last_font = &font;
 		last_max_characters = &max_characters;
 
-		uint32_t code = 0;
-		switch (key_enum)
-		{
-		default:
-			break;
-
-		case oe::keys::key_left:
-			code = STB_TEXTEDIT_K_LEFT;
-			break;
-		case oe::keys::key_right:
-			code = STB_TEXTEDIT_K_RIGHT;
-			break;
-		case oe::keys::key_up:
-			code = STB_TEXTEDIT_K_UP;
-			break;
-		case oe::keys::key_down:
-			code = STB_TEXTEDIT_K_DOWN;
-			break;
-		case oe::keys::key_home:
-			code = STB_TEXTEDIT_K_LINESTART;
-			break;
-		case oe::keys::key_end:
-			code = STB_TEXTEDIT_K_LINEEND;
-			break;
-		case oe::keys::key_delete:
-			code = STB_TEXTEDIT_K_DELETE;
-			break;
-		case oe::keys::key_backspace:
-			code = STB_TEXTEDIT_K_BACKSPACE;
-			break;
-		case oe::keys::key_insert:
-			code = STB_TEXTEDIT_K_INSERT;
-			break;
-		case oe::keys::key_page_up:
-			code = STB_TEXTEDIT_K_PGUP;
-			break;
-		case oe::keys::key_page_down:
-			code = STB_TEXTEDIT_K_PGDOWN;
-			break;
-		case oe::keys::key_c:
-			code = K_COPY;
-			break;
-		case oe::keys::key_x:
-			code = K_CUT;
-			break;
-		case oe::keys::key_v:
-			code = K_PASTE;
-			break;
-		case oe::keys::key_enter:
-			code = '\n';
-			break;
-		}
-		
+		uint32_t code = key_enum_to_code(key_enum);
 		key(string, font, code, mods);
 	}
 

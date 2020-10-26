@@ -41,7 +41,7 @@ namespace oe::gui
 	public:
 		DecoratedButton(Widget* parent, GUI& gui_manager, const DecoratedButtonInfo& button_info = {});
 
-		virtual_toggle(bool enabled) override;
+		void virtual_toggle(bool enabled) override;
 	
 	private:
 		// events
