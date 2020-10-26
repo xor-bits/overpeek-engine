@@ -37,7 +37,7 @@ namespace oe::gui
 		TextPanel(Widget* parent, GUI& gui_manager, const TextPanelInfo& text_panel_info = {});
 
 	public:
-		virtual void virtual_toggle(bool enabled) override;
+		void virtual_toggle(bool enabled) override;
 		// events
 		void on_render(const GUIRenderEvent& event);
 		oe::utils::connect_guard m_cg_render;

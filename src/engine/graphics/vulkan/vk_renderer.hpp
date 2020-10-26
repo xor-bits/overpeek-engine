@@ -23,13 +23,13 @@ namespace oe::graphics {
 		~VKRenderer();
 
 		// Inherited via Renderer
-		virtual void begin() override;
-		virtual void end() override;
+		void begin() override;
+		void end() override;
 		
-		virtual void submitVertex(const VertexData& vertex, int index) override;
+		void submitVertex(const VertexData& vertex, int index) override;
 		
-		virtual void clear() override;
-		virtual void render(size_t override_vertex_count) const override;
+		void clear() override;
+		void render(size_t override_vertex_count) const override;
 	
 	};
 

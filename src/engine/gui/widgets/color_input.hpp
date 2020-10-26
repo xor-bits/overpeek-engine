@@ -73,9 +73,9 @@ namespace oe::gui
 		ColorInput(Widget* parent, GUI& gui_manager, const ColorInputInfo& color_input_info = {})
 			: ColorInput(parent, gui_manager, m_color_input_info.initial_color, color_input_info)
 		{}
-		~ColorInput();
+		~ColorInput() override;
 
-		virtual void virtual_toggle(bool enabled) override;
+		void virtual_toggle(bool enabled) override;
 	
 	private:
 		void update();

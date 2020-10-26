@@ -22,22 +22,22 @@ namespace oe::graphics {
 		~VKShader();
 
 		// Inherited via IShader
-		virtual void bind() const override;
-		virtual void unbind() const override;
+		void bind() const override;
+		void unbind() const override;
 
-		virtual int getUniformLocation(const std::string& name) override;
+		int getUniformLocation(const std::string& name) override;
 
-		virtual void setUniform1f(const std::string& name, float value) override;
-		virtual void setUniform2f(const std::string& name, const glm::fvec2& value) override;
-		virtual void setUniform3f(const std::string& name, const glm::fvec3& value) override;
-		virtual void setUniform4f(const std::string& name, const glm::fvec4& value) override;
+		void setUniform1f(const std::string& name, float value) override;
+		void setUniform2f(const std::string& name, const glm::fvec2& value) override;
+		void setUniform3f(const std::string& name, const glm::fvec3& value) override;
+		void setUniform4f(const std::string& name, const glm::fvec4& value) override;
 
-		virtual void setUniform1i(const std::string& name, int value) override;
-		virtual void setUniform2i(const std::string& name, const glm::ivec2& value) override;
-		virtual void setUniform3i(const std::string& name, const glm::ivec3& value) override;
-		virtual void setUniform4i(const std::string& name, const glm::ivec4& value) override;
+		void setUniform1i(const std::string& name, int value) override;
+		void setUniform2i(const std::string& name, const glm::ivec2& value) override;
+		void setUniform3i(const std::string& name, const glm::ivec3& value) override;
+		void setUniform4i(const std::string& name, const glm::ivec4& value) override;
 
-		virtual void setUniformMat4(const std::string& name, const glm::mat4& value) override;
+		void setUniformMat4(const std::string& name, const glm::mat4& value) override;
 
 	};
 

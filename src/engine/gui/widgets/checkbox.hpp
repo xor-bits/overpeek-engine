@@ -53,7 +53,7 @@ namespace oe::gui
 		Checkbox(Widget* parent, GUI& gui_manager, const CheckboxInfo& checkbox_info = {}) : Checkbox(parent, gui_manager, m_checkbox_info.initial, checkbox_info) {}
 		~Checkbox();
 
-		virtual void virtual_toggle(bool enabled) override;
+		void virtual_toggle(bool enabled) override;
 	
 	private:
 		// events

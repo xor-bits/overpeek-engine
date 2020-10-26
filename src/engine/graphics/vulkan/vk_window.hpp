@@ -35,26 +35,26 @@ namespace oe::graphics {
 		void glfw();
 
 		// Inherited via Window
-		virtual void update() override;
-		virtual void clear(const glm::vec4& color = oe::colors::clear_color) override;
-		virtual void viewport() override;
-		virtual void swapInterval(uint8_t frames) override;
+		void update() override;
+		void clear(const glm::vec4& color = oe::colors::clear_color) override;
+		void viewport() override;
+		void swapInterval(uint8_t frames) override;
 
-		virtual Renderer* createRenderer(const RendererInfo& renderer_info) const override;
-		virtual IShader* createShader(const ShaderInfo& shader_info) const override;
-		virtual ITexture* createTexture(const TextureInfo& texture_info) const override;
-		virtual IFrameBuffer* createFrameBuffer(const FrameBufferInfo& framebuffer_info) const override;
+		Renderer* createRenderer(const RendererInfo& renderer_info) const override;
+		IShader* createShader(const ShaderInfo& shader_info) const override;
+		ITexture* createTexture(const TextureInfo& texture_info) const override;
+		IFrameBuffer* createFrameBuffer(const FrameBufferInfo& framebuffer_info) const override;
 		
-		virtual void destroyRenderer(Renderer* renderer) const override;
-		virtual void destroyShader(IShader* shader) const override;
-		virtual void destroyTexture(ITexture* texture) const override;
-		virtual void destroyFrameBuffer(IFrameBuffer* framebuffer) const override;
+		void destroyRenderer(Renderer* renderer) const override;
+		void destroyShader(IShader* shader) const override;
+		void destroyTexture(ITexture* texture) const override;
+		void destroyFrameBuffer(IFrameBuffer* framebuffer) const override;
 
 		// Inherited via Instance
-		virtual std::string getAPI() const override;
-		virtual std::string getAPIVersion() const override;
-		virtual std::string getGPU() const override;
-		virtual std::string getGPUVendor() const override;
+		std::string getAPI() const override;
+		std::string getAPIVersion() const override;
+		std::string getGPU() const override;
+		std::string getGPUVendor() const override;
 	};
 
 }

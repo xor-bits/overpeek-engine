@@ -33,7 +33,7 @@ namespace oe::gui
 	public:
 		SpritePanel(Widget* parent, GUI& gui_manager, const SpritePanelInfo& sprite_panel_info = {});
 
-		virtual void virtual_toggle(bool enabled) override;
+		void virtual_toggle(bool enabled) override;
 	
 	private:
 		// events

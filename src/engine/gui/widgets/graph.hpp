@@ -34,7 +34,7 @@ namespace oe::gui
     public:
         Graph(Widget* parent, GUI& gui_manager, const GraphInfo& info = {});
 
-		virtual void virtual_toggle(bool enabled) override;
+		void virtual_toggle(bool enabled) override;
 	
 	private:
 		// events

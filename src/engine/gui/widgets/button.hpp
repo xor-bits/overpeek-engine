@@ -37,7 +37,7 @@ namespace oe::gui
 
 		bool test(const glm::vec2& point);
 
-		virtual void virtual_toggle(bool enabled) override;
+		virtual_toggle(bool enabled) override;
 	
 	private:
 		// events

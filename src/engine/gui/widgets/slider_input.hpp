@@ -76,7 +76,7 @@ namespace oe::gui
 		SliderInput(Widget* parent, GUI& gui_manager, value_t& value_ref, const SliderInputInfo& slider_info = {});
 		SliderInput(Widget* parent, GUI& gui_manager, const SliderInputInfo& slider_info = {}) : SliderInput(parent, gui_manager, m_slider_info.initial_value, slider_info) {}
 
-		virtual void virtual_toggle(bool enabled) override;
+		void virtual_toggle(bool enabled) override;
 	
 	private:
 		// events

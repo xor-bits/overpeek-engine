@@ -81,7 +81,7 @@ namespace oe::graphics
 		}
 
 		// Inherited via Renderer
-		virtual vertex_type* modifyVertex(int32_t vertex_count, int32_t first_index) override
+		vertex_type* modifyVertex(int32_t vertex_count, int32_t first_index) override
 		{
 			if (!m_mapped_buffer)
 			{
@@ -95,7 +95,7 @@ namespace oe::graphics
 			return m_mapped_buffer + first_index;
 		}
 
-		virtual void submitVertex(const vertex_type* first_vertex, int32_t vertex_count, int32_t first_index) override
+		void submitVertex(const vertex_type* first_vertex, int32_t vertex_count, int32_t first_index) override
 		{
 			if (!m_mapped_buffer)
 			{
@@ -110,21 +110,21 @@ namespace oe::graphics
 			Interface::m_vertex_count = std::max(Interface::m_vertex_count, first_index + vertex_count);
 		}
 
-		virtual void begin() override
+		void begin() override
 		{
 			m_vao->bind();
 			m_vbo->bind();
 			m_mapped_buffer = (vertex_type*)m_vbo->mapBuffer();
 		}
 
-		virtual void end() override
+		void end() override
 		{
 			m_vao->bind();
 			m_vbo->bind();
 			if (m_mapped_buffer) m_vbo->unmapBuffer();
 		}
 
-		virtual void _render(int32_t override_primitive_offset, int32_t override_primitive_count) const override
+		void _render(int32_t override_primitive_offset, int32_t override_primitive_count) const override
 		{
 			if(override_primitive_count == std::numeric_limits<int32_t>::max())
 				override_primitive_count = Interface::m_vertex_count / this->m_vertex_per_primitive;

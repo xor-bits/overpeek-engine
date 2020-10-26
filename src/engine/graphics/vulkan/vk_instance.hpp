@@ -28,18 +28,18 @@ namespace oe::graphics {
 		void vulkanInstance();
 
 		// Inherited via Instance
-		virtual Window* createWindow(const WindowInfo& window_config) const override;
-		virtual void destroyWindow(Window* window) const override;
+		Window* createWindow(const WindowInfo& window_config) const override;
+		void destroyWindow(Window* window) const override;
 
 	public:
 		// Inherited via Instance
-		virtual void blending(oe::modes mode = oe::modes::enable) const override;
-		virtual void depth(depth_functions func = depth_functions::always) const override;
-		virtual void swapInterval(unsigned int interval = 0) const override;
-		virtual void culling(culling_modes c = culling_modes::neither) const override;
-		virtual void lineWidth(float w = 1.0f) const override;
-		virtual void pointRadius(float w = 1.0f) const override;
-		virtual void polygonMode(polygon_mode p = polygon_mode::fill) const override;
+		void blending(oe::modes mode = oe::modes::enable) const override;
+		void depth(depth_functions func = depth_functions::always) const override;
+		void swapInterval(unsigned int interval = 0) const override;
+		void culling(culling_modes c = culling_modes::neither) const override;
+		void lineWidth(float w = 1.0f) const override;
+		void pointRadius(float w = 1.0f) const override;
+		void polygonMode(polygon_mode p = polygon_mode::fill) const override;
 
 	};
 

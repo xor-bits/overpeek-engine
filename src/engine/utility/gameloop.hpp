@@ -213,10 +213,10 @@ namespace oe::utils
 			m_update_time_target = std::chrono::seconds(1);
 			m_update_time_target /= ups;
 		}
-		
-		virtual ~UpdateSystem() noexcept override {}
 
-		virtual void update_attempt(GameLoop& loop) override
+		~UpdateSystem() noexcept override = default;
+
+		void update_attempt(GameLoop& loop) override
 		{
 			auto current = std::chrono::high_resolution_clock::now();
 			auto elapsed = current - m_update_previous;

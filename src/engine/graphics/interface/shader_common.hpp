@@ -89,7 +89,7 @@ namespace oe::graphics
         }
 
         // Handles shaderc_include_result_release_fn callbacks.
-        virtual void ReleaseInclude(shaderc_include_result* data) override
+        void ReleaseInclude(shaderc_include_result* data) override
         {
             delete data;
         }

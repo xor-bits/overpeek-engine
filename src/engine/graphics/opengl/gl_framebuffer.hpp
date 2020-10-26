@@ -23,10 +23,11 @@ namespace oe::graphics
 		GLFrameBuffer(const FrameBufferInfo& framebuffer_info);
 		~GLFrameBuffer();
 
-		virtual void bind() override;
-		virtual void clear(const glm::vec4& color = oe::colors::clear_color) override;
+		void bind() override;
+		void clear(const glm::vec4& color = oe::colors::clear_color) override;
 
-		virtual Texture& getTexture() override {
+		inline Texture& getTexture() override
+		{
 			return m_texture;
 		}
 	

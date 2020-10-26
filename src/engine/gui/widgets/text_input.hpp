@@ -94,7 +94,7 @@ namespace oe::gui
 		[[nodiscard]] int& cursor() const noexcept;
 		[[nodiscard]] const std::tuple<int&, int&>& selection() const noexcept;
 
-		virtual void virtual_toggle(bool enabled) override;
+		void virtual_toggle(bool enabled) override;
 		void resetTimer() noexcept;
 		void reformat() noexcept;
 	
