@@ -12,7 +12,7 @@ Should be easy to use.
 
 
 ## Building
-#### Build with Conan
+#### Build
 ```
 conan create . --build=missing
 ```
@@ -26,9 +26,6 @@ buildmode 2 being Vulkan/OpenGL with shaderc
 node: Vulkan build is experimental and still lacking basic features
 
 #### Depends on:
-- OpenGL
-- Vulkan (if OE_BUILD_MODE=2)
-- OpenAL
 - CMake
 - Conan
 - (multiple conan packages)
