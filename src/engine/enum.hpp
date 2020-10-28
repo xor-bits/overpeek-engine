@@ -39,9 +39,10 @@ namespace oe {
 	enum class modes {
 		enable, 
 		disable, 
-		keep
+		keep,
 	};
 	enum class depth_functions {
+		disable,
 		always, 
 		never, 
 		less_than,
@@ -49,37 +50,36 @@ namespace oe {
 		equal,
 		less_than_or_equal,
 		greater_than_or_equal,
-		disable
 	};
 	enum class culling_modes {
 		neither, 
 		both,
 		front,
-		back
+		back,
 	};
 	enum class polygon_mode {
+		none,
 		fill, 
 		lines, 
 		points,
-		none
 	};
 
 	// opengl GL_STATIC_.. and GL_DYNAMIC_..
 	enum class types {
 		none,
 		static_type, 
-		dynamic_type
+		dynamic_type,
 	};
 
 	// shader stages
 	enum class shader_stages {
+		none,
 		vertex_shader, 
 		tesselation_control_shader, 
 		tesselation_evaluation_shader, 
 		geometry_shader, 
 		fragment_shader, 
 		compute_shader,
-		none
 	};
 	
 	enum class primitive_types {
@@ -92,29 +92,34 @@ namespace oe {
 
 	// supported graphics apis
 	enum class graphics_api {
-		OpenGL,
+		none,   // can't use graphics
+		OpenGL, // should be used
 		Vulkan, // lacks proper implementation
-		None    // can't use graphics
 	};
 
 	// gpu types
 	enum class gpu {
 		integrated,
-		dedicated
+		dedicated,
 	};
 
 	// modifiers
-	enum modifiers {
+	enum class modifiers {
 		none = 0,
 		shift = 1<<0,
 		control = 1<<1,
 		alt = 1<<2,
-		super = 1<<3
+		super = 1<<3,
 	};
 
-	[[nodiscard]] constexpr inline modifiers operator|(modifiers a, modifiers b)
+	[[nodiscard]] constexpr inline modifiers operator|(const modifiers a, const modifiers b)
 	{
 		return static_cast<modifiers>(static_cast<int>(a) | static_cast<int>(b));
+	}
+
+	[[nodiscard]] constexpr inline modifiers operator&(const modifiers a, const modifiers b)
+	{
+		return static_cast<modifiers>(static_cast<int>(a) & static_cast<int>(b));
 	}
 
 	// buttons
@@ -123,7 +128,7 @@ namespace oe {
 		button_last = 7,
 		button_left = 0,
 		button_right = 1,
-		button_middle = 2
+		button_middle = 2,
 	};
 
 	// actions
@@ -131,7 +136,7 @@ namespace oe {
 		none = -1,
 		release = 0,
 		press = 1,
-		repeat = 2
+		repeat = 2,
 	};
 
 	// keys
@@ -257,7 +262,7 @@ namespace oe {
 		key_right_control = 345,
 		key_right_alt = 346,
 		key_right_super = 347,
-		key_menu = 348
+		key_menu = 348,
 	};
 
 	// joystick input
@@ -279,7 +284,7 @@ namespace oe {
 		joystick_14           = 13,
 		joystick_15           = 14,
 		joystick_16           = 15,
-		joystick_last         = joystick_16
+		joystick_last         = joystick_16,
 	};
 
 	// gamepad input
@@ -305,15 +310,37 @@ namespace oe {
 		gamepad_cross = gamepad_a,
 		gamepad_circle = gamepad_b,
 		gamepad_square = gamepad_x,
-		gamepad_triangle = gamepad_y
+		gamepad_triangle = gamepad_y,
+	};
+	
+	enum class interact_type_flags
+	{
+		none = 0<<0,
+		cursor = 1<<0,
+		scroll = 1<<1,
+		keyboard = 1<<2,
 	};
 
+	[[nodiscard]] constexpr inline interact_type_flags operator|(const interact_type_flags a, const interact_type_flags b)
+	{
+		return static_cast<interact_type_flags>(static_cast<int>(a) | static_cast<int>(b));
+	}
+
+	[[nodiscard]] constexpr inline interact_type_flags operator&(const interact_type_flags a, const interact_type_flags b)
+	{
+		return static_cast<interact_type_flags>(static_cast<int>(a) & static_cast<int>(b));
+	}
+
 	enum class texture_wrap {
-		repeat, mirrored_repeat, clamp_to_edge, clamp_to_border
+		repeat,
+		mirrored_repeat,
+		clamp_to_edge,
+		clamp_to_border,
 	};
 
 	enum class texture_filter {
-		nearest, linear
+		nearest,
+		linear,
 	};
 
 	// some predefined colors
@@ -373,15 +400,6 @@ namespace oe {
 	{
 		return static_cast<glm::vec<2, T>>(glm::round(static_cast<glm::vec2>(size) * alignment));
 	}
-
-	typedef std::function<void(oe::keys key, oe::actions action, oe::modifiers mods)> fun_key_callback;
-	typedef std::function<void(oe::mouse_buttons button, oe::actions action)> fun_button_callback;
-	typedef std::function<void(float delta)> fun_scroll_callback;
-	typedef std::function<void(const glm::vec2 & framebuffer_size)> fun_resize_callback;
-	typedef std::function<void(uint32_t codepoint, oe::modifiers mods)> fun_text_callback;
-	typedef std::function<void(const glm::vec2 & transformed, const glm::vec2 & window)> fun_cursor_callback;
-	typedef std::function<void(float)> fun_window_render;
-	typedef std::function<void()> fun_window_update;
 
 	// window open info
 	struct WindowInfo {

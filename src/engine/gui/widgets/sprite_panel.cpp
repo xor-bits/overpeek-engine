@@ -8,7 +8,7 @@
 
 namespace oe::gui {
 
-	SpritePanel::SpritePanel(Widget* parent, GUI& gui_manager, const SpritePanelInfo& _sprite_panel_info)
+	SpritePanel::SpritePanel(Widget* parent, GUI& gui_manager, const info_t& _sprite_panel_info)
 		: Widget::Widget(parent, gui_manager, _sprite_panel_info.widget_info)
 		, sprite_panel_info(_sprite_panel_info)
 	{
@@ -20,7 +20,7 @@ namespace oe::gui {
 		{
 			quad = m_gui_manager.getRenderer()->create();
 
-			m_cg_render.connect<GUIRenderEvent, &SpritePanel::on_render, SpritePanel>(m_gui_manager.dispatcher, this);
+			m_cg_render.connect<GUIRenderEvent, &SpritePanel::on_render, SpritePanel>(m_gui_manager.m_dispatcher, this);
 		}
 		else
 		{
@@ -35,8 +35,8 @@ namespace oe::gui {
 		if(!m_cg_render)
 			return;
 
-		quad->setPosition(render_position + oe::alignmentOffset(m_info.size, oe::alignments::center_center));
-		quad->setZ(z);
+		quad->setPosition(m_render_position + oe::alignmentOffset(m_info.size, oe::alignments::center_center));
+		quad->setZ(m_z);
 		quad->setSize(m_info.size);
 		quad->setColor(sprite_panel_info.color);
 		quad->setSprite(sprite_panel_info.sprite);

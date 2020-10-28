@@ -3,6 +3,7 @@
 #include "engine/interfacegen_renderer.hpp"
 
 #include "engine/gui/gui_manager.hpp"
+#include "engine/gui/widgets/slider_input.hpp"
 
 #include "engine/graphics/interface/index_buffer_gen.hpp"
 #include "engine/graphics/interface/framebuffer.hpp"
@@ -193,7 +194,7 @@ namespace oe::gui
 
 
 
-	ColorPicker::ColorPicker(Widget* parent, GUI& gui_manager, value_t& value_ref, const ColorPickerInfo& color_picker_info)
+	ColorPicker::ColorPicker(Widget* parent, GUI& gui_manager, const info_t& color_picker_info, value_t& value_ref)
 		: SpritePanel(parent, gui_manager, { color_picker_info.color_input_info.background_color, color_picker_info.color_input_info.sprite, 0.0f, color_picker_info.color_input_info.widget_info })
 		, m_color_picker_info(color_picker_info)
 		, m_value(value_ref)
@@ -208,18 +209,18 @@ namespace oe::gui
 
 		auto& renderer = ColorPickerRenderer::getSingleton();
 
-		SpritePanelInfo lsp_info;
+		SpritePanel::info_t lsp_info;
 		lsp_info.widget_info.size = glm::ivec2{ std::min(m_info.size.x, m_info.size.y - 25) };
 		lsp_info.widget_info.align_parent = oe::alignments::top_center;
 		lsp_info.widget_info.align_render = oe::alignments::top_center;
 		lsp_info.widget_info.toggled = color_picker_info.color_input_info.widget_info.toggled;
 		lsp_info.sprite = &renderer.c_checkerboard;
 		lsp_info.color = oe::colors::white;
-		m_framebuffer_panel = create<SpritePanel>(lsp_info);
+		m_framebuffer_panel = create(lsp_info);
 
 		if (color_picker_info.preview)
 		{
-			SpritePanelInfo sp_info;
+			SpritePanel::info_t sp_info;
 			sp_info.widget_info.size = { 25, 25 };
 			sp_info.widget_info.offset_position = { 5, 5 };
 			sp_info.widget_info.align_parent = oe::alignments::top_left;
@@ -227,12 +228,12 @@ namespace oe::gui
 			sp_info.widget_info.toggled = color_picker_info.color_input_info.widget_info.toggled;
 			sp_info.sprite = renderer.c_circle_sprite;
 			sp_info.color = oe::colors::white;
-			m_preview = create<SpritePanel>(sp_info);
+			m_preview = create(sp_info);
 		}
 
 		if (color_picker_info.alpha)
 		{
-			SliderInputInfo s_info;
+			BasicSliderInput<float>::info_t s_info;
 			s_info.knob_size = { 16, 16 };
 			s_info.widget_info.size = { color_picker_info.color_input_info.widget_info.size.x - 10, 15 };
 			s_info.widget_info.offset_position = { 0, -5 };
@@ -246,21 +247,21 @@ namespace oe::gui
 			s_info.slider_lcolor = oe::colors::white;
 			s_info.slider_rcolor = oe::colors::black;
 			s_info.knob_sprite = color_picker_info.color_input_info.sprite;
-			m_alpha_slider = create<SliderInput>(m_value.a, s_info);
+			m_alpha_slider = create(s_info, m_value.a);
 		}
 
 		m_value_last = m_value + 1.0f;
 		sprite_panel_info.sprite = m_color_picker_info.color_input_info.sprite;
 
-		m_alpha_slider->connect_listener<SliderInputUseEvent, &ColorPicker::on_slider_use>(this);
+		m_alpha_slider->connect_listener<BasicSliderInputUseEvent<float>, &ColorPicker::on_slider_use>(this);
 	}
 
 	ColorPicker::~ColorPicker()
 	{
-		m_alpha_slider->disconnect_listener<SliderInputUseEvent, &ColorPicker::on_slider_use>(this);
+		m_alpha_slider->disconnect_listener<BasicSliderInputUseEvent<float>, &ColorPicker::on_slider_use>(this);
 	}
 
-	void ColorPicker::on_slider_use(const SliderInputUseEvent& event)
+	void ColorPicker::on_slider_use(const BasicSliderInputUseEvent<float>& event)
 	{
 		m_value.a = event.value;
 	}
@@ -274,9 +275,9 @@ namespace oe::gui
 			m_framebuffer_panel->sprite_panel_info.sprite = &m_wheel_fb->getSprite();
 
 			// event listeners
-			m_cg_render.connect<GUIRenderEvent, &ColorPicker::on_render, ColorPicker>(m_gui_manager.dispatcher, this);
-			m_cg_cursor.connect<CursorPosEvent, &ColorPicker::on_cursor, ColorPicker>(m_gui_manager.dispatcher, this);
-			m_cg_button.connect<MouseButtonEvent, &ColorPicker::on_button, ColorPicker>(m_gui_manager.dispatcher, this);
+			m_cg_render.connect<GUIRenderEvent, &ColorPicker::on_render, ColorPicker>(m_gui_manager.m_dispatcher, this);
+			m_cg_cursor.connect<CursorPosEvent, &ColorPicker::on_cursor, ColorPicker>(m_gui_manager.m_dispatcher, this);
+			m_cg_button.connect<MouseButtonEvent, &ColorPicker::on_button, ColorPicker>(m_gui_manager.m_dispatcher, this);
 		}
 		else
 		{
@@ -383,7 +384,7 @@ namespace oe::gui
 			m_preview->sprite_panel_info.color = m_value;
 
 		m_event_use_latest.value = m_value;
-		dispatcher.trigger(m_event_use_latest);
+		m_dispatcher.trigger(m_event_use_latest);
 	}
 
 	void ColorPicker::on_render(const GUIRenderEvent& /* event */)
@@ -445,7 +446,7 @@ namespace oe::gui
 		if(!m_cg_cursor)
 			return;
 		// relative_pos
-		glm::vec2 r_pos = relative_pos(event.cursor_windowspace, m_framebuffer_panel->render_position, m_framebuffer_panel->m_info.size);
+		const glm::vec2 r_pos = relative_pos(event.cursor_windowspace, m_framebuffer_panel->m_render_position, m_framebuffer_panel->m_info.size);
 
 		if (m_dragging_wheel)
 		{
@@ -470,9 +471,7 @@ namespace oe::gui
 		}
 
 		if (in_circle(r_pos, m_wheel_width) || in_triangle(r_pos, { m_triangle_vertices[0].position, m_triangle_vertices[1].position, m_triangle_vertices[2].position }))
-		{
-			dispatcher.trigger(m_event_hover_latest);
-		}
+			m_dispatcher.trigger(m_event_hover_latest);
 	}
 
 	void ColorPicker::on_button(const MouseButtonEvent& event)
@@ -484,7 +483,7 @@ namespace oe::gui
 		m_event_use_latest.button = event.button;
 		m_event_use_latest.modifier = event.mods;
 
-		glm::vec2 r_pos = relative_pos(event.cursor_pos.cursor_windowspace, m_framebuffer_panel->render_position, m_framebuffer_panel->m_info.size);
+		glm::vec2 r_pos = relative_pos(event.cursor_pos.cursor_windowspace, m_framebuffer_panel->m_render_position, m_framebuffer_panel->m_info.size);
 		if (event.button == oe::mouse_buttons::button_left)
 		{
 			m_dragging_wheel = event.action != oe::actions::release && in_circle(r_pos, m_wheel_width);

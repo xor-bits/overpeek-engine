@@ -10,31 +10,32 @@ namespace oe::graphics { class Quad; }
 
 namespace oe::gui
 {
-	struct TextPanelInfo
-	{
-		oe::graphics::text_render_input<char32_t> text = U"placeholder";
-		uint16_t font_size                             = 16;
-		oe::utils::FontFile font_file                  = {}; // empty for gui default
-		glm::vec4 background_color                     = oe::colors::transparent;
-	
-		WidgetInfo widget_info                         = { { 0, 0 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
-	};
-
-
 	class TextPanel : public Widget
 	{
 	public:
-		using info_t = TextPanelInfo;
+		struct Info
+		{
+			using widget_t = TextPanel;
+
+			
+			oe::graphics::text_render_input<char32_t> text = U"placeholder";
+			uint16_t font_size                             = 16;
+			oe::utils::FontFile font_file                  = {}; // empty for gui default
+			glm::vec4 background_color                     = oe::colors::transparent;
+		
+			Widget::Info widget_info                       = { { 0, 0 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
+		};
+		using info_t = Info;
 		
 	private:
 		oe::graphics::u32TextLabel* label;
 		std::unique_ptr<oe::graphics::Quad> text_quad;
 
 	public:
-		TextPanelInfo text_panel_info;
+		info_t text_panel_info;
 
 	public:
-		TextPanel(Widget* parent, GUI& gui_manager, const TextPanelInfo& text_panel_info = {});
+		TextPanel(Widget* parent, GUI& gui_manager, const info_t& text_panel_info);
 
 	public:
 		void virtual_toggle(bool enabled) override;

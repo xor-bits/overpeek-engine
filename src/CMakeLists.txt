@@ -149,6 +149,7 @@ set(source_list ${source_list}
 	"engine/gui/widgets/widget.hpp"
 	"engine/gui/widgets/list.cpp"
 	"engine/gui/widgets/list.hpp"
+	"engine/gui/widgets/event.hpp"
 	"engine/gui/widgets/graph.cpp"
 	"engine/gui/widgets/graph.hpp"
 	)

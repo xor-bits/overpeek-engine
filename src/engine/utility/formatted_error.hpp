@@ -7,7 +7,7 @@
 
 namespace oe::utils
 {
-	class formatted_error : std::runtime_error
+	class formatted_error : public std::runtime_error
 	{
 	public:
 		template<typename FormatString, typename... Args>

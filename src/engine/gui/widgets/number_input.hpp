@@ -8,44 +8,42 @@
 
 namespace oe::gui
 {
-
-	template<typename T>
-	struct BasicNumberInputInfo
-	{
-		glm::vec2 align_text                                = oe::alignments::center_center;
-		T initial_value                                     = { 0 };
-		T stepsize                                          = { 1 };
-		glm::vec<2,T> value_bounds                          = { std::numeric_limits<T>::min(), std::numeric_limits<T>::max() };
-		std::function<std::string(const T&)> draw_format    = &BasicNumberInputInfo::default_formatter; // only when keyboard input is disabled
-		uint16_t font_size                                  = 16;
-		oe::utils::FontFile font_file                       = {}; // empty for gui default
-		glm::vec4 color                                     = oe::colors::dark_grey;
-		glm::vec4 default_text_color                        = oe::colors::white;
-		const oe::graphics::Sprite* sprite                  = nullptr;
-
-		interact_type_flags interact_flags                  = interact_type_flags::cursor | interact_type_flags::keyboard | interact_type_flags::scroll;
-
-		WidgetInfo widget_info                              = { { 100, 100 }, { 3, 3 }, oe::alignments::center_center, oe::alignments::center_center };
-	
-		//
-		static std::string default_formatter(const T& val)
-		{
-			if constexpr(std::is_floating_point_v<T>)
-				return fmt::format("V: {:.1f}", val);
-			else
-				return fmt::format("V: {}", val);
-		}
-	};
-
 	template<typename T>
 	class BasicNumberInput : public TextInput
 	{
 	public:
 		using value_t = T;
-		using info_t = BasicNumberInputInfo<T>;
+		struct info_t
+		{
+			using widget_t = BasicNumberInput;
+
+			glm::vec2 align_text                                = oe::alignments::center_center;
+			T initial_value                                     = { 0 };
+			T stepsize                                          = { 1 };
+			glm::vec<2,T> value_bounds                          = { std::numeric_limits<T>::min(), std::numeric_limits<T>::max() };
+			std::function<std::string(const value_t&)> draw_format    = &default_formatter; // only when keyboard input is disabled
+			uint16_t font_size                                  = 16;
+			oe::utils::FontFile font_file                       = {}; // empty for gui default
+			glm::vec4 color                                     = oe::colors::dark_grey;
+			glm::vec4 default_text_color                        = oe::colors::white;
+			const oe::graphics::Sprite* sprite                  = nullptr;
+
+			interact_type_flags interact_flags                  = interact_type_flags::cursor | interact_type_flags::keyboard | interact_type_flags::scroll;
+
+			Widget::info_t widget_info                          = { { 100, 100 }, { 3, 3 }, oe::alignments::center_center, oe::alignments::center_center };
+		
+			//
+			[[nodiscard]] static inline std::string default_formatter(const T& val)
+			{
+				if constexpr(std::is_floating_point_v<T>)
+					return fmt::format("V: {:.1f}", val);
+				else
+					return fmt::format("V: {}", val);
+			}
+		};
 
 	public:
-		BasicNumberInputInfo<T> m_number_input_info;
+		info_t m_number_input_info;
 		value_t& m_value;
 	
 	private:
@@ -86,9 +84,9 @@ namespace oe::gui
 				static_assert("T is not a float nor a int");
 		}
 		
-		[[nodiscard]] static TextInputInfo getTextInputInfo(const BasicNumberInputInfo<T>& number_input_info) noexcept
+		[[nodiscard]] static TextInput::info_t getTextInputInfo(const info_t& number_input_info) noexcept
 		{
-			TextInputInfo info;
+			TextInput::info_t info;
 			info.align_text = number_input_info.align_text;
 			info.font_size = number_input_info.font_size;
 			info.font_file = number_input_info.font_file;
@@ -108,19 +106,19 @@ namespace oe::gui
 		}
 
 	public:
-		BasicNumberInput(Widget* parent, GUI& gui_manager, value_t& value_ref, const BasicNumberInputInfo<T>& number_input_info = {})
+		BasicNumberInput(Widget* parent, GUI& gui_manager, const info_t& number_input_info, value_t& value_ref)
 			: TextInput(parent, gui_manager, getTextInputInfo(number_input_info))
 			, m_number_input_info(number_input_info)
 			, m_value(value_ref)
 		{
-			cg_text_change.connect<oe::gui::TextInputChangedEvent, &BasicNumberInput::on_text_change>(dispatcher, this);
-			cg_keyboard.connect<oe::KeyboardEvent, &BasicNumberInput::on_keyboard>(m_gui_manager.dispatcher, this);
-			cg_cursor.connect<oe::CursorPosEvent, &BasicNumberInput::on_cursor>(m_gui_manager.dispatcher, this);
-			cg_button.connect<oe::MouseButtonEvent, &BasicNumberInput::on_button>(m_gui_manager.dispatcher, this);
-			cg_scroll.connect<oe::ScrollEvent, &BasicNumberInput::on_scroll>(m_gui_manager.dispatcher, this);
-			cg_pre_render.connect<oe::gui::GUIPreRenderEvent, &BasicNumberInput::on_pre_render>(m_gui_manager.dispatcher, this);
+			cg_text_change.connect<oe::gui::BasicTextInputInputEvent<char>, &BasicNumberInput::on_text_change>(m_dispatcher, this);
+			cg_keyboard.connect<oe::KeyboardEvent, &BasicNumberInput::on_keyboard>(m_gui_manager.m_dispatcher, this);
+			cg_cursor.connect<oe::CursorPosEvent, &BasicNumberInput::on_cursor>(m_gui_manager.m_dispatcher, this);
+			cg_button.connect<oe::MouseButtonEvent, &BasicNumberInput::on_button>(m_gui_manager.m_dispatcher, this);
+			cg_scroll.connect<oe::ScrollEvent, &BasicNumberInput::on_scroll>(m_gui_manager.m_dispatcher, this);
+			cg_pre_render.connect<oe::gui::GUIPreRenderEvent, &BasicNumberInput::on_pre_render>(m_gui_manager.m_dispatcher, this);
 		}
-		BasicNumberInput(Widget* parent, GUI& gui_manager, const BasicNumberInputInfo<T>& number_input_info = {}) : BasicNumberInput(parent, gui_manager, m_number_input_info.initial_value, number_input_info) {}
+		BasicNumberInput(Widget* parent, GUI& gui_manager, const info_t& number_input_info) : BasicNumberInput(parent, gui_manager, m_number_input_info.initial_value, number_input_info) {}
 
 		void clamp() noexcept
 		{
@@ -131,7 +129,7 @@ namespace oe::gui
 		// events
 		void on_pre_render(const oe::gui::GUIPreRenderEvent&)
 		{
-			if(!(m_number_input_info.interact_flags & interact_type_flags::keyboard))
+			if(!static_cast<bool>(m_number_input_info.interact_flags & interact_type_flags::keyboard))
 			{
 				TextInput::m_value = m_number_input_info.draw_format(m_value);
 				TextInput::m_selected = false;
@@ -139,9 +137,9 @@ namespace oe::gui
 			else
 				TextInput::m_value = fmt::format("{}", m_value);
 		}
-		void on_text_change(const oe::gui::TextInputChangedEvent& e)
+		void on_text_change(const oe::gui::BasicTextInputInputEvent<char>& e)
 		{
-			if(!(m_number_input_info.interact_flags & interact_type_flags::keyboard))
+			if(!static_cast<bool>(m_number_input_info.interact_flags & interact_type_flags::keyboard))
 				return;
 			
 			try{
@@ -154,7 +152,7 @@ namespace oe::gui
 		}
 		void on_keyboard(const oe::KeyboardEvent& e)
 		{
-			if(e.action == oe::actions::release || !m_selected || !(m_number_input_info.interact_flags & interact_type_flags::keyboard))
+			if(e.action == oe::actions::release || !m_selected || !static_cast<bool>(m_number_input_info.interact_flags & interact_type_flags::keyboard))
 				return;
 
 			if(e.key == oe::keys::key_down)
@@ -169,7 +167,7 @@ namespace oe::gui
 			if(e.action == oe::actions::release)
 				m_dragging = false;
 			
-			if(e.action != oe::actions::press || !oe::utils::bounding_box_test(e.cursor_pos.cursor_windowspace, render_position, m_info.size) || !(m_number_input_info.interact_flags & interact_type_flags::cursor))
+			if(e.action != oe::actions::press || !oe::utils::bounding_box_test(e.cursor_pos.cursor_windowspace, m_render_position, m_info.size) || !static_cast<bool>(m_number_input_info.interact_flags & interact_type_flags::cursor))
 				return;
 
 			m_dragging = true;
@@ -189,7 +187,7 @@ namespace oe::gui
 		}
 		void on_scroll(const oe::ScrollEvent& e)
 		{
-			if(!m_selected || !(m_number_input_info.interact_flags & interact_type_flags::scroll))
+			if(!m_selected || !static_cast<bool>(m_number_input_info.interact_flags & interact_type_flags::scroll))
 				return;
 
 			m_value += (e.scroll_delta.y - e.scroll_delta.x) * m_number_input_info.stepsize;
@@ -205,12 +203,8 @@ namespace oe::gui
 	};
 
 	using fNumberInput = BasicNumberInput<float>;
+	using dNumberInput = BasicNumberInput<double>;
 	using iNumberInput = BasicNumberInput<int32_t>;
 	using uNumberInput = BasicNumberInput<uint32_t>;
 	using NumberInput = fNumberInput;
-
-	using fNumberInputInfo = BasicNumberInputInfo<float>;
-	using iNumberInputInfo = BasicNumberInputInfo<int32_t>;
-	using uNumberInputInfo = BasicNumberInputInfo<uint32_t>;
-	using NumberInputInfo = fNumberInputInfo;
 }

@@ -18,87 +18,72 @@ namespace oe::gui { struct GUIRenderEvent; struct GUIPreRenderEvent; class GUI; 
 
 namespace oe::gui
 {
-	enum interact_type_flags
-	{
-		none = 0<<0, cursor = 1<<0, scroll = 1<<1, keyboard = 1<<2
-	};
-
-	[[nodiscard]] constexpr inline interact_type_flags operator|(interact_type_flags a, interact_type_flags b)
-	{
-		return static_cast<interact_type_flags>(static_cast<int>(a) | static_cast<int>(b));
-	}
-
-	[[nodiscard]] constexpr inline interact_type_flags operator&(interact_type_flags a, interact_type_flags b)
-	{
-		return static_cast<interact_type_flags>(static_cast<int>(a) & static_cast<int>(b));
-	}
-
-	struct WidgetInfo
-	{
-		glm::ivec2 size                    = { 50, 50 };
-		glm::ivec2 offset_position         = { 0, 0 };
-		glm::vec2 align_parent             = oe::alignments::center_center;
-		glm::vec2 align_render             = oe::alignments::center_center;
-		bool toggled                       = true;
-	};
-
 	class Widget : public std::enable_shared_from_this<Widget>
 	{
 	public:
-		using info_t = WidgetInfo;
+		struct Info
+		{
+			using widget_t = Widget;
+
+			glm::ivec2 size                    = { 50, 50 };
+			glm::ivec2 offset_position         = { 0, 0 };
+			glm::vec2 align_parent             = oe::alignments::center_center;
+			glm::vec2 align_render             = oe::alignments::center_center;
+			bool toggled                       = true;
+		};
+		using info_t = Info;
 		
 	private:
 		Widget* m_parent;
 		std::unordered_set<std::shared_ptr<Widget>> m_nodes;
-		static float z_acc;
+		static inline float s_z_acc = 0.0f;
 		
-		bool toggle_pending = false;
-		bool toggle_pending_value = false;
+		bool m_toggle_pending = false;
+		bool m_toggle_pending_value = false;
 
 		std::vector<oe::utils::connect_guard> m_user_event_cg_guards;
 
 	protected:
 		GUI& m_gui_manager;
-		float z;
+		float m_z;
 
 	public:
-		glm::ivec2 topleft_position = { 0, 0 };
-		glm::ivec2 render_position = { 0, 0 };
-		WidgetInfo m_info;
-		entt::dispatcher dispatcher;
+		glm::ivec2 m_render_position = { 0, 0 };
+		info_t m_info;
+		entt::dispatcher m_dispatcher;
 
 	public:
-		Widget(Widget* parent, GUI& gui_manager, const WidgetInfo& info = {});
+		Widget(Widget* parent, GUI& gui_manager, const info_t& info);
 		virtual ~Widget();
 
 		// connect event
 		template<typename Event, auto Listener, typename Instance>
 		void connect_listener(const Instance& instance)
 		{
-			dispatcher.sink<Event>().template connect<Listener>(instance);
+			m_dispatcher.sink<Event>().template connect<Listener>(instance);
 		}
 		template<typename Event, auto Listener>
 		void connect_listener()
 		{
-			dispatcher.sink<Event>().template connect<Listener>();
+			m_dispatcher.sink<Event>().template connect<Listener>();
 		}
 		// connect event
 		template<typename Event, auto Listener, typename Instance>
 		void disconnect_listener(const Instance& instance)
 		{
-			dispatcher.sink<Event>().template disconnect<Listener>(instance);
+			m_dispatcher.sink<Event>().template disconnect<Listener>(instance);
 		}
 		template<typename Event, auto Listener>
 		void disconnect_listener()
 		{
-			dispatcher.sink<Event>().template disconnect<Listener>();
+			m_dispatcher.sink<Event>().template disconnect<Listener>();
 		}
 
 		// create subwidget
 		template<typename T, typename ... Args>
-		std::shared_ptr<T> create(Args& ... args)
+		std::shared_ptr<typename T::widget_t> create(const T& info, Args& ... args)
 		{
-			auto ptr = std::make_shared<T>(this, m_gui_manager, args...);
+			auto ptr = std::make_shared<typename T::widget_t>(this, m_gui_manager, info, args...);
 			(*m_nodes.insert(ptr).first)->base_toggle(ptr->m_info.toggled);
 			return ptr;
 		}
@@ -118,8 +103,8 @@ namespace oe::gui
 		void clear_event_cg() noexcept;
 
 		// for internal render sorting
-		[[nodiscard]] constexpr inline float getZ() const noexcept { return z; }
-		constexpr inline void overrideZ(float _z) noexcept { z = _z; }
+		[[nodiscard]] constexpr inline float getZ() const noexcept { return m_z; }
+		constexpr inline void overrideZ(float z) noexcept { m_z = z; }
 		void addZ(float add_to_z) noexcept;
 		
 		// must not be toggled from an event
@@ -138,12 +123,12 @@ namespace oe::gui
 }
 
 template <>
-struct fmt::formatter<oe::gui::WidgetInfo> {
+struct fmt::formatter<oe::gui::Widget::Info> {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& ctx) { return ctx.begin(); }
 
 	template <typename FormatContext>
-	auto format(const oe::gui::WidgetInfo& i, FormatContext& ctx) {
+	auto format(const oe::gui::Widget::Info& i, FormatContext& ctx) {
 		return format_to(ctx.out(), "[ s: {}, o: {}, a0: {}, a1: {}, t: {} ]", i.size, i.offset_position, i.align_parent, i.align_render, i.toggled);
 	}
 };

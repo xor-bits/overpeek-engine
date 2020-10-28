@@ -13,7 +13,7 @@
 namespace oe::gui
 {
 	template<typename char_type>
-	oe::utils::text_flags state_flags(const BasicTextInputInfo<char_type>& text_input_info)
+	oe::utils::text_flags state_flags(const typename BasicTextInput<char_type>::info_t& text_input_info)
 	{
 		oe::utils::text_flags flags = oe::utils::text_flags::none;
 		if(text_input_info.allow_newline)
@@ -22,13 +22,13 @@ namespace oe::gui
 	}
 
 	template<typename char_type>
-	BasicTextInput<char_type>::BasicTextInput(Widget* parent, GUI& gui_manager, std::basic_string<char_type>& m_value_ref, const BasicTextInputInfo<char_type>& text_input_info)
+	BasicTextInput<char_type>::BasicTextInput(Widget* parent, GUI& gui_manager, const info_t& text_input_info, std::basic_string<char_type>& m_value_ref)
 		: Widget(parent, gui_manager, text_input_info.widget_info)
 		, m_text_label_pos({ 0, 0 })
 		, m_text_input_info(text_input_info)
 		, m_value(m_value_ref)
 		, m_selected(false)
-		, m_state(m_text_input_info.max_characters, state_flags(text_input_info))
+		, m_state(m_text_input_info.max_characters, state_flags<char_type>(text_input_info))
 		, m_timer_key_pressed(std::chrono::high_resolution_clock::now())
 	{
 		m_state.m_copy_to_clipboard = [this](const std::string& cb){ m_gui_manager.getWindow()->setClipboard(cb); };
@@ -64,9 +64,9 @@ namespace oe::gui
 			m_text_selection_quads[2] = m_gui_manager.getRenderer()->create();
 			m_label = new oe::graphics::BasicTextLabel<char_type>(m_gui_manager.getFont(m_text_input_info.font_size, m_text_input_info.font_file));
 			
-			m_text_selection_quads[0]->setZ(z + 0.05f);
-			m_text_selection_quads[1]->setZ(z + 0.06f);
-			m_text_selection_quads[2]->setZ(z + 0.07f);			
+			m_text_selection_quads[0]->setZ(m_z + 0.05f);
+			m_text_selection_quads[1]->setZ(m_z + 0.06f);
+			m_text_selection_quads[2]->setZ(m_z + 0.07f);			
 			m_text_selection_quads[0]->setSprite(m_text_input_info.sprite);
 			m_text_selection_quads[1]->setSprite(m_text_input_info.sprite);
 			m_text_selection_quads[2]->setSprite(m_text_input_info.sprite);
@@ -75,11 +75,11 @@ namespace oe::gui
 			m_text_selection_quads[2]->setColor(m_text_input_info.selection_color);
 
 			// event listeners
-			m_cg_render.connect<GUIRenderEvent, &BasicTextInput::on_render, BasicTextInput>(m_gui_manager.dispatcher, this);
-			m_cg_codepoint.connect<CodepointEvent, &BasicTextInput::on_codepoint, BasicTextInput>(m_gui_manager.dispatcher, this );
-			m_cg_key.connect<KeyboardEvent, &BasicTextInput::on_key, BasicTextInput>(m_gui_manager.dispatcher, this);
-			m_cg_cursor.connect<CursorPosEvent, &BasicTextInput::on_cursor, BasicTextInput>(m_gui_manager.dispatcher, this);
-			m_cg_button.connect<MouseButtonEvent, &BasicTextInput::on_button, BasicTextInput>(m_gui_manager.dispatcher, this);
+			m_cg_render.connect<GUIRenderEvent, &BasicTextInput::on_render, BasicTextInput>(m_gui_manager.m_dispatcher, this);
+			m_cg_codepoint.connect<CodepointEvent, &BasicTextInput::on_codepoint, BasicTextInput>(m_gui_manager.m_dispatcher, this );
+			m_cg_key.connect<KeyboardEvent, &BasicTextInput::on_key, BasicTextInput>(m_gui_manager.m_dispatcher, this);
+			m_cg_cursor.connect<CursorPosEvent, &BasicTextInput::on_cursor, BasicTextInput>(m_gui_manager.m_dispatcher, this);
+			m_cg_button.connect<MouseButtonEvent, &BasicTextInput::on_button, BasicTextInput>(m_gui_manager.m_dispatcher, this);
 		}
 		else
 		{
@@ -119,19 +119,19 @@ namespace oe::gui
 			return;
 
 		// bounding box
-		m_quad->setPosition(render_position);
-		m_quad->setZ(z);
+		m_quad->setPosition(m_render_position);
+		m_quad->setZ(m_z);
 		m_quad->setSize(static_cast<glm::vec2>(m_info.size));
 		m_quad->setSprite(m_text_input_info.sprite);
 		m_quad->setColor(m_text_input_info.color);
 
 		// text
 		m_label->generate({ m_value, m_text_input_info.default_text_color }, m_gui_manager.getWindow());
-		m_text_label_pos = render_position + oe::alignmentOffset(m_info.size, m_text_input_info.align_text) - oe::alignmentOffset(static_cast<glm::ivec2>(m_label->getSize()), m_text_input_info.align_text);
+		m_text_label_pos = m_render_position + oe::alignmentOffset(m_info.size, m_text_input_info.align_text) - oe::alignmentOffset(static_cast<glm::ivec2>(m_label->getSize()), m_text_input_info.align_text);
 		
 		// text label
 		m_text_quad->setPosition(static_cast<glm::vec2>(m_text_label_pos));
-		m_text_quad->setZ(z + 0.025f);
+		m_text_quad->setZ(m_z + 0.025f);
 		m_text_quad->setSize(m_label->getSize());
 		m_text_quad->setSprite(m_label->getSprite());
 		m_text_quad->setColor(oe::colors::white);
@@ -151,7 +151,7 @@ namespace oe::gui
 		auto& font = m_gui_manager.getFont(m_text_input_info.font_size, m_text_input_info.font_file);
 		const glm::ivec2 before_cursor_size = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, m_state.cursor(), { 0.0f, 0.0f }, glm::vec2(font.getResolution()), { 0.0f, 0.0f });
 		m_text_bar_quad->setPosition(static_cast<glm::vec2>(m_text_label_pos + before_cursor_size));
-		m_text_bar_quad->setZ(z + 0.05f);
+		m_text_bar_quad->setZ(m_z + 0.05f);
 		m_text_bar_quad->setSize({ 1, font.getResolution() });
 		m_text_bar_quad->setSprite(m_text_input_info.sprite);
 		m_text_bar_quad->setColor(m_text_input_info.default_text_color);
@@ -229,8 +229,8 @@ namespace oe::gui
 		m_state.key(m_value, m_label->getFont(), c);
 		reformat();
 		
-		BasicTextInputChangedEvent<char_type> e { event.codepoint, m_value };
-		dispatcher.trigger(e);
+		BasicTextInputInputEvent<char_type> e { event.codepoint, m_value };
+		m_dispatcher.trigger(e);
 		resetTimer();
 	}
 	
@@ -247,8 +247,8 @@ namespace oe::gui
 		m_state.key(m_value, m_label->getFont(), event.key, event.mods);
 		reformat();
 
-		BasicTextInputChangedEvent<char_type> e { static_cast<char32_t>(character), m_value };
-		dispatcher.trigger(e);
+		BasicTextInputInputEvent<char_type> e { static_cast<char32_t>(character), m_value };
+		m_dispatcher.trigger(e);
 		resetTimer();
 	}
 
@@ -269,7 +269,7 @@ namespace oe::gui
 
 		if (event.button == oe::mouse_buttons::button_left && event.action != oe::actions::release)
 		{
-			m_selected = oe::utils::bounding_box_test(event.cursor_pos.cursor_windowspace, render_position, m_info.size);
+			m_selected = oe::utils::bounding_box_test(event.cursor_pos.cursor_windowspace, m_render_position, m_info.size);
 			if(!m_selected)
 				return;
 			

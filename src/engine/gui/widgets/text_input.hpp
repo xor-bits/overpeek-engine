@@ -1,6 +1,7 @@
 #pragma once
 
 #include "widget.hpp"
+#include "event.hpp"
 #include "engine/graphics/textLabel.hpp"
 #include "engine/utility/fileio.hpp"
 #include "engine/utility/text_edit.hpp"
@@ -13,55 +14,60 @@ namespace oe::graphics { class Quad; }
 
 namespace oe::gui
 {
+	// events
 	template<typename char_type>
-	struct BasicTextInputInfo
-	{
-		glm::vec2 align_text                                         = oe::alignments::center_center;
-		size_t max_characters                                        = std::numeric_limits<size_t>::max();
-		std::basic_string<char_type> initial_value                   = {};
-		std::basic_string<char_type> placeholder                     = {};
-		std::basic_string_view<char_type> whitelist                  = {};
-		std::basic_string_view<char_type> blacklist                  = {};
-		std::function<void(std::basic_string<char_type>&)> formatter = &default_formatter;
-		bool allow_newline                                           = false;
-		uint16_t font_size                                           = 16;
-		oe::utils::FontFile font_file                                = {}; // empty for gui default
-		glm::vec4 color                                              = oe::colors::dark_grey;
-		glm::vec4 selection_color                                    = { 0.5f, 0.5f, 1.0f, 0.4f };
-		glm::vec4 default_text_color                                 = oe::colors::white;
-		const oe::graphics::Sprite* sprite                           = nullptr;
-		
-		WidgetInfo widget_info                                       = { { 100, 100 }, { 3, 3 }, oe::alignments::center_center, oe::alignments::center_center };
-	
-		//
-		static void default_formatter(std::basic_string<char_type>& /* val */) {}
-	};
+	struct BasicTextInputHoverEvent : BaseHoverEvent {};
 
 	template<typename char_type>
-	struct BasicTextInputHoverEvent
-	{};
-
-	template<typename char_type>
-	struct BasicTextInputUseEvent
+	struct BasicTextInputUseEvent : BaseUseEvent
 	{
 		oe::actions action;
 		oe::mouse_buttons button;
 		oe::modifiers modifier;
+		std::basic_string_view<char_type> value;
 	};
 
 	template<typename char_type>
-	struct BasicTextInputChangedEvent
+	struct BasicTextInputInputEvent
 	{
 		char32_t codepoint;
 		std::basic_string_view<char_type> value;
 	};
 
+
+
 	template<typename char_type>
 	class BasicTextInput : public Widget
 	{
 	public:
+		// types
 		using value_t = std::basic_string<char_type>;
-		using info_t = BasicTextInputInfo<char_type>;
+		struct info_t
+		{
+			// characters
+			size_t max_characters                                        = std::numeric_limits<size_t>::max();
+			std::basic_string<char_type> initial_value                   = {};
+			std::basic_string<char_type> placeholder                     = {};
+			std::basic_string_view<char_type> whitelist                  = {};
+			std::basic_string_view<char_type> blacklist                  = {};
+			bool allow_newline                                           = false;
+			// visuals
+			glm::vec2 align_text                                         = oe::alignments::center_center;
+			std::function<void(std::basic_string<char_type>&)> formatter = &default_formatter;
+			uint16_t font_size                                           = 16;
+			oe::utils::FontFile font_file                                = {}; // empty for gui default
+			glm::vec4 color                                              = oe::colors::dark_grey;
+			glm::vec4 selection_color                                    = { 0.5f, 0.5f, 1.0f, 0.4f };
+			glm::vec4 default_text_color                                 = oe::colors::white;
+			const oe::graphics::Sprite* sprite                           = nullptr;
+			// base
+			Widget::info_t widget_info                                   = { { 100, 100 }, { 3, 3 }, oe::alignments::center_center, oe::alignments::center_center };
+		
+
+
+			//
+			static inline void default_formatter(std::basic_string<char_type>& /* val */) {}
+		};
 		
 	private:
 		oe::graphics::BasicTextLabel<char_type>* m_label;
@@ -74,7 +80,7 @@ namespace oe::gui
 		glm::ivec2 m_text_label_pos;
 
 	public:
-		BasicTextInputInfo<char_type> m_text_input_info;
+		info_t m_text_input_info;
 		value_t& m_value;
 		bool m_selected = false;
 	
@@ -86,9 +92,9 @@ namespace oe::gui
 		std::chrono::high_resolution_clock::time_point m_timer_key_pressed;
 
 	public:
-		BasicTextInput(Widget* parent, GUI& gui_manager, value_t& m_value_ref, const BasicTextInputInfo<char_type>& text_input_info = {});
-		BasicTextInput(Widget* parent, GUI& gui_manager, const BasicTextInputInfo<char_type>& text_input_info = {})
-			: BasicTextInput(parent, gui_manager, m_text_input_info.initial_value, text_input_info)
+		BasicTextInput(Widget* parent, GUI& gui_manager, const info_t& text_input_info, value_t& m_value_ref);
+		BasicTextInput(Widget* parent, GUI& gui_manager, const info_t& text_input_info)
+			: BasicTextInput(parent, gui_manager, text_input_info, m_text_input_info.initial_value)
 		{}
 
 		[[nodiscard]] int& cursor() const noexcept;
@@ -116,24 +122,4 @@ namespace oe::gui
 	using wTextInput = BasicTextInput<wchar_t>;
 	using u16TextInput = BasicTextInput<char16_t>;
 	using u32TextInput = BasicTextInput<char32_t>;
-	
-	using TextInputInfo = BasicTextInputInfo<char>;
-	using wTextInputInfo = BasicTextInputInfo<wchar_t>;
-	using u16TextInputInfo = BasicTextInputInfo<char16_t>;
-	using u32TextInputInfo = BasicTextInputInfo<char32_t>;
-
-	using TextInputHoverEvent = BasicTextInputHoverEvent<char>;
-	using wTextInputHoverEvent = BasicTextInputHoverEvent<wchar_t>;
-	using u16TextInputHoverEvent = BasicTextInputHoverEvent<char16_t>;
-	using u32TextInputHoverEvent = BasicTextInputHoverEvent<char32_t>;
-
-	using TextInputUseEvent = BasicTextInputUseEvent<char>;
-	using wTextInputUseEvent = BasicTextInputUseEvent<wchar_t>;
-	using u16TextInputUseEvent = BasicTextInputUseEvent<char16_t>;
-	using u32TextInputUseEvent = BasicTextInputUseEvent<char32_t>;
-
-	using TextInputChangedEvent = BasicTextInputChangedEvent<char>;
-	using wTextInputChangedEvent = BasicTextInputChangedEvent<wchar_t>;
-	using u16TextInputChangedEvent = BasicTextInputChangedEvent<char16_t>;
-	using u32TextInputChangedEvent = BasicTextInputChangedEvent<char32_t>;
 }

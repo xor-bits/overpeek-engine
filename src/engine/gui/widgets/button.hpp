@@ -1,39 +1,33 @@
 #pragma once
 
 #include "widget.hpp"
+#include "event.hpp"
 #include "engine/enum.hpp"
 
 
 
 namespace oe::gui
 {
-	struct ButtonInfo
-	{
-		WidgetInfo widget_info = { { 50, 50 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
-	};
+	struct ButtonHoverEvent : BaseHoverEvent {};
+	struct ButtonUseEvent : BaseUseEvent {};
 
-	struct ButtonHoverEvent
-	{};
 
-	struct ButtonUseEvent
-	{
-		oe::actions action;
-		oe::mouse_buttons button;
-		oe::modifiers modifier;
-	};
-
+	
 	class Button : public Widget
 	{
 	public:
-		using info_t = ButtonInfo;
+		struct info_t : Widget::info_t {
+			using widget_t = Button;
+		};
 
 	public:
-		ButtonInfo button_info;
+		info_t button_info;
 		ButtonHoverEvent event_hover_latest;
 		ButtonUseEvent event_use_latest;
 
 	public:
-		Button(Widget* parent, GUI& gui_manager, const ButtonInfo& button_info = {});
+		Button(Widget* parent, GUI& gui_manager, const info_t& button_info);
+		~Button() override = default;
 
 		bool test(const glm::vec2& point);
 

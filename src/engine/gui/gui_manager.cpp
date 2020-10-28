@@ -22,7 +22,7 @@ namespace oe::gui
 		m_shader_fill = new oe::assets::DefaultShader(oe::polygon_mode::fill);
 		m_shader_lines = new oe::assets::DefaultShader(oe::polygon_mode::lines);
 
-		WidgetInfo widget_info = { static_cast<glm::ivec2>(m_window->getSize()) - glm::ivec2(2 * border), { border, border }, oe::alignments::top_left, oe::alignments::top_left };
+		Widget::Info widget_info = { static_cast<glm::ivec2>(m_window->getSize()) - glm::ivec2(2 * border), { border, border }, oe::alignments::top_left, oe::alignments::top_left };
 		m_main_frame = std::make_shared<Widget>(nullptr, *this, widget_info);
 		m_old_render_size = { 0.0f, 0.0f };
 		
@@ -111,8 +111,8 @@ namespace oe::gui
 	{
 		short_resize();
 		
-		dispatcher.trigger(GUIPreRenderEvent{});
-		dispatcher.trigger(GUIRenderEvent{});
+		m_dispatcher.trigger(GUIPreRenderEvent{});
+		m_dispatcher.trigger(GUIRenderEvent{});
 	}
 
 	void GUI::short_resize()
@@ -167,31 +167,31 @@ namespace oe::gui
 		m_shader_lines->setProjectionMatrix(pr_matrix);
 		m_old_render_size = render_size;
 		
-		dispatcher.trigger(event);
+		m_dispatcher.trigger(event);
 	}
 
 	void GUI::on_codepoint(const CodepointEvent& event)
 	{
-		dispatcher.trigger(event);
+		m_dispatcher.trigger(event);
 	}
 
 	void GUI::on_key(const KeyboardEvent& event)
 	{
-		dispatcher.trigger(event);
+		m_dispatcher.trigger(event);
 	}
 
 	void GUI::on_cursor_pos(const CursorPosEvent& event)
 	{
 		CursorPosEvent copy = event;
 		copy.cursor_windowspace = m_cursor_ml_matrix * glm::vec4(event.cursor_windowspace, 0.0f, 1.0f);
-		dispatcher.trigger(copy);
+		m_dispatcher.trigger(copy);
 	}
 
 	void GUI::on_button(const MouseButtonEvent& event)
 	{
 		MouseButtonEvent copy = event;
 		copy.cursor_pos.cursor_windowspace = m_cursor_ml_matrix * glm::vec4(event.cursor_pos.cursor_windowspace, 0.0f, 1.0f);
-		dispatcher.trigger(copy);
+		m_dispatcher.trigger(copy);
 		
 		/* auto debug = m_renderer->create();
 		debug->setPosition(copy.cursor_pos.cursor_windowspace);
@@ -202,6 +202,6 @@ namespace oe::gui
 
 	void GUI::on_scroll(const ScrollEvent& event)
 	{
-		dispatcher.trigger(event);
+		m_dispatcher.trigger(event);
 	}
 }

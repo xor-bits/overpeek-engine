@@ -132,9 +132,9 @@ namespace oe::utils
 		if(!key)
 			return;
 		
-		if(mods & oe::modifiers::control)
+		if(static_cast<bool>(mods & oe::modifiers::control))
 			key |= STB_TEXTEDIT_K_CONTROL;
-		if(mods & oe::modifiers::shift)
+		if(static_cast<bool>(mods & oe::modifiers::shift))
 			key |= STB_TEXTEDIT_K_SHIFT;
 
 		if (key == K_COPY)

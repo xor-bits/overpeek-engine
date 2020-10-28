@@ -8,8 +8,8 @@
 
 namespace oe::gui
 {
-	Button::Button(Widget* parent, GUI& gui_manager, const ButtonInfo& _button_info)
-		: Widget(parent, gui_manager, _button_info.widget_info)
+	Button::Button(Widget* parent, GUI& gui_manager, const info_t& _button_info)
+		: Widget(parent, gui_manager, static_cast<const Widget::info_t&>(_button_info))
 		, button_info(_button_info)
 	{
 	}
@@ -19,8 +19,8 @@ namespace oe::gui
 		if(enabled)
 		{
 			// event listeners
-			m_cg_cursor.connect<CursorPosEvent, &Button::on_cursor, Button>(m_gui_manager.dispatcher, this);
-			m_cg_button.connect<MouseButtonEvent, &Button::on_button, Button>(m_gui_manager.dispatcher, this);
+			m_cg_cursor.connect<CursorPosEvent, &Button::on_cursor, Button>(m_gui_manager.m_dispatcher, this);
+			m_cg_button.connect<MouseButtonEvent, &Button::on_button, Button>(m_gui_manager.m_dispatcher, this);
 		}
 		else
 		{
@@ -32,7 +32,7 @@ namespace oe::gui
 
 	bool Button::test(const glm::vec2& point)
 	{
-		return oe::utils::bounding_box_test(point, render_position, m_info.size);
+		return oe::utils::bounding_box_test(point, m_render_position, m_info.size);
 	}
 		
 	void Button::on_cursor(const CursorPosEvent& event)
@@ -42,7 +42,7 @@ namespace oe::gui
 
 		if (test(event.cursor_windowspace))
 		{
-			dispatcher.trigger(event_hover_latest);
+			m_dispatcher.trigger(event_hover_latest);
 		}
 	}
 
@@ -56,7 +56,7 @@ namespace oe::gui
 			event_use_latest.action = event.action;
 			event_use_latest.button = event.button;
 			event_use_latest.modifier = event.mods;
-			dispatcher.trigger(event_use_latest);
+			m_dispatcher.trigger(event_use_latest);
 		}
 	}
 

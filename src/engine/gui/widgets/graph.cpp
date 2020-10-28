@@ -102,12 +102,12 @@ namespace oe::gui
 
 
 
-    Graph::Graph(Widget* parent, GUI& gui_manager, const GraphInfo& info)
+    Graph::Graph(Widget* parent, GUI& gui_manager, const info_t& info)
         : SpritePanel(parent, gui_manager, info.bg_panel_info)
         , m_graph_info(info)
     {
-		SpritePanelInfo spi = { oe::colors::transparent, m_graph_info.bg_panel_info.sprite, m_graph_info.bg_panel_info.rotation, m_graph_info.bg_panel_info.widget_info };
-		m_graph = create<SpritePanel, SpritePanelInfo>(spi);
+		SpritePanel::info_t spi = { oe::colors::transparent, m_graph_info.bg_panel_info.sprite, m_graph_info.bg_panel_info.rotation, m_graph_info.bg_panel_info.widget_info };
+		m_graph = create(spi);
 		m_graph->m_info.align_parent = oe::alignments::top_left;
 		m_graph->m_info.align_render = oe::alignments::top_left;
 		m_graph->m_info.offset_position = { 0, 0 };
@@ -122,7 +122,7 @@ namespace oe::gui
 			graph_fb = oe::graphics::FrameBuffer({ m_info.size });
 
 			// event listeners
-			m_cg_render.connect<GUIRenderEvent, &Graph::on_render, Graph>(m_gui_manager.dispatcher, this);
+			m_cg_render.connect<GUIRenderEvent, &Graph::on_render, Graph>(m_gui_manager.m_dispatcher, this);
 		}
 		else
 		{

@@ -27,9 +27,10 @@ namespace oe::gui
 	struct GUIRenderEvent {};
 	struct GUIPreRenderEvent {};
 	
-	class GUI {
+	class GUI
+	{
 	public:
-		entt::dispatcher dispatcher;
+		entt::dispatcher m_dispatcher;
 
 	private:
 		std::shared_ptr<Widget> m_main_frame;

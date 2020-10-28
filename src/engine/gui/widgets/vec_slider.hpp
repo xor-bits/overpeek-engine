@@ -9,20 +9,6 @@
 
 namespace oe::gui
 {
-    enum class arrangements { columns, rows };
-
-    template<typename ElementType = SliderInput, uint16_t dimension = 3>
-    struct VecInfo
-    {
-        arrangements type                                          = arrangements::columns;
-		int padding                                                = 3;
-		int borders                                                = 0;
-		bool auto_size                                             = false;
-        
-		std::array<typename ElementType::info_t, dimension> common = {};
-		WidgetInfo                                     widget_info = {};
-    };
-
 	template<typename ElementType = SliderInput, uint16_t dimension = 3, bool glm_array = true>
 	struct VecValueTHelper;
 	
@@ -38,12 +24,31 @@ namespace oe::gui
 		using value_t = std::array<typename ElementType::value_t, dimension>;
 	};
 
-    template<typename ElementType = SliderInput, uint16_t dimension = 3, bool glm_array = true>
+
+
+    enum class arrangements { columns, rows };
+
+    template<typename ElementType, uint16_t dimension = 3, bool glm_array = true>
     class Vec : public Widget
     {
 	public:
 		using value_t = typename VecValueTHelper<ElementType, dimension, glm_array>::value_t;
-		using info_t = VecInfo<ElementType, dimension>;
+		using element_t = ElementType;
+		using element_info_t = typename element_t::info_t;
+		struct Info
+		{
+			using widget_t = Vec;
+			
+			// info for each element
+			std::array<element_info_t, dimension> common = {};
+			// info for the whole
+			arrangements                            type = arrangements::columns;
+			int                                  padding = 3;
+			int                                  borders = 0;
+			bool                               auto_size = false;
+			Widget::Info                     widget_info = {};
+		};
+		using info_t = Info;
 		static_assert(dimension != 0, "VecSlider dimension must not be zero");
     
     public:
@@ -52,7 +57,7 @@ namespace oe::gui
 		value_t& m_value;
 
 	public:
-		Vec(Widget* parent, GUI& gui_manager, value_t& m_value_ref, VecInfo<ElementType, dimension> vec_info = {})
+		Vec(Widget* parent, GUI& gui_manager, info_t vec_info, value_t& m_value_ref)
             : Widget(parent, gui_manager, vec_info.widget_info)
 			, m_value(m_value_ref)
         {
@@ -103,7 +108,7 @@ namespace oe::gui
             	vec_info.common[i].widget_info.align_parent = oe::alignments::top_left;
             	vec_info.common[i].widget_info.align_render = oe::alignments::top_left;
             	vec_info.common[i].widget_info.offset_position = accumulated_offset;
-				m_elements[i] = create<ElementType>(*(type_name + i), vec_info.common[i]);
+				m_elements[i] = create(vec_info.common[i], *(type_name + i));
 
 				// next widget offset
 				if(i + 1 != dimension)
@@ -114,8 +119,8 @@ namespace oe::gui
 			accumulated_offset += glm::ivec2{ vec_info.borders, vec_info.borders };
 			m_info.size = accumulated_offset + size_add;
         }
-		Vec(Widget* parent, GUI& gui_manager, VecInfo<ElementType, dimension> vec_info = {})
-			: Vec(parent, gui_manager, m_initial_values, vec_info)
+		Vec(Widget* parent, GUI& gui_manager, const info_t& vec_info)
+			: Vec(parent, gui_manager, vec_info, m_initial_values)
 		{
 			if constexpr(glm_array)
             	for(size_t i = 0; i < dimension; i++)

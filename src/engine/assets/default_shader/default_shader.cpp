@@ -112,7 +112,7 @@ namespace oe::assets {
 			}
 		},
 		{
-			oe::graphics_api::None,
+			oe::graphics_api::none,
 			{
 			}
 		}

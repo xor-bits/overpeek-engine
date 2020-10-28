@@ -11,14 +11,12 @@
 
 namespace oe::gui
 {
-	float Widget::z_acc = 1.0f;
-	Widget::Widget(Widget* parent, GUI& gui_manager, const WidgetInfo& info)
+	Widget::Widget(Widget* parent, GUI& gui_manager, const Info& info)
 		: m_parent(parent)
 		, m_nodes()
 		, m_gui_manager(gui_manager)
-		, z(z_acc += 0.01f)
-		, topleft_position({ 0, 0 })
-		, render_position({ 0, 0 })
+		, m_z(s_z_acc += 0.01f)
+		, m_render_position({ 0, 0 })
 		, m_info(info)
 		, m_cg_pre_render()
 	{
@@ -50,7 +48,7 @@ namespace oe::gui
 	{
 		if(enabled)
 		{
-			m_cg_pre_render.connect<GUIPreRenderEvent, &Widget::on_pre_render, Widget>(m_gui_manager.dispatcher, this);
+			m_cg_pre_render.connect<GUIPreRenderEvent, &Widget::on_pre_render, Widget>(m_gui_manager.m_dispatcher, this);
 		}
 		else
 		{
@@ -62,21 +60,21 @@ namespace oe::gui
 	void reset_render_pos(Widget* wdgt)
 	{
 		if(wdgt->getParent())
-			wdgt->render_position = 
+			wdgt->m_render_position = 
 			+ wdgt->m_info.offset_position
-			+ wdgt->getParent()->render_position
+			+ wdgt->getParent()->m_render_position
 			+ oe::alignmentOffsetRound(wdgt->getParent()->m_info.size, wdgt->m_info.align_parent)
 			- oe::alignmentOffsetRound(wdgt->m_info.size, wdgt->m_info.align_render);
 
 		else
-			wdgt->render_position =
+			wdgt->m_render_position =
 			+ wdgt->m_info.offset_position
 			- oe::alignmentOffsetRound(wdgt->m_info.size, wdgt->m_info.align_render);
 	}
 
 	void Widget::addZ(float add_to_z) noexcept
 	{
-		z += add_to_z;
+		m_z += add_to_z;
 		for (auto& w : m_nodes)
 			w->addZ(add_to_z);
 	}
@@ -85,9 +83,9 @@ namespace oe::gui
 	{
 		if(m_gui_manager.getWindow()->processingEvents())
 		{
-			toggle_pending_value = enabled;
-			toggle_pending = true;
-			m_cg_pre_render.connect<GUIPreRenderEvent, &Widget::on_pre_render, Widget>(m_gui_manager.dispatcher, this);
+			m_toggle_pending_value = enabled;
+			m_toggle_pending = true;
+			m_cg_pre_render.connect<GUIPreRenderEvent, &Widget::on_pre_render, Widget>(m_gui_manager.m_dispatcher, this);
 
 			return;
 		}
@@ -114,10 +112,10 @@ namespace oe::gui
 		if(!m_cg_pre_render)
 			return;
 
-		if(toggle_pending)
+		if(m_toggle_pending)
 		{
-			toggle(toggle_pending_value);
-			toggle_pending = false;
+			toggle(m_toggle_pending_value);
+			m_toggle_pending = false;
 		}
 
 		reset_render_pos(this);
