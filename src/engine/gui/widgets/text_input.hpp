@@ -42,8 +42,13 @@ namespace oe::gui
 	public:
 		// types
 		using value_t = std::basic_string<char_type>;
+		using hover_event_t = BasicTextInputHoverEvent<char_type>;
+		using use_event_t = BasicTextInputUseEvent<char_type>;
+		using input_event_t = BasicTextInputInputEvent<char_type>;
 		struct info_t
 		{
+			using widget_t = BasicTextInput;
+			
 			// characters
 			size_t max_characters                                        = std::numeric_limits<size_t>::max();
 			std::basic_string<char_type> initial_value                   = {};

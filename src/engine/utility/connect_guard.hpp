@@ -106,8 +106,8 @@ namespace oe::utils
 		void connect(Connection& connection, InstanceOpt& instance)
 		{ connect<EventType, ListenerFn, InstanceOpt, Connection>(&connection, *instance); }
 
-		template<typename EventType, typename Connection>
-		void connect(Connection* connection, const std::function<void(EventType)>& lambda)
+		template<typename EventType, typename Connection, typename Lambda>
+		void connect(Connection* connection, Lambda& lambda)
 		{
 			constexpr auto connector = connector_disconnector_getter<Connection>::template connector<EventType, &data_t_e<EventType>::call, data_t_e<EventType>>()();
 			constexpr auto disconnector = connector_disconnector_getter<Connection>::template disconnector<EventType, &data_t_e<EventType>::call, data_t_e<EventType>>()();
@@ -119,9 +119,9 @@ namespace oe::utils
 			
 			basic_connect<Connection, data_t_e<EventType>, connector, disconnector>(connection, data_e_ptr);
 		}
-		template<typename EventType, typename Connection>
-		void connect(Connection& connection, const std::function<void(EventType)>& lambda)
-		{ connect<EventType, Connection>(&connection, lambda); }
+		template<typename EventType, typename Connection, typename Lambda>
+		void connect(Connection& connection, Lambda& lambda)
+		{ connect<EventType, Connection, Lambda>(&connection, lambda); }
 
 		operator bool() const
 		{

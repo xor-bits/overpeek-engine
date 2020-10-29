@@ -63,8 +63,8 @@ void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum seve
 	std::cout << std::endl;
 
 
-	constexpr const std::string_view formatted_error = "OpenAL error";
-	if(oe::Engine::getSingleton().engine_info.ignore_errors && severity == GL_DEBUG_SEVERITY_HIGH)
+	constexpr const std::string_view formatted_error = "OpenGL error";
+	if(oe::Engine::getSingleton().engine_info.ignore_errors || severity != GL_DEBUG_SEVERITY_HIGH)
 		spdlog::warn("{}", formatted_error);
 	else
 		throw std::runtime_error(std::string{ formatted_error });

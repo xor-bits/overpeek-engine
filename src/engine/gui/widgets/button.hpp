@@ -16,6 +16,8 @@ namespace oe::gui
 	class Button : public Widget
 	{
 	public:
+		using hover_event_t = ButtonHoverEvent;
+		using use_event_t = ButtonUseEvent;
 		struct info_t : Widget::info_t {
 			using widget_t = Button;
 		};

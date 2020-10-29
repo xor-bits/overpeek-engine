@@ -28,6 +28,8 @@ namespace oe::gui
 	{
 	public:
 		using value_t = bool;
+		using hover_event_t = CheckboxHoverEvent;
+		using use_event_t = CheckboxUseEvent;
 		struct info_t
 		{
 			using widget_t = Checkbox;

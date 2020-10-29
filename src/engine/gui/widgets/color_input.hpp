@@ -43,6 +43,8 @@ namespace oe::gui
 	{
     public:
 		using value_t = glm::vec4;
+		using hover_event_t = ColorInputHoverEvent;
+		using use_event_t = ColorInputUseEvent;
 		struct info_t
 		{
 			using widget_t = ColorInput;

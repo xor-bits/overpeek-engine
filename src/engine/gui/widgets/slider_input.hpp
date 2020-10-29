@@ -99,6 +99,8 @@ namespace oe::gui
 	{
 	public:
 		using value_t = T;
+		using hover_event_t = BasicSliderInputHoverEvent<T>;
+		using use_event_t = BasicSliderInputUseEvent<T>;
 		struct info_t : BaseBasicSliderInputInfo_t
 		{
 			using widget_t = BasicSliderInput<T>;
@@ -107,7 +109,7 @@ namespace oe::gui
 			// value
 			value_t initial_value                                        = static_cast<value_t>(0.0);
 			glm::vec<2,value_t> value_bounds                             = { static_cast<value_t>(0.0), static_cast<value_t>(10.0) };
-			value_t step_size                                            = static_cast<value_t>(1.0);
+			value_t step_size                                            = static_cast<value_t>(0.01);
 			// draw
 			std::function<std::u32string(const value_t&)> draw_format          = &default_formatter;
 			

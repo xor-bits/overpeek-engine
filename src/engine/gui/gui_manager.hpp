@@ -61,9 +61,9 @@ namespace oe::gui
 
 		// create subwidget
 		template<typename T, typename ... Args>
-		std::shared_ptr<T> create(Args& ... args)
+		std::shared_ptr<typename T::widget_t> create(const T& info, Args& ... args)
 		{
-			return m_main_frame->create<T>(args...);
+			return m_main_frame->create(info, args...);
 		}
 
 		// remove subwidget

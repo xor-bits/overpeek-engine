@@ -209,15 +209,15 @@ void gui()
 {
 	gui_manager = new oe::gui::GUI(window);
 	{
-		oe::gui::TextPanelInfo tp_info;
+		oe::gui::TextPanel::info_t tp_info;
 		tp_info.font_size = 22;
 		tp_info.widget_info.align_parent = oe::alignments::top_left;
 		tp_info.widget_info.align_render = oe::alignments::top_left;
 		tp_info.text = U"placeholder";
-		text_label = gui_manager->create<oe::gui::TextPanel>(tp_info);
+		text_label = gui_manager->create(tp_info);
 	}
 	{
-		oe::gui::SliderInputInfo s_info;
+		oe::gui::fSliderInput::info_t s_info;
 		s_info.knob_size = { 6, 16 };
 		s_info.widget_info.size = { 150, 16 };
 		s_info.widget_info.align_parent = oe::alignments::top_left;
@@ -229,35 +229,38 @@ void gui()
 		s_info.slider_sprite = pack->emptySprite();
 		s_info.value_bounds = { -10.0f, 10.0f, };
 		s_info.draw_value = true;
-		auto slider = gui_manager->create<oe::gui::SliderInput>(s_info);
+		auto slider = gui_manager->create(s_info);
 
-		slider->create_event_cg().connect<oe::gui::SliderInputUseEvent>(slider->dispatcher, [&](const oe::gui::SliderInputUseEvent& e)
+		using event_t = oe::gui::fSliderInput::use_event_t;
+		std::function<void(event_t)> e = [&](const event_t& e)
 		{
 			world->m_scene.view<std::unique_ptr<MotorScript>>().each([&e](std::unique_ptr<MotorScript>& src) {
 				src->motor_joint->SetMotorSpeed(e.value);
 			});
-		});
+		};
+
+		slider->create_event_cg().connect<event_t>(slider->m_dispatcher, e);
 	}
 	{
-		oe::gui::iNumberInputInfo n_info;
+		oe::gui::iNumberInput::info_t n_info;
 		n_info.widget_info.size = { 50, 20 };
 		n_info.widget_info.align_parent = oe::alignments::top_left;
 		n_info.widget_info.align_render = oe::alignments::top_left;
 		n_info.widget_info.offset_position = { 0, 80 };
 		n_info.initial_value = 200;
-		n_info.interact_flags = oe::gui::interact_type_flags::scroll | oe::gui::interact_type_flags::cursor;
-		auto count_input = gui_manager->create<oe::gui::iNumberInput>(entity_count, n_info);
+		n_info.interact_flags = oe::interact_type_flags::scroll | oe::interact_type_flags::cursor;
+		auto count_input = gui_manager->create(n_info, entity_count);
 	}
 	{
-		oe::gui::DecoratedButtonInfo b_info;
-		b_info.button_info.widget_info.size = { 50, 40 };
-		b_info.button_info.widget_info.align_parent = oe::alignments::top_left;
-		b_info.button_info.widget_info.align_render = oe::alignments::top_left;
-		b_info.button_info.widget_info.offset_position = { 0, 110 };
+		oe::gui::DecoratedButton::info_t b_info;
+		b_info.button_info.size = { 50, 40 };
+		b_info.button_info.align_parent = oe::alignments::top_left;
+		b_info.button_info.align_render = oe::alignments::top_left;
+		b_info.button_info.offset_position = { 0, 110 };
 		b_info.text = U"R";
-		auto reset_btn = gui_manager->create<oe::gui::DecoratedButton>(b_info);
+		auto reset_btn = gui_manager->create(b_info);
 
-		reset_btn->create_event_cg().connect<oe::gui::ButtonUseEvent>(reset_btn->dispatcher, [](const oe::gui::ButtonUseEvent& e){
+		reset_btn->create_event_cg().connect<oe::gui::Button::use_event_t>(reset_btn->m_dispatcher, [](const oe::gui::Button::use_event_t& e){
 			for(size_t i = 0; i < entities.size(); i++)
 				entities[i].getScriptComponent<GenericScript>().stop();
 		});
@@ -311,6 +314,7 @@ int main(int argc, char* argv[])
 
 	// engine
 	oe::EngineInfo engine_info = {};
+	engine_info.ignore_errors = true;
 	engine_info.api = oe::graphics_api::OpenGL;
 	engine.init(engine_info);
 

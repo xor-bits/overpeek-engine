@@ -443,14 +443,14 @@ namespace oe {
 	// engine create info
 	struct EngineInfo {
 		bool audio = false;
-		bool audio_init_noexcept = false;
+		bool audio_init_noexcept = true;
 		bool networking = false;
-		bool networking_init_noexcept = false;
+		bool networking_init_noexcept = true;
 
 		graphics_api api = oe::graphics_api::OpenGL;
 		gpu favored_gpu_vulkan = gpu::dedicated;
 		bool debug_mode = true;
-		bool ignore_errors = false;
+		bool ignore_errors = true;
 	};
 
 	struct TextureInfo {

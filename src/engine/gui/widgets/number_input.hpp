@@ -13,6 +13,8 @@ namespace oe::gui
 	{
 	public:
 		using value_t = T;
+		/* using hover_event_t = BasicNumberInputHoverEvent<T>;
+		using use_event_t = BasicNumberInputUseEvent<T>; */
 		struct info_t
 		{
 			using widget_t = BasicNumberInput;
@@ -118,7 +120,9 @@ namespace oe::gui
 			cg_scroll.connect<oe::ScrollEvent, &BasicNumberInput::on_scroll>(m_gui_manager.m_dispatcher, this);
 			cg_pre_render.connect<oe::gui::GUIPreRenderEvent, &BasicNumberInput::on_pre_render>(m_gui_manager.m_dispatcher, this);
 		}
-		BasicNumberInput(Widget* parent, GUI& gui_manager, const info_t& number_input_info) : BasicNumberInput(parent, gui_manager, m_number_input_info.initial_value, number_input_info) {}
+		BasicNumberInput(Widget* parent, GUI& gui_manager, const info_t& number_input_info)
+			: BasicNumberInput(parent, gui_manager, number_input_info, m_number_input_info.initial_value)
+		{}
 
 		void clamp() noexcept
 		{

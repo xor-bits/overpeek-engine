@@ -30,7 +30,7 @@ constexpr bool graphs = true;
 
 
 static glm::mat4 ml_matrix = glm::mat4(1.0f);
-static oe::gui::TextPanelInfo tpi;
+static oe::gui::TextPanel::info_t tpi;
 class Checkpoint : public oe::gui::TextPanel
 {
 public:
@@ -226,13 +226,13 @@ void append_list(const glm::quat& quat)
 void setup_gui()
 {
 	{
-		oe::gui::SpritePanelInfo sprite_panel_info;
+		oe::gui::SpritePanel::info_t sprite_panel_info;
 		sprite_panel_info.widget_info = { { 150, 150 }, { 0, 0 }, oe::alignments::bottom_left, oe::alignments::bottom_left };
 		sprite_panel_info.sprite = sprite;
-		box = gui->create<oe::gui::SpritePanel>(sprite_panel_info);
+		box = gui->create(sprite_panel_info);
 	}
 	{
-		oe::gui::BasicTextInputInfo<char32_t> text_input_info;
+		oe::gui::u32TextInput::info_t text_input_info;
 		text_input_info.initial_value = UR"(xxxxxxxxxxxxxxxxx
 xxxxxxxxxxxxxxxxxxxx
 xxxxxxxxxxxxxxxxxx
@@ -240,13 +240,13 @@ xxxxxxxxxxxxxxxxxxxxx)";
 		text_input_info.widget_info = { { 200, 80 }, { 0, 0 }, oe::alignments::bottom_right, oe::alignments::bottom_right };
 		text_input_info.font_size = 14;
 		text_input_info.sprite = pack->emptySprite();
-		textbox = gui->create<oe::gui::BasicTextInput<char32_t>>(text_input_info);
+		textbox = gui->create(text_input_info);
 	}
 	{
-		oe::gui::VecInfo<oe::gui::SliderInput, 4> vecslider_info;
+		oe::gui::Vec<oe::gui::fSliderInput, 4>::info_t vecslider_info;
 		vecslider_info.widget_info = { { 400, 30 }, { 0, 0 }, oe::alignments::bottom_center, oe::alignments::bottom_center };
 		vecslider_info.auto_size = true;
-		oe::gui::SliderInputInfo common;
+		oe::gui::fSliderInput::info_t common;
 		common.slider_sprite = pack->emptySprite();
 		common.draw_value = true;
 		common.value_bounds = { -1.0f, 1.0f };
@@ -254,23 +254,23 @@ xxxxxxxxxxxxxxxxxxxxx)";
 		vecslider_info.common.fill(common);
 		vecslider_info.common[0].value_bounds *= glm::pi<float>();
 		vecslider_info.common[0].initial_value = 0.0f;
-		quat_slider = gui->create<oe::gui::Vec<oe::gui::SliderInput, 4>>(vecslider_info);
+		quat_slider = gui->create(vecslider_info);
 	}
 	{
-		oe::gui::CheckboxInfo ci;
+		oe::gui::Checkbox::info_t ci;
 		ci.widget_info = { { 24, 24 }, { 0, -35 }, oe::alignments::bottom_center, oe::alignments::bottom_center };
 		ci.sprite = pack->emptySprite();
-		checkbox = gui->create<oe::gui::Checkbox>(ci);
+		checkbox = gui->create(ci);
 
 		{
-			oe::gui::DecoratedButtonInfo button_info;
-			button_info.button_info.widget_info = { { 60, 24 }, { 5, 0 }, oe::alignments::center_right, oe::alignments::center_left };
+			oe::gui::DecoratedButton::info_t button_info;
+			button_info.button_info = {{ { 60, 24 }, { 5, 0 }, oe::alignments::center_right, oe::alignments::center_left }};
 			button_info.sprite = pack->emptySprite();
 			button_info.text = U"log";
 			button_info.text_font_size = 18;
-			auto button = checkbox->create<oe::gui::DecoratedButton>(button_info);
+			auto button = checkbox->create(button_info);
 
-			button->create_event_cg().connect<oe::gui::ButtonUseEvent>(button->dispatcher, [&](const oe::gui::ButtonUseEvent& e) {
+			button->create_event_cg().connect<oe::gui::ButtonUseEvent>(button->m_dispatcher, [&](const oe::gui::ButtonUseEvent& e) {
 				if (e.action == oe::actions::release && e.button == oe::mouse_buttons::button_left) {
 					glm::vec4 quat_slider_val = quat_slider->m_value;
 					append_list(glm::angleAxis(quat_slider_val.w, glm::normalize(glm::vec3(quat_slider_val.x, quat_slider_val.y, quat_slider_val.z))));
@@ -279,59 +279,59 @@ xxxxxxxxxxxxxxxxxxxxx)";
 		}
 	}
 	{ // color picker 1
-		oe::gui::ColorInputInfo color_picker_info;
+		oe::gui::ColorInput::info_t color_picker_info;
 		color_picker_info.widget_info = { { 200, 120 }, { 0, 35 }, oe::alignments::center_left, oe::alignments::center_left };
 		color_picker_info.sprite = pack->emptySprite();
 		color_picker_info.popup_color_picker = true;
 		color_picker_info.primary_input = oe::gui::input_type::slider;
-		gui->create<oe::gui::ColorInput>(color, color_picker_info);
+		gui->create(color_picker_info, color);
 	}
 	{ // color picker 2
-		oe::gui::ColorInputInfo color_picker_info;
+		oe::gui::ColorInput::info_t color_picker_info;
 		color_picker_info.widget_info = { { 200, 20 }, { 0, -40 }, oe::alignments::center_left, oe::alignments::center_left };
 		color_picker_info.sprite = pack->emptySprite();
 		color_picker_info.popup_color_picker = true;
 		color_picker_info.primary_input = oe::gui::input_type::dragger;
-		gui->create<oe::gui::ColorInput>(color, color_picker_info);
+		gui->create(color_picker_info, color);
 	}
 	{ // color picker 3
-		oe::gui::ColorInputInfo color_picker_info;
+		oe::gui::ColorInput::info_t color_picker_info;
 		color_picker_info.widget_info = { { 20, 20 }, { 0, -65 }, oe::alignments::center_left, oe::alignments::center_left };
 		color_picker_info.sprite = pack->emptySprite();
 		color_picker_info.popup_color_picker = true;
 		color_picker_info.primary_input = oe::gui::input_type::none;
-		gui->create<oe::gui::ColorInput>(color, color_picker_info);
+		gui->create(color_picker_info, color);
 	}
 	{
-		oe::gui::BasicNumberInputInfo<uint32_t> number_input_info;
+		oe::gui::BasicNumberInput<uint32_t>::info_t number_input_info;
 		number_input_info.initial_value = 42;
 		number_input_info.value_bounds = { std::numeric_limits<uint32_t>::min(), std::numeric_limits<uint32_t>::max() };
 		number_input_info.widget_info = { { 50, 20 }, { 0, 0 }, oe::alignments::top_center, oe::alignments::top_center };
 		number_input_info.sprite = pack->emptySprite();
-		gui->create<oe::gui::BasicNumberInput<uint32_t>>(number_input_info);
+		gui->create(number_input_info);
 	}
 	{
-		oe::gui::TextPanelInfo text_panel_info;
+		oe::gui::TextPanel::info_t text_panel_info;
 		text_panel_info.widget_info = { { 0, 0 }, { 0, 0 }, oe::alignments::top_left, oe::alignments::top_left };
 		text_panel_info.font_size = 20;
 		text_panel_info.text = U"placeholder";
 		text_panel_info.font_file = oe::utils::FontFile{ oe::default_full_font_path_bolditalic };
 		/* text_panel_info.background_color = oe::colors::translucent_black; */
-		textpanel = gui->create<oe::gui::TextPanel>(text_panel_info);
+		textpanel = gui->create(text_panel_info);
 
 		if constexpr (graphs) {
-			oe::gui::GraphInfo graph_info;
+			oe::gui::Graph::info_t graph_info;
 			graph_info.bg_panel_info.widget_info.size = { 200, 100 };
 			graph_info.bg_panel_info.widget_info.offset_position = { 0, 5 };
 			graph_info.bg_panel_info.widget_info.align_parent = oe::alignments::bottom_left;
 			graph_info.bg_panel_info.widget_info.align_render = oe::alignments::top_left;
 			graph_info.bg_panel_info.sprite = pack->emptySprite();
 			graph_info.graph_color = oe::colors::green;
-			graph_fps = textpanel->create<oe::gui::Graph>(graph_info);
+			graph_fps = textpanel->create(graph_info);
 			
 			graph_info.bg_panel_info.widget_info.offset_position = { 205, 5 };
 			graph_info.graph_color = oe::colors::blue;
-			graph_ups = textpanel->create<oe::gui::Graph>(graph_info);
+			graph_ups = textpanel->create(graph_info);
 		}
 	}
 	/* if constexpr(false) {
