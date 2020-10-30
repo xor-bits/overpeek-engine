@@ -107,7 +107,7 @@ namespace oe::utils
 		{ connect<EventType, ListenerFn, InstanceOpt, Connection>(&connection, *instance); }
 
 		template<typename EventType, typename Connection, typename Lambda>
-		void connect(Connection* connection, Lambda& lambda)
+		void connect(Connection* connection, Lambda&& lambda)
 		{
 			constexpr auto connector = connector_disconnector_getter<Connection>::template connector<EventType, &data_t_e<EventType>::call, data_t_e<EventType>>()();
 			constexpr auto disconnector = connector_disconnector_getter<Connection>::template disconnector<EventType, &data_t_e<EventType>::call, data_t_e<EventType>>()();
@@ -120,8 +120,8 @@ namespace oe::utils
 			basic_connect<Connection, data_t_e<EventType>, connector, disconnector>(connection, data_e_ptr);
 		}
 		template<typename EventType, typename Connection, typename Lambda>
-		void connect(Connection& connection, Lambda& lambda)
-		{ connect<EventType, Connection, Lambda>(&connection, lambda); }
+		void connect(Connection& connection, Lambda&& lambda)
+		{ connect<EventType, Connection, Lambda>(&connection, std::forward<Lambda>(lambda)); }
 
 		operator bool() const
 		{
