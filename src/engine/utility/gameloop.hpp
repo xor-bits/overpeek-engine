@@ -74,7 +74,7 @@ namespace oe::utils
 	{
 	private:
 		PerfLogger m_render_perf_logger;
-		std::chrono::duration<float> m_frame_counter_start = std::chrono::duration<float>::zero();
+		std::chrono::high_resolution_clock::time_point m_frame_counter_start;
 		entt::dispatcher dispatcher;
 
 		std::unordered_map<size_t, std::unique_ptr<UpdateSystemBase>> m_update_systems;
@@ -193,7 +193,7 @@ namespace oe::utils
 			
 			auto cast_to_float_dur = [](auto dur){ return std::chrono::duration_cast<std::chrono::duration<float, std::nano>>(dur); };
 			return cast_to_float_dur(iter->second->m_update_time_target).count() / cast_to_float_dur(iter->second->m_update_time_target).count();
-		};
+		}
 
 		inline entt::dispatcher& getDispatcher() { return dispatcher; }
 
