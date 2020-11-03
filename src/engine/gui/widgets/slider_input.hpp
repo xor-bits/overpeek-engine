@@ -1,20 +1,14 @@
 #pragma once
 
-#include "engine/assets/default_shader/default_shader.hpp"
-#include "engine/graphics/textLabel.hpp"
-#include "engine/graphics/interface/window.hpp"
-#include "engine/graphics/interface/texture.hpp"
-#include "engine/graphics/renderer.hpp"
 #include "widget.hpp"
 #include "event.hpp"
 #include "engine/gui/gui_manager.hpp"
-#include "engine/utility/fileio.hpp"
-#include "engine/utility/connect_guard_additions.hpp"
 #include "engine/enum.hpp"
+#include "engine/utility/extra.hpp"
 
 
 
-namespace oe::graphics { class Quad; }
+namespace oe::graphics { template<typename C> class BasicTextLabel; using u32TextLabel = BasicTextLabel<char32_t>; class Quad; }
 
 namespace oe::gui
 {

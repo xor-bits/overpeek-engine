@@ -34,8 +34,6 @@
 #pragma clang diagnostic push
 #pragma GCC diagnostic ignored "-Wnullability-extension"
 #elif __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnullability-extension"
 #endif
 
 // #include <miniz/miniz_zip.h>
@@ -45,7 +43,6 @@
 #ifdef __clang__
 #pragma clang diagnostic pop
 #elif __GNUC__
-#pragma GCC diagnostic pop
 #endif
 
 
@@ -60,6 +57,7 @@ constexpr int stb_i_format(oe::formats format) {
 	case oe::formats::mono:
 		return STBI_grey;
 	}
+	return 0;
 }
 
 constexpr int stb_i_channels(oe::formats format) {
@@ -72,6 +70,7 @@ constexpr int stb_i_channels(oe::formats format) {
 	case oe::formats::mono:
 		return 1;
 	}
+	return 0;
 }
 
 namespace oe::utils
@@ -255,7 +254,7 @@ namespace oe::utils
 		id = std::hash<std::string>{}(path.getPath().generic_string());
 		if(font_file_map.find(id) == font_file_map.end())
 			font_file_map[id] = path.read<oe::utils::byte_string>();
-	};
+	}
 
 	const oe::utils::byte_string& FontFile::fontFile() const
 	{

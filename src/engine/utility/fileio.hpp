@@ -3,7 +3,6 @@
 #include <string>
 #include <fstream>
 #include <vector>
-#include <spdlog/spdlog.h>
 
 #include "engine/enum.hpp"
 #include "engine/engine.hpp"

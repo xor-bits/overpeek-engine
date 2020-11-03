@@ -3,7 +3,6 @@
 #include "gl_include.hpp"
 
 #include <assert.h>
-#include <spdlog/spdlog.h>
 
 #include "engine/engine.hpp"
 #include "engine/internal_libs.hpp"
@@ -24,6 +23,7 @@ namespace oe::graphics
 		case oe::formats::mono:
 			return GL_RED;
 		}
+		return 0;
 	}
 
 	constexpr uint32_t gl_internalformat(oe::formats format)
@@ -37,6 +37,7 @@ namespace oe::graphics
 		case oe::formats::mono:
 			return GL_R8;
 		}
+		return 0;
 	}
 
 	constexpr uint32_t gl_wrap(oe::texture_wrap wrap)
@@ -52,6 +53,7 @@ namespace oe::graphics
 		default: // oe::texture_wrap::clamp_to_border:
 			return GL_CLAMP_TO_BORDER;
 		}
+		return 0;
 	}
 
 	constexpr uint32_t gl_filter(oe::texture_filter filter)
@@ -63,6 +65,7 @@ namespace oe::graphics
 		default: // oe::texture_filter::nearest:
 			return GL_NEAREST;
 		}
+		return 0;
 	}
 
 	int32_t GLTexture::gl_max_texture_size = -1;

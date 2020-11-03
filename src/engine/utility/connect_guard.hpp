@@ -44,7 +44,7 @@ namespace oe::utils
 		std::unique_ptr<connect_guard::data_t> m_data;
 	
 	public:
-		[[nodiscard]] connect_guard() noexcept = default;
+		connect_guard() noexcept = default;
 
 		connect_guard& operator= (const connect_guard& copy)
 		{

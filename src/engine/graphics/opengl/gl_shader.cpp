@@ -101,7 +101,7 @@ namespace oe::graphics
 #endif
 
 			// stage type
-			uint32_t stage_id;
+			uint32_t stage_id = GL_VERTEX_SHADER;
 			switch (stage.stage)
 			{
 			case oe::shader_stages::vertex_shader:

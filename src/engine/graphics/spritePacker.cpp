@@ -2,7 +2,25 @@
 #include "engine/engine.hpp"
 #include "engine/graphics/interface/window.hpp"
 
+
+
+// ignore external warnings
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpedantic"
+#elif __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
+
 #include <finders_interface.h>
+
+// ignore external warnings
+#ifdef __clang__
+#pragma clang diagnostic pop
+#elif __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 
 

@@ -10,10 +10,11 @@
 
 
 
-namespace oe::graphics {
-
+namespace oe::graphics
+{
 	template<primitive_types type, typename buffer_gen, typename vertex_type>
-	class IBasicPrimitiveRenderer {
+	class IBasicPrimitiveRenderer
+	{
 	public:
 		RendererInfo m_renderer_info;
 
@@ -95,4 +96,4 @@ namespace oe::graphics {
 	// typedef IBasicPrimitiveRenderer<primitive_types::quads, BasicBufferGen<primitive_types::quads>, VertexData> IPrimitiveRenderer;
 	using IPrimitiveRenderer = IBasicPrimitiveRenderer<primitive_types::quads, BasicBufferGen<primitive_types::quads>, VertexData>;
 
-};
+}

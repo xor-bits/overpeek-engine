@@ -81,9 +81,7 @@ namespace oe::audio
 		}
 		
 		const std::string formatted_error = fmt::format("OpenAL ({}):\n{}", error, error_string);
-		if(Engine::getSingleton().engine_info.ignore_errors)
-			spdlog::warn("{}", formatted_error);
-		else
+		if(!Engine::getSingleton().engine_info.ignore_errors)
 			throw std::runtime_error(formatted_error);
 	}
 
