@@ -22,12 +22,13 @@ namespace oe::utils
 		{
 			const std::function<void(EventType)> fn;
 
+			data_t_e() = default;
+			~data_t_e() override = default;
+
 			template<typename Callable>
 			data_t_e(Callable&& f) : fn(f) { if(!fn) throw std::runtime_error("Callable was empty"); }
 
-			void call(const EventType& e) { fn(e); }
-			
-			~data_t_e() {}
+			void call(const EventType& e) const { fn(e); }
 		};
 		
 		template<typename Connection>
