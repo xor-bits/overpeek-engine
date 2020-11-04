@@ -1,5 +1,12 @@
 #include "slider_input.hpp"
 
+#include "engine/assets/default_shader/default_shader.hpp"
+#include "engine/graphics/textLabel.hpp"
+#include "engine/graphics/interface/window.hpp"
+#include "engine/graphics/interface/texture.hpp"
+#include "engine/graphics/renderer.hpp"
+#include "engine/utility/fileio.hpp"
+#include "engine/utility/connect_guard_additions.hpp"
 
 
 

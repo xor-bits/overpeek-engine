@@ -5,7 +5,6 @@
 #include "engine/utility/extra.hpp"
 #include "engine/utility/connect_guard_additions.hpp"
 #include "engine/graphics/interface/window.hpp"
-#include <spdlog/spdlog.h>
 
 
 

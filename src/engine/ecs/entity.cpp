@@ -2,7 +2,6 @@
 #include "world.hpp"
 
 #include "components/quad.hpp"
-#include <spdlog/spdlog.h>
 
 
 

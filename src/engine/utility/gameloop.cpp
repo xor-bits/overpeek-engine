@@ -11,6 +11,8 @@ namespace oe::utils
 	{
 		oe_debug_call("gameloop");
 
+		m_frame_counter_start = std::chrono::high_resolution_clock::now();
+
 		m_should_run = true;
 		m_host_window->inactive_context(); // release context from main thread
 		std::thread second_thread([&](){
@@ -69,8 +71,10 @@ namespace oe::utils
 		m_render_perf_logger.log(frame_time);
 
 		// counters
-		auto frame_counter_now = std::chrono::duration_cast<std::chrono::duration<float>>(std::chrono::high_resolution_clock::now().time_since_epoch());
-		if (m_frame_counter_start <= frame_counter_now) {
+		auto frame_counter_now = std::chrono::high_resolution_clock::now();
+		if (m_frame_counter_start + std::chrono::seconds(1) <= frame_counter_now)
+		{
+			spdlog::info("once in a second");
 			// frame counter
 			m_render_perf_logger.m_per_second = m_render_perf_logger.m_periodical_count;
 			m_render_perf_logger.m_periodical_count = 0;
@@ -82,8 +86,8 @@ namespace oe::utils
 				system.second->m_perf_logger.m_periodical_count = 0;
 			}
 
-			// reset timer
-			m_frame_counter_start = frame_counter_now + std::chrono::duration<float>(1);
+			// reset the timer
+			m_frame_counter_start = frame_counter_now;
 		}
 	}
 

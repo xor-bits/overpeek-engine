@@ -5,7 +5,6 @@
 #include <iomanip>
 #include <sstream>
 #include <cstddef>
-#include <spdlog/spdlog.h>
 
 #include "engine/engine.hpp"
 
