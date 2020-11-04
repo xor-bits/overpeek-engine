@@ -1,8 +1,14 @@
 #include "font.hpp"
 
+// #define OE_USE_FT2
+#ifdef OE_USE_FT2
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <freetype/ftstroke.h>
+#else
+#define STB_TRUETYPE_IMPLEMENTATION
+#include <stb_truetype.h>
+#endif
 
 #include "engine/internal_libs.hpp"
 #include "engine/engine.hpp"
@@ -14,20 +20,27 @@
 
 namespace oe::graphics
 {
+	struct FontData
+	{
+#ifdef OE_USE_FT2
+		FT_LibraryRec_ ft;
+		FT_FaceRec_ face;
+#else
+		stbtt_fontinfo info;
+		float scale;
+#endif
+	};
+
+
+
 	bool Font::gen_codepoint_glyph(char32_t codepoint)
 	{
+#ifdef OE_USE_FT2
 		//Load glyph
-		try
+		if (FT_Load_Char(face, codepoint, FT_LOAD_RENDER))
 		{
-			if (FT_Load_Char(face, codepoint, FT_LOAD_RENDER))
-			{
-				spdlog::warn("Failed to load glyph: {}", (size_t)codepoint);
-				return false;
-			}
-		}
-		catch(const std::exception& e)
-		{
-			spdlog::info("{}", e.what());
+			spdlog::warn("Failed to load glyph: {}", (size_t)codepoint);
+			return false;
 		}
 
 		// glyph
@@ -59,17 +72,48 @@ namespace oe::graphics
 		}));
 
 		delete[] data;
+#else
+		// glyph info
+		int x0, y0, x1, y1;
+		stbtt_GetCodepointBitmapBox(&m_data->info, codepoint, m_data->scale, m_data->scale, &x0, &y0, &x1, &y1);
+		int w = std::abs(x0 - x1);
+		int h = std::abs(y0 - y1);
+
+		// allocate glyph img
+		oe::utils::image_data id(oe::formats::mono, w, h);
+		
+		// gen glyph img
+		stbtt_MakeCodepointBitmap(&m_data->info, id.data, w, h, 0, m_data->scale, m_data->scale, codepoint);
+		
+		//Now store character for later use
+		m_glyphs.insert(std::make_pair(codepoint, Font::Glyph{
+			codepoint,
+			glm::vec2(w, h) / (float)m_resolution,
+			glm::vec2(0, 0) / (float)m_resolution,
+			glm::vec2(w, h) / (float)m_resolution,
+
+			// add glyph to sprite packer
+			m_sprite_pack->create(std::move(id))
+		}));
+#endif
+
 		return true;
 	}
 	
 	Font::Font(uint16_t resolution, const oe::utils::FontFile& font_file)
 		: m_sprite_pack(new SpritePack(5))
 		, m_resolution(resolution)
+		, m_data(new FontData())
 		, m_font_file(font_file.fontFile())
 	{
 		oe_debug_call("font");
 
-		// Freetype library
+		if (!stbtt_InitFont(&m_data->info, m_font_file.data(), 0))
+			throw oe::utils::formatted_error("Failed to load font in memory {0:x} {1}", (size_t)m_font_file.data(), m_font_file.size());
+
+    	m_data->scale = stbtt_ScaleForPixelHeight(&m_data->info, m_resolution);
+
+		/* // Freetype library
 		if (FT_Init_FreeType(&ft))
 			throw oe::utils::formatted_error("FT_Init_FreeType failed");
 
@@ -79,7 +123,7 @@ namespace oe::graphics
 
 		FT_Set_Pixel_Sizes(face, 0, m_resolution);
 		FT_Select_Charmap(face, FT_ENCODING_UNICODE);
-		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
+		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction */
 
 		// all ascii glyphs
 		for (char32_t i = 32; i < 127; i++)
@@ -99,9 +143,14 @@ namespace oe::graphics
 
 	Font::~Font() {
 		delete m_sprite_pack;
+		delete m_data;
 
+#ifdef OE_USE_FT2
 		FT_Done_Face(face);
 		FT_Done_FreeType(ft);
+#else
+		// 
+#endif
 	}
 	
 	const Font::Glyph* Font::getGlyph(char32_t c)

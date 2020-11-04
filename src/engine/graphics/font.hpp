@@ -9,11 +9,12 @@
 
 
 
-struct FT_LibraryRec_; struct FT_FaceRec_;
 namespace oe::graphics { struct Sprite; class SpritePack; }
 
 namespace oe::graphics
 {
+	struct FontData;
+
 	class Font
 	{
 	public:
@@ -30,8 +31,7 @@ namespace oe::graphics
 		SpritePack* m_sprite_pack;
 		std::unordered_map<char32_t, Glyph> m_glyphs;
 		uint16_t m_resolution;
-		FT_LibraryRec_* ft;
-		FT_FaceRec_* face;
+		FontData* m_data;
 
 		oe::utils::byte_string m_font_file;
 
