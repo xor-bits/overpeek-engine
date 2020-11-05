@@ -69,12 +69,12 @@ namespace oe::graphics {
 
 	const Sprite* SpritePack::create(const oe::utils::image_data& sprite_texture)
 	{
-		return create(std::move(oe::utils::image_data(sprite_texture)));
+		return create(oe::utils::image_data(sprite_texture));
 	}
 
 	const Sprite* SpritePack::create(const oe::utils::FileIO& sprite_texture)
 	{
-		return create(std::move(oe::utils::image_data(sprite_texture)));
+		return create(oe::utils::image_data(sprite_texture));
 	}
 
 	void SpritePack::clear()
@@ -85,8 +85,7 @@ namespace oe::graphics {
 
 		// load empty sprite
 		uint8_t data[1] = { std::numeric_limits<uint8_t>::max() }; // one white pixel
-		oe::utils::image_data empty_img(data, oe::formats::mono, 1, 1);
-		create(std::move(empty_img));
+		create(oe::utils::image_data(data, oe::formats::mono, 1, 1));
 	}
 
 	constexpr inline size_t coordsToIndex(size_t x, size_t y, size_t c, size_t width, size_t channels) noexcept
