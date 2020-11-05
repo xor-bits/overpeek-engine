@@ -40,6 +40,9 @@ namespace oe::assets
 		
 		// set texture (non solid color) mode on/off (u_usetex)
 		void setTexture(bool use = true) const;
+
+		// get the base shader
+		const oe::graphics::Shader& getShader() { return m_shader; }
 		
 		// SDF font specifics
 		
@@ -47,22 +50,19 @@ namespace oe::assets
 		void setSDF(bool use = true) const;
 
 		// set font width (u_sdf_width)
-		void setWidth(float width) const;
+		void setWidth(float width = 0.25f) const;
 
 		// set font AA edge width (u_sdf_edge)
-		void setEdge(float edge) const;
+		void setEdge(float edge = 0.05f) const;
 
 		// set font outline width (u_sdf_width)
-		void setOutlineWidth(float width) const;
+		void setOutlineWidth(float width = 0.15f) const;
 
 		// set font outline AA edge width (u_sdf_edge)
-		void setOutlineEdge(float edge) const;
+		void setOutlineEdge(float edge = 0.05f) const;
 
 		// set font outline color (u_sdf_outline_color)
-		void setOutlineColor(const oe::color& c) const;
-
-		// get the base shader
-		const oe::graphics::Shader& getShader() { return m_shader; }
+		void setOutlineColor(const oe::color& c = oe::colors::black) const;
 	};
 
 }
