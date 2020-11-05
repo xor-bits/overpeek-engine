@@ -65,6 +65,8 @@ void resize(const oe::ResizeEvent& event) {
 	dyn_label_shader->setModelMatrix(ml_matrix);
 	dyn_label_shader->setTexture(true);
 	dyn_label_shader->setSDF(true);
+	dyn_label_shader->setEdge(0.1f / s_zoom);
+	dyn_label_shader->setOutlineEdge(0.1f / s_zoom);
 }
 
 void resize_default()
