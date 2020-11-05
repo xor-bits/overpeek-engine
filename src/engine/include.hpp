@@ -56,4 +56,5 @@
 
 // Asset
 #include "assets/default_shader/default_shader.hpp"
+#include "assets/font_shader/font_shader.hpp"
 #include "assets/texture_set/texture_set.hpp"

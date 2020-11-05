@@ -26,8 +26,8 @@ namespace oe::gui
 			std::function<std::string(const value_t&)> draw_format    = &default_formatter; // only when keyboard input is disabled
 			uint16_t font_size                                  = 16;
 			oe::utils::FontFile font_file                       = {}; // empty for gui default
-			glm::vec4 color                                     = oe::colors::dark_grey;
-			glm::vec4 default_text_color                        = oe::colors::white;
+			oe::color background_color                          = oe::colors::dark_grey;
+			oe::color default_text_color                        = oe::colors::white;
 			const oe::graphics::Sprite* sprite                  = nullptr;
 
 			interact_type_flags interact_flags                  = interact_type_flags::cursor | interact_type_flags::keyboard | interact_type_flags::scroll;
@@ -92,7 +92,7 @@ namespace oe::gui
 			info.align_text = number_input_info.align_text;
 			info.font_size = number_input_info.font_size;
 			info.font_file = number_input_info.font_file;
-			info.color = number_input_info.color;
+			info.background_color = number_input_info.background_color;
 			info.default_text_color = number_input_info.default_text_color;
 			info.sprite = number_input_info.sprite;
 			info.widget_info = number_input_info.widget_info;

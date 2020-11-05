@@ -28,7 +28,7 @@ namespace oe::graphics {
 
 
 
-	void VKCommandBuffer::beginRecording(glm::vec4 clear_color)
+	void VKCommandBuffer::beginRecording(oe::color clear_color)
 	{
 		// clearing color
 		vk::ClearColorValue clearColorValue = vk::ClearColorValue(std::array<float, 4>{ clear_color.r, clear_color.g, clear_color.b, clear_color.a });

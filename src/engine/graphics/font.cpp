@@ -1,5 +1,22 @@
 #include "font.hpp"
 
+#include "engine/internal_libs.hpp"
+#include "engine/engine.hpp"
+#include "engine/graphics/spritePacker.hpp"
+#include "engine/utility/fileio.hpp"
+#include "engine/utility/formatted_error.hpp"
+
+
+
+// ignore external warnings
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wparentheses"
+#elif __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wparentheses"
+#endif
+
 // #define OE_USE_FT2
 #ifdef OE_USE_FT2
 #include <ft2build.h>
@@ -10,11 +27,12 @@
 #include <stb_truetype.h>
 #endif
 
-#include "engine/internal_libs.hpp"
-#include "engine/engine.hpp"
-#include "engine/graphics/spritePacker.hpp"
-#include "engine/utility/fileio.hpp"
-#include "engine/utility/formatted_error.hpp"
+// ignore external warnings
+#ifdef __clang__
+#pragma clang diagnostic pop
+#elif __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 
 
@@ -23,8 +41,8 @@ namespace oe::graphics
 	struct FontData
 	{
 #ifdef OE_USE_FT2
-		FT_LibraryRec_ ft;
-		FT_FaceRec_ face;
+		FT_Library ft;
+		FT_Face face;
 #else
 		stbtt_fontinfo info;
 		float scale;
@@ -37,28 +55,15 @@ namespace oe::graphics
 	{
 #ifdef OE_USE_FT2
 		//Load glyph
-		if (FT_Load_Char(face, codepoint, FT_LOAD_RENDER))
+		if (FT_Load_Char(m_data->face, codepoint, FT_LOAD_RENDER))
 		{
 			spdlog::warn("Failed to load glyph: {}", (size_t)codepoint);
 			return false;
 		}
 
 		// glyph
-		auto g = face->glyph;
+		const auto g = m_data->face->glyph;
 		if (!g->bitmap.buffer) return false;
-
-		// white font
-		uint8_t* data = new uint8_t[g->bitmap.width * g->bitmap.rows * 4]();
-		for (size_t y = 0; y < g->bitmap.rows; y++) {
-			for (size_t x = 0; x < g->bitmap.width; x++) {
-				size_t pixel = (x + y * g->bitmap.width) * 4;
-
-				data[pixel + 0] = 255;
-				data[pixel + 1] = 255;
-				data[pixel + 2] = 255;
-				data[pixel + 3] = g->bitmap.buffer[x + y * g->bitmap.width];
-			}
-		}
 
 		//Now store character for later use
 		m_glyphs.insert(std::make_pair(codepoint, Font::Glyph{
@@ -68,62 +73,104 @@ namespace oe::graphics
 			glm::vec2(g->advance.x >> 6, g->advance.y >> 6) / (float)m_resolution,
 
 			// add glyph to sprite packer
-			m_sprite_pack->create(std::move(oe::utils::image_data(data, oe::formats::rgba, g->bitmap.width, g->bitmap.rows)))
+			m_sprite_pack->create(std::move(oe::utils::image_data(g->bitmap.buffer, oe::formats::mono, g->bitmap.width, g->bitmap.rows)))
 		}));
-
-		delete[] data;
 #else
-		// glyph info
-		int x0, y0, x1, y1;
-		stbtt_GetCodepointBitmapBox(&m_data->info, codepoint, m_data->scale, m_data->scale, &x0, &y0, &x1, &y1);
-		int w = std::abs(x0 - x1);
-		int h = std::abs(y0 - y1);
+		if(m_sdf)
+		{
+			// glyph info
+			int x0, y0, w, h;
+			uint8_t* data = stbtt_GetCodepointSDF(&m_data->info, m_data->scale, codepoint, 8, 192, 16.0f, &w, &h, &x0, &y0);
+			int advance_x, bearing_x;
+			stbtt_GetCodepointHMetrics(&m_data->info, codepoint, &advance_x, &bearing_x);
+			int advance_y, bearing_y;
+			stbtt_GetCodepointHMetrics(&m_data->info, codepoint, &advance_y, &bearing_y);
 
-		// allocate glyph img
-		oe::utils::image_data id(oe::formats::mono, w, h);
-		
-		// gen glyph img
-		stbtt_MakeCodepointBitmap(&m_data->info, id.data, w, h, 0, m_data->scale, m_data->scale, codepoint);
-		
-		//Now store character for later use
-		m_glyphs.insert(std::make_pair(codepoint, Font::Glyph{
-			codepoint,
-			glm::vec2(w, h) / (float)m_resolution,
-			glm::vec2(0, 0) / (float)m_resolution,
-			glm::vec2(w, h) / (float)m_resolution,
+			if(!data)
+				return false;
 
-			// add glyph to sprite packer
-			m_sprite_pack->create(std::move(id))
-		}));
+			// glyph img
+			oe::utils::image_data id(data, oe::formats::mono, w, h);
+			
+			//Now store character for later use
+			m_glyphs.insert(std::make_pair(codepoint, Font::Glyph{
+				codepoint,
+				glm::vec2(w, h) / (float)m_resolution,
+				glm::vec2(x0, y0) / (float)m_resolution,
+				glm::vec2(advance_x, advance_y) * m_data->scale / (float)m_resolution,
+
+				// add glyph to sprite packer
+				m_sprite_pack->create(std::move(id))
+			}));
+		}
+		else
+		{
+			// glyph info
+			int x0, y0, x1, y1;
+			stbtt_GetCodepointBitmapBox(&m_data->info, codepoint, m_data->scale, m_data->scale, &x0, &y0, &x1, &y1);
+			int advance_x, bearing_x;
+			stbtt_GetCodepointHMetrics(&m_data->info, codepoint, &advance_x, &bearing_x);
+			int advance_y, bearing_y;
+			stbtt_GetCodepointHMetrics(&m_data->info, codepoint, &advance_y, &bearing_y);
+			const int w = std::abs(x0 - x1);
+			const int h = std::abs(y0 - y1);
+
+			// allocate glyph img
+			oe::utils::image_data id(oe::formats::mono, w, h);
+			
+			// gen glyph img
+			stbtt_MakeCodepointBitmap(&m_data->info, id.data, w, h, w, m_data->scale, m_data->scale, codepoint);
+
+			//Now store character for later use
+			m_glyphs.insert(std::make_pair(codepoint, Font::Glyph{
+				codepoint,
+				glm::vec2(w, h) / (float)m_resolution,
+				glm::vec2(x0, y0) / (float)m_resolution,
+				glm::vec2(advance_x, advance_y) * m_data->scale / (float)m_resolution,
+
+				// add glyph to sprite packer
+				m_sprite_pack->create(std::move(id))
+			}));
+		}
 #endif
 
 		return true;
 	}
+
+	[[nodiscard]] inline static oe::TextureInfo default_texture_settings(bool sdf) noexcept
+	{
+		oe::TextureInfo info;
+		info.generate_mipmaps = !sdf;
+		info.filter = sdf ? oe::texture_filter::linear : oe::texture_filter::nearest;
+		return info;
+	}
 	
-	Font::Font(uint16_t resolution, const oe::utils::FontFile& font_file)
+	Font::Font(uint16_t resolution, bool sdf, const oe::utils::FontFile& font_file)
 		: m_sprite_pack(new SpritePack(5))
-		, m_resolution(resolution)
 		, m_data(new FontData())
+		, m_resolution(resolution)
+		, m_sdf(sdf)
 		, m_font_file(font_file.fontFile())
 	{
 		oe_debug_call("font");
 
+#ifdef OE_USE_FT2
+		// Freetype library
+		if (FT_Init_FreeType(&m_data->ft))
+			throw oe::utils::formatted_error("FT_Init_FreeType failed");
+
+		// Load font
+		if (FT_New_Memory_Face(m_data->ft, m_font_file.data(), static_cast<int32_t>(std::clamp<size_t>(m_font_file.size(), 0, std::numeric_limits<int32_t>::max())), 0, &m_data->face))
+			throw oe::utils::formatted_error("Failed to load font in memory {0:x} {1}", (size_t)m_font_file.data(), m_font_file.size());
+
+		FT_Set_Pixel_Sizes(m_data->face, 0, m_resolution);
+		FT_Select_Charmap(m_data->face, FT_ENCODING_UNICODE);
+#else
 		if (!stbtt_InitFont(&m_data->info, m_font_file.data(), 0))
 			throw oe::utils::formatted_error("Failed to load font in memory {0:x} {1}", (size_t)m_font_file.data(), m_font_file.size());
 
     	m_data->scale = stbtt_ScaleForPixelHeight(&m_data->info, m_resolution);
-
-		/* // Freetype library
-		if (FT_Init_FreeType(&ft))
-			throw oe::utils::formatted_error("FT_Init_FreeType failed");
-
-		// Load font
-		if (FT_New_Memory_Face(ft, m_font_file.data(), static_cast<int32_t>(std::clamp<size_t>(m_font_file.size(), 0, std::numeric_limits<int32_t>::max())), 0, &face))
-			throw oe::utils::formatted_error("Failed to load font in memory {0:x} {1}", (size_t)m_font_file.data(), m_font_file.size());
-
-		FT_Set_Pixel_Sizes(face, 0, m_resolution);
-		FT_Select_Charmap(face, FT_ENCODING_UNICODE);
-		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction */
+#endif
 
 		// all ascii glyphs
 		for (char32_t i = 32; i < 127; i++)
@@ -138,16 +185,17 @@ namespace oe::graphics
 			m_sprite_pack->emptySprite()
 		}));
 
-		m_sprite_pack->constructRepeat();
+		m_sprite_pack->constructRepeat(default_texture_settings(m_sdf));
 	}
 
-	Font::~Font() {
+	Font::~Font()
+	{
 		delete m_sprite_pack;
 		delete m_data;
 
 #ifdef OE_USE_FT2
-		FT_Done_Face(face);
-		FT_Done_FreeType(ft);
+		FT_Done_Face(m_data->face);
+		FT_Done_FreeType(m_data->ft);
 #else
 		// 
 #endif
@@ -166,7 +214,7 @@ namespace oe::graphics
 			bool successful = gen_codepoint_glyph(c);
 			if (!successful) return nullptr;
 			
-			m_sprite_pack->constructRepeat(); // frametime jumps when new character is seen
+			m_sprite_pack->constructRepeat(default_texture_settings(m_sdf)); // frametime jumps when new character is seen
 			if (m_glyphs.find(c) != m_glyphs.end()) 
 			{
 				// glyph found

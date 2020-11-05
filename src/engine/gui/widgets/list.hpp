@@ -12,10 +12,10 @@ namespace oe::gui
     {
         bool scrollable                    = true;
         int element_borders                = 5;
-		glm::vec4 bg_color                 = { 0.17f, 0.17f, 0.17f, 1.0f };
+		oe::color bg_color                 = { 0.17f, 0.17f, 0.17f, 1.0f };
         std::u32string title               = U"";
 		glm::vec2 title_align              = oe::alignments::center_center;
-        glm::vec4 title_bg_color           = oe::colors::darker_grey;
+        oe::color title_bg_color           = oe::colors::darker_grey;
         int title_height                   = 0; // 28
         int title_font_size                = 16;
 		const oe::graphics::Sprite* sprite = nullptr;

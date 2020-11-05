@@ -126,7 +126,7 @@ namespace oe::gui
 	{
 		const oe::utils::FontFile& font = _font.getID() == 0 ? m_default_font_file : _font;
 
-		m_fontmap[resolution].try_emplace(font, resolution, font);
+		m_fontmap[resolution].try_emplace(font, false, resolution, font);
 		return m_fontmap.at(resolution).at(font);
 	}
 

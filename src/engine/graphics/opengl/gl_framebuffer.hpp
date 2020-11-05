@@ -24,7 +24,7 @@ namespace oe::graphics
 		~GLFrameBuffer();
 
 		void bind() override;
-		void clear(const glm::vec4& color = oe::colors::clear_color) override;
+		void clear(const oe::color& c = oe::colors::clear_color) override;
 
 		inline Texture& getTexture() override
 		{

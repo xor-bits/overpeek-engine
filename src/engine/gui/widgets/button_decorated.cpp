@@ -20,7 +20,7 @@ namespace oe::gui
 		sp_info.widget_info.align_parent = oe::alignments::center_center;
 		sp_info.widget_info.align_render = oe::alignments::center_center;
 		sp_info.sprite = button_info.sprite;
-		sp_info.color = button_info.color;
+		sp_info.color_tint = button_info.btn_color;
 		button_background = create(sp_info);
 
 		TextPanel::info_t tp_info;

@@ -1,6 +1,7 @@
 #include "spritePacker.hpp"
 #include "engine/engine.hpp"
 #include "engine/graphics/interface/window.hpp"
+#include "sprite.hpp"
 
 
 
@@ -41,65 +42,59 @@ namespace oe::graphics {
 
 
 	SpritePack::SpritePack(int border)
+		: m_usr_data(new __usr_data())
+		, m_border(border)
+		, m_constructed(false)
 	{
 		oe_debug_call("spritepack");
-
-		m_constructed = false;
-		m_usr_data = new __usr_data();
-
-		m_usr_data->m_rectangles = std::vector<rect_type>();
-		m_usr_data->m_images = std::vector<oe::utils::image_data>(); 
-		m_border = border;
-		
 		clear();
 	}
 
 	SpritePack::~SpritePack()
 	{
-		for(auto iter : m_sprites) delete iter;
 		m_usr_data->m_images.clear();
 		m_usr_data->m_rectangles.clear();
 		m_sprites.clear();
 	}
 
-	const Sprite* SpritePack::create(const oe::utils::image_data& sprite_texture)
+	const Sprite* SpritePack::create(oe::utils::image_data&& sprite_texture)
 	{
-		auto sprite = new Sprite();
-		
 		m_usr_data->m_rectangles.push_back(rectpack2D::rect_xywh(0, 0, sprite_texture.width + m_border, sprite_texture.height + m_border));
-		m_usr_data->m_images.push_back(sprite_texture);
-		m_sprites.push_back(sprite);
+		m_sprites.push_back(std::make_unique<Sprite>());
 
-		return sprite;
+		m_usr_data->m_images.emplace_back(std::move(sprite_texture));
+
+		return m_sprites.back().get();
 	}
 
-	const Sprite* SpritePack::create(fs::path sprite_texture)
+	const Sprite* SpritePack::create(const oe::utils::image_data& sprite_texture)
 	{
-		return create(oe::utils::image_data(sprite_texture));
+		return create(std::move(oe::utils::image_data(sprite_texture)));
+	}
+
+	const Sprite* SpritePack::create(const oe::utils::FileIO& sprite_texture)
+	{
+		return create(std::move(oe::utils::image_data(sprite_texture)));
 	}
 
 	void SpritePack::clear()
 	{
-		for(auto iter : m_sprites) delete iter;
 		m_usr_data->m_images.clear();
 		m_usr_data->m_rectangles.clear();
 		m_sprites.clear();
 
 		// load empty sprite
-		size_t img_size = 4ul * (size_t)1 * (size_t)1;
-		unsigned char* data = new unsigned char[img_size];
-		std::memset(data, (unsigned char)255, img_size);
-		oe::utils::image_data empty_img(data, oe::formats::rgba, 1, 1);
-		create(empty_img);
-		delete[] data;
+		uint8_t data[1] = { std::numeric_limits<uint8_t>::max() }; // one white pixel
+		oe::utils::image_data empty_img(data, oe::formats::mono, 1, 1);
+		create(std::move(empty_img));
 	}
 
-	size_t coordsToIndex(size_t x, size_t y, size_t c, size_t width, size_t channels)
+	constexpr inline size_t coordsToIndex(size_t x, size_t y, size_t c, size_t width, size_t channels) noexcept
 	{
 		return channels * (x + y * width) + c;
 	}
 
-	void SpritePack::constructRepeat()
+	void SpritePack::constructRepeat(const oe::TextureInfo& texture_settings)
 	{
 		// pack sprites
 		const auto max_side = 10000;
@@ -120,8 +115,8 @@ namespace oe::graphics {
 		);
 
 		// create texture and add sprites
-		size_t pack_width = static_cast<size_t>(std::abs(result_size.w));
-		size_t pack_height = static_cast<size_t>(std::abs(result_size.h));
+		const size_t pack_width = static_cast<size_t>(std::abs(result_size.w));
+		const size_t pack_height = static_cast<size_t>(std::abs(result_size.h));
 		unsigned char* data = new unsigned char[pack_width * pack_height * 4]();
 		for (size_t i = 0; i < m_usr_data->m_rectangles.size(); i++) {
 			const auto& rectangle = m_usr_data->m_rectangles.at(i);
@@ -181,27 +176,27 @@ namespace oe::graphics {
 			}
 		}
 
-
-		oe::TextureInfo texture_info = {};
-		texture_info.generate_mipmaps = true;
+		// the main texture
+		oe::TextureInfo texture_info = texture_settings;
 		texture_info.data = data;
 		texture_info.size_offset = { { pack_width, 0 }, { pack_height, 0} };
-
 		m_texture = Texture(texture_info);
-		for (auto sprite : m_sprites)
-		{
+
+		// sprite owners
+		for (auto& sprite : m_sprites)
 			sprite->m_owner = m_texture;
-		}
-		m_constructed = true;
 		
+		// complete
+		m_constructed = true;
 		delete[] data;
 	}
 
-	void SpritePack::construct()
+	void SpritePack::construct(const oe::TextureInfo& texture_settings)
 	{
-		constructRepeat();
+		constructRepeat(texture_settings);
 
 		m_usr_data->m_images.clear();
+		m_usr_data->m_rectangles.clear();
 	}
 
 	void SpritePack::bind()

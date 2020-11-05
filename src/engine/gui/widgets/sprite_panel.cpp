@@ -38,7 +38,7 @@ namespace oe::gui {
 		quad->setPosition(m_render_position + oe::alignmentOffset(m_info.size, oe::alignments::center_center));
 		quad->setZ(m_z);
 		quad->setSize(m_info.size);
-		quad->setColor(sprite_panel_info.color);
+		quad->setColor(sprite_panel_info.color_tint);
 		quad->setSprite(sprite_panel_info.sprite);
 		quad->setRotation(sprite_panel_info.rotation);
 		quad->setRotationAlignment(oe::alignments::center_center);

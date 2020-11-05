@@ -17,11 +17,11 @@ namespace oe::gui
 		{
 			using widget_t = SpritePanel;
 			
-			glm::vec4 color                    = oe::colors::white;
+			oe::color color_tint               = oe::colors::white;
 			const oe::graphics::Sprite* sprite = nullptr;
 			float rotation                     = 0.0f;
 			
-			Widget::Info widget_info             = { { 50, 50 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
+			Widget::Info widget_info           = { { 50, 50 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
 		};
 		
 	private:

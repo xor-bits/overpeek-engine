@@ -43,7 +43,7 @@ namespace oe::graphics {
 
 
 
-	void VKCommandPool::beginRecording(glm::vec4 clear_color) {
+	void VKCommandPool::beginRecording(oe::color clear_color) {
 		for (auto& buffer : m_command_buffers)
 		{
 			buffer->beginRecording(clear_color);

@@ -10,12 +10,19 @@ oe::graphics::Renderer* renderer;
 oe::assets::DefaultShader* shader;
 oe::graphics::Font* font;
 
-oe::graphics::u32TextLabel* label;
+oe::graphics::u32TextLabel* bkd_label;
+oe::assets::FontShader* dyn_label_shader;
+oe::graphics::Renderer* dyn_label_renderer;
 std::unique_ptr<oe::graphics::Quad> quad;
 
 oe::utils::connect_guard cg_render;
 oe::utils::connect_guard cg_update_2;
 oe::utils::connect_guard cg_resize;
+oe::utils::connect_guard cg_scroll;
+oe::utils::connect_guard cg_keyboard;
+
+float zoom = 1.0f;
+glm::vec2 offset = { -14.0f, -10.0f };
 
 
 
@@ -23,6 +30,9 @@ void render(oe::RenderEvent)
 {
 	shader->bind();
 	renderer->render();
+
+	dyn_label_shader->bind();
+	dyn_label_renderer->render();
 }
 
 void update_2(oe::UpdateEvent<2>) {
@@ -39,9 +49,56 @@ void update_2(oe::UpdateEvent<2>) {
 }
 
 void resize(const oe::ResizeEvent& event) {
-	glm::mat4 pr_matrix = glm::ortho(0.0f, (float)event.framebuffer_size.x, (float)event.framebuffer_size.y, 0.0f);
+	const float s_zoom = zoom == 0.0f ? 1.0f : zoom;
+	const glm::mat4 pr_matrix = glm::ortho(-event.aspect, event.aspect, 1.0f, -1.0f);
+	const glm::mat4 ml_matrix = glm::translate(
+									glm::scale(
+										glm::translate(
+											glm::mat4(1.0f),
+											glm::vec3{ -1.0f, -1.0f, 0.0f }),
+										glm::vec3{ s_zoom }),
+									glm::vec3{ (1.0f / s_zoom + offset.x * 0.1f), (1.0f / s_zoom + offset.y * 0.1f), (0.0f) });
 	shader->setProjectionMatrix(pr_matrix);
+	shader->setModelMatrix(ml_matrix);
 	shader->setTexture(true);
+	dyn_label_shader->setProjectionMatrix(pr_matrix);
+	dyn_label_shader->setModelMatrix(ml_matrix);
+	dyn_label_shader->setTexture(true);
+	dyn_label_shader->setSDF(true);
+}
+
+void resize_default()
+{
+	oe::ResizeEvent r_e;
+	r_e.framebuffer_size = window->getSize();
+	r_e.aspect = window->getAspect();
+	resize(r_e);
+}
+
+void on_scroll(const oe::ScrollEvent& e)
+{
+	zoom += zoom * e.scroll_delta.y * 0.1f;
+	spdlog::info(zoom);
+
+	resize_default();
+}
+
+void on_key(const oe::KeyboardEvent& e)
+{
+	if(e.action == oe::actions::release)
+		return;
+
+	const float s_i_zoom = 1.0f / (zoom == 0.0f ? 1.0f : zoom);
+	if(e.key == oe::keys::key_a)
+		offset.x += s_i_zoom;
+	if(e.key == oe::keys::key_d)
+		offset.x -= s_i_zoom;
+	if(e.key == oe::keys::key_s)
+		offset.y -= s_i_zoom;
+	if(e.key == oe::keys::key_w)
+		offset.y += s_i_zoom;
+
+	resize_default();
 }
 
 int main(int argc, char** argv) {
@@ -58,45 +115,54 @@ int main(int argc, char** argv) {
 	window = oe::graphics::Window(window_info);
 
 	// connect events;
-	cg_render.connect<oe::RenderEvent, render>(window->getGameloop().getDispatcher());
-	cg_update_2.connect<oe::UpdateEvent<2>, update_2>(window->getGameloop().getDispatcher());
-	cg_resize.connect<oe::ResizeEvent, resize>(window->getGameloop().getDispatcher());
+	cg_render.connect<oe::RenderEvent, render>(window);
+	cg_update_2.connect<oe::UpdateEvent<2>, update_2>(window);
+	cg_resize.connect<oe::ResizeEvent, resize>(window);
+	cg_scroll.connect<oe::ScrollEvent, on_scroll>(window);
+	cg_keyboard.connect<oe::KeyboardEvent, on_key>(window);
 	
 	// instance settings
 	engine.culling(oe::culling_modes::back);
-	engine.swapInterval(1);
+	// engine.swapInterval(1);
 	engine.blending();
 
-	// renderer
+	// renderers
 	renderer = new oe::graphics::Renderer(1000);
+	dyn_label_renderer = new oe::graphics::Renderer(1000);
 
-	// shader
+	// shaders
 	shader = new oe::assets::DefaultShader();
+	dyn_label_shader = new oe::assets::FontShader();
 
 	// sprites
-	font = new oe::graphics::Font(64, { oe::default_full_font_path_bold });
+	font = new oe::graphics::Font(64, true, { oe::default_full_font_path });
+	oe::utils::FileIO path;
+	path.open("font-atlas.png");
+	path.write(font->getSpritePack()->getTexture()->getImageData());
 	
 	// submitting
-	label = new oe::graphics::u32TextLabel(*font);
-	label->generate(oe::graphics::text_render_input<char32_t>{oe::graphics::text_render_input<char32_t>::string_view_color_vec{
-			{ U"\u2116", { 0.06f, 0.13f, 1.0f, 1.0f } },
-			{ U"The quick brown fox!", oe::colors::white },
-			{ U"\u263A", { 1.0f, 0.13f, 0.13f, 1.0f } }
-		}}, window, oe::colors::translucent_black);
+	const oe::graphics::text_render_input<char32_t> text_input = { oe::graphics::text_render_input<char32_t>::string_view_color_vec {
+		{ U"\u2116", { 0.06f, 0.13f, 1.0f, 1.0f } },
+		{ U"The quick brown fox!", oe::colors::white },
+		{ U"\u263A", { 1.0f, 0.13f, 0.13f, 1.0f } }
+	}};
+	bkd_label = new oe::graphics::u32TextLabel(*font);
+	bkd_label->generate(text_input, window, oe::colors::translucent_black);
+	oe::graphics::u32Text::submit(*dyn_label_renderer, *font, text_input, { 0.1f, 0.35f }, 0.2f, oe::alignments::top_left);
 
 	quad = renderer->create();
-	quad->setPosition({ 50, 50 });
-	quad->setSize(label->getSize());
+	quad->setPosition({ 0.1f, 0.1 });
+	quad->setSize({ 0.2f * bkd_label->getAspect(), 0.2f });
 	quad->setColor(oe::colors::white);
-	quad->setSprite(label->getSprite());
+	quad->setSprite(bkd_label->getSprite());
 	
 	renderer->forget(std::move(quad));
 	
 	oe::graphics::Sprite sprite;
 	sprite.m_owner = font->getSpritePack()->getTexture();
 	quad = renderer->create();
-	quad->setPosition({ 50, 134 });
-	quad->setSize({ 200, 200 });
+	quad->setPosition({ 1.0f, 0.75f });
+	quad->setSize({ 0.5f, 0.5f });
 	quad->setColor(oe::colors::white);
 	quad->setSprite(sprite);
 
@@ -122,9 +188,12 @@ int main(int argc, char** argv) {
 		ctest_close_thread.join();
 
 	// closing
-	delete label;
+	quad.reset();
+	delete bkd_label;
+	delete dyn_label_renderer;
 	delete renderer;
 	delete font;
+	delete dyn_label_shader;
 	delete shader;
 
 	return 0;

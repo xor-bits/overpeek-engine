@@ -1,4 +1,10 @@
-constexpr char shader_frag_gl[] = R"glsl(
+#pragma once
+
+#include <string>
+
+
+
+constexpr std::string_view shader_frag_gl = R"glsl(
 #version 140
 #extension GL_ARB_explicit_attrib_location : enable
 
@@ -23,17 +29,4 @@ void main()
 }
 )glsl";
 
-constexpr char shader_frag_vk[] = R"glsl(
-#version 140
-#extension GL_ARB_separate_shader_objects : enable
-		
-layout(location = 0) in vec2 shader_uv;
-layout(location = 1) in vec4 shader_color;
-
-layout(location = 0) out vec4 color;
-
-void main()
-{
-	color = shader_color;
-}
-)glsl";
+constexpr std::string_view shader_frag_vk = shader_frag_gl;

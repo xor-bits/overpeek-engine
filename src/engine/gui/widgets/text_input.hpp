@@ -61,9 +61,9 @@ namespace oe::gui
 			std::function<void(std::basic_string<char_type>&)> formatter = &default_formatter;
 			uint16_t font_size                                           = 16;
 			oe::utils::FontFile font_file                                = {}; // empty for gui default
-			glm::vec4 color                                              = oe::colors::dark_grey;
-			glm::vec4 selection_color                                    = { 0.5f, 0.5f, 1.0f, 0.4f };
-			glm::vec4 default_text_color                                 = oe::colors::white;
+			oe::color background_color                                              = oe::colors::dark_grey;
+			oe::color selection_color                                    = { 0.5f, 0.5f, 1.0f, 0.4f };
+			oe::color default_text_color                                 = oe::colors::white;
 			const oe::graphics::Sprite* sprite                           = nullptr;
 			// base
 			Widget::info_t widget_info                                   = { { 100, 100 }, { 3, 3 }, oe::alignments::center_center, oe::alignments::center_center };

@@ -4,52 +4,43 @@
 
 
 
-namespace oe::graphics {
+namespace oe::graphics
+{
+	struct VertexData
+	{
+		struct VertexData_Internal
+		{
+			glm::fvec3 position;
+			glm::fvec2 uv;
+			glm::fvec4 color;
+		} data;
 
-	struct VertexData_internal {
-		glm::fvec3 position;
-		glm::fvec2 uv;
-		glm::fvec4 color;
 
-		constexpr VertexData_internal() noexcept
-			: position(0.0f), uv(0.0f), color(0.0f)
+		constexpr static inline size_t component_count = sizeof(VertexData_Internal) / sizeof(float);
+		constexpr static inline size_t pos_offset = offsetof(VertexData_Internal, position);
+		constexpr static inline size_t uv_offset = offsetof(VertexData_Internal, uv);
+		constexpr static inline size_t col_offset = offsetof(VertexData_Internal, color);
+
+
+		constexpr VertexData(const glm::fvec3& position = { 0.0f, 0.0f, 0.0f }, const glm::fvec2& uv = { 0.0f, 0.0f }, const glm::fvec4& color = { 0.0f, 0.0f, 0.0f, 0.0f }) noexcept
+			: data()
+		{
+			data.position = position;
+			data.uv = uv;
+			data.color = color;
+		}
+
+		constexpr VertexData(const glm::fvec2& position, const glm::fvec2& uv, const glm::fvec4& color) noexcept
+			: VertexData(glm::fvec3{ position, 0.0f }, uv, color)
 		{}
 
-		constexpr VertexData_internal(glm::fvec3 _position, glm::fvec2 _uv, glm::fvec4 _color) noexcept
-			: position(_position), uv(_uv), color(_color)
-		{}
-
-		constexpr VertexData_internal(glm::fvec2 _position, glm::fvec2 _uv, glm::fvec4 _color) noexcept
-			: position(_position, 0.0f), uv(_uv), color(_color)
-		{}
-	};
-
-	struct VertexData : public VertexData_internal {
-		static constexpr size_t component_count = sizeof(VertexData_internal) / sizeof(float);
-		static constexpr size_t pos_offset = offsetof(VertexData_internal, position);
-		static constexpr size_t uv_offset = offsetof(VertexData_internal, uv);
-		static constexpr size_t col_offset = offsetof(VertexData_internal, color);
-
-		constexpr VertexData() noexcept
-			: VertexData_internal()
-		{}
-
-		constexpr VertexData(glm::fvec3 position, glm::fvec2 uv, glm::fvec4 color) noexcept
-			: VertexData_internal(position, uv, color)
-		{}
-
-		constexpr VertexData(glm::fvec2 position, glm::fvec2 uv, glm::fvec4 color) noexcept
-			: VertexData_internal(position, uv, color)
-		{}
-
-		static void config(std::function<void(int, int, size_t)> attrib_fn)
+		static void config(const std::function<void(int, int, size_t)>& attrib_fn)
 		{
 			attrib_fn(0, 3, pos_offset);
 			attrib_fn(1, 2, uv_offset);
 			attrib_fn(2, 4, col_offset);
 		}
 	};
-
 }
 
 template <>
@@ -59,6 +50,6 @@ struct fmt::formatter<oe::graphics::VertexData> {
 
 	template <typename FormatContext>
 	auto format(const oe::graphics::VertexData& d, FormatContext& ctx) {
-		return format_to(ctx.out(), "[ {}, {}, {} ]", d.position, d.uv, d.color);
+		return format_to(ctx.out(), "[ {}, {}, {} ]", d.data.position, d.data.uv, d.data.color);
 	}
 };

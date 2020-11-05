@@ -34,7 +34,7 @@ namespace oe::gui
 	struct ColorInputHoverEvent : BaseHoverEvent {};
 	struct ColorInputUseEvent : BaseUseEvent
 	{
-		glm::vec4 value;
+		oe::color value;
 	};
 
 	
@@ -42,16 +42,16 @@ namespace oe::gui
 	class ColorInput : public Widget
 	{
     public:
-		using value_t = glm::vec4;
+		using value_t = oe::color;
 		using hover_event_t = ColorInputHoverEvent;
 		using use_event_t = ColorInputUseEvent;
 		struct info_t
 		{
 			using widget_t = ColorInput;
 
-			glm::vec4 initial_color            = oe::colors::red;
+			value_t initial_color              = oe::colors::red;
 			uint8_t draw_value                 = 2; // (false/0) = no draw, (true/1) = draw 0.0-1.0, 2 = draw 0-256
-			glm::vec4 background_color         = oe::colors::dark_grey;
+			oe::color background_color         = oe::colors::dark_grey;
 			const oe::graphics::Sprite* sprite = nullptr;
 
 			input_type primary_input           = input_type::slider;

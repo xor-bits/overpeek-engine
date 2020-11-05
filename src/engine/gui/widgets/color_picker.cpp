@@ -199,13 +199,13 @@ namespace oe::gui
 		, m_color_picker_info(color_picker_info)
 		, m_value(value_ref)
 	{
-		m_triangle_vertices[0].color = oe::colors::red;
-		m_triangle_vertices[1].color = oe::colors::white;
-		m_triangle_vertices[2].color = oe::colors::black;
+		m_triangle_vertices[0].data.color = oe::colors::red;
+		m_triangle_vertices[1].data.color = oe::colors::white;
+		m_triangle_vertices[2].data.color = oe::colors::black;
 
-		m_triangle_vertices[0].uv = { 0.0f, 0.0f };
-		m_triangle_vertices[1].uv = { 0.0f, 0.0f };
-		m_triangle_vertices[2].uv = { 0.0f, 0.0f };
+		m_triangle_vertices[0].data.uv = { 0.0f, 0.0f };
+		m_triangle_vertices[1].data.uv = { 0.0f, 0.0f };
+		m_triangle_vertices[2].data.uv = { 0.0f, 0.0f };
 
 		auto& renderer = ColorPickerRenderer::getSingleton();
 
@@ -215,7 +215,7 @@ namespace oe::gui
 		lsp_info.widget_info.align_render = oe::alignments::top_center;
 		lsp_info.widget_info.toggled = color_picker_info.color_input_info.widget_info.toggled;
 		lsp_info.sprite = &renderer.c_checkerboard;
-		lsp_info.color = oe::colors::white;
+		lsp_info.color_tint = oe::colors::white;
 		m_framebuffer_panel = create(lsp_info);
 
 		if (color_picker_info.preview)
@@ -227,7 +227,7 @@ namespace oe::gui
 			sp_info.widget_info.align_render = oe::alignments::top_left;
 			sp_info.widget_info.toggled = color_picker_info.color_input_info.widget_info.toggled;
 			sp_info.sprite = renderer.c_circle_sprite;
-			sp_info.color = oe::colors::white;
+			sp_info.color_tint = oe::colors::white;
 			m_preview = create(sp_info);
 		}
 
@@ -289,37 +289,6 @@ namespace oe::gui
 			m_cg_button.disconnect();
 		}
 	}
-
-	/* const glm::vec4& ColorPicker::get() const
-	{
-		return m_value;
-	}
-
-	void ColorPicker::set(const glm::vec4& color)
-	{
-		if (m_value == color)
-			return;
-		m_value = color;
-		m_alpha_slider->slider_info.value_initial = color.a;
-
-		glm::vec3 hsv = oe::utils::rgbToHSV(color);
-		triangle_vertices[0].color = { oe::utils::hsvToRGB({ hsv.x, 1.0f, 1.0f }), 1.0f };
-		direction = -hsv.x * glm::two_pi<float>();
-
-		glm::vec3 left = hsv.z * (hsv.y) * glm::vec3{ 1.0f, 0.0f, 0.0f };
-		glm::vec3 right = hsv.z * (1.0f - hsv.y) * glm::vec3{ 0.0f, 1.0f, 0.0f };
-		glm::vec3 origin = (1.0f - hsv.z * (hsv.y) - hsv.z * (1.0f - hsv.y)) * glm::vec3{ 0.0f, 0.0f, 1.0f };
-
-		origin = origin + left + right;
-		barycentric_pos_triangle = origin;
-
-		if (m_color_picker_info.preview)
-		{
-			m_preview->sprite_panel_info.color = m_value;
-		}
-
-		update();
-	} */
 	
 	void ColorPicker::update_from_value(bool update_dir)
 	{
@@ -329,7 +298,7 @@ namespace oe::gui
 		if(update_dir)
 		{
 			glm::vec3 hsv = oe::utils::rgbToHSV(m_value);
-			m_triangle_vertices[0].color = { oe::utils::hsvToRGB({ hsv.x, 1.0f, 1.0f }), 1.0f };
+			m_triangle_vertices[0].data.color = { oe::utils::hsvToRGB({ hsv.x, 1.0f, 1.0f }), 1.0f };
 			m_direction = -hsv.x * glm::two_pi<float>();
 
 			glm::vec3 left = hsv.z * (hsv.y) * glm::vec3{ 1.0f, 0.0f, 0.0f };
@@ -341,13 +310,13 @@ namespace oe::gui
 		}
 		
 		// triangle vertices
-		m_triangle_vertices[0].position = { std::cos(m_direction + 0 * m_equilateral_triangle_angles) * m_triangle_width, std::sin(m_direction + 0 * m_equilateral_triangle_angles) * m_triangle_width, 0.0f };
-		m_triangle_vertices[1].position = { std::cos(m_direction + 1 * m_equilateral_triangle_angles) * m_triangle_width, std::sin(m_direction + 1 * m_equilateral_triangle_angles) * m_triangle_width, 0.0f };
-		m_triangle_vertices[2].position = { std::cos(m_direction + 2 * m_equilateral_triangle_angles) * m_triangle_width, std::sin(m_direction + 2 * m_equilateral_triangle_angles) * m_triangle_width, 0.0f };
+		m_triangle_vertices[0].data.position = { std::cos(m_direction + 0 * m_equilateral_triangle_angles) * m_triangle_width, std::sin(m_direction + 0 * m_equilateral_triangle_angles) * m_triangle_width, 0.0f };
+		m_triangle_vertices[1].data.position = { std::cos(m_direction + 1 * m_equilateral_triangle_angles) * m_triangle_width, std::sin(m_direction + 1 * m_equilateral_triangle_angles) * m_triangle_width, 0.0f };
+		m_triangle_vertices[2].data.position = { std::cos(m_direction + 2 * m_equilateral_triangle_angles) * m_triangle_width, std::sin(m_direction + 2 * m_equilateral_triangle_angles) * m_triangle_width, 0.0f };
 
 		// preview color
 		if (m_color_picker_info.preview)
-			m_preview->sprite_panel_info.color = m_value;
+			m_preview->sprite_panel_info.color_tint = m_value;
 
 		// circle in wheel
 		glm::vec2 selector_wheel_f = { std::cos(m_direction), std::sin(m_direction) };
@@ -357,9 +326,9 @@ namespace oe::gui
 
 		// circle in triangle
 		glm::vec2 selector_triangle_f =
-			+ m_barycentric_pos_triangle.x * m_triangle_vertices[0].position
-			+ m_barycentric_pos_triangle.y * m_triangle_vertices[1].position
-			+ m_barycentric_pos_triangle.z * m_triangle_vertices[2].position;
+			+ m_barycentric_pos_triangle.x * m_triangle_vertices[0].data.position
+			+ m_barycentric_pos_triangle.y * m_triangle_vertices[1].data.position
+			+ m_barycentric_pos_triangle.z * m_triangle_vertices[2].data.position;
 		selector_triangle_f *= -m_framebuffer_panel->m_info.size / 2;
 		selector_triangle_f.y *= -1.0f;
 		m_selector_triangle = selector_triangle_f;
@@ -372,16 +341,16 @@ namespace oe::gui
 		// set color according to triangle and wheel
 		float alpha = m_alpha_slider ? m_alpha_slider->m_value : m_value.a;
 		m_value =
-			+ m_barycentric_pos_triangle.x * m_triangle_vertices[0].color
-			+ m_barycentric_pos_triangle.y * m_triangle_vertices[1].color
-			+ m_barycentric_pos_triangle.z * m_triangle_vertices[2].color;
+			+ m_barycentric_pos_triangle.x * m_triangle_vertices[0].data.color
+			+ m_barycentric_pos_triangle.y * m_triangle_vertices[1].data.color
+			+ m_barycentric_pos_triangle.z * m_triangle_vertices[2].data.color;
 		m_value = glm::max(m_value, 0.0f);
 		m_value.a = alpha;
 		m_value_last = m_value;
 
 		// preview color
 		if (m_color_picker_info.preview)
-			m_preview->sprite_panel_info.color = m_value;
+			m_preview->sprite_panel_info.color_tint = m_value;
 
 		m_event_use_latest.value = m_value;
 		m_dispatcher.trigger(m_event_use_latest);
@@ -455,7 +424,7 @@ namespace oe::gui
 
 			m_direction = atan2f(r_pos.y, r_pos.x);
 			const float hue = -m_direction / glm::two_pi<float>();
-			m_triangle_vertices[0].color = { oe::utils::hsvToRGB({ hue, 1.0f, 1.0f }), 1.0f };
+			m_triangle_vertices[0].data.color = { oe::utils::hsvToRGB({ hue, 1.0f, 1.0f }), 1.0f };
 
 			update_to_value();
 		}
@@ -464,13 +433,13 @@ namespace oe::gui
 			/*if (!in_triangle(r_pos, { m_triangle_vertices[0].position, m_triangle_vertices[1].position, m_triangle_vertices[2].position }))
 				return;*/
 
-			m_barycentric_pos_triangle = to_barycentric<2>(r_pos, { m_triangle_vertices[0].position, m_triangle_vertices[1].position, m_triangle_vertices[2].position });
-			m_barycentric_pos_triangle = clamp_barycentric(m_barycentric_pos_triangle, { m_triangle_vertices[0].position, m_triangle_vertices[1].position, m_triangle_vertices[2].position });
+			m_barycentric_pos_triangle = to_barycentric<2>(r_pos, { m_triangle_vertices[0].data.position, m_triangle_vertices[1].data.position, m_triangle_vertices[2].data.position });
+			m_barycentric_pos_triangle = clamp_barycentric(m_barycentric_pos_triangle, { m_triangle_vertices[0].data.position, m_triangle_vertices[1].data.position, m_triangle_vertices[2].data.position });
 			
 			update_to_value();
 		}
 
-		if (in_circle(r_pos, m_wheel_width) || in_triangle(r_pos, { m_triangle_vertices[0].position, m_triangle_vertices[1].position, m_triangle_vertices[2].position }))
+		if (in_circle(r_pos, m_wheel_width) || in_triangle(r_pos, { m_triangle_vertices[0].data.position, m_triangle_vertices[1].data.position, m_triangle_vertices[2].data.position }))
 			m_dispatcher.trigger(m_event_hover_latest);
 	}
 
@@ -487,7 +456,7 @@ namespace oe::gui
 		if (event.button == oe::mouse_buttons::button_left)
 		{
 			m_dragging_wheel = event.action != oe::actions::release && in_circle(r_pos, m_wheel_width);
-			m_dragging_triangle = event.action != oe::actions::release && in_triangle(r_pos, { m_triangle_vertices[0].position, m_triangle_vertices[1].position, m_triangle_vertices[2].position });
+			m_dragging_triangle = event.action != oe::actions::release && in_triangle(r_pos, { m_triangle_vertices[0].data.position, m_triangle_vertices[1].data.position, m_triangle_vertices[2].data.position });
 		}
 
 		if (m_dragging_wheel || m_dragging_triangle)

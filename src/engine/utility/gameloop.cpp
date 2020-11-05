@@ -74,7 +74,6 @@ namespace oe::utils
 		auto frame_counter_now = std::chrono::high_resolution_clock::now();
 		if (m_frame_counter_start + std::chrono::seconds(1) <= frame_counter_now)
 		{
-			spdlog::info("once in a second");
 			// frame counter
 			m_render_perf_logger.m_per_second = m_render_perf_logger.m_periodical_count;
 			m_render_perf_logger.m_periodical_count = 0;

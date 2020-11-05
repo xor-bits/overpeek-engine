@@ -26,7 +26,7 @@ namespace oe::graphics {
 
 		// must be recording while submitting commands
 		// must not be recording while submitting the queue
-		void beginRecording(glm::vec4 clear_color = oe::colors::clear_color);
+		void beginRecording(oe::color clear_color = oe::colors::clear_color);
 		void endRecording();
 
 		void bindShader(const VKShader* shader);

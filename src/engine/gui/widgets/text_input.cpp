@@ -123,7 +123,7 @@ namespace oe::gui
 		m_quad->setZ(m_z);
 		m_quad->setSize(static_cast<glm::vec2>(m_info.size));
 		m_quad->setSprite(m_text_input_info.sprite);
-		m_quad->setColor(m_text_input_info.color);
+		m_quad->setColor(m_text_input_info.background_color);
 
 		// text
 		m_label->generate({ m_value, m_text_input_info.default_text_color }, m_gui_manager.getWindow());

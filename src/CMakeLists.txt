@@ -25,6 +25,10 @@ set(source_list ${source_list}
 	"engine/assets/default_shader/shader.geom.l.hpp"
 	"engine/assets/default_shader/shader.geom.p.hpp"
 	"engine/assets/default_shader/shader.frag.hpp"
+	"engine/assets/font_shader/font_shader.cpp"
+	"engine/assets/font_shader/font_shader.hpp"
+	"engine/assets/font_shader/shader.vert.hpp"
+	"engine/assets/font_shader/shader.frag.hpp"
 	"engine/assets/texture_set/texture_set.hpp"
 )
 set(source_list ${source_list} 

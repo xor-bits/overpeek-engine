@@ -9,7 +9,7 @@
 #include "engine/graphics/interface/window.hpp"
 #include "engine/graphics/interface/framebuffer.hpp"
 #include "engine/graphics/renderer.hpp"
-#include "engine/assets/default_shader/default_shader.hpp"
+#include "engine/assets/font_shader/font_shader.hpp"
 
 
 
@@ -28,7 +28,7 @@ namespace oe::graphics {
 	public:
 		static TextLabelRenderer& getSingleton() { if(!singleton) singleton = new TextLabelRenderer(); return *singleton; }
 
-		oe::assets::DefaultShader fb_shader;
+		oe::assets::FontShader fb_shader;
 		oe::graphics::Renderer fb_renderer;
 	};
 	TextLabelRenderer* TextLabelRenderer::singleton = nullptr;
@@ -36,20 +36,20 @@ namespace oe::graphics {
 
 
 	template<typename char_type>
-	void BasicTextLabel<char_type>::generate(const string_t& text, const Window& window, const glm::vec4& color)
+	void BasicTextLabel<char_type>::generate(const string_t& text, const Window& window, const oe::color& c, float width, float outline_width, const oe::color& outline_c)
 	{
 		if (m_text == text && initial_generated) return; // why render the same text again?
-		regenerate(text, window, color);
+		regenerate(text, window, c, width, outline_width, outline_c);
 	}
 	
 	template<typename char_type>
-	void BasicTextLabel<char_type>::regenerate(const string_t& text, const Window& window, const glm::vec4& color)
+	void BasicTextLabel<char_type>::regenerate(const string_t& text, const Window& window, const oe::color& c, float width, float outline_width, const oe::color& outline_c)
 	{
 		m_text = text;
 		initial_generated = true;
 
 		// size of the framebuffer
-		m_size = BasicText<char_type>::size(m_font, text, glm::vec2(m_font.getResolution()));
+		m_size = BasicText<char_type>::size(m_font, text, glm::vec2(m_font.getResolution() * m_res_mult));
 		m_size.x = std::max(m_size.x, 1.0f);
 		m_size.y = std::max(m_size.y, 1.0f);
 
@@ -64,14 +64,17 @@ namespace oe::graphics {
 		}
 
 		m_framebuffer->bind();
-		m_framebuffer->clear(color);
+		m_framebuffer->clear(c);
 
 		// render to the framebuffer
 		auto& tbr = TextLabelRenderer::getSingleton();
-		BasicText<char_type>::submit(tbr.fb_renderer, m_font, text, { 0.0f, 0.0f }, m_font.getResolution(), alignments::top_left);
+		BasicText<char_type>::submit(tbr.fb_renderer, m_font, text, { 0.0f, 0.0f }, m_font.getResolution() * m_res_mult, alignments::top_left);
 		glm::mat4 pr_matrix = glm::ortho(0.0f, m_fb_size.x, m_fb_size.y, 0.0f);
 		tbr.fb_shader.setProjectionMatrix(pr_matrix);
-		tbr.fb_shader.bind();
+		tbr.fb_shader.setSDF(m_font.isSDF());
+		tbr.fb_shader.setWidth(width);
+		tbr.fb_shader.setOutlineWidth(outline_width);
+		tbr.fb_shader.setOutlineColor(outline_c);
 		tbr.fb_renderer.render();
 		tbr.fb_renderer.clear();
 		
@@ -94,15 +97,7 @@ namespace oe::graphics {
 	template class BasicTextLabel<char16_t>;
 	template class BasicTextLabel<char32_t>;
 	
-	// template<> void BasicTextLabel<char>::generate(const string_type& text, Window& window, const glm::vec4& color);
-	// template<> void BasicTextLabel<wchar_t>::generate(const string_type& text, Window& window, const glm::vec4& color);
-	// template<> void BasicTextLabel<char16_t>::generate(const string_type& text, Window& window, const glm::vec4& color);
-	// template<> void BasicTextLabel<char32_t>::generate(const string_type& text, Window& window, const glm::vec4& color);
-	// 
-	// template<> void BasicTextLabel<char>::regenerate(const string_type& text, Window& window, const glm::vec4& color);
-	// template<> void BasicTextLabel<wchar_t>::regenerate(const string_type& text, Window& window, const glm::vec4& color);
-	// template<> void BasicTextLabel<char16_t>::regenerate(const string_type& text, Window& window, const glm::vec4& color);
-	// template<> void BasicTextLabel<char32_t>::regenerate(const string_type& text, Window& window, const glm::vec4& color);
+
 
 	template<typename char_type>
 	bool index_to_char(size_t i, char_type& c, oe::graphics::Font::Glyph const *& glyph, const text_render_input<char_type>& text, glm::vec2& advance, const glm::vec2& size, Font& font)
@@ -188,7 +183,7 @@ namespace oe::graphics {
 		// get width
 		glm::vec2 advance = (align == glm::vec2{ 0.0f, 0.0f } ? align : alignmentOffset(-calculate_final_size<char_type>(text, size, font), align));
 		const oe::graphics::Font::Glyph* glyph;
-		glm::vec4 color = text.string_color_map.at(0);
+		oe::color col = text.string_color_map.at(0);
 		for (size_t i = 0; i < text.string.size(); i++) {
 			char_type c;
 			if (index_to_char(i, c, glyph, text, advance, size, font))
@@ -198,13 +193,13 @@ namespace oe::graphics {
 
 			auto iter = text.string_color_map.find(i);
 			if(iter != text.string_color_map.end())
-				color = iter->second;
+				col = iter->second;
 
 			auto quad = renderer.create();
 			quad->setPosition(pos + advance + glyph->top_left * size - glm::vec2(0.0f, avg_top * size.y));
 			quad->setSize(glyph->size * size);
 			quad->setSprite(glyph->sprite);
-			quad->setColor(color);
+			quad->setColor(col);
 			
 			renderer.forget(std::move(quad));
 
@@ -216,5 +211,4 @@ namespace oe::graphics {
 	template class BasicText<wchar_t>;
 	template class BasicText<char16_t>;
 	template class BasicText<char32_t>;
-
 }

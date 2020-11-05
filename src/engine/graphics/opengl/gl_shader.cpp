@@ -21,14 +21,39 @@
 namespace oe::graphics
 {
 
-	unsigned int GLShader::loadShader(const std::string_view& name, const std::string_view& source, unsigned int shadertype)
+	unsigned int GLShader::loadShader(const std::string_view& name, const std::string_view& source, oe::shader_stages shader_stage)
 	{
+		// stage type
+		uint32_t stage_id = GL_VERTEX_SHADER;
+		switch (shader_stage)
+		{
+		case oe::shader_stages::vertex_shader:
+			stage_id = GL_VERTEX_SHADER;
+			break;
+		case oe::shader_stages::tesselation_control_shader:
+			stage_id = GL_TESS_CONTROL_SHADER;
+			break;
+		case oe::shader_stages::tesselation_evaluation_shader:
+			stage_id = GL_TESS_EVALUATION_SHADER;
+			break;
+		case oe::shader_stages::geometry_shader:
+			stage_id = GL_GEOMETRY_SHADER;
+			break;
+		case oe::shader_stages::fragment_shader:
+			stage_id = GL_FRAGMENT_SHADER;
+			break;
+		case oe::shader_stages::compute_shader:
+			stage_id = GL_COMPUTE_SHADER;
+			break;
+		case oe::shader_stages::none:
+			throw oe::utils::formatted_error("invalid shader stage: {}", static_cast<size_t>(shader_stage));
+		}
+		
 		//Load and compile
-		const char* shaderChar = source.data();
-
 		GLuint shader;
-		shader = glCreateShader(shadertype);
-		glShaderSource(shader, 1, &shaderChar, NULL);
+		shader = glCreateShader(stage_id);
+		const char* lines = source.data();
+		glShaderSource(shader, 1, &lines, NULL);
 		glCompileShader(shader);
 
 		//Get errors
@@ -44,11 +69,10 @@ namespace oe::graphics
 		{
 			GLsizei infoLogLength = 512;
 			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
-			char* infoLog = new char[infoLogLength]();
-			glGetShaderInfoLog(shader, 512, nullptr, infoLog);
+			std::string infoLog; infoLog.resize(infoLogLength);
+			glGetShaderInfoLog(shader, 512, nullptr, infoLog.data());
 
 			throw oe::utils::formatted_error("{}: shader compilation: \n{}", name, infoLog);
-			delete[] infoLog;
 		}
 	}
 
@@ -60,11 +84,10 @@ namespace oe::graphics
 		{
 			GLsizei infoLogLength = 512;
 			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogLength);
-			char* infoLog = new char[infoLogLength]();
-			glGetProgramInfoLog(program, 512, nullptr, infoLog);
+			std::string infoLog; infoLog.resize(infoLogLength);
+			glGetProgramInfoLog(program, 512, nullptr, infoLog.data());
 
 			throw oe::utils::formatted_error("{}: program linking: \n{}", name, infoLog);
-			delete[] infoLog;
 		}
 	}
 
@@ -97,37 +120,11 @@ namespace oe::graphics
 				throw oe::utils::formatted_error("IShader ({}) compilation failed: {}", shader_info.name, result.GetErrorMessage());
 			std::string_view preprocessed_glsl = result.begin();
 #else  // DON'T OPTIMIZE GLSL
-			std::string_view preprocessed_glsl = stage.source.data();
+			std::string_view preprocessed_glsl = stage.source;
 #endif
 
-			// stage type
-			uint32_t stage_id = GL_VERTEX_SHADER;
-			switch (stage.stage)
-			{
-			case oe::shader_stages::vertex_shader:
-				stage_id = GL_VERTEX_SHADER;
-				break;
-			case oe::shader_stages::tesselation_control_shader:
-				stage_id = GL_TESS_CONTROL_SHADER;
-				break;
-			case oe::shader_stages::tesselation_evaluation_shader:
-				stage_id = GL_TESS_EVALUATION_SHADER;
-				break;
-			case oe::shader_stages::geometry_shader:
-				stage_id = GL_GEOMETRY_SHADER;
-				break;
-			case oe::shader_stages::fragment_shader:
-				stage_id = GL_FRAGMENT_SHADER;
-				break;
-			case oe::shader_stages::compute_shader:
-				stage_id = GL_COMPUTE_SHADER;
-				break;
-			case oe::shader_stages::none:
-				continue;
-			}
-
 			// shader compilation
-			GLuint shader_module = loadShader(shader_info.name, preprocessed_glsl, stage_id);
+			GLuint shader_module = loadShader(shader_info.name, preprocessed_glsl, stage.stage);
 			modules.push_back(shader_module);
 
 			// attach shader stage

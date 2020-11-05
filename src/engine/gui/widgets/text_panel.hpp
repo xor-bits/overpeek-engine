@@ -21,7 +21,7 @@ namespace oe::gui
 			oe::graphics::text_render_input<char32_t> text = U"placeholder";
 			uint16_t font_size                             = 16;
 			oe::utils::FontFile font_file                  = {}; // empty for gui default
-			glm::vec4 background_color                     = oe::colors::transparent;
+			oe::color background_color                     = oe::colors::transparent;
 		
 			Widget::Info widget_info                       = { { 0, 0 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
 		};

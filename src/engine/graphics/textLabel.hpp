@@ -19,10 +19,10 @@ namespace oe::graphics
 	struct text_render_input
 	{
 		std::basic_string<char_type> string;
-		std::unordered_map<size_t, glm::vec4> string_color_map;
+		std::unordered_map<size_t, oe::color> string_color_map;
 
-		using string_view_color = std::pair<std::basic_string_view<char_type>, glm::vec4>;
-		using string_color = std::pair<std::basic_string<char_type>, glm::vec4>;
+		using string_view_color = std::pair<std::basic_string_view<char_type>, oe::color>;
+		using string_color = std::pair<std::basic_string<char_type>, oe::color>;
 		
 		using string_view_color_vec = std::vector<string_view_color>;
 		using string_color_vec = std::vector<string_color>;
@@ -47,14 +47,14 @@ namespace oe::graphics
 			}
 		}
 
-		text_render_input(const std::basic_string_view<char_type>& _string, const glm::vec4& _color)
+		text_render_input(const std::basic_string_view<char_type>& _string, const oe::color& c)
 			: string(_string)
-			, string_color_map({ { 0, _color } })
+			, string_color_map({ { 0, c } })
 		{}
 
-		text_render_input(const std::basic_string<char_type>& _string, const glm::vec4& _color)
+		text_render_input(const std::basic_string<char_type>& _string, const oe::color& c)
 			: string(_string)
-			, string_color_map({ { 0, _color } })
+			, string_color_map({ { 0, c } })
 		{}
 
 		text_render_input(const std::basic_string_view<char_type>& _string)
@@ -65,8 +65,8 @@ namespace oe::graphics
 			: text_render_input(_string, oe::colors::white)
 		{}
 
-		text_render_input(const char_type* _string, const glm::vec4& _color)
-			: text_render_input(std::basic_string<char_type>(_string), _color)
+		text_render_input(const char_type* _string, const oe::color& c)
+			: text_render_input(std::basic_string<char_type>(_string), c)
 		{}
 
 		text_render_input(const char_type* _string)
@@ -107,24 +107,27 @@ namespace oe::graphics
 
 		string_t m_text;
 		glm::vec2 m_size;
+		const size_t m_res_mult;
 		bool initial_generated = false;
 		
 	public:
-		BasicTextLabel(Font& font)
+		BasicTextLabel(Font& font, const size_t res_mult = 1)
 			: m_font(font)
 			, m_fb_size(0.0f, 0.0f)
 			, m_text()
 			, m_size(0.0f, 0.0f)
+			, m_res_mult(res_mult)
 		{}
 
 		// Generate framebuffer and render text to it
-		void generate(const string_t& text, const Window& window, const glm::vec4& color = oe::colors::transparent);
-		void regenerate(const string_t& text, const Window& window, const glm::vec4& color = oe::colors::transparent);
+		void generate(const string_t& text, const Window& window, const oe::color& c = oe::colors::transparent, float width = 0.25f, float outline_width = 0.15f, const oe::color& outline_c = oe::colors::black);
+		void regenerate(const string_t& text, const Window& window, const oe::color& c = oe::colors::transparent, float width = 0.25f, float outline_width = 0.15f, const oe::color& outline_c = oe::colors::black);
 
 		inline const FrameBuffer* getFB() const { return &m_framebuffer; }
 		inline const Sprite& getSprite() const { return m_sprite; }
 		inline Font& getFont() const { return m_font; }
 		inline glm::vec2 getSize() const { return m_size; }
+		inline float getAspect() const { return m_size.y == 0.0f ? 0.0f : m_size.x / m_size.y; }
 		inline string_t getText() const { return m_text; }
 	};
 

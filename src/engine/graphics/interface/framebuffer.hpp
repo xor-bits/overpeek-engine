@@ -23,7 +23,7 @@ namespace oe::graphics
 		virtual ~IFrameBuffer();
 
 		virtual void bind() = 0; // will bind corresponding texture
-		virtual void clear(const glm::vec4& color = oe::colors::clear_color) = 0;
+		virtual void clear(const oe::color& c = oe::colors::clear_color) = 0;
 
 		static void multipass(FrameBuffer& fb_0, FrameBuffer& fb_1, const std::array<VertexData, 4>& vertices, size_t count);
 

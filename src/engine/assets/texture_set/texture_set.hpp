@@ -68,7 +68,7 @@ namespace oe::assets
 		}
 
 		// resolution = 2*radius
-		static inline const oe::utils::image_data generate_checkerboard(const glm::vec4& color_a = oe::colors::white, const glm::vec4& color_b = oe::colors::light_grey)
+		static inline const oe::utils::image_data generate_checkerboard(const oe::color& color_a = oe::colors::white, const oe::color& color_b = oe::colors::light_grey)
 		{
 			constexpr size_t edge_l = 2;
 			oe::utils::image_data img(oe::formats::rgba, edge_l, edge_l);

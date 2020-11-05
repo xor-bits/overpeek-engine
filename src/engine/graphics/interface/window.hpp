@@ -62,7 +62,7 @@ namespace oe::graphics
 		virtual ~IWindow();
 
 		virtual void update() = 0;
-		virtual void clear(const glm::vec4& color = oe::colors::clear_color) = 0;
+		virtual void clear(const oe::color& c = oe::colors::clear_color) = 0;
 		virtual void viewport() const = 0;
 		virtual void bind() const = 0;
 

@@ -134,7 +134,7 @@ namespace oe::graphics {
 		glfwPollEvents();
 	}
 
-	void VKWindow::clear(const glm::vec4& color) {
+	void VKWindow::clear(const oe::color& c) {
 		m_logical_device->m_logical_device.waitIdle();
 		m_command_pool->beginRecording(color);
 	}

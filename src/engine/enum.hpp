@@ -343,40 +343,42 @@ namespace oe {
 		linear,
 	};
 
+	using color = glm::vec<4, float, glm::packed_highp>;
 	// some predefined colors
-	struct colors {
-		static constexpr glm::vec4 translucent_black = glm::vec4(0.0f, 0.0f, 0.0f, 0.25f);
-		static constexpr glm::vec4 transparent = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
-		static constexpr glm::vec4 white = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		static constexpr glm::vec4 light_grey = glm::vec4(0.75f, 0.75f, 0.75f, 1.0f);
-		static constexpr glm::vec4 grey = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
-		static constexpr glm::vec4 dark_grey = glm::vec4(0.25f, 0.25f, 0.25f, 1.0f);
-		static constexpr glm::vec4 darker_grey = glm::vec4(0.125f, 0.125f, 0.125f, 1.0f);
-		static constexpr glm::vec4 darkest_grey = glm::vec4(0.0625f, 0.0625f, 0.0625f, 1.0f);
-		static constexpr glm::vec4 black = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-		static constexpr glm::vec4 red = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-		static constexpr glm::vec4 green = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
-		static constexpr glm::vec4 blue = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-		static constexpr glm::vec4 dark_red = glm::vec4(0.5f, 0.0f, 0.0f, 1.0f);
-		static constexpr glm::vec4 dark_green = glm::vec4(0.0f, 0.5f, 0.0f, 1.0f);
-		static constexpr glm::vec4 dark_blue = glm::vec4(0.0f, 0.0f, 0.5f, 1.0f);
-		static constexpr glm::vec4 light_red = glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
-		static constexpr glm::vec4 light_green = glm::vec4(0.5f, 1.0f, 0.5f, 1.0f);
-		static constexpr glm::vec4 light_blue = glm::vec4(0.5f, 0.5f, 1.0f, 1.0f);
-		static constexpr glm::vec4 cyan = glm::vec4(0.0f, 1.0f, 1.0f, 1.0f);
-		static constexpr glm::vec4 magenta = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
-		static constexpr glm::vec4 yellow = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
-		static constexpr glm::vec4 orange = glm::vec4(1.0f, 0.5f, 0.0f, 1.0f);
-		static constexpr glm::vec4 pink = glm::vec4(1.0f, 0.0f, 0.5f, 1.0f);
-		static constexpr glm::vec4 lime = glm::vec4(0.5f, 1.0f, 0.0f, 1.0f);
-		static constexpr glm::vec4 mint = glm::vec4(0.0f, 1.0f, 0.5f, 1.0f);
-		static constexpr glm::vec4 purple = glm::vec4(0.5f, 0.0f, 1.0f, 1.0f);
-		static constexpr glm::vec4 sky = glm::vec4(0.0f, 0.5f, 1.0f, 1.0f);
+	struct colors
+	{
+		static constexpr oe::color translucent_black = { 0.0f, 0.0f, 0.0f, 0.25f };
+		static constexpr oe::color transparent       = { 0.0f, 0.0f, 0.0f, 0.0f };
+		static constexpr oe::color white             = { 1.0f, 1.0f, 1.0f, 1.0f };
+		static constexpr oe::color light_grey        = { 0.75f, 0.75f, 0.75f, 1.0f };
+		static constexpr oe::color grey              = { 0.5f, 0.5f, 0.5f, 1.0f };
+		static constexpr oe::color dark_grey         = { 0.25f, 0.25f, 0.25f, 1.0f };
+		static constexpr oe::color darker_grey       = { 0.125f, 0.125f, 0.125f, 1.0f };
+		static constexpr oe::color darkest_grey      = { 0.0625f, 0.0625f, 0.0625f, 1.0f };
+		static constexpr oe::color black             = { 0.0f, 0.0f, 0.0f, 1.0f };
+		static constexpr oe::color red               = { 1.0f, 0.0f, 0.0f, 1.0f };
+		static constexpr oe::color green             = { 0.0f, 1.0f, 0.0f, 1.0f };
+		static constexpr oe::color blue              = { 0.0f, 0.0f, 1.0f, 1.0f };
+		static constexpr oe::color dark_red          = { 0.5f, 0.0f, 0.0f, 1.0f };
+		static constexpr oe::color dark_green        = { 0.0f, 0.5f, 0.0f, 1.0f };
+		static constexpr oe::color dark_blue         = { 0.0f, 0.0f, 0.5f, 1.0f };
+		static constexpr oe::color light_red         = { 1.0f, 0.5f, 0.5f, 1.0f };
+		static constexpr oe::color light_green       = { 0.5f, 1.0f, 0.5f, 1.0f };
+		static constexpr oe::color light_blue        = { 0.5f, 0.5f, 1.0f, 1.0f };
+		static constexpr oe::color cyan              = { 0.0f, 1.0f, 1.0f, 1.0f };
+		static constexpr oe::color magenta           = { 1.0f, 0.0f, 1.0f, 1.0f };
+		static constexpr oe::color yellow            = { 1.0f, 1.0f, 0.0f, 1.0f };
+		static constexpr oe::color orange            = { 1.0f, 0.5f, 0.0f, 1.0f };
+		static constexpr oe::color pink              = { 1.0f, 0.0f, 0.5f, 1.0f };
+		static constexpr oe::color lime              = { 0.5f, 1.0f, 0.0f, 1.0f };
+		static constexpr oe::color mint              = { 0.0f, 1.0f, 0.5f, 1.0f };
+		static constexpr oe::color purple            = { 0.5f, 0.0f, 1.0f, 1.0f };
+		static constexpr oe::color sky               = { 0.0f, 0.5f, 1.0f, 1.0f };
 
-		static constexpr glm::vec4 clear_color = glm::vec4(0.18f, 0.18f, 0.2f, 1.0f);
+		static constexpr oe::color clear_color       = { 0.18f, 0.18f, 0.2f, 1.0f };
 
-		static glm::vec4 rainbow(float t) { return glm::vec4(glm::vec4(sin(t), sin(t + (5.0f / 8.0f) * glm::pi<float>()), sin(t + (10.0f / 8.0f) * glm::pi<float>()), 1.0f)); };
-		static glm::vec4 rainbow_bright(float t) { return (rainbow(t) + 1.0f) * 0.5f; };
+		static constexpr oe::color rainbow(float t) { return oe::color(gcem::sin(t), gcem::sin(t + (5.0f / 8.0f) * glm::pi<float>()), gcem::sin(t + (10.0f / 8.0f) * glm::pi<float>()), 1.0f); };
+		static constexpr oe::color rainbow_bright(float t) { return (rainbow(t) + 1.0f) * 0.5f; };
 	};
 
 	struct alignments {
@@ -427,8 +429,8 @@ namespace oe {
 	// shader per stage create info
 	struct ShaderStageInfo {
 		shader_stages stage;
-		std::string source;
-		std::string include_path; // optional
+		std::string_view source;
+		std::string_view include_path; // optional
 	};
 
 	// shader create info, shader_stages is non-owning

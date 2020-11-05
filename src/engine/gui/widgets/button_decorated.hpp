@@ -30,7 +30,7 @@ namespace oe::gui
 			uint16_t text_font_size            = 28;
 			std::string text_font_path         = ""; // empty for gui default
 			bool autoresize                    = false;
-			glm::vec4 color                    = oe::colors::dark_grey;
+			oe::color btn_color                    = colors::dark_grey;
 			const oe::graphics::Sprite* sprite = nullptr;
 
 			Button::info_t button_info         = {};

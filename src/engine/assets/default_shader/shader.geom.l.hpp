@@ -1,4 +1,10 @@
-constexpr char shader_geom_lines_gl[] = R"shader(
+#pragma once
+
+#include <string>
+
+
+
+constexpr std::string_view shader_geom_lines_gl = R"shader(
 #version 330
 #extension GL_ARB_separate_shader_objects : enable
 

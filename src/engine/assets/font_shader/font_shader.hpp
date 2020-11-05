@@ -7,18 +7,18 @@
 
 namespace oe::assets
 {
-	class DefaultShader
+	// close to 1 to 1 copy from DefaultShader with SDF addition and removed polygonmode
+	class FontShader
 	{
 	private:
 		oe::graphics::Shader m_shader;
-		oe::polygon_mode m_mode; // if geometry shaders are not supported (OGL 3.3 >= ) (like Mesa 20.0.8)
 
 		glm::mat4 m_pr_mat = glm::mat4(1.0f);
 		glm::mat4 m_vw_mat = glm::mat4(1.0f);
 		glm::mat4 m_ml_mat = glm::mat4(1.0f);
 
 	public:
-		DefaultShader(oe::polygon_mode mode = oe::polygon_mode::fill);
+		FontShader();
 
 		void bind() const;
 		void unbind() const;
@@ -40,10 +40,29 @@ namespace oe::assets
 		
 		// set texture (non solid color) mode on/off (u_usetex)
 		void setTexture(bool use = true) const;
+		
+		// SDF font specifics
+		
+		// set SDF mode on/off (u_usesdf)
+		void setSDF(bool use = true) const;
+
+		// set font width (u_sdf_width)
+		void setWidth(float width) const;
+
+		// set font AA edge width (u_sdf_edge)
+		void setEdge(float edge) const;
+
+		// set font outline width (u_sdf_width)
+		void setOutlineWidth(float width) const;
+
+		// set font outline AA edge width (u_sdf_edge)
+		void setOutlineEdge(float edge) const;
+
+		// set font outline color (u_sdf_outline_color)
+		void setOutlineColor(const oe::color& c) const;
 
 		// get the base shader
 		const oe::graphics::Shader& getShader() { return m_shader; }
-
 	};
 
 }

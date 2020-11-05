@@ -22,7 +22,7 @@ namespace oe::gui
 	struct ColorPickerHoverEvent : public BaseHoverEvent {};
 	struct ColorPickerUseEvent : public BaseUseEvent
 	{
-		glm::vec4 value;
+		oe::color value;
 	};
 
 
@@ -30,7 +30,7 @@ namespace oe::gui
 	class ColorPicker : public SpritePanel
 	{
 	public:
-		using value_t = glm::vec4;
+		using value_t = oe::color;
 		using hover_event_t = ColorPickerHoverEvent;
 		using use_event_t = ColorPickerUseEvent;
 		struct info_t

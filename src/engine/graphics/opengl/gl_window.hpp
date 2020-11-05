@@ -27,7 +27,7 @@ namespace oe::graphics
 
 		// Inherited via Window
 		void update() override;
-		void clear(const glm::vec4& color = glm::vec4(0.18f, 0.18f, 0.20f, 1.0f)) override;
+		void clear(const oe::color& c = oe::colors::clear_color) override;
 		void viewport() const override;
 		void swapInterval(uint8_t frames) override;
 		void bind() const override;

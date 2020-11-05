@@ -63,11 +63,11 @@ namespace oe::graphics
 		glDeleteRenderbuffers(1, &m_rbo);
 	}
 
-	void GLFrameBuffer::clear(const glm::vec4& color)
+	void GLFrameBuffer::clear(const oe::color& c)
 	{
 		GLFrameBuffer::bind();
 
-		glClearColor(color.x, color.y, color.z, color.w);
+		glClearColor(c.x, c.y, c.z, c.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 

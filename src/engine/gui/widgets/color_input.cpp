@@ -105,7 +105,7 @@ namespace oe::gui
 		common.stepsize = 1.0f / 256.0f;
 		common.font_size = 11;
 		common.default_text_color = oe::colors::white;
-		common.color = oe::colors::darker_grey;
+		common.background_color = oe::colors::darker_grey;
 
 		info.common.fill(common);
 
@@ -178,13 +178,13 @@ namespace oe::gui
 		SpritePanel::info_t sprite_panel_info;
 		sprite_panel_info.widget_info = { m_info.size, { 0, 0 }, oe::alignments::top_left, oe::alignments::top_left };
 		sprite_panel_info.sprite = m_color_input_info.sprite;
-		sprite_panel_info.color = m_color_input_info.background_color;
+		sprite_panel_info.color_tint = m_color_input_info.background_color;
 		auto bgbox = create(sprite_panel_info);
 		bgbox->overrideZ(bgbox->getZ() - 0.5f);
 
 		SpritePanel::info_t preview_panel_info;
 		preview_panel_info.widget_info = { { 40, m_info.size.y - 8 }, { -4, 4 }, oe::alignments::top_right, oe::alignments::top_right };
-		preview_panel_info.color = m_value;
+		preview_panel_info.color_tint = m_value;
 		preview_panel_info.sprite = m_color_input_info.sprite;
 		m_preview_panel = create(preview_panel_info);
 
@@ -249,7 +249,7 @@ namespace oe::gui
 	void ColorInput::update()
 	{
 		m_value_last = m_value;
-		m_preview_panel->sprite_panel_info.color = m_value;
+		m_preview_panel->sprite_panel_info.color_tint = m_value;
 	}
 	
 	void ColorInput::on_render(const GUIRenderEvent& /* event */)

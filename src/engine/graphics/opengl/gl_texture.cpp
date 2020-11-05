@@ -50,7 +50,7 @@ namespace oe::graphics
 			return GL_MIRRORED_REPEAT;
 		case oe::texture_wrap::clamp_to_edge:
 			return GL_CLAMP_TO_EDGE;
-		default: // oe::texture_wrap::clamp_to_border:
+		case oe::texture_wrap::clamp_to_border:
 			return GL_CLAMP_TO_BORDER;
 		}
 		return 0;
@@ -62,7 +62,7 @@ namespace oe::graphics
 		{
 		case oe::texture_filter::linear:
 			return GL_LINEAR;
-		default: // oe::texture_filter::nearest:
+		case oe::texture_filter::nearest:
 			return GL_NEAREST;
 		}
 		return 0;

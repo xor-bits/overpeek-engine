@@ -19,7 +19,7 @@ namespace oe::gui
 
 			gsl::span<float> graph_data       = {};
 			float graph_line_width            = 1.0f;
-			glm::vec4 graph_color             = oe::colors::green;
+			oe::color graph_color             = oe::colors::green;
 
 			SpritePanel::info_t bg_panel_info = { oe::colors::translucent_black, nullptr, 0.0f, { { 300, 200 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center } };
 		};

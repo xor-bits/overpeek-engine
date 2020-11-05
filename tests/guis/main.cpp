@@ -24,7 +24,7 @@ oe::graphics::PrimitiveRenderer renderer;
 oe::graphics::SpritePack* pack;
 const oe::graphics::Sprite* sprite;
 
-glm::vec4 color = { 0.4f, 0.5f, 0.4f, 1.0f };
+oe::color color = { 0.4f, 0.5f, 0.4f, 1.0f };
 glm::quat cube_rotation;
 constexpr bool graphs = true;
 

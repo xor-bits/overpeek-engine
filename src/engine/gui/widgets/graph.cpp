@@ -154,6 +154,6 @@ namespace oe::gui
 		m_gui_manager.getWindow()->bind();
 
 		m_graph->sprite_panel_info.sprite = &graph_fb->getSprite();
-		m_graph->sprite_panel_info.color = m_graph_info.graph_color;
+		m_graph->sprite_panel_info.color_tint = m_graph_info.graph_color;
 	}
 }

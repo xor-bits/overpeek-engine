@@ -28,7 +28,7 @@ namespace oe::graphics {
 		VKCommandBuffer(VKRenderTarget* render_target, vk::CommandBuffer command_buffer);
 		~VKCommandBuffer();
 
-		void beginRecording(glm::vec4 clear_color = oe::colors::clear_color);
+		void beginRecording(oe::color clear_color = oe::colors::clear_color);
 		void endRecording();
 
 		void bindShader(const VKShader* shader);

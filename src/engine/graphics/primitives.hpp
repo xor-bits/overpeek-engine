@@ -21,7 +21,7 @@ namespace oe::graphics
 		glm::vec3 m_position           = { 0.0f, 0.0f, 0.0f };
 		glm::vec2 m_size               = { 0.0f, 0.0f };
 		glm::vec2 m_rotation_alignment = { 0.0f, 0.0f };
-		glm::vec4 m_color              = { 1.0f, 1.0f, 1.0f, 1.0f };
+		oe::color m_color              = { 1.0f, 1.0f, 1.0f, 1.0f };
 		float m_rotation               = 0.0f;
 		Sprite m_sprite;
 
@@ -53,8 +53,8 @@ namespace oe::graphics
 		const glm::vec2& getRotationAlignment() const { return m_rotation_alignment; }
 
 		// color setters/getters
-		void setColor(const glm::vec4& color) { if (m_color != color) { m_updated = true; } m_color = color; setOpacityMode(/*auto*/); }
-		const glm::vec4& getColor() const { return m_color; }
+		void setColor(const oe::color& c) { if (m_color != c) { m_updated = true; } m_color = c; setOpacityMode(/*auto*/); }
+		const oe::color& getColor() const { return m_color; }
 
 		// sprite setters/getters
 		void expandSprite() { m_updated = true; m_sprite.position = { 0.0f, 0.0f }; m_sprite.size = { 1.0f, 1.0f }; }

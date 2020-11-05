@@ -35,8 +35,8 @@ namespace oe::gui
 			using widget_t = Checkbox;
 			
 			bool initial                       = false;
-			glm::vec4 color_back               = oe::colors::dark_grey;
-			glm::vec4 color_mark               = oe::colors::lime;
+			oe::color color_back                   = oe::colors::dark_grey;
+			oe::color color_mark                   = oe::colors::lime;
 			const oe::graphics::Sprite* sprite = nullptr;
 
 			Widget::Info widget_info             = { { 24, 24 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };

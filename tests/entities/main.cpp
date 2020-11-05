@@ -31,7 +31,7 @@ struct GenericScript : public oe::ecs::Behaviour
 		m_body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
 	}
 
-	void on_init(b2BodyType body_type, const glm::vec2& pos, const glm::vec2& size, float angle, const glm::vec4& color, float density)
+	void on_init(b2BodyType body_type, const glm::vec2& pos, const glm::vec2& size, float angle, const oe::color& c, float density)
 	{
 		b2BodyDef bodydef = {};
 		bodydef.gravityScale = 1.0f;
@@ -51,7 +51,7 @@ struct GenericScript : public oe::ecs::Behaviour
 		
 		auto& quad = setComponent<oe::ecs::QuadComponent>();
 		quad.quad_holder = m_world->m_renderer.create();
-		quad.quad_holder->setColor(color);
+		quad.quad_holder->setColor(c);
 		quad.quad_holder->setSize(size);
 		quad.quad_holder->setSprite(sprite);
 		quad.quad_holder->setRotationAlignment(oe::alignments::center_center);
@@ -124,13 +124,13 @@ void setup()
 	// rotor box
 	auto box = world->create(); // world::create()
 	auto motor_mid = oe::ecs::Entity(world); // or Entity constructor
-	auto& generic_src_box = box.setScriptComponent<GenericScript>(b2BodyType::b2_dynamicBody, glm::vec2{ 10.0f, 15.0f }, glm::vec2{ 1.5f, 15.0f }, glm::quarter_pi<float>(), glm::vec4(random.randomVec3(0.0f, 1.0f), 1.0f), 0.1f);
-	auto& generic_src_motor = motor_mid.setScriptComponent<GenericScript>(b2BodyType::b2_kinematicBody, glm::vec2{ 0.0f, 15.0f }, glm::vec2{ 1.0f, 1.0f }, glm::quarter_pi<float>(), glm::vec4(random.randomVec3(0.0f, 1.0f), 1.0f), 1.0f);
+	auto& generic_src_box = box.setScriptComponent<GenericScript>(b2BodyType::b2_dynamicBody, glm::vec2{ 10.0f, 15.0f }, glm::vec2{ 1.5f, 15.0f }, glm::quarter_pi<float>(), oe::color(random.randomVec3(0.0f, 1.0f), 1.0f), 0.1f);
+	auto& generic_src_motor = motor_mid.setScriptComponent<GenericScript>(b2BodyType::b2_kinematicBody, glm::vec2{ 0.0f, 15.0f }, glm::vec2{ 1.0f, 1.0f }, glm::quarter_pi<float>(), oe::color(random.randomVec3(0.0f, 1.0f), 1.0f), 1.0f);
 	motor_mid.setScriptComponent<MotorScript>(box);
 	
 	// ground box
 	auto gbox = world->create(); // world::create()
-	gbox.setScriptComponent<GenericScript>(b2BodyType::b2_staticBody, glm::vec2{ -15.0f, 0.0f }, glm::vec2{ 10.0f, 2.0f }, 0.0f, glm::vec4(random.randomVec3(0.0f, 1.0f), 1.0f), 0.1f);
+	gbox.setScriptComponent<GenericScript>(b2BodyType::b2_staticBody, glm::vec2{ -15.0f, 0.0f }, glm::vec2{ 10.0f, 2.0f }, 0.0f, oe::color(random.randomVec3(0.0f, 1.0f), 1.0f), 0.1f);
 }
 
 // render event
@@ -185,7 +185,7 @@ void update()
 			glm::vec2 pos = { random.randomf(-2.0f, 2.0f), random.randomf(-30.0f, 5.0f) };
 			glm::vec2 size = random.randomVec2(0.1f, 1.0f);
 			auto entity = world->create();
-			entity.setScriptComponent<GenericScript>(b2BodyType::b2_dynamicBody, pos, size, random.randomf(0.0f, glm::two_pi<float>()), glm::vec4(random.randomVec3(0.0f, 1.0f), 1.0f), 1.0f);
+			entity.setScriptComponent<GenericScript>(b2BodyType::b2_dynamicBody, pos, size, random.randomf(0.0f, glm::two_pi<float>()), oe::color(random.randomVec3(0.0f, 1.0f), 1.0f), 1.0f);
 			entities.push_back(entity);
 		}
 	if(std::max(0, entity_count) < entities.size())

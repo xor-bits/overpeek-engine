@@ -30,9 +30,10 @@ namespace oe::graphics
 	private:
 		SpritePack* m_sprite_pack;
 		std::unordered_map<char32_t, Glyph> m_glyphs;
-		uint16_t m_resolution;
 		FontData* m_data;
 
+		uint16_t m_resolution;
+		bool m_sdf;
 		oe::utils::byte_string m_font_file;
 
 		bool gen_codepoint_glyph(char32_t codepoint);
@@ -44,12 +45,14 @@ namespace oe::graphics
 		windows: C:/Windows/Fonts/
 		macos: *workdir*
 		*/
-		Font(uint16_t resolution = 64u, const oe::utils::FontFile& font_file = {});
+		Font(uint16_t resolution = 64u, bool sdf = false, const oe::utils::FontFile& font_file = {});
 		~Font();
 
 		const Glyph* getGlyph(char32_t c);
-		uint16_t getResolution() const { return m_resolution; }
-		SpritePack* getSpritePack() { return m_sprite_pack; }
+		[[nodiscard]] constexpr inline uint16_t getResolution() const noexcept { return m_resolution; }
+		[[nodiscard]] constexpr inline SpritePack* getSpritePack() noexcept { return m_sprite_pack; }
+		
+		[[nodiscard]] constexpr inline bool isSDF() const noexcept { return m_sdf; }
 	};
 
 }
