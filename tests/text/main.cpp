@@ -137,9 +137,6 @@ int main(int argc, char** argv) {
 
 	// sprites
 	font = new oe::graphics::Font(64, true, { oe::default_full_font_path });
-	oe::utils::FileIO path;
-	path.open("font-atlas.png");
-	path.write(font->getSpritePack()->getTexture()->getImageData());
 	
 	// submitting
 	const oe::graphics::text_render_input<char32_t> text_input = { oe::graphics::text_render_input<char32_t>::string_view_color_vec {
