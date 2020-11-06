@@ -40,7 +40,7 @@ namespace oe::gui
 			if (get_info().draw_value)
 			{
 				label_quad = m_gui_manager.getRenderer()->create();
-				value_label = new oe::graphics::u32TextLabel(m_gui_manager.getFont(get_info().font_size, get_info().font_file));
+				value_label = new oe::graphics::u32TextLabel(m_gui_manager.getFont(get_info().font_file), get_info().font_size);
 			}
 			quad_knob = m_gui_manager.getRenderer()->create();
 			if (!get_info().linear_color)

@@ -62,7 +62,7 @@ namespace oe::gui
 			m_text_selection_quads[0] = m_gui_manager.getRenderer()->create();
 			m_text_selection_quads[1] = m_gui_manager.getRenderer()->create();
 			m_text_selection_quads[2] = m_gui_manager.getRenderer()->create();
-			m_label = new oe::graphics::BasicTextLabel<char_type>(m_gui_manager.getFont(m_text_input_info.font_size, m_text_input_info.font_file));
+			m_label = new oe::graphics::BasicTextLabel<char_type>(m_gui_manager.getFont(m_text_input_info.font_file), m_text_input_info.font_size);
 			
 			m_text_selection_quads[0]->setZ(m_z + 0.05f);
 			m_text_selection_quads[1]->setZ(m_z + 0.06f);
@@ -148,11 +148,11 @@ namespace oe::gui
 		auto& clock = oe::utils::Clock::getSingleton();
 		float time = clock.getSessionMillisecond();
 		bool bar = (m_timer_key_pressed + std::chrono::seconds(1) > std::chrono::high_resolution_clock::now() || (int)floor(time) % 1000 > 500);
-		auto& font = m_gui_manager.getFont(m_text_input_info.font_size, m_text_input_info.font_file);
-		const glm::ivec2 before_cursor_size = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, m_state.cursor(), { 0.0f, 0.0f }, glm::vec2(font.getResolution()), { 0.0f, 0.0f });
+		auto& font = m_gui_manager.getFont(m_text_input_info.font_file);
+		const glm::ivec2 before_cursor_size = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, m_state.cursor(), { 0.0f, 0.0f }, glm::vec2(static_cast<float>(m_text_input_info.font_size)), { 0.0f, 0.0f });
 		m_text_bar_quad->setPosition(static_cast<glm::vec2>(m_text_label_pos + before_cursor_size));
 		m_text_bar_quad->setZ(m_z + 0.05f);
-		m_text_bar_quad->setSize({ 1, font.getResolution() });
+		m_text_bar_quad->setSize({ 1, m_text_input_info.font_size });
 		m_text_bar_quad->setSprite(m_text_input_info.sprite);
 		m_text_bar_quad->setColor(m_text_input_info.default_text_color);
 		m_text_bar_quad->toggle(bar);
@@ -177,19 +177,19 @@ namespace oe::gui
 				m_text_selection_quads[1]->setSize({ 0.0f, 0.0f });
 				m_text_selection_quads[2]->setSize({ 0.0f, 0.0f });
 				
-				const glm::ivec2 selection_start_pos = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, selection.x, { 0.0f, 0.0f }, glm::vec2(font.getResolution()), { 0.0f, 0.0f });
-				const glm::ivec2 selection_end_pos = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, selection.y, { 0.0f, 0.0f }, glm::vec2(font.getResolution()), { 0.0f, 0.0f });
+				const glm::ivec2 selection_start_pos = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, selection.x, { 0.0f, 0.0f }, glm::vec2(m_text_input_info.font_size), { 0.0f, 0.0f });
+				const glm::ivec2 selection_end_pos = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, selection.y, { 0.0f, 0.0f }, glm::vec2(m_text_input_info.font_size), { 0.0f, 0.0f });
 
 				m_text_selection_quads[0]->setPosition(static_cast<glm::vec2>(m_text_label_pos + selection_start_pos));
-				m_text_selection_quads[0]->setSize({ selection_end_pos.x - selection_start_pos.x, font.getResolution() });
+				m_text_selection_quads[0]->setSize({ selection_end_pos.x - selection_start_pos.x, m_text_input_info.font_size });
 			}
 			break;
 		default: // 3 or more
 			{
 				m_text_selection_quads[2]->setSize({ 0.0f, 0.0f });
 				
-				m_text_selection_quads[1]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ -font.getResolution(), (lines_before + 1) * font.getResolution() }));
-				m_text_selection_quads[1]->setSize({ m_label->getSize().x + 2 * font.getResolution(), (lines - 2) *font.getResolution() });
+				m_text_selection_quads[1]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ -m_text_input_info.font_size, (lines_before + 1) * m_text_input_info.font_size }));
+				m_text_selection_quads[1]->setSize({ m_label->getSize().x + 2 * m_text_input_info.font_size, (lines - 2) *m_text_input_info.font_size });
 			}
 			[[fallthrough]];
 		case 2:
@@ -197,13 +197,13 @@ namespace oe::gui
 				if(lines == 2)
 					m_text_selection_quads[1]->setSize({ 0.0f, 0.0f });
 
-				const glm::ivec2 selection_a_start_pos = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, selection.x, { 0.0f, 0.0f }, glm::vec2(font.getResolution()), { 0.0f, 0.0f });
-				const glm::ivec2 selection_b_end_pos = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, selection.y, { 0.0f, 0.0f }, glm::vec2(font.getResolution()), { 0.0f, 0.0f });
+				const glm::ivec2 selection_a_start_pos = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, selection.x, { 0.0f, 0.0f }, glm::vec2(static_cast<float>(m_text_input_info.font_size)), { 0.0f, 0.0f });
+				const glm::ivec2 selection_b_end_pos = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, selection.y, { 0.0f, 0.0f }, glm::vec2(static_cast<float>(m_text_input_info.font_size)), { 0.0f, 0.0f });
 
-				m_text_selection_quads[0]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ selection_a_start_pos.x, lines_before * font.getResolution() }));
-				m_text_selection_quads[0]->setSize({ font.getResolution() + m_label->getSize().x - selection_a_start_pos.x, font.getResolution() });
-				m_text_selection_quads[2]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ -font.getResolution(), (lines_before + lines - 1) * font.getResolution() }));
-				m_text_selection_quads[2]->setSize({ font.getResolution() + selection_b_end_pos.x, font.getResolution() });
+				m_text_selection_quads[0]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ selection_a_start_pos.x, lines_before * m_text_input_info.font_size }));
+				m_text_selection_quads[0]->setSize({ m_text_input_info.font_size + m_label->getSize().x - selection_a_start_pos.x, m_text_input_info.font_size });
+				m_text_selection_quads[2]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ -m_text_input_info.font_size, (lines_before + lines - 1) * m_text_input_info.font_size }));
+				m_text_selection_quads[2]->setSize({ m_text_input_info.font_size + selection_b_end_pos.x, m_text_input_info.font_size });
 			}
 			break;
 		}

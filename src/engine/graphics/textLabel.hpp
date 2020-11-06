@@ -84,14 +84,43 @@ namespace oe::graphics
 		}
 	};
 
+
+
+	struct text_render_cache_datapoint
+	{
+		glm::vec2 position = { 0.0f, 0.0f };
+		glm::vec2 size     = { 1.0f, 1.0f };
+		glm::vec4 color    = oe::colors::white;
+
+		const oe::graphics::Sprite* sprite;
+		char32_t codepoint = '\0';
+	};
+	struct text_render_cache
+	{
+		std::vector<text_render_cache_datapoint> datapoints{};
+		glm::vec2 top_left = { 0.0f, 0.0f };
+		glm::vec2 size = { 0.0f, 0.0f };
+	};
+
+
+
 	template<typename char_type>
 	class BasicText {
 	public:
 		using string_t = text_render_input<char_type>;
+		
+		static void create_text_render_cache(
+			      text_render_cache& cache,
+			      Font&              font,
+			const string_t&          text,
+			const glm::vec2&         origin_pos      = { 0.0f, 0.0f },
+			const glm::vec2&         size            = { 64.0f, 64.0f },
+			const glm::vec4&         default_color   = oe::colors::white,
+			const glm::vec2&         align_to_origin = oe::alignments::top_left);
 
 		static glm::vec2 size(Font& font, const string_t& text, const glm::vec2& size);
 		static glm::vec2 charpos(Font& font, const string_t& text, size_t first, size_t i, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align);
-		static void submit(Renderer& renderer, Font& font, const string_t& text, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align = alignments::top_left);
+		static void submit(Renderer& renderer, const text_render_cache& cache);
 		static void submit(Renderer& renderer, Font& font, const string_t& text, const glm::vec2& pos, float size, const glm::vec2& align = alignments::top_left) { submit(renderer, font, text, pos, glm::vec2(size, size), align); }
 	};
 
@@ -107,16 +136,16 @@ namespace oe::graphics
 
 		string_t m_text;
 		glm::vec2 m_size;
-		const size_t m_res_mult;
+		const size_t m_resolution;
 		bool initial_generated = false;
 		
 	public:
-		BasicTextLabel(Font& font, const size_t res_mult = 1)
+		BasicTextLabel(Font& font, const size_t resolution = 64)
 			: m_font(font)
 			, m_fb_size(0.0f, 0.0f)
 			, m_text()
 			, m_size(0.0f, 0.0f)
-			, m_res_mult(res_mult)
+			, m_resolution(resolution)
 		{}
 
 		// Generate framebuffer and render text to it

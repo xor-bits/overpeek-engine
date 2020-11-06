@@ -75,6 +75,8 @@ namespace oe::graphics
 			// add glyph to sprite packer
 			m_sprite_pack->create(std::move(oe::utils::image_data(g->bitmap.buffer, oe::formats::mono, g->bitmap.width, g->bitmap.rows)))
 		}));
+
+		m_topmost = std::min(m_topmost, static_cast<float>(-g->bitmap_top) / static_cast<float>(m_resolution));
 #else
 		if(m_sdf)
 		{
@@ -86,8 +88,10 @@ namespace oe::graphics
 			int advance_y, bearing_y;
 			stbtt_GetCodepointHMetrics(&m_data->info, codepoint, &advance_y, &bearing_y);
 
-			if(!data)
+			if(!data) {
+				spdlog::warn("Could not load codepoint {:x}", (uint32_t)codepoint);
 				return false;
+			}
 
 			// glyph img
 			oe::utils::image_data id(data, oe::formats::mono, w, h);
@@ -102,6 +106,8 @@ namespace oe::graphics
 				// add glyph to sprite packer
 				m_sprite_pack->create(std::move(id))
 			}));
+
+			m_topmost = std::min(m_topmost, static_cast<float>(y0) / static_cast<float>(m_resolution));
 		}
 		else
 		{
@@ -131,6 +137,8 @@ namespace oe::graphics
 				// add glyph to sprite packer
 				m_sprite_pack->create(std::move(id))
 			}));
+
+			m_topmost = std::min(m_topmost, static_cast<float>(y0) / static_cast<float>(m_resolution));
 		}
 #endif
 
@@ -146,7 +154,8 @@ namespace oe::graphics
 	}
 	
 	Font::Font(uint16_t resolution, bool sdf, const oe::utils::FontFile& font_file)
-		: m_sprite_pack(new SpritePack(5))
+		: m_topmost(0.0f)
+		, m_sprite_pack(new SpritePack(5))
 		, m_data(new FontData())
 		, m_resolution(resolution)
 		, m_sdf(sdf)
@@ -176,9 +185,18 @@ namespace oe::graphics
 		for (char32_t i = 32; i < 127; i++)
 			gen_codepoint_glyph(i);
 
+		// null
+		m_glyphs.insert(std::make_pair(U'\0', Glyph{
+			U'\0',
+			glm::vec2(0.0f),
+			glm::vec2(0.0f),
+			glm::vec2(0.0f),
+			m_sprite_pack->emptySprite()
+		}));
+
 		// whitespace
-		m_glyphs.insert(std::make_pair(' ', Glyph{
-			L' ',
+		m_glyphs.insert(std::make_pair(U' ', Glyph{
+			U' ',
 			glm::vec2(0.0f),
 			glm::vec2(0.0f),
 			glm::vec2(0.3f),

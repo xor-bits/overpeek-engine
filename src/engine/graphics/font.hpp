@@ -26,6 +26,7 @@ namespace oe::graphics
 
 			const Sprite* sprite;
 		};
+		float m_topmost;
 
 	private:
 		SpritePack* m_sprite_pack;

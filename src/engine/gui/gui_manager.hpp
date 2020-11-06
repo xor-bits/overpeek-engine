@@ -41,7 +41,7 @@ namespace oe::gui
 		oe::ResizeEvent latest_resize_event;
 		oe::graphics::Window m_window;
 
-		std::unordered_map<size_t, std::unordered_map<oe::utils::FontFile, oe::graphics::Font>> m_fontmap; // fontsize - ( fontfile - font pair) pair
+		std::unordered_map<oe::utils::FontFile, oe::graphics::Font> m_fontmap; // (fontfile - font pair) pair
 		const oe::utils::FontFile m_default_font_file;
 
 		glm::vec2 m_old_render_size;
@@ -92,7 +92,7 @@ namespace oe::gui
 		inline const oe::assets::DefaultShader* getShaderFill() const { return m_shader_fill; }
 		inline const oe::assets::DefaultShader* getShaderLines() const { return m_shader_lines; }
 
-		oe::graphics::Font& getFont(uint16_t resolution, const oe::utils::FontFile& font = {});
+		oe::graphics::Font& getFont(const oe::utils::FontFile& font = {});
 
 	private:
 		// events

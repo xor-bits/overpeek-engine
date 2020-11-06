@@ -122,12 +122,13 @@ namespace oe::gui
 		on_resize(latest_resize_event);
 	}
 
-	oe::graphics::Font& GUI::getFont(uint16_t resolution, const oe::utils::FontFile& _font)
+	oe::graphics::Font& GUI::getFont(const oe::utils::FontFile& _font)
 	{
 		const oe::utils::FontFile& font = _font.getID() == 0 ? m_default_font_file : _font;
+		constexpr size_t sdf_resolution = 64;
 
-		m_fontmap[resolution].try_emplace(font, false, resolution, font);
-		return m_fontmap.at(resolution).at(font);
+		m_fontmap.try_emplace(font, sdf_resolution, true, font);
+		return m_fontmap.at(font);
 	}
 
 	void GUI::on_resize(const oe::ResizeEvent& event)

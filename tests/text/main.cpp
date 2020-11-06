@@ -140,12 +140,12 @@ int main(int argc, char** argv) {
 	
 	// submitting
 	const oe::graphics::text_render_input<char32_t> text_input = { oe::graphics::text_render_input<char32_t>::string_view_color_vec {
-		{ U"\u2116", { 0.06f, 0.13f, 1.0f, 1.0f } },
+		{ U"|\u2116", { 0.06f, 0.13f, 1.0f, 1.0f } },
 		{ U"The quick brown fox!", oe::colors::white },
-		{ U"\u263A\n", { 1.0f, 0.13f, 0.13f, 1.0f } },
+		{ U"\u263A\n|", { 1.0f, 0.13f, 0.13f, 1.0f } },
 		{ U"x\u00B2\u221A2AVAVA", oe::colors::orange },
 	}};
-	bkd_label = new oe::graphics::u32TextLabel(*font, 8);
+	bkd_label = new oe::graphics::u32TextLabel(*font, 64);
 	bkd_label->generate(text_input, window, oe::colors::translucent_black);
 	oe::graphics::u32Text::submit(*dyn_label_renderer, *font, text_input, { 0.1f, 0.5f }, 0.2f, oe::alignments::top_left);
 

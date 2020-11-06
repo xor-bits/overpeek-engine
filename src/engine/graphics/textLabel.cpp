@@ -49,7 +49,8 @@ namespace oe::graphics {
 		initial_generated = true;
 
 		// size of the framebuffer
-		m_size = BasicText<char_type>::size(m_font, text, glm::vec2(m_font.getResolution() * m_res_mult));
+		spdlog::debug("text label res: {}", m_resolution);
+		m_size = BasicText<char_type>::size(m_font, text, glm::vec2(static_cast<float>(m_resolution)));
 		m_size.x = std::max(m_size.x, 1.0f);
 		m_size.y = std::max(m_size.y, 1.0f);
 
@@ -68,7 +69,7 @@ namespace oe::graphics {
 
 		// render to the framebuffer
 		auto& tbr = TextLabelRenderer::getSingleton();
-		BasicText<char_type>::submit(tbr.fb_renderer, m_font, text, { 0.0f, 0.0f }, m_font.getResolution() * m_res_mult, alignments::top_left);
+		BasicText<char_type>::submit(tbr.fb_renderer, m_font, text, { 0.0f, 0.0f }, static_cast<float>(m_resolution), alignments::top_left);
 		glm::mat4 pr_matrix = glm::ortho(0.0f, m_fb_size.x, m_fb_size.y, 0.0f);
 		tbr.fb_shader.setProjectionMatrix(pr_matrix);
 		tbr.fb_shader.setSDF(m_font.isSDF());
@@ -99,61 +100,76 @@ namespace oe::graphics {
 	
 
 
-	template<typename char_type>
-	bool index_to_char(size_t i, char_type& c, oe::graphics::Font::Glyph const *& glyph, const text_render_input<char_type>& text, glm::vec2& advance, const glm::vec2& size, Font& font)
+	template<typename string_t>
+	void create_text_render_cache(text_render_cache& cache, Font& font, const string_t& text, const glm::vec2& origin_pos, const glm::vec2& size, const glm::vec4& default_color, const glm::vec2& align_to_origin)
 	{
-		c = text.string.at(i);
+		// at the very least the size of the text
+		// \0, \n, etc... will be removed
+		cache.datapoints.reserve(text.string.size());
 
-		if(c == '\n') // new line
+		glm::vec2 advance = origin_pos;
+		glm::vec4 color = default_color;
+		const oe::graphics::Font::Glyph* glyph = nullptr;
+		char32_t codepoint = U'\0';
+		size_t i = 0;
+
+		for (; i < text.string.size(); i++)
 		{
-			advance.x = 0.0f;
-			advance.y += size.y;
-			return true;
-		}
-		if(c == '\t') // tab
-		{
-			advance.x = std::ceil(advance.x / size.x) * size.x;
-			return true;
-		}
+			// get the codepoint from the input text at i
+			codepoint = static_cast<char32_t>(text.string.at(i));
 
-		glyph = font.getGlyph(c);
-		if (!glyph)
-			glyph = font.getGlyph(0);
-		if (!glyph)
-			throw std::runtime_error("Unexpected NULL glyph at slot 0");
-		
-		return false;
-	}
-
-	template<typename char_type>
-	glm::vec2 calculate_final_size(const text_render_input<char_type>& text, const glm::vec2& size, Font& font)
-	{
-		float left(0.0f);
-		float right(0.0f);
-
-		glm::vec2 advance = { 0.0f, 0.0f };
-		const oe::graphics::Font::Glyph* glyph;
-		for (size_t i = 0; i < text.string.size(); i++) {
-			char_type c;
-			if (index_to_char(i, c, glyph, text, advance, size, font))
+			// test if the codepoint will be rendered
+			// and advancing the positioning of the following characters
+			if(codepoint == U'\n') // new line
 			{
+				advance.x = pos.x;
+				advance.y += size.y;
+				continue;
+			}
+			if(c == U'\t') // tab
+			{
+				advance.x = std::ceil(advance.x / size.x) * size.x;
 				continue;
 			}
 
-			const glm::vec2 glyph_top_left = advance + glyph->top_left * size;
-			left = std::min(left, glyph_top_left.x);
-			right = std::max(right, glyph_top_left.x + glyph->size.x * size.x);
+			// get glyph, if possible
+			glyph = font.getGlyph(codepoint);
+			// get 0 glyph as the codepoint did not contain any glyphs
+			if (!glyph) glyph = font.getGlyph(0);
+			// unexpectedly no 0 glyph
+			if (!glyph) throw std::runtime_error("Unexpected NULL glyph at slot 0");
 
+			// insert new datapoint
+			cache.datapoints.emplace_back();
+			auto& back = cache.datapoints.back();
+			back.codepoint = codepoint;
+			back.color = color;
+			back.position = (advance) + (glyph->top_left * size) + glm::vec2{ 0.0f, -font.m_topmost * size.y };
+			back.size = glyph->size;
+			back.sprite = glyph->sprite;
+
+			// advancing
 			advance += glm::vec2(glyph->advance.x, 0.0f) * size;
+			// kerning if possible
+			if(i+1 < text.string.size())
+				advance.x += font.getKerning(text.string.at(i), text.string.at(i+1)) * size.x;
 		}
 
-		return { right - left, advance.y + size.y };
-	}
-
-	template<typename char_type>
-	glm::vec2 BasicText<char_type>::size(Font& font, const string_t& text, const glm::vec2& size)
-	{
-		return calculate_final_size(text, size, font);
+		// alignment
+		glm::vec2 min = origin_pos, max = origin_pos;
+		for (auto& datapoint : cache.datapoints)
+		{
+			min = glm::min(min, datapoint.position);
+			max = glm::max(max, datapoint.position + datapoint.size);
+		}
+		const glm::vec2 size = glm::abs(max - min);
+		const glm::vec2 move = oe::alignmentOffset(size, align_to_origin);
+		if(align_to_origin != oe::alignments::top_left || min != origin_pos)
+			for (auto& datapoint : cache.datapoints)
+				datapoint.position -= move;
+		
+		cache.top_left = min;
+		cache.size = size;
 	}
 
 	template<typename char_type>
@@ -165,11 +181,11 @@ namespace oe::graphics {
 		for (size_t i = first; i < std::min(idx, text.string.size()); i++) {
 			char_type c;
 			if (index_to_char(i, c, glyph, text, advance, size, font))
-			{
 				continue;
-			}
 
 			advance += glm::vec2(glyph->advance.x, 0.0f) * size;
+			if(i+1 < text.string.size())
+				advance.x += font.getKerning(text.string.at(i), text.string.at(i+1)) * size.x;
 		}
 
 		return pos + advance;
@@ -178,25 +194,25 @@ namespace oe::graphics {
 	template<typename char_type>
 	void BasicText<char_type>::submit(Renderer& renderer, Font& font, const string_t& text, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align)
 	{
-		const float avg_top = font.getGlyph('|')->top_left.y;
-	
+		text_render_cache cache;
+		create_text_render_cache<char_type>(cache, font, text, pos, size, colo);
+
 		// get width
 		glm::vec2 advance = (align == glm::vec2{ 0.0f, 0.0f } ? align : alignmentOffset(-calculate_final_size<char_type>(text, size, font), align));
+		
 		const oe::graphics::Font::Glyph* glyph;
 		oe::color col = text.string_color_map.at(0);
 		for (size_t i = 0; i < text.string.size(); i++) {
 			char_type c;
 			if (index_to_char(i, c, glyph, text, advance, size, font))
-			{
 				continue;
-			}
 
 			auto iter = text.string_color_map.find(i);
 			if(iter != text.string_color_map.end())
 				col = iter->second;
 
 			auto quad = renderer.create();
-			quad->setPosition(pos + advance + glyph->top_left * size - glm::vec2(0.0f, avg_top * size.y));
+			quad->setPosition(pos + advance + glyph->top_left * size + glm::vec2(0.0f, - font.m_topmost * size.y));
 			quad->setSize(glyph->size * size);
 			quad->setSprite(glyph->sprite);
 			quad->setColor(col);

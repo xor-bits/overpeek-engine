@@ -22,7 +22,7 @@ namespace oe::gui
 		if(enabled)
 		{
 			text_quad = m_gui_manager.getRenderer()->create();
-			label = new oe::graphics::u32TextLabel(m_gui_manager.getFont(text_panel_info.font_size, text_panel_info.font_file));
+			label = new oe::graphics::u32TextLabel(m_gui_manager.getFont(text_panel_info.font_file), text_panel_info.font_size);
 
 			m_cg_render.connect<GUIRenderEvent, &TextPanel::on_render, TextPanel>(m_gui_manager.m_dispatcher, this);
 		}
