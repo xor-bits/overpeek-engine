@@ -80,7 +80,6 @@ void resize_default()
 void on_scroll(const oe::ScrollEvent& e)
 {
 	zoom += zoom * e.scroll_delta.y * 0.1f;
-	spdlog::info(zoom);
 
 	resize_default();
 }
@@ -146,15 +145,16 @@ int main(int argc, char** argv) {
 	const oe::graphics::text_render_input<char32_t> text_input = { oe::graphics::text_render_input<char32_t>::string_view_color_vec {
 		{ U"\u2116", { 0.06f, 0.13f, 1.0f, 1.0f } },
 		{ U"The quick brown fox!", oe::colors::white },
-		{ U"\u263A", { 1.0f, 0.13f, 0.13f, 1.0f } }
+		{ U"\u263A\n", { 1.0f, 0.13f, 0.13f, 1.0f } },
+		{ U"x\u00B2\u221A2", oe::colors::orange },
 	}};
-	bkd_label = new oe::graphics::u32TextLabel(*font);
+	bkd_label = new oe::graphics::u32TextLabel(*font, 8);
 	bkd_label->generate(text_input, window, oe::colors::translucent_black);
-	oe::graphics::u32Text::submit(*dyn_label_renderer, *font, text_input, { 0.1f, 0.35f }, 0.2f, oe::alignments::top_left);
+	oe::graphics::u32Text::submit(*dyn_label_renderer, *font, text_input, { 0.1f, 0.5f }, 0.2f, oe::alignments::top_left);
 
 	quad = renderer->create();
-	quad->setPosition({ 0.1f, 0.1 });
-	quad->setSize({ 0.2f * bkd_label->getAspect(), 0.2f });
+	quad->setPosition({ 0.1f, 0.1f });
+	quad->setSize({ 0.4f * bkd_label->getAspect(), 0.4f });
 	quad->setColor(oe::colors::white);
 	quad->setSprite(bkd_label->getSprite());
 	
