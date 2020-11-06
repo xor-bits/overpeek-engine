@@ -453,6 +453,7 @@ namespace oe {
 		gpu favored_gpu_vulkan = gpu::dedicated;
 		bool debug_mode = true;
 		bool ignore_errors = true;
+		std::string asset_path = "asset.zip";
 	};
 
 	struct TextureInfo {
@@ -519,66 +520,4 @@ namespace oe {
         glm::uvec2 framebuffer_size_old = { 0, 0 };
 		float aspect = 0.0f;
 	};
-
-#ifdef WIN32
-#define __OE_FONT_NAME_R			"Arial.ttf"
-#define __OE_FONT_NAME_B			"Arialbd.ttf"
-#define __OE_FONT_NAME_I			"Ariali.ttf"
-#define __OE_FONT_NAME_BI			"Arialbi.ttf"
-#define __OE_FONT_PATH				"C:/Windows/Fonts/"
-#elif __linux__
-#define __OE_FONT_NAME_R			"LiberationSans-Regular.ttf"
-#define __OE_FONT_NAME_B			"LiberationSans-Bold.ttf"
-#define __OE_FONT_NAME_I			"LiberationSans-Italic.ttf"
-#define __OE_FONT_NAME_BI			"LiberationSans-BoldItalic.ttf"
-#define __OE_FONT_PATH				"/usr/share/fonts/truetype/liberation/"
-#else
-#define __OE_FONT_NAME_R			"LiberationSans-Regular.ttf"
-#define __OE_FONT_NAME_B			"LiberationSans-Bold.ttf"
-#define __OE_FONT_NAME_I			"LiberationSans-Italic.ttf"
-#define __OE_FONT_NAME_BI			"LiberationSans-BoldItalic.ttf"
-#define __OE_FONT_PATH				"/System/Library/Fonts"  /* I have no idea about fonts with MacOS */
-#endif
-
-#define __OE_FULL_FONT_PATH_R		__OE_FONT_PATH __OE_FONT_NAME_R
-#define __OE_FULL_FONT_PATH_B		__OE_FONT_PATH __OE_FONT_NAME_B
-#define __OE_FULL_FONT_PATH_I		__OE_FONT_PATH __OE_FONT_NAME_I
-#define __OE_FULL_FONT_PATH_BI		__OE_FONT_PATH __OE_FONT_NAME_BI
-#define __OE_FONT_NAME				__OE_FONT_NAME_R
-#define __OE_FULL_FONT_PATH_R		__OE_FONT_PATH __OE_FONT_NAME_R
-#define __OE_FULL_FONT_PATH_B		__OE_FONT_PATH __OE_FONT_NAME_B
-#define __OE_FULL_FONT_PATH_I		__OE_FONT_PATH __OE_FONT_NAME_I
-#define __OE_FULL_FONT_PATH_BI		__OE_FONT_PATH __OE_FONT_NAME_BI
-#define __OE_FULL_FONT_PATH			__OE_FULL_FONT_PATH_R
-	
-	constexpr char default_font_name_regular[] = __OE_FONT_NAME_R;
-	constexpr char default_font_name_bold[] = __OE_FONT_NAME_B;
-	constexpr char default_font_name_italic[] = __OE_FONT_NAME_I;
-	constexpr char default_font_name_bolditalic[] = __OE_FONT_NAME_BI;
-	constexpr char default_font_name[] = __OE_FONT_NAME;
-
-	constexpr char default_font_path[] = __OE_FONT_PATH;
-	
-	constexpr char default_full_font_path_regular[] = __OE_FULL_FONT_PATH_R;
-	constexpr char default_full_font_path_bold[] = __OE_FULL_FONT_PATH_B;
-	constexpr char default_full_font_path_italic[] = __OE_FULL_FONT_PATH_I;
-	constexpr char default_full_font_path_bolditalic[] = __OE_FULL_FONT_PATH_BI;
-	constexpr char default_full_font_path[] = __OE_FULL_FONT_PATH;
-
-#undef __OE_FONT_NAME_R
-#undef __OE_FONT_NAME_B
-#undef __OE_FONT_NAME_I
-#undef __OE_FONT_NAME_BI
-#undef __OE_FONT_PATH
-
-#undef __OE_FULL_FONT_PATH_R
-#undef __OE_FULL_FONT_PATH_B
-#undef __OE_FULL_FONT_PATH_I
-#undef __OE_FULL_FONT_PATH_BI
-#undef __OE_FONT_NAME
-#undef __OE_FULL_FONT_PATH_R
-#undef __OE_FULL_FONT_PATH_B
-#undef __OE_FULL_FONT_PATH_I
-#undef __OE_FULL_FONT_PATH_BI
-#undef __OE_FULL_FONT_PATH
 }

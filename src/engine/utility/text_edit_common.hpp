@@ -5,6 +5,7 @@
 #define STB_TEXTEDIT_CHARTYPE					char_type
 #define STB_TEXTEDIT_STRING						std::basic_string<char_type>
 #include <stb_textedit.h>
+#include <cstdint>
 #include "engine/utility/extra.hpp"
 
 static oe::graphics::Font* last_font = nullptr;
@@ -24,7 +25,6 @@ static float getwidth(std::basic_string<char_type> *obj, uint32_t /* n */, uint3
 		return advance;
 	
 	advance = last_font->getGlyph(obj->at(i))->advance.x * last_font->getResolution();
-	// spdlog::debug("i:{}, c:{}, advance:{}, font:{:X}",n,(char)obj->at(i),advance,(size_t)last_font);
 	return advance;
 }
 
@@ -38,15 +38,15 @@ static void layoutrow(StbTexteditRow* r, std::basic_string<char_type> *obj, uint
 	const size_t count = find_nl == std::basic_string<char_type>::npos ? obj->size() - n : find_nl - n + 1;
 	std::basic_string_view<char_type> line = { obj->data() + first, count };
 
-	const auto text_size = oe::graphics::BasicText<char_type>::size(*last_font, oe::graphics::text_render_input<char_type>{ line }, glm::vec2{ static_cast<float>(last_font->getResolution()) });
+	oe::graphics::text_render_cache cache;
+	oe::graphics::BasicText<char_type>::create_text_render_cache(cache, { line, oe::colors::white }, *last_font, { 0.0f, 0.0f }, { 64.0f, 64.0f }, oe::alignments::top_left);
 
 	r->ymax = static_cast<float>(last_font->getResolution());
 	r->ymin = 0.0f;
 	r->baseline_y_delta = static_cast<float>(last_font->getResolution());
-	r->num_chars = count;
+	r->num_chars = static_cast<int>(std::min(count, static_cast<size_t>(std::numeric_limits<int>::max())));
 	r->x0 = 0.0f;
-	r->x1 = text_size.x;
-	// spdlog::debug("n:{}, font:{:X}, ymax:{}, ymin:{}, baseline_y_delta:{}, num_chars:{}, x0:{}, x1:{}",n,(size_t)last_font,r->ymax,r->ymin,r->baseline_y_delta,r->num_chars,r->x0,r->x1);
+	r->x1 = cache.size.x;
 }
 
 #define KEYDOWN_BIT                             0x8000000
@@ -153,7 +153,7 @@ namespace oe::utils
 			std::string clipboard;
 			m_paste_from_clipboard(clipboard);
 			auto clipboard_chartype = oe::utils::convertUTF<std::basic_string<char_type>>(clipboard);
-			stb_textedit_paste(&string, state, clipboard_chartype.data(), clipboard_chartype.size());
+			stb_textedit_paste(&string, state, clipboard_chartype.data(), static_cast<int>(std::min(clipboard_chartype.size(), static_cast<size_t>(std::numeric_limits<int>::max()))));
 		}
 		
 		stb_textedit_key(&string, state, key);

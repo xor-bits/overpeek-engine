@@ -15,11 +15,12 @@ namespace oe::utils
 
 	struct image_data
 	{
-		uint8_t* data;
-		oe::formats format;
-		int width, height;
-		size_t size;
+		uint8_t* data = nullptr;
+		oe::formats format = oe::formats::rgba;
+		int width = 0, height = 0;
+		size_t size = 0;
 
+		image_data() {}
 		image_data(oe::formats format, int width, int height); // allocates space for uint8_t*data
 		image_data(fs::path path, oe::formats format = oe::formats::rgba); // load from file
 		image_data(const uint8_t* data, size_t data_size, oe::formats format = oe::formats::rgba); // load from memory
@@ -28,15 +29,18 @@ namespace oe::utils
 		image_data(image_data&& move);
 		~image_data();
 
+		image_data& operator=(const image_data& copy_assign);
+		image_data& operator=(image_data&& move_assign);
+
 		byte_string save() const;
 	};
 
 	struct audio_data
 	{
-		int16_t* data;
-		int format, size, channels, sample_rate;
-		const bool stolen = false;
-
+		int16_t* data = nullptr;
+		int format = 0, size = 0, channels = 0, sample_rate = 0;
+		
+		audio_data() {}
 		audio_data(int format, int size, int channels, int sample_rate); // allocates space for uint16_t*data
 		audio_data(fs::path path); // load from file
 		audio_data(const uint8_t* data, size_t data_size); // load from memory
@@ -44,6 +48,9 @@ namespace oe::utils
 		audio_data(const audio_data& copied);
 		audio_data(audio_data&& move);
 		~audio_data();
+
+		audio_data& operator=(const audio_data& copy_assign);
+		audio_data& operator=(audio_data&& move_assign);
 	};
 
 	// workaround for msvc bug

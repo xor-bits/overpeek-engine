@@ -18,8 +18,8 @@ std::array<float, 200> perf_log_fps;
 std::array<float, 50> perf_log_ups;
 
 oe::graphics::Window window;
-oe::assets::DefaultShader* shader_fill;
-oe::assets::DefaultShader* shader_lines;
+oe::asset::DefaultShader* shader_fill;
+oe::asset::DefaultShader* shader_lines;
 oe::graphics::PrimitiveRenderer renderer;
 oe::graphics::SpritePack* pack;
 const oe::graphics::Sprite* sprite;
@@ -188,7 +188,8 @@ void update_30(oe::UpdateEvent<30>)
 		gameloop.getAverageFPS(),
 		std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gameloop.getUpdatetime<30>()).count(),
 		gameloop.getAverageUPS<30>());
-	if(textpanel) textpanel->text_panel_info.text = str;
+	if(textpanel)
+		textpanel->text_panel_info.text = { str, oe::colors::white };
 
 	if constexpr (!graphs) return;
 
@@ -266,7 +267,7 @@ xxxxxxxxxxxxxxxxxxxxx)";
 			oe::gui::DecoratedButton::info_t button_info;
 			button_info.button_info = {{ { 60, 24 }, { 5, 0 }, oe::alignments::center_right, oe::alignments::center_left }};
 			button_info.sprite = pack->emptySprite();
-			button_info.text = U"log";
+			button_info.text = { U"log", oe::colors::white };
 			button_info.text_font_size = 18;
 			auto button = checkbox->create(button_info);
 
@@ -314,7 +315,7 @@ xxxxxxxxxxxxxxxxxxxxx)";
 		oe::gui::TextPanel::info_t text_panel_info;
 		text_panel_info.widget_info = { { 0, 0 }, { 0, 0 }, oe::alignments::top_left, oe::alignments::top_left };
 		text_panel_info.font_size = 20;
-		text_panel_info.text = U"placeholder";
+		text_panel_info.text = { U"placeholder", oe::colors::white };
 		text_panel_info.font_file = oe::utils::FontFile{ oe::default_full_font_path_bolditalic };
 		/* text_panel_info.background_color = oe::colors::translucent_black; */
 		textpanel = gui->create(text_panel_info);
@@ -347,7 +348,7 @@ xxxxxxxxxxxxxxxxxxxxx)";
 	tpi.font_size = 14;
 	tpi.widget_info.align_parent = oe::alignments::top_left;
 	tpi.widget_info.align_render = oe::alignments::top_left;
-	tpi.text = U"placeholder";
+	tpi.text = { U"placeholder", oe::colors::white };
 	
 	auto& random = oe::utils::Random::getSingleton();
 	for(int i = 0; i < 5; i++) append_list(glm::angleAxis(random.randomf(-glm::pi<float>(), glm::pi<float>()), glm::normalize(random.randomVec3(-1.0f, 1.0f))));
@@ -388,11 +389,11 @@ int main(int argc, char** argv)
 	initCube();
 	
 	// shader
-	shader_fill = new oe::assets::DefaultShader(oe::polygon_mode::fill);
-	shader_lines = new oe::assets::DefaultShader(oe::polygon_mode::lines);
+	shader_fill = new oe::asset::DefaultShader(oe::polygon_mode::fill);
+	shader_lines = new oe::asset::DefaultShader(oe::polygon_mode::lines);
 
 	// spritepack
-	auto img = oe::assets::TextureSet::oe_logo_img;
+	auto img = oe::asset::TextureSet::oe_logo_img;
 	pack = new oe::graphics::SpritePack();
 	sprite = pack->create(img);
 	pack->construct();

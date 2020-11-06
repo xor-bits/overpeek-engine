@@ -126,7 +126,8 @@ namespace oe::gui
 		m_quad->setColor(m_text_input_info.background_color);
 
 		// text
-		m_label->generate({ m_value, m_text_input_info.default_text_color }, m_gui_manager.getWindow());
+		const oe::utils::color_string<char_type> string_vec = { m_value, m_text_input_info.default_text_color };
+		m_label->generate(string_vec, m_gui_manager.getWindow());
 		m_text_label_pos = m_render_position + oe::alignmentOffset(m_info.size, m_text_input_info.align_text) - oe::alignmentOffset(static_cast<glm::ivec2>(m_label->getSize()), m_text_input_info.align_text);
 		
 		// text label
@@ -143,19 +144,25 @@ namespace oe::gui
 		m_text_selection_quads[2]->toggle(m_selected);
 		if(!m_selected)
 			return;
-		
-		// text bar
+
 		auto& clock = oe::utils::Clock::getSingleton();
 		float time = clock.getSessionMillisecond();
 		bool bar = (m_timer_key_pressed + std::chrono::seconds(1) > std::chrono::high_resolution_clock::now() || (int)floor(time) % 1000 > 500);
+		m_text_bar_quad->toggle(bar);
+		
+		// TODO: update following (till the end of this scope) only if the cursor was updated
 		auto& font = m_gui_manager.getFont(m_text_input_info.font_file);
-		const glm::ivec2 before_cursor_size = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, m_state.cursor(), { 0.0f, 0.0f }, glm::vec2(static_cast<float>(m_text_input_info.font_size)), { 0.0f, 0.0f });
+		using text_t = oe::graphics::BasicText<char_type>;
+		oe::graphics::text_render_cache cache;
+		text_t::create_text_render_cache(cache, string_vec, font, { 0.0f, 0.0f }, glm::vec2(m_text_input_info.font_size), oe::alignments::top_left);
+
+		// text bar
+		const glm::ivec2 before_cursor_size = static_cast<glm::ivec2>(text_t::offset_to_char(cache, m_state.cursor()));
 		m_text_bar_quad->setPosition(static_cast<glm::vec2>(m_text_label_pos + before_cursor_size));
 		m_text_bar_quad->setZ(m_z + 0.05f);
 		m_text_bar_quad->setSize({ 1, m_text_input_info.font_size });
 		m_text_bar_quad->setSprite(m_text_input_info.sprite);
 		m_text_bar_quad->setColor(m_text_input_info.default_text_color);
-		m_text_bar_quad->toggle(bar);
 
 		// text selection
 		const glm::ivec2 selection = { std::min(std::get<0>(m_state.selection()), std::get<1>(m_state.selection())), std::max(std::get<0>(m_state.selection()), std::get<1>(m_state.selection())) };
@@ -177,8 +184,8 @@ namespace oe::gui
 				m_text_selection_quads[1]->setSize({ 0.0f, 0.0f });
 				m_text_selection_quads[2]->setSize({ 0.0f, 0.0f });
 				
-				const glm::ivec2 selection_start_pos = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, selection.x, { 0.0f, 0.0f }, glm::vec2(m_text_input_info.font_size), { 0.0f, 0.0f });
-				const glm::ivec2 selection_end_pos = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, selection.y, { 0.0f, 0.0f }, glm::vec2(m_text_input_info.font_size), { 0.0f, 0.0f });
+				const glm::ivec2 selection_start_pos = static_cast<glm::ivec2>(text_t::offset_to_char(cache, selection.x));
+				const glm::ivec2 selection_end_pos = static_cast<glm::ivec2>(text_t::offset_to_char(cache, selection.y));
 
 				m_text_selection_quads[0]->setPosition(static_cast<glm::vec2>(m_text_label_pos + selection_start_pos));
 				m_text_selection_quads[0]->setSize({ selection_end_pos.x - selection_start_pos.x, m_text_input_info.font_size });
@@ -197,8 +204,8 @@ namespace oe::gui
 				if(lines == 2)
 					m_text_selection_quads[1]->setSize({ 0.0f, 0.0f });
 
-				const glm::ivec2 selection_a_start_pos = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, selection.x, { 0.0f, 0.0f }, glm::vec2(static_cast<float>(m_text_input_info.font_size)), { 0.0f, 0.0f });
-				const glm::ivec2 selection_b_end_pos = oe::graphics::BasicText<char_type>::charpos(font, m_value, 0, selection.y, { 0.0f, 0.0f }, glm::vec2(static_cast<float>(m_text_input_info.font_size)), { 0.0f, 0.0f });
+				const glm::ivec2 selection_a_start_pos = static_cast<glm::ivec2>(text_t::offset_to_char(cache, selection.x));
+				const glm::ivec2 selection_b_end_pos = static_cast<glm::ivec2>(text_t::offset_to_char(cache, selection.y));
 
 				m_text_selection_quads[0]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ selection_a_start_pos.x, lines_before * m_text_input_info.font_size }));
 				m_text_selection_quads[0]->setSize({ m_text_input_info.font_size + m_label->getSize().x - selection_a_start_pos.x, m_text_input_info.font_size });

@@ -1,6 +1,7 @@
 #include "gui_manager.hpp"
 
-#include "engine/assets/default_shader/default_shader.hpp"
+#include "engine/asset/fonts.hpp"
+#include "engine/asset/default_shader/default_shader.hpp"
 #include "engine/graphics/interface/window.hpp"
 #include "engine/graphics/renderer.hpp"
 #include "engine/graphics/font.hpp"
@@ -12,15 +13,15 @@ namespace oe::gui
 {
 	GUI::GUI(const oe::graphics::Window& window, const oe::utils::FontFile& font_file, int32_t renderer_primitive_count)
 		: m_window(window)
-		, m_default_font_file(font_file.getID() == 0 ? oe::utils::FontFile{oe::default_full_font_path} : font_file)
+		, m_default_font_file(font_file.getID() == 0 ? oe::asset::Fonts::roboto_regular() : font_file)
 	{
 		// renderer
 		m_renderer = new oe::graphics::Renderer(renderer_primitive_count);
 		m_line_renderer = new oe::graphics::Renderer(renderer_primitive_count);
 
 		// shader
-		m_shader_fill = new oe::assets::DefaultShader(oe::polygon_mode::fill);
-		m_shader_lines = new oe::assets::DefaultShader(oe::polygon_mode::lines);
+		m_shader_fill = new oe::asset::DefaultShader(oe::polygon_mode::fill);
+		m_shader_lines = new oe::asset::DefaultShader(oe::polygon_mode::lines);
 
 		Widget::Info widget_info = { static_cast<glm::ivec2>(m_window->getSize()) - glm::ivec2(2 * border), { border, border }, oe::alignments::top_left, oe::alignments::top_left };
 		m_main_frame = std::make_shared<Widget>(nullptr, *this, widget_info);

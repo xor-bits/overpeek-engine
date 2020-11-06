@@ -12,7 +12,7 @@ b2World box2d_world(b2Vec2(0.0f, 9.81f));
 
 
 oe::graphics::Window window;
-oe::assets::DefaultShader* shader;
+oe::asset::DefaultShader* shader;
 oe::graphics::SpritePack* pack;
 oe::graphics::Sprite const* sprite;
 oe::ecs::World* world;
@@ -284,7 +284,7 @@ void init(oe::InitEvent)
 	engine.blending();
 
 	// shader
-	shader = new oe::assets::DefaultShader();
+	shader = new oe::asset::DefaultShader();
 
 	// sprites
 	pack = new oe::graphics::SpritePack();

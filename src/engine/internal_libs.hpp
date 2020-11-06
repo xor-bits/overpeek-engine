@@ -13,6 +13,8 @@
 #pragma GCC diagnostic ignored "-Wextra"
 #pragma GCC diagnostic ignored "-Wpedantic"
 #pragma GCC diagnostic ignored "-Wsign-compare" // fmt char32_t and char comparing
+#elif _MSC_VER
+#pragma warning( push )
 #endif
 
 
@@ -36,4 +38,6 @@
 #pragma clang diagnostic pop
 #elif __GNUC__
 #pragma GCC diagnostic pop
+#elif _MSC_VER
+#pragma warning( pop )
 #endif

@@ -3,6 +3,7 @@
 #include "widget.hpp"
 #include "button.hpp"
 #include "engine/enum.hpp"
+#include "engine/utility/color_string.hpp"
 
 
 
@@ -25,15 +26,16 @@ namespace oe::gui
 		{
 			using widget_t = DecoratedButton;
 
-			glm::ivec2 padding                 = { 8, 8 };
-			std::u32string text                = U"";
-			uint16_t text_font_size            = 28;
-			std::string text_font_path         = ""; // empty for gui default
-			bool autoresize                    = false;
-			oe::color btn_color                    = colors::dark_grey;
-			const oe::graphics::Sprite* sprite = nullptr;
+			oe::utils::color_string<char32_t> text             = {{ U"Button", oe::colors::white }};
+			uint16_t text_font_size                            = 28;
+			std::string text_font_path                         = ""; // empty for gui default
+			
+			glm::ivec2 padding                                 = { 8, 8 };
+			bool autoresize                                    = false;
+			oe::color btn_color                                = colors::dark_grey;
+			const oe::graphics::Sprite* sprite                 = nullptr;
 
-			Button::info_t button_info         = {};
+			Button::info_t button_info                         = {};
 		};
 	
 	public:

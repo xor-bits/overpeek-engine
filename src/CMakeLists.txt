@@ -18,18 +18,12 @@ set(source_list ${source_list}
 	"engine/interfacegen_renderer.hpp"
 )
 set(source_list ${source_list} 
-	"engine/assets/default_shader/default_shader.cpp"
-	"engine/assets/default_shader/default_shader.hpp"
-	"engine/assets/default_shader/shader.vert.hpp"
-	"engine/assets/default_shader/shader.vert.g.hpp"
-	"engine/assets/default_shader/shader.geom.l.hpp"
-	"engine/assets/default_shader/shader.geom.p.hpp"
-	"engine/assets/default_shader/shader.frag.hpp"
-	"engine/assets/font_shader/font_shader.cpp"
-	"engine/assets/font_shader/font_shader.hpp"
-	"engine/assets/font_shader/shader.vert.hpp"
-	"engine/assets/font_shader/shader.frag.hpp"
-	"engine/assets/texture_set/texture_set.hpp"
+	"engine/asset/default_shader/default_shader.cpp"
+	"engine/asset/default_shader/default_shader.hpp"
+	"engine/asset/font_shader/font_shader.cpp"
+	"engine/asset/font_shader/font_shader.hpp"
+	"engine/asset/asset_loader.cpp"
+	"engine/asset/asset_loader.hpp"
 )
 set(source_list ${source_list} 
 	"engine/audio/audio.cpp"
@@ -166,6 +160,7 @@ set(source_list ${source_list}
 set(source_list ${source_list} 
 	"engine/utility/clock.cpp"
 	"engine/utility/clock.hpp"
+	"engine/utility/color_string.hpp"
 	"engine/utility/extra.cpp"
 	"engine/utility/extra.hpp"
 	"engine/utility/fileio.cpp"
@@ -201,6 +196,11 @@ if (MSVC)
 	target_link_libraries(${target_name} PRIVATE "Ws2_32") # required by enet
 	target_link_libraries(${target_name} PRIVATE "Winmm")  # required by enet
 	target_compile_options(${target_name} PRIVATE "/W4")
+	if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+		string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+	else()
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+	endif()
 elseif(EMSCRIPTEN)
 	# 
 else()

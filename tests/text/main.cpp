@@ -7,11 +7,11 @@
 
 oe::graphics::Window window;
 oe::graphics::Renderer* renderer;
-oe::assets::DefaultShader* shader;
+oe::asset::DefaultShader* shader;
 oe::graphics::Font* font;
 
 oe::graphics::u32TextLabel* bkd_label;
-oe::assets::FontShader* dyn_label_shader;
+oe::asset::FontShader* dyn_label_shader;
 oe::graphics::Renderer* dyn_label_renderer;
 std::unique_ptr<oe::graphics::Quad> quad;
 
@@ -35,7 +35,7 @@ void render(oe::RenderEvent)
 	dyn_label_renderer->render();
 }
 
-void update_2(oe::UpdateEvent<2>) {
+void update_1(oe::UpdateEvent<1>) {
 	auto& gameloop = window->getGameloop();
 	spdlog::debug("- frametime: {:3.3f} ms ({} fps)\n- updatetime: {:3.3f} ms ({} ups)",
 		std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gameloop.getFrametime()).count(),
@@ -117,7 +117,7 @@ int main(int argc, char** argv) {
 
 	// connect events;
 	cg_render.connect<oe::RenderEvent, render>(window);
-	cg_update_2.connect<oe::UpdateEvent<2>, update_2>(window);
+	cg_update_2.connect<oe::UpdateEvent<1>, update_1>(window);
 	cg_resize.connect<oe::ResizeEvent, resize>(window);
 	cg_scroll.connect<oe::ScrollEvent, on_scroll>(window);
 	cg_keyboard.connect<oe::KeyboardEvent, on_key>(window);
@@ -132,14 +132,14 @@ int main(int argc, char** argv) {
 	dyn_label_renderer = new oe::graphics::Renderer(1000);
 
 	// shaders
-	shader = new oe::assets::DefaultShader();
-	dyn_label_shader = new oe::assets::FontShader();
+	shader = new oe::asset::DefaultShader();
+	dyn_label_shader = new oe::asset::FontShader();
 
 	// sprites
-	font = new oe::graphics::Font(64, true, { oe::default_full_font_path });
+	font = new oe::graphics::Font(64, true, oe::asset::Fonts::roboto_regular());
 	
 	// submitting
-	const oe::graphics::text_render_input<char32_t> text_input = { oe::graphics::text_render_input<char32_t>::string_view_color_vec {
+	const oe::utils::color_string<char32_t> text_input = {{
 		{ U"|\u2116", { 0.06f, 0.13f, 1.0f, 1.0f } },
 		{ U"The quick brown fox!", oe::colors::white },
 		{ U"\u263A\n|", { 1.0f, 0.13f, 0.13f, 1.0f } },
@@ -147,7 +147,9 @@ int main(int argc, char** argv) {
 	}};
 	bkd_label = new oe::graphics::u32TextLabel(*font, 64);
 	bkd_label->generate(text_input, window, oe::colors::translucent_black);
-	oe::graphics::u32Text::submit(*dyn_label_renderer, *font, text_input, { 0.1f, 0.5f }, 0.2f, oe::alignments::top_left);
+	oe::graphics::text_render_cache cache;
+	oe::graphics::u32Text::create_text_render_cache(cache, text_input, *font, { 0.1f, 0.5f }, { 0.2f, 0.2f }, oe::alignments::top_left);
+	oe::graphics::u32Text::submit(cache, *dyn_label_renderer);
 
 	quad = renderer->create();
 	quad->setPosition({ 0.1f, 0.1f });
@@ -160,7 +162,7 @@ int main(int argc, char** argv) {
 	oe::graphics::Sprite sprite;
 	sprite.m_owner = font->getSpritePack()->getTexture();
 	quad = renderer->create();
-	quad->setPosition({ 1.0f, 0.75f });
+	quad->setPosition({ 1.0f, 1.0f });
 	quad->setSize({ 0.5f, 0.5f });
 	quad->setColor(oe::colors::white);
 	quad->setSprite(sprite);

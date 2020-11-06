@@ -139,7 +139,37 @@ namespace oe::utils
 
 	image_data::~image_data()
 	{
-		delete data;
+		if(data) delete data;
+	}
+	
+	image_data& image_data::operator=(const image_data& copy_assign)
+	{
+		this->~image_data();
+		
+		format = copy_assign.format;
+		width = copy_assign.width; height = copy_assign.height;
+		size = copy_assign.size;
+		data = new uint8_t[size];
+		std::memcpy(data, copy_assign.data, size);
+
+		return *this;
+	}
+
+	image_data& image_data::operator=(image_data&& move_assign)
+	{
+		this->~image_data();
+
+		format = move_assign.format;
+		width = move_assign.width; height = move_assign.height;
+		size = move_assign.size;
+		data = move_assign.data;
+
+		move_assign.format = oe::formats::mono;
+		move_assign.width = 0; move_assign.height = 0;
+		move_assign.size = 0;
+		move_assign.data = 0;
+
+		return *this;
 	}
 
 	byte_string image_data::save() const
@@ -240,10 +270,43 @@ namespace oe::utils
 		move.data = 0;
 	}
 
-	audio_data::~audio_data() {
-		delete data;
+	audio_data::~audio_data()
+	{
+		if(data) delete data;
+	}
+	
+	audio_data& audio_data::operator=(const audio_data& copy_assign)
+	{
+		this->~audio_data();
+		
+		format = copy_assign.format;
+		size = copy_assign.size;
+		channels = copy_assign.channels;
+		sample_rate = copy_assign.sample_rate;
+		data = new int16_t[size];
+		std::memcpy(data, copy_assign.data, size);
+
+		return *this;
 	}
 
+	audio_data& audio_data::operator=(audio_data&& move_assign)
+	{
+		this->~audio_data();
+
+		format = move_assign.format;
+		size = move_assign.size;
+		channels = move_assign.channels;
+		sample_rate = move_assign.sample_rate;
+		data = move_assign.data;
+
+		move_assign.format = 0;
+		move_assign.size = 0;
+		move_assign.channels = 0;
+		move_assign.sample_rate = 0;
+		move_assign.data = 0;
+
+		return *this;
+	}
 }
 
 namespace oe::utils

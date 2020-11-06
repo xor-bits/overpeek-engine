@@ -12,7 +12,7 @@ oe::graphics::Instance* instance;
 oe::graphics::IWindow* window;
 oe::graphics::SpritePack* pack;
 oe::graphics::Renderer* renderer;
-oe::assets::DefaultShader* shader;
+oe::asset::DefaultShader* shader;
 
 double t = 0;
 void render(float update_fraction) {
@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
 	renderer = window->createRenderer(renderer_info);
 
 	// shader
-	shader = new oe::assets::DefaultShader(window);
+	shader = new oe::asset::DefaultShader(window);
 
 	// sprites
 	auto img = oe::utils::image_data(texture_png, oe::formats::rgba, 5, 5);

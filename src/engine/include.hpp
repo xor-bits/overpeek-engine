@@ -20,6 +20,7 @@
 
 // Logic
 #include "utility/clock.hpp"
+#include "utility/color_string.hpp"
 #include "utility/random.hpp"
 #include "utility/gameloop.hpp"
 #include "utility/fileio.hpp"
@@ -55,6 +56,7 @@
 #include "networking/server.hpp"
 
 // Asset
-#include "assets/default_shader/default_shader.hpp"
-#include "assets/font_shader/font_shader.hpp"
-#include "assets/texture_set/texture_set.hpp"
+#include "asset/default_shader/default_shader.hpp"
+#include "asset/font_shader/font_shader.hpp"
+#include "asset/texture_set/texture_set.hpp"
+#include "asset/fonts.hpp"

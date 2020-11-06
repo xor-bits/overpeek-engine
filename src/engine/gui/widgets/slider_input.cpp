@@ -1,6 +1,6 @@
 #include "slider_input.hpp"
 
-#include "engine/assets/default_shader/default_shader.hpp"
+#include "engine/asset/default_shader/default_shader.hpp"
 #include "engine/graphics/textLabel.hpp"
 #include "engine/graphics/interface/window.hpp"
 #include "engine/graphics/interface/texture.hpp"
@@ -26,7 +26,7 @@ namespace oe::gui
 	public:
 		static SliderLinearRenderer& getSingleton() { if (!singleton) singleton = new SliderLinearRenderer(); return *singleton; }
 
-		oe::assets::DefaultShader s_shader;
+		oe::asset::DefaultShader s_shader;
 		oe::graphics::PrimitiveRenderer s_renderer;
 	};
 	SliderLinearRenderer* SliderLinearRenderer::singleton = nullptr;
@@ -196,7 +196,7 @@ namespace oe::gui
 		if (get_info().draw_value)
 		{
 			const std::u32string s = get_rendered_label();
-			value_label->generate(s, m_gui_manager.getWindow(), { 0.0f, 0.0f, 0.0f, 0.2f });
+			value_label->generate({ s, oe::colors::white }, m_gui_manager.getWindow(), { 0.0f, 0.0f, 0.0f, 0.2f });
 			const glm::ivec2 size = value_label->getSize();
 			const glm::ivec2 position =
 				+ m_render_position

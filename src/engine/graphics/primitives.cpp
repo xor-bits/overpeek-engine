@@ -2,7 +2,7 @@
 
 #include "renderer.hpp"
 #include "engine/utility/extra.hpp"
-#include "engine/assets/texture_set/texture_set.hpp"
+#include "engine/asset/texture_set/texture_set.hpp"
 
 
 
@@ -15,7 +15,7 @@ namespace oe::graphics
 		NullSpritePatcher(const NullSpritePatcher& copy) = delete;
 		NullSpritePatcher()
 		{
-			auto checker_img = oe::assets::TextureSet::generate_checkerboard();
+			auto checker_img = oe::asset::TextureSet::generate_checkerboard();
 			TextureInfo ti;
 			ti.data = checker_img.data;
 			ti.data_format = checker_img.format;

@@ -10,7 +10,7 @@ const oe::graphics::Sprite* sprite_white; // from pack 1
 oe::graphics::SpritePack* pack_0;
 oe::graphics::SpritePack* pack_1;
 oe::graphics::Window window;
-oe::assets::DefaultShader* shader;
+oe::asset::DefaultShader* shader;
 oe::graphics::Renderer* renderer;
 std::array<std::unique_ptr<oe::graphics::Quad>, 2> quads;
 
@@ -109,10 +109,10 @@ void init(int argc, char** argv)
 	renderer = new oe::graphics::Renderer(100);
 
 	// shader
-	shader = new oe::assets::DefaultShader();
+	shader = new oe::asset::DefaultShader();
 	
 	// sprites
-	auto img = oe::assets::TextureSet::oe_logo_img;
+	auto img = oe::asset::TextureSet::oe_logo_img;
 	pack_0 = new oe::graphics::SpritePack();
 	pack_1 = new oe::graphics::SpritePack();
 	sprite = pack_0->create(img);

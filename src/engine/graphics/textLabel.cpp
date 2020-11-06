@@ -9,7 +9,7 @@
 #include "engine/graphics/interface/window.hpp"
 #include "engine/graphics/interface/framebuffer.hpp"
 #include "engine/graphics/renderer.hpp"
-#include "engine/assets/font_shader/font_shader.hpp"
+#include "engine/asset/font_shader/font_shader.hpp"
 
 
 
@@ -28,7 +28,7 @@ namespace oe::graphics {
 	public:
 		static TextLabelRenderer& getSingleton() { if(!singleton) singleton = new TextLabelRenderer(); return *singleton; }
 
-		oe::assets::FontShader fb_shader;
+		oe::asset::FontShader fb_shader;
 		oe::graphics::Renderer fb_renderer;
 	};
 	TextLabelRenderer* TextLabelRenderer::singleton = nullptr;
@@ -36,21 +36,21 @@ namespace oe::graphics {
 
 
 	template<typename char_type>
-	void BasicTextLabel<char_type>::generate(const string_t& text, const Window& window, const oe::color& c, float width, float outline_width, const oe::color& outline_c)
+	void BasicTextLabel<char_type>::generate(const string_t& text, const Window& window, const oe::color& bg_color, float width, float outline_width, const oe::color& outline_c)
 	{
-		if (m_text == text && initial_generated) return; // why render the same text again?
-		regenerate(text, window, c, width, outline_width, outline_c);
+		if (m_text == text && m_framebuffer) return; // why render the same text again?
+		regenerate(text, window, bg_color, width, outline_width, outline_c);
 	}
 	
 	template<typename char_type>
-	void BasicTextLabel<char_type>::regenerate(const string_t& text, const Window& window, const oe::color& c, float width, float outline_width, const oe::color& outline_c)
+	void BasicTextLabel<char_type>::regenerate(const string_t& text, const Window& window, const oe::color& bg_color, float width, float outline_width, const oe::color& outline_c)
 	{
 		m_text = text;
-		initial_generated = true;
+		text_render_cache cache;
+		text_t::create_text_render_cache(cache, m_text, m_font, { 0.0f, 0.0f }, glm::vec2(static_cast<float>(m_resolution)), oe::alignments::top_left);
 
 		// size of the framebuffer
-		spdlog::debug("text label res: {}", m_resolution);
-		m_size = BasicText<char_type>::size(m_font, text, glm::vec2(static_cast<float>(m_resolution)));
+		m_size = cache.size;
 		m_size.x = std::max(m_size.x, 1.0f);
 		m_size.y = std::max(m_size.y, 1.0f);
 
@@ -64,13 +64,16 @@ namespace oe::graphics {
 			m_fb_size = fb_info.size;
 		}
 
+		// bind fb
 		m_framebuffer->bind();
-		m_framebuffer->clear(c);
+		m_framebuffer->clear(bg_color);
+		const glm::mat4 pr_matrix = glm::ortho(0.0f, m_fb_size.x, m_fb_size.y, 0.0f);
+
+		// submit to the renderer render
+		auto& tbr = TextLabelRenderer::getSingleton();
+		text_t::submit(cache, tbr.fb_renderer);
 
 		// render to the framebuffer
-		auto& tbr = TextLabelRenderer::getSingleton();
-		BasicText<char_type>::submit(tbr.fb_renderer, m_font, text, { 0.0f, 0.0f }, static_cast<float>(m_resolution), alignments::top_left);
-		glm::mat4 pr_matrix = glm::ortho(0.0f, m_fb_size.x, m_fb_size.y, 0.0f);
 		tbr.fb_shader.setProjectionMatrix(pr_matrix);
 		tbr.fb_shader.setSDF(m_font.isSDF());
 		tbr.fb_shader.setWidth(width);
@@ -78,8 +81,6 @@ namespace oe::graphics {
 		tbr.fb_shader.setOutlineColor(outline_c);
 		tbr.fb_renderer.render();
 		tbr.fb_renderer.clear();
-		
-		tbr.fb_shader.unbind(); // just so the user couldnt accidentally modify this shader
 
 		// bind window framebuffer
 		window->bind();
@@ -93,137 +94,135 @@ namespace oe::graphics {
 		m_sprite.opacity = true;
 	}
 	
-	template class BasicTextLabel<char>;
-	template class BasicTextLabel<wchar_t>;
-	template class BasicTextLabel<char16_t>;
-	template class BasicTextLabel<char32_t>;
-	
 
 
-	template<typename string_t>
-	void create_text_render_cache(text_render_cache& cache, Font& font, const string_t& text, const glm::vec2& origin_pos, const glm::vec2& size, const glm::vec4& default_color, const glm::vec2& align_to_origin)
+	template<typename char_type>
+	void BasicText<char_type>::create_text_render_cache(text_render_cache& cache, const string_t& text, Font& font, const glm::vec2& origin_pos, const glm::vec2& size, const glm::vec2& align_to_origin)
 	{
 		// at the very least the size of the text
 		// \0, \n, etc... will be removed
-		cache.datapoints.reserve(text.string.size());
+		size_t cache_size = std::accumulate(text.vec.cbegin(), text.vec.cend(), static_cast<size_t>(0), [](size_t since, const oe::utils::color_string_part<char_type>& part){ return since + std::get<0>(part).size(); });
+		cache.datapoints = {};
+		cache.datapoints.reserve(cache_size);
 
 		glm::vec2 advance = origin_pos;
-		glm::vec4 color = default_color;
-		const oe::graphics::Font::Glyph* glyph = nullptr;
 		char32_t codepoint = U'\0';
-		size_t i = 0;
+		char32_t codepoint_next = U'\0';
 
-		for (; i < text.string.size(); i++)
+		for (size_t j = 0; j < text.vec.size(); j++)
 		{
-			// get the codepoint from the input text at i
-			codepoint = static_cast<char32_t>(text.string.at(i));
+			const auto& string_color_part = text.vec.at(j);
+			const auto& string_part = std::get<0>(string_color_part);
+			const auto& color_part = std::get<1>(string_color_part);
 
-			// test if the codepoint will be rendered
-			// and advancing the positioning of the following characters
-			if(codepoint == U'\n') // new line
+			for (size_t i = 0; i < string_part.size() + 1; i++)
 			{
-				advance.x = pos.x;
-				advance.y += size.y;
-				continue;
+
+				// get the codepoint from the input text at i
+				codepoint = codepoint_next;
+				// and the next codepoint or \0
+				codepoint_next = U'\0';
+				if(i != string_part.size())
+					codepoint_next = static_cast<char32_t>(string_part.at(i));
+
+				// skip the first
+				if(i == 0)
+					continue;
+				
+				auto& datapoint = cache.datapoints.emplace_back();
+
+				// test if the codepoint will be rendered
+				// and advancing the positioning of the following characters
+				datapoint.rendered = false;
+				if(codepoint == U'\n') // new line
+				{
+					advance.x = origin_pos.x;
+					advance.y += size.y;
+					continue;
+				}
+				else if(codepoint == U'\t') // tab
+				{
+					advance.x = std::ceil(advance.x / size.x) * size.x;
+					continue;
+				}
+				else if(codepoint == U'\0') // null terminator
+					continue;
+
+				// get glyph, if possible
+				const oe::graphics::Font::Glyph* glyph = font.getGlyph(codepoint);
+				// get 0 glyph as the codepoint did not contain any glyphs
+				if (!glyph) glyph = font.getGlyph(0);
+				// unexpectedly no 0 glyph
+				if (!glyph) throw std::runtime_error("Unexpected NULL glyph at slot 0");
+
+				// insert new datapoint
+				datapoint.rendered = true;
+				datapoint.codepoint = codepoint;
+				datapoint.color = color_part;
+				datapoint.position = (advance) + (glyph->top_left * size) + glm::vec2{ 0.0f, -font.m_topmost * size.y };
+				datapoint.size = glyph->size * size;
+				datapoint.sprite = glyph->sprite;
+
+				// advancing
+				advance += glm::vec2(glyph->advance.x, 0.0f) * size;
+				// kerning
+				advance.x += font.getKerning(codepoint, codepoint_next) * size.x;
 			}
-			if(c == U'\t') // tab
-			{
-				advance.x = std::ceil(advance.x / size.x) * size.x;
-				continue;
-			}
-
-			// get glyph, if possible
-			glyph = font.getGlyph(codepoint);
-			// get 0 glyph as the codepoint did not contain any glyphs
-			if (!glyph) glyph = font.getGlyph(0);
-			// unexpectedly no 0 glyph
-			if (!glyph) throw std::runtime_error("Unexpected NULL glyph at slot 0");
-
-			// insert new datapoint
-			cache.datapoints.emplace_back();
-			auto& back = cache.datapoints.back();
-			back.codepoint = codepoint;
-			back.color = color;
-			back.position = (advance) + (glyph->top_left * size) + glm::vec2{ 0.0f, -font.m_topmost * size.y };
-			back.size = glyph->size;
-			back.sprite = glyph->sprite;
-
-			// advancing
-			advance += glm::vec2(glyph->advance.x, 0.0f) * size;
-			// kerning if possible
-			if(i+1 < text.string.size())
-				advance.x += font.getKerning(text.string.at(i), text.string.at(i+1)) * size.x;
 		}
 
 		// alignment
+		// find topleft and bottomright
 		glm::vec2 min = origin_pos, max = origin_pos;
 		for (auto& datapoint : cache.datapoints)
 		{
 			min = glm::min(min, datapoint.position);
 			max = glm::max(max, datapoint.position + datapoint.size);
 		}
-		const glm::vec2 size = glm::abs(max - min);
-		const glm::vec2 move = oe::alignmentOffset(size, align_to_origin);
+		// move all datapoints
+		const glm::vec2 total_size = glm::abs(max - min);
+		const glm::vec2 align_move = oe::alignmentOffset(total_size, align_to_origin);
 		if(align_to_origin != oe::alignments::top_left || min != origin_pos)
 			for (auto& datapoint : cache.datapoints)
-				datapoint.position -= move;
+				datapoint.position -= align_move;
 		
+		// extra cache data
 		cache.top_left = min;
-		cache.size = size;
+		cache.size = total_size;
 	}
 
 	template<typename char_type>
-	glm::vec2 BasicText<char_type>::charpos(Font& font, const string_t& text, size_t first, size_t idx, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align)
+	glm::vec2 BasicText<char_type>::offset_to_char(const text_render_cache& cache, size_t index)
 	{
-		// get width
-		glm::vec2 advance = (align == glm::vec2{ 0.0f, 0.0f } ? align : alignmentOffset(-calculate_final_size<char_type>(text, size, font), align));
-		const oe::graphics::Font::Glyph* glyph;
-		for (size_t i = first; i < std::min(idx, text.string.size()); i++) {
-			char_type c;
-			if (index_to_char(i, c, glyph, text, advance, size, font))
-				continue;
+		if(index >= cache.datapoints.size())
+			return { 0.0f, 0.0f };
 
-			advance += glm::vec2(glyph->advance.x, 0.0f) * size;
-			if(i+1 < text.string.size())
-				advance.x += font.getKerning(text.string.at(i), text.string.at(i+1)) * size.x;
-		}
-
-		return pos + advance;
+		return cache.datapoints.back().position - cache.datapoints.front().position;
 	}
 
 	template<typename char_type>
-	void BasicText<char_type>::submit(Renderer& renderer, Font& font, const string_t& text, const glm::vec2& pos, const glm::vec2& size, const glm::vec2& align)
+	void BasicText<char_type>::submit(const text_render_cache& cache, Renderer& renderer)
 	{
-		text_render_cache cache;
-		create_text_render_cache<char_type>(cache, font, text, pos, size, colo);
-
-		// get width
-		glm::vec2 advance = (align == glm::vec2{ 0.0f, 0.0f } ? align : alignmentOffset(-calculate_final_size<char_type>(text, size, font), align));
-		
-		const oe::graphics::Font::Glyph* glyph;
-		oe::color col = text.string_color_map.at(0);
-		for (size_t i = 0; i < text.string.size(); i++) {
-			char_type c;
-			if (index_to_char(i, c, glyph, text, advance, size, font))
+		for (const auto& datapoint : cache.datapoints)
+		{
+			if(!datapoint.rendered)
 				continue;
-
-			auto iter = text.string_color_map.find(i);
-			if(iter != text.string_color_map.end())
-				col = iter->second;
 
 			auto quad = renderer.create();
-			quad->setPosition(pos + advance + glyph->top_left * size + glm::vec2(0.0f, - font.m_topmost * size.y));
-			quad->setSize(glyph->size * size);
-			quad->setSprite(glyph->sprite);
-			quad->setColor(col);
+			quad->setPosition(datapoint.position);
+			quad->setSize(datapoint.size);
+			quad->setSprite(datapoint.sprite);
+			quad->setColor(datapoint.color);
 			
 			renderer.forget(std::move(quad));
-
-			advance += glm::vec2(glyph->advance.x, 0.0f) * size;
-			if(i+1 < text.string.size())
-				advance.x += font.getKerning(text.string.at(i), text.string.at(i+1)) * size.x;
 		}
 	}
+	
+
+
+	template class BasicTextLabel<char>;
+	template class BasicTextLabel<wchar_t>;
+	template class BasicTextLabel<char16_t>;
+	template class BasicTextLabel<char32_t>;
 	
 	template class BasicText<char>;
 	template class BasicText<wchar_t>;

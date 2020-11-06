@@ -13,7 +13,7 @@
 
 
 /* -- forward declarations -- */
-namespace oe::assets { class DefaultShader; }
+namespace oe::asset { class DefaultShader; }
 namespace oe::graphics { class Font; class Renderer; }
 namespace oe::gui { class Widget; class Form; class GUI; }
 /* -- forward declarations -- */
@@ -36,8 +36,8 @@ namespace oe::gui
 		std::shared_ptr<Widget> m_main_frame;
 		oe::graphics::Renderer* m_renderer;
 		oe::graphics::Renderer* m_line_renderer;
-		oe::assets::DefaultShader* m_shader_fill;
-		oe::assets::DefaultShader* m_shader_lines;
+		oe::asset::DefaultShader* m_shader_fill;
+		oe::asset::DefaultShader* m_shader_lines;
 		oe::ResizeEvent latest_resize_event;
 		oe::graphics::Window m_window;
 
@@ -89,8 +89,8 @@ namespace oe::gui
 		inline oe::graphics::Renderer* getRenderer() const { return m_renderer; }
 		inline oe::graphics::Renderer* getLineRenderer() const { return m_line_renderer; }
 		inline const oe::graphics::Window& getWindow() const { return m_window; }
-		inline const oe::assets::DefaultShader* getShaderFill() const { return m_shader_fill; }
-		inline const oe::assets::DefaultShader* getShaderLines() const { return m_shader_lines; }
+		inline const oe::asset::DefaultShader* getShaderFill() const { return m_shader_fill; }
+		inline const oe::asset::DefaultShader* getShaderLines() const { return m_shader_lines; }
 
 		oe::graphics::Font& getFont(const oe::utils::FontFile& font = {});
 
