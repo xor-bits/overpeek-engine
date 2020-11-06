@@ -25,7 +25,6 @@ namespace oe::graphics
 		std::vector<std::unique_ptr<Sprite>> m_sprites;
 
 		Texture m_texture;
-		oe::formats m_format_limit;
 
 		[[nodiscard]] inline static oe::TextureInfo default_texture_settings() noexcept
 		{
