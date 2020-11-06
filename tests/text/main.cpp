@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
 	
 	// instance settings
 	engine.culling(oe::culling_modes::back);
-	// engine.swapInterval(1);
+	engine.swapInterval(0);
 	engine.blending();
 
 	// renderers
@@ -143,7 +143,7 @@ int main(int argc, char** argv) {
 		{ U"\u2116", { 0.06f, 0.13f, 1.0f, 1.0f } },
 		{ U"The quick brown fox!", oe::colors::white },
 		{ U"\u263A\n", { 1.0f, 0.13f, 0.13f, 1.0f } },
-		{ U"x\u00B2\u221A2", oe::colors::orange },
+		{ U"x\u00B2\u221A2AVAVA", oe::colors::orange },
 	}};
 	bkd_label = new oe::graphics::u32TextLabel(*font, 8);
 	bkd_label->generate(text_input, window, oe::colors::translucent_black);

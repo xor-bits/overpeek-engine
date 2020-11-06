@@ -49,6 +49,7 @@ namespace oe::graphics
 		~Font();
 
 		const Glyph* getGlyph(char32_t c);
+		float getKerning(char32_t c, char32_t c_next) const;
 		[[nodiscard]] constexpr inline uint16_t getResolution() const noexcept { return m_resolution; }
 		[[nodiscard]] constexpr inline SpritePack* getSpritePack() noexcept { return m_sprite_pack; }
 		

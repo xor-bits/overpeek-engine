@@ -228,4 +228,12 @@ namespace oe::graphics
 		return nullptr;
 	}
 
+	float Font::getKerning(char32_t c, char32_t c_next) const
+	{
+#ifdef OE_USE_FT2
+		return 0.0f;
+#else
+		return stbtt_GetCodepointKernAdvance(&m_data->info, c, c_next) * m_data->scale / (float)m_resolution;
+#endif
+	}
 }

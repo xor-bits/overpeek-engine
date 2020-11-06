@@ -204,6 +204,8 @@ namespace oe::graphics {
 			renderer.forget(std::move(quad));
 
 			advance += glm::vec2(glyph->advance.x, 0.0f) * size;
+			if(i+1 < text.string.size())
+				advance.x += font.getKerning(text.string.at(i), text.string.at(i+1)) * size.x;
 		}
 	}
 	
