@@ -11,6 +11,7 @@
 #include <alc.h>
 #endif
 #include "engine/engine.hpp"
+#include "engine/utility/formatted_error.hpp"
 
 
 
@@ -57,32 +58,19 @@ namespace oe::audio
 		ALCenum error = alGetError();
 		if (error == AL_NO_ERROR) return;
 
-		std::string error_string;
+		std::string_view error_string = "There was no error";
 		switch (error)
 		{
-		case AL_NO_ERROR:
-			error_string = "There was no error";
-			break;
-		case AL_INVALID_NAME:
-			error_string = "Invalid name parameter";
-			break;
-		case AL_INVALID_ENUM:
-			error_string = "Invalid parameter";
-			break;
-		case AL_INVALID_VALUE:
-			error_string = "Invalid enum parameter value";
-			break;
-		case AL_INVALID_OPERATION:
-			error_string = "Illegal call";
-			break;
-		case AL_OUT_OF_MEMORY:
-			error_string = "Unable to allocate memory";
-			break;
+		case AL_NO_ERROR: break;
+		case AL_INVALID_NAME: error_string = "Invalid name parameter"; break;
+		case AL_INVALID_ENUM: error_string = "Invalid parameter"; break;
+		case AL_INVALID_VALUE: error_string = "Invalid enum parameter value"; break;
+		case AL_INVALID_OPERATION: error_string = "Illegal call"; break;
+		case AL_OUT_OF_MEMORY: error_string = "Unable to allocate memory"; break;
 		}
 		
-		const std::string formatted_error = fmt::format("OpenAL ({}):\n{}", error, error_string);
 		if(!Engine::getSingleton().engine_info.ignore_errors)
-			throw std::runtime_error(formatted_error);
+			throw oe::utils::formatted_error("OpenAL ({}):\n{}", error, error_string);
 	}
 
 	Audio::Audio(const oe::utils::audio_data& audio)

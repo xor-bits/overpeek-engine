@@ -15,7 +15,8 @@
 #ifndef __EMSCRIPTEN__
 void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* /* userParam */) {
 	// ignore non-significant error/warning codes
-	if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
+	if (id == 131169 || id == 131185 || id == 131218 || id == 131204 || severity == GL_DEBUG_SEVERITY_NOTIFICATION)
+		return;
 
 	std::string log_text = "OpenGL Debug Message";
 	switch (severity) {
@@ -55,17 +56,17 @@ void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum seve
 		case GL_DEBUG_SEVERITY_LOW:          log_severity = "Severity: low"; break;
 		case GL_DEBUG_SEVERITY_NOTIFICATION: log_severity = "Severity: notification"; break;
 	}
-
-	std::cout << fmt::format("Message       :   ({}): {}", id, std::string_view(message, length)) << std::endl;
-	std::cout << fmt::format("Source        :   {}", log_source) << std::endl;
-	std::cout << fmt::format("Description   :   {}", log_type) << std::endl;
-	std::cout << fmt::format("Line          :   {}", log_severity) << std::endl;
-	std::cout << std::endl;
+	
+	puts(fmt::format("Message       :   ({}): {}", id, std::string_view(message, length)).c_str());
+	puts(fmt::format("Source        :   {}", log_source).c_str());
+	puts(fmt::format("Description   :   {}", log_type).c_str());
+	puts(fmt::format("Line          :   {}", log_severity).c_str());
+	puts("");
 
 
 	constexpr const std::string_view formatted_error = "OpenGL error";
 	if(!oe::Engine::getSingleton().engine_info.ignore_errors && severity == GL_DEBUG_SEVERITY_HIGH)
-		throw std::runtime_error(std::string{ formatted_error });
+		throw std::runtime_error(formatted_error.data());
 }
 #endif
 
