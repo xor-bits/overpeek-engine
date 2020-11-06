@@ -23,7 +23,7 @@ namespace oe::gui
 			: g_shader({ "asset:graph_shader", {
 					{
 						oe::shader_stages::vertex_shader,
-						oe::asset::AssetLoader::get().resource_string("shader/default_shader/shader.frag.glsl"),
+						oe::asset::AssetLoader::get().resource_string("shader/default_shader/shader.vert.glsl"),
 						{}
 					},
 					{
