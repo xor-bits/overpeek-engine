@@ -316,7 +316,7 @@ xxxxxxxxxxxxxxxxxxxxx)";
 		text_panel_info.widget_info = { { 0, 0 }, { 0, 0 }, oe::alignments::top_left, oe::alignments::top_left };
 		text_panel_info.font_size = 20;
 		text_panel_info.text = { U"placeholder", oe::colors::white };
-		text_panel_info.font_file = oe::utils::FontFile{ oe::default_full_font_path_bolditalic };
+		text_panel_info.font_file = oe::utils::FontFile{ oe::asset::Fonts::roboto_italic() };
 		/* text_panel_info.background_color = oe::colors::translucent_black; */
 		textpanel = gui->create(text_panel_info);
 
@@ -399,8 +399,10 @@ int main(int argc, char** argv)
 	pack->construct();
 
 	// gui
-	gui = new oe::gui::GUI(window, oe::utils::FontFile{ oe::default_full_font_path_bold });
+	gui = new oe::gui::GUI(window, oe::utils::FontFile{ oe::asset::Fonts::roboto_regular() });
 	setup_gui();
+
+	update_30({});
 
 	// auto close ctest after 2 seconds
 	std::thread ctest_close_thread;
