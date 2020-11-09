@@ -171,7 +171,7 @@ void update_30(oe::UpdateEvent<30>)
 		gameloop.getAverageFPS(),
 		std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gameloop.getUpdatetime<30>()).count(),
 		gameloop.getAverageUPS<30>());
-	text_label->text_panel_info.text = perf_info;
+	text_label->text_panel_info.text = { perf_info, oe::colors::white };
 }
 
 // update event <updates_per_second> times per second
@@ -213,7 +213,7 @@ void gui()
 		tp_info.font_size = 22;
 		tp_info.widget_info.align_parent = oe::alignments::top_left;
 		tp_info.widget_info.align_render = oe::alignments::top_left;
-		tp_info.text = U"placeholder";
+		tp_info.text = { U"placeholder", oe::colors::white };
 		text_label = gui_manager->create(tp_info);
 	}
 	{
@@ -257,7 +257,7 @@ void gui()
 		b_info.button_info.align_parent = oe::alignments::top_left;
 		b_info.button_info.align_render = oe::alignments::top_left;
 		b_info.button_info.offset_position = { 0, 110 };
-		b_info.text = U"R";
+		b_info.text = { U"R", oe::colors::white };
 		auto reset_btn = gui_manager->create(b_info);
 
 		reset_btn->create_event_cg().connect<oe::gui::Button::use_event_t>(reset_btn->m_dispatcher, [](const oe::gui::Button::use_event_t& e){
