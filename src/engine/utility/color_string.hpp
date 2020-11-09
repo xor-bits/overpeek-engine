@@ -2,6 +2,8 @@
 
 #include "engine/enum.hpp"
 
+#include <numeric>
+
 
 
 namespace oe::utils
@@ -34,7 +36,7 @@ namespace oe::utils
 			for (auto& part : vec)
 			{
 				auto end = string.cend();
-				string.insert(end, std::get<0>(part).cbegin(), std::get<0>(part).cend());
+				string.append(std::get<0>(part));
 				const auto d = std::distance(end, string.cend());
 				std::get<0>(part) = { &*end, static_cast<size_t>(std::max(static_cast<decltype(d)>(0), d)) };
 			}
@@ -42,10 +44,15 @@ namespace oe::utils
 
 		color_string(const color_string& copy)
 		{
+			operator=(copy);
+		}
+
+		color_string& operator=(const color_string& copy)
+		{
 			string = {};
 			vec = copy.vec;
 			if(copy.string.empty()) // is view
-				return;
+				return *this;
 			
 			// copy the string
 			size_t string_size = std::accumulate(copy.vec.cbegin(), copy.vec.cend(), static_cast<size_t>(0), [](size_t since, const color_string_part<char_type>& part){ return since + std::get<0>(part).size(); });
@@ -53,11 +60,11 @@ namespace oe::utils
 			for (auto& part : vec)
 			{
 				auto end = string.cend();
-				string.insert(end, std::get<0>(part).cbegin(), std::get<0>(part).cend());
+				string.append(std::get<0>(part));
 				const auto d = std::distance(end, string.cend());
 				std::get<0>(part) = { &*end, static_cast<size_t>(std::max(static_cast<decltype(d)>(0), d)) };
 			}
-			__debugbreak();
+			return *this;
 		}
 
 		bool operator==(const color_string& other) const noexcept
@@ -72,17 +79,17 @@ namespace oe::utils
 		color_string_view(std::basic_string_view<char_type> str = {}, oe::color c = oe::colors::white)
 			: color_string<char_type>()
 		{
-			string = {};
-			std::get<0>(vec.at(0)) = str;
-			std::get<1>(vec.at(0)) = c;
+			color_string<char_type>::string = {};
+			std::get<0>(color_string<char_type>::vec.at(0)) = str;
+			std::get<1>(color_string<char_type>::vec.at(0)) = c;
 		}
 		
 		// usage: color_string_view({ string, color }, { string, color }, ... , { string, color })
 		color_string_view(std::initializer_list<color_string_part<char_type>> args)
 			: color_string<char_type>()
 		{
-			string = {};
-			vec = { args };
+			color_string<char_type>::string = {};
+			color_string<char_type>::vec = { args };
 		}
 	};
 }
