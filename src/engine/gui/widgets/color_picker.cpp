@@ -102,10 +102,10 @@ namespace oe::gui
 		static ColorPickerRenderer* singleton;
 		ColorPickerRenderer(const ColorPickerRenderer& copy) = delete;
 		ColorPickerRenderer()
-			: c_shader({ "asset:graph_shader", {
+			: c_shader({ "asset:color_picker_shader", {
 					{
 						oe::shader_stages::vertex_shader,
-						oe::asset::AssetLoader::get().resource_string("shader/default_shader/shader.frag.glsl"),
+						oe::asset::AssetLoader::get().resource_string("shader/default_shader/shader.vert.glsl"),
 						{}
 					},
 					{

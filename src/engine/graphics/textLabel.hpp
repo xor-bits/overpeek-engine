@@ -78,8 +78,8 @@ namespace oe::graphics
 		{}
 
 		// Generate framebuffer and render text to it
-		void generate(const string_t& text, const Window& window, const oe::color& bg_color = oe::colors::transparent, float width = 0.25f, float outline_width = 0.15f, const oe::color& outline_c = oe::colors::black);
-		void regenerate(const string_t& text, const Window& window, const oe::color& bg_color = oe::colors::transparent, float width = 0.25f, float outline_width = 0.15f, const oe::color& outline_c = oe::colors::black);
+		void generate(const string_t& text, const Window& window, const oe::color& bg_color = oe::colors::transparent, float width = 0.25f, float outline_width = 0.0f, const oe::color& outline_c = oe::colors::black);
+		void regenerate(const string_t& text, const Window& window, const oe::color& bg_color = oe::colors::transparent, float width = 0.25f, float outline_width = 0.0f, const oe::color& outline_c = oe::colors::black);
 
 		inline const FrameBuffer* getFB() const { return &m_framebuffer; }
 		inline const Sprite& getSprite() const { return m_sprite; }

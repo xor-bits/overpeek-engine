@@ -46,8 +46,9 @@ namespace oe::graphics {
 	void BasicTextLabel<char_type>::regenerate(const string_t& text, const Window& window, const oe::color& bg_color, float width, float outline_width, const oe::color& outline_c)
 	{
 		m_text = text;
+		const float res = static_cast<float>(m_resolution) * (m_font.isSDF() ? 4.0f : 1.0f);
 		text_render_cache cache;
-		text_t::create_text_render_cache(cache, m_text, m_font, { 0.0f, 0.0f }, glm::vec2(static_cast<float>(m_resolution)), oe::alignments::top_left);
+		text_t::create_text_render_cache(cache, m_text, m_font, { 0.0f, 0.0f }, glm::vec2(res), oe::alignments::top_left);
 
 		// size of the framebuffer
 		m_size = cache.size;
@@ -87,6 +88,7 @@ namespace oe::graphics {
 
 		// generate the sprite for user
 		const glm::vec2 size_ratio = m_size / m_fb_size;
+		m_size *= (m_font.isSDF() ? 0.25f : 1.0f);
 
 		m_sprite.m_owner = m_framebuffer->getTexture();
 		m_sprite.position = { 0.0f, 1.0f };
