@@ -1,7 +1,10 @@
 #pragma once
 
-#include "engine/utility/fileio.hpp"
 #include "engine/internal_libs.hpp"
+
+
+
+namespace oe::utils { struct audio_data; }
 
 namespace oe::audio
 {
@@ -20,7 +23,7 @@ namespace oe::audio
 		Audio(const oe::utils::audio_data& audio);
 
 		//Play audio at id
-		void play(glm::vec2 position = glm::vec2(0.0f, 0.0f)) const;
+		void play(const glm::vec2& position = { 0.0f, 0.0f }) const;
 	};
 
 }

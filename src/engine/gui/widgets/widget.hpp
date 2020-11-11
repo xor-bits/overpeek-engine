@@ -41,7 +41,6 @@ namespace oe::gui
 		bool m_toggle_pending = false;
 		bool m_toggle_pending_value = false;
 
-		std::vector<oe::utils::connect_guard> m_user_event_cg_guards;
 
 	protected:
 		GUI& m_gui_manager;
@@ -50,7 +49,9 @@ namespace oe::gui
 	public:
 		glm::ivec2 m_render_position = { 0, 0 };
 		info_t m_info;
+		
 		entt::dispatcher m_dispatcher;
+		std::vector<oe::utils::connect_guard> m_user_event_cg_guards;
 
 	public:
 		Widget(Widget* parent, GUI& gui_manager, const info_t& info);

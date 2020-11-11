@@ -175,7 +175,7 @@ namespace oe::utils
 		template<typename T, typename std::enable_if_t<!std::is_same_v<T, oe::utils::FileIO>>>
 		FontFile(T&& path) : FontFile(oe::utils::FileIO(std::forward<T>(path))) {}
 		FontFile(const oe::utils::FileIO& path);
-		FontFile() : id(0) {}
+		FontFile();
 
 		[[nodiscard]] constexpr inline size_t getID() const noexcept { return id; }
 		[[nodiscard]] const oe::utils::byte_string& fontFile() const;

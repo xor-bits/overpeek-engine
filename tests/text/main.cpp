@@ -1,7 +1,8 @@
 #include <engine/include.hpp>
 
-#include <string>
-#include <iostream>
+// NOTE: this test does not follow the best practises
+// You should already know by those globals
+// Check out the hello-world test for better guide
 
 
 
@@ -187,6 +188,12 @@ int main(int argc, char** argv) {
 
 	if(ctest_close_thread.joinable())
 		ctest_close_thread.join();
+		
+	cg_render.disconnect();
+	cg_update_2.disconnect();
+	cg_resize.disconnect();
+	cg_scroll.disconnect();
+	cg_keyboard.disconnect();
 
 	// closing
 	quad.reset();
@@ -196,6 +203,8 @@ int main(int argc, char** argv) {
 	delete font;
 	delete dyn_label_shader;
 	delete shader;
+
+	window.reset();
 
 	return 0;
 }

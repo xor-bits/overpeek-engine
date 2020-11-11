@@ -127,6 +127,9 @@ namespace oe::asset {
 		}catch(...){
 			throw oe::utils::formatted_error("Unknown polygonmode: {} or graphics api: {}", static_cast<int>(mode), static_cast<int>(Engine::getSingleton().engine_info.api));
 		}
+
+		setColor(oe::colors::white);
+		setTexture(true);
 	}
 
 	void DefaultShader::bind() const

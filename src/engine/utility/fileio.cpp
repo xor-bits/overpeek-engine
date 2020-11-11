@@ -9,6 +9,7 @@
 #include "engine/utility/clock.hpp"
 #include "engine/utility/formatted_error.hpp"
 #include "engine/engine.hpp"
+#include "engine/asset/fonts.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -318,6 +319,10 @@ namespace oe::utils
 		if(font_file_map.find(id) == font_file_map.end())
 			font_file_map[id] = path.read<oe::utils::byte_string>();
 	}
+
+	FontFile::FontFile()
+		: FontFile(oe::asset::Fonts::roboto_regular())
+	{}
 
 	const oe::utils::byte_string& FontFile::fontFile() const
 	{

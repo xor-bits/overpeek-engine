@@ -225,6 +225,9 @@ if(OE_BUILD_MODE EQUAL 2)
 endif()
 # rectpack2D
 target_include_directories(${target_name} PUBLIC "vendor/rectpack2D/include")
+# earcut.hpp
+target_include_directories(${target_name} PUBLIC "vendor/earcut/include")
+
 
 
 

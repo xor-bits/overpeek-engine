@@ -30,9 +30,6 @@ node: Vulkan build is experimental and still lacking basic features
 - Conan
 - (multiple conan packages)
 
-#### additional glfw3 dependencies for ubuntu:
-```sudo apt install libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev libxrandr-dev libx11-xcb-dev libxcb-render-util0-dev```
-
 
 ## Features
 - Window creation (glfw) 

@@ -182,7 +182,7 @@ namespace oe::graphics
 #endif
 
 		// all ascii glyphs
-		for (char32_t i = 32; i < 127; i++)
+		for (char32_t i = 33; i < 127; i++)
 			gen_codepoint_glyph(i);
 
 		// null

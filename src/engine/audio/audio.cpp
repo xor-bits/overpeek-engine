@@ -12,6 +12,7 @@
 #endif
 #include "engine/engine.hpp"
 #include "engine/utility/formatted_error.hpp"
+#include "engine/utility/fileio.hpp"
 
 
 
@@ -88,7 +89,7 @@ namespace oe::audio
 		alSourcei(source_id, AL_BUFFER, buffer_id);
 	}
 
-	void Audio::play(glm::vec2 position) const
+	void Audio::play(const glm::vec2& position) const
 	{
 		if(!initialized)
 			return;

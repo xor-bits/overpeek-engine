@@ -1,7 +1,8 @@
 #include <engine/include.hpp>
 
-#include <string>
-#include <cmath>
+// NOTE: this test does not follow the best practises
+// You should already know by those globals
+// Check out the hello-world test for better guide
 
 
 
@@ -438,6 +439,9 @@ int main(int argc, char** argv)
 	delete pack;
 	delete shader_fill;
 	delete shader_lines;
+
+	renderer.reset();
+	window.reset();
 
 	return 0;
 }

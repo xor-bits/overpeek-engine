@@ -2,8 +2,10 @@ cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 project("engine")
-include(${CMAKE_CURRENT_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
+if(CMAKE_BINARY_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR)
+	include(${CMAKE_CURRENT_BINARY_DIR}/conanbuildinfo.cmake)
+	conan_basic_setup()
+endif()
 
 # engine
 add_subdirectory(src) # static library (engine)

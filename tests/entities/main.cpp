@@ -1,7 +1,8 @@
 #include <engine/include.hpp>
 
-#include <string>
-#include <thread>
+// NOTE: this test does not follow the best practises
+// You should already know by those globals
+// Check out the hello-world test for better guide
 
 
 
@@ -267,7 +268,7 @@ void gui()
 	}
 }
 
-void init(oe::InitEvent)
+void init()
 {
 	auto& engine = oe::Engine::getSingleton();
 	engine.depth(oe::depth_functions::always);
@@ -298,7 +299,7 @@ void init(oe::InitEvent)
 	setup();
 }
 
-void cleanup(oe::CleanupEvent)
+void cleanup()
 {
 	// closing
 	text_label.reset();
@@ -306,6 +307,8 @@ void cleanup(oe::CleanupEvent)
 	delete pack;
 	delete shader;
 	delete world;
+
+	window.reset();
 }
 
 int main(int argc, char* argv[])
@@ -325,8 +328,6 @@ int main(int argc, char* argv[])
 	window_info.transparent = true;
 	// window_info.borderless = true;
 	window = oe::graphics::Window(window_info);
-	window->connect_listener<oe::InitEvent, &init>();
-	window->connect_listener<oe::CleanupEvent, &cleanup>();
 
 	// auto close ctest after 2 seconds
 	std::thread ctest_close_thread;
@@ -343,7 +344,9 @@ int main(int argc, char* argv[])
 			break;
 		}
 	
+	init();
 	window->getGameloop().start();
+	cleanup();
 
 	if(ctest_close_thread.joinable())
 		ctest_close_thread.join();

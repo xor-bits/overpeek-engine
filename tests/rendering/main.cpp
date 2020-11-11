@@ -1,7 +1,8 @@
 #include <engine/include.hpp>
-#include <engine/graphics/renderer.hpp>
 
-#include <string>
+// NOTE: this test does not follow the best practises
+// You should already know by those globals
+// Check out the hello-world test for better guide
 
 
 
@@ -142,11 +143,15 @@ void init(int argc, char** argv)
 	if(ctest_close_thread.joinable())
 		ctest_close_thread.join();
 
+	quads = {};
+
 	// closing
 	delete pack_0;
 	delete pack_1;
 	delete shader;
 	delete renderer;
+
+	window.reset();
 }
 
 int main(int argc, char** argv)
