@@ -17,15 +17,8 @@
 #pragma GCC diagnostic ignored "-Wparentheses"
 #endif
 
-// #define OE_USE_FT2 // does not use FT2 by default
-#ifdef OE_USE_FT2
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include <freetype/ftstroke.h>
-#else
 #define STB_TRUETYPE_IMPLEMENTATION
 #include <stb_truetype.h>
-#endif
 
 // ignore external warnings
 #ifdef __clang__
@@ -40,44 +33,14 @@ namespace oe::graphics
 {
 	struct FontData
 	{
-#ifdef OE_USE_FT2
-		FT_Library ft;
-		FT_Face face;
-#else
 		stbtt_fontinfo info;
 		float scale;
-#endif
 	};
 
 
 
 	bool Font::gen_codepoint_glyph(char32_t codepoint)
 	{
-#ifdef OE_USE_FT2
-		//Load glyph
-		if (FT_Load_Char(m_data->face, codepoint, FT_LOAD_RENDER))
-		{
-			spdlog::warn("Failed to load glyph: {}", (size_t)codepoint);
-			return false;
-		}
-
-		// glyph
-		const auto g = m_data->face->glyph;
-		if (!g->bitmap.buffer) return false;
-
-		//Now store character for later use
-		m_glyphs.insert(std::make_pair(codepoint, Font::Glyph{
-			codepoint,
-			glm::vec2(g->bitmap.width, g->bitmap.rows) / (float)m_resolution,
-			glm::vec2(g->bitmap_left, -g->bitmap_top) / (float)m_resolution,
-			glm::vec2(g->advance.x >> 6, g->advance.y >> 6) / (float)m_resolution,
-
-			// add glyph to sprite packer
-			m_sprite_pack->create(std::move(oe::utils::image_data(g->bitmap.buffer, oe::formats::mono, g->bitmap.width, g->bitmap.rows)))
-		}));
-
-		m_topmost = std::min(m_topmost, static_cast<float>(-g->bitmap_top) / static_cast<float>(m_resolution));
-#else
 		if(m_sdf)
 		{
 			// glyph info
@@ -140,7 +103,6 @@ namespace oe::graphics
 
 			m_topmost = std::min(m_topmost, static_cast<float>(y0) / static_cast<float>(m_resolution));
 		}
-#endif
 
 		return true;
 	}
@@ -163,23 +125,10 @@ namespace oe::graphics
 	{
 		oe_debug_call("font");
 
-#ifdef OE_USE_FT2
-		// Freetype library
-		if (FT_Init_FreeType(&m_data->ft))
-			throw oe::utils::formatted_error("FT_Init_FreeType failed");
-
-		// Load font
-		if (FT_New_Memory_Face(m_data->ft, m_font_file.data(), static_cast<int32_t>(std::clamp<size_t>(m_font_file.size(), 0, std::numeric_limits<int32_t>::max())), 0, &m_data->face))
-			throw oe::utils::formatted_error("Failed to load font in memory {0:x} {1}", (size_t)m_font_file.data(), m_font_file.size());
-
-		FT_Set_Pixel_Sizes(m_data->face, 0, m_resolution);
-		FT_Select_Charmap(m_data->face, FT_ENCODING_UNICODE);
-#else
 		if (!stbtt_InitFont(&m_data->info, m_font_file.data(), 0))
 			throw oe::utils::formatted_error("Failed to load font in memory {0:x} {1}", (size_t)m_font_file.data(), m_font_file.size());
 
     	m_data->scale = stbtt_ScaleForPixelHeight(&m_data->info, m_resolution);
-#endif
 
 		// all ascii glyphs
 		for (char32_t i = 33; i < 127; i++)
@@ -210,13 +159,6 @@ namespace oe::graphics
 	{
 		delete m_sprite_pack;
 		delete m_data;
-
-#ifdef OE_USE_FT2
-		FT_Done_Face(m_data->face);
-		FT_Done_FreeType(m_data->ft);
-#else
-		// 
-#endif
 	}
 	
 	const Font::Glyph* Font::getGlyph(char32_t c)

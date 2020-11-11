@@ -76,7 +76,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityF
 		break;
 	}
 
-	constexpr const std::string_view formatted_error = "OpenAL error";
+	constexpr const std::string_view formatted_error = "Vulkan error";
 	if(oe::Engine::getSingleton().engine_info.ignore_errors && messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
 		spdlog::warn("{}", formatted_error);
 	else
