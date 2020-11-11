@@ -444,8 +444,6 @@ namespace oe {
 
 	// engine create info
 	struct EngineInfo {
-		bool audio = false;
-		bool audio_init_noexcept = true;
 		bool networking = false;
 		bool networking_init_noexcept = true;
 

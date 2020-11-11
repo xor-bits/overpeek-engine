@@ -30,7 +30,7 @@ namespace oe {
 		utils::Random::getSingleton().seed(utils::Clock::getSingleton().getMicroseconds());
 	}
 
-	void Engine::init(EngineInfo _engine_info) {
+	void Engine::init(const EngineInfo& _engine_info) {
 		oe_debug_call("engine");
 
 		spdlog::set_pattern("%^[%T] [%l]:%$ %v");
@@ -42,14 +42,6 @@ namespace oe {
 		if (!glfwInit())
 			throw std::runtime_error("Failed to initialize GLFW!");
 		
-		if (engine_info.audio)
-			try{
-				audio::Audio::init();
-			}catch(const std::exception& e){
-				spdlog::warn(e.what());
-				if(!engine_info.audio_init_noexcept)
-					throw e;
-			}
 		if (engine_info.networking)
 			try{
 				networking::enet::initEnet();
@@ -82,9 +74,6 @@ namespace oe {
 
 	void Engine::deinit()
 	{
-		if (engine_info.audio) {
-			audio::Audio::deinit();
-		}
 		if (engine_info.networking) {
 			networking::enet::deinitEnet();
 		}

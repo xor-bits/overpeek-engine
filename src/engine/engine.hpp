@@ -42,7 +42,7 @@ namespace oe {
 			return *singleton;
 		}
 
-		void init(EngineInfo engine_info);
+		void init(const EngineInfo& engine_info);
 		void deinit();
 
 		void terminate();

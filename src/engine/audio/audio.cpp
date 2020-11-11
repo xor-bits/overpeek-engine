@@ -1,29 +1,50 @@
 #include "audio.hpp"
 
-#ifdef __EMSCRIPTEN__
-#include <AL/al.h>
-#include <AL/alc.h>
-#elif defined(VCPKG_TOOLCHAIN)
-#include <AL/al.h>
-#include <AL/alc.h>
-#else
-#include <al.h>
-#include <alc.h>
-#endif
 #include "engine/engine.hpp"
 #include "engine/utility/formatted_error.hpp"
 #include "engine/utility/fileio.hpp"
 
 
 
+// ignore external warnings
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#elif __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#elif _MSC_VER
+#pragma warning( push )
+#endif
+
+#define MINIAUDIO_IMPLEMENTATION
+#include <miniaudio.h>
+
+// ignore external warnings
+#ifdef __clang__
+#pragma clang diagnostic pop
+#elif __GNUC__
+#pragma GCC diagnostic pop
+#elif _MSC_VER
+#pragma warning( pop )
+#endif
+
 namespace oe::audio
 {
-	ALCcontext* context = nullptr;
-	ALCdevice* device = nullptr;
+	AudioDevice::AudioDevice()
+	{
+
+	}
+
+	AudioPlayer::AudioPlayer()
+	{
+
+	}
 
 
 
-	void Audio::init()
+
+	/*void Audio::init()
 	{
 		if(initialized)
 			return;
@@ -96,6 +117,5 @@ namespace oe::audio
 
 		alSource3f(source_id, AL_POSITION, position.x, position.y, 0.0f);
 		alSourcePlay(source_id);
-	}
-
+	}*/
 }

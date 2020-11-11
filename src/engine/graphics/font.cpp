@@ -17,7 +17,7 @@
 #pragma GCC diagnostic ignored "-Wparentheses"
 #endif
 
-// #define OE_USE_FT2
+// #define OE_USE_FT2 // does not use FT2 by default
 #ifdef OE_USE_FT2
 #include <ft2build.h>
 #include FT_FREETYPE_H

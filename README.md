@@ -26,17 +26,17 @@ buildmode 2 being Vulkan/OpenGL with shaderc
 node: Vulkan build is experimental and still lacking basic features
 
 #### Depends on:
+- A c++17 compiler (clang++, g++, msvc)
 - CMake
-- Conan
-- (multiple conan packages)
+- Conan and some packages listed in conanfile.py
 
 
 ## Features
 - Window creation (glfw) 
-- Audio (OpenAL) 
+- Audio (Not yet)
 - Rendering (OpenGL)
     - Sprite rendering
-    - Text rendering (Freetype) (basic) 
+    - Text rendering (stb_truetype) 
     - GUI (basic)
 - Networking (basic)
 - General utility tools (that I find useful)

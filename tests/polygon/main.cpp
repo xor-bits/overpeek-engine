@@ -8,3 +8,5 @@ private:
 
 public:
 };
+
+int main() {}

@@ -227,7 +227,8 @@ endif()
 target_include_directories(${target_name} PUBLIC "vendor/rectpack2D/include")
 # earcut.hpp
 target_include_directories(${target_name} PUBLIC "vendor/earcut/include")
-
+# miniaudio
+target_include_directories(${target_name} PUBLIC "vendor/miniaudio")
 
 
 

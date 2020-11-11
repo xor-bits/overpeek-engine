@@ -19,15 +19,6 @@
 #define MINIMP3_IMPLEMENTATION
 #include <minimp3_ex.h>
 
-#ifdef __EMSCRIPTEN__
-#include <AL/al.h>
-#elif defined(VCPKG_TOOLCHAIN)
-#include <AL/al.h>
-#include <AL/alc.h>
-#else
-#include <al.h>
-#endif
-
 
 
 // ignore external warnings
@@ -206,10 +197,10 @@ namespace oe::utils
 		// Format
 		format = -1;
 		if (info.channels == 1) {
-			format = AL_FORMAT_MONO16;
+			format = -1/* mono16 */;
 		}
 		else if (info.channels == 2) {
-			format = AL_FORMAT_STEREO16;
+			format = -1/* stereo16 */;
 		}
 	}
 
@@ -230,10 +221,10 @@ namespace oe::utils
 		// Format
 		format = -1;
 		if (info.channels == 1) {
-			format = AL_FORMAT_MONO16;
+			format = -1/* mono16 */;
 		}
 		else if (info.channels == 2) {
-			format = AL_FORMAT_STEREO16;
+			format = -1/* stereo16 */;
 		}
 	}
 
