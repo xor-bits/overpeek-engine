@@ -246,13 +246,3 @@ struct fmt::formatter<fs::path::const_iterator> {
 		return format_to(ctx.out(), "{}", p->generic_string());
 	}
 };
-
-// (input) -> ("input: {} line file", input)
-#define quickDebug(x) spdlog::debug(#x ## ": {} at line {} in file {}", x, __LINE__, __FILE__)
-
-// #define OE_DEBUGGING
-#ifdef OE_DEBUGGING
-#define oe_debug_call(a) spdlog::debug("oe_debug_call: {}, file: {}", a, __FILE__)
-#else
-#define oe_debug_call(a)
-#endif

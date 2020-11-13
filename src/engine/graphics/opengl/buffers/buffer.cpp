@@ -14,10 +14,8 @@ namespace oe::graphics {
 	Buffer::Buffer(const void* data, int32_t size, int target, unsigned int usage)
 		: p_size(std::abs(size))
 		, p_target(target)
-		, p_mapped(false)
+		, p_mapped(nullptr)
 	{
-		oe_debug_call("gl_buffer");
-
 		glGenBuffers(1, &p_id);
 		glBindBuffer(p_target, p_id);
 
@@ -41,22 +39,22 @@ namespace oe::graphics {
 
 	void* Buffer::mapBuffer()
 	{
+		if(p_mapped != nullptr)
+			return p_mapped;
+
 		bind();
-		p_mapped = true;
-		return glMapBuffer(p_target, GL_WRITE_ONLY);
+		p_mapped = glMapBuffer(p_target, GL_WRITE_ONLY);
+		return p_mapped;
 	}
 
 	void Buffer::unmapBuffer()
 	{
-		if (!p_mapped)
-		{
-			spdlog::warn("buffer was not mapped");
+		if (p_mapped == nullptr)
 			return;
-		}
 		
 		bind();
 		glUnmapBuffer(p_target);
-		p_mapped = false;
+		p_mapped = nullptr;
 	}
 
 	void Buffer::setBufferData(const void *data, int32_t size)

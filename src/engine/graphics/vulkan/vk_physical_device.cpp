@@ -14,8 +14,6 @@ namespace oe::graphics {
 	VKPhysicalDevice::VKPhysicalDevice(const VKInstance* instance, const vk::SurfaceKHR* surface)
 		: m_surface(surface), m_instance(instance)
 	{
-		oe_debug_call("vk_physical_device");
-
 		pickPhysicalDevice();
 	}
 

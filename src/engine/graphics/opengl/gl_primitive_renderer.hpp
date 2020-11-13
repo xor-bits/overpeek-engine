@@ -34,7 +34,6 @@ namespace oe::graphics
 		GLBasicPrimitiveRenderer(const RendererInfo& renderer_info)
 			: Interface(renderer_info)
 		{
-			oe_debug_call("gl_basic_primitive_renderer");
 			m_mapped_buffer = nullptr;
 			buffer_gen generator(renderer_info.max_primitive_count);
 			this->m_index_per_primitive = generator.index_per_primitive();

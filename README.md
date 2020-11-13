@@ -13,12 +13,26 @@ Should be easy to use.
 
 ## Building
 #### Build
+
+Build with cmake and conan:
+```
+mkdir build && cd build
+conan install .. --build=missing
+cmake ..
+cmake --build .
+```
+possible cmake arguments:
+-DOE_BUILD_TESTS=(ON/OFF)
+-DOE_BUILD_MODE=(0/1/2)
+
+
+Create a conan package:
 ```
 conan create . --build=missing
 ```
-possible cmake arguments:
--DBUILD_TESTS=(ON/OFF)
--DOE_BUILD_MODE=(0/1/2)
+
+
+
 
 buildmode 0 being OpenGL only,
 buildmode 1 being OpenGL with shaderc and

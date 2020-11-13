@@ -96,8 +96,6 @@ namespace oe::graphics
 	GLShader::GLShader(const ShaderInfo& shader_info)
 		: IShader::IShader(shader_info) 
 	{
-		oe_debug_call("gl_shader");
-
 		// IShader program
 		p_shader_program = glCreateProgram();
 

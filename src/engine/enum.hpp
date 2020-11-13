@@ -404,7 +404,8 @@ namespace oe {
 	}
 
 	// window open info
-	struct WindowInfo {
+	struct WindowInfo
+	{
 		glm::ivec2 position = { 0, 0 };
 		glm::uvec2 size = { 900, 600 };
 		std::string title = "Overpeek Engine";
@@ -419,22 +420,36 @@ namespace oe {
 	};
 
 	// renderer create info
-	struct RendererInfo {
+	struct RendererInfo
+	{
 		int32_t max_primitive_count = 10000;
 		oe::types arrayRenderType = oe::types::dynamic_type;
 		oe::types indexRenderType = oe::types::static_type;
 		void* staticVBOBuffer_data = nullptr;
 	};
 
+	struct PolygonRendererInfo
+	{
+		int32_t vertex_count = 10000;
+		oe::types vertex_storage_type = oe::types::dynamic_type;
+		int32_t index_count  = 10000;
+		oe::types index_storage_type  = oe::types::dynamic_type;
+
+		void* static_vertex_data = nullptr;
+		void* static_index_data  = nullptr;
+	};
+
 	// shader per stage create info
-	struct ShaderStageInfo {
+	struct ShaderStageInfo
+	{
 		shader_stages stage;
 		std::string_view source;
 		std::string_view include_path; // optional
 	};
 
 	// shader create info, shader_stages is non-owning
-	struct ShaderInfo {
+	struct ShaderInfo
+	{
 		std::string name;
 		std::vector<ShaderStageInfo> shader_stages;
 #ifdef OE_BUILD_MODE_SHADERC
@@ -443,7 +458,8 @@ namespace oe {
 	};
 
 	// engine create info
-	struct EngineInfo {
+	struct EngineInfo
+	{
 		bool networking = false;
 		bool networking_init_noexcept = true;
 
@@ -454,7 +470,8 @@ namespace oe {
 		std::string asset_path = "asset.zip";
 	};
 
-	struct TextureInfo {
+	struct TextureInfo
+	{
 		bool empty = false;
 		const uint8_t* data;
 		oe::formats data_format = oe::formats::rgba;
@@ -467,7 +484,8 @@ namespace oe {
 		std::vector<size_offset_pair_t> size_offset = { { 1, 0 } };
 	};
 
-	struct FrameBufferInfo {
+	struct FrameBufferInfo
+	{
 		glm::uvec2 size = { 1, 1 };
 	};
 

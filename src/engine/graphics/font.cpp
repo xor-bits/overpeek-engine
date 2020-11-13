@@ -123,8 +123,6 @@ namespace oe::graphics
 		, m_sdf(sdf)
 		, m_font_file(font_file.fontFile())
 	{
-		oe_debug_call("font");
-
 		if (!stbtt_InitFont(&m_data->info, m_font_file.data(), 0))
 			throw oe::utils::formatted_error("Failed to load font in memory {0:x} {1}", (size_t)m_font_file.data(), m_font_file.size());
 

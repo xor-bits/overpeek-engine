@@ -77,7 +77,6 @@ namespace oe::graphics
 		, m_gl_filter(gl_filter(texture_info.filter))
 		, m_gl_wrap(gl_wrap(texture_info.wrap))
 	{
-		oe_debug_call("gl_texture");
 		if(gl_max_texture_size == -1)
 			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &gl_max_texture_size);
 

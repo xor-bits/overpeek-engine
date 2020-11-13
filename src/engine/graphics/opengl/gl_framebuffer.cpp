@@ -15,8 +15,6 @@ namespace oe::graphics
 	GLFrameBuffer::GLFrameBuffer(const FrameBufferInfo& framebuffer_info)
 		: IFrameBuffer(framebuffer_info) 
 	{
-		oe_debug_call("gl_framebuffer");
-
 		int32_t last_bound_fbo;
 		glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &last_bound_fbo);
 		int32_t last_viewport_dim[4];

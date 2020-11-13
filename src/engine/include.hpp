@@ -1,11 +1,12 @@
 #pragma once
 
 // Graphics
-#include "graphics/interface/window.hpp"
-#include "graphics/interface/shader.hpp"
-#include "graphics/interface/texture.hpp"
 #include "graphics/interface/framebuffer.hpp"
 #include "graphics/interface/instance.hpp"
+#include "graphics/interface/poly_renderer.hpp"
+#include "graphics/interface/shader.hpp"
+#include "graphics/interface/texture.hpp"
+#include "graphics/interface/window.hpp"
 #include "graphics/font.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/textLabel.hpp"

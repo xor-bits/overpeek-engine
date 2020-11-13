@@ -46,7 +46,6 @@ namespace oe::graphics {
 		, m_border(border)
 		, m_constructed(false)
 	{
-		oe_debug_call("spritepack");
 		clear();
 	}
 

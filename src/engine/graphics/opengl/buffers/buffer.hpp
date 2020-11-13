@@ -11,7 +11,7 @@ namespace oe::graphics
 		unsigned int p_id;
 		int32_t p_size;
 		int p_target;
-		bool p_mapped;
+		void* p_mapped;
 
 		// int32_t size (in bytes)
 		Buffer(const void* data, int32_t size, int target, unsigned int usage);

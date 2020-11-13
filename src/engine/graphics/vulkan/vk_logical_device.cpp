@@ -14,8 +14,6 @@ namespace oe::graphics {
 	VKLogicalDevice::VKLogicalDevice(const Instance* instance, const VKPhysicalDevice* physical_device)
 		: m_physical_device(physical_device) 
 	{
-		oe_debug_call("vk_logical_device");
-
 		auto indices = m_physical_device->findQueueFamilies();
 
 		// all queues

@@ -108,8 +108,6 @@ namespace oe::graphics {
 		, m_window(window)
 		, m_logical_device(window->m_logical_device)
 	{
-		oe_debug_call("vk_shader");
-
 		std::vector<vk::ShaderModule> modules;
 		std::vector<vk::PipelineShaderStageCreateInfo> module_infos;
 		for (auto& stage : m_shader_info.shader_stages)

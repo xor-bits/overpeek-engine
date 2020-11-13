@@ -15,8 +15,6 @@ namespace oe::graphics {
 		, m_window(window)
 		, m_size(size)
 	{
-		oe_debug_call("vk_buffer");
-
 		// staging buffer
 		{
 			vk::BufferCreateInfo bufferInfo = {};

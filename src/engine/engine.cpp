@@ -25,14 +25,14 @@ namespace oe {
 	Engine* Engine::singleton = nullptr;
 	size_t Engine::draw_calls = 0;
 
-	Engine::Engine() {
+	Engine::Engine()
+	{
 		// init to start the timer and seed the randomizer
 		utils::Random::getSingleton().seed(utils::Clock::getSingleton().getMicroseconds());
 	}
 
-	void Engine::init(const EngineInfo& _engine_info) {
-		oe_debug_call("engine");
-
+	void Engine::init(const EngineInfo& _engine_info)
+	{
 		spdlog::set_pattern("%^[%T] [%l]:%$ %v");
 		spdlog::set_level(spdlog::level::level_enum::trace);
 
@@ -74,9 +74,8 @@ namespace oe {
 
 	void Engine::deinit()
 	{
-		if (engine_info.networking) {
+		if (engine_info.networking)
 			networking::enet::deinitEnet();
-		}
 		instance.reset();
 	}
 

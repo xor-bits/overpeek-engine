@@ -148,9 +148,8 @@ namespace oe::graphics {
 		: IWindow::IWindow(instance, window_config)
 		, m_debugging(oe::Engine::getSingleton().engine_info.debug_mode)
 	{
-		oe_debug_call("gl_window");
-
-		if (m_debugging) {
+		if (m_debugging)
+		{
 			spdlog::warn("Debugger enabled");
 			spdlog::info("Opening window with OpenGL context");
 		}

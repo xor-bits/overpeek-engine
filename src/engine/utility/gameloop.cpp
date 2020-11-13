@@ -9,8 +9,6 @@ namespace oe::utils
 {
 	void GameLoop::start()
 	{
-		oe_debug_call("gameloop");
-
 		m_frame_counter_start = std::chrono::high_resolution_clock::now();
 
 		m_should_run = true;
