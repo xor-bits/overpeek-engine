@@ -19,20 +19,20 @@ namespace oe::gui
 		{
 			using widget_t = BasicNumberInput;
 
-			glm::vec2 align_text                                = oe::alignments::center_center;
-			T initial_value                                     = { 0 };
-			T stepsize                                          = { 1 };
-			glm::vec<2,T> value_bounds                          = { std::numeric_limits<T>::min(), std::numeric_limits<T>::max() };
-			std::function<std::string(const value_t&)> draw_format    = &default_formatter; // only when keyboard input is disabled
-			uint16_t font_size                                  = 16;
-			oe::utils::FontFile font_file                       = {}; // empty for gui default
-			oe::color background_color                          = oe::colors::dark_grey;
-			oe::color default_text_color                        = oe::colors::white;
-			const oe::graphics::Sprite* sprite                  = nullptr;
+			glm::vec2 align_text                                   = oe::alignments::center_center;
+			T initial_value                                        = { 0 };
+			T stepsize                                             = { 1 };
+			glm::vec<2,T> value_bounds                             = { std::numeric_limits<T>::min(), std::numeric_limits<T>::max() };
+			std::function<std::string(const value_t&)> draw_format = &default_formatter; // only when keyboard input is disabled
+			uint16_t font_size                                     = 16;
+			oe::utils::FontFile font_file                          = {}; // empty for gui default
+			oe::color background_color                             = oe::colors::dark_grey;
+			oe::color default_text_color                           = oe::colors::white;
+			const oe::graphics::Sprite* sprite                     = nullptr;
 
-			interact_type_flags interact_flags                  = interact_type_flags::cursor | interact_type_flags::keyboard | interact_type_flags::scroll;
+			interact_type_flags interact_flags                     = interact_type_flags::cursor | interact_type_flags::keyboard | interact_type_flags::scroll;
 
-			Widget::info_t widget_info                          = { { 100, 100 }, { 3, 3 }, oe::alignments::center_center, oe::alignments::center_center };
+			Widget::info_t widget_info                             = { { 100, 100 }, { 3, 3 }, oe::alignments::center_center, oe::alignments::center_center };
 		
 			//
 			[[nodiscard]] static inline std::string default_formatter(const T& val)

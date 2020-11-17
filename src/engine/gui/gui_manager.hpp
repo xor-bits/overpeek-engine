@@ -1,11 +1,9 @@
 #pragma once
 
 #include "engine/interfacegen.hpp"
-#include "engine/engine.hpp"
 #include "engine/utility/connect_guard.hpp"
 #include "engine/utility/fileio.hpp"
 #include "engine/graphics/font.hpp"
-
 #include "widgets/widget.hpp"
 
 #include <entt/entt.hpp>

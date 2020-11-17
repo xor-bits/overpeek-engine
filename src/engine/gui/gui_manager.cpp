@@ -4,8 +4,8 @@
 #include "engine/asset/default_shader/default_shader.hpp"
 #include "engine/graphics/interface/window.hpp"
 #include "engine/graphics/renderer.hpp"
-#include "engine/graphics/font.hpp"
-#include "engine/include.hpp"
+#include "engine/utility/connect_guard.hpp"
+#include "engine/utility/connect_guard_additions.hpp"
 
 
 

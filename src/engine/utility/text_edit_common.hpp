@@ -3,60 +3,58 @@
 #endif
 #define STB_TEXTEDIT_KEYTYPE                    uint32_t
 #define STB_TEXTEDIT_CHARTYPE					char_type
-#define STB_TEXTEDIT_STRING						std::basic_string<char_type>
+#define STB_TEXTEDIT_STRING						oe::utils::stb_textedit<char_type>::text_type
 #include <stb_textedit.h>
 #include <cstdint>
 #include "engine/utility/extra.hpp"
 
-static oe::graphics::Font* last_font = nullptr;
 static size_t* last_max_characters = nullptr;
-static bool insertchars(std::basic_string<char_type> *obj, uint32_t i, char_type *chars, uint32_t n)
+
+
+
+static bool insertchars(STB_TEXTEDIT_STRING *obj, uint32_t i, char_type *chars, uint32_t n)
 {
-	if(last_max_characters && obj->size() + n > *last_max_characters)
+	if(last_max_characters && obj->m_string.size() + n > *last_max_characters)
 		return false;
-	obj->insert(i, chars, n);
+	obj->m_string.insert(i, chars, n);
 	return true;
 }
 
-static float getwidth(std::basic_string<char_type> *obj, uint32_t /* n */, uint32_t i)
+static float getwidth(STB_TEXTEDIT_STRING *obj, uint32_t /* n */, uint32_t i)
 {
 	float advance = 0.0f;
-	if(!last_font)
-		return advance;
-	
-	advance = last_font->getGlyph(obj->at(i))->advance.x * last_font->getResolution();
+	if(obj->m_cache.datapoints.size() != 0)
+		advance = obj->m_cache.datapoints.at(std::min<size_t>(obj->m_cache.datapoints.size(), i + 1)).offset.x - obj->m_cache.datapoints.at(std::min<size_t>(obj->m_cache.datapoints.size(), i)).offset.x;
 	return advance;
 }
 
-static void layoutrow(StbTexteditRow* r, std::basic_string<char_type> *obj, uint32_t n)
+static void layoutrow(StbTexteditRow* r, STB_TEXTEDIT_STRING *obj, uint32_t n)
 {
-	if(!last_font)
-		return;
+	const size_t find_nl = [](size_t pos, size_t last){
+		if(pos == std::basic_string<char_type>::npos)
+			return last;
+		return pos;
+	}(obj->m_string.find(static_cast<char_type>('\n'), n), obj->m_string.size() - 1);
+	const size_t count = find_nl - n + 1;
+	const float width = oe::graphics::BasicText<char_type>::offset_to_char(obj->m_cache, find_nl == std::basic_string<char_type>::npos ? obj->m_cache.datapoints.size() - 1 : find_nl).x;
+	const float height = obj->m_cache.scaling.y;
 
-	const size_t find_nl = obj->find(static_cast<char_type>('\n'), n);
-	const size_t first = n;
-	const size_t count = find_nl == std::basic_string<char_type>::npos ? obj->size() - n : find_nl - n + 1;
-	std::basic_string_view<char_type> line = { obj->data() + first, count };
-
-	oe::graphics::text_render_cache cache;
-	oe::graphics::BasicText<char_type>::create_text_render_cache(cache, { line, oe::colors::white }, *last_font, { 0.0f, 0.0f }, { 64.0f, 64.0f }, oe::alignments::top_left);
-
-	r->ymax = static_cast<float>(last_font->getResolution());
+	r->ymax = height;
 	r->ymin = 0.0f;
-	r->baseline_y_delta = static_cast<float>(last_font->getResolution());
+	r->baseline_y_delta = height;
 	r->num_chars = static_cast<int>(std::min(count, static_cast<size_t>(std::numeric_limits<int>::max())));
 	r->x0 = 0.0f;
-	r->x1 = cache.size.x;
+	r->x1 = width;
 }
 
 #define KEYDOWN_BIT                             0x8000000
 
-#define STB_TEXTEDIT_STRINGLEN(obj)				static_cast<int>(std::min(obj->size(), static_cast<size_t>(std::numeric_limits<int>::max())))
+#define STB_TEXTEDIT_STRINGLEN(obj)				static_cast<int>(std::min(obj->m_string.size(), static_cast<size_t>(std::numeric_limits<int>::max())))
 #define STB_TEXTEDIT_LAYOUTROW(r,obj,n)			layoutrow(r, obj, n)
 #define STB_TEXTEDIT_GETWIDTH(obj,n,i)			getwidth(obj, n, i)
-#define STB_TEXTEDIT_GETCHAR(obj,i)				obj->at(i)
+#define STB_TEXTEDIT_GETCHAR(obj,i)				obj->m_string.at(i)
 #define STB_TEXTEDIT_NEWLINE					'\n'
-#define STB_TEXTEDIT_DELETECHARS(obj,i,n)		obj->erase(i, n)
+#define STB_TEXTEDIT_DELETECHARS(obj,i,n)		obj->m_string.erase(i, n)
 #define STB_TEXTEDIT_INSERTCHARS(obj,i,c,n)		insertchars(obj, i, c, n)
 #define STB_TEXTEDIT_KEYTOTEXT(k)				(((key) & KEYDOWN_BIT) ? 0 : (key))
 
@@ -105,11 +103,12 @@ static void layoutrow(StbTexteditRow* r, std::basic_string<char_type> *obj, uint
 namespace oe::utils
 {
 	template<>
-	stb_textedit<char_type>::stb_textedit(size_t& max_chars, text_flags f)
+	stb_textedit<char_type>::stb_textedit(std::basic_string<char_type>& string, const oe::graphics::text_render_cache& cache, size_t& max_chars, text_flags f)
 		: m_state(new STB_TexteditState())
 		, m_cursor(reinterpret_cast<STB_TexteditState*>(m_state)->cursor)
 		, m_selection({ reinterpret_cast<STB_TexteditState*>(m_state)->select_end, reinterpret_cast<STB_TexteditState*>(m_state)->select_start })
-		, max_characters(max_chars)
+		, m_max_characters(max_chars)
+		, m_string(string, cache)
 	{
 		auto state = reinterpret_cast<STB_TexteditState*>(m_state);
 		state->single_line = !(f | text_flags::allow_newline);
@@ -123,11 +122,10 @@ namespace oe::utils
 	}
 	
 	template<>
-	void stb_textedit<char_type>::key(std::basic_string<char_type>& string, oe::graphics::Font& font, uint32_t key, oe::modifiers mods)
+	void stb_textedit<char_type>::key(uint32_t key, oe::modifiers mods)
 	{
 		auto state = reinterpret_cast<STB_TexteditState*>(m_state);
-		last_font = &font;
-		last_max_characters = &max_characters;
+		last_max_characters = &m_max_characters;
 
 		if(!key)
 			return;
@@ -139,31 +137,39 @@ namespace oe::utils
 
 		if (key == K_COPY)
 		{
-			auto clipboard = string.substr(std::get<0>(m_selection), std::get<1>(m_selection) - std::get<0>(m_selection));
+			auto clipboard = m_string.m_string.substr(std::get<0>(m_selection), std::get<1>(m_selection) - std::get<0>(m_selection));
 			m_copy_to_clipboard(oe::utils::convertUTF<std::string>(clipboard));
 		}
 		else if (key == K_CUT)
 		{
-			auto clipboard = string.substr(std::get<0>(m_selection), std::get<1>(m_selection) - std::get<0>(m_selection));
+			auto clipboard = m_string.m_string.substr(std::get<0>(m_selection), std::get<1>(m_selection) - std::get<0>(m_selection));
 			m_copy_to_clipboard(oe::utils::convertUTF<std::string>(clipboard));
-			stb_textedit_cut(&string, state);
+			stb_textedit_cut(&m_string, state);
 		}
 		else if (key == K_PASTE)
 		{
 			std::string clipboard;
 			m_paste_from_clipboard(clipboard);
 			auto clipboard_chartype = oe::utils::convertUTF<std::basic_string<char_type>>(clipboard);
-			stb_textedit_paste(&string, state, clipboard_chartype.data(), static_cast<int>(std::min(clipboard_chartype.size(), static_cast<size_t>(std::numeric_limits<int>::max()))));
+			stb_textedit_paste(&m_string, state, clipboard_chartype.data(), static_cast<int>(std::min(clipboard_chartype.size(), static_cast<size_t>(std::numeric_limits<int>::max()))));
 		}
 		
-		stb_textedit_key(&string, state, key);
+		stb_textedit_key(&m_string, state, key);
 	}
 
-	constexpr uint32_t key_enum_to_code(oe::keys key_enum)
+	constexpr uint32_t key_enum_to_code(oe::keys key_enum, oe::modifiers mods)
 	{
 		switch (key_enum)
 		{
 		default:
+			{
+				if(key_enum == oe::keys::key_x && mods == oe::modifiers::control)
+					return K_CUT;
+				else if(key_enum == oe::keys::key_c && mods == oe::modifiers::control)
+					return K_COPY;
+				else if(key_enum == oe::keys::key_v && mods == oe::modifiers::control)
+					return K_PASTE;
+			}
 			return 0;
 		case oe::keys::key_left:
 			return STB_TEXTEDIT_K_LEFT;
@@ -187,60 +193,51 @@ namespace oe::utils
 			return STB_TEXTEDIT_K_PGUP;
 		case oe::keys::key_page_down:
 			return STB_TEXTEDIT_K_PGDOWN;
-		case oe::keys::key_c:
-			return K_COPY;
-		case oe::keys::key_x:
-			return K_CUT;
-		case oe::keys::key_v:
-			return K_PASTE;
 		case oe::keys::key_enter:
 			return static_cast<uint32_t>('\n');
 		}
 	}
 	
 	template<>
-	void stb_textedit<char_type>::key(std::basic_string<char_type>& string, oe::graphics::Font& font, oe::keys key_enum, oe::modifiers mods)
+	void stb_textedit<char_type>::key(oe::keys key_enum, oe::modifiers mods)
 	{
-		last_font = &font;
-		last_max_characters = &max_characters;
+		last_max_characters = &m_max_characters;
 
-		uint32_t code = key_enum_to_code(key_enum);
-		key(string, font, code, mods);
+		uint32_t code = key_enum_to_code(key_enum, mods);
+		key(code, mods);
 	}
 
 	template<>
 	void stb_textedit<char_type>::flush()
 	{
 		auto state = reinterpret_cast<STB_TexteditState*>(m_state);
-		last_max_characters = &max_characters;
+		last_max_characters = &m_max_characters;
 		stb_textedit_flush_redo(&state->undostate);
 	}
 	
 	template<>
-	void stb_textedit<char_type>::clamp(std::basic_string<char_type>& string)
+	void stb_textedit<char_type>::clamp()
 	{
 		auto state = reinterpret_cast<STB_TexteditState*>(m_state);
-		last_max_characters = &max_characters;
-		stb_textedit_clamp(&string, state);
+		last_max_characters = &m_max_characters;
+		stb_textedit_clamp(&m_string, state);
 	}
 	
 	template<>
-	void stb_textedit<char_type>::click(std::basic_string<char_type>& string, oe::graphics::Font& font, const glm::ivec2& cursor)
+	void stb_textedit<char_type>::click(const glm::vec2& cursor)
 	{
-		// spdlog::debug("c:{}", cursor);
+		/* spdlog::debug("c:{}", cursor); */
 		auto state = reinterpret_cast<STB_TexteditState*>(m_state);
-		last_font = &font;
-		last_max_characters = &max_characters;
-		stb_textedit_click(&string, state, cursor.x, cursor.y);
+		last_max_characters = &m_max_characters;
+		stb_textedit_click(&m_string, state, cursor.x, cursor.y);
 	}
 
 	template<>
-	void stb_textedit<char_type>::drag(std::basic_string<char_type>& string, oe::graphics::Font& font, const glm::ivec2& cursor)
+	void stb_textedit<char_type>::drag(const glm::vec2& cursor)
 	{
 		auto state = reinterpret_cast<STB_TexteditState*>(m_state);
-		last_font = &font;
-		last_max_characters = &max_characters;
-		stb_textedit_drag(&string, state, cursor.x, cursor.y);
+		last_max_characters = &m_max_characters;
+		stb_textedit_drag(&m_string, state, cursor.x, cursor.y);
 	}
 	
 	template<>

@@ -2,6 +2,7 @@
 
 #include "widget.hpp"
 #include "event.hpp"
+#include "engine/utility/fileio.hpp"
 
 
 
@@ -51,6 +52,8 @@ namespace oe::gui
 
 			value_t initial_color              = oe::colors::red;
 			uint8_t draw_value                 = 2; // (false/0) = no draw, (true/1) = draw 0.0-1.0, 2 = draw 0-256
+			uint16_t font_size                 = 14;
+			oe::utils::FontFile font_file      = {}; // empty for gui default
 			oe::color background_color         = oe::colors::dark_grey;
 			const oe::graphics::Sprite* sprite = nullptr;
 

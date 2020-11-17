@@ -20,6 +20,7 @@ namespace oe::graphics
 	{
 		bool rendered      = false;
 
+		glm::vec2 offset   = { 0.0f, 0.0f };
 		glm::vec2 position = { 0.0f, 0.0f };
 		glm::vec2 size     = { 1.0f, 1.0f };
 		glm::vec4 color    = oe::colors::white;
@@ -31,6 +32,7 @@ namespace oe::graphics
 	{
 		std::vector<text_render_cache_datapoint> datapoints{};
 		glm::vec2 top_left = { 0.0f, 0.0f };
+		glm::vec2 scaling = { 0.0f, 0.0f };
 		glm::vec2 size = { 0.0f, 0.0f };
 	};
 
@@ -78,8 +80,8 @@ namespace oe::graphics
 		{}
 
 		// Generate framebuffer and render text to it
-		void generate(const string_t& text, const Window& window, const oe::color& bg_color = oe::colors::transparent, float width = 0.25f, float outline_width = 0.0f, const oe::color& outline_c = oe::colors::black);
-		void regenerate(const string_t& text, const Window& window, const oe::color& bg_color = oe::colors::transparent, float width = 0.25f, float outline_width = 0.0f, const oe::color& outline_c = oe::colors::black);
+		bool generate(const string_t& text, const Window& window, const oe::color& bg_color = oe::colors::transparent, float width = 0.25f, float outline_width = 0.0f, float anti_alias = 0.2f, const oe::color& outline_c = oe::colors::black);
+		void regenerate(const string_t& text, const Window& window, const oe::color& bg_color = oe::colors::transparent, float width = 0.25f, float outline_width = 0.0f, float anti_alias = 0.2f, const oe::color& outline_c = oe::colors::black);
 
 		inline const FrameBuffer* getFB() const { return &m_framebuffer; }
 		inline const Sprite& getSprite() const { return m_sprite; }

@@ -303,12 +303,37 @@ namespace oe::utils
 
 namespace oe::utils
 {
-	std::unordered_map<size_t, oe::utils::byte_string> font_file_map;
+	struct FontFileMapSingleton
+	{
+		static FontFileMapSingleton* singleton;
+		
+		//
+		std::unordered_map<size_t, oe::utils::byte_string> font_file_map;
+		
+		FontFileMapSingleton()
+			: font_file_map()
+		{
+			font_file_map[0] = { 0 };
+		};
+		static FontFileMapSingleton& get()
+		{
+			if(!singleton)
+				singleton = new FontFileMapSingleton();
+			return *singleton;
+		}
+	};
+
+	FontFileMapSingleton* FontFileMapSingleton::singleton = nullptr;
+
+
+
 	FontFile::FontFile(const oe::utils::FileIO& path)
 	{
+		auto& font_file_map = FontFileMapSingleton::get().font_file_map;
+
 		id = std::hash<std::string>{}(path.getPath().generic_string());
 		if(font_file_map.find(id) == font_file_map.end())
-			font_file_map[id] = path.read<oe::utils::byte_string>();
+			font_file_map.emplace(id, std::move(path.read<oe::utils::byte_string>()));
 	}
 
 	FontFile::FontFile()
@@ -322,7 +347,13 @@ namespace oe::utils
 
 	const oe::utils::byte_string& FontFile::getFontFile(const size_t id)
 	{
-		return font_file_map.at(id);
+		auto& font_file_map = FontFileMapSingleton::get().font_file_map;
+
+		const auto iter = font_file_map.find(id);
+		if(iter == font_file_map.end())
+			return font_file_map.at(0);
+
+		return iter->second;
 	}
 
 	auto zip_open_error(int error)

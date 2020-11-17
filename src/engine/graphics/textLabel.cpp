@@ -36,22 +36,26 @@ namespace oe::graphics {
 
 
 	template<typename char_type>
-	void BasicTextLabel<char_type>::generate(const string_t& text, const Window& window, const oe::color& bg_color, float width, float outline_width, const oe::color& outline_c)
+	bool BasicTextLabel<char_type>::generate(const string_t& text, const Window& window, const oe::color& bg_color, float width, float outline_width, float anti_alias, const oe::color& outline_c)
 	{
-		if (m_text == text && m_framebuffer) return; // why render the same text again?
-		regenerate(text, window, bg_color, width, outline_width, outline_c);
+		/* const bool generated = m_text == text && m_framebuffer;
+		if(generated) // why render the same text again?
+			return false; */
+
+		regenerate(text, window, bg_color, width, outline_width, anti_alias, outline_c);
+		return true;
 	}
 	
 	template<typename char_type>
-	void BasicTextLabel<char_type>::regenerate(const string_t& text, const Window& window, const oe::color& bg_color, float width, float outline_width, const oe::color& outline_c)
+	void BasicTextLabel<char_type>::regenerate(const string_t& text, const Window& window, const oe::color& bg_color, float width, float outline_width, float anti_alias, const oe::color& outline_c)
 	{
 		m_text = text;
-		const float res = static_cast<float>(m_resolution) * (m_font.isSDF() ? 4.0f : 1.0f);
+		const float res = static_cast<float>(m_resolution) /* * (m_font.isSDF() ? 4.0f : 1.0f) */;
 		text_render_cache cache;
 		text_t::create_text_render_cache(cache, m_text, m_font, { 0.0f, 0.0f }, glm::vec2(res), oe::alignments::top_left);
 
 		// size of the framebuffer
-		m_size = cache.size;
+		m_size = glm::ceil(cache.size);
 		m_size.x = std::max(m_size.x, 1.0f);
 		m_size.y = std::max(m_size.y, 1.0f);
 
@@ -78,7 +82,9 @@ namespace oe::graphics {
 		tbr.fb_shader.setProjectionMatrix(pr_matrix);
 		tbr.fb_shader.setSDF(m_font.isSDF());
 		tbr.fb_shader.setWidth(width);
+		tbr.fb_shader.setEdge(anti_alias);
 		tbr.fb_shader.setOutlineWidth(outline_width);
+		tbr.fb_shader.setOutlineEdge(anti_alias);
 		tbr.fb_shader.setOutlineColor(outline_c);
 		tbr.fb_renderer.render();
 		tbr.fb_renderer.clear();
@@ -88,7 +94,7 @@ namespace oe::graphics {
 
 		// generate the sprite for user
 		const glm::vec2 size_ratio = m_size / m_fb_size;
-		m_size *= (m_font.isSDF() ? 0.25f : 1.0f);
+		/* m_size *= (m_font.isSDF() ? 0.25f : 1.0f); */
 
 		m_sprite.m_owner = m_framebuffer->getTexture();
 		m_sprite.position = { 0.0f, 1.0f };
@@ -101,11 +107,11 @@ namespace oe::graphics {
 	template<typename char_type>
 	void BasicText<char_type>::create_text_render_cache(text_render_cache& cache, const string_t& text, Font& font, const glm::vec2& origin_pos, const glm::vec2& size, const glm::vec2& align_to_origin)
 	{
-		// at the very least the size of the text
+		// at the very least the size of the text + 1 (for the null terminator)
 		// \0, \n, etc... will be removed
-		size_t cache_size = std::accumulate(text.vec.cbegin(), text.vec.cend(), static_cast<size_t>(0), [](size_t since, const oe::utils::color_string_part<char_type>& part){ return since + std::get<0>(part).size(); });
-		cache.datapoints = {};
-		cache.datapoints.reserve(cache_size);
+		const size_t cache_size = std::accumulate(text.vec.cbegin(), text.vec.cend(), static_cast<size_t>(0), [](size_t since, const oe::utils::color_string_part<char_type>& part){ return since + std::get<0>(part).size(); });
+		cache.datapoints.clear();
+		cache.datapoints.reserve(cache_size + 1);
 
 		glm::vec2 advance = origin_pos;
 		char32_t codepoint = U'\0';
@@ -136,6 +142,7 @@ namespace oe::graphics {
 				// test if the codepoint will be rendered
 				// and advancing the positioning of the following characters
 				datapoint.rendered = false;
+				datapoint.offset = advance - origin_pos;
 				if(codepoint == U'\n') // new line
 				{
 					advance.x = origin_pos.x;
@@ -161,7 +168,7 @@ namespace oe::graphics {
 				datapoint.rendered = true;
 				datapoint.codepoint = codepoint;
 				datapoint.color = color_part;
-				datapoint.position = (advance) + (glyph->top_left * size) + glm::vec2{ 0.0f, -font.m_topmost * size.y };
+				datapoint.position = (datapoint.offset) + glm::vec2{ 0.0f, -font.m_topmost * size.y } + (glyph->top_left * size) + (origin_pos);
 				datapoint.size = glyph->size * size;
 				datapoint.sprite = glyph->sprite;
 
@@ -171,6 +178,11 @@ namespace oe::graphics {
 				advance.x += font.getKerning(codepoint, codepoint_next) * size.x;
 			}
 		}
+
+		// NULL terminator
+		auto& datapoint = cache.datapoints.emplace_back();
+		datapoint.rendered = false;
+		datapoint.offset = advance - origin_pos;
 
 		// alignment
 		// find topleft and bottomright
@@ -189,6 +201,7 @@ namespace oe::graphics {
 		
 		// extra cache data
 		cache.top_left = min;
+		cache.scaling = size;
 		cache.size = total_size;
 	}
 
@@ -198,7 +211,7 @@ namespace oe::graphics {
 		if(index >= cache.datapoints.size())
 			return { 0.0f, 0.0f };
 
-		return cache.datapoints.back().position - cache.datapoints.front().position;
+		return cache.datapoints.at(index).offset;
 	}
 
 	template<typename char_type>

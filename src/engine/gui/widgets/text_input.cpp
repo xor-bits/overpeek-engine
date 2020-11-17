@@ -28,7 +28,7 @@ namespace oe::gui
 		, m_text_input_info(text_input_info)
 		, m_value(m_value_ref)
 		, m_selected(false)
-		, m_state(m_text_input_info.max_characters, state_flags<char_type>(text_input_info))
+		, m_state(m_value, m_cache, m_text_input_info.max_characters, state_flags<char_type>(text_input_info))
 		, m_timer_key_pressed(std::chrono::high_resolution_clock::now())
 	{
 		m_state.m_copy_to_clipboard = [this](const std::string& cb){ m_gui_manager.getWindow()->setClipboard(cb); };
@@ -111,6 +111,19 @@ namespace oe::gui
 	{
 		m_text_input_info.formatter(m_value);
 	}
+
+	template<typename char_type>
+	bool BasicTextInput<char_type>::regen_cache()
+	{
+		if(m_value_old == m_value)
+			return false;
+		m_value_old = m_value;
+
+		auto& font = m_gui_manager.getFont(m_text_input_info.font_file);
+		const oe::utils::color_string<char_type> string_vec = { m_value, m_text_input_info.default_text_color };
+		oe::graphics::BasicText<char_type>::create_text_render_cache(m_cache, string_vec, font, { 0.0f, 0.0f }, glm::vec2(m_text_input_info.font_size), oe::alignments::top_left);
+		return true;
+	}
 	
 	template<typename char_type>
 	void BasicTextInput<char_type>::on_render(const GUIRenderEvent& /* event */)
@@ -137,7 +150,7 @@ namespace oe::gui
 		m_text_quad->setSprite(m_label->getSprite());
 		m_text_quad->setColor(oe::colors::white);
 
-		m_state.clamp(m_value);
+		m_state.clamp();
 		m_text_bar_quad->toggle(m_selected);
 		m_text_selection_quads[0]->toggle(m_selected);
 		m_text_selection_quads[1]->toggle(m_selected);
@@ -151,13 +164,16 @@ namespace oe::gui
 		m_text_bar_quad->toggle(bar);
 		
 		// TODO: update following (till the end of this scope) only if the cursor was updated
-		auto& font = m_gui_manager.getFont(m_text_input_info.font_file);
-		using text_t = oe::graphics::BasicText<char_type>;
-		oe::graphics::text_render_cache cache;
-		text_t::create_text_render_cache(cache, string_vec, font, { 0.0f, 0.0f }, glm::vec2(m_text_input_info.font_size), oe::alignments::top_left);
+
+		// regen if user updated the string
+		if(!regen_cache() && (m_cursor_old == m_state.cursor()) && (m_selection_old == m_state.selection()))
+			return;
+		m_cursor_old = m_state.cursor();
+		m_selection_old = m_state.selection();
+
 
 		// text bar
-		const glm::ivec2 before_cursor_size = static_cast<glm::ivec2>(text_t::offset_to_char(cache, m_state.cursor()));
+		const glm::ivec2 before_cursor_size = static_cast<glm::ivec2>(oe::graphics::BasicText<char_type>::offset_to_char(m_cache, m_state.cursor()));
 		m_text_bar_quad->setPosition(static_cast<glm::vec2>(m_text_label_pos + before_cursor_size));
 		m_text_bar_quad->setZ(m_z + 0.05f);
 		m_text_bar_quad->setSize({ 1, m_text_input_info.font_size });
@@ -184,8 +200,8 @@ namespace oe::gui
 				m_text_selection_quads[1]->setSize({ 0.0f, 0.0f });
 				m_text_selection_quads[2]->setSize({ 0.0f, 0.0f });
 				
-				const glm::ivec2 selection_start_pos = static_cast<glm::ivec2>(text_t::offset_to_char(cache, selection.x));
-				const glm::ivec2 selection_end_pos = static_cast<glm::ivec2>(text_t::offset_to_char(cache, selection.y));
+				const glm::ivec2 selection_start_pos = static_cast<glm::ivec2>(oe::graphics::BasicText<char_type>::offset_to_char(m_cache, selection.x));
+				const glm::ivec2 selection_end_pos = static_cast<glm::ivec2>(oe::graphics::BasicText<char_type>::offset_to_char(m_cache, selection.y));
 
 				m_text_selection_quads[0]->setPosition(static_cast<glm::vec2>(m_text_label_pos + selection_start_pos));
 				m_text_selection_quads[0]->setSize({ selection_end_pos.x - selection_start_pos.x, m_text_input_info.font_size });
@@ -204,8 +220,8 @@ namespace oe::gui
 				if(lines == 2)
 					m_text_selection_quads[1]->setSize({ 0.0f, 0.0f });
 
-				const glm::ivec2 selection_a_start_pos = static_cast<glm::ivec2>(text_t::offset_to_char(cache, selection.x));
-				const glm::ivec2 selection_b_end_pos = static_cast<glm::ivec2>(text_t::offset_to_char(cache, selection.y));
+				const glm::ivec2 selection_a_start_pos = static_cast<glm::ivec2>(oe::graphics::BasicText<char_type>::offset_to_char(m_cache, selection.x));
+				const glm::ivec2 selection_b_end_pos = static_cast<glm::ivec2>(oe::graphics::BasicText<char_type>::offset_to_char(m_cache, selection.y));
 
 				m_text_selection_quads[0]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ selection_a_start_pos.x, lines_before * m_text_input_info.font_size }));
 				m_text_selection_quads[0]->setSize({ m_text_input_info.font_size + m_label->getSize().x - selection_a_start_pos.x, m_text_input_info.font_size });
@@ -233,8 +249,9 @@ namespace oe::gui
 
 		// spdlog::debug("on codepoint <{}>", (size_t)c);
 
-		m_state.key(m_value, m_label->getFont(), c);
+		m_state.key(c);
 		reformat();
+		regen_cache();
 		
 		BasicTextInputInputEvent<char_type> e { event.codepoint, m_value };
 		m_dispatcher.trigger(e);
@@ -246,17 +263,15 @@ namespace oe::gui
 	{
 		if (!m_selected || !m_cg_key || event.action == oe::actions::release)
 			return;
+		resetTimer();
+
+		m_state.key(event.key, event.mods);
+		reformat();
+		regen_cache();
 
 		char_type character = 0;
-
-		// spdlog::debug("on key <{},{}>", static_cast<int>(event.key), static_cast<int>(event.mods));
-
-		m_state.key(m_value, m_label->getFont(), event.key, event.mods);
-		reformat();
-
 		BasicTextInputInputEvent<char_type> e { static_cast<char32_t>(character), m_value };
 		m_dispatcher.trigger(e);
-		resetTimer();
 	}
 
 	template<typename char_type>
@@ -265,7 +280,7 @@ namespace oe::gui
 		if(!m_cg_cursor || !m_dragging)
 			return;
 		
-		m_state.drag(m_value, m_label->getFont(), event.cursor_windowspace - m_text_label_pos);
+		m_state.drag(event.cursor_windowspace - m_text_label_pos);
 	}
 	
 	template<typename char_type>
@@ -282,9 +297,9 @@ namespace oe::gui
 			
 			m_dragging = true;
 			if(event.mods == oe::modifiers::shift) 
-				m_state.drag(m_value, m_label->getFont(), event.cursor_pos.cursor_windowspace - m_text_label_pos);
+				m_state.drag(event.cursor_pos.cursor_windowspace - m_text_label_pos);
 			else
-				m_state.click(m_value, m_label->getFont(), event.cursor_pos.cursor_windowspace - m_text_label_pos);
+				m_state.click(event.cursor_pos.cursor_windowspace - m_text_label_pos);
 				
 			// double click
 			auto since_last = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch() - m_timer_key_pressed.time_since_epoch());
@@ -292,7 +307,7 @@ namespace oe::gui
 			{
 				std::get<0>(selection()) = m_value.size();
 				std::get<1>(selection()) = 0;
-				m_state.clamp(m_value);
+				m_state.clamp();
 			}
 
 			// 

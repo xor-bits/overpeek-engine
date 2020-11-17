@@ -86,6 +86,7 @@ namespace oe::gui
 
 	public:
 		info_t m_text_input_info;
+		oe::graphics::text_render_cache m_cache;
 		value_t& m_value;
 		bool m_selected = false;
 	
@@ -110,6 +111,10 @@ namespace oe::gui
 		void reformat() noexcept;
 	
 	private:
+		std::basic_string_view<char_type> m_value_old;
+		int m_cursor_old;
+		std::tuple<int, int> m_selection_old;
+		bool regen_cache();
 		// events
 		void on_render(const GUIRenderEvent& event);
 		void on_codepoint(const CodepointEvent& event);

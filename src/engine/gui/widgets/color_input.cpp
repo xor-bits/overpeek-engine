@@ -66,6 +66,8 @@ namespace oe::gui
 		BasicSliderInput<float>::info_t common;
 		common.value_bounds = glm::vec2(0.0f, 1.0f);
 		common.draw_value = color_input_info.draw_value != 0;
+		common.font_size = color_input_info.font_size;
+		common.font_file = color_input_info.font_file;
 		common.slider_sprite = color_input_info.sprite;
 		common.knob_sprite = color_input_info.sprite;
 
@@ -103,7 +105,8 @@ namespace oe::gui
 		common.sprite = color_input_info.sprite;
 		common.interact_flags = interact_type_flags::cursor | interact_type_flags::scroll;
 		common.stepsize = 1.0f / 256.0f;
-		common.font_size = 11;
+		common.font_size = color_input_info.font_size;
+		common.font_file = color_input_info.font_file;
 		common.default_text_color = oe::colors::white;
 		common.background_color = oe::colors::darker_grey;
 
@@ -111,9 +114,9 @@ namespace oe::gui
 
 		for (size_t i = 0; i < vec_size; i++)
 			if(color_input_info.draw_value == 2)
-				info.common[i].draw_format = [i](const float& val) { return fmt::format("{}:{}", channel_names[i], static_cast<int>(val * 256.0f)); };
+				info.common[i].draw_format = [i](const float& val) { return fmt::format("{}: {}", channel_names[i], static_cast<int>(val * 256.0f)); };
 			else if(color_input_info.draw_value == 1)
-				info.common[i].draw_format = [i](const float& val) { return fmt::format("{}:{}", channel_names[i], static_cast<float>(val)); };
+				info.common[i].draw_format = [i](const float& val) { return fmt::format("{}: {}", channel_names[i], static_cast<float>(val)); };
 
 		return info;
 	}
