@@ -62,7 +62,7 @@ namespace oe::gui
 			m_text_selection_quads[0] = m_gui_manager.getRenderer()->create();
 			m_text_selection_quads[1] = m_gui_manager.getRenderer()->create();
 			m_text_selection_quads[2] = m_gui_manager.getRenderer()->create();
-			m_label = new oe::graphics::BasicTextLabel<char_type>(m_gui_manager.getFont(m_text_input_info.font_file), m_text_input_info.font_size);
+			m_label = new oe::graphics::BasicTextLabel<char_type>(m_gui_manager.getFont(m_text_input_info.text_options.font), m_text_input_info.text_options.size);
 			
 			m_text_selection_quads[0]->setZ(m_z + 0.05f);
 			m_text_selection_quads[1]->setZ(m_z + 0.06f);
@@ -109,7 +109,7 @@ namespace oe::gui
 	template<typename char_type>
 	void BasicTextInput<char_type>::reformat() noexcept
 	{
-		m_text_input_info.formatter(m_value);
+		m_text_input_info.text_format(m_value);
 	}
 
 	template<typename char_type>
@@ -119,9 +119,9 @@ namespace oe::gui
 			return false;
 		m_value_old = m_value;
 
-		auto& font = m_gui_manager.getFont(m_text_input_info.font_file);
-		const oe::utils::color_string<char_type> string_vec = { m_value, m_text_input_info.default_text_color };
-		oe::graphics::BasicText<char_type>::create_text_render_cache(m_cache, string_vec, font, { 0.0f, 0.0f }, glm::vec2(m_text_input_info.font_size), oe::alignments::top_left);
+		auto& font = m_gui_manager.getFont(m_text_input_info.text_options.font);
+		const oe::utils::color_string<char_type> string_vec = { m_value, m_text_input_info.text_options.initial_text_color };
+		oe::graphics::BasicText<char_type>::create_text_render_cache(m_cache, string_vec, font, { 0.0f, 0.0f }, glm::vec2(m_text_input_info.text_options.size), oe::alignments::top_left);
 		return true;
 	}
 	
@@ -139,11 +139,12 @@ namespace oe::gui
 		m_quad->setColor(m_text_input_info.background_color);
 
 		// text
-		const oe::utils::color_string<char_type> string_vec = { m_value, m_text_input_info.default_text_color };
-		m_label->generate(string_vec, m_gui_manager.getWindow());
-		m_text_label_pos = m_render_position + oe::alignmentOffset(m_info.size, m_text_input_info.align_text) - oe::alignmentOffset(static_cast<glm::ivec2>(m_label->getSize()), m_text_input_info.align_text);
+		const oe::utils::color_string<char_type> string_vec = { m_value, m_text_input_info.text_options.initial_text_color };
+		m_label->generate(string_vec, m_gui_manager.getWindow(), m_text_input_info.text_options.background_color, m_text_input_info.text_options.weight, m_text_input_info.text_options.outline_weight, m_text_input_info.text_options.anti_alias, m_text_input_info.text_options.outline_color);
+		m_text_label_pos = m_render_position + oe::alignmentOffset(m_info.size, m_text_input_info.text_options.align) - oe::alignmentOffset(static_cast<glm::ivec2>(m_label->getSize()), m_text_input_info.text_options.align);
 		
 		// text label
+		m_text_quad->toggle(m_text_input_info.text_options.enabled);
 		m_text_quad->setPosition(static_cast<glm::vec2>(m_text_label_pos));
 		m_text_quad->setZ(m_z + 0.025f);
 		m_text_quad->setSize(m_label->getSize());
@@ -176,9 +177,9 @@ namespace oe::gui
 		const glm::ivec2 before_cursor_size = static_cast<glm::ivec2>(oe::graphics::BasicText<char_type>::offset_to_char(m_cache, m_state.cursor()));
 		m_text_bar_quad->setPosition(static_cast<glm::vec2>(m_text_label_pos + before_cursor_size));
 		m_text_bar_quad->setZ(m_z + 0.05f);
-		m_text_bar_quad->setSize({ 1, m_text_input_info.font_size });
+		m_text_bar_quad->setSize({ 1, m_text_input_info.text_options.size });
 		m_text_bar_quad->setSprite(m_text_input_info.sprite);
-		m_text_bar_quad->setColor(m_text_input_info.default_text_color);
+		m_text_bar_quad->setColor(m_text_input_info.text_options.initial_text_color);
 
 		// text selection
 		const glm::ivec2 selection = { std::min(std::get<0>(m_state.selection()), std::get<1>(m_state.selection())), std::max(std::get<0>(m_state.selection()), std::get<1>(m_state.selection())) };
@@ -204,15 +205,15 @@ namespace oe::gui
 				const glm::ivec2 selection_end_pos = static_cast<glm::ivec2>(oe::graphics::BasicText<char_type>::offset_to_char(m_cache, selection.y));
 
 				m_text_selection_quads[0]->setPosition(static_cast<glm::vec2>(m_text_label_pos + selection_start_pos));
-				m_text_selection_quads[0]->setSize({ selection_end_pos.x - selection_start_pos.x, m_text_input_info.font_size });
+				m_text_selection_quads[0]->setSize({ selection_end_pos.x - selection_start_pos.x, m_text_input_info.text_options.size });
 			}
 			break;
 		default: // 3 or more
 			{
 				m_text_selection_quads[2]->setSize({ 0.0f, 0.0f });
 				
-				m_text_selection_quads[1]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ -m_text_input_info.font_size, (lines_before + 1) * m_text_input_info.font_size }));
-				m_text_selection_quads[1]->setSize({ m_label->getSize().x + 2 * m_text_input_info.font_size, (lines - 2) *m_text_input_info.font_size });
+				m_text_selection_quads[1]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ -m_text_input_info.text_options.size, (lines_before + 1) * m_text_input_info.text_options.size }));
+				m_text_selection_quads[1]->setSize({ m_label->getSize().x + 2 * m_text_input_info.text_options.size, (lines - 2) *m_text_input_info.text_options.size });
 			}
 			[[fallthrough]];
 		case 2:
@@ -223,10 +224,10 @@ namespace oe::gui
 				const glm::ivec2 selection_a_start_pos = static_cast<glm::ivec2>(oe::graphics::BasicText<char_type>::offset_to_char(m_cache, selection.x));
 				const glm::ivec2 selection_b_end_pos = static_cast<glm::ivec2>(oe::graphics::BasicText<char_type>::offset_to_char(m_cache, selection.y));
 
-				m_text_selection_quads[0]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ selection_a_start_pos.x, lines_before * m_text_input_info.font_size }));
-				m_text_selection_quads[0]->setSize({ m_text_input_info.font_size + m_label->getSize().x - selection_a_start_pos.x, m_text_input_info.font_size });
-				m_text_selection_quads[2]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ -m_text_input_info.font_size, (lines_before + lines - 1) * m_text_input_info.font_size }));
-				m_text_selection_quads[2]->setSize({ m_text_input_info.font_size + selection_b_end_pos.x, m_text_input_info.font_size });
+				m_text_selection_quads[0]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ selection_a_start_pos.x, lines_before * m_text_input_info.text_options.size }));
+				m_text_selection_quads[0]->setSize({ m_text_input_info.text_options.size + m_label->getSize().x - selection_a_start_pos.x, m_text_input_info.text_options.size });
+				m_text_selection_quads[2]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ -m_text_input_info.text_options.size, (lines_before + lines - 1) * m_text_input_info.text_options.size }));
+				m_text_selection_quads[2]->setSize({ m_text_input_info.text_options.size + selection_b_end_pos.x, m_text_input_info.text_options.size });
 			}
 			break;
 		}

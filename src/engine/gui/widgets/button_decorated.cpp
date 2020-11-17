@@ -25,7 +25,7 @@ namespace oe::gui
 
 		TextPanel::info_t tp_info;
 		tp_info.text = button_info.text;
-		tp_info.font_size = _button_info.text_font_size;
+		tp_info.text_options = _button_info.text_options;
 		tp_info.widget_info.align_parent = oe::alignments::center_center;
 		tp_info.widget_info.align_render = oe::alignments::center_center;
 		button_text = create(tp_info);

@@ -24,23 +24,21 @@ namespace oe::gui
 
 	struct BaseBasicSliderInputInfo_t
 	{
-		// draw
-		bool draw_value                                              = true;
-		uint16_t font_size                                           = 14;
-		oe::utils::FontFile font_file                                = {}; // empty for gui default
+		// text
+		TextOptions                  text_options = {};
 		// visuals
-		bool vertical                                                = false;
-		glm::ivec2 knob_size                                         = { 30, 30 };
-		oe::color knob_color                                         = oe::colors::grey;
-		oe::color slider_lcolor                                      = oe::colors::dark_grey;
-		oe::color slider_rcolor                                      = oe::colors::darker_grey;
-		bool linear_color                                            = false;
-		const oe::graphics::Sprite* knob_sprite                      = nullptr;
-		const oe::graphics::Sprite* slider_sprite                    = nullptr;
+		bool                             vertical = false;
+		glm::ivec2                      knob_size = { 30, 30 };
+		oe::color                      knob_color = oe::colors::grey;
+		oe::color                   slider_lcolor = oe::colors::dark_grey;
+		oe::color                   slider_rcolor = oe::colors::darker_grey;
+		bool                         linear_color = false;
+		const oe::graphics::Sprite*   knob_sprite = nullptr;
+		const oe::graphics::Sprite* slider_sprite = nullptr;
 		// io
-		interact_type_flags interact_flags                           = interact_type_flags::cursor | interact_type_flags::keyboard | interact_type_flags::scroll;
+		interact_type_flags        interact_flags = interact_type_flags::cursor | interact_type_flags::keyboard | interact_type_flags::scroll;
 		// base
-		Widget::Info widget_info                                     = { { 150, 30 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
+		Widget::Info                  widget_info = {};
 	};
 
 
@@ -104,8 +102,8 @@ namespace oe::gui
 			value_t initial_value                                        = static_cast<value_t>(0.0);
 			glm::vec<2,value_t> value_bounds                             = { static_cast<value_t>(0.0), static_cast<value_t>(10.0) };
 			value_t step_size                                            = static_cast<value_t>(0.01);
-			// draw
-			std::function<std::u32string(const value_t&)> draw_format          = &default_formatter;
+			// text
+			std::function<std::u32string(const value_t&)> text_format    = &default_formatter;
 			
 
 		
@@ -132,7 +130,7 @@ namespace oe::gui
 		
 		[[nodiscard]] std::u32string get_rendered_label() const override
 		{
-			return m_slider_info.draw_format(m_value);
+			return m_slider_info.text_format(m_value);
 		}
 		
 		[[nodiscard]] const BaseBasicSliderInputInfo_t& get_info() const override

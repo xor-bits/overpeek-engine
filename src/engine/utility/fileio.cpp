@@ -8,6 +8,7 @@
 #include "engine/internal_libs.hpp"
 #include "engine/utility/clock.hpp"
 #include "engine/utility/formatted_error.hpp"
+#include "engine/utility/font_file.hpp"
 #include "engine/engine.hpp"
 #include "engine/asset/fonts.hpp"
 
@@ -333,7 +334,7 @@ namespace oe::utils
 
 		id = std::hash<std::string>{}(path.getPath().generic_string());
 		if(font_file_map.find(id) == font_file_map.end())
-			font_file_map.emplace(id, std::move(path.read<oe::utils::byte_string>()));
+			font_file_map.emplace(id, path.read<oe::utils::byte_string>());
 	}
 
 	FontFile::FontFile()

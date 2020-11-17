@@ -18,32 +18,18 @@ namespace oe::gui
 {
 	constexpr size_t vec_size = 4;
 
-	[[maybe_unused]] constexpr std::array<std::string_view, 4> channel_names = {{
-		"R",
-		"G",
-		"B",
-		"A",
+	constexpr std::array<char, 4> channel_names = {{
+		'R',
+		'G',
+		'B',
+		'A',
 	}};
 
-	[[maybe_unused]] constexpr std::array<std::string_view, 4> channel_full_names = {{
+	constexpr std::array<std::string_view, 4> channel_full_names = {{
 		"Red",
 		"Green",
 		"Blue",
 		"Alpha",
-	}};
-
-	[[maybe_unused]] constexpr std::array<std::u32string_view, 4> u32channel_names = {{
-		U"R",
-		U"G",
-		U"B",
-		U"A",
-	}};
-
-	[[maybe_unused]] constexpr std::array<std::u32string_view, 4> u32channel_full_names = {{
-		U"Red",
-		U"Green",
-		U"Blue",
-		U"Alpha",
 	}};
 
 	Vec<BasicSliderInput<float>, vec_size>::info_t create_vec_slider_info(const ColorInput::info_t& color_input_info)
@@ -65,19 +51,14 @@ namespace oe::gui
 
 		BasicSliderInput<float>::info_t common;
 		common.value_bounds = glm::vec2(0.0f, 1.0f);
-		common.draw_value = color_input_info.draw_value != 0;
-		common.font_size = color_input_info.font_size;
-		common.font_file = color_input_info.font_file;
+		common.text_options = color_input_info.text_options;
 		common.slider_sprite = color_input_info.sprite;
 		common.knob_sprite = color_input_info.sprite;
 
 		info.common.fill(common);
 
 		for (size_t i = 0; i < vec_size; i++)
-			if(color_input_info.draw_value == 2)
-				info.common[i].draw_format = [i](const float& val) { return fmt::format(U"{}: {}", u32channel_names[i], static_cast<int>(val * 256.0f)); };
-			else if(color_input_info.draw_value == 1)
-				info.common[i].draw_format = [i](const float& val) { return fmt::format(U"{}: {}", u32channel_names[i], static_cast<float>(val)); };
+			info.common[i].text_format = [i, text_format = color_input_info.text_format](const float& val) { return oe::utils::convertUTF<std::u32string>(text_format(channel_names[i], channel_full_names[i], val)); };
 		
 
 		return info;
@@ -105,18 +86,13 @@ namespace oe::gui
 		common.sprite = color_input_info.sprite;
 		common.interact_flags = interact_type_flags::cursor | interact_type_flags::scroll;
 		common.stepsize = 1.0f / 256.0f;
-		common.font_size = color_input_info.font_size;
-		common.font_file = color_input_info.font_file;
-		common.default_text_color = oe::colors::white;
+		common.text_options = color_input_info.text_options;
 		common.background_color = oe::colors::darker_grey;
 
 		info.common.fill(common);
 
 		for (size_t i = 0; i < vec_size; i++)
-			if(color_input_info.draw_value == 2)
-				info.common[i].draw_format = [i](const float& val) { return fmt::format("{}: {}", channel_names[i], static_cast<int>(val * 256.0f)); };
-			else if(color_input_info.draw_value == 1)
-				info.common[i].draw_format = [i](const float& val) { return fmt::format("{}: {}", channel_names[i], static_cast<float>(val)); };
+			info.common[i].text_format = [i, text_format = color_input_info.text_format](const float& val) { return text_format(channel_names[i], channel_full_names[i], val); };
 
 		return info;
 	}

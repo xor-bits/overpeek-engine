@@ -13,7 +13,8 @@ b2World box2d_world(b2Vec2(0.0f, 9.81f));
 
 
 oe::graphics::Window window;
-oe::asset::DefaultShader* shader;
+oe::asset::DefaultShader* shader_lines;
+oe::asset::DefaultShader* shader_fill;
 oe::graphics::SpritePack* pack;
 oe::graphics::Sprite const* sprite;
 oe::ecs::World* world;
@@ -147,9 +148,16 @@ void render(oe::RenderEvent)
 	});
 	
 	// stop submitting and render
-	shader->bind();
+	// the worst way to get first fill and then lines
+	// doing this in the shader would be faster
+	shader_fill->bind();
 	world->m_renderer.render();
-	shader->unbind();
+	auto& engine = oe::Engine::getSingleton();
+	auto cur_depth = engine.getDepth();
+	engine.depth(oe::depth_functions::always);
+	shader_lines->bind();
+	world->m_renderer.render();
+	engine.depth(cur_depth);
 
 	gui_manager->render();
 
@@ -158,9 +166,11 @@ void render(oe::RenderEvent)
 void resize(const oe::ResizeEvent& event)
 {
 	glm::mat4 pr_matrix = glm::ortho(-20.0f * event.aspect, 20.0f * event.aspect, 20.0f, -20.0f);
-	shader->bind();
-	shader->setProjectionMatrix(pr_matrix);
-	shader->setTexture(true);
+	shader_fill->setProjectionMatrix(pr_matrix);
+	shader_fill->setTexture(true);
+	shader_lines->setProjectionMatrix(pr_matrix);
+	shader_lines->setTexture(false);
+	shader_lines->setColor(oe::colors::black);
 }
 
 // update event 30 times per second
@@ -212,10 +222,11 @@ void gui()
 	gui_manager = new oe::gui::GUI(window);
 	{
 		oe::gui::TextPanel::info_t tp_info;
-		tp_info.font_size = 22;
 		tp_info.widget_info.align_parent = oe::alignments::top_left;
 		tp_info.widget_info.align_render = oe::alignments::top_left;
 		tp_info.text = { U"placeholder", oe::colors::white };
+		tp_info.text_options.size = 22;
+		tp_info.text_options.outline_weight = 0.3f;
 		text_label = gui_manager->create(tp_info);
 	}
 	{
@@ -230,7 +241,6 @@ void gui()
 		s_info.linear_color = true;
 		s_info.slider_sprite = pack->emptySprite();
 		s_info.value_bounds = { -10.0f, 10.0f, };
-		s_info.draw_value = true;
 		auto slider = gui_manager->create(s_info);
 
 		using event_t = oe::gui::fSliderInput::use_event_t;
@@ -286,7 +296,8 @@ void init()
 	engine.blending();
 
 	// shader
-	shader = new oe::asset::DefaultShader();
+	shader_fill = new oe::asset::DefaultShader(oe::polygon_mode::fill);
+	shader_lines = new oe::asset::DefaultShader(oe::polygon_mode::lines);
 
 	// sprites
 	pack = new oe::graphics::SpritePack();
@@ -306,7 +317,8 @@ void cleanup()
 	text_label.reset();
 	delete gui_manager;
 	delete pack;
-	delete shader;
+	delete shader_fill;
+	delete shader_lines;
 	delete world;
 
 	window.reset();

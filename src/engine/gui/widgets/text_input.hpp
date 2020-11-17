@@ -50,23 +50,20 @@ namespace oe::gui
 			using widget_t = BasicTextInput;
 			
 			// characters
-			size_t max_characters                                        = std::numeric_limits<size_t>::max();
-			std::basic_string<char_type> initial_value                   = {};
-			std::basic_string<char_type> placeholder                     = {};
-			std::basic_string_view<char_type> whitelist                  = {};
-			std::basic_string_view<char_type> blacklist                  = {};
-			bool allow_newline                                           = false;
+			size_t                                          max_characters = std::numeric_limits<size_t>::max();
+			std::basic_string<char_type>                     initial_value = {};
+			std::basic_string<char_type>                       placeholder = {};
+			std::basic_string_view<char_type>                    whitelist = {};
+			std::basic_string_view<char_type>                    blacklist = {};
+			bool                                             allow_newline = false;
 			// visuals
-			glm::vec2 align_text                                         = oe::alignments::center_center;
-			std::function<void(std::basic_string<char_type>&)> formatter = &default_formatter;
-			uint16_t font_size                                           = 16;
-			oe::utils::FontFile font_file                                = {}; // empty for gui default
-			oe::color background_color                                              = oe::colors::dark_grey;
-			oe::color selection_color                                    = { 0.5f, 0.5f, 1.0f, 0.4f };
-			oe::color default_text_color                                 = oe::colors::white;
-			const oe::graphics::Sprite* sprite                           = nullptr;
+			std::function<void(std::basic_string<char_type>&)> text_format = &default_formatter;
+			TextOptions                                       text_options = {};
+			oe::color                                     background_color = oe::colors::dark_grey;
+			oe::color                                      selection_color = { 0.5f, 0.5f, 1.0f, 0.4f };
+			const oe::graphics::Sprite*                             sprite = nullptr;
 			// base
-			Widget::info_t widget_info                                   = { { 100, 100 }, { 3, 3 }, oe::alignments::center_center, oe::alignments::center_center };
+			Widget::info_t                                     widget_info = {};
 		
 
 

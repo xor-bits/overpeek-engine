@@ -37,9 +37,11 @@ namespace oe::gui
 		{
 			using widget_t = ColorPicker;
 
-			bool preview                        = true;
-			bool alpha                          = true;
-			ColorInput::info_t color_input_info = { oe::colors::red, 2, 14, {}, oe::colors::dark_grey, nullptr, input_type::slider, false, close_fn::never, open_fn::never, { { 200, 225 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center } };
+			// visuals
+			bool                        preview = true;
+			bool                          alpha = true;
+			// base
+			ColorInput::info_t color_input_info = {};
 		};
 	
 	private:

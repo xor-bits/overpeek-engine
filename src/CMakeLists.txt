@@ -169,6 +169,7 @@ set(source_list ${source_list}
 	"engine/utility/extra.hpp"
 	"engine/utility/fileio.cpp"
 	"engine/utility/fileio.hpp"
+	"engine/utility/font_file.hpp"
 	"engine/utility/formatted_error.hpp"
 	"engine/utility/gameloop.cpp"
 	"engine/utility/gameloop.hpp"

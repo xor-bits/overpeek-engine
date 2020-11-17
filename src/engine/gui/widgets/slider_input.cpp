@@ -37,11 +37,8 @@ namespace oe::gui
 	{
 		if(enabled)
 		{
-			if (get_info().draw_value)
-			{
-				label_quad = m_gui_manager.getRenderer()->create();
-				value_label = new oe::graphics::u32TextLabel(m_gui_manager.getFont(get_info().font_file), get_info().font_size);
-			}
+			label_quad = m_gui_manager.getRenderer()->create();
+			value_label = new oe::graphics::u32TextLabel(m_gui_manager.getFont(get_info().text_options.font), get_info().text_options.size);
 			quad_knob = m_gui_manager.getRenderer()->create();
 			if (!get_info().linear_color)
 			{
@@ -57,11 +54,8 @@ namespace oe::gui
 		}
 		else
 		{
-			if (get_info().draw_value)
-			{
-				label_quad.reset();
-				delete value_label;
-			}
+			label_quad.reset();
+			delete value_label;
 			quad_knob.reset();
 			if (!get_info().linear_color)
 			{
@@ -193,15 +187,17 @@ namespace oe::gui
 		}
 
 		// value
-		if (get_info().draw_value)
+		const auto& text_options = get_info().text_options;
+		label_quad->toggle(text_options.enabled);
+		if (text_options.enabled)
 		{
 			const std::u32string s = get_rendered_label();
-			value_label->generate({ s, oe::colors::white }, m_gui_manager.getWindow(), { 0.0f, 0.0f, 0.0f, 0.2f });
+			value_label->generate({ s, text_options.initial_text_color }, m_gui_manager.getWindow(), text_options.background_color, text_options.weight, text_options.outline_weight, text_options.anti_alias, text_options.outline_color);
 			const glm::ivec2 size = value_label->getSize();
 			const glm::ivec2 position =
 				+ m_render_position
-				+ oe::alignmentOffset(m_info.size, oe::alignments::center_center)
-				- oe::alignmentOffset(size, oe::alignments::center_center);
+				+ oe::alignmentOffset(m_info.size, text_options.align)
+				- oe::alignmentOffset(size, text_options.align);
 
 			label_quad->setPosition(static_cast<glm::vec2>(position));
 			label_quad->setZ(m_z + 0.075f);

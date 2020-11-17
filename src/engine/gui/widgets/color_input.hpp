@@ -50,20 +50,29 @@ namespace oe::gui
 		{
 			using widget_t = ColorInput;
 
-			value_t initial_color              = oe::colors::red;
-			uint8_t draw_value                 = 2; // (false/0) = no draw, (true/1) = draw 0.0-1.0, 2 = draw 0-256
-			uint16_t font_size                 = 14;
-			oe::utils::FontFile font_file      = {}; // empty for gui default
-			oe::color background_color         = oe::colors::dark_grey;
-			const oe::graphics::Sprite* sprite = nullptr;
+			// value
+			value_t                                                                initial_color = oe::colors::red;
+			// visuals
+			std::function<std::string(char,std::string_view,const float&)>        text_format = &default_formatter;
+			TextOptions                                                             text_options = {};
+			oe::color                                                           background_color = oe::colors::dark_grey;
+			const oe::graphics::Sprite*                                                   sprite = nullptr;
+			// picker
+			bool                                                              popup_color_picker = true;
+			close_fn                                                                 popup_close = close_fn::leave_bbox;
+			open_fn                                                                   popup_open = open_fn::click_in;
+			// io
+			input_type                                                             primary_input = input_type::slider;
+			// base
+			Widget::info_t                                                           widget_info = {};
+			
 
-			input_type primary_input           = input_type::slider;
-
-			bool popup_color_picker            = true;
-			close_fn popup_close               = close_fn::leave_bbox;
-			open_fn popup_open                 = open_fn::click_in;
-
-			Widget::info_t widget_info         = { { 200, 100 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
+		
+			//
+			[[nodiscard]] static inline std::string default_formatter(char c, std::string_view /* c_name */, const float& c_val)
+			{
+				return fmt::format("{}:{:.1f}", c, c_val);
+			}
 		};
 		
 	public:

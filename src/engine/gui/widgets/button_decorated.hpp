@@ -25,17 +25,16 @@ namespace oe::gui
 		struct info_t
 		{
 			using widget_t = DecoratedButton;
-
-			oe::utils::color_string<char32_t> text             = {{ U"Button", oe::colors::white }};
-			uint16_t text_font_size                            = 28;
-			std::string text_font_path                         = ""; // empty for gui default
 			
-			glm::ivec2 padding                                 = { 8, 8 };
-			bool autoresize                                    = false;
-			oe::color btn_color                                = colors::dark_grey;
-			const oe::graphics::Sprite* sprite                 = nullptr;
-
-			Button::info_t button_info                         = {};
+			// visuals
+			oe::utils::color_string<char32_t> text = {{ U"Button", oe::colors::white }};
+			TextOptions               text_options = {};
+			glm::ivec2                     padding = { 8, 8 };
+			bool                        autoresize = false; // autoresize according to the text panel
+			oe::color                    btn_color = colors::dark_grey;
+			const oe::graphics::Sprite*     sprite = nullptr;
+			// base
+			Button::info_t             button_info = {};
 		};
 	
 	public:

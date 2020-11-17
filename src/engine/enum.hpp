@@ -9,6 +9,8 @@
 #include <gsl/span>
 #include <gcem.hpp>
 
+#include "engine/utility/font_file.hpp"
+
 
 
 namespace oe {
@@ -487,6 +489,20 @@ namespace oe {
 	struct FrameBufferInfo
 	{
 		glm::uvec2 size = { 1, 1 };
+	};
+
+	struct TextOptions
+	{
+		bool                 enabled = true;
+		oe::utils::FontFile     font = {};
+		glm::vec2              align = oe::alignments::center_center;
+		oe::color initial_text_color = oe::colors::white;
+		oe::color   background_color = oe::colors::transparent;
+		uint16_t                size = 16;
+		float                 weight = 0.25f;
+		oe::color      outline_color = oe::colors::black;
+		float         outline_weight = 0.3f;
+		float             anti_alias = 0.2f;
 	};
 
 	// events

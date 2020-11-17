@@ -25,6 +25,7 @@
 #include "utility/random.hpp"
 #include "utility/gameloop.hpp"
 #include "utility/fileio.hpp"
+#include "utility/font_file.hpp"
 #include "utility/formatted_error.hpp"
 #include "utility/extra.hpp"
 #include "utility/connect_guard.hpp"

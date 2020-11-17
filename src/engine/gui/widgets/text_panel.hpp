@@ -17,12 +17,11 @@ namespace oe::gui
 		{
 			using widget_t = TextPanel;
 
-			oe::utils::color_string<char32_t> text     = { U"placeholder", oe::colors::white };
-			uint16_t font_size                         = 16;
-			oe::utils::FontFile font_file              = {}; // empty for gui default
-			oe::color background_color                 = oe::colors::transparent;
-		
-			Widget::Info widget_info                   = { { 0, 0 }, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center };
+			// visuals
+			oe::utils::color_string<char32_t> text = { U"placeholder", oe::colors::white };
+			TextOptions               text_options = {};
+			// base
+			Widget::Info               widget_info = {};
 		};
 		using info_t = Info;
 		

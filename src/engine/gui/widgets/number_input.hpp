@@ -19,20 +19,19 @@ namespace oe::gui
 		{
 			using widget_t = BasicNumberInput;
 
-			glm::vec2 align_text                                   = oe::alignments::center_center;
-			T initial_value                                        = { 0 };
-			T stepsize                                             = { 1 };
-			glm::vec<2,T> value_bounds                             = { std::numeric_limits<T>::min(), std::numeric_limits<T>::max() };
-			std::function<std::string(const value_t&)> draw_format = &default_formatter; // only when keyboard input is disabled
-			uint16_t font_size                                     = 16;
-			oe::utils::FontFile font_file                          = {}; // empty for gui default
-			oe::color background_color                             = oe::colors::dark_grey;
-			oe::color default_text_color                           = oe::colors::white;
-			const oe::graphics::Sprite* sprite                     = nullptr;
-
-			interact_type_flags interact_flags                     = interact_type_flags::cursor | interact_type_flags::keyboard | interact_type_flags::scroll;
-
-			Widget::info_t widget_info                             = { { 100, 100 }, { 3, 3 }, oe::alignments::center_center, oe::alignments::center_center };
+			// value
+			T                                        initial_value = { 0 };
+			T                                             stepsize = { 1 };
+			glm::vec<2,T>                             value_bounds = { std::numeric_limits<T>::min(), std::numeric_limits<T>::max() };
+			// visuals
+			std::function<std::string(const value_t&)> text_format = &default_formatter; // only when keyboard input is disabled
+			TextOptions                               text_options = {};
+			oe::color                             background_color = oe::colors::dark_grey;
+			const oe::graphics::Sprite*                     sprite = nullptr;
+			// io
+			interact_type_flags                     interact_flags = interact_type_flags::cursor | interact_type_flags::keyboard | interact_type_flags::scroll;
+			// base
+			Widget::info_t                             widget_info = {};
 		
 			//
 			[[nodiscard]] static inline std::string default_formatter(const T& val)
@@ -89,16 +88,13 @@ namespace oe::gui
 		[[nodiscard]] static TextInput::info_t getTextInputInfo(const info_t& number_input_info) noexcept
 		{
 			TextInput::info_t info;
-			info.align_text = number_input_info.align_text;
-			info.font_size = number_input_info.font_size;
-			info.font_file = number_input_info.font_file;
+			info.text_options = number_input_info.text_options;
 			info.background_color = number_input_info.background_color;
-			info.default_text_color = number_input_info.default_text_color;
 			info.sprite = number_input_info.sprite;
 			info.widget_info = number_input_info.widget_info;
 			info.whitelist = "+-.0123456789";
 			info.initial_value = fmt::format("{}", number_input_info.initial_value);
-			info.formatter = [](std::string& value){
+			info.text_format = [](std::string& value){
 				bool first = true;
 				bool dot = false;
 				value.erase(std::remove_if(value.begin(), value.end(), pick_formatter(first, dot)), value.end());
@@ -135,7 +131,7 @@ namespace oe::gui
 		{
 			if(!static_cast<bool>(m_number_input_info.interact_flags & interact_type_flags::keyboard))
 			{
-				TextInput::m_value = m_number_input_info.draw_format(m_value);
+				TextInput::m_value = m_number_input_info.text_format(m_value);
 				TextInput::m_selected = false;
 			}
 			else

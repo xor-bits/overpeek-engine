@@ -165,23 +165,6 @@ namespace oe::utils
 		template<typename T, typename ... Args> inline T read(const Args&& ... args) const { return FileIOInternal<T>::read(m_current_path, args...); }
 		template<typename T, typename ... Args> inline void write(const T& d, const Args&& ... args) const { return FileIOInternal<T>::write(m_current_path, d, args...); }
 	};
-	
-	class FontFile
-	{
-	private:
-		size_t id;
-
-	public:
-		template<typename T, typename std::enable_if_t<!std::is_same_v<T, oe::utils::FileIO>>>
-		FontFile(T&& path) : FontFile(oe::utils::FileIO(std::forward<T>(path))) {}
-		FontFile(const oe::utils::FileIO& path);
-		FontFile();
-
-		[[nodiscard]] constexpr inline size_t getID() const noexcept { return id; }
-		[[nodiscard]] const oe::utils::byte_string& fontFile() const;
-		[[nodiscard]] const static oe::utils::byte_string& getFontFile(const size_t id);
-		[[nodiscard]] constexpr inline bool operator==(const FontFile &other) const noexcept { return id == other.id; }
-	};
 }
 
 namespace std

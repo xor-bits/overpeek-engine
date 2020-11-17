@@ -25,11 +25,11 @@ namespace oe::gui
 		{
 			using widget_t = Widget;
 
-			glm::ivec2 size                    = { 50, 50 };
-			glm::ivec2 offset_position         = { 0, 0 };
-			glm::vec2 align_parent             = oe::alignments::center_center;
-			glm::vec2 align_render             = oe::alignments::center_center;
-			bool toggled                       = true;
+			glm::ivec2            size = { 50, 50 };
+			glm::ivec2 offset_position = { 0, 0 };
+			glm::vec2     align_parent = oe::alignments::center_center;
+			glm::vec2     align_render = oe::alignments::center_center;
+			bool               toggled = true;
 		};
 		using info_t = Info;
 		
