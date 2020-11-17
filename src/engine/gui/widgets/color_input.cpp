@@ -57,6 +57,11 @@ namespace oe::gui
 
 		info.common.fill(common);
 
+		info.common[0].slider_lcolor = oe::colors::red;
+		info.common[1].slider_lcolor = oe::colors::green;
+		info.common[2].slider_lcolor = oe::colors::blue;
+		info.common[3].slider_lcolor = oe::colors::black;
+
 		for (size_t i = 0; i < vec_size; i++)
 			info.common[i].text_format = [i, text_format = color_input_info.text_format](const float& val) { return oe::utils::convertUTF<std::u32string>(text_format(channel_names[i], channel_full_names[i], val)); };
 		
@@ -91,6 +96,11 @@ namespace oe::gui
 
 		info.common.fill(common);
 
+		info.common[0].background_color = oe::colors::red;
+		info.common[1].background_color = oe::colors::green;
+		info.common[2].background_color = oe::colors::blue;
+		info.common[3].background_color = oe::colors::black;
+
 		for (size_t i = 0; i < vec_size; i++)
 			info.common[i].text_format = [i, text_format = color_input_info.text_format](const float& val) { return text_format(channel_names[i], channel_full_names[i], val); };
 
@@ -118,6 +128,7 @@ namespace oe::gui
 		{
 			auto vec_info = create_vec_slider_info(color_input_info);
 			auto vec = Widget::create(vec_info, m_value);
+			m_info.size = vec->m_info.size;
 			
 			for (size_t i = 0; i < vec_size; i++)
 			{
@@ -125,29 +136,23 @@ namespace oe::gui
 				vec->m_elements[i]->m_slider_info.knob_size = { min_size, min_size };
 			}
 
-			vec->m_elements[0]->m_slider_info.slider_lcolor = oe::colors::red;
-			vec->m_elements[1]->m_slider_info.slider_lcolor = oe::colors::green;
-			vec->m_elements[2]->m_slider_info.slider_lcolor = oe::colors::blue;
-			vec->m_elements[3]->m_slider_info.slider_lcolor = oe::colors::black;
-
 			for (size_t i = 0; i < 4; i++)
+			{
 				m_cg_vec_use[i].connect<BasicSliderInputUseEvent<float>>(vec->m_elements[i]->m_dispatcher, use_event);
-			for (size_t i = 0; i < 4; i++)
 				m_cg_vec_hover[i].connect<BasicSliderInputHoverEvent<float>>(vec->m_elements[i]->m_dispatcher, hover_event);
-
-			m_info.size = vec->m_info.size;
+			}
 		}
 		else if(m_color_input_info.primary_input == input_type::dragger)
 		{
 			auto vec_info = create_vec_number_info(color_input_info);
 			auto vec = Widget::create(vec_info, m_value);
-
-			for (size_t i = 0; i < 4; i++)
-				m_cg_vec_use[i].connect<BasicSliderInputUseEvent<float>>(vec->m_elements[i]->m_dispatcher, use_event);
-			for (size_t i = 0; i < 4; i++)
-				m_cg_vec_hover[i].connect<BasicSliderInputHoverEvent<float>>(vec->m_elements[i]->m_dispatcher, hover_event);
-
 			m_info.size = vec->m_info.size;
+
+			for (size_t i = 0; i < 4; i++)
+			{
+				m_cg_vec_use[i].connect<BasicSliderInputUseEvent<float>>(vec->m_elements[i]->m_dispatcher, use_event);
+				m_cg_vec_hover[i].connect<BasicSliderInputHoverEvent<float>>(vec->m_elements[i]->m_dispatcher, hover_event);
+			}
 		}
 		else
 			m_info.size.x = 4;
