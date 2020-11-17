@@ -38,6 +38,7 @@ struct GenericScript : public oe::ecs::Behaviour
 		bodydef.gravityScale = 1.0f;
 		bodydef.position = { pos.x, pos.y };
 		bodydef.type = body_type;
+		// bodydef.bullet = (body_type == b2BodyType::b2_dynamicBody);
 		bodydef.angle = angle;
 		b2PolygonShape polygonshape = {};
 		polygonshape.SetAsBox(size.x / 2.0f, size.y / 2.0f);
@@ -324,7 +325,7 @@ int main(int argc, char* argv[])
 	// window
 	oe::WindowInfo window_info;
 	window_info.title = "Entities";
-	window_info.multisamples = 4;
+	window_info.multisamples = 0; // multisample will break the window transparency, possibly a bug with glfw 3.3.2?
 	window_info.transparent = true;
 	// window_info.borderless = true;
 	window = oe::graphics::Window(window_info);
