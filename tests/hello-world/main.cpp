@@ -96,7 +96,7 @@ Application::Application()
 	, shader(oe::polygon_mode::fill)
 	, renderer()
 	, font(64, true)
-	, label(font, 32)
+	, label(font, 64)
 {
 	// window, shader, etc. default constructors wont open up windows or anything
 	// they just construct shared_ptr with nullptr
@@ -110,7 +110,7 @@ Application::Application()
 	cg_on_resize.connect<oe::ResizeEvent, &Application::on_resize>(window, this);
 
 	// submit something for the renderer
-	label.generate({{ U"Hello\n", oe::colors::red }, { U"World", oe::colors::blue }}, window);
+	label.generate({{ U"Hello\n", oe::colors::red }, { U"World", oe::colors::blue }}, window, oe::colors::transparent, 0.25f, 0.0f);
 	std::unique_ptr<oe::graphics::Quad> quad = renderer.create();
 	quad->setPosition({ 0.0f, 0.0f });
 	quad->setSize({ 0.5f * label.getAspect(), 0.5f });

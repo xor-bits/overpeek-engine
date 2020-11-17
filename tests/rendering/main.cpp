@@ -124,7 +124,7 @@ void init(int argc, char** argv)
 	// auto close ctest after 2 seconds
 	std::thread ctest_close_thread;
 	for (size_t i = 0; i < argc; i++)
-		if(std::strcmp(argv[i], "--ctest") != 0)
+		if(std::strcmp(argv[i], "--ctest") == 0)
 		{
 			ctest_close_thread = std::thread([](){
 				// test for 2 seconds

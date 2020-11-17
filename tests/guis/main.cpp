@@ -241,7 +241,7 @@ WWWWWWWWWW
 yyyyyyyyyyyyy
 |||||||||||||||||||)";
 		text_input_info.widget_info = { { 200, 80 }, { 0, 0 }, oe::alignments::bottom_right, oe::alignments::bottom_right };
-		text_input_info.font_size = 16;
+		text_input_info.text_options.size = 16;
 		text_input_info.sprite = pack->emptySprite();
 		textbox = gui->create(text_input_info);
 	}
@@ -251,10 +251,9 @@ yyyyyyyyyyyyy
 		vecslider_info.auto_size = true;
 		oe::gui::fSliderInput::info_t common;
 		common.slider_sprite = pack->emptySprite();
-		common.draw_value = true;
 		common.value_bounds = { -1.0f, 1.0f };
 		common.initial_value = 1.0f;
-		common.font_size = 16;
+		common.text_options.size = 16;
 		vecslider_info.common.fill(common);
 		vecslider_info.common[0].value_bounds *= glm::pi<float>();
 		vecslider_info.common[0].initial_value = 0.0f;
@@ -271,7 +270,7 @@ yyyyyyyyyyyyy
 			button_info.button_info = {{ { 60, 24 }, { 5, 0 }, oe::alignments::center_right, oe::alignments::center_left }};
 			button_info.sprite = pack->emptySprite();
 			button_info.text = { U"log", oe::colors::white };
-			button_info.text_font_size = 20;
+			button_info.text_options.size = 20;
 			auto button = checkbox->create(button_info);
 
 			button->create_event_cg().connect<oe::gui::ButtonUseEvent>(button->m_dispatcher, [&](const oe::gui::ButtonUseEvent& e) {
@@ -288,7 +287,7 @@ yyyyyyyyyyyyy
 		color_picker_info.sprite = pack->emptySprite();
 		color_picker_info.popup_color_picker = true;
 		color_picker_info.primary_input = oe::gui::input_type::slider;
-		color_picker_info.font_size = 12;
+		color_picker_info.text_options.size = 16;
 		gui->create(color_picker_info, color);
 	}
 	{ // color picker 2
@@ -297,7 +296,7 @@ yyyyyyyyyyyyy
 		color_picker_info.sprite = pack->emptySprite();
 		color_picker_info.popup_color_picker = true;
 		color_picker_info.primary_input = oe::gui::input_type::dragger;
-		color_picker_info.font_size = 12;
+		color_picker_info.text_options.size = 12;
 		gui->create(color_picker_info, color);
 	}
 	{ // color picker 3
@@ -306,7 +305,6 @@ yyyyyyyyyyyyy
 		color_picker_info.sprite = pack->emptySprite();
 		color_picker_info.popup_color_picker = true;
 		color_picker_info.primary_input = oe::gui::input_type::none;
-		color_picker_info.font_size = 12;
 		gui->create(color_picker_info, color);
 	}
 	{
@@ -315,15 +313,15 @@ yyyyyyyyyyyyy
 		number_input_info.value_bounds = { std::numeric_limits<uint32_t>::min(), std::numeric_limits<uint32_t>::max() };
 		number_input_info.widget_info = { { 50, 20 }, { 0, 0 }, oe::alignments::top_center, oe::alignments::top_center };
 		number_input_info.sprite = pack->emptySprite();
-		number_input_info.font_size = 16;
+		number_input_info.text_options.size = 16;
 		gui->create(number_input_info);
 	}
 	{
 		oe::gui::TextPanel::info_t text_panel_info;
 		text_panel_info.widget_info = { { 0, 0 }, { 0, 0 }, oe::alignments::top_left, oe::alignments::top_left };
 		text_panel_info.text = { U"placeholder", oe::colors::white };
-		text_panel_info.font_file = oe::utils::FontFile{ oe::asset::Fonts::roboto_italic() };
-		text_panel_info.font_size = 24;
+		text_panel_info.text_options.font = oe::utils::FontFile{ oe::asset::Fonts::roboto_italic() };
+		text_panel_info.text_options.size = 24;
 		/* text_panel_info.background_color = oe::colors::translucent_black; */
 		textpanel = gui->create(text_panel_info);
 
@@ -334,6 +332,7 @@ yyyyyyyyyyyyy
 			graph_info.bg_panel_info.widget_info.align_parent = oe::alignments::bottom_left;
 			graph_info.bg_panel_info.widget_info.align_render = oe::alignments::top_left;
 			graph_info.bg_panel_info.sprite = pack->emptySprite();
+			graph_info.bg_panel_info.color_tint = oe::colors::translucent_black;
 			graph_info.graph_color = oe::colors::green;
 			graph_fps = textpanel->create(graph_info);
 			
@@ -352,7 +351,7 @@ yyyyyyyyyyyyy
 	} */
 
 	tpi = {};
-	tpi.font_size = 20;
+	tpi.text_options.size = 20;
 	tpi.widget_info.align_parent = oe::alignments::top_left;
 	tpi.widget_info.align_render = oe::alignments::top_left;
 	tpi.text = { U"placeholder", oe::colors::white };
