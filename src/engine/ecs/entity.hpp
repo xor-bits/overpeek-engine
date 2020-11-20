@@ -61,7 +61,18 @@ namespace oe::ecs
 		template<typename T>
 		static void on_destroy(entt::registry& r, entt::entity e)
 		{
-			r.get<T>(e).on_cleanup();
+			r.get<T>(e)->on_cleanup();
+		}
+
+		template<typename T>
+		void connect_destroy()
+		{
+			static bool connect_once = false;
+			
+			if(!connect_once) connect_once = [this] { // will be initialized exactly once for every component type
+				m_world->m_scene.on_destroy<T>().template connect<&Entity::on_destroy<T>>();
+				return true;
+			}();
 		}
 
 		// set or reset script component
@@ -73,13 +84,7 @@ namespace oe::ecs
 			c.m_world = m_world;
 			c.m_entity = m_entity;
 			c.on_init(args...);
-			
-			static bool connect_once = false;
-			
-			if(!connect_once) connect_once = [&] { // will be initialized exactly once for every component type
-				m_world->m_scene.on_destroy<T>().template connect<&Entity::on_destroy<T>>();
-				return true;
-			}();
+			connect_destroy<std::unique_ptr<T>>();
 			
 			return c;
 		}
@@ -107,8 +112,6 @@ namespace oe::ecs
 
 	struct Behaviour : public Entity
 	{
-		Behaviour() = default;
-
-		virtual void on_cleanup() {}
+		virtual void on_cleanup() {};
 	};
 }

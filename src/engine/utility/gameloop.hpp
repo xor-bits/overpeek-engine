@@ -191,8 +191,8 @@ namespace oe::utils
 			if(iter == m_update_systems.end())
 				return 0.0f;
 			
-			auto cast_to_float_dur = [](auto dur){ return std::chrono::duration_cast<std::chrono::duration<float, std::nano>>(dur); };
-			return cast_to_float_dur(iter->second->m_update_time_target).count() / cast_to_float_dur(iter->second->m_update_time_target).count();
+			auto cast_to_float_dur = [](auto dur){ return std::chrono::duration_cast<std::chrono::duration<float>>(dur).count(); };
+			return cast_to_float_dur(iter->second->m_update_time_lag) / cast_to_float_dur(iter->second->m_update_time_target);
 		}
 
 		inline entt::dispatcher& getDispatcher() { return dispatcher; }

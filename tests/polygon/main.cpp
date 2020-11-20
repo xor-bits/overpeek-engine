@@ -2,8 +2,6 @@
 
 #include <mapbox/earcut.hpp>
 
-#include <memory_resource>
-
 
 
 namespace mapbox::util
