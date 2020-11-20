@@ -102,7 +102,7 @@ namespace oe::gui
 				if constexpr(glm_array)
 					type_name = glm::value_ptr(m_value);
 				else
-					type_name = m_value[0];
+					type_name = m_value.data();
 
 				// widget
             	vec_info.common[i].widget_info.align_parent = oe::alignments::top_left;

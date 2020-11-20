@@ -125,7 +125,7 @@ namespace oe::gui
 		
 		void set_rendered_value(float val) const override
 		{
-			m_value = oe::utils::map(val, static_cast<value_t>(0.0), static_cast<value_t>(1.0), m_slider_info.value_bounds.x, m_slider_info.value_bounds.y);
+			m_value = oe::utils::map<value_t>(val, static_cast<value_t>(0.0), static_cast<value_t>(1.0), m_slider_info.value_bounds.x, m_slider_info.value_bounds.y);
 		}
 		
 		[[nodiscard]] std::u32string get_rendered_label() const override
