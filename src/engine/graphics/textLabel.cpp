@@ -176,7 +176,6 @@ namespace oe::graphics {
 				// advancing
 				advance += glm::vec2(glyph->advance.x, 0.0f) * size;
 				// kerning
-				spdlog::info("font.avgSize().x: {} - glyph->size.x: {}", font.avgSize().x, glyph->size.x);
 				advance.x += font.getKerning(codepoint, codepoint_next) * size.x + advance_padding * font.avgSize().x * size.x;
 			}
 		}

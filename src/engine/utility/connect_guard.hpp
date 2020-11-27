@@ -40,9 +40,9 @@ namespace oe::utils
 			constexpr static auto disconnector();
 		};
 	private:
-		std::function<void()> m_connector_fn;
-		std::function<void()> m_disconnector_fn;
-		std::unique_ptr<connect_guard::data_t> m_data;
+		std::function<void()> m_connector_fn{};
+		std::function<void()> m_disconnector_fn{};
+		std::unique_ptr<connect_guard::data_t> m_data{};
 	
 	public:
 		connect_guard() noexcept = default;

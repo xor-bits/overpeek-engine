@@ -200,7 +200,7 @@ endif()
 if (MSVC)
 	target_link_libraries(${target_name} PRIVATE "Ws2_32") # required by enet
 	target_link_libraries(${target_name} PRIVATE "Winmm")  # required by enet
-	target_compile_options(${target_name} PRIVATE "/W4")
+	target_compile_options(${target_name} PRIVATE "/W4" "/MP")
 	if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
 		string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 	else()
