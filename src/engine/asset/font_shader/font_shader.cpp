@@ -37,13 +37,11 @@ namespace oe::asset {
 	void FontShader::bind() const
 	{
 		m_shader->bind();
-		oe::Engine::getSingleton().polygonMode(oe::polygon_mode::fill);
 	}
 
 	void FontShader::unbind() const
 	{
 		m_shader->unbind();
-		oe::Engine::getSingleton().polygonMode(oe::polygon_mode::fill);
 	}
 
 	void FontShader::setProjectionMatrix(const glm::mat4& pr_mat)

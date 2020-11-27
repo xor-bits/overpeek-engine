@@ -93,7 +93,7 @@ Application::Application()
 #if CUSTOM_SHADER_EXAMPLE
 	, custom_shader(gen_shader_info())
 #endif
-	, shader(oe::polygon_mode::fill)
+	, shader()
 	, renderer()
 	, font(64, true)
 	, label(font, 64)
@@ -110,7 +110,10 @@ Application::Application()
 	cg_on_resize.connect<oe::ResizeEvent, &Application::on_resize>(window, this);
 
 	// submit something for the renderer
-	label.generate({{ U"Hello\n", oe::colors::red }, { U"World", oe::colors::blue }}, window, oe::colors::transparent, 0.25f, 0.0f);
+	oe::TextOptions text_options{};
+	text_options.weight = 0.25f;
+	text_options.outline_weight = 0.0f;
+	label.generate({{ U"Hello\n", oe::colors::red }, { U"World", oe::colors::blue }}, text_options);
 	std::unique_ptr<oe::graphics::Quad> quad = renderer.create();
 	quad->setPosition({ 0.0f, 0.0f });
 	quad->setSize({ 0.5f * label.getAspect(), 0.5f });

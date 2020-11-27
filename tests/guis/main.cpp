@@ -16,11 +16,11 @@ std::shared_ptr<oe::gui::Vec<oe::gui::SliderInput, 4>> quat_slider;
 std::shared_ptr<oe::gui::Graph> graph_fps;
 std::shared_ptr<oe::gui::Graph> graph_ups;
 std::array<float, 200> perf_log_fps;
-std::array<float, 50> perf_log_ups;
+std::array<float, 200> perf_log_ups;
 
 oe::graphics::Window window;
-oe::asset::DefaultShader* shader_fill;
-oe::asset::DefaultShader* shader_lines;
+constexpr oe::RasterizerInfo line_rasterizer{ oe::modes::enable, oe::depth_functions::less_than_or_equal, oe::culling_modes::back, oe::polygon_mode::lines };
+oe::asset::DefaultShader* shader;
 oe::graphics::PrimitiveRenderer renderer;
 oe::graphics::SpritePack* pack;
 const oe::graphics::Sprite* sprite;
@@ -144,11 +144,11 @@ void cube()
 	ml_matrix = glm::mat4_cast(cube_rotation);
 
 	// render
-	shader_lines->bind();
-	shader_lines->setModelMatrix(ml_matrix);
-	shader_lines->setColor(color);
+	oe::Engine::getSingleton().setRasterizerInfo(line_rasterizer);
+	shader->bind();
+	shader->setModelMatrix(ml_matrix);
+	shader->setColor(color);
 	renderer->render();
-	shader_lines->unbind();
 }
 
 // render event
@@ -168,15 +168,10 @@ void resize(const oe::ResizeEvent& event)
 	glm::mat4 pr_matrix = glm::perspectiveFov(30.0f, (float)event.framebuffer_size.x, (float)event.framebuffer_size.y, 0.0f, 1000.0f);
 	glm::mat4 vw_matrix = glm::lookAt(glm::vec3(0.0f, 0.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	
-	shader_fill->bind();
-	shader_fill->setTexture(false);
-	shader_fill->setProjectionMatrix(pr_matrix);
-	shader_fill->setViewMatrix(vw_matrix);
-
-	shader_lines->bind();
-	shader_lines->setTexture(false);
-	shader_lines->setProjectionMatrix(pr_matrix);
-	shader_lines->setViewMatrix(vw_matrix);
+	shader->bind();
+	shader->setTexture(false);
+	shader->setProjectionMatrix(pr_matrix);
+	shader->setViewMatrix(vw_matrix);
 }
 
 // update 30 times per second
@@ -373,17 +368,13 @@ int main(int argc, char** argv)
 	oe::WindowInfo window_config = {};
 	window_config.title = "GUIs";
 	window_config.multisamples = 2;
+	window_config.swap_interval = 0;
 	window = oe::graphics::Window(window_config);
 
 	// connect events
 	window->connect_listener<oe::ResizeEvent, &resize>();
 	window->connect_listener<oe::RenderEvent, &render>();
 	window->connect_listener<oe::UpdateEvent<30>, &update_30>();
-
-	// instance settings
-	engine.swapInterval(0);
-	engine.culling(oe::culling_modes::neither);
-	engine.blending(oe::modes::enable);
 
 	// renderer
 	oe::RendererInfo renderer_info = {};
@@ -395,8 +386,7 @@ int main(int argc, char** argv)
 	initCube();
 	
 	// shader
-	shader_fill = new oe::asset::DefaultShader(oe::polygon_mode::fill);
-	shader_lines = new oe::asset::DefaultShader(oe::polygon_mode::lines);
+	shader = new oe::asset::DefaultShader();
 
 	// spritepack
 	auto img = oe::asset::TextureSet::oe_logo_img;
@@ -442,8 +432,7 @@ int main(int argc, char** argv)
 	graph_ups.reset();
 	delete gui;
 	delete pack;
-	delete shader_fill;
-	delete shader_lines;
+	delete shader;
 
 	renderer.reset();
 	window.reset();

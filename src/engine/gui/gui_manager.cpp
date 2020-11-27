@@ -17,11 +17,9 @@ namespace oe::gui
 	{
 		// renderer
 		m_renderer = new oe::graphics::Renderer(renderer_primitive_count);
-		m_line_renderer = new oe::graphics::Renderer(renderer_primitive_count);
 
 		// shader
-		m_shader_fill = new oe::asset::DefaultShader(oe::polygon_mode::fill);
-		m_shader_lines = new oe::asset::DefaultShader(oe::polygon_mode::lines);
+		m_shader = new oe::asset::DefaultShader();
 
 		Widget::Info widget_info = { static_cast<glm::ivec2>(m_window->getSize()) - glm::ivec2(2 * border), { border, border }, oe::alignments::top_left, oe::alignments::top_left };
 		m_main_frame = std::make_shared<Widget>(nullptr, *this, widget_info);
@@ -46,9 +44,7 @@ namespace oe::gui
 	GUI::~GUI()
 	{
 		delete m_renderer;
-		delete m_line_renderer;
-		delete m_shader_fill;
-		delete m_shader_lines;
+		delete m_shader;
 	}
 
 	void GUI::offset(const glm::vec2& offset)
@@ -81,10 +77,8 @@ namespace oe::gui
 		m_cursor_ml_matrix = glm::translate(m_cursor_ml_matrix, -glm::vec3(m_old_render_size * (m_size_mult - 1.0f) / 2.0f, 0.0f));
 		m_cursor_ml_matrix = glm::scale(m_cursor_ml_matrix, glm::vec3(m_size_mult, 1.0f));
 
-		m_shader_fill->bind();
-		m_shader_fill->setModelMatrix(m_render_ml_matrix);
-		m_shader_lines->bind();
-		m_shader_lines->setModelMatrix(m_render_ml_matrix);
+		m_shader->bind();
+		m_shader->setModelMatrix(m_render_ml_matrix);
 	}
 
 	void GUI::clear()
@@ -95,17 +89,14 @@ namespace oe::gui
 	void GUI::render()
 	{
 		auto& engine = oe::Engine::getSingleton();
-		auto old_depth = engine.getDepth();
-		engine.depth(oe::depth_functions::less_than_or_equal);
+		oe::RasterizerInfo old_rasterizer = engine.getRasterizerInfo();
+		engine.setRasterizerInfo(m_rasterizer);
 
 		render_empty();
-
-		m_shader_fill->bind();
+		m_shader->bind();
 		m_renderer->render();
-		// m_shader_lines->bind();
-		// m_line_renderer->render();
 		
-		engine.depth(old_depth);
+		engine.setRasterizerInfo(old_rasterizer);
 	}
 
 	void GUI::render_empty()
@@ -161,12 +152,9 @@ namespace oe::gui
 
 		if (m_old_render_size == render_size) return;
 		glm::mat4 pr_matrix = glm::ortho(0.0f, render_size.x, render_size.y, 0.0f, -100000.0f, 100000.0f);
-		m_shader_fill->bind();
-		m_shader_fill->setTexture(true);
-		m_shader_fill->setProjectionMatrix(pr_matrix);
-		m_shader_lines->bind();
-		m_shader_lines->setTexture(true);
-		m_shader_lines->setProjectionMatrix(pr_matrix);
+		m_shader->bind();
+		m_shader->setTexture(true);
+		m_shader->setProjectionMatrix(pr_matrix);
 		m_old_render_size = render_size;
 		
 		m_dispatcher.trigger(event);

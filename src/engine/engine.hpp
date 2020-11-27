@@ -28,7 +28,7 @@ namespace oe {
 	public:
 		EngineInfo engine_info;
 		std::unique_ptr<oe::graphics::Instance> instance;
-		depth_functions current_depth;
+		RasterizerInfo rasterizer_info{};
 		static size_t draw_calls;
 
 	private:
@@ -48,28 +48,8 @@ namespace oe {
 		void terminate();
 		void __error(const std::string& error_msg, int line, const std::string& file);
 
-		// set blending mode
-		void blending(oe::modes mode = oe::modes::enable) const;
-
-		// set depth function or disable it
-		void depth(depth_functions func = depth_functions::always);
-		depth_functions getDepth() const;
-
-		// also known as vertical sync
-		void swapInterval(unsigned int interval = 0) const;
-
-		// stop drawing any side of primitives
-		void culling(culling_modes c = culling_modes::neither) const;
-
-		// width of all lines in pixels
-		void lineWidth(float w = 1.0f) const;
-
-		// radius of all points in pixels
-		void pointRadius(float w = 1.0f) const;
-
-		// primitive draw mode
-		void polygonMode(polygon_mode p = polygon_mode::fill) const;
-	
+		[[nodiscard]] constexpr inline const RasterizerInfo& getRasterizerInfo() const noexcept { return rasterizer_info; }
+		void setRasterizerInfo(const RasterizerInfo& i);
 	};
 
 	template <typename T> struct is_container : std::false_type {};

@@ -97,13 +97,21 @@ namespace oe {
 #endif
 	}
 
+	void Engine::setRasterizerInfo(const RasterizerInfo& i)
+	{
+		if(rasterizer_info.blend_mode != i.blend_mode)
+			instance->blending(i.blend_mode);
+		if(rasterizer_info.cull_face != i.cull_face)
+			instance->culling(i.cull_face);
+		if(rasterizer_info.depth_func != i.depth_func)
+			instance->depth(i.depth_func);
+		if(rasterizer_info.fill_mode != i.fill_mode)
+			instance->polygonMode(i.fill_mode);
+		if(rasterizer_info.line_width != i.line_width)
+			instance->lineWidth(i.line_width);
+		if(rasterizer_info.point_radius != i.point_radius)
+			instance->pointRadius(i.point_radius);
 
-	void Engine::blending(oe::modes mode) const { instance->blending(mode); }
-	void Engine::depth(depth_functions func) { current_depth = func; instance->depth(func); }
-	depth_functions Engine::getDepth() const { return current_depth; }
-	void Engine::swapInterval(unsigned int interval) const { instance->swapInterval(interval); }
-	void Engine::culling(culling_modes c) const { instance->culling(c); }
-	void Engine::lineWidth(float w) const { instance->lineWidth(w); }
-	void Engine::pointRadius(float w) const { instance->pointRadius(w); }
-	void Engine::polygonMode(polygon_mode p) const { instance->polygonMode(p); }
+		rasterizer_info = i;
+	}
 }

@@ -459,6 +459,18 @@ namespace oe {
 #endif // OE_BUILD_MODE_SHADERC
 	};
 
+	// gl rasterizer settings
+	struct RasterizerInfo
+	{
+		modes blend_mode = modes::enable;
+		depth_functions depth_func = depth_functions::always;
+		culling_modes cull_face = culling_modes::neither;
+		polygon_mode fill_mode = polygon_mode::fill;
+
+		float line_width = 1.0f;
+		float point_radius = 1.0f;
+	};
+
 	// engine create info
 	struct EngineInfo
 	{
@@ -503,6 +515,7 @@ namespace oe {
 		oe::color      outline_color = oe::colors::black;
 		float         outline_weight = 0.3f;
 		float             anti_alias = 0.2f;
+		float        advance_padding = 1.0f;
 	};
 
 	// events

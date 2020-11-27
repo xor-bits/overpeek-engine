@@ -70,6 +70,8 @@ namespace oe::graphics
 				m_sprite_pack->create(std::move(id))
 			}));
 
+			m_avg_size = ( (m_avg_size * m_avg_size_c) + glm::abs(glm::vec2(x0, y0) / (float)m_resolution) ) / (m_avg_size_c + 1.0f);
+			m_avg_size_c += 1.0f;
 			m_topmost = std::min(m_topmost, static_cast<float>(y0) / static_cast<float>(m_resolution));
 		}
 		else
@@ -101,6 +103,8 @@ namespace oe::graphics
 				m_sprite_pack->create(std::move(id))
 			}));
 
+			m_avg_size = ( (m_avg_size * m_avg_size_c) + (glm::vec2(x0, y0) / (float)m_resolution) ) / (m_avg_size_c + 1.0f);
+			m_avg_size_c += 1.0f;
 			m_topmost = std::min(m_topmost, static_cast<float>(y0) / static_cast<float>(m_resolution));
 		}
 

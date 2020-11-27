@@ -11,121 +11,57 @@
 namespace oe::asset {
 
 	constexpr char default_shader_name[] = "asset:default_shader";
-	const static std::unordered_map<oe::graphics_api, std::unordered_map<oe::polygon_mode, ShaderInfo>> default_shader_info = {
+	const static std::unordered_map<oe::graphics_api, ShaderInfo> default_shader_info = {
 		{
 			oe::graphics_api::OpenGL,
-			{
+			ShaderInfo {
+				default_shader_name,
 				{
-					oe::polygon_mode::fill,
-					ShaderInfo {
-						default_shader_name,
-						{
-							ShaderStageInfo {
-								shader_stages::vertex_shader,
-								oe::asset::AssetLoader::get().resource_string("shader/default_shader/shader.vert.glsl"),
-								{}
-							},
-							ShaderStageInfo {
-								shader_stages::fragment_shader,
-								oe::asset::AssetLoader::get().resource_string("shader/default_shader/shader.frag.glsl"),
-								{}
-							}
-						}
-					}
-				},
-				{
-					oe::polygon_mode::lines,
-					ShaderInfo {
-						default_shader_name,
-						{
-							ShaderStageInfo {
-								shader_stages::vertex_shader,
-								oe::asset::AssetLoader::get().resource_string("shader/default_shader/shader.vert.g.glsl"),
-								{}
-							},
-							ShaderStageInfo {
-								shader_stages::geometry_shader,
-								oe::asset::AssetLoader::get().resource_string("shader/default_shader/shader.geom.l.glsl"),
-								{}
-							},
-							ShaderStageInfo {
-								shader_stages::fragment_shader,
-								oe::asset::AssetLoader::get().resource_string("shader/default_shader/shader.frag.glsl"),
-								{}
-							}
-						}
-					}
-				},
-				{
-					oe::polygon_mode::points,
-					ShaderInfo {
-						default_shader_name,
-						{
-							ShaderStageInfo {
-								shader_stages::vertex_shader,
-								oe::asset::AssetLoader::get().resource_string("shader/default_shader/shader.vert.g.glsl"),
-								{}
-							},
-							ShaderStageInfo {
-								shader_stages::geometry_shader,
-								oe::asset::AssetLoader::get().resource_string("shader/default_shader/shader.geom.p.glsl"),
-								{}
-							},
-							ShaderStageInfo {
-								shader_stages::fragment_shader,
-								oe::asset::AssetLoader::get().resource_string("shader/default_shader/shader.frag.glsl"),
-								{}
-							}
-						}
+					ShaderStageInfo {
+						shader_stages::vertex_shader,
+						oe::asset::AssetLoader::get().resource_string("shader/default_shader/shader.vert.glsl"),
+						{}
+					},
+					ShaderStageInfo {
+						shader_stages::fragment_shader,
+						oe::asset::AssetLoader::get().resource_string("shader/default_shader/shader.frag.glsl"),
+						{}
 					}
 				}
 			}
 		},
 		{
 			oe::graphics_api::Vulkan,
-			{
+			ShaderInfo {
+				default_shader_name,
 				{
-					oe::polygon_mode::fill,
-					ShaderInfo {
-						default_shader_name,
-						{
-							ShaderStageInfo {
-								shader_stages::vertex_shader,
-								oe::asset::AssetLoader::get().resource_string("shader/default_shader/shader.vert.glsl"),
-								{}
-							},
-							ShaderStageInfo {
-								shader_stages::fragment_shader,
-								oe::asset::AssetLoader::get().resource_string("shader/default_shader/shader.frag.glsl"),
-								{}
-							}
-						}
+					ShaderStageInfo {
+						shader_stages::vertex_shader,
+						oe::asset::AssetLoader::get().resource_string("shader/default_shader/shader.vert.glsl"),
+						{}
+					},
+					ShaderStageInfo {
+						shader_stages::fragment_shader,
+						oe::asset::AssetLoader::get().resource_string("shader/default_shader/shader.frag.glsl"),
+						{}
 					}
 				}
 			}
 		},
 		{
 			oe::graphics_api::none,
-			{
-			}
+			{}
 		}
 	};
 
 	
 
-	DefaultShader::DefaultShader(oe::polygon_mode mode)
-		: m_mode(oe::polygon_mode::fill)
+	DefaultShader::DefaultShader()
 	{
-		if(oe::Engine::getSingleton().instance->versionNumber() < 33)
-		{
-			m_mode = mode; // glPolygonmode for gl 3.2 or earlier
-			mode = oe::polygon_mode::fill; // construct shader without geometry stage
-		}
-
 		try{
-			m_shader = oe::graphics::Shader(default_shader_info.at(Engine::getSingleton().engine_info.api).at(mode));
+			m_shader = oe::graphics::Shader(default_shader_info.at(Engine::getSingleton().engine_info.api));
 		}catch(...){
-			throw oe::utils::formatted_error("Unknown polygonmode: {} or graphics api: {}", static_cast<int>(mode), static_cast<int>(Engine::getSingleton().engine_info.api));
+			throw oe::utils::formatted_error("Unknown graphics api: {}", static_cast<int>(Engine::getSingleton().engine_info.api));
 		}
 
 		setColor(oe::colors::white);
@@ -135,13 +71,11 @@ namespace oe::asset {
 	void DefaultShader::bind() const
 	{
 		m_shader->bind();
-		if(m_mode != oe::polygon_mode::fill) oe::Engine::getSingleton().polygonMode(m_mode);
 	}
 
 	void DefaultShader::unbind() const
 	{
 		m_shader->unbind();
-		oe::Engine::getSingleton().polygonMode(oe::polygon_mode::fill);
 	}
 
 	void DefaultShader::setProjectionMatrix(const glm::mat4& pr_mat)
@@ -179,5 +113,4 @@ namespace oe::asset {
 	{
 		m_shader->setUniform("u_usetex", (int)use);
 	}
-
 }

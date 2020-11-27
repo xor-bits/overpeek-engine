@@ -122,11 +122,6 @@ int main(int argc, char** argv) {
 	cg_resize.connect<oe::ResizeEvent, resize>(window);
 	cg_scroll.connect<oe::ScrollEvent, on_scroll>(window);
 	cg_keyboard.connect<oe::KeyboardEvent, on_key>(window);
-	
-	// instance settings
-	engine.culling(oe::culling_modes::back);
-	engine.swapInterval(0);
-	engine.blending();
 
 	// renderers
 	renderer = new oe::graphics::Renderer(1000);
@@ -147,7 +142,7 @@ int main(int argc, char** argv) {
 		{ U"x\u00B2\u221A2AVAVA", oe::colors::orange },
 	}};
 	bkd_label = new oe::graphics::u32TextLabel(*font, 64);
-	bkd_label->generate(text_input, window, oe::colors::translucent_black);
+	bkd_label->generate(text_input);
 	oe::graphics::text_render_cache cache;
 	oe::graphics::u32Text::create_text_render_cache(cache, text_input, *font, { 0.1f, 0.5f }, { 0.2f, 0.2f }, oe::alignments::top_left);
 	oe::graphics::u32Text::submit(cache, *dyn_label_renderer);

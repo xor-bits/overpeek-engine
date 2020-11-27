@@ -15,10 +15,10 @@ namespace oe::ecs
 	{
 		World();
 
-		oe::asset::DefaultShader m_shader{ oe::polygon_mode::fill };
+		oe::asset::DefaultShader m_shader{};
 		oe::graphics::Renderer m_renderer{ 10000 };
 
-		oe::asset::DefaultShader m_debug_shader{ oe::polygon_mode::lines };
+		oe::asset::DefaultShader m_debug_shader{};
 		oe::graphics::Renderer m_debug_renderer{ 10000 };
 
 		entt::registry m_scene;

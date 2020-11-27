@@ -49,7 +49,8 @@ namespace oe::graphics
 			      Font&                  font,
 			const glm::vec2&             origin_pos      = { 0.0f, 0.0f },
 			const glm::vec2&             size            = { 64.0f, 64.0f }, // more like scaling per axis
-			const glm::vec2&             align_to_origin = oe::alignments::top_left);
+			const glm::vec2&             align_to_origin = oe::alignments::top_left,
+			      float                  advance_padding   = 2.0f);
 
 		static void submit(const text_render_cache& cache, Renderer& renderer);
 		static glm::vec2 offset_to_char(const text_render_cache& cache, size_t index);
@@ -80,8 +81,8 @@ namespace oe::graphics
 		{}
 
 		// Generate framebuffer and render text to it
-		bool generate(const string_t& text, const Window& window, const oe::color& bg_color = oe::colors::transparent, float width = 0.25f, float outline_width = 0.0f, float anti_alias = 0.2f, const oe::color& outline_c = oe::colors::black);
-		void regenerate(const string_t& text, const Window& window, const oe::color& bg_color = oe::colors::transparent, float width = 0.25f, float outline_width = 0.0f, float anti_alias = 0.2f, const oe::color& outline_c = oe::colors::black);
+		bool generate(const string_t& text, const oe::TextOptions& options = {});
+		void regenerate(const string_t& text, const oe::TextOptions& options = {});
 
 		inline const FrameBuffer* getFB() const { return &m_framebuffer; }
 		inline const Sprite& getSprite() const { return m_sprite; }

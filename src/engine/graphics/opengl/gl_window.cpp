@@ -211,7 +211,7 @@ namespace oe::graphics {
 
 	void GLWindow::viewport() const
 	{
-		glViewport(0, 0, m_window_info.size.x, m_window_info.size.y);
+		GLFrameBuffer::bind_fb(0, { 0, 0, m_window_info.size.x, m_window_info.size.y });
 	}
 
 	void GLWindow::swapInterval(uint8_t frames) 
@@ -230,10 +230,6 @@ namespace oe::graphics {
 	
 	void GLWindow::bind() const
 	{
-		if (GLFrameBuffer::bound_fbo_id == 0) return;
-		GLFrameBuffer::bound_fbo_id = 0;
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		viewport();
 	}
 

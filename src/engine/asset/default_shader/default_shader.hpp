@@ -12,14 +12,13 @@ namespace oe::asset
 	{
 	private:
 		oe::graphics::Shader m_shader;
-		oe::polygon_mode m_mode; // if geometry shaders are not supported (OGL 3.3 >= ) (like Mesa 20.0.8)
 
 		glm::mat4 m_pr_mat = glm::mat4(1.0f);
 		glm::mat4 m_vw_mat = glm::mat4(1.0f);
 		glm::mat4 m_ml_mat = glm::mat4(1.0f);
 
 	public:
-		DefaultShader(oe::polygon_mode mode = oe::polygon_mode::fill);
+		DefaultShader();
 
 		void bind() const;
 		void unbind() const;

@@ -180,7 +180,7 @@ namespace oe::gui
 			quad_knob->setSprite(get_info().knob_sprite);
 
 			get_info().slider_sprite->m_owner->bind();
-			m_gui_manager.getShaderFill()->bind();
+			m_gui_manager.getShader()->bind();
 
 			renderer.s_renderer->end();
 			renderer.s_renderer->render();
@@ -192,7 +192,7 @@ namespace oe::gui
 		if (text_options.enabled)
 		{
 			const std::u32string s = get_rendered_label();
-			value_label->generate({ s, text_options.initial_text_color }, m_gui_manager.getWindow(), text_options.background_color, text_options.weight, text_options.outline_weight, text_options.anti_alias, text_options.outline_color);
+			value_label->generate({ s, text_options.initial_text_color }, text_options);
 			const glm::ivec2 size = value_label->getSize();
 			const glm::ivec2 position =
 				+ m_render_position

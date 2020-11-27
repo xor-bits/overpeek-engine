@@ -8,6 +8,8 @@
 
 constexpr size_t updates_per_second = 60;
 constexpr float inverse_ups = 1.0f / updates_per_second;
+constexpr oe::RasterizerInfo fill_rasterizer{ oe::modes::enable, oe::depth_functions::less_than_or_equal, oe::culling_modes::back, oe::polygon_mode::fill };
+constexpr oe::RasterizerInfo line_rasterizer{ oe::modes::enable, oe::depth_functions::less_than_or_equal, oe::culling_modes::back, oe::polygon_mode::lines };
 float sim_speed = 1.0f;
 int32_t entity_count;
 std::vector<oe::ecs::Entity> entities;
@@ -16,12 +18,15 @@ b2World box2d_world(b2Vec2(0.0f, 9.81f));
 
 
 oe::graphics::Window window;
-oe::asset::DefaultShader* shader_lines;
-oe::asset::DefaultShader* shader_fill;
+oe::asset::DefaultShader* shader;
 oe::graphics::SpritePack* pack;
 oe::graphics::Sprite const* sprite;
 oe::gui::GUI* gui_manager;
 std::shared_ptr<oe::gui::TextPanel> text_label;
+std::shared_ptr<oe::gui::Graph> graph_fps;
+std::shared_ptr<oe::gui::Graph> graph_ups;
+std::array<float, 200> perf_log_fps;
+std::array<float, 200> perf_log_ups;
 
 constexpr uint16_t dynamic_category = 0b01;
 constexpr uint16_t  static_category = 0b10;
@@ -133,7 +138,7 @@ struct MotorScript : public oe::ecs::Behaviour
 			jointDef.bodyB = generic_src_b.m_body;
 			jointDef.enableMotor = true;
 			jointDef.motorSpeed = 0.0f;
-			jointDef.maxMotorTorque = std::numeric_limits<float>::infinity();
+			jointDef.maxMotorTorque = std::numeric_limits<float>::max();
 
 			motor_joint = static_cast<b2RevoluteJoint*>(box2d_world.CreateJoint(&jointDef));
 		}
@@ -142,7 +147,7 @@ struct MotorScript : public oe::ecs::Behaviour
 			jointDef.bodyA = generic_src_g.m_body;
 			jointDef.bodyB = generic_src_a.m_body;
 			jointDef.target = generic_src_a.m_body->GetPosition();
-			jointDef.maxForce = std::numeric_limits<float>::infinity();
+			jointDef.maxForce = std::numeric_limits<float>::max();
 			jointDef.frequencyHz = 1000.0f;
 			jointDef.dampingRatio = 140.0f;
 
@@ -202,14 +207,18 @@ void render(oe::RenderEvent)
 	// stop submitting and render
 	// the worst way to get first fill and then lines
 	// doing this in the shader would be faster
-	shader_fill->bind();
-	world->m_renderer.render();
 	auto& engine = oe::Engine::getSingleton();
-	auto cur_depth = engine.getDepth();
-	engine.depth(oe::depth_functions::always);
-	shader_lines->bind();
+	// rp1 - fill
+	shader->bind();
+	shader->setTexture(true);
+	shader->setColor(oe::colors::white);
+	engine.setRasterizerInfo(fill_rasterizer);
 	world->m_renderer.render();
-	engine.depth(cur_depth);
+	// rp2 - lines
+	shader->setTexture(false);
+	shader->setColor(oe::colors::black);
+	engine.setRasterizerInfo(line_rasterizer);
+	world->m_renderer.render();
 
 	gui_manager->render();
 
@@ -218,11 +227,7 @@ void render(oe::RenderEvent)
 void resize(const oe::ResizeEvent& event)
 {
 	glm::mat4 pr_matrix = glm::ortho(-20.0f * event.aspect, 20.0f * event.aspect, 20.0f, -20.0f);
-	shader_fill->setProjectionMatrix(pr_matrix);
-	shader_fill->setTexture(true);
-	shader_lines->setProjectionMatrix(pr_matrix);
-	shader_lines->setTexture(false);
-	shader_lines->setColor(oe::colors::black);
+	shader->setProjectionMatrix(pr_matrix);
 }
 
 // update event 30 times per second
@@ -237,6 +242,29 @@ void update_30(oe::UpdateEvent<30>)
 		gameloop.getAverageUPS<updates_per_second>(),
 		box2d_world.GetBodyCount());
 	text_label->text_panel_info.text = { perf_info, oe::colors::white };
+
+	auto lambda_transform_gen = [](const oe::utils::PerfLogger& logger){
+		return [&logger](std::chrono::nanoseconds ns)->float{
+			auto cast_to_float_millis = [](auto dur){ return std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(dur); };
+			return oe::utils::map(
+				cast_to_float_millis(ns).count(),
+				cast_to_float_millis(logger.m_min_time).count(),
+				cast_to_float_millis(logger.m_max_time).count(),
+				0.0f,
+				1.0f
+			);
+		};
+	};
+
+	auto& fps_log = window->getGameloop().getFramePerfLogger();
+	std::transform(fps_log.m_average_time.begin(), fps_log.m_average_time.begin() + perf_log_fps.size(), perf_log_fps.begin(), lambda_transform_gen(fps_log));
+	std::rotate(perf_log_fps.begin(), perf_log_fps.begin() + (fps_log.m_total_count % perf_log_fps.size()), perf_log_fps.end());
+	if (graph_fps) graph_fps->m_graph_info.graph_data = { perf_log_fps.data(), perf_log_fps.size() };
+
+	auto& ups_log = window->getGameloop().getUpdatePerfLogger<updates_per_second>();
+	std::transform(ups_log.m_average_time.begin(), ups_log.m_average_time.begin() + perf_log_ups.size(), perf_log_ups.begin(), lambda_transform_gen(ups_log));
+	std::rotate(perf_log_ups.begin(), perf_log_ups.begin() + (ups_log.m_total_count % perf_log_ups.size()), perf_log_ups.end());
+	if (graph_ups) graph_ups->m_graph_info.graph_data = { perf_log_ups.data(), perf_log_ups.size() };
 }
 
 // update event <updates_per_second> times per second
@@ -284,6 +312,23 @@ void gui()
 		text_label = gui_manager->create(tp_info);
 	}
 	{
+		oe::gui::Graph::info_t graph_info;
+		graph_info.bg_panel_info.widget_info.size = { 100, 50 };
+		graph_info.bg_panel_info.widget_info.offset_position = { 0, y };
+		graph_info.bg_panel_info.widget_info.align_parent = oe::alignments::top_left;
+		graph_info.bg_panel_info.widget_info.align_render = oe::alignments::top_left;
+		graph_info.bg_panel_info.sprite = pack->emptySprite();
+		graph_info.bg_panel_info.color_tint = { 0.0f, 0.0f, 0.0f, 0.5f };
+		graph_info.graph_color = oe::colors::green;
+		graph_fps = gui_manager->create(graph_info);
+
+		graph_info.bg_panel_info.widget_info.offset_position = { 105, y };
+		graph_info.graph_color = oe::colors::blue;
+		graph_ups = gui_manager->create(graph_info);
+		
+		y += 55;
+	}
+	{
 		oe::gui::fSliderInput::info_t s_info;
 		s_info.knob_size = { 6, 20 };
 		s_info.widget_info.size = { 150, 20 };
@@ -295,6 +340,7 @@ void gui()
 		s_info.linear_color = true;
 		s_info.slider_sprite = pack->emptySprite();
 		s_info.value_bounds = { -10.0f, 10.0f, };
+		s_info.text_format = [](float v){ return fmt::format(U"motor speed: {:.2f}", v); };
 		auto slider = gui_manager->create(s_info);
 
 		y += 25;
@@ -320,44 +366,29 @@ void gui()
 		s_info.slider_rcolor = oe::colors::dark_blue;
 		s_info.slider_sprite = pack->emptySprite();
 		s_info.value_bounds = { 0.0f, 2.0f, };
+		s_info.text_format = [](float v){ return fmt::format(U"simulation speed: {:.2f}", v); };
 		auto slider = gui_manager->create(s_info, sim_speed);
 
 		y += 25;
 	}
 	{
 		oe::gui::iNumberInput::info_t n_info;
-		n_info.widget_info.size = { 50, 20 };
+		n_info.widget_info.size = { 80, 30 };
 		n_info.widget_info.align_parent = oe::alignments::top_left;
 		n_info.widget_info.align_render = oe::alignments::top_left;
 		n_info.widget_info.offset_position = { 0, y };
 		n_info.value_bounds = { 0, 1000 };
 		n_info.interact_flags = oe::interact_type_flags::scroll | oe::interact_type_flags::cursor;
+		n_info.text_format = [](int32_t v){ return fmt::format("entities: {}", v); };
 		auto count_input = gui_manager->create(n_info, entity_count);
 
-		y += 25;
-	}
-	{
-		oe::gui::DecoratedButton::info_t b_info;
-		b_info.button_info.size = { 50, 40 };
-		b_info.button_info.align_parent = oe::alignments::top_left;
-		b_info.button_info.align_render = oe::alignments::top_left;
-		b_info.button_info.offset_position = { 0, y };
-		b_info.text = { U"R", oe::colors::white };
-		auto reset_btn = gui_manager->create(b_info);
-
-		y += 45;
-
-		reset_btn->create_event_cg().connect<oe::gui::Button::use_event_t>(reset_btn->m_dispatcher, [](const oe::gui::Button::use_event_t& e){
-			for(size_t i = 0; i < entities.size(); i++)
-				entities[i].getScriptComponent<GenericScript>().stop();
-		});
+		y += 85;
 	}
 }
 
 void init()
 {
 	auto& engine = oe::Engine::getSingleton();
-	engine.depth(oe::depth_functions::always);
 
 	// connect events (this can also be done in (int main()))
 	window->connect_listener<oe::ResizeEvent, &resize>();
@@ -365,14 +396,8 @@ void init()
 	window->connect_listener<oe::UpdateEvent<30>, &update_30>();
 	window->connect_listener<oe::UpdateEvent<updates_per_second>, &update>();
 
-	// instance settings
-	engine.culling(oe::culling_modes::back);
-	engine.swapInterval(1);
-	engine.blending();
-
 	// shader
-	shader_fill = new oe::asset::DefaultShader(oe::polygon_mode::fill);
-	shader_lines = new oe::asset::DefaultShader(oe::polygon_mode::lines);
+	shader = new oe::asset::DefaultShader();
 
 	// sprites
 	pack = new oe::graphics::SpritePack();
@@ -390,10 +415,11 @@ void cleanup()
 {
 	// closing
 	text_label.reset();
+	graph_fps.reset();
+	graph_ups.reset();
 	delete gui_manager;
 	delete pack;
-	delete shader_fill;
-	delete shader_lines;
+	delete shader;
 	delete world;
 
 	window.reset();
@@ -414,6 +440,7 @@ int main(int argc, char* argv[])
 	window_info.title = "Entities";
 	window_info.multisamples = 0; // multisample will break the window transparency, possibly a bug with glfw 3.3.2?
 	window_info.transparent = true;
+	window_info.swap_interval = 1;
 	// window_info.borderless = true;
 	window = oe::graphics::Window(window_info);
 

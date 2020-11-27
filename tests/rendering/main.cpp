@@ -100,11 +100,6 @@ void init(int argc, char** argv)
 	window->connect_listener<oe::ResizeEvent, &resize>();
 	window->connect_listener<oe::RenderEvent, &render>();
 	window->connect_listener<oe::UpdateEvent<2>, &update_2>();
-	
-	// instance settings
-	engine.culling(oe::culling_modes::neither);
-	engine.swapInterval(0);
-	engine.blending();
 
 	// renderer
 	renderer = new oe::graphics::Renderer(100);

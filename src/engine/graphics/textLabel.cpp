@@ -36,29 +36,30 @@ namespace oe::graphics {
 
 
 	template<typename char_type>
-	bool BasicTextLabel<char_type>::generate(const string_t& text, const Window& window, const oe::color& bg_color, float width, float outline_width, float anti_alias, const oe::color& outline_c)
+	bool BasicTextLabel<char_type>::generate(const string_t& text, const oe::TextOptions& options)
 	{
 		/* const bool generated = m_text == text && m_framebuffer;
 		if(generated) // why render the same text again?
 			return false; */
 
-		regenerate(text, window, bg_color, width, outline_width, anti_alias, outline_c);
+		regenerate(text, options);
 		return true;
 	}
 	
 	template<typename char_type>
-	void BasicTextLabel<char_type>::regenerate(const string_t& text, const Window& window, const oe::color& bg_color, float width, float outline_width, float anti_alias, const oe::color& outline_c)
+	void BasicTextLabel<char_type>::regenerate(const string_t& text, const oe::TextOptions& options)
 	{
 		m_text = text;
 		const float res = static_cast<float>(m_resolution) /* * (m_font.isSDF() ? 4.0f : 1.0f) */;
 		text_render_cache cache;
-		text_t::create_text_render_cache(cache, m_text, m_font, { 0.0f, 0.0f }, glm::vec2(res), oe::alignments::top_left);
+		text_t::create_text_render_cache(cache, m_text, m_font, { 0.0f, 0.0f }, glm::vec2(res), oe::alignments::top_left, options.advance_padding);
 
 		// size of the framebuffer
 		m_size = glm::ceil(cache.size);
 		m_size.x = std::max(m_size.x, 1.0f);
 		m_size.y = std::max(m_size.y, 1.0f);
 
+		auto old_fb_state = IFrameBuffer::save_state();
 		if (!m_framebuffer || m_fb_size.x < m_size.x || m_fb_size.y < m_size.y)
 		{
 			// create new framebuffer
@@ -71,7 +72,7 @@ namespace oe::graphics {
 
 		// bind fb
 		m_framebuffer->bind();
-		m_framebuffer->clear(bg_color);
+		m_framebuffer->clear(options.background_color);
 		const glm::mat4 pr_matrix = glm::ortho(0.0f, m_fb_size.x, m_fb_size.y, 0.0f);
 
 		// submit to the renderer render
@@ -81,16 +82,16 @@ namespace oe::graphics {
 		// render to the framebuffer
 		tbr.fb_shader.setProjectionMatrix(pr_matrix);
 		tbr.fb_shader.setSDF(m_font.isSDF());
-		tbr.fb_shader.setWidth(width);
-		tbr.fb_shader.setEdge(anti_alias);
-		tbr.fb_shader.setOutlineWidth(outline_width);
-		tbr.fb_shader.setOutlineEdge(anti_alias);
-		tbr.fb_shader.setOutlineColor(outline_c);
+		tbr.fb_shader.setWidth(options.weight);
+		tbr.fb_shader.setEdge(options.anti_alias);
+		tbr.fb_shader.setOutlineWidth(options.outline_weight);
+		tbr.fb_shader.setOutlineEdge(options.anti_alias);
+		tbr.fb_shader.setOutlineColor(options.outline_color);
 		tbr.fb_renderer.render();
 		tbr.fb_renderer.clear();
 
-		// bind window framebuffer
-		window->bind();
+		// bind back the old framebuffer
+		IFrameBuffer::load_state(old_fb_state);
 
 		// generate the sprite for user
 		const glm::vec2 size_ratio = m_size / m_fb_size;
@@ -105,7 +106,7 @@ namespace oe::graphics {
 
 
 	template<typename char_type>
-	void BasicText<char_type>::create_text_render_cache(text_render_cache& cache, const string_t& text, Font& font, const glm::vec2& origin_pos, const glm::vec2& size, const glm::vec2& align_to_origin)
+	void BasicText<char_type>::create_text_render_cache(text_render_cache& cache, const string_t& text, Font& font, const glm::vec2& origin_pos, const glm::vec2& size, const glm::vec2& align_to_origin, float advance_padding)
 	{
 		// at the very least the size of the text + 1 (for the null terminator)
 		// \0, \n, etc... will be removed
@@ -175,7 +176,8 @@ namespace oe::graphics {
 				// advancing
 				advance += glm::vec2(glyph->advance.x, 0.0f) * size;
 				// kerning
-				advance.x += font.getKerning(codepoint, codepoint_next) * size.x;
+				spdlog::info("font.avgSize().x: {} - glyph->size.x: {}", font.avgSize().x, glyph->size.x);
+				advance.x += font.getKerning(codepoint, codepoint_next) * size.x + advance_padding * font.avgSize().x * size.x;
 			}
 		}
 

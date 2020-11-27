@@ -40,7 +40,7 @@ namespace oe::gui
 		if(!m_cg_render)
 			return;
 
-		label->generate(text_panel_info.text, m_gui_manager.getWindow(), text_panel_info.text_options.background_color, text_panel_info.text_options.weight, text_panel_info.text_options.outline_weight, text_panel_info.text_options.anti_alias, text_panel_info.text_options.outline_color);
+		label->generate(text_panel_info.text, text_panel_info.text_options);
 		m_info.size = label->getSize();
 		Widget::on_pre_render(GUIPreRenderEvent{});
 

@@ -83,7 +83,7 @@ oe::PolygonRendererInfo Application::gen_renderer_info()
 
 Application::Application()
 	: window(gen_window_info())
-	, shader(oe::polygon_mode::fill)
+	, shader()
 	, renderer(oe::graphics::make_polygon_renderer(gen_renderer_info()))
 {
 	cg_on_render.connect<oe::UpdateEvent<ups>, &Application::on_update>(window, this);
@@ -99,7 +99,12 @@ void Application::run()
 
 void Application::on_render(const oe::RenderEvent& /* e */)
 {
-	shader.bind();
+	auto& engine = oe::Engine::getSingleton();
+	engine.setRasterizerInfo({ oe::modes::disable, oe::depth_functions::always, oe::culling_modes::front, oe::polygon_mode::fill });
+	shader.setColor(oe::colors::white);
+	renderer->render(0, index_count);
+	engine.setRasterizerInfo({ oe::modes::disable, oe::depth_functions::always, oe::culling_modes::front, oe::polygon_mode::lines });
+	shader.setColor(oe::colors::black);
 	renderer->render(0, index_count);
 }
 

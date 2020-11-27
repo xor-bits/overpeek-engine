@@ -11,26 +11,28 @@ namespace oe::graphics
 	class GLFrameBuffer : public IFrameBuffer
 	{
 	private:
-		unsigned int m_rbo;
-		unsigned int m_id;
+		uint32_t m_rbo;
+		uint32_t m_id;
 
 		Texture m_texture;
 	
 	public:
 		static uint32_t bound_fbo_id;
+		static glm::ivec4 current_viewport;
 
+		static void bind_fb(uint32_t fb_id, const glm::ivec4& viewport);
+	
 	public:
 		GLFrameBuffer(const FrameBufferInfo& framebuffer_info);
-		~GLFrameBuffer();
+		~GLFrameBuffer() override;
 
 		void bind() override;
 		void clear(const oe::color& c = oe::colors::clear_color) override;
 
-		inline Texture& getTexture() override
-		{
-			return m_texture;
-		}
-	
+		static std::unique_ptr<state> save_state();
+		static void load_state(const std::unique_ptr<state>&);
+
+		inline Texture& getTexture() override { return m_texture; }
 	};
 
 }

@@ -11,6 +11,7 @@
 namespace oe::graphics
 {
 	class IWindow;
+	struct state { virtual ~state() {} };
 
 	class IFrameBuffer
 	{
@@ -25,6 +26,8 @@ namespace oe::graphics
 		virtual void bind() = 0; // will bind corresponding texture
 		virtual void clear(const oe::color& c = oe::colors::clear_color) = 0;
 
+		static std::unique_ptr<state> save_state();
+		static void load_state(const std::unique_ptr<state>&);
 		static void multipass(FrameBuffer& fb_0, FrameBuffer& fb_1, const std::array<VertexData, 4>& vertices, size_t count);
 
 		const Sprite& getSprite() { return sprite; }

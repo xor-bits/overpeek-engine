@@ -31,23 +31,24 @@ namespace oe::gui
 		entt::dispatcher m_dispatcher;
 
 	private:
-		std::shared_ptr<Widget> m_main_frame;
-		oe::graphics::Renderer* m_renderer;
-		oe::graphics::Renderer* m_line_renderer;
-		oe::asset::DefaultShader* m_shader_fill;
-		oe::asset::DefaultShader* m_shader_lines;
-		oe::ResizeEvent latest_resize_event;
-		oe::graphics::Window m_window;
+		// graphics
+		oe::graphics::Renderer* m_renderer = nullptr;
+		oe::asset::DefaultShader* m_shader = nullptr;
+		constexpr static oe::RasterizerInfo m_rasterizer = { oe::modes::enable, oe::depth_functions::less_than_or_equal, oe::culling_modes::back, oe::polygon_mode::fill, 1.0f, 1.0f };
+		// 
+		std::shared_ptr<Widget> m_main_frame{};
+		oe::graphics::Window m_window{};
+		oe::ResizeEvent latest_resize_event{};
+		// fonts
+		std::unordered_map<oe::utils::FontFile, oe::graphics::Font> m_fontmap{}; // (fontfile - font pair) pair
+		const oe::utils::FontFile m_default_font_file{};
 
-		std::unordered_map<oe::utils::FontFile, oe::graphics::Font> m_fontmap; // (fontfile - font pair) pair
-		const oe::utils::FontFile m_default_font_file;
-
-		glm::vec2 m_old_render_size;
-
-		glm::vec2 m_offset;
-		glm::vec2 m_size_mult;
-		glm::mat4 m_render_ml_matrix;
-		glm::mat4 m_cursor_ml_matrix;
+		// viewport stuff
+		glm::vec2 m_old_render_size{};
+		glm::vec2 m_offset{};
+		glm::vec2 m_size_mult{};
+		glm::mat4 m_render_ml_matrix{};
+		glm::mat4 m_cursor_ml_matrix{};
 
 		void updateModelMatrix();
 
@@ -85,10 +86,8 @@ namespace oe::gui
 		void zoom(const glm::vec2& mult);
 
 		inline oe::graphics::Renderer* getRenderer() const { return m_renderer; }
-		inline oe::graphics::Renderer* getLineRenderer() const { return m_line_renderer; }
 		inline const oe::graphics::Window& getWindow() const { return m_window; }
-		inline const oe::asset::DefaultShader* getShaderFill() const { return m_shader_fill; }
-		inline const oe::asset::DefaultShader* getShaderLines() const { return m_shader_lines; }
+		inline const oe::asset::DefaultShader* getShader() const { return m_shader; }
 
 		oe::graphics::Font& getFont(const oe::utils::FontFile& font = {});
 

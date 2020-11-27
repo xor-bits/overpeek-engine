@@ -51,6 +51,7 @@ namespace oe::gui
 		oe::graphics::Shader g_shader;
 		oe::graphics::Renderer g_renderer;
 		oe::graphics::SpritePack g_pack;
+		constexpr static oe::RasterizerInfo g_raster = { oe::modes::disable, oe::depth_functions::always, oe::culling_modes::neither, oe::polygon_mode::fill, 1.0f, 1.0f };
 	};
 	GraphRenderer* GraphRenderer::singleton = nullptr;
 
@@ -92,20 +93,31 @@ namespace oe::gui
 		if(!m_cg_render)
 			return;
 
+
+		auto& graph_renderer = GraphRenderer::getSingleton();
+		auto& engine = oe::Engine::getSingleton();
+		
+		// rasterizer settings
+		const oe::RasterizerInfo old_rasterizer_info = engine.getRasterizerInfo();
+		engine.setRasterizerInfo(graph_renderer.g_raster);
+
+		// bind fb
 		graph_fb->bind();
 		graph_fb->clear(oe::colors::transparent);
-
+		// draw
 		glm::ivec2 viewport = m_info.size;
 		if(m_graph_info.graph_data.size() != 0) viewport += glm::ivec2(m_info.size.x / m_graph_info.graph_data.size(), 0.0f);
-		auto& graph_renderer = GraphRenderer::getSingleton();
 		graph_renderer.g_shader->bind();
 		graph_renderer.g_shader->setUniform("u_graph_size", (int)m_graph_info.graph_data.size());
 		graph_renderer.g_shader->setUniform("u_graph_data", m_graph_info.graph_data);
 		graph_renderer.g_shader->setUniform("u_viewport", viewport);
 		graph_renderer.g_shader->setUniform("u_line_w", m_graph_info.graph_line_width);
 		graph_renderer.g_renderer.render();
-
+		// unbind fb
 		m_gui_manager.getWindow()->bind();
+
+		// back to original rasterizer settings
+		engine.setRasterizerInfo(old_rasterizer_info);
 
 		m_graph->sprite_panel_info.sprite = &graph_fb->getSprite();
 		m_graph->sprite_panel_info.color_tint = m_graph_info.graph_color;

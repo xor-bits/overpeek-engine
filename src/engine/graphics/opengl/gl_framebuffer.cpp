@@ -11,14 +11,25 @@
 namespace oe::graphics
 {
 	uint32_t GLFrameBuffer::bound_fbo_id = 0xFFFFFFFF;
+	glm::ivec4 GLFrameBuffer::current_viewport = { 0, 0, 0, 0 };
+
+	struct gl_state : state
+	{
+		uint32_t fbo_id = 0;
+		glm::ivec4 viewport = { 0, 0, 0, 0 };
+		
+		constexpr gl_state(uint32_t _fbo_id = 0, const glm::ivec4& _viewport = { 0, 0, 0, 0 })
+			: fbo_id(_fbo_id), viewport(_viewport) {}
+		~gl_state() override = default;
+	};
+
+
 
 	GLFrameBuffer::GLFrameBuffer(const FrameBufferInfo& framebuffer_info)
 		: IFrameBuffer(framebuffer_info) 
 	{
-		int32_t last_bound_fbo;
-		glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &last_bound_fbo);
-		int32_t last_viewport_dim[4];
-		glGetIntegerv(GL_VIEWPORT, &last_viewport_dim[0]);
+		int32_t last_bound_fbo = bound_fbo_id;
+		glm::ivec4 last_viewport_dim = current_viewport;
 
 		glGenFramebuffers(1, &m_id);
 		GLFrameBuffer::bind();
@@ -48,6 +59,7 @@ namespace oe::graphics
 			throw oe::utils::formatted_error("Framebuffer not complete {}", fboStatus);
 
 		GLFrameBuffer::clear();
+		bind_fb(last_bound_fbo, last_viewport_dim);
 		
 		sprite.m_owner = m_texture;
 		sprite.position = { 0.0f, 1.0f };
@@ -71,11 +83,32 @@ namespace oe::graphics
 
 	void GLFrameBuffer::bind()
 	{
-		if (bound_fbo_id == m_id) return;
-		bound_fbo_id = m_id;
+		bind_fb(m_id, { 0, 0, m_framebuffer_info.size.x, m_framebuffer_info.size.y });
+	}
 
-		glBindFramebuffer(GL_FRAMEBUFFER, m_id);
-		glViewport(0, 0, m_framebuffer_info.size.x, m_framebuffer_info.size.y);
+	std::unique_ptr<state> GLFrameBuffer::save_state()
+	{
+		return std::make_unique<gl_state>(bound_fbo_id, current_viewport);
+	}
+	
+	void GLFrameBuffer::load_state(const std::unique_ptr<state>& base_state)
+	{
+		gl_state* state = dynamic_cast<gl_state*>(base_state.get());
+		bind_fb(state->fbo_id, state->viewport);
+	}
+	
+	void GLFrameBuffer::bind_fb(uint32_t fb_id, const glm::ivec4& viewport)
+	{
+		if (bound_fbo_id != fb_id)
+		{
+			bound_fbo_id = fb_id;
+			glBindFramebuffer(GL_FRAMEBUFFER, fb_id);
+		}
+		if(current_viewport != viewport)
+		{
+			current_viewport = viewport;
+			glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
+		}
 	}
 
 }

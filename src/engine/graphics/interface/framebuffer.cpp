@@ -3,7 +3,11 @@
 #include "engine/interfacegen_renderer.hpp"
 #include "texture.hpp"
 #include "primitive_renderer.hpp"
-#include "window.hpp"
+
+#include "engine/graphics/opengl/gl_framebuffer.hpp"
+#ifdef BUILD_VULKAN
+#include "engine/graphics/vulkan/ ... .hpp"
+#endif
 
 
 
@@ -65,6 +69,32 @@ namespace oe::graphics
 	IFrameBuffer::~IFrameBuffer() 
 	{
 
+	}
+
+	std::unique_ptr<state> IFrameBuffer::save_state()
+	{
+#ifdef BUILD_VULKAN
+		auto& engine = oe::Engine::getSingleton();
+		if (engine.engine_info.api == graphics_api::OpenGL)
+#endif
+			return GLFrameBuffer::save_state();
+#ifdef BUILD_VULKAN
+		else
+			return VKFrameBuffer::save_state();
+#endif
+	}
+
+	void IFrameBuffer::load_state(const std::unique_ptr<state>& state)
+	{
+#ifdef BUILD_VULKAN
+		auto& engine = oe::Engine::getSingleton();
+		if (engine.engine_info.api == graphics_api::OpenGL)
+#endif
+			return GLFrameBuffer::load_state(state);
+#ifdef BUILD_VULKAN
+		else
+			return VKFrameBuffer::load_state(state);
+#endif
 	}
 
 	void IFrameBuffer::multipass(FrameBuffer& fb_0, FrameBuffer& fb_1, const std::array<VertexData, 4>& vertices, size_t count)

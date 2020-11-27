@@ -140,7 +140,7 @@ namespace oe::gui
 
 		// text
 		const oe::utils::color_string<char_type> string_vec = { m_value, m_text_input_info.text_options.initial_text_color };
-		m_label->generate(string_vec, m_gui_manager.getWindow(), m_text_input_info.text_options.background_color, m_text_input_info.text_options.weight, m_text_input_info.text_options.outline_weight, m_text_input_info.text_options.anti_alias, m_text_input_info.text_options.outline_color);
+		m_label->generate(string_vec, m_text_input_info.text_options);
 		m_text_label_pos = m_render_position + oe::alignmentOffset(m_info.size, m_text_input_info.text_options.align) - oe::alignmentOffset(static_cast<glm::ivec2>(m_label->getSize()), m_text_input_info.text_options.align);
 		
 		// text label
