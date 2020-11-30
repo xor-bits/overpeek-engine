@@ -29,8 +29,6 @@ namespace oe::gui
 			// visuals
 			oe::utils::color_string<char32_t> text = {{ U"Button", oe::colors::white }};
 			TextOptions               text_options = {};
-			glm::ivec2                     padding = { 8, 8 };
-			bool                        autoresize = false; // autoresize according to the text panel
 			oe::color                    btn_color = colors::dark_grey;
 			const oe::graphics::Sprite*     sprite = nullptr;
 			// base
@@ -49,13 +47,6 @@ namespace oe::gui
 	public:
 		DecoratedButton(Widget* parent, GUI& gui_manager, const info_t& button_info);
 		~DecoratedButton() override = default;
-
-		void virtual_toggle(bool enabled) override;
-	
-	private:
-		// events
-		void on_render(const GUIRenderEvent& event);
-		oe::utils::connect_guard m_cg_render;
 	};
 
 }

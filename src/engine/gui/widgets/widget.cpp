@@ -15,7 +15,6 @@ namespace oe::gui
 		, m_nodes()
 		, m_gui_manager(gui_manager)
 		, m_z(s_z_acc += 0.01f)
-		, m_render_position({ 0, 0 })
 		, m_info(info)
 		, m_cg_pre_render()
 	{
@@ -46,29 +45,28 @@ namespace oe::gui
 	void Widget::base_toggle(bool enabled)
 	{
 		if(enabled)
-		{
 			m_cg_pre_render.connect<GUIPreRenderEvent, &Widget::on_pre_render, Widget>(m_gui_manager.m_dispatcher, this);
-		}
 		else
-		{
 			m_cg_pre_render.disconnect();
-		}
 		virtual_toggle(enabled);
 	}
 
-	void reset_render_pos(Widget* wdgt)
+	void Widget::reset_render_pos()
 	{
-		if(wdgt->getParent())
-			wdgt->m_render_position = 
-			+ wdgt->m_info.offset_position
-			+ wdgt->getParent()->m_render_position
-			+ oe::alignmentOffsetRound(wdgt->getParent()->m_info.size, wdgt->m_info.align_parent)
-			- oe::alignmentOffsetRound(wdgt->m_info.size, wdgt->m_info.align_render);
+		const glm::ivec2 parent_pos = getParent() ? getParent()->m_render_position : glm::ivec2{ oe::gui::border, oe::gui::border };
+		const glm::ivec2 parent_size = getParent() ? getParent()->m_render_size : m_gui_manager.getWindow()->getSize();
+		const glm::ivec2 fract_pos = static_cast<glm::ivec2>(static_cast<glm::vec2>(parent_size) * m_info.fract_origon_offset);
+		const glm::ivec2 fract_size = static_cast<glm::ivec2>(static_cast<glm::vec2>(parent_size) * m_info.fract_size);
 
-		else
-			wdgt->m_render_position =
-			+ wdgt->m_info.offset_position
-			- oe::alignmentOffsetRound(wdgt->m_info.size, wdgt->m_info.align_render);
+		m_render_size =
+			+ m_info.pixel_size
+			+ fract_size;
+		
+		m_render_position =
+			+ m_info.pixel_origon_offset
+			+ parent_pos
+			+ oe::alignmentOffsetRound(parent_size, m_info.fract_origon_offset)
+			- oe::alignmentOffsetRound(m_render_size, m_info.align_origon);
 	}
 
 	void Widget::addZ(float add_to_z) noexcept
@@ -90,7 +88,7 @@ namespace oe::gui
 		}
 		
 		{ // current node
-			reset_render_pos(this);
+			reset_render_pos();
 			if(m_info.toggled != enabled)
 				base_toggle(enabled);
 			m_info.toggled = enabled;
@@ -117,6 +115,6 @@ namespace oe::gui
 			m_toggle_pending = false;
 		}
 
-		reset_render_pos(this);
+		reset_render_pos();
 	}
 }

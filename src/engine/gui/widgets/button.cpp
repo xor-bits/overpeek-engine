@@ -32,7 +32,7 @@ namespace oe::gui
 
 	bool Button::test(const glm::vec2& point)
 	{
-		return oe::utils::bounding_box_test(point, m_render_position, m_info.size);
+		return oe::utils::bounding_box_test(point, m_render_position, m_render_size);
 	}
 		
 	void Button::on_cursor(const CursorPosEvent& event)

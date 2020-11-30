@@ -133,15 +133,15 @@ namespace oe::gui
 
 		// bounding box
 		m_quad->setPosition(m_render_position);
+		m_quad->setSize(m_render_size);
 		m_quad->setZ(m_z);
-		m_quad->setSize(static_cast<glm::vec2>(m_info.size));
 		m_quad->setSprite(m_text_input_info.sprite);
 		m_quad->setColor(m_text_input_info.background_color);
 
 		// text
 		const oe::utils::color_string<char_type> string_vec = { m_value, m_text_input_info.text_options.initial_text_color };
 		m_label->generate(string_vec, m_text_input_info.text_options);
-		m_text_label_pos = m_render_position + oe::alignmentOffset(m_info.size, m_text_input_info.text_options.align) - oe::alignmentOffset(static_cast<glm::ivec2>(m_label->getSize()), m_text_input_info.text_options.align);
+		m_text_label_pos = m_render_position + oe::alignmentOffset(m_render_size, m_text_input_info.text_options.align) - oe::alignmentOffset(static_cast<glm::ivec2>(m_label->getSize()), m_text_input_info.text_options.align);
 		
 		// text label
 		m_text_quad->toggle(m_text_input_info.text_options.enabled);
@@ -292,7 +292,7 @@ namespace oe::gui
 
 		if (event.button == oe::mouse_buttons::button_left && event.action != oe::actions::release)
 		{
-			m_selected = oe::utils::bounding_box_test(event.cursor_pos.cursor_windowspace, m_render_position, m_info.size);
+			m_selected = oe::utils::bounding_box_test(event.cursor_pos.cursor_windowspace, m_render_position, m_render_size);
 			if(!m_selected)
 				return;
 			

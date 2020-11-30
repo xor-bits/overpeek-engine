@@ -14,7 +14,8 @@ namespace oe::gui
 		: Widget(parent, gui_manager, _text_panel_info.widget_info)
 		, text_panel_info(_text_panel_info)
 	{
-		m_info.size = glm::ivec2(_text_panel_info.text_options.size);
+		m_info.pixel_size = glm::ivec2(_text_panel_info.text_options.size);
+		m_info.fract_size = { 0.0f, 0.0f };
 	}
 	
 	void TextPanel::virtual_toggle(bool enabled)
@@ -41,13 +42,14 @@ namespace oe::gui
 			return;
 
 		label->generate(text_panel_info.text, text_panel_info.text_options);
-		m_info.size = label->getSize();
+		m_info.pixel_size = label->getSize();
+		m_info.fract_size = { 0.0f, 0.0f };
 		Widget::on_pre_render(GUIPreRenderEvent{});
 
 		text_quad->toggle(text_panel_info.text_options.enabled);
 		text_quad->setPosition(m_render_position);
+		text_quad->setSize(m_render_size);
 		text_quad->setZ(m_z);
-		text_quad->setSize(m_info.size);
 		text_quad->setSprite(label->getSprite());
 		text_quad->setColor(oe::colors::white);
 	}

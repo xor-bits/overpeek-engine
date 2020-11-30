@@ -174,9 +174,9 @@ namespace oe::gui
 		auto& renderer = ColorPickerRenderer::getSingleton();
 
 		SpritePanel::info_t lsp_info;
-		lsp_info.widget_info.size = glm::ivec2{ std::min(m_info.size.x, m_info.size.y - 25) };
-		lsp_info.widget_info.align_parent = oe::alignments::top_center;
-		lsp_info.widget_info.align_render = oe::alignments::top_center;
+		lsp_info.widget_info.pixel_size = glm::ivec2{ std::min(m_render_size.x, m_render_size.y - 25) };
+		lsp_info.widget_info.fract_origon_offset = oe::alignments::top_center;
+		lsp_info.widget_info.align_origon = oe::alignments::top_center;
 		lsp_info.widget_info.toggled = color_picker_info.color_input_info.widget_info.toggled;
 		lsp_info.sprite = &renderer.c_checkerboard;
 		lsp_info.color_tint = oe::colors::white;
@@ -185,10 +185,10 @@ namespace oe::gui
 		if (color_picker_info.preview)
 		{
 			SpritePanel::info_t sp_info;
-			sp_info.widget_info.size = { 25, 25 };
-			sp_info.widget_info.offset_position = { 5, 5 };
-			sp_info.widget_info.align_parent = oe::alignments::top_left;
-			sp_info.widget_info.align_render = oe::alignments::top_left;
+			sp_info.widget_info.pixel_size = { 25, 25 };
+			sp_info.widget_info.pixel_origon_offset = { 5, 5 };
+			sp_info.widget_info.fract_origon_offset = oe::alignments::top_left;
+			sp_info.widget_info.align_origon = oe::alignments::top_left;
 			sp_info.widget_info.toggled = color_picker_info.color_input_info.widget_info.toggled;
 			sp_info.sprite = renderer.c_circle_sprite;
 			sp_info.color_tint = oe::colors::white;
@@ -199,10 +199,11 @@ namespace oe::gui
 		{
 			BasicSliderInput<float>::info_t s_info;
 			s_info.knob_size = { 16, 16 };
-			s_info.widget_info.size = { color_picker_info.color_input_info.widget_info.size.x - 10, 15 };
-			s_info.widget_info.offset_position = { 0, -5 };
-			s_info.widget_info.align_parent = oe::alignments::bottom_center;
-			s_info.widget_info.align_render = oe::alignments::bottom_center;
+			s_info.widget_info.pixel_size = { -10, 15 };
+			s_info.widget_info.fract_size = { 1.0f, 0.0f };
+			s_info.widget_info.pixel_origon_offset = { 0, -5 };
+			s_info.widget_info.fract_origon_offset = oe::alignments::bottom_center;
+			s_info.widget_info.align_origon = oe::alignments::bottom_center;
 			s_info.widget_info.toggled = color_picker_info.color_input_info.widget_info.toggled;
 			s_info.slider_sprite = &renderer.c_checkerboard;
 			s_info.knob_sprite = &renderer.c_checkerboard;
@@ -235,7 +236,7 @@ namespace oe::gui
 		SpritePanel::virtual_toggle(enabled);
 		if(enabled)
 		{
-			m_wheel_fb = { { m_framebuffer_panel->m_info.size } };
+			m_wheel_fb = { { m_framebuffer_panel->m_render_size } };
 			m_framebuffer_panel->sprite_panel_info.sprite = &m_wheel_fb->getSprite();
 
 			// event listeners
@@ -284,7 +285,7 @@ namespace oe::gui
 
 		// circle in wheel
 		glm::vec2 selector_wheel_f = { std::cos(m_direction), std::sin(m_direction) };
-		selector_wheel_f *= -m_framebuffer_panel->m_info.size / 2;
+		selector_wheel_f *= -m_framebuffer_panel->m_render_size / 2;
 		selector_wheel_f.y *= -1.0f;
 		m_selector_wheel = glm::vec2(selector_wheel_f) * (1.0f - m_wheel_width);
 
@@ -293,7 +294,7 @@ namespace oe::gui
 			+ m_barycentric_pos_triangle.x * m_triangle_vertices[0].data.position
 			+ m_barycentric_pos_triangle.y * m_triangle_vertices[1].data.position
 			+ m_barycentric_pos_triangle.z * m_triangle_vertices[2].data.position;
-		selector_triangle_f *= -m_framebuffer_panel->m_info.size / 2;
+		selector_triangle_f *= -m_framebuffer_panel->m_render_size / 2;
 		selector_triangle_f.y *= -1.0f;
 		m_selector_triangle = selector_triangle_f;
 	}
@@ -331,13 +332,14 @@ namespace oe::gui
 		m_wheel_fb->bind();
 		m_wheel_fb->clear(oe::colors::transparent);
 
-		float aspect = static_cast<float>(m_framebuffer_panel->m_info.size.x) / static_cast<float>(m_framebuffer_panel->m_info.size.y);
+		const float y = m_render_size.y == 0 ? 1.0f : static_cast<float>(m_framebuffer_panel->m_render_size.y);
+		const float aspect = static_cast<float>(m_framebuffer_panel->m_render_size.x) / y;
 		glm::mat4 pr_matrix = glm::ortho(-aspect, aspect, 1.0f, -1.0f);
 
 		auto& renderer = ColorPickerRenderer::getSingleton();
 		renderer.c_shader->bind();
-		renderer.c_shader->setUniform("u_viewport", m_framebuffer_panel->m_info.size);
-		renderer.c_shader->setUniform("u_offset", -m_framebuffer_panel->m_info.size / 2);
+		renderer.c_shader->setUniform("u_viewport", m_framebuffer_panel->m_render_size);
+		renderer.c_shader->setUniform("u_offset", -m_framebuffer_panel->m_render_size / 2);
 		renderer.c_shader->setUniform("u_wheel_width", m_wheel_width);
 		renderer.c_shader->setUniform("mvp_matrix", pr_matrix);
 		renderer.c_shader->setUniform("u_hsv", true);
@@ -353,22 +355,22 @@ namespace oe::gui
 		renderer.c_renderer_triangle->render();
 
 		renderer.c_shader->bind();
-		renderer.c_shader->setUniform("u_viewport", m_framebuffer_panel->m_info.size / 16);
-		renderer.c_shader->setUniform("u_offset", -m_framebuffer_panel->m_info.size / 2 + m_selector_triangle);
+		renderer.c_shader->setUniform("u_viewport", m_framebuffer_panel->m_render_size / 16);
+		renderer.c_shader->setUniform("u_offset", -m_framebuffer_panel->m_render_size / 2 + m_selector_triangle);
 		renderer.c_shader->setUniform("u_wheel_width", m_wheel_width);
 		renderer.c_shader->setUniform("mvp_matrix", pr_matrix);
 		renderer.c_shader->setUniform("u_hsv", false);
 		renderer.c_renderer_circle->render();
 
 		renderer.c_shader->bind();
-		renderer.c_shader->setUniform("u_viewport", m_framebuffer_panel->m_info.size / 16);
-		renderer.c_shader->setUniform("u_offset", -m_framebuffer_panel->m_info.size / 2 + m_selector_wheel);
+		renderer.c_shader->setUniform("u_viewport", m_framebuffer_panel->m_render_size / 16);
+		renderer.c_shader->setUniform("u_offset", -m_framebuffer_panel->m_render_size / 2 + m_selector_wheel);
 		renderer.c_shader->setUniform("u_wheel_width", m_wheel_width);
 		renderer.c_shader->setUniform("mvp_matrix", pr_matrix);
 		renderer.c_shader->setUniform("u_hsv", false);
 		renderer.c_renderer_circle->render();
 
-		renderer.c_checkerboard.size = m_alpha_slider->m_info.size / 8;
+		renderer.c_checkerboard.size = m_alpha_slider->m_render_size / 8;
 
 		m_gui_manager.getWindow()->bind();
 		m_framebuffer_panel->sprite_panel_info.sprite = &m_wheel_fb->getSprite();
@@ -379,7 +381,7 @@ namespace oe::gui
 		if(!m_cg_cursor)
 			return;
 		// relative_pos
-		const glm::vec2 r_pos = relative_pos(event.cursor_windowspace, m_framebuffer_panel->m_render_position, m_framebuffer_panel->m_info.size);
+		const glm::vec2 r_pos = relative_pos(event.cursor_windowspace, m_framebuffer_panel->m_render_position, m_framebuffer_panel->m_render_size);
 
 		if (m_dragging_wheel)
 		{
@@ -416,7 +418,7 @@ namespace oe::gui
 		m_event_use_latest.button = event.button;
 		m_event_use_latest.modifier = event.mods;
 
-		glm::vec2 r_pos = relative_pos(event.cursor_pos.cursor_windowspace, m_framebuffer_panel->m_render_position, m_framebuffer_panel->m_info.size);
+		glm::vec2 r_pos = relative_pos(event.cursor_pos.cursor_windowspace, m_framebuffer_panel->m_render_position, m_framebuffer_panel->m_render_size);
 		if (event.button == oe::mouse_buttons::button_left)
 		{
 			m_dragging_wheel = event.action != oe::actions::release && in_circle(r_pos, m_wheel_width);

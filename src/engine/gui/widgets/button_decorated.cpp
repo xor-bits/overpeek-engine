@@ -16,9 +16,11 @@ namespace oe::gui
 		, button_info(_button_info)
 	{
 		SpritePanel::info_t sp_info;
-		sp_info.widget_info.size = m_info.size;
-		sp_info.widget_info.align_parent = oe::alignments::center_center;
-		sp_info.widget_info.align_render = oe::alignments::center_center;
+		sp_info.widget_info.pixel_size = { 0, 0 };
+		sp_info.widget_info.fract_size = { 1.0f, 1.0f };
+		sp_info.widget_info.pixel_origon_offset = { 0, 0 };
+		sp_info.widget_info.fract_origon_offset = oe::alignments::top_left;
+		sp_info.widget_info.align_origon = oe::alignments::top_left;
 		sp_info.sprite = button_info.sprite;
 		sp_info.color_tint = button_info.btn_color;
 		button_background = create(sp_info);
@@ -26,32 +28,8 @@ namespace oe::gui
 		TextPanel::info_t tp_info;
 		tp_info.text = button_info.text;
 		tp_info.text_options = _button_info.text_options;
-		tp_info.widget_info.align_parent = oe::alignments::center_center;
-		tp_info.widget_info.align_render = oe::alignments::center_center;
+		tp_info.widget_info.fract_origon_offset = _button_info.text_options.align;
+		tp_info.widget_info.align_origon = _button_info.text_options.align;
 		button_text = create(tp_info);
 	}
-	
-	void DecoratedButton::virtual_toggle(bool enabled)
-	{
-		Button::virtual_toggle(enabled);
-		if(enabled)
-		{
-			m_cg_render.connect<GUIRenderEvent, &DecoratedButton::on_render, DecoratedButton>(m_gui_manager.m_dispatcher, this);
-		}
-		else
-		{
-			m_cg_render.disconnect();
-		}
-	}
-
-	void DecoratedButton::on_render(const GUIRenderEvent& /* event */)
-	{
-		if (!button_info.autoresize || !m_cg_render)
-			return;
-
-		const glm::ivec2 new_size = button_text->m_info.size + button_info.padding * 2;
-		button_background->m_info.size = new_size;
-		m_info.size = new_size;
-	}
-
 }

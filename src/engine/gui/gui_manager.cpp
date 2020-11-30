@@ -125,8 +125,8 @@ namespace oe::gui
 
 	void GUI::on_resize(const oe::ResizeEvent& event)
 	{
-		m_main_frame->m_info.size = static_cast<glm::vec2>(event.framebuffer_size) - glm::vec2(2 * border);
-		m_main_frame->m_info.offset_position = { border, border };
+		m_main_frame->m_render_size = static_cast<glm::vec2>(event.framebuffer_size) - glm::vec2(2 * border);
+		m_main_frame->m_render_position = { border, border };
 
 		/*
 		                             wn

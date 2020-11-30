@@ -18,6 +18,45 @@ namespace oe::gui { struct GUIRenderEvent; struct GUIPreRenderEvent; class GUI; 
 
 namespace oe::gui
 {
+	struct widget_vec
+	{
+		glm::ivec2 m_pixel_size;
+		glm::vec2 m_fract_size;
+
+		// pixel_size is like px in .css
+		// fract_size is like em in .css
+		constexpr widget_vec(const glm::ivec2& pixel_size, const glm::vec2& fract_size)
+			: m_pixel_size(pixel_size)
+			, m_fract_size(fract_size)
+		{}
+
+		// pixel_size is like px in .css
+		constexpr widget_vec(const glm::ivec2& pixel_size)
+			: m_pixel_size(pixel_size)
+			, m_fract_size({ 0.0f, 0.0f })
+		{}
+
+		// fract_size is like em in .css
+		constexpr widget_vec(const glm::vec2& fract_size)
+			: m_pixel_size({ 0, 0 })
+			, m_fract_size(fract_size)
+		{}
+
+		// defaults to 0, 0
+		constexpr widget_vec()
+			: m_pixel_size({ 0, 0 })
+			, m_fract_size({ 0.0f, 0.0f })
+		{}
+
+		// somewhat similar to .css
+		// ex. 1.0em - 50px, 50px
+		// ex. max(1em, 50px), 1em
+		constexpr widget_vec(std::string_view parsed)
+		{
+
+		}
+	};
+
 	class Widget : public std::enable_shared_from_this<Widget>
 	{
 	public:
@@ -25,11 +64,15 @@ namespace oe::gui
 		{
 			using widget_t = Widget;
 
-			glm::ivec2            size = { 50, 50 };
-			glm::ivec2 offset_position = { 0, 0 };
-			glm::vec2     align_parent = oe::alignments::center_center;
-			glm::vec2     align_render = oe::alignments::center_center;
-			bool               toggled = true;
+			// exact positioning/sizing
+			glm::ivec2                 pixel_size = { 50, 50 };
+			glm::ivec2        pixel_origon_offset = { 0, 0 };
+			// relative positioning/sizing
+			glm::vec2                  fract_size = { 0.0f, 0.0f };
+			glm::vec2         fract_origon_offset = oe::alignments::top_left; // where to put the origin on the parent widget
+			// self alignment
+			glm::vec2                align_origon = oe::alignments::top_left; // how to align this widget to the origon
+			bool                          toggled = true;
 		};
 		using info_t = Info;
 		
@@ -40,6 +83,8 @@ namespace oe::gui
 		
 		bool m_toggle_pending = false;
 		bool m_toggle_pending_value = false;
+		
+		void reset_render_pos();
 
 
 	protected:
@@ -47,6 +92,7 @@ namespace oe::gui
 		float m_z;
 
 	public:
+		glm::ivec2 m_render_size = { 0, 0 };
 		glm::ivec2 m_render_position = { 0, 0 };
 		info_t m_info;
 		

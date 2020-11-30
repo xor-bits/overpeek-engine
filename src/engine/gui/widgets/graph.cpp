@@ -61,12 +61,12 @@ namespace oe::gui
         : SpritePanel(parent, gui_manager, info.bg_panel_info)
         , m_graph_info(info)
     {
-		SpritePanel::info_t spi = { oe::colors::transparent, m_graph_info.bg_panel_info.sprite, m_graph_info.bg_panel_info.rotation, m_graph_info.bg_panel_info.widget_info };
+		SpritePanel::info_t spi = m_graph_info.bg_panel_info;
+		spi.color_tint = oe::colors::transparent;
+		spi.widget_info.pixel_size = { 0, 0 };
+		spi.widget_info.fract_size = { 1.0f, 1.0f };
+		spi.sprite = nullptr;
 		m_graph = create(spi);
-		m_graph->m_info.align_parent = oe::alignments::top_left;
-		m_graph->m_info.align_render = oe::alignments::top_left;
-		m_graph->m_info.offset_position = { 0, 0 };
-		m_graph->sprite_panel_info.sprite = nullptr;
     }
 	
 	void Graph::virtual_toggle(bool enabled)
@@ -74,7 +74,7 @@ namespace oe::gui
 		SpritePanel::virtual_toggle(enabled);
 		if(enabled)
 		{
-			graph_fb = oe::graphics::FrameBuffer({ m_info.size });
+			graph_fb = oe::graphics::FrameBuffer({ m_render_size });
 
 			// event listeners
 			m_cg_render.connect<GUIRenderEvent, &Graph::on_render, Graph>(m_gui_manager.m_dispatcher, this);
@@ -105,8 +105,8 @@ namespace oe::gui
 		graph_fb->bind();
 		graph_fb->clear(oe::colors::transparent);
 		// draw
-		glm::ivec2 viewport = m_info.size;
-		if(m_graph_info.graph_data.size() != 0) viewport += glm::ivec2(m_info.size.x / m_graph_info.graph_data.size(), 0.0f);
+		glm::ivec2 viewport = m_render_size;
+		if(m_graph_info.graph_data.size() != 0) viewport += glm::ivec2(m_render_size.x / m_graph_info.graph_data.size(), 0.0f);
 		graph_renderer.g_shader->bind();
 		graph_renderer.g_shader->setUniform("u_graph_size", (int)m_graph_info.graph_data.size());
 		graph_renderer.g_shader->setUniform("u_graph_data", m_graph_info.graph_data);

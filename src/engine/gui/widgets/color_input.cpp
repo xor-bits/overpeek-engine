@@ -34,19 +34,14 @@ namespace oe::gui
 
 	Vec<BasicSliderInput<float>, vec_size>::info_t create_vec_slider_info(const ColorInput::info_t& color_input_info)
 	{
-		const int slider_height = color_input_info.widget_info.size.y;
-		const int slider_width = color_input_info.widget_info.size.x - 55;
-
 		Vec<BasicSliderInput<float>, vec_size>::info_t info;
 		info.type = arrangements::rows;
 		info.borders = 4;
 		info.padding = 4;
 
 		info.widget_info = color_input_info.widget_info;
-		info.widget_info.align_parent = oe::alignments::top_left;
-		info.widget_info.align_render = oe::alignments::top_left;
-		info.widget_info.offset_position = { 0, 0 };
-		info.widget_info.size = { slider_width, slider_height };
+		info.widget_info.pixel_size = { -55, 0 };
+		info.widget_info.fract_size = { 1.0f, 1.0f };
 		info.auto_size = true;
 
 		BasicSliderInput<float>::info_t common;
@@ -71,19 +66,14 @@ namespace oe::gui
 
 	Vec<NumberInput, vec_size>::info_t create_vec_number_info(const ColorInput::info_t& color_input_info)
 	{
-		const int slider_height = color_input_info.widget_info.size.y;
-		const int slider_width = color_input_info.widget_info.size.x - 55;
-
 		Vec<NumberInput, vec_size>::info_t info;
 		info.type = arrangements::columns;
 		info.borders = 4;
 		info.padding = 4;
 
 		info.widget_info = color_input_info.widget_info;
-		info.widget_info.align_parent = oe::alignments::top_left;
-		info.widget_info.align_render = oe::alignments::top_left;
-		info.widget_info.offset_position = { 0, 0 };
-		info.widget_info.size = { slider_width, slider_height };
+		info.widget_info.pixel_size = { -55, 0 };
+		info.widget_info.fract_size = { 1.0f, 1.0f };
 		info.auto_size = true;
 
 		NumberInput::info_t common;
@@ -126,13 +116,12 @@ namespace oe::gui
 
 		if(m_color_input_info.primary_input == input_type::slider)
 		{
-			auto vec_info = create_vec_slider_info(color_input_info);
-			auto vec = Widget::create(vec_info, m_value);
-			m_info.size = vec->m_info.size;
+			const auto vec_info = create_vec_slider_info(color_input_info);
+			auto vec = create(vec_info, m_value);
 			
 			for (size_t i = 0; i < vec_size; i++)
 			{
-				int32_t min_size = std::min(vec->m_elements[i]->m_info.size.x, vec->m_elements[i]->m_info.size.y);
+				const int32_t min_size = std::min(vec->m_elements[i]->m_render_size.x, vec->m_elements[i]->m_render_size.y);
 				vec->m_elements[i]->m_slider_info.knob_size = { min_size, min_size };
 			}
 
@@ -144,9 +133,8 @@ namespace oe::gui
 		}
 		else if(m_color_input_info.primary_input == input_type::dragger)
 		{
-			auto vec_info = create_vec_number_info(color_input_info);
+			const auto vec_info = create_vec_number_info(color_input_info);
 			auto vec = Widget::create(vec_info, m_value);
-			m_info.size = vec->m_info.size;
 
 			for (size_t i = 0; i < 4; i++)
 			{
@@ -155,19 +143,23 @@ namespace oe::gui
 			}
 		}
 		else
-			m_info.size.x = 4;
+			m_render_size.x = 4;
 
-		m_info.size += glm::ivec2{ 44, 0 };
+		m_render_size += glm::ivec2{ 44, 0 };
 
 		SpritePanel::info_t sprite_panel_info;
-		sprite_panel_info.widget_info = { m_info.size, { 0, 0 }, oe::alignments::top_left, oe::alignments::top_left };
+		sprite_panel_info.widget_info.pixel_size = { 0, 0 };
+		sprite_panel_info.widget_info.fract_size = { 1.0f, 1.0f };
 		sprite_panel_info.sprite = m_color_input_info.sprite;
 		sprite_panel_info.color_tint = m_color_input_info.background_color;
 		auto bgbox = create(sprite_panel_info);
 		bgbox->overrideZ(bgbox->getZ() - 0.5f);
 
 		SpritePanel::info_t preview_panel_info;
-		preview_panel_info.widget_info = { { 40, m_info.size.y - 8 }, { -4, 4 }, oe::alignments::top_right, oe::alignments::top_right };
+		preview_panel_info.widget_info.pixel_size = { 40, -8 };
+		preview_panel_info.widget_info.fract_size = { 0.0f, 1.0f };
+		preview_panel_info.widget_info.fract_origon_offset = oe::alignments::top_right;
+		preview_panel_info.widget_info.align_origon = oe::alignments::top_right;
 		preview_panel_info.color_tint = m_value;
 		preview_panel_info.sprite = m_color_input_info.sprite;
 		m_preview_panel = create(preview_panel_info);
@@ -179,10 +171,8 @@ namespace oe::gui
 			cpw_info.preview = true;
 			cpw_info.color_input_info.background_color = m_color_input_info.background_color;
 			cpw_info.color_input_info.sprite = m_color_input_info.sprite;
-			cpw_info.color_input_info.widget_info.size = { 200, 200 };
-			cpw_info.color_input_info.widget_info.align_parent = oe::alignments::top_left;
-			cpw_info.color_input_info.widget_info.align_render = oe::alignments::top_left;
-			cpw_info.color_input_info.widget_info.offset_position = static_cast<glm::ivec2>(m_gui_manager.getWindow()->getSize()) * 4;
+			cpw_info.color_input_info.widget_info.pixel_size = { 200, 200 };
+			cpw_info.color_input_info.widget_info.pixel_origon_offset = static_cast<glm::ivec2>(m_gui_manager.getWindow()->getSize()) * 4;
 			cpw_info.color_input_info.widget_info.toggled = true;
 			m_popup_picker = create(cpw_info, m_value);
 			m_popup_picker->addZ(1e2f);
@@ -263,7 +253,7 @@ namespace oe::gui
 		if (m_color_input_info.popup_open != open_fn::in_bbox)
 			return;
 
-		m_popup_picker->m_info.offset_position = m_gui_manager.getWindow()->getCursorWindow() - m_render_position + glm::ivec2{ 10, 10 };
+		m_popup_picker->m_info.pixel_origon_offset = m_gui_manager.getWindow()->getCursorWindow() - m_render_position + glm::ivec2{ 10, 10 };
 		m_popup_picker->toggle(true);
 	}
 
@@ -275,7 +265,7 @@ namespace oe::gui
 		if (e.button != oe::mouse_buttons::button_left || e.action != oe::actions::press)
 			return;
 
-		m_popup_picker->m_info.offset_position = m_gui_manager.getWindow()->getCursorWindow() - m_render_position + glm::ivec2{ 10, 10 };
+		m_popup_picker->m_info.pixel_origon_offset = m_gui_manager.getWindow()->getCursorWindow() - m_render_position + glm::ivec2{ 10, 10 };
 		m_popup_picker->toggle(true);
 	}
 
@@ -290,7 +280,7 @@ namespace oe::gui
 		if (!oe::utils::bounding_box_test(
 			e.cursor_pos.cursor_windowspace,
 			glm::min(m_preview_button->m_render_position, m_popup_picker->m_render_position),
-			glm::max(m_preview_button->m_render_position + m_preview_button->m_info.size, m_popup_picker->m_render_position + m_popup_picker->m_info.size) - glm::min(m_preview_button->m_render_position, m_popup_picker->m_render_position)))
+			glm::max(m_preview_button->m_render_position + m_preview_button->m_render_size, m_popup_picker->m_render_position + m_popup_picker->m_render_size) - glm::min(m_preview_button->m_render_position, m_popup_picker->m_render_position)))
 		{
 			m_popup_picker->toggle(false);
 		}
@@ -305,7 +295,7 @@ namespace oe::gui
 		if (!oe::utils::bounding_box_test(
 			e.cursor_windowspace,
 			glm::min(m_preview_button->m_render_position, m_popup_picker->m_render_position) - glm::ivec2{ bbox_padding },
-			glm::max(m_preview_button->m_render_position + m_preview_button->m_info.size, m_popup_picker->m_render_position + m_popup_picker->m_info.size) - glm::min(m_preview_button->m_render_position, m_popup_picker->m_render_position) + glm::ivec2{ bbox_padding * 2 }))
+			glm::max(m_preview_button->m_render_position + m_preview_button->m_render_size, m_popup_picker->m_render_position + m_popup_picker->m_render_size) - glm::min(m_preview_button->m_render_position, m_popup_picker->m_render_position) + glm::ivec2{ bbox_padding * 2 }))
 		{
 			m_popup_picker->toggle(false);
 		}

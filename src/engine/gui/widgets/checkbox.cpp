@@ -15,7 +15,8 @@ namespace oe::gui
 		, m_value(value_ref)
 	{
 		Button::info_t button_info;
-		button_info = {{ m_info.size, { 0, 0 }, oe::alignments::center_center, oe::alignments::center_center }};
+		button_info.pixel_size = { 0, 0 };
+		button_info.fract_size = { 1.0f, 1.0f };
 		m_button = create(button_info);
 		m_button->connect_listener<ButtonUseEvent, &Checkbox::on_button_use>(this);
 		m_button->connect_listener<ButtonHoverEvent, &Checkbox::on_button_hover>(this);
@@ -53,13 +54,13 @@ namespace oe::gui
 			return;
 
 		quad_box->setPosition(m_render_position);
+		quad_box->setSize(m_render_size);
 		quad_box->setZ(m_z);
-		quad_box->setSize(m_info.size);
 		quad_box->setColor(m_checkbox_info.color_back);
 		quad_box->setSprite(m_checkbox_info.sprite);
 
-		quad_check->setSize(m_value ? static_cast<glm::vec2>(m_info.size) * 0.7f : glm::vec2{ 0.0f, 0.0f });
-		quad_check->setPosition(static_cast<glm::vec2>(m_render_position + m_info.size / 2));
+		quad_check->setPosition(static_cast<glm::vec2>(m_render_position + m_render_size / 2));
+		quad_check->setSize(m_value ? static_cast<glm::vec2>(m_render_size) * 0.7f : glm::vec2{ 0.0f, 0.0f });
 		quad_check->setZ(m_z + 0.05f);
 		quad_check->setColor(m_checkbox_info.color_mark);
 		quad_check->setSprite(m_checkbox_info.sprite);

@@ -322,16 +322,16 @@ yyyyyyyyyyyyy
 
 		if constexpr (graphs) {
 			oe::gui::Graph::info_t graph_info;
-			graph_info.bg_panel_info.widget_info.size = { 200, 100 };
-			graph_info.bg_panel_info.widget_info.offset_position = { 0, 5 };
-			graph_info.bg_panel_info.widget_info.align_parent = oe::alignments::bottom_left;
-			graph_info.bg_panel_info.widget_info.align_render = oe::alignments::top_left;
+			graph_info.bg_panel_info.widget_info.pixel_size = { 200, 100 };
+			graph_info.bg_panel_info.widget_info.pixel_origon_offset = { 0, 5 };
+			graph_info.bg_panel_info.widget_info.fract_origon_offset = oe::alignments::bottom_left;
+			graph_info.bg_panel_info.widget_info.align_origon = oe::alignments::top_left;
 			graph_info.bg_panel_info.sprite = pack->emptySprite();
 			graph_info.bg_panel_info.color_tint = oe::colors::translucent_black;
 			graph_info.graph_color = oe::colors::green;
 			graph_fps = textpanel->create(graph_info);
 			
-			graph_info.bg_panel_info.widget_info.offset_position = { 205, 5 };
+			graph_info.bg_panel_info.widget_info.pixel_origon_offset = { 205, 5 };
 			graph_info.graph_color = oe::colors::blue;
 			graph_ups = textpanel->create(graph_info);
 		}
