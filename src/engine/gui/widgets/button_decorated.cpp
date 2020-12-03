@@ -20,7 +20,7 @@ namespace oe::gui
 		sp_info.widget_info.fract_size = { 1.0f, 1.0f };
 		sp_info.widget_info.pixel_origon_offset = { 0, 0 };
 		sp_info.widget_info.fract_origon_offset = oe::alignments::top_left;
-		sp_info.widget_info.align_origon = oe::alignments::top_left;
+		sp_info.widget_info.fract_render_offset = oe::alignments::top_left;
 		sp_info.sprite = button_info.sprite;
 		sp_info.color_tint = button_info.btn_color;
 		button_background = create(sp_info);
@@ -29,7 +29,7 @@ namespace oe::gui
 		tp_info.text = button_info.text;
 		tp_info.text_options = _button_info.text_options;
 		tp_info.widget_info.fract_origon_offset = _button_info.text_options.align;
-		tp_info.widget_info.align_origon = _button_info.text_options.align;
+		tp_info.widget_info.fract_render_offset = _button_info.text_options.align;
 		button_text = create(tp_info);
 	}
 }

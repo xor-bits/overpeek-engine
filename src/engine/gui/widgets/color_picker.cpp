@@ -176,7 +176,7 @@ namespace oe::gui
 		SpritePanel::info_t lsp_info;
 		lsp_info.widget_info.pixel_size = glm::ivec2{ std::min(m_render_size.x, m_render_size.y - 25) };
 		lsp_info.widget_info.fract_origon_offset = oe::alignments::top_center;
-		lsp_info.widget_info.align_origon = oe::alignments::top_center;
+		lsp_info.widget_info.fract_render_offset = oe::alignments::top_center;
 		lsp_info.widget_info.toggled = color_picker_info.color_input_info.widget_info.toggled;
 		lsp_info.sprite = &renderer.c_checkerboard;
 		lsp_info.color_tint = oe::colors::white;
@@ -188,7 +188,7 @@ namespace oe::gui
 			sp_info.widget_info.pixel_size = { 25, 25 };
 			sp_info.widget_info.pixel_origon_offset = { 5, 5 };
 			sp_info.widget_info.fract_origon_offset = oe::alignments::top_left;
-			sp_info.widget_info.align_origon = oe::alignments::top_left;
+			sp_info.widget_info.fract_render_offset = oe::alignments::top_left;
 			sp_info.widget_info.toggled = color_picker_info.color_input_info.widget_info.toggled;
 			sp_info.sprite = renderer.c_circle_sprite;
 			sp_info.color_tint = oe::colors::white;
@@ -203,7 +203,7 @@ namespace oe::gui
 			s_info.widget_info.fract_size = { 1.0f, 0.0f };
 			s_info.widget_info.pixel_origon_offset = { 0, -5 };
 			s_info.widget_info.fract_origon_offset = oe::alignments::bottom_center;
-			s_info.widget_info.align_origon = oe::alignments::bottom_center;
+			s_info.widget_info.fract_render_offset = oe::alignments::bottom_center;
 			s_info.widget_info.toggled = color_picker_info.color_input_info.widget_info.toggled;
 			s_info.slider_sprite = &renderer.c_checkerboard;
 			s_info.knob_sprite = &renderer.c_checkerboard;
@@ -275,9 +275,9 @@ namespace oe::gui
 		}
 		
 		// triangle vertices
-		m_triangle_vertices[0].data.position = { std::cos(m_direction + 0 * m_equilateral_triangle_angles) * m_triangle_width, std::sin(m_direction + 0 * m_equilateral_triangle_angles) * m_triangle_width, 0.0f };
-		m_triangle_vertices[1].data.position = { std::cos(m_direction + 1 * m_equilateral_triangle_angles) * m_triangle_width, std::sin(m_direction + 1 * m_equilateral_triangle_angles) * m_triangle_width, 0.0f };
-		m_triangle_vertices[2].data.position = { std::cos(m_direction + 2 * m_equilateral_triangle_angles) * m_triangle_width, std::sin(m_direction + 2 * m_equilateral_triangle_angles) * m_triangle_width, 0.0f };
+		m_triangle_vertices[0].data.position = { std::cos(m_direction - 0 * m_equilateral_triangle_angles) * m_triangle_width, std::sin(m_direction - 0 * m_equilateral_triangle_angles) * m_triangle_width, 0.0f };
+		m_triangle_vertices[1].data.position = { std::cos(m_direction - 1 * m_equilateral_triangle_angles) * m_triangle_width, std::sin(m_direction - 1 * m_equilateral_triangle_angles) * m_triangle_width, 0.0f };
+		m_triangle_vertices[2].data.position = { std::cos(m_direction - 2 * m_equilateral_triangle_angles) * m_triangle_width, std::sin(m_direction - 2 * m_equilateral_triangle_angles) * m_triangle_width, 0.0f };
 
 		// preview color
 		if (m_color_picker_info.preview)
@@ -352,7 +352,7 @@ namespace oe::gui
 		renderer.c_renderer_triangle->begin();
 		renderer.c_renderer_triangle->submitVertex(m_triangle_vertices, 0);
 		renderer.c_renderer_triangle->end();
-		renderer.c_renderer_triangle->render();
+		renderer.c_renderer_triangle->render(0, 1);
 
 		renderer.c_shader->bind();
 		renderer.c_shader->setUniform("u_viewport", m_framebuffer_panel->m_render_size / 16);

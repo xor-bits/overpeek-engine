@@ -54,19 +54,17 @@ namespace oe::gui
 	void Widget::reset_render_pos()
 	{
 		const glm::ivec2 parent_pos = getParent() ? getParent()->m_render_position : glm::ivec2{ oe::gui::border, oe::gui::border };
-		const glm::ivec2 parent_size = getParent() ? getParent()->m_render_size : m_gui_manager.getWindow()->getSize();
-		const glm::ivec2 fract_pos = static_cast<glm::ivec2>(static_cast<glm::vec2>(parent_size) * m_info.fract_origon_offset);
-		const glm::ivec2 fract_size = static_cast<glm::ivec2>(static_cast<glm::vec2>(parent_size) * m_info.fract_size);
+		const glm::ivec2 parent_size = getParent() ? getParent()->m_render_size : static_cast<glm::ivec2>(m_gui_manager.getWindow()->getSize());
 
 		m_render_size =
 			+ m_info.pixel_size
-			+ fract_size;
+			+ oe::alignmentOffsetRound(parent_size, m_info.fract_size);
 		
 		m_render_position =
 			+ m_info.pixel_origon_offset
 			+ parent_pos
 			+ oe::alignmentOffsetRound(parent_size, m_info.fract_origon_offset)
-			- oe::alignmentOffsetRound(m_render_size, m_info.align_origon);
+			- oe::alignmentOffsetRound(m_render_size, m_info.fract_render_offset);
 	}
 
 	void Widget::addZ(float add_to_z) noexcept

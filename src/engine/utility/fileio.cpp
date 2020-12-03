@@ -12,6 +12,18 @@
 #include "engine/engine.hpp"
 #include "engine/asset/fonts.hpp"
 
+
+
+// ignore external warnings
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullability-extension"
+#elif __GNUC__
+#endif
+
+// #include <miniz/miniz_zip.h>
+#include <zip.h>
+
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image.h>
@@ -19,18 +31,6 @@
 
 #define MINIMP3_IMPLEMENTATION
 #include <minimp3_ex.h>
-
-
-
-// ignore external warnings
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma GCC diagnostic ignored "-Wnullability-extension"
-#elif __GNUC__
-#endif
-
-// #include <miniz/miniz_zip.h>
-#include <zip.h>
 
 // ignore external warnings
 #ifdef __clang__
@@ -68,6 +68,18 @@ constexpr int stb_i_channels(oe::formats format) {
 
 namespace oe::utils
 {
+	/* byte_string compress(byte_string_view bytes)
+	{
+		
+	}
+
+	byte_string uncompress(byte_string_view bytes)
+	{
+
+	} */
+
+
+
 	image_data::image_data(oe::formats _format, int _width, int _height)
 		: format(_format)
 		, width(_width), height(_height)

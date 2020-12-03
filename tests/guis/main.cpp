@@ -19,7 +19,7 @@ std::array<float, 200> perf_log_fps;
 std::array<float, 200> perf_log_ups;
 
 oe::graphics::Window window;
-constexpr oe::RasterizerInfo line_rasterizer{ oe::modes::enable, oe::depth_functions::less_than_or_equal, oe::culling_modes::back, oe::polygon_mode::lines };
+constexpr oe::RasterizerInfo line_rasterizer{ oe::modes::enable, oe::depth_functions::less_than_or_equal, oe::culling_modes::neither, oe::polygon_mode::lines };
 oe::asset::DefaultShader* shader;
 oe::graphics::PrimitiveRenderer renderer;
 oe::graphics::SpritePack* pack;
@@ -102,7 +102,7 @@ void cube()
 	
 	if (checkbox && checkbox->m_value)
 	{
-		cube_rotation = glm::angleAxis(quat_slider_val.w, glm::normalize(glm::vec3(quat_slider_val.x, quat_slider_val.y, quat_slider_val.z)));
+		cube_rotation = glm::angleAxis(quat_slider_val.x, glm::normalize(glm::vec3(quat_slider_val.y, quat_slider_val.z, quat_slider_val.w)));
 	}
 	else
 	{
@@ -137,7 +137,7 @@ void cube()
 		}
 		else */
 		{
-			cube_rotation = glm::angleAxis(-quat_slider_val.w, glm::normalize(glm::vec3(quat_slider_val.x, quat_slider_val.y, quat_slider_val.z)));
+			cube_rotation = glm::angleAxis(-quat_slider_val.x, glm::normalize(glm::vec3(quat_slider_val.y, quat_slider_val.z, quat_slider_val.w)));
 		}
 		
 	}
@@ -224,7 +224,10 @@ void setup_gui()
 {
 	{
 		oe::gui::SpritePanel::info_t sprite_panel_info;
-		sprite_panel_info.widget_info = { { 150, 150 }, { 0, 0 }, oe::alignments::bottom_left, oe::alignments::bottom_left };
+		sprite_panel_info.widget_info.pixel_size = { 150, 150 };
+		sprite_panel_info.widget_info.pixel_origon_offset = { 0, 0 };
+		sprite_panel_info.widget_info.fract_origon_offset = oe::alignments::bottom_left;
+		sprite_panel_info.widget_info.fract_render_offset = oe::alignments::bottom_left;
 		sprite_panel_info.sprite = sprite;
 		box = gui->create(sprite_panel_info);
 	}
@@ -235,15 +238,21 @@ UR"(wwwwwwwwwwww
 WWWWWWWWWW
 yyyyyyyyyyyyy
 |||||||||||||||||||)";
-		text_input_info.widget_info = { { 200, 80 }, { 0, 0 }, oe::alignments::bottom_right, oe::alignments::bottom_right };
+		text_input_info.widget_info.pixel_size = { 200, 80 };
+		text_input_info.widget_info.pixel_origon_offset = { 0, 0 };
+		text_input_info.widget_info.fract_origon_offset = oe::alignments::bottom_right;
+		text_input_info.widget_info.fract_render_offset = oe::alignments::bottom_right;
 		text_input_info.text_options.size = 16;
 		text_input_info.sprite = pack->emptySprite();
 		textbox = gui->create(text_input_info);
 	}
 	{
 		oe::gui::Vec<oe::gui::fSliderInput, 4>::info_t vecslider_info;
-		vecslider_info.widget_info = { { 400, 30 }, { 0, 0 }, oe::alignments::bottom_center, oe::alignments::bottom_center };
-		vecslider_info.auto_size = true;
+		vecslider_info.widget_info.pixel_size = { 400, 30 };
+		// vecslider_info.widget_info.fract_size = { 0.5f, 0.0f };
+		vecslider_info.widget_info.pixel_origon_offset = { 0, 0 };
+		vecslider_info.widget_info.fract_origon_offset = oe::alignments::bottom_center;
+		vecslider_info.widget_info.fract_render_offset = oe::alignments::bottom_center;
 		oe::gui::fSliderInput::info_t common;
 		common.slider_sprite = pack->emptySprite();
 		common.value_bounds = { -1.0f, 1.0f };
@@ -256,13 +265,19 @@ yyyyyyyyyyyyy
 	}
 	{
 		oe::gui::Checkbox::info_t ci;
-		ci.widget_info = { { 24, 24 }, { 0, -35 }, oe::alignments::bottom_center, oe::alignments::bottom_center };
+		ci.widget_info.pixel_size = { 24, 24 };
+		ci.widget_info.pixel_origon_offset = { 0, -35 };
+		ci.widget_info.fract_origon_offset = oe::alignments::bottom_center;
+		ci.widget_info.fract_render_offset = oe::alignments::bottom_center;
 		ci.sprite = pack->emptySprite();
 		checkbox = gui->create(ci);
 
 		{
 			oe::gui::DecoratedButton::info_t button_info;
-			button_info.button_info = {{ { 60, 24 }, { 5, 0 }, oe::alignments::center_right, oe::alignments::center_left }};
+			button_info.button_info.pixel_size = { 60, 24 };
+			button_info.button_info.pixel_origon_offset = { 5, 0 };
+			button_info.button_info.fract_origon_offset = oe::alignments::center_right;
+			button_info.button_info.fract_render_offset = oe::alignments::center_left;
 			button_info.sprite = pack->emptySprite();
 			button_info.text = { U"log", oe::colors::white };
 			button_info.text_options.size = 20;
@@ -278,7 +293,10 @@ yyyyyyyyyyyyy
 	}
 	{ // color picker 1
 		oe::gui::ColorInput::info_t color_picker_info;
-		color_picker_info.widget_info = { { 200, 120 }, { 0, 35 }, oe::alignments::center_left, oe::alignments::center_left };
+		color_picker_info.widget_info.pixel_size = { 200, 120 };
+		color_picker_info.widget_info.pixel_origon_offset = { 0, 35 };
+		color_picker_info.widget_info.fract_origon_offset = oe::alignments::center_center;
+		color_picker_info.widget_info.fract_render_offset = oe::alignments::center_center;
 		color_picker_info.sprite = pack->emptySprite();
 		color_picker_info.popup_color_picker = true;
 		color_picker_info.primary_input = oe::gui::input_type::slider;
@@ -287,7 +305,10 @@ yyyyyyyyyyyyy
 	}
 	{ // color picker 2
 		oe::gui::ColorInput::info_t color_picker_info;
-		color_picker_info.widget_info = { { 200, 20 }, { 0, -40 }, oe::alignments::center_left, oe::alignments::center_left };
+		color_picker_info.widget_info.pixel_size = { 200, 20 };
+		color_picker_info.widget_info.pixel_origon_offset = { 0, -40 };
+		color_picker_info.widget_info.fract_origon_offset = oe::alignments::center_center;
+		color_picker_info.widget_info.fract_render_offset = oe::alignments::center_center;
 		color_picker_info.sprite = pack->emptySprite();
 		color_picker_info.popup_color_picker = true;
 		color_picker_info.primary_input = oe::gui::input_type::dragger;
@@ -296,7 +317,10 @@ yyyyyyyyyyyyy
 	}
 	{ // color picker 3
 		oe::gui::ColorInput::info_t color_picker_info;
-		color_picker_info.widget_info = { { 20, 20 }, { 0, -65 }, oe::alignments::center_left, oe::alignments::center_left };
+		color_picker_info.widget_info.pixel_size = { 20, 20 };
+		color_picker_info.widget_info.pixel_origon_offset = { 0, -65 };
+		color_picker_info.widget_info.fract_origon_offset = oe::alignments::center_center;
+		color_picker_info.widget_info.fract_render_offset = oe::alignments::center_center;
 		color_picker_info.sprite = pack->emptySprite();
 		color_picker_info.popup_color_picker = true;
 		color_picker_info.primary_input = oe::gui::input_type::none;
@@ -304,16 +328,22 @@ yyyyyyyyyyyyy
 	}
 	{
 		oe::gui::BasicNumberInput<uint32_t>::info_t number_input_info;
+		number_input_info.widget_info.pixel_size = { 50, 20 };
+		number_input_info.widget_info.pixel_origon_offset = { 0, 0 };
+		number_input_info.widget_info.fract_origon_offset = oe::alignments::top_center;
+		number_input_info.widget_info.fract_render_offset = oe::alignments::top_center;
 		number_input_info.initial_value = 42;
 		number_input_info.value_bounds = { std::numeric_limits<uint32_t>::min(), std::numeric_limits<uint32_t>::max() };
-		number_input_info.widget_info = { { 50, 20 }, { 0, 0 }, oe::alignments::top_center, oe::alignments::top_center };
 		number_input_info.sprite = pack->emptySprite();
 		number_input_info.text_options.size = 16;
 		gui->create(number_input_info);
 	}
 	{
 		oe::gui::TextPanel::info_t text_panel_info;
-		text_panel_info.widget_info = { { 0, 0 }, { 0, 0 }, oe::alignments::top_left, oe::alignments::top_left };
+		text_panel_info.widget_info.pixel_size = { 0, 0 };
+		text_panel_info.widget_info.pixel_origon_offset = { 0, 0 };
+		text_panel_info.widget_info.fract_origon_offset = oe::alignments::top_left;
+		text_panel_info.widget_info.fract_render_offset = oe::alignments::top_left;
 		text_panel_info.text = { U"placeholder", oe::colors::white };
 		text_panel_info.text_options.font = oe::utils::FontFile{ oe::asset::Fonts::roboto_italic() };
 		text_panel_info.text_options.size = 24;
@@ -325,7 +355,7 @@ yyyyyyyyyyyyy
 			graph_info.bg_panel_info.widget_info.pixel_size = { 200, 100 };
 			graph_info.bg_panel_info.widget_info.pixel_origon_offset = { 0, 5 };
 			graph_info.bg_panel_info.widget_info.fract_origon_offset = oe::alignments::bottom_left;
-			graph_info.bg_panel_info.widget_info.align_origon = oe::alignments::top_left;
+			graph_info.bg_panel_info.widget_info.fract_render_offset = oe::alignments::top_left;
 			graph_info.bg_panel_info.sprite = pack->emptySprite();
 			graph_info.bg_panel_info.color_tint = oe::colors::translucent_black;
 			graph_info.graph_color = oe::colors::green;
@@ -347,8 +377,8 @@ yyyyyyyyyyyyy
 
 	tpi = {};
 	tpi.text_options.size = 20;
-	tpi.widget_info.align_parent = oe::alignments::top_left;
-	tpi.widget_info.align_render = oe::alignments::top_left;
+	tpi.widget_info.fract_origon_offset = oe::alignments::top_left;
+	tpi.widget_info.fract_render_offset = oe::alignments::top_left;
 	tpi.text = { U"placeholder", oe::colors::white };
 	
 	auto& random = oe::utils::Random::getSingleton();

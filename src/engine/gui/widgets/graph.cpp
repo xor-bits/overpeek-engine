@@ -65,6 +65,9 @@ namespace oe::gui
 		spi.color_tint = oe::colors::transparent;
 		spi.widget_info.pixel_size = { 0, 0 };
 		spi.widget_info.fract_size = { 1.0f, 1.0f };
+		spi.widget_info.pixel_origon_offset = { 0, 0 };
+		spi.widget_info.fract_origon_offset = oe::alignments::top_left;
+		spi.widget_info.fract_render_offset = oe::alignments::top_left;
 		spi.sprite = nullptr;
 		m_graph = create(spi);
     }

@@ -18,44 +18,46 @@ namespace oe::gui { struct GUIRenderEvent; struct GUIPreRenderEvent; class GUI; 
 
 namespace oe::gui
 {
-	struct widget_vec
-	{
-		glm::ivec2 m_pixel_size;
-		glm::vec2 m_fract_size;
+	// struct widget_vec
+	// {
+	// 	glm::ivec2 m_pixel_size;
+	// 	glm::vec2 m_fract_size;
 
-		// pixel_size is like px in .css
-		// fract_size is like em in .css
-		constexpr widget_vec(const glm::ivec2& pixel_size, const glm::vec2& fract_size)
-			: m_pixel_size(pixel_size)
-			, m_fract_size(fract_size)
-		{}
+	// 	// pixel_size is like px in .css
+	// 	// fract_size is like em in .css
+	// 	constexpr widget_vec(const glm::ivec2& pixel_size, const glm::vec2& fract_size)
+	// 		: m_pixel_size(pixel_size)
+	// 		, m_fract_size(fract_size)
+	// 	{}
 
-		// pixel_size is like px in .css
-		constexpr widget_vec(const glm::ivec2& pixel_size)
-			: m_pixel_size(pixel_size)
-			, m_fract_size({ 0.0f, 0.0f })
-		{}
+	// 	// pixel_size is like px in .css
+	// 	constexpr widget_vec(const glm::ivec2& pixel_size)
+	// 		: m_pixel_size(pixel_size)
+	// 		, m_fract_size({ 0.0f, 0.0f })
+	// 	{}
 
-		// fract_size is like em in .css
-		constexpr widget_vec(const glm::vec2& fract_size)
-			: m_pixel_size({ 0, 0 })
-			, m_fract_size(fract_size)
-		{}
+	// 	// fract_size is like em in .css
+	// 	constexpr widget_vec(const glm::vec2& fract_size)
+	// 		: m_pixel_size({ 0, 0 })
+	// 		, m_fract_size(fract_size)
+	// 	{}
 
-		// defaults to 0, 0
-		constexpr widget_vec()
-			: m_pixel_size({ 0, 0 })
-			, m_fract_size({ 0.0f, 0.0f })
-		{}
+	// 	// defaults to 0, 0
+	// 	constexpr widget_vec()
+	// 		: m_pixel_size({ 0, 0 })
+	// 		, m_fract_size({ 0.0f, 0.0f })
+	// 	{}
 
-		// somewhat similar to .css
-		// ex. 1.0em - 50px, 50px
-		// ex. max(1em, 50px), 1em
-		constexpr widget_vec(std::string_view parsed)
-		{
+	// 	// somewhat similar to .css
+	// 	// ex. 1.0em - 50px, 50px
+	// 	// ex. max(1em, 50px), 1em
+	// 	constexpr widget_vec(std::string_view /* parsed */)
+	// 		: m_pixel_size({ 0, 0 })
+	// 		, m_fract_size({ 0.0f, 0.0f })
+	// 	{
 
-		}
-	};
+	// 	}
+	// };
 
 	class Widget : public std::enable_shared_from_this<Widget>
 	{
@@ -71,7 +73,7 @@ namespace oe::gui
 			glm::vec2                  fract_size = { 0.0f, 0.0f };
 			glm::vec2         fract_origon_offset = oe::alignments::top_left; // where to put the origin on the parent widget
 			// self alignment
-			glm::vec2                align_origon = oe::alignments::top_left; // how to align this widget to the origon
+			glm::vec2                fract_render_offset = oe::alignments::top_left; // how to align this widget to the origon
 			bool                          toggled = true;
 		};
 		using info_t = Info;
@@ -176,6 +178,6 @@ struct fmt::formatter<oe::gui::Widget::Info> {
 
 	template <typename FormatContext>
 	auto format(const oe::gui::Widget::Info& i, FormatContext& ctx) {
-		return format_to(ctx.out(), "[ s: {}, o: {}, a0: {}, a1: {}, t: {} ]", i.size, i.offset_position, i.align_parent, i.align_render, i.toggled);
+		return format_to(ctx.out(), "[ s: {}px + {}em, o: {}px + {}em, a: {}, t: {} ]", i.pixel_size, i.fract_size, i.pixel_origon_offset, i.fract_origon_offset, i.fract_render_offset, i.toggled);
 	}
 };

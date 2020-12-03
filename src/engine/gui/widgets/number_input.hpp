@@ -167,7 +167,7 @@ namespace oe::gui
 			if(e.action == oe::actions::release)
 				m_dragging = false;
 			
-			if(e.action != oe::actions::press || !oe::utils::bounding_box_test(e.cursor_pos.cursor_windowspace, m_render_position, m_info.size) || !static_cast<bool>(m_number_input_info.interact_flags & interact_type_flags::cursor))
+			if(e.action != oe::actions::press || !oe::utils::bounding_box_test(e.cursor_pos.cursor_windowspace, m_render_position, m_render_size) || !static_cast<bool>(m_number_input_info.interact_flags & interact_type_flags::cursor))
 				return;
 
 			m_dragging = true;

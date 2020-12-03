@@ -42,7 +42,9 @@ namespace oe::gui
 		info.widget_info = color_input_info.widget_info;
 		info.widget_info.pixel_size = { -55, 0 };
 		info.widget_info.fract_size = { 1.0f, 1.0f };
-		info.auto_size = true;
+		info.widget_info.pixel_origon_offset = { 0, 0 };
+		info.widget_info.fract_origon_offset = oe::alignments::top_left;
+		info.widget_info.fract_render_offset = oe::alignments::top_left;
 
 		BasicSliderInput<float>::info_t common;
 		common.value_bounds = glm::vec2(0.0f, 1.0f);
@@ -74,7 +76,9 @@ namespace oe::gui
 		info.widget_info = color_input_info.widget_info;
 		info.widget_info.pixel_size = { -55, 0 };
 		info.widget_info.fract_size = { 1.0f, 1.0f };
-		info.auto_size = true;
+		info.widget_info.pixel_origon_offset = { 0, 0 };
+		info.widget_info.fract_origon_offset = oe::alignments::top_left;
+		info.widget_info.fract_render_offset = oe::alignments::top_left;
 
 		NumberInput::info_t common;
 		common.value_bounds = glm::vec2(0.0f, 1.0f);
@@ -158,8 +162,9 @@ namespace oe::gui
 		SpritePanel::info_t preview_panel_info;
 		preview_panel_info.widget_info.pixel_size = { 40, -8 };
 		preview_panel_info.widget_info.fract_size = { 0.0f, 1.0f };
+		preview_panel_info.widget_info.pixel_origon_offset = { -4, 4 };
 		preview_panel_info.widget_info.fract_origon_offset = oe::alignments::top_right;
-		preview_panel_info.widget_info.align_origon = oe::alignments::top_right;
+		preview_panel_info.widget_info.fract_render_offset = oe::alignments::top_right;
 		preview_panel_info.color_tint = m_value;
 		preview_panel_info.sprite = m_color_input_info.sprite;
 		m_preview_panel = create(preview_panel_info);

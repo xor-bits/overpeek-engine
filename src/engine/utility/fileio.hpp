@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <gsl/span>
 
 #include "engine/enum.hpp"
 #include "engine/engine.hpp"
@@ -12,6 +13,12 @@
 namespace oe::utils
 {
 	using byte_string = std::vector<uint8_t>;
+	using byte_string_view = gsl::span<uint8_t>;
+
+	/* byte_string compress(byte_string_view bytes);
+	byte_string uncompress(byte_string_view bytes); */
+
+
 
 	struct image_data
 	{
@@ -53,8 +60,10 @@ namespace oe::utils
 		audio_data& operator=(audio_data&& move_assign);
 	};
 
-	// workaround for msvc bug
+
+
 	class FileIO;
+	// workaround for msvc bug
 	template<typename T>
 	struct FileIOInternal
 	{
@@ -110,8 +119,6 @@ namespace oe::utils
 		}
 	};
 
-	// std fstream and libzip wrapper
-	// currently supports zip nesting depth just up to max 1
 	class FileIO
 	{
 	private:

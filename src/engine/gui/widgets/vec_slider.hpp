@@ -45,11 +45,12 @@ namespace oe::gui
 			arrangements                            type = arrangements::columns;
 			int                                  padding = 3;
 			int                                  borders = 0;
-			bool                               auto_size = false;
 			Widget::Info                     widget_info = {};
 		};
 		using info_t = Info;
+
 		static_assert(dimension != 0, "VecSlider dimension must not be zero");
+		static_assert(dimension, "VecSlider dimension must me in the range of i32");
     
     public:
         std::array<std::shared_ptr<ElementType>, dimension> m_elements;
@@ -62,40 +63,48 @@ namespace oe::gui
 			, m_value(m_value_ref)
         {
 			const bool rows = (vec_info.type == arrangements::rows);
-			if(vec_info.auto_size)
-			{
-				const glm::ivec2 element_size = {
-					!rows * (vec_info.widget_info.pixel_size.x - 2 * vec_info.borders - (dimension - 1) * vec_info.padding) / dimension +
-					 rows * (vec_info.widget_info.pixel_size.x - 2 * vec_info.borders),
-					
-					!rows * (vec_info.widget_info.pixel_size.y - 2 * vec_info.borders) +
-					 rows * (vec_info.widget_info.pixel_size.y - 2 * vec_info.borders - (dimension - 1) * vec_info.padding) / dimension
-				};
-            	for(size_t i = 0; i < dimension; i++)
-					vec_info.common[i].widget_info.pixel_size = element_size;
-			}
 
-            const glm::ivec2 offset_mul = {
+			/* const glm::ivec2 element_pixel_size = {
+				!rows * (vec_info.widget_info.pixel_size.x - 2 * vec_info.borders - (dimension - 1) * vec_info.padding) / dimension +
+				rows * (vec_info.widget_info.pixel_size.x - 2 * vec_info.borders),
+				
+				!rows * (vec_info.widget_info.pixel_size.y - 2 * vec_info.borders) +
+				rows * (vec_info.widget_info.pixel_size.y - 2 * vec_info.borders - (dimension - 1) * vec_info.padding) / dimension
+			}; */
+
+			const glm::vec2 element_fract_size = {
+				!rows * 1.0f / static_cast<float>(dimension + 1) +
+				rows * 1.0f,
+				
+				!rows * 1.0f +
+				rows * 1.0f / static_cast<float>(dimension + 1),
+			};
+
+            const glm::ivec2 offset_mul_i = {
 				static_cast<int>(!rows),
 				static_cast<int>(rows)
 			};
-            const glm::ivec2 offset_add = {
+
+            const glm::vec2 offset_mul_f = static_cast<glm::vec2>(offset_mul_i);
+
+            /* const glm::ivec2 offset_add = {
 				vec_info.padding * static_cast<int>(!rows),
 				vec_info.padding * static_cast<int>(rows)
-			};
-            const glm::ivec2 largest_element = [&vec_info](){
+			}; */
+
+            /* const glm::ivec2 largest_element = [&vec_info](){
 				glm::ivec2 temp = { 0, 0 };
-				for(size_t i = 0; i < dimension; i++)
+				for(uint16_t i = 0; i < dimension; i++)
 					temp = glm::max(temp, vec_info.common[i].widget_info.pixel_size);
 				return temp;
-			}();
-            const glm::ivec2 size_add = {
+			}(); */
+
+            /* const glm::ivec2 size_add = {
 				largest_element.x * static_cast<int>(rows),
 				largest_element.y * static_cast<int>(!rows)
-			};
+			}; */
 
-			glm::ivec2 accumulated_offset = { vec_info.borders, vec_info.borders };
-            for(size_t i = 0; i < dimension; i++)
+            for(uint16_t i = 0; i < dimension; i++)
             {
 				// ref value
 				typename ElementType::value_t* type_name;
@@ -105,19 +114,12 @@ namespace oe::gui
 					type_name = m_value.data();
 
 				// widget
-            	vec_info.common[i].widget_info.fract_origon_offset = oe::alignments::top_left;
-            	vec_info.common[i].widget_info.align_origon = oe::alignments::top_left;
-            	vec_info.common[i].widget_info.pixel_origon_offset = accumulated_offset;
+				vec_info.common[i].widget_info.pixel_size = { 0, 0 };
+            	vec_info.common[i].widget_info.fract_size = element_fract_size;
+				vec_info.common[i].widget_info.pixel_origon_offset = glm::ivec2(vec_info.borders) + static_cast<int>(i) * offset_mul_i * glm::ivec2(vec_info.padding);
+            	vec_info.common[i].widget_info.fract_origon_offset = (static_cast<float>(i) * offset_mul_f * element_fract_size);
 				m_elements[i] = create(vec_info.common[i], *(type_name + i));
-
-				// next widget offset
-				if(i + 1 != dimension)
-					accumulated_offset += offset_mul * vec_info.common[i].widget_info.pixel_size + offset_add;
-				else
-					accumulated_offset += offset_mul * vec_info.common[i].widget_info.pixel_size;
             }
-			accumulated_offset += glm::ivec2{ vec_info.borders, vec_info.borders };
-			m_info.pixel_size = accumulated_offset + size_add;
         }
 		Vec(Widget* parent, GUI& gui_manager, const info_t& vec_info)
 			: Vec(parent, gui_manager, vec_info, m_initial_values)
