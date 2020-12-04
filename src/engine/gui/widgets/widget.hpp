@@ -69,6 +69,8 @@ namespace oe::gui
 			// exact positioning/sizing
 			glm::ivec2                 pixel_size = { 50, 50 };
 			glm::ivec2        pixel_origon_offset = { 0, 0 };
+			glm::ivec2                 min_pixel_size = { std::numeric_limits<int32_t>::min(), std::numeric_limits<int32_t>::min() };
+			glm::ivec2                 max_pixel_size = { std::numeric_limits<int32_t>::max(), std::numeric_limits<int32_t>::max() };
 			// relative positioning/sizing
 			glm::vec2                  fract_size = { 0.0f, 0.0f };
 			glm::vec2         fract_origon_offset = oe::alignments::top_left; // where to put the origin on the parent widget

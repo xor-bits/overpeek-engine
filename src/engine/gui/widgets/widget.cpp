@@ -56,9 +56,9 @@ namespace oe::gui
 		const glm::ivec2 parent_pos = getParent() ? getParent()->m_render_position : glm::ivec2{ oe::gui::border, oe::gui::border };
 		const glm::ivec2 parent_size = getParent() ? getParent()->m_render_size : static_cast<glm::ivec2>(m_gui_manager.getWindow()->getSize());
 
-		m_render_size =
+		m_render_size = glm::clamp(
 			+ m_info.pixel_size
-			+ oe::alignmentOffsetRound(parent_size, m_info.fract_size);
+			+ oe::alignmentOffsetRound(parent_size, m_info.fract_size), m_info.min_pixel_size, m_info.max_pixel_size);
 		
 		m_render_position =
 			+ m_info.pixel_origon_offset

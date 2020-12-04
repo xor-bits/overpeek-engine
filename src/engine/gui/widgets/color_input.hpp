@@ -53,7 +53,7 @@ namespace oe::gui
 			// value
 			value_t                                                                initial_color = oe::colors::red;
 			// visuals
-			std::function<std::string(char,std::string_view,const float&)>        text_format = &default_formatter;
+			std::function<std::string(char,std::string_view,const float&)>           text_format = &default_formatter;
 			TextOptions                                                             text_options = {};
 			oe::color                                                           background_color = oe::colors::dark_grey;
 			const oe::graphics::Sprite*                                                   sprite = nullptr;

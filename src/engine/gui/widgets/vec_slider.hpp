@@ -64,20 +64,20 @@ namespace oe::gui
         {
 			const bool rows = (vec_info.type == arrangements::rows);
 
-			/* const glm::ivec2 element_pixel_size = {
-				!rows * (vec_info.widget_info.pixel_size.x - 2 * vec_info.borders - (dimension - 1) * vec_info.padding) / dimension +
-				rows * (vec_info.widget_info.pixel_size.x - 2 * vec_info.borders),
+			const glm::ivec2 element_pixel_size = {
+				!rows * (-2 * vec_info.borders - (dimension - 1) * vec_info.padding) / dimension +
+				rows * (-2 * vec_info.borders),
 				
-				!rows * (vec_info.widget_info.pixel_size.y - 2 * vec_info.borders) +
-				rows * (vec_info.widget_info.pixel_size.y - 2 * vec_info.borders - (dimension - 1) * vec_info.padding) / dimension
-			}; */
+				!rows * (-2 * vec_info.borders) +
+				rows * (-2 * vec_info.borders - (dimension - 1) * vec_info.padding) / dimension
+			};
 
 			const glm::vec2 element_fract_size = {
-				!rows * 1.0f / static_cast<float>(dimension + 1) +
+				!rows * 1.0f / static_cast<float>(dimension) +
 				rows * 1.0f,
 				
 				!rows * 1.0f +
-				rows * 1.0f / static_cast<float>(dimension + 1),
+				rows * 1.0f / static_cast<float>(dimension),
 			};
 
             const glm::ivec2 offset_mul_i = {
@@ -114,9 +114,9 @@ namespace oe::gui
 					type_name = m_value.data();
 
 				// widget
-				vec_info.common[i].widget_info.pixel_size = { 0, 0 };
+				vec_info.common[i].widget_info.pixel_size = element_pixel_size;
             	vec_info.common[i].widget_info.fract_size = element_fract_size;
-				vec_info.common[i].widget_info.pixel_origon_offset = glm::ivec2(vec_info.borders) + static_cast<int>(i) * offset_mul_i * glm::ivec2(vec_info.padding);
+				vec_info.common[i].widget_info.pixel_origon_offset = glm::ivec2(vec_info.borders) + static_cast<int>(i) * offset_mul_i * (element_pixel_size + glm::ivec2(vec_info.padding));
             	vec_info.common[i].widget_info.fract_origon_offset = (static_cast<float>(i) * offset_mul_f * element_fract_size);
 				m_elements[i] = create(vec_info.common[i], *(type_name + i));
             }

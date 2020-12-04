@@ -295,8 +295,8 @@ yyyyyyyyyyyyy
 		oe::gui::ColorInput::info_t color_picker_info;
 		color_picker_info.widget_info.pixel_size = { 200, 120 };
 		color_picker_info.widget_info.pixel_origon_offset = { 0, 35 };
-		color_picker_info.widget_info.fract_origon_offset = oe::alignments::center_center;
-		color_picker_info.widget_info.fract_render_offset = oe::alignments::center_center;
+		color_picker_info.widget_info.fract_origon_offset = oe::alignments::center_left;
+		color_picker_info.widget_info.fract_render_offset = oe::alignments::center_left;
 		color_picker_info.sprite = pack->emptySprite();
 		color_picker_info.popup_color_picker = true;
 		color_picker_info.primary_input = oe::gui::input_type::slider;
@@ -307,8 +307,8 @@ yyyyyyyyyyyyy
 		oe::gui::ColorInput::info_t color_picker_info;
 		color_picker_info.widget_info.pixel_size = { 200, 20 };
 		color_picker_info.widget_info.pixel_origon_offset = { 0, -40 };
-		color_picker_info.widget_info.fract_origon_offset = oe::alignments::center_center;
-		color_picker_info.widget_info.fract_render_offset = oe::alignments::center_center;
+		color_picker_info.widget_info.fract_origon_offset = oe::alignments::center_left;
+		color_picker_info.widget_info.fract_render_offset = oe::alignments::center_left;
 		color_picker_info.sprite = pack->emptySprite();
 		color_picker_info.popup_color_picker = true;
 		color_picker_info.primary_input = oe::gui::input_type::dragger;
@@ -319,8 +319,8 @@ yyyyyyyyyyyyy
 		oe::gui::ColorInput::info_t color_picker_info;
 		color_picker_info.widget_info.pixel_size = { 20, 20 };
 		color_picker_info.widget_info.pixel_origon_offset = { 0, -65 };
-		color_picker_info.widget_info.fract_origon_offset = oe::alignments::center_center;
-		color_picker_info.widget_info.fract_render_offset = oe::alignments::center_center;
+		color_picker_info.widget_info.fract_origon_offset = oe::alignments::center_left;
+		color_picker_info.widget_info.fract_render_offset = oe::alignments::center_left;
 		color_picker_info.sprite = pack->emptySprite();
 		color_picker_info.popup_color_picker = true;
 		color_picker_info.primary_input = oe::gui::input_type::none;

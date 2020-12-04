@@ -40,7 +40,7 @@ namespace oe::gui
 		info.padding = 4;
 
 		info.widget_info = color_input_info.widget_info;
-		info.widget_info.pixel_size = { -55, 0 };
+		info.widget_info.pixel_size = { -48, 0 };
 		info.widget_info.fract_size = { 1.0f, 1.0f };
 		info.widget_info.pixel_origon_offset = { 0, 0 };
 		info.widget_info.fract_origon_offset = oe::alignments::top_left;
@@ -74,7 +74,7 @@ namespace oe::gui
 		info.padding = 4;
 
 		info.widget_info = color_input_info.widget_info;
-		info.widget_info.pixel_size = { -55, 0 };
+		info.widget_info.pixel_size = { -48, 0 };
 		info.widget_info.fract_size = { 1.0f, 1.0f };
 		info.widget_info.pixel_origon_offset = { 0, 0 };
 		info.widget_info.fract_origon_offset = oe::alignments::top_left;
@@ -118,6 +118,7 @@ namespace oe::gui
 			m_dispatcher.trigger(m_event_hover_latest);
 		};
 
+		m_info.min_pixel_size = { 58, 8 };
 		if(m_color_input_info.primary_input == input_type::slider)
 		{
 			const auto vec_info = create_vec_slider_info(color_input_info);
@@ -147,9 +148,8 @@ namespace oe::gui
 			}
 		}
 		else
-			m_render_size.x = 4;
-
-		m_render_size += glm::ivec2{ 44, 0 };
+			m_info.min_pixel_size = { 48, 8 };
+		
 
 		SpritePanel::info_t sprite_panel_info;
 		sprite_panel_info.widget_info.pixel_size = { 0, 0 };
