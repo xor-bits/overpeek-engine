@@ -507,15 +507,16 @@ namespace oe {
 	{
 		bool                 enabled = true;
 		oe::utils::FontFile     font = {};
-		glm::vec2              align = oe::alignments::center_center;
+		glm::vec2              align = oe::alignments::top_left;
 		oe::color initial_text_color = oe::colors::white;
 		oe::color   background_color = oe::colors::transparent;
-		uint16_t                size = 16;
+		uint16_t          resolution = 16;
+		glm::vec2              scale = { 1.0f, 1.0f };
 		float                 weight = 0.25f;
 		oe::color      outline_color = oe::colors::black;
 		float         outline_weight = 0.3f;
 		float             anti_alias = 0.2f;
-		float        advance_padding = 1.0f;
+		float        advance_padding = 0.1f;
 	};
 
 	// events

@@ -2,7 +2,6 @@
 
 #include "engine/graphics/interface/instance.hpp"
 #include "engine/utility/random.hpp"
-#include "engine/utility/clock.hpp"
 #include "engine/audio/audio.hpp"
 #include "engine/networking/server.hpp"
 
@@ -26,16 +25,14 @@ namespace oe {
 	size_t Engine::draw_calls = 0;
 
 	Engine::Engine()
-	{
-		// init to start the timer and seed the randomizer
-		utils::Random::getSingleton().seed(utils::Clock::getSingleton().getMicroseconds());
-	}
+	{}
 
 	void Engine::init(const EngineInfo& _engine_info)
 	{
 		spdlog::set_pattern("%^[%T] [%l]:%$ %v");
 		spdlog::set_level(spdlog::level::level_enum::trace);
 
+		engine_init_tp = std::chrono::high_resolution_clock::now();
 		engine_info = _engine_info;
 
 		glfwSetErrorCallback(glfw_error_func);
@@ -70,6 +67,7 @@ namespace oe {
 		spdlog::debug("Using Shaderc for glsl optimization / spir-v compilation");
 #endif // OE_BUILD_MODE_SHADERC
 
+		utils::Random::getSingleton().seed();
 	}
 
 	void Engine::deinit()

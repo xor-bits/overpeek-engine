@@ -29,6 +29,7 @@ namespace oe {
 		EngineInfo engine_info;
 		std::unique_ptr<oe::graphics::Instance> instance;
 		RasterizerInfo rasterizer_info{};
+		std::chrono::high_resolution_clock::time_point engine_init_tp;
 		static size_t draw_calls;
 
 	private:

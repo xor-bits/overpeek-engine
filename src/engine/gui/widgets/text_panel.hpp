@@ -26,7 +26,7 @@ namespace oe::gui
 		using info_t = Info;
 		
 	private:
-		oe::graphics::u32TextLabel* label;
+		std::unique_ptr<oe::graphics::TextLabel> label;
 		std::unique_ptr<oe::graphics::Quad> text_quad;
 
 	public:

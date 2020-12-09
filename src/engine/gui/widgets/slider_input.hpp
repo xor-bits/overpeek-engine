@@ -8,7 +8,7 @@
 
 
 
-namespace oe::graphics { template<typename C> class BasicTextLabel; using u32TextLabel = BasicTextLabel<char32_t>; class Quad; }
+namespace oe::graphics { class TextLabel; class Quad; }
 
 namespace oe::gui
 {
@@ -46,10 +46,8 @@ namespace oe::gui
 	class BaseBasicSliderInput : public Widget
 	{
 	protected:
-		BaseBasicSliderInput(Widget* parent, GUI& gui_manager, const BaseBasicSliderInputInfo_t& info)
-			: Widget(parent, gui_manager, info.widget_info)
-		{}
-		~BaseBasicSliderInput() override = default;
+		BaseBasicSliderInput(Widget* parent, GUI& gui_manager, const BaseBasicSliderInputInfo_t& info);
+		~BaseBasicSliderInput() override;
 
 		[[nodiscard]] virtual float get_rendered_value() const = 0;
 		virtual void set_rendered_value(float) const = 0;
@@ -61,13 +59,14 @@ namespace oe::gui
 		virtual void send_hover_event() = 0;
 		virtual void send_use_event() = 0;
 		virtual void step(float mult) = 0;
+
 	private:
-		bool m_dragging = false;
-		oe::graphics::u32TextLabel* value_label = nullptr;
-		std::unique_ptr<oe::graphics::Quad> label_quad;
-		std::unique_ptr<oe::graphics::Quad> quad_knob;
-		std::unique_ptr<oe::graphics::Quad> quad_lslider;
-		std::unique_ptr<oe::graphics::Quad> quad_rslider;
+		bool                                      m_dragging = false;
+		std::unique_ptr<oe::graphics::TextLabel> value_label{};
+		std::unique_ptr<oe::graphics::Quad>       label_quad{};
+		std::unique_ptr<oe::graphics::Quad>        quad_knob{};
+		std::unique_ptr<oe::graphics::Quad>     quad_lslider{};
+		std::unique_ptr<oe::graphics::Quad>     quad_rslider{};
 
 	public:
 		void virtual_toggle(bool enabled) override;

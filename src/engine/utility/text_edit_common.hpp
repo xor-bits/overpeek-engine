@@ -20,11 +20,11 @@ static bool insertchars(STB_TEXTEDIT_STRING *obj, uint32_t i, char_type *chars, 
 	return true;
 }
 
-static float getwidth(STB_TEXTEDIT_STRING *obj, uint32_t /* n */, uint32_t i)
+static float getwidth(STB_TEXTEDIT_STRING *obj, uint32_t first, uint32_t count)
 {
 	float advance = 0.0f;
 	if(obj->m_cache.datapoints.size() != 0)
-		advance = obj->m_cache.datapoints.at(std::min<size_t>(obj->m_cache.datapoints.size(), i + 1)).offset.x - obj->m_cache.datapoints.at(std::min<size_t>(obj->m_cache.datapoints.size(), i)).offset.x;
+		advance = obj->m_cache.datapoints.at(std::min<size_t>(obj->m_cache.datapoints.size(), first + count)).offset.x - obj->m_cache.datapoints.at(std::min<size_t>(obj->m_cache.datapoints.size(), first)).offset.x;
 	return advance;
 }
 
@@ -36,7 +36,9 @@ static void layoutrow(StbTexteditRow* r, STB_TEXTEDIT_STRING *obj, uint32_t n)
 		return pos;
 	}(obj->m_string.find(static_cast<char_type>('\n'), n), obj->m_string.size() - 1);
 	const size_t count = find_nl - n + 1;
-	const float width = oe::graphics::BasicText<char_type>::offset_to_char(obj->m_cache, find_nl == std::basic_string<char_type>::npos ? obj->m_cache.datapoints.size() - 1 : find_nl).x;
+	const float width = 
+		obj->m_cache.offset_to((find_nl == std::basic_string<char_type>::npos) ? (obj->m_cache.datapoints.size() - 1) : (find_nl)).x -
+		obj->m_cache.offset_to(n).x;
 	const float height = obj->m_cache.scaling.y;
 
 	r->ymax = height;

@@ -72,7 +72,7 @@ namespace oe::gui
 		};
 		
 	private:
-		oe::graphics::BasicTextLabel<char_type>* m_label;
+		std::unique_ptr<oe::graphics::TextLabel> m_label;
 		std::unique_ptr<oe::graphics::Quad> m_quad;
 		std::unique_ptr<oe::graphics::Quad> m_text_quad;
 		std::unique_ptr<oe::graphics::Quad> m_text_bar_quad;

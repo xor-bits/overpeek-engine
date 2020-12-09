@@ -29,7 +29,12 @@ namespace oe::graphics
         case oe::shader_stages::compute_shader:
             return shaderc_shader_kind::shaderc_compute_shader;
             break;
+        case oe::shader_stages::none:
+            break;
         }
+		
+		spdlog::error("Invalid shader stage");
+        return shaderc_shader_kind::shaderc_vertex_shader;
     }
 
     std::string shader_module_name(const std::string& name, oe::shader_stages stage) {
@@ -53,7 +58,12 @@ namespace oe::graphics
         case oe::shader_stages::compute_shader:
             return name + "." + "compute";
             break;
+        case oe::shader_stages::none:
+            break;
         }
+		
+		spdlog::error("Invalid shader stage");
+		return name + "." + "invalid";
     }
 
     struct include_result : public shaderc_include_result
@@ -72,9 +82,9 @@ namespace oe::graphics
 
         // Handles shaderc_include_resolver_fn callbacks.
         virtual shaderc_include_result* GetInclude(const char* requested_source,
-                                                shaderc_include_type type,
-                                                const char* requesting_source,
-                                                size_t include_depth) override
+                                                shaderc_include_type /* type */,
+                                                const char* /* requesting_source */,
+                                                size_t /* include_depth */) override
         {
             auto data = new include_result();
             data->content_cpp_string = oe::utils::FileIO(relative / requested_source).read<std::string>();

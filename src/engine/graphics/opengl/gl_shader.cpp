@@ -112,11 +112,10 @@ namespace oe::graphics
 				options.SetOptimizationLevel(shaderc_optimization_level::shaderc_optimization_level_performance);
 			options.SetIncluder(std::move(includer));
 			auto result = compiler.PreprocessGlsl(stage.source.data(), shader_kind(stage.stage), shader_module_name(shader_info.name.data(), stage.stage).c_str(), options);
-			size_t code_size = (result.end() - result.begin()) * sizeof(uint32_t);
 
 			if (result.GetNumErrors() != 0)
 				throw oe::utils::formatted_error("IShader ({}) compilation failed: {}", shader_info.name, result.GetErrorMessage());
-			std::string_view preprocessed_glsl = result.begin();
+			std::string_view preprocessed_glsl = { result.begin(), static_cast<size_t>(std::max<int64_t>(0, std::distance(result.begin(), result.end()))) };
 #else  // DON'T OPTIMIZE GLSL
 			std::string_view preprocessed_glsl = stage.source;
 #endif

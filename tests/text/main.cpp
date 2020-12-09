@@ -11,7 +11,7 @@ oe::graphics::Renderer* renderer;
 oe::asset::DefaultShader* shader;
 oe::graphics::Font* font;
 
-oe::graphics::u32TextLabel* bkd_label;
+oe::graphics::TextLabel* bkd_label;
 oe::asset::FontShader* dyn_label_shader;
 oe::graphics::Renderer* dyn_label_renderer;
 std::unique_ptr<oe::graphics::Quad> quad;
@@ -141,17 +141,19 @@ int main(int argc, char** argv) {
 		{ U"\u263A\n|", { 1.0f, 0.13f, 0.13f, 1.0f } },
 		{ U"x\u00B2\u221A2AVAVA", oe::colors::orange },
 	}};
-	bkd_label = new oe::graphics::u32TextLabel(*font, 64);
-	bkd_label->generate(text_input);
-	oe::graphics::text_render_cache cache;
-	oe::graphics::u32Text::create_text_render_cache(cache, text_input, *font, { 0.1f, 0.5f }, { 0.2f, 0.2f }, oe::alignments::top_left);
-	oe::graphics::u32Text::submit(cache, *dyn_label_renderer);
+	oe::graphics::text_render_cache cache{};
+	oe::TextOptions options{};
+	options.scale = { 0.1f, 0.1f };
+	cache.create(text_input, *font, options, { 0.1f, 0.5f });
+	bkd_label = new oe::graphics::TextLabel();
+	bkd_label->generate(cache);
+	cache.submit(*dyn_label_renderer);
 
 	quad = renderer->create();
 	quad->setPosition({ 0.1f, 0.1f });
-	quad->setSize({ 0.4f * bkd_label->getAspect(), 0.4f });
+	quad->setSize({ 0.4f * bkd_label->aspect(), 0.4f });
 	quad->setColor(oe::colors::white);
-	quad->setSprite(bkd_label->getSprite());
+	quad->setSprite(bkd_label->sprite());
 	
 	renderer->forget(std::move(quad));
 	

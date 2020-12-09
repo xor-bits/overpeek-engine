@@ -32,13 +32,20 @@ namespace oe::gui
 	SliderLinearRenderer* SliderLinearRenderer::singleton = nullptr;
 
 	
+
+	BaseBasicSliderInput::BaseBasicSliderInput(Widget* parent, GUI& gui_manager, const BaseBasicSliderInputInfo_t& info)
+		: Widget(parent, gui_manager, info.widget_info)
+	{}
+	
+	BaseBasicSliderInput::~BaseBasicSliderInput()
+	{}
 	
 	void BaseBasicSliderInput::virtual_toggle(bool enabled)
 	{
 		if(enabled)
 		{
 			label_quad = m_gui_manager.getRenderer()->create();
-			value_label = new oe::graphics::u32TextLabel(m_gui_manager.getFont(get_info().text_options.font), get_info().text_options.size);
+			value_label = std::make_unique<oe::graphics::TextLabel>();
 			quad_knob = m_gui_manager.getRenderer()->create();
 			if (!get_info().linear_color)
 			{
@@ -55,7 +62,7 @@ namespace oe::gui
 		else
 		{
 			label_quad.reset();
-			delete value_label;
+			value_label.reset();
 			quad_knob.reset();
 			if (!get_info().linear_color)
 			{
@@ -192,8 +199,11 @@ namespace oe::gui
 		if (text_options.enabled)
 		{
 			const std::u32string s = get_rendered_label();
-			value_label->generate({ s, text_options.initial_text_color }, text_options);
-			const glm::ivec2 size = value_label->getSize();
+			oe::graphics::text_render_cache cache{};
+			cache.create<char32_t>({ s, text_options.initial_text_color }, m_gui_manager.getFont(text_options.font), text_options);
+			value_label->generate(cache);
+			
+			const glm::ivec2 size = value_label->size();
 			const glm::ivec2 position =
 				+ m_render_position
 				+ oe::alignmentOffset(m_render_size, text_options.align)
@@ -202,7 +212,7 @@ namespace oe::gui
 			label_quad->setPosition(static_cast<glm::vec2>(position));
 			label_quad->setZ(m_z + 0.075f);
 			label_quad->setSize(static_cast<glm::vec2>(size));
-			label_quad->setSprite(value_label->getSprite());
+			label_quad->setSprite(value_label->sprite());
 			label_quad->setColor(oe::colors::white);
 		}
 	}

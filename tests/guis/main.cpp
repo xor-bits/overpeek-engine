@@ -238,11 +238,11 @@ UR"(wwwwwwwwwwww
 WWWWWWWWWW
 yyyyyyyyyyyyy
 |||||||||||||||||||)";
-		text_input_info.widget_info.pixel_size = { 200, 80 };
+		text_input_info.widget_info.pixel_size = { 600, 400 };
 		text_input_info.widget_info.pixel_origon_offset = { 0, 0 };
-		text_input_info.widget_info.fract_origon_offset = oe::alignments::bottom_right;
-		text_input_info.widget_info.fract_render_offset = oe::alignments::bottom_right;
-		text_input_info.text_options.size = 16;
+		text_input_info.widget_info.fract_origon_offset = oe::alignments::center_right;
+		text_input_info.widget_info.fract_render_offset = oe::alignments::center_right;
+		text_input_info.text_options.size = 48;
 		text_input_info.sprite = pack->emptySprite();
 		textbox = gui->create(text_input_info);
 	}

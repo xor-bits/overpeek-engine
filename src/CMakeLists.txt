@@ -162,8 +162,6 @@ set(source_list ${source_list}
 	"engine/networking/server.hpp"
 )
 set(source_list ${source_list} 
-	"engine/utility/clock.cpp"
-	"engine/utility/clock.hpp"
 	"engine/utility/color_string.hpp"
 	"engine/utility/extra.cpp"
 	"engine/utility/extra.hpp"

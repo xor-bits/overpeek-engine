@@ -16,89 +16,61 @@ namespace oe::graphics { class Font; class Renderer; }
 
 namespace oe::graphics
 {
-	struct text_render_cache_datapoint
-	{
-		bool rendered      = false;
 
-		glm::vec2 offset   = { 0.0f, 0.0f };
-		glm::vec2 position = { 0.0f, 0.0f };
-		glm::vec2 size     = { 1.0f, 1.0f };
-		glm::vec4 color    = oe::colors::white;
-
-		const oe::graphics::Sprite* sprite;
-		char32_t codepoint = '\0';
-	};
 	struct text_render_cache
 	{
-		std::vector<text_render_cache_datapoint> datapoints{};
-		glm::vec2 top_left = { 0.0f, 0.0f };
-		glm::vec2 scaling = { 0.0f, 0.0f };
-		glm::vec2 size = { 0.0f, 0.0f };
-	};
+		struct datapoint
+		{
+			bool rendered      = false;
 
+			glm::vec2 offset   = { 0.0f, 0.0f };
+			glm::vec2 position = { 0.0f, 0.0f };
+			glm::vec2 size     = { 1.0f, 1.0f };
+			glm::vec4 color    = oe::colors::white;
 
-
-	template<typename char_type>
-	class BasicText {
-	public:
-		using string_t = oe::utils::color_string<char_type>;
+			const oe::graphics::Sprite* sprite;
+			char32_t codepoint = '\0';
+		};
 		
-		static void create_text_render_cache(
-			      text_render_cache&     cache,
-			const string_t&              text,
-			      Font&                  font,
-			const glm::vec2&             origin_pos      = { 0.0f, 0.0f },
-			const glm::vec2&             size            = { 64.0f, 64.0f }, // more like scaling per axis
-			const glm::vec2&             align_to_origin = oe::alignments::top_left,
-			      float                  advance_padding   = 2.0f);
+		// members
+		glm::vec2                                  top_left{ 0.0f, 0.0f };
+		glm::vec2                                   scaling{ 0.0f, 0.0f };
+		glm::vec2                                      size{ 0.0f, 0.0f };
+		std::vector<datapoint>                   datapoints{};
+		bool                                            sdf{};
+		TextOptions                                 options{};
 
-		static void submit(const text_render_cache& cache, Renderer& renderer);
-		static glm::vec2 offset_to_char(const text_render_cache& cache, size_t index);
+		// methods
+		text_render_cache() = default;
+		template<typename char_type>
+		void create(const oe::utils::color_string<char_type>& text, Font& font, const oe::TextOptions& options = {}, const glm::vec2& origin_pos = {});
+		void submit(Renderer& renderer) const;
+		glm::vec2 offset_to(size_t index) const;
+		glm::vec2 offset_to(decltype(datapoints)::const_iterator datapoint) const;
 	};
 
-	template<typename char_type>
-	class BasicTextLabel
+
+
+	class TextLabel
 	{
-		using text_t = BasicText<char_type>;
-		using string_t = oe::utils::color_string<char_type>;
-
-		Font& m_font;
 		FrameBuffer m_framebuffer{};
-		glm::vec2 m_fb_size;
-		Sprite m_sprite;
+		glm::vec2 m_fb_size{ 0.0f, 0.0f };
+		Sprite m_sprite{};
 
-		string_t m_text;
-		glm::vec2 m_size;
-		const size_t m_resolution;
+		text_render_cache m_cache{};
+		glm::vec2 m_size{ 0.0f, 0.0f };
 		
 	public:
-		BasicTextLabel(Font& font, const size_t resolution = 64)
-			: m_font(font)
-			, m_fb_size(0.0f, 0.0f)
-			, m_text()
-			, m_size(0.0f, 0.0f)
-			, m_resolution(resolution)
-		{}
+		TextLabel() = default;
 
 		// Generate framebuffer and render text to it
-		bool generate(const string_t& text, const oe::TextOptions& options = {});
-		void regenerate(const string_t& text, const oe::TextOptions& options = {});
+		bool generate(const text_render_cache& cache);
+		void regenerate(const text_render_cache& cache);
 
-		inline const FrameBuffer* getFB() const { return &m_framebuffer; }
-		inline const Sprite& getSprite() const { return m_sprite; }
-		inline Font& getFont() const { return m_font; }
-		inline glm::vec2 getSize() const { return m_size; }
-		inline float getAspect() const { return m_size.y == 0.0f ? 0.0f : m_size.x / m_size.y; }
-		inline string_t getText() const { return m_text; }
+		// getters
+		[[nodiscard]] constexpr inline const FrameBuffer& framebuffer() const { return m_framebuffer; }
+		[[nodiscard]] constexpr inline const Sprite& sprite() const { return m_sprite; }
+		[[nodiscard]] constexpr inline const glm::vec2& size() const { return m_size; }
+		[[nodiscard]] constexpr inline float aspect() const { return (m_size.y == 0.0f) ? (0.0f) : (m_size.x / m_size.y); }
 	};
-
-	using TextLabel = BasicTextLabel<char>;
-	using wTextLabel = BasicTextLabel<wchar_t>;
-	using u16TextLabel = BasicTextLabel<char16_t>;
-	using u32TextLabel = BasicTextLabel<char32_t>;
-
-	using Text = BasicText<char>;
-	using wText = BasicText<wchar_t>;
-	using u16Text = BasicText<char16_t>;
-	using u32Text = BasicText<char32_t>;
 }

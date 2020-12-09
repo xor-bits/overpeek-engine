@@ -5,7 +5,6 @@
 #include "engine/graphics/renderer.hpp"
 #include "engine/graphics/font.hpp"
 #include "engine/gui/gui_manager.hpp"
-#include "engine/utility/clock.hpp"
 #include "engine/utility/connect_guard_additions.hpp"
 
 
@@ -62,7 +61,7 @@ namespace oe::gui
 			m_text_selection_quads[0] = m_gui_manager.getRenderer()->create();
 			m_text_selection_quads[1] = m_gui_manager.getRenderer()->create();
 			m_text_selection_quads[2] = m_gui_manager.getRenderer()->create();
-			m_label = new oe::graphics::BasicTextLabel<char_type>(m_gui_manager.getFont(m_text_input_info.text_options.font), m_text_input_info.text_options.size);
+			m_label = std::make_unique<oe::graphics::TextLabel>();
 			
 			m_text_selection_quads[0]->setZ(m_z + 0.05f);
 			m_text_selection_quads[1]->setZ(m_z + 0.06f);
@@ -89,7 +88,7 @@ namespace oe::gui
 			m_text_selection_quads[0].reset();
 			m_text_selection_quads[1].reset();
 			m_text_selection_quads[2].reset();
-			delete m_label;
+			m_label.reset();
 
 			// event listeners
 			m_cg_render.disconnect();
@@ -121,7 +120,7 @@ namespace oe::gui
 
 		auto& font = m_gui_manager.getFont(m_text_input_info.text_options.font);
 		const oe::utils::color_string<char_type> string_vec = { m_value, m_text_input_info.text_options.initial_text_color };
-		oe::graphics::BasicText<char_type>::create_text_render_cache(m_cache, string_vec, font, { 0.0f, 0.0f }, glm::vec2(m_text_input_info.text_options.size), oe::alignments::top_left);
+		m_cache.create(string_vec, font, m_text_input_info.text_options);
 		return true;
 	}
 	
@@ -140,15 +139,15 @@ namespace oe::gui
 
 		// text
 		const oe::utils::color_string<char_type> string_vec = { m_value, m_text_input_info.text_options.initial_text_color };
-		m_label->generate(string_vec, m_text_input_info.text_options);
-		m_text_label_pos = m_render_position + oe::alignmentOffset(m_render_size, m_text_input_info.text_options.align) - oe::alignmentOffset(static_cast<glm::ivec2>(m_label->getSize()), m_text_input_info.text_options.align);
+		m_label->generate(m_cache);
+		m_text_label_pos = m_render_position + oe::alignmentOffset(m_render_size, m_text_input_info.text_options.align) - oe::alignmentOffset(static_cast<glm::ivec2>(m_label->size()), m_text_input_info.text_options.align);
 		
 		// text label
 		m_text_quad->toggle(m_text_input_info.text_options.enabled);
 		m_text_quad->setPosition(static_cast<glm::vec2>(m_text_label_pos));
 		m_text_quad->setZ(m_z + 0.025f);
-		m_text_quad->setSize(m_label->getSize());
-		m_text_quad->setSprite(m_label->getSprite());
+		m_text_quad->setSize(m_label->size());
+		m_text_quad->setSprite(m_label->sprite());
 		m_text_quad->setColor(oe::colors::white);
 
 		m_state.clamp();
@@ -159,9 +158,8 @@ namespace oe::gui
 		if(!m_selected)
 			return;
 
-		auto& clock = oe::utils::Clock::getSingleton();
-		float time = clock.getSessionMillisecond();
-		bool bar = (m_timer_key_pressed + std::chrono::seconds(1) > std::chrono::high_resolution_clock::now() || (int)floor(time) % 1000 > 500);
+		const auto now = std::chrono::high_resolution_clock::now();
+		const bool bar = (m_timer_key_pressed + std::chrono::seconds(1) > now || std::chrono::time_point_cast<std::chrono::milliseconds>(now).time_since_epoch().count() % 1000 > 500);
 		m_text_bar_quad->toggle(bar);
 		
 		// TODO: update following (till the end of this scope) only if the cursor was updated
@@ -173,11 +171,11 @@ namespace oe::gui
 		m_selection_old = m_state.selection();
 
 
-		// text bar
-		const glm::ivec2 before_cursor_size = static_cast<glm::ivec2>(oe::graphics::BasicText<char_type>::offset_to_char(m_cache, m_state.cursor()));
+		// text bar or cursor
+		const glm::ivec2 before_cursor_size = static_cast<glm::ivec2>(m_cache.offset_to(m_state.cursor()));
 		m_text_bar_quad->setPosition(static_cast<glm::vec2>(m_text_label_pos + before_cursor_size));
 		m_text_bar_quad->setZ(m_z + 0.05f);
-		m_text_bar_quad->setSize({ 1, m_text_input_info.text_options.size });
+		m_text_bar_quad->setSize({ 1, m_text_input_info.text_options.resolution });
 		m_text_bar_quad->setSprite(m_text_input_info.sprite);
 		m_text_bar_quad->setColor(m_text_input_info.text_options.initial_text_color);
 
@@ -201,19 +199,19 @@ namespace oe::gui
 				m_text_selection_quads[1]->setSize({ 0.0f, 0.0f });
 				m_text_selection_quads[2]->setSize({ 0.0f, 0.0f });
 				
-				const glm::ivec2 selection_start_pos = static_cast<glm::ivec2>(oe::graphics::BasicText<char_type>::offset_to_char(m_cache, selection.x));
-				const glm::ivec2 selection_end_pos = static_cast<glm::ivec2>(oe::graphics::BasicText<char_type>::offset_to_char(m_cache, selection.y));
+				const glm::ivec2 selection_start_pos = static_cast<glm::ivec2>(m_cache.offset_to(selection.x));
+				const glm::ivec2 selection_end_pos = static_cast<glm::ivec2>(m_cache.offset_to(selection.y));
 
 				m_text_selection_quads[0]->setPosition(static_cast<glm::vec2>(m_text_label_pos + selection_start_pos));
-				m_text_selection_quads[0]->setSize({ selection_end_pos.x - selection_start_pos.x, m_text_input_info.text_options.size });
+				m_text_selection_quads[0]->setSize({ selection_end_pos.x - selection_start_pos.x, m_text_input_info.text_options.scale.y });
 			}
 			break;
 		default: // 3 or more
 			{
 				m_text_selection_quads[2]->setSize({ 0.0f, 0.0f });
 				
-				m_text_selection_quads[1]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ -m_text_input_info.text_options.size, (lines_before + 1) * m_text_input_info.text_options.size }));
-				m_text_selection_quads[1]->setSize({ m_label->getSize().x + 2 * m_text_input_info.text_options.size, (lines - 2) *m_text_input_info.text_options.size });
+				m_text_selection_quads[1]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ -m_text_input_info.text_options.scale.x, (lines_before + 1) * m_text_input_info.text_options.scale.y }));
+				m_text_selection_quads[1]->setSize({ m_label->size().x + 2 * m_text_input_info.text_options.scale.x, (lines - 2) * m_text_input_info.text_options.scale.y });
 			}
 			[[fallthrough]];
 		case 2:
@@ -221,13 +219,13 @@ namespace oe::gui
 				if(lines == 2)
 					m_text_selection_quads[1]->setSize({ 0.0f, 0.0f });
 
-				const glm::ivec2 selection_a_start_pos = static_cast<glm::ivec2>(oe::graphics::BasicText<char_type>::offset_to_char(m_cache, selection.x));
-				const glm::ivec2 selection_b_end_pos = static_cast<glm::ivec2>(oe::graphics::BasicText<char_type>::offset_to_char(m_cache, selection.y));
+				const glm::ivec2 selection_a_start_pos = static_cast<glm::ivec2>(m_cache.offset_to(selection.x));
+				const glm::ivec2 selection_b_end_pos = static_cast<glm::ivec2>(m_cache.offset_to(selection.y));
 
-				m_text_selection_quads[0]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ selection_a_start_pos.x, lines_before * m_text_input_info.text_options.size }));
-				m_text_selection_quads[0]->setSize({ m_text_input_info.text_options.size + m_label->getSize().x - selection_a_start_pos.x, m_text_input_info.text_options.size });
-				m_text_selection_quads[2]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ -m_text_input_info.text_options.size, (lines_before + lines - 1) * m_text_input_info.text_options.size }));
-				m_text_selection_quads[2]->setSize({ m_text_input_info.text_options.size + selection_b_end_pos.x, m_text_input_info.text_options.size });
+				m_text_selection_quads[0]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ selection_a_start_pos.x, lines_before * m_text_input_info.text_options.scale.y }));
+				m_text_selection_quads[0]->setSize({ m_text_input_info.text_options.scale.x + m_label->size().x - selection_a_start_pos.x, m_text_input_info.text_options.scale.y });
+				m_text_selection_quads[2]->setPosition(static_cast<glm::vec2>(m_text_label_pos + glm::ivec2{ -m_text_input_info.text_options.scale.x, (lines_before + lines - 1) * m_text_input_info.text_options.scale.y }));
+				m_text_selection_quads[2]->setSize({ m_text_input_info.text_options.scale.x + selection_b_end_pos.x, m_text_input_info.text_options.scale.y });
 			}
 			break;
 		}
@@ -239,10 +237,10 @@ namespace oe::gui
 		if (!m_selected || !m_cg_codepoint)
 			return;
 
-		uint32_t ch = static_cast<uint32_t>(event.codepoint);
+		const uint32_t ch = static_cast<uint32_t>(event.codepoint);
 		if (ch > std::numeric_limits<std::make_unsigned_t<char_type>>::max())
 			return;
-		char_type c = static_cast<char_type>(event.codepoint);
+		const char_type c = static_cast<char_type>(event.codepoint);
 
 		if((!m_text_input_info.whitelist.empty() && m_text_input_info.whitelist.find(c) == std::basic_string_view<char_type>::npos) ||
 		   (!m_text_input_info.blacklist.empty() && m_text_input_info.blacklist.find(c) != std::basic_string_view<char_type>::npos))
@@ -270,8 +268,7 @@ namespace oe::gui
 		reformat();
 		regen_cache();
 
-		char_type character = 0;
-		BasicTextInputInputEvent<char_type> e { static_cast<char32_t>(character), m_value };
+		BasicTextInputInputEvent<char_type> e { U'\0', m_value };
 		m_dispatcher.trigger(e);
 	}
 
@@ -303,7 +300,7 @@ namespace oe::gui
 				m_state.click(event.cursor_pos.cursor_windowspace - m_text_label_pos);
 				
 			// double click
-			auto since_last = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch() - m_timer_key_pressed.time_since_epoch());
+			const auto since_last = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch() - m_timer_key_pressed.time_since_epoch());
 			if(since_last < m_double_click_delay)
 			{
 				std::get<0>(selection()) = m_value.size();

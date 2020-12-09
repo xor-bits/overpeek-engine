@@ -1,7 +1,6 @@
 #include "widget.hpp"
 #include "engine/gui/gui_manager.hpp"
 
-#include "engine/utility/clock.hpp"
 #include "engine/utility/extra.hpp"
 #include "engine/utility/connect_guard_additions.hpp"
 #include "engine/graphics/interface/window.hpp"

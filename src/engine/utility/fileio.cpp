@@ -6,7 +6,6 @@
 #include <sstream>
 
 #include "engine/internal_libs.hpp"
-#include "engine/utility/clock.hpp"
 #include "engine/utility/formatted_error.hpp"
 #include "engine/utility/font_file.hpp"
 #include "engine/engine.hpp"
