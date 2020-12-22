@@ -114,11 +114,9 @@ namespace oe::gui
 	template<typename char_type>
 	bool BasicTextInput<char_type>::regen_cache()
 	{
-		spdlog::debug("old: {}, new: {}", oe::utils::convertUTF<std::string>(m_value_old), oe::utils::convertUTF<std::string>(m_value));
 		if(m_value_old == m_value)
 			return false;
 		m_value_old = m_value;
-		spdlog::debug("regen");
 
 		auto& font = m_gui_manager.getFont(m_text_input_info.text_options.font);
 		const oe::utils::color_string<char_type> string_vec = { m_value, m_text_input_info.text_options.initial_text_color };
