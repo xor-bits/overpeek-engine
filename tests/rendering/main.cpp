@@ -46,7 +46,9 @@ void resize(const oe::ResizeEvent& event)
 void render(oe::RenderEvent) 
 {
 	// modify scene
-	float t = oe::utils::Clock::getSingleton().getSessionMillisecond() / 300.0f;
+	const auto tp_now = std::chrono::high_resolution_clock::now();
+	const auto diff = tp_now - oe::Engine::getSingleton().engine_init_tp;
+	float t = std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(diff).count() / 300.0f;
 	quads[0]->setRotation(std::sin(t));
 	quads[1]->setRotation(t);
 

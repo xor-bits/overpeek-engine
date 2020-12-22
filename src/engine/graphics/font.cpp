@@ -45,7 +45,7 @@ namespace oe::graphics
 		{
 			// glyph info
 			int x0, y0, w, h;
-			uint8_t* data = stbtt_GetCodepointSDF(&m_data->info, m_data->scale, codepoint, 8, 192, 16.0f, &w, &h, &x0, &y0);
+			uint8_t* data = stbtt_GetCodepointSDF(&m_data->info, m_data->scale, codepoint, 12, 192, 16.0f, &w, &h, &x0, &y0);
 			int advance_x, bearing_x;
 			stbtt_GetCodepointHMetrics(&m_data->info, codepoint, &advance_x, &bearing_x);
 			int advance_y, bearing_y;
@@ -58,21 +58,18 @@ namespace oe::graphics
 
 			// glyph img
 			oe::utils::image_data id(data, oe::formats::mono, w, h);
+			stbtt_FreeSDF(data, nullptr);
 			
-			//Now store character for later use
-			m_glyphs.insert(std::make_pair(codepoint, Font::Glyph{
+			// Now store character for later use
+			m_glyphs.try_emplace(codepoint,
 				codepoint,
-				glm::vec2(w, h) / (float)m_resolution,
-				glm::vec2(x0, y0) / (float)m_resolution,
-				glm::vec2(advance_x, advance_y) * m_data->scale / (float)m_resolution,
+				glm::vec2{ w, h }                             / static_cast<float>(m_resolution),
+				glm::vec2{ x0, y0 }                           / static_cast<float>(m_resolution),
+				static_cast<float>(advance_x) * m_data->scale / static_cast<float>(m_resolution),
 
 				// add glyph to sprite packer
 				m_sprite_pack->create(std::move(id))
-			}));
-
-			m_avg_size = ( (m_avg_size * m_avg_size_c) + glm::abs(glm::vec2(x0, y0) / (float)m_resolution) ) / (m_avg_size_c + 1.0f);
-			m_avg_size_c += 1.0f;
-			m_topmost = std::min(m_topmost, static_cast<float>(y0) / static_cast<float>(m_resolution));
+			);
 		}
 		else
 		{
@@ -92,20 +89,16 @@ namespace oe::graphics
 			// gen glyph img
 			stbtt_MakeCodepointBitmap(&m_data->info, id.data, w, h, w, m_data->scale, m_data->scale, codepoint);
 
-			//Now store character for later use
-			m_glyphs.insert(std::make_pair(codepoint, Font::Glyph{
+			// Now store character for later use
+			m_glyphs.try_emplace(codepoint,
 				codepoint,
-				glm::vec2(w, h) / (float)m_resolution,
-				glm::vec2(x0, y0) / (float)m_resolution,
-				glm::vec2(advance_x, advance_y) * m_data->scale / (float)m_resolution,
+				glm::vec2{ w, h }                             / static_cast<float>(m_resolution),
+				glm::vec2{ x0, y0 }                           / static_cast<float>(m_resolution),
+				static_cast<float>(advance_x) * m_data->scale / static_cast<float>(m_resolution),
 
 				// add glyph to sprite packer
 				m_sprite_pack->create(std::move(id))
-			}));
-
-			m_avg_size = ( (m_avg_size * m_avg_size_c) + (glm::vec2(x0, y0) / (float)m_resolution) ) / (m_avg_size_c + 1.0f);
-			m_avg_size_c += 1.0f;
-			m_topmost = std::min(m_topmost, static_cast<float>(y0) / static_cast<float>(m_resolution));
+			);
 		}
 
 		return true;
@@ -120,8 +113,7 @@ namespace oe::graphics
 	}
 	
 	Font::Font(uint16_t resolution, bool sdf, const oe::utils::FontFile& font_file)
-		: m_topmost(0.0f)
-		, m_sprite_pack(new SpritePack(5))
+		: m_sprite_pack(new SpritePack(5))
 		, m_data(new FontData())
 		, m_resolution(resolution)
 		, m_sdf(sdf)
@@ -132,27 +124,34 @@ namespace oe::graphics
 
     	m_data->scale = stbtt_ScaleForPixelHeight(&m_data->info, m_resolution);
 
+		int ascent, descent, line_gap;
+		stbtt_GetFontVMetrics(&m_data->info, &ascent, &descent, &line_gap);
+		m_ascent = ascent * m_data->scale / static_cast<float>(m_resolution);
+		m_descent = descent * m_data->scale / static_cast<float>(m_resolution);
+		m_line_gap = line_gap * m_data->scale / static_cast<float>(m_resolution);
+		m_height = std::abs(m_ascent - m_descent);
+
 		// all ascii glyphs
 		for (char32_t i = 33; i < 127; i++)
 			gen_codepoint_glyph(i);
 
 		// null
-		m_glyphs.insert(std::make_pair(U'\0', Glyph{
+		m_glyphs.try_emplace(U'\0',
 			U'\0',
-			glm::vec2(0.0f),
-			glm::vec2(0.0f),
-			glm::vec2(0.0f),
+			glm::vec2{ 0.0f, 0.0f },
+			glm::vec2{ 0.0f, 0.0f },
+			0.0f,
 			m_sprite_pack->emptySprite()
-		}));
+		);
 
 		// whitespace
-		m_glyphs.insert(std::make_pair(U' ', Glyph{
+		m_glyphs.try_emplace(U' ',
 			U' ',
-			glm::vec2(0.0f),
-			glm::vec2(0.0f),
-			glm::vec2(0.3f),
+			glm::vec2{ 0.0f, 0.0f },
+			glm::vec2{ 0.0f, 0.0f },
+			0.3f,
 			m_sprite_pack->emptySprite()
-		}));
+		);
 
 		m_sprite_pack->constructRepeat(default_texture_settings(m_sdf));
 	}

@@ -114,9 +114,11 @@ namespace oe::gui
 	template<typename char_type>
 	bool BasicTextInput<char_type>::regen_cache()
 	{
+		spdlog::debug("old: {}, new: {}", oe::utils::convertUTF<std::string>(m_value_old), oe::utils::convertUTF<std::string>(m_value));
 		if(m_value_old == m_value)
 			return false;
 		m_value_old = m_value;
+		spdlog::debug("regen");
 
 		auto& font = m_gui_manager.getFont(m_text_input_info.text_options.font);
 		const oe::utils::color_string<char_type> string_vec = { m_value, m_text_input_info.text_options.initial_text_color };
@@ -138,7 +140,7 @@ namespace oe::gui
 		m_quad->setColor(m_text_input_info.background_color);
 
 		// text
-		const oe::utils::color_string<char_type> string_vec = { m_value, m_text_input_info.text_options.initial_text_color };
+		const bool cache_regenerated = regen_cache();
 		m_label->generate(m_cache);
 		m_text_label_pos = m_render_position + oe::alignmentOffset(m_render_size, m_text_input_info.text_options.align) - oe::alignmentOffset(static_cast<glm::ivec2>(m_label->size()), m_text_input_info.text_options.align);
 		
@@ -162,10 +164,8 @@ namespace oe::gui
 		const bool bar = (m_timer_key_pressed + std::chrono::seconds(1) > now || std::chrono::time_point_cast<std::chrono::milliseconds>(now).time_since_epoch().count() % 1000 > 500);
 		m_text_bar_quad->toggle(bar);
 		
-		// TODO: update following (till the end of this scope) only if the cursor was updated
-
 		// regen if user updated the string
-		if(!regen_cache() && (m_cursor_old == m_state.cursor()) && (m_selection_old == m_state.selection()))
+		if(!cache_regenerated && (m_cursor_old == m_state.cursor()) && (m_selection_old == m_state.selection()))
 			return;
 		m_cursor_old = m_state.cursor();
 		m_selection_old = m_state.selection();

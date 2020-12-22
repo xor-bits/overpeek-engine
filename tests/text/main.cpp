@@ -91,13 +91,13 @@ void on_key(const oe::KeyboardEvent& e)
 		return;
 
 	const float s_i_zoom = 1.0f / (zoom == 0.0f ? 1.0f : zoom);
-	if(e.key == oe::keys::key_a)
+	if(e.key == oe::keys::key_a || e.key == oe::keys::key_left)
 		offset.x += s_i_zoom;
-	if(e.key == oe::keys::key_d)
+	if(e.key == oe::keys::key_d || e.key == oe::keys::key_right)
 		offset.x -= s_i_zoom;
-	if(e.key == oe::keys::key_s)
+	if(e.key == oe::keys::key_s || e.key == oe::keys::key_down)
 		offset.y -= s_i_zoom;
-	if(e.key == oe::keys::key_w)
+	if(e.key == oe::keys::key_w || e.key == oe::keys::key_up)
 		offset.y += s_i_zoom;
 
 	resize_default();
@@ -135,32 +135,37 @@ int main(int argc, char** argv) {
 	font = new oe::graphics::Font(64, true, oe::asset::Fonts::roboto_regular());
 	
 	// submitting
-	const oe::utils::color_string<char32_t> text_input = {{
-		{ U"|\u2116", { 0.06f, 0.13f, 1.0f, 1.0f } },
-		{ U"The quick brown fox!", oe::colors::white },
-		{ U"\u263A\n|", { 1.0f, 0.13f, 0.13f, 1.0f } },
-		{ U"x\u00B2\u221A2AVAVA", oe::colors::orange },
+	// text options and cache
+	const oe::utils::color_string<char32_t> text_input =
+	{{
+		{ U"|\u2116", { 0.06f, 0.13f, 1.0f, 1.0f } }, { U"The quick brown fox!", oe::colors::white },
+		{ U"\u263A\n|", { 1.0f, 0.13f, 0.13f, 1.0f } }, { U"x\u00B2\u221A2AVAVA\U0001242B", oe::colors::orange },
 	}};
 	oe::graphics::text_render_cache cache{};
 	oe::TextOptions options{};
 	options.scale = { 0.1f, 0.1f };
-	cache.create(text_input, *font, options, { 0.1f, 0.5f });
+	options.advance_padding = 0.0f;
+	options.background_color = oe::colors::translucent_black;
+	options.resolution = 48;
+	cache.create(text_input, *font, options);
+
+	// the upper text, slower but prettier
+	cache.submit(*dyn_label_renderer, true, { 0.1f, 0.1f });
+
+	// the bottom text, baked and faster, but limited resolution
 	bkd_label = new oe::graphics::TextLabel();
 	bkd_label->generate(cache);
-	cache.submit(*dyn_label_renderer);
-
 	quad = renderer->create();
-	quad->setPosition({ 0.1f, 0.1f });
-	quad->setSize({ 0.4f * bkd_label->aspect(), 0.4f });
+	quad->setPosition({ 0.1f, 0.4f });
+	quad->setSize(bkd_label->size());
 	quad->setColor(oe::colors::white);
 	quad->setSprite(bkd_label->sprite());
-	
 	renderer->forget(std::move(quad));
 	
 	oe::graphics::Sprite sprite;
 	sprite.m_owner = font->getSpritePack()->getTexture();
 	quad = renderer->create();
-	quad->setPosition({ 1.0f, 1.0f });
+	quad->setPosition({ 0.1f, 0.7f });
 	quad->setSize({ 0.5f, 0.5f });
 	quad->setColor(oe::colors::white);
 	quad->setSprite(sprite);

@@ -51,7 +51,7 @@ private:
 
 	// Holds a texture (framebuffer) that can be written in to.
 	// Colored unicode characters with outlines are possible!
-	oe::graphics::u32TextLabel label;
+	oe::graphics::TextLabel label;
 
 	// event connect guards to not to worry about disconnecting event functions
 	// on the order of destruction: connect guards should be destructed before \
@@ -96,7 +96,7 @@ Application::Application()
 	, shader()
 	, renderer()
 	, font(64, true)
-	, label(font, 64)
+	, label()
 {
 	// window, shader, etc. default constructors wont open up windows or anything
 	// they just construct shared_ptr with nullptr
@@ -113,11 +113,17 @@ Application::Application()
 	oe::TextOptions text_options{};
 	text_options.weight = 0.25f;
 	text_options.outline_weight = 0.0f;
-	label.generate({{ U"Hello\n", oe::colors::red }, { U"World", oe::colors::blue }}, text_options);
+	text_options.scale = { 0.5f, 0.5f };
+	text_options.resolution = 80;
+
+	oe::graphics::text_render_cache cache{};
+	cache.create<char32_t>({{ U"Hello\n", oe::colors::red }, { U"World", oe::colors::blue }}, font, text_options);
+	
+	label.generate(cache);
 	std::unique_ptr<oe::graphics::Quad> quad = renderer.create();
 	quad->setPosition({ 0.0f, 0.0f });
-	quad->setSize({ 0.5f * label.getAspect(), 0.5f });
-	quad->setSprite(label.getSprite());
+	quad->setSize(label.size());
+	quad->setSprite(label.sprite());
 	quad->setRotationAlignment(oe::alignments::center_center); // position is in the middle of the sprite
 	// hold the quad or give it back to the renderer
 	// renderer will hold it until the next clear

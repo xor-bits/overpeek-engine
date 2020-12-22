@@ -48,18 +48,15 @@ namespace oe::graphics {
 	void TextLabel::regenerate(const text_render_cache& cache)
 	{
 		m_cache = cache;
+		m_size = m_cache.size;
 
-		// size of the framebuffer
-		m_size = glm::ceil(m_cache.size);
-		m_size.x = std::max(m_size.x, 1.0f);
-		m_size.y = std::max(m_size.y, 1.0f);
-
-		auto old_fb_state = IFrameBuffer::save_state();
-		if (!m_framebuffer || m_fb_size.x < m_size.x || m_fb_size.y < m_size.y)
+		const glm::vec2 res_scaling = 1.0f / m_cache.scaling * static_cast<float>(m_cache.options.resolution);
+		const auto old_fb_state = IFrameBuffer::save_state();
+		if (!m_framebuffer || m_fb_size.x < m_size.x * res_scaling.x || m_fb_size.y < m_size.y * res_scaling.y)
 		{
 			// create new framebuffer
 			oe::FrameBufferInfo fb_info = {};
-			fb_info.size = static_cast<glm::ivec2>(m_size) * 2; // double the required size, to make room for future reuse
+			fb_info.size = static_cast<glm::ivec2>(m_size * res_scaling) * 2; // double the required size, to make room for future reuse
 			m_framebuffer = FrameBuffer(fb_info);
 			
 			m_fb_size = fb_info.size;
@@ -70,9 +67,12 @@ namespace oe::graphics {
 		m_framebuffer->clear(m_cache.options.background_color);
 		const glm::mat4 pr_matrix = glm::ortho(0.0f, m_fb_size.x, m_fb_size.y, 0.0f);
 
-		// submit to the renderer render
+		// submit to the renderer
+		const glm::vec2 align_move = oe::alignmentOffset(m_cache.size, m_cache.options.align) / res_scaling;
 		auto& tbr = TextLabelRenderer::getSingleton();
-		m_cache.submit(tbr.fb_renderer);
+		tbr.fb_renderer.clear();
+		m_cache.submit(tbr.fb_renderer, false, align_move, res_scaling);
+		
 
 		// render to the framebuffer
 		tbr.fb_shader.setProjectionMatrix(pr_matrix);
@@ -83,13 +83,12 @@ namespace oe::graphics {
 		tbr.fb_shader.setOutlineEdge(m_cache.options.anti_alias);
 		tbr.fb_shader.setOutlineColor(m_cache.options.outline_color);
 		tbr.fb_renderer.render();
-		tbr.fb_renderer.clear();
 
 		// bind back the old framebuffer
 		IFrameBuffer::load_state(old_fb_state);
 
 		// generate the sprite for user
-		const glm::vec2 size_ratio = m_size / m_fb_size;
+		const glm::vec2 size_ratio = m_size * res_scaling / m_fb_size;
 		/* m_size *= (m_font.isSDF() ? 0.25f : 1.0f); */
 
 		m_sprite.m_owner = m_framebuffer->getTexture();
@@ -144,7 +143,8 @@ namespace oe::graphics {
 				// test if the codepoint will be rendered
 				// and advancing the positioning of the following characters
 				datapoint.rendered = false;
-				datapoint.offset = advance;
+				datapoint.position = advance;
+				datapoint.size = { 0.0f, 0.0f };
 				if(codepoint == U'\n') // new line
 				{
 					advance.x = 0.0f;
@@ -170,36 +170,34 @@ namespace oe::graphics {
 				datapoint.rendered = true;
 				datapoint.codepoint = codepoint;
 				datapoint.color = color_part;
-				datapoint.position = (datapoint.offset) + glm::vec2{ 0.0f, -font.m_topmost * options.scale.y } + (glyph->top_left * options.scale);
 				datapoint.size = glyph->size * options.scale;
 				datapoint.sprite = glyph->sprite;
+				datapoint.render_offset = glyph->top_left * options.scale;
 
 				// advancing & kerning & padding
-				advance.x += (glyph->advance.x + font.getKerning(codepoint, codepoint_next) + options.advance_padding) * options.scale.x;
+				advance.x += (glyph->advance + font.getKerning(codepoint, codepoint_next) + options.advance_padding) * options.scale.x;
 			}
 		}
 
 		// NULL terminator
-		auto& datapoint = datapoints.emplace_back();
-		datapoint.rendered = false;
-		datapoint.offset = advance;
+		auto& last_datapoint = datapoints.emplace_back();
+		last_datapoint.rendered = false;
+		last_datapoint.position = advance;
+		last_datapoint.size = { 0.0f, 0.0f };
 
 		// alignment
 		// find topleft and bottomright
-		glm::vec2 min{ 0.0f, 0.0f }, max = min;
+		glm::vec2 min = last_datapoint.position + last_datapoint.render_offset, max = last_datapoint.position + last_datapoint.render_offset + last_datapoint.size;
 		for (const auto& datapoint : datapoints)
 		{
-			min = glm::min(min, datapoint.offset);
-			max = glm::max(max, datapoint.offset + datapoint.size);
+			min = glm::min(min, datapoint.position + datapoint.render_offset);
+			max = glm::max(max, datapoint.position + datapoint.render_offset + datapoint.size);
 		}
 		// move all datapoints
 		const glm::vec2 total_size = glm::abs(max - min);
 		const glm::vec2 align_move = oe::alignmentOffset(total_size, options.align);
 		for (auto& datapoint : datapoints)
-		if constexpr (false) {
-			datapoint.offset -= align_move - origin_pos;
-			datapoint.position -= align_move - origin_pos;
-		}
+			datapoint.position -= min + align_move - origin_pos;
 		
 		// extra cache data
 		top_left = origin_pos;
@@ -216,21 +214,34 @@ namespace oe::graphics {
 	
 	glm::vec2 text_render_cache::offset_to(decltype(datapoints)::const_iterator datapoint) const
 	{
-		return datapoint->offset - datapoints.front().offset;
+		return datapoint->position - datapoints.front().position;
 	}
 
-	void text_render_cache::submit(Renderer& renderer) const
+	void text_render_cache::submit(Renderer& renderer, bool include_bg, const glm::vec2& offset, const glm::vec2& render_scaling) const
 	{
+		if (include_bg)
+		{
+			auto quad = renderer.create();
+			quad->setPosition(top_left * render_scaling + offset);
+			quad->setZ(-0.1f);
+			quad->setSize(size * render_scaling);
+			quad->setColor(options.background_color);
+			quad->setOpacityMode(true);
+			
+			renderer.forget(std::move(quad));
+		}
+
 		for (const auto& datapoint : datapoints)
 		{
 			if(!datapoint.rendered)
 				continue;
 
 			auto quad = renderer.create();
-			quad->setPosition(datapoint.position);
-			quad->setSize(datapoint.size);
+			quad->setPosition((datapoint.position + datapoint.render_offset) * render_scaling + offset);
+			quad->setSize(datapoint.size * render_scaling);
 			quad->setSprite(datapoint.sprite);
 			quad->setColor(datapoint.color);
+			quad->setOpacityMode(true);
 			
 			renderer.forget(std::move(quad));
 		}

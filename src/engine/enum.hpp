@@ -511,12 +511,18 @@ namespace oe {
 		oe::color initial_text_color = oe::colors::white;
 		oe::color   background_color = oe::colors::transparent;
 		uint16_t          resolution = 16;
-		glm::vec2              scale = { 1.0f, 1.0f };
+		glm::vec2              scale = { 16.0f, 16.0f };
 		float                 weight = 0.25f;
 		oe::color      outline_color = oe::colors::black;
 		float         outline_weight = 0.3f;
 		float             anti_alias = 0.2f;
 		float        advance_padding = 0.1f;
+
+		constexpr inline void pixel_res(uint16_t _resolution)
+		{
+			resolution = _resolution;
+			scale = { static_cast<float>(resolution), static_cast<float>(resolution) };
+		}
 	};
 
 	// events

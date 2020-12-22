@@ -24,7 +24,7 @@ static float getwidth(STB_TEXTEDIT_STRING *obj, uint32_t first, uint32_t count)
 {
 	float advance = 0.0f;
 	if(obj->m_cache.datapoints.size() != 0)
-		advance = obj->m_cache.datapoints.at(std::min<size_t>(obj->m_cache.datapoints.size(), first + count)).offset.x - obj->m_cache.datapoints.at(std::min<size_t>(obj->m_cache.datapoints.size(), first)).offset.x;
+		advance = obj->m_cache.datapoints.at(std::min<size_t>(obj->m_cache.datapoints.size(), first + count)).position.x - obj->m_cache.datapoints.at(std::min<size_t>(obj->m_cache.datapoints.size(), first)).position.x;
 	return advance;
 }
 

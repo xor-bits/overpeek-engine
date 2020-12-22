@@ -18,15 +18,22 @@ namespace oe::graphics
 	class Font
 	{
 	public:
-		struct Glyph {
+		struct Glyph
+		{
 			char32_t codepoint;
 			glm::vec2 size;
 			glm::vec2 top_left;
-			glm::vec2 advance;
-
+			float advance;
 			const Sprite* sprite;
+
+			inline Glyph(char32_t _codepoint, const glm::vec2& _size, const glm::vec2& _top_left, float _advance, const Sprite* _sprite)
+				: codepoint(_codepoint)
+				, size(_size)
+				, top_left(_top_left)
+				, advance(_advance)
+				, sprite(_sprite)
+			{}
 		};
-		float m_topmost;
 
 	private:
 		SpritePack* m_sprite_pack = nullptr;
@@ -37,8 +44,10 @@ namespace oe::graphics
 		bool m_sdf = false;
 		oe::utils::byte_string m_font_file{};
 		
-		glm::vec2 m_avg_size{ 0.0f, 0.0f };
-		float m_avg_size_c = 0.0f;
+		float m_ascent = 0.0f;
+		float m_descent = 0.0f;
+		float m_line_gap = 0.0f;
+		float m_height = 0.0f;
 
 		bool gen_codepoint_glyph(char32_t codepoint);
 	
@@ -57,7 +66,7 @@ namespace oe::graphics
 		[[nodiscard]] constexpr inline uint16_t getResolution() const noexcept { return m_resolution; }
 		[[nodiscard]] constexpr inline SpritePack* getSpritePack() noexcept { return m_sprite_pack; }
 		[[nodiscard]] constexpr inline bool isSDF() const noexcept { return m_sdf; }
-		[[nodiscard]] constexpr inline const glm::vec2& avgSize() const noexcept { return m_avg_size; }
+		[[nodiscard]] constexpr inline float height() const noexcept { return m_height; }
 	};
 
 }

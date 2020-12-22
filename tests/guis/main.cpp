@@ -238,11 +238,12 @@ UR"(wwwwwwwwwwww
 WWWWWWWWWW
 yyyyyyyyyyyyy
 |||||||||||||||||||)";
-		text_input_info.widget_info.pixel_size = { 600, 400 };
+		text_input_info.widget_info.pixel_size = { 200, 80 };
 		text_input_info.widget_info.pixel_origon_offset = { 0, 0 };
 		text_input_info.widget_info.fract_origon_offset = oe::alignments::center_right;
 		text_input_info.widget_info.fract_render_offset = oe::alignments::center_right;
-		text_input_info.text_options.size = 48;
+		text_input_info.text_options.pixel_res(16);
+		text_input_info.text_options.align = oe::alignments::center_center;
 		text_input_info.sprite = pack->emptySprite();
 		textbox = gui->create(text_input_info);
 	}
@@ -257,7 +258,8 @@ yyyyyyyyyyyyy
 		common.slider_sprite = pack->emptySprite();
 		common.value_bounds = { -1.0f, 1.0f };
 		common.initial_value = 1.0f;
-		common.text_options.size = 16;
+		common.text_options.pixel_res(16);
+		common.text_options.align = oe::alignments::center_center;
 		vecslider_info.common.fill(common);
 		vecslider_info.common[0].value_bounds *= glm::pi<float>();
 		vecslider_info.common[0].initial_value = 0.0f;
@@ -280,7 +282,8 @@ yyyyyyyyyyyyy
 			button_info.button_info.fract_render_offset = oe::alignments::center_left;
 			button_info.sprite = pack->emptySprite();
 			button_info.text = { U"log", oe::colors::white };
-			button_info.text_options.size = 20;
+			button_info.text_options.pixel_res(20);
+			button_info.text_options.align = oe::alignments::center_center;
 			auto button = checkbox->create(button_info);
 
 			button->create_event_cg().connect<oe::gui::ButtonUseEvent>(button->m_dispatcher, [&](const oe::gui::ButtonUseEvent& e) {
@@ -300,7 +303,8 @@ yyyyyyyyyyyyy
 		color_picker_info.sprite = pack->emptySprite();
 		color_picker_info.popup_color_picker = true;
 		color_picker_info.primary_input = oe::gui::input_type::slider;
-		color_picker_info.text_options.size = 16;
+		color_picker_info.text_options.pixel_res(16);
+		color_picker_info.text_options.align = oe::alignments::center_center;
 		gui->create(color_picker_info, color);
 	}
 	{ // color picker 2
@@ -312,7 +316,8 @@ yyyyyyyyyyyyy
 		color_picker_info.sprite = pack->emptySprite();
 		color_picker_info.popup_color_picker = true;
 		color_picker_info.primary_input = oe::gui::input_type::dragger;
-		color_picker_info.text_options.size = 12;
+		color_picker_info.text_options.pixel_res(12);
+		color_picker_info.text_options.align = oe::alignments::center_center;
 		gui->create(color_picker_info, color);
 	}
 	{ // color picker 3
@@ -335,7 +340,8 @@ yyyyyyyyyyyyy
 		number_input_info.initial_value = 42;
 		number_input_info.value_bounds = { std::numeric_limits<uint32_t>::min(), std::numeric_limits<uint32_t>::max() };
 		number_input_info.sprite = pack->emptySprite();
-		number_input_info.text_options.size = 16;
+		number_input_info.text_options.pixel_res(16);
+		number_input_info.text_options.align = oe::alignments::center_center;
 		gui->create(number_input_info);
 	}
 	{
@@ -346,7 +352,7 @@ yyyyyyyyyyyyy
 		text_panel_info.widget_info.fract_render_offset = oe::alignments::top_left;
 		text_panel_info.text = { U"placeholder", oe::colors::white };
 		text_panel_info.text_options.font = oe::utils::FontFile{ oe::asset::Fonts::roboto_italic() };
-		text_panel_info.text_options.size = 24;
+		text_panel_info.text_options.pixel_res(24);
 		/* text_panel_info.background_color = oe::colors::translucent_black; */
 		textpanel = gui->create(text_panel_info);
 
@@ -376,7 +382,8 @@ yyyyyyyyyyyyy
 	} */
 
 	tpi = {};
-	tpi.text_options.size = 20;
+	tpi.text_options.pixel_res(20);
+	tpi.text_options.align = oe::alignments::center_center;
 	tpi.widget_info.fract_origon_offset = oe::alignments::top_left;
 	tpi.widget_info.fract_render_offset = oe::alignments::top_left;
 	tpi.text = { U"placeholder", oe::colors::white };

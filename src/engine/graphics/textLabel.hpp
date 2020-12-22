@@ -23,8 +23,8 @@ namespace oe::graphics
 		{
 			bool rendered      = false;
 
-			glm::vec2 offset   = { 0.0f, 0.0f };
 			glm::vec2 position = { 0.0f, 0.0f };
+			glm::vec2 render_offset = { 0.0f, 0.0f };
 			glm::vec2 size     = { 1.0f, 1.0f };
 			glm::vec4 color    = oe::colors::white;
 
@@ -43,8 +43,8 @@ namespace oe::graphics
 		// methods
 		text_render_cache() = default;
 		template<typename char_type>
-		void create(const oe::utils::color_string<char_type>& text, Font& font, const oe::TextOptions& options = {}, const glm::vec2& origin_pos = {});
-		void submit(Renderer& renderer) const;
+		void create(const oe::utils::color_string<char_type>& text, Font& font, const oe::TextOptions& options = {}, const glm::vec2& origin_pos = { 0.0f, 0.0f });
+		void submit(Renderer& renderer, bool include_bg = true, const glm::vec2& offset = { 0.0f, 0.0f }, const glm::vec2& scaling = { 1.0f, 1.0f }) const;
 		glm::vec2 offset_to(size_t index) const;
 		glm::vec2 offset_to(decltype(datapoints)::const_iterator datapoint) const;
 	};

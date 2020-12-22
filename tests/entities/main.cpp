@@ -304,25 +304,25 @@ void gui()
 	int32_t y = 75;
 	{
 		oe::gui::TextPanel::info_t tp_info;
-		tp_info.widget_info.align_parent = oe::alignments::top_left;
-		tp_info.widget_info.align_render = oe::alignments::top_left;
+		tp_info.widget_info.fract_origon_offset = oe::alignments::top_left;
+		tp_info.widget_info.fract_render_offset = oe::alignments::top_left;
 		tp_info.text = { U"placeholder", oe::colors::white };
-		tp_info.text_options.size = 22;
-		tp_info.text_options.outline_weight = 0.3f;
+		tp_info.text_options.pixel_res(22);
+		tp_info.text_options.align = oe::alignments::center_center;
 		text_label = gui_manager->create(tp_info);
 	}
 	{
 		oe::gui::Graph::info_t graph_info;
-		graph_info.bg_panel_info.widget_info.size = { 100, 50 };
-		graph_info.bg_panel_info.widget_info.offset_position = { 0, y };
-		graph_info.bg_panel_info.widget_info.align_parent = oe::alignments::top_left;
-		graph_info.bg_panel_info.widget_info.align_render = oe::alignments::top_left;
+		graph_info.bg_panel_info.widget_info.pixel_size = { 100, 50 };
+		graph_info.bg_panel_info.widget_info.pixel_origon_offset = { 0, y };
+		graph_info.bg_panel_info.widget_info.fract_origon_offset = oe::alignments::top_left;
+		graph_info.bg_panel_info.widget_info.fract_render_offset = oe::alignments::top_left;
 		graph_info.bg_panel_info.sprite = pack->emptySprite();
 		graph_info.bg_panel_info.color_tint = { 0.0f, 0.0f, 0.0f, 0.5f };
 		graph_info.graph_color = oe::colors::green;
 		graph_fps = gui_manager->create(graph_info);
 
-		graph_info.bg_panel_info.widget_info.offset_position = { 105, y };
+		graph_info.bg_panel_info.widget_info.pixel_origon_offset = { 105, y };
 		graph_info.graph_color = oe::colors::blue;
 		graph_ups = gui_manager->create(graph_info);
 		
@@ -331,16 +331,18 @@ void gui()
 	{
 		oe::gui::fSliderInput::info_t s_info;
 		s_info.knob_size = { 6, 20 };
-		s_info.widget_info.size = { 150, 20 };
-		s_info.widget_info.align_parent = oe::alignments::top_left;
-		s_info.widget_info.align_render = oe::alignments::top_left;
-		s_info.widget_info.offset_position = { 0, y };
+		s_info.widget_info.pixel_size = { 205, 20 };
+		s_info.widget_info.pixel_origon_offset = oe::alignments::top_left;
+		s_info.widget_info.fract_origon_offset = oe::alignments::top_left;
+		s_info.widget_info.pixel_origon_offset = { 0, y };
 		s_info.slider_lcolor = oe::colors::red;
 		s_info.slider_rcolor = oe::colors::green;
 		s_info.linear_color = true;
 		s_info.slider_sprite = pack->emptySprite();
 		s_info.value_bounds = { -10.0f, 10.0f, };
 		s_info.text_format = [](float v){ return fmt::format(U"motor speed: {:.2f}", v); };
+		s_info.text_options.pixel_res(14);
+		s_info.text_options.align = oe::alignments::center_center;
 		auto slider = gui_manager->create(s_info);
 
 		y += 25;
@@ -358,28 +360,32 @@ void gui()
 	{
 		oe::gui::fSliderInput::info_t s_info;
 		s_info.knob_size = { 6, 20 };
-		s_info.widget_info.size = { 150, 20 };
-		s_info.widget_info.align_parent = oe::alignments::top_left;
-		s_info.widget_info.align_render = oe::alignments::top_left;
-		s_info.widget_info.offset_position = { 0, y };
+		s_info.widget_info.pixel_size = { 205, 20 };
+		s_info.widget_info.pixel_origon_offset = oe::alignments::top_left;
+		s_info.widget_info.fract_origon_offset = oe::alignments::top_left;
+		s_info.widget_info.pixel_origon_offset = { 0, y };
 		s_info.slider_lcolor = oe::colors::dark_grey;
 		s_info.slider_rcolor = oe::colors::dark_blue;
 		s_info.slider_sprite = pack->emptySprite();
 		s_info.value_bounds = { 0.0f, 2.0f, };
 		s_info.text_format = [](float v){ return fmt::format(U"simulation speed: {:.2f}", v); };
+		s_info.text_options.pixel_res(14);
+		s_info.text_options.align = oe::alignments::center_center;
 		auto slider = gui_manager->create(s_info, sim_speed);
 
 		y += 25;
 	}
 	{
 		oe::gui::iNumberInput::info_t n_info;
-		n_info.widget_info.size = { 80, 30 };
-		n_info.widget_info.align_parent = oe::alignments::top_left;
-		n_info.widget_info.align_render = oe::alignments::top_left;
-		n_info.widget_info.offset_position = { 0, y };
+		n_info.widget_info.pixel_size = { 102, 30 };
+		n_info.widget_info.pixel_origon_offset = oe::alignments::top_left;
+		n_info.widget_info.fract_origon_offset = oe::alignments::top_left;
+		n_info.widget_info.pixel_origon_offset = { 0, y };
 		n_info.value_bounds = { 0, 1000 };
 		n_info.interact_flags = oe::interact_type_flags::scroll | oe::interact_type_flags::cursor;
 		n_info.text_format = [](int32_t v){ return fmt::format("entities: {}", v); };
+		n_info.text_options.pixel_res(14);
+		n_info.text_options.align = oe::alignments::center_center;
 		auto count_input = gui_manager->create(n_info, entity_count);
 
 		y += 85;

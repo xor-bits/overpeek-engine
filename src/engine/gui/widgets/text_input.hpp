@@ -108,9 +108,10 @@ namespace oe::gui
 		void reformat() noexcept;
 	
 	private:
-		std::basic_string_view<char_type> m_value_old;
-		int m_cursor_old;
-		std::tuple<int, int> m_selection_old;
+		std::basic_string<char_type> m_value_old{};
+		int m_cursor_old{0};
+		std::tuple<int, int> m_selection_old{0,0};
+		
 		bool regen_cache();
 		// events
 		void on_render(const GUIRenderEvent& event);
