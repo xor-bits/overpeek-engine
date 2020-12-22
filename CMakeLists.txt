@@ -7,6 +7,12 @@ if(CMAKE_BINARY_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR)
 	conan_basic_setup()
 endif()
 
+# cmrc
+include("cmake/cmrc/CMakeRC.cmake")
+# asset folder
+file(GLOB_RECURSE ASSET_FILES "asset/*")
+cmrc_add_resource_library(asset NAMESPACE asset ${ASSET_FILES})
+
 # engine
 add_subdirectory(src) # static library (engine)
 

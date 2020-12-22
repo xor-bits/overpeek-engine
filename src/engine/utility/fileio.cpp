@@ -339,18 +339,21 @@ namespace oe::utils
 
 
 
-	FontFile::FontFile(const oe::utils::FileIO& path)
+	FontFile::FontFile(const std::string& name)
 	{
-		auto& font_file_map = FontFileMapSingleton::get().font_file_map;
-
-		id = std::hash<std::string>{}(path.getPath().generic_string());
-		if(font_file_map.find(id) == font_file_map.end())
-			font_file_map.emplace(id, path.read<oe::utils::byte_string>());
+		id = std::hash<std::string>{}(name);
 	}
 
 	FontFile::FontFile()
 		: FontFile(oe::asset::Fonts::roboto_regular())
 	{}
+	
+	const void FontFile::load(const oe::utils::byte_string& bytes)
+	{
+		auto& font_file_map = FontFileMapSingleton::get().font_file_map;
+		if(font_file_map.find(id) == font_file_map.end())
+			font_file_map.emplace(id, bytes);
+	}
 
 	const oe::utils::byte_string& FontFile::fontFile() const
 	{
@@ -363,9 +366,18 @@ namespace oe::utils
 
 		const auto iter = font_file_map.find(id);
 		if(iter == font_file_map.end())
+		{
+			spdlog::warn("FontFile not loaded for id {}. Using default.", id);
 			return font_file_map.at(0);
+		}
 
 		return iter->second;
+	}
+
+	[[nodiscard]] const bool FontFile::loaded()
+	{
+		auto& font_file_map = FontFileMapSingleton::get().font_file_map;
+		return font_file_map.find(id) != font_file_map.end();
 	}
 
 	auto zip_open_error(int error)

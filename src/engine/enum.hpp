@@ -445,8 +445,8 @@ namespace oe {
 	struct ShaderStageInfo
 	{
 		shader_stages stage;
-		std::string_view source;
-		std::string_view include_path; // optional
+		std::string source;
+		std::string include_path; // optional
 	};
 
 	// shader create info, shader_stages is non-owning
@@ -481,7 +481,6 @@ namespace oe {
 		gpu favored_gpu_vulkan = gpu::dedicated;
 		bool debug_mode = true;
 		bool ignore_errors = true;
-		std::string asset_path = "asset.zip";
 	};
 
 	struct TextureInfo

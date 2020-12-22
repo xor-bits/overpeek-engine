@@ -24,6 +24,7 @@ set(source_list ${source_list}
 	"engine/asset/font_shader/font_shader.hpp"
 	"engine/asset/asset_loader.cpp"
 	"engine/asset/asset_loader.hpp"
+	"engine/asset/fonts.hpp"
 )
 set(source_list ${source_list} 
 	"engine/audio/audio.cpp"
@@ -187,12 +188,14 @@ set(target_name "engine")
 add_library(${target_name} STATIC ${source_list} "engine/ecs/world.hpp" "engine/ecs/world.cpp"    "engine/interfacegen_renderer.hpp")
 set_target_properties(${target_name} PROPERTIES FOLDER engine)
 if(OE_BUILD_MODE EQUAL 0)
-	target_compile_definitions(${target_name} PUBLIC "OE_BUILD_MODE_GL")
+target_compile_definitions(${target_name} PUBLIC "OE_BUILD_MODE_GL")
 elseif(OE_BUILD_MODE EQUAL 1)
-	target_compile_definitions(${target_name} PUBLIC "OE_BUILD_MODE_SHADERC")
+target_compile_definitions(${target_name} PUBLIC "OE_BUILD_MODE_SHADERC")
 elseif(OE_BUILD_MODE EQUAL 2)
-	target_compile_definitions(${target_name} PUBLIC "OE_BUILD_MODE_VULKAN")
+target_compile_definitions(${target_name} PUBLIC "OE_BUILD_MODE_VULKAN")
 endif()
+# link cmrc asset
+target_link_libraries(${target_name} PRIVATE asset)
 
 # platform specific
 if (MSVC)

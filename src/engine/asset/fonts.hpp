@@ -12,12 +12,18 @@ namespace oe::asset
 	public:
 		static oe::utils::FontFile roboto_regular()
 		{
-			return oe::utils::FontFile(AssetLoader::get().path() / "font/Roboto/Roboto-Regular.ttf");
+			auto ff = oe::utils::FontFile("Roboto-Regular.ttf");
+			if(!ff.loaded())
+				ff.load(AssetLoader::resource_bytes("font/Roboto/Roboto-Regular.ttf"));
+			return ff;
 		}
 		
 		static oe::utils::FontFile roboto_italic()
 		{
-			return oe::utils::FontFile(AssetLoader::get().path() / "font/Roboto/Roboto-Italic.ttf");
+			auto ff = oe::utils::FontFile("Roboto-Italic.ttf");
+			if(!ff.loaded())
+				ff.load(AssetLoader::resource_bytes("font/Roboto/Roboto-Italic.ttf"));
+			return ff;
 		}
 	};
 }

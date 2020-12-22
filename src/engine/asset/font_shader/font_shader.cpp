@@ -22,12 +22,12 @@ namespace oe::asset {
 			{
 				ShaderStageInfo {
 					shader_stages::vertex_shader,
-					oe::asset::AssetLoader::get().resource_string("shader/font_shader/shader.vert.glsl"),
+					oe::asset::AssetLoader::resource_string("shader/font_shader/shader.vert.glsl"),
 					{}
 				},
 				ShaderStageInfo {
 					shader_stages::fragment_shader,
-					oe::asset::AssetLoader::get().resource_string("shader/font_shader/shader.frag.glsl"),
+					oe::asset::AssetLoader::resource_string("shader/font_shader/shader.frag.glsl"),
 					{}
 				}
 			}
