@@ -19,6 +19,7 @@ namespace oe::graphics
 	public:
 		static uint32_t bound_fbo_id;
 		static glm::ivec4 current_viewport;
+		static glm::ivec2 gl_max_fb_size;
 
 		static void bind_fb(uint32_t fb_id, const glm::ivec4& viewport);
 	

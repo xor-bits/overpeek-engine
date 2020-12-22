@@ -12,6 +12,7 @@ namespace oe::graphics
 {
 	uint32_t GLFrameBuffer::bound_fbo_id = 0xFFFFFFFF;
 	glm::ivec4 GLFrameBuffer::current_viewport = { 0, 0, 0, 0 };
+	glm::ivec2 GLFrameBuffer::gl_max_fb_size = { -1, -1 };
 
 	struct gl_state : state
 	{
@@ -31,6 +32,15 @@ namespace oe::graphics
 		int32_t last_bound_fbo = bound_fbo_id;
 		glm::ivec4 last_viewport_dim = current_viewport;
 
+		/* if(gl_max_fb_size == glm::ivec2{ -1, -1 })
+		{
+			glGetIntegerv(GL_MAX_FRAMEBUFFER_WIDTH, &gl_max_fb_size.x);
+			glGetIntegerv(GL_MAX_FRAMEBUFFER_HEIGHT, &gl_max_fb_size.y);
+		}
+		glm::uvec2 size = glm::min(static_cast<glm::uvec2>(gl_max_fb_size), framebuffer_info.size);
+		glm::uvec2 size = glm::max(static_cast<glm::uvec2>(gl_max_fb_size), framebuffer_info.size); */
+		
+
 		glGenFramebuffers(1, &m_id);
 		GLFrameBuffer::bind();
 
@@ -45,13 +55,13 @@ namespace oe::graphics
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, dynamic_cast<GLTexture*>(m_texture.get())->getGLTarget(), dynamic_cast<GLTexture*>(m_texture.get())->getGLTexture(), 0);
 		
 		// Render buffer object
-		glGenRenderbuffers(1, &m_rbo);
+		/* glGenRenderbuffers(1, &m_rbo);
 		glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, framebuffer_info.size.x, framebuffer_info.size.y);
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbo);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbo); */
 
 		// FBO
 		int fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -70,7 +80,7 @@ namespace oe::graphics
 	GLFrameBuffer::~GLFrameBuffer()
 	{
 		glDeleteFramebuffers(1, &m_id);
-		glDeleteRenderbuffers(1, &m_rbo);
+		/* glDeleteRenderbuffers(1, &m_rbo); */
 	}
 
 	void GLFrameBuffer::clear(const oe::color& c)

@@ -229,6 +229,7 @@ namespace oe::graphics
 	void clamp_size(char name, int32_t& dim)
 	{
 		int32_t original = dim;
+		dim = std::max(1, dim);
 		dim = std::min(GLTexture::gl_max_texture_size, dim);
 		
 		if(original != dim)
