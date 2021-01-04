@@ -1,157 +1,181 @@
 #include "server.hpp"
-
-#include <enet/enet.h>
-
+#include "enet_wrap.hpp"
 #include "engine/internal_libs.hpp"
 
 
 
-namespace oe::networking {
-
-	const uint8_t channel_count = 16;
-
-	bool enet::initialized = false;
-
-
-
-	void enet::initEnet() {
-		if (!initialized) {
-			enet_initialize();
-		}
-	}
-	
-	void enet::deinitEnet() {
-		if (initialized) {
-			enet_deinitialize();
+namespace oe::networking
+{
+	static bool initialized = false;
+	void init_enet()
+	{
+		if(!initialized)
+		{
+			initialized = true;
+			if(enet_initialize() < 0)
+				spdlog::error("ENet init failed");
+			spdlog::info("ENet initialized");
 		}
 	}
 
-	Server::Server() {
-		m_address = new ENetAddress();
-		m_compressor = new ENetCompressor();
-		m_channel_id = 0;
+
+
+	struct server_enet_data
+	{
+		ENetHostWrapper m_server{};
+		ENetAddress m_address{};
+		ENetCompressor m_compressor{};
+		std::unordered_map<size_t, ENetPeer*> m_peers;
+		size_t m_channel_id = 0;
+		size_t m_client_id_gen = 0;
+	};
+
+
+
+	Server::Server(size_t max_clients, size_t max_channels)
+		: m_data(std::make_unique<server_enet_data>())
+		, m_max_clients(max_clients)
+		, m_max_channels(max_channels)
+	{
+		init_enet();
 	}
 
-	Server::~Server() {
+	Server::~Server()
+	{
 		close();
-		delete m_compressor;
-		delete m_address;
 	}
 
-	int Server::open(std::string ip, int port) {
-		enet_address_set_host(m_address, ip.c_str());
-		m_address->port = port;
-		m_address->host = ENET_HOST_ANY;
+	result Server::open(uint16_t port)
+	{
+		// address
+		m_data->m_address.port = port;
+		m_data->m_address.host = ENET_HOST_ANY;
+		
+		// server
+		std::scoped_lock lock(mtx);
+		m_data->m_server = { &m_data->m_address, m_max_clients, m_max_channels };
+		m_running = m_data->m_server.m_host != nullptr;
+		if (!m_running)
+			return result{ "Server could not be created" };
 
-		mtx.lock();
-		m_server = enet_host_create(
-			m_address,
-			32,
-			channel_count,
-			0,
-			0
-		);
-
-		enet_host_compress(m_server, m_compressor);
-
-		if (!m_server) {
-			spdlog::critical("Failed to create ENet server at port {}", port);
-			m_opened = false;
-			mtx.unlock();
-			return -1;
-		}
-		mtx.unlock();
-		m_opened = true;
-
-		m_keep_running = true;
+		enet_host_compress(m_data->m_server.m_host, &m_data->m_compressor);
 		m_thread = std::thread(&Server::operate, this);
 
-		return 0;
+		return result{};
 	}
 	
-	int Server::close() {
-		if (!m_opened) return -1;
+	result Server::close()
+	{
+		if (!m_running)
+			return result{ "Not running", false };
 
 		// wait for event service to stop
-		m_keep_running = false;
-		if (m_thread.joinable()) m_thread.join();
+		m_running = false;
+		if (m_thread.joinable())
+			m_thread.join();
 
 		// close the server
-		mtx.lock();
-		if (m_server) enet_host_destroy(m_server);
-		m_server = nullptr;
-		mtx.unlock();
-		return 0;
+		std::scoped_lock lock(mtx);
+		m_data->m_server.destroy();
+		return result{};
 	}
 
-	int Server::send(const unsigned char* bytes, size_t count, size_t client_id) {
-		m_channel_id++; if (m_channel_id >= channel_count) m_channel_id = 0;
+	result Server::send_to(const unsigned char* bytes, size_t count, size_t client_id)
+	{
+		const size_t channel = next_channel();
 
-		ENetPacket* packet = enet_packet_create(bytes, count, ENET_PACKET_FLAG_RELIABLE);
-		enet_peer_send(m_peers.at(client_id), m_channel_id, packet);
-		mtx.lock();
-		enet_host_flush(m_server);
-		mtx.unlock();
-		return 0;
-	}
-
-	int Server::send(const unsigned char* bytes, size_t count) {
-		m_channel_id++; if (m_channel_id >= channel_count) m_channel_id = 0;
+		ENetPacket*	packet = enet_packet_create(bytes, count, ENET_PACKET_FLAG_RELIABLE);
 		
-		ENetPacket* packet = enet_packet_create(bytes, count, ENET_PACKET_FLAG_RELIABLE);
-		mtx.lock();
-		enet_host_broadcast(m_server, m_channel_id, packet);
-		enet_host_flush(m_server);
-		mtx.unlock();
-		return 0;
+		// std::scoped_lock lock(mtx);
+		enet_peer_send(m_data->m_peers.at(client_id), channel, packet);
+		enet_host_flush(m_data->m_server.m_host);
+		
+		return result{};
 	}
 
-	void Server::operate() {
-		ENetEvent event;
-
+	result Server::send(const unsigned char* bytes, size_t count)
+	{
+		const size_t channel = next_channel();
 		
+		ENetPacket*	packet = enet_packet_create(bytes, count, ENET_PACKET_FLAG_RELIABLE);
+		
+		// std::scoped_lock lock(mtx);
+		enet_host_broadcast(m_data->m_server.m_host, channel, packet);
+		enet_host_flush(m_data->m_server.m_host);
 
-		while (m_keep_running) {
-			mtx.lock();
-			if (enet_host_service(m_server, &event, 0) <= 0) {
-				mtx.unlock();
+		return result{};
+	}
+
+	void Server::operate()
+	{
+		ENetEvent event{};
+		size_t client_id;
+
+		while (m_running)
+		{
+			enet_host_flush(m_data->m_server.m_host);
+			spdlog::info("SERVER OP");
+			const int32_t r = m_data->m_server.run_service(mtx, event, std::chrono::milliseconds(50));
+			if (r < 0)
+				spdlog::warn("Server ENet service error");
+			if (r == 0)
 				continue;
-			}
-			mtx.unlock();
 
-			if (event.type == ENET_EVENT_TYPE_NONE) {}
-			else if (event.type == ENET_EVENT_TYPE_CONNECT) {
-				size_t client_id = std::hash<std::string>{}(fmt::format("{}:{}", event.peer->address.host, event.peer->address.port));
-				event.peer->data = (void*)client_id;
+			spdlog::info("SERVER EVENT");
 
-				m_peers.insert(std::make_pair((size_t)event.peer->data, event.peer));
-				if (m_callback_connect) m_callback_connect((size_t)event.peer->data);
-			}
-			else if (event.type == ENET_EVENT_TYPE_DISCONNECT) {
-				m_peers.erase((size_t)event.peer->data);
-				if (m_callback_disconnect) m_callback_disconnect((size_t)event.peer->data);
-			}
-			else if (event.type == ENET_EVENT_TYPE_RECEIVE) {
-				if (m_callback_recieve) m_callback_recieve((size_t)event.peer->data, event.packet->data, event.packet->dataLength);
+			switch (event.type)
+			{
+			default:/* case ENET_EVENT_TYPE_NONE: */
+				break;
+			
+			case ENET_EVENT_TYPE_CONNECT:
+				client_id = m_data->m_client_id_gen++;
+				event.peer->data = reinterpret_cast<void*>(client_id);
+				m_data->m_peers.insert(std::make_pair(client_id, event.peer));
+				m_dispatcher.trigger(ServerConnectEvent{ client_id });
+				break;
+			
+			case ENET_EVENT_TYPE_DISCONNECT:
+				client_id = reinterpret_cast<size_t>(event.peer->data);
+				m_data->m_peers.erase(client_id);
+				m_dispatcher.trigger(ServerDisconnectEvent{ client_id });		
+				break;
+			
+			case ENET_EVENT_TYPE_RECEIVE:
+				client_id = reinterpret_cast<size_t>(event.peer->data);
+				m_dispatcher.trigger(ServerReceiveEvent{ client_id, { event.packet->data, event.packet->dataLength } });
 				enet_packet_destroy(event.packet);
+				break;
 			}
 		}
 	}
+	
+	[[nodiscard]] size_t Server::next_channel()
+	{
+		m_data->m_channel_id++; // overflow (not gonna happen) is just going to make the next step easy
+		
+		if (m_data->m_channel_id >= m_max_channels)
+			m_data->m_channel_id = 0;
+		
+		return m_data->m_channel_id;
+	}
 
-	std::string Server::getClientIP(size_t client_id) {
-		std::string ip;
-		ip.resize(100);
-		enet_address_get_host_ip(&m_peers.at(client_id)->address, ip.data(), 100);
-		ip = std::string(ip.data());
+	std::string Server::client_address(size_t client_id) const
+	{
+		std::string ip{ 100, '\0' };
+		enet_address_get_host_ip(&m_data->m_peers.at(client_id)->address, ip.data(), 100);
+		ip.erase(0, ip.find_first_not_of('\0'));
 		return ip;
 	}
 
-	int Server::getClientPort(size_t client_id) {
-		return m_peers.at(client_id)->address.port;
+	uint16_t Server::client_port(size_t client_id) const
+	{
+		return m_data->m_peers.at(client_id)->address.port;
 	}
 
-	float Server::getPacketLoss(size_t client_id) {
-		return static_cast<float>(m_peers.at(client_id)->packetLoss) / static_cast<float>(ENET_PEER_PACKET_LOSS_SCALE);
+	float Server::client_packet_loss(size_t client_id) const
+	{
+		return static_cast<float>(m_data->m_peers.at(client_id)->packetLoss) / static_cast<float>(ENET_PEER_PACKET_LOSS_SCALE);
 	}
 
 }

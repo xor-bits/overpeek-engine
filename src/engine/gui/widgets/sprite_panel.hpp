@@ -21,6 +21,7 @@ namespace oe::gui
 			oe::color               color_tint = oe::colors::white;
 			const oe::graphics::Sprite* sprite = nullptr;
 			float                     rotation = 0.0f;
+			glm::vec2       rotation_alignment = oe::alignments::center_center;
 			// base
 			Widget::Info           widget_info = {};
 		};

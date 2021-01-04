@@ -2,7 +2,6 @@
 
 #include <string>
 #include <iostream>
-
 #include <GLFW/glfw3.h>
 
 #include "engine/internal_libs.hpp"
@@ -195,5 +194,4 @@ namespace oe::graphics
 	{
 		glfwSetWindowMonitor(m_window_handle, NULL, m_window_info.position.x, m_window_info.position.y, m_window_info.size.x, m_window_info.size.y, 0);
 	}
-
 }

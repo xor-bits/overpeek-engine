@@ -291,5 +291,11 @@ namespace oe::graphics
 		virtual std::string getAPIVersion() const = 0;
 		virtual std::string getGPU() const = 0;
 		virtual std::string getGPUVendor() const = 0;
+
+		// -----------------
+		// native / advanced
+		// -----------------
+
+		[[nodiscard]] constexpr inline GLFWwindow* getGLFWindow() { return m_window_handle; }
 	};
 }

@@ -38,15 +38,6 @@ namespace oe {
 		glfwSetErrorCallback(glfw_error_func);
 		if (!glfwInit())
 			throw std::runtime_error("Failed to initialize GLFW!");
-		
-		if (engine_info.networking)
-			try{
-				networking::enet::initEnet();
-			}catch(const std::exception& e){
-				spdlog::warn(e.what());
-				if(!engine_info.networking_init_noexcept)
-					throw e;
-			}
 
 		switch (engine_info.api)
 		{
@@ -72,8 +63,6 @@ namespace oe {
 
 	void Engine::deinit()
 	{
-		if (engine_info.networking)
-			networking::enet::deinitEnet();
 		instance.reset();
 	}
 

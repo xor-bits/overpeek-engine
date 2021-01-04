@@ -98,9 +98,9 @@ namespace oe::gui
 			using value_t = T;
 
 			// value
-			value_t initial_value                                        = static_cast<value_t>(0.0);
-			glm::vec<2,value_t> value_bounds                             = { static_cast<value_t>(0.0), static_cast<value_t>(10.0) };
-			value_t step_size                                            = static_cast<value_t>(0.01);
+			value_t initial_value                                        = static_cast<value_t>(0);
+			glm::vec<2,value_t> value_bounds                             = { static_cast<value_t>(0), static_cast<value_t>(10) };
+			value_t step_size                                            = static_cast<value_t>(1);
 			// text
 			std::function<std::u32string(const value_t&)> text_format    = &default_formatter;
 			
@@ -119,12 +119,12 @@ namespace oe::gui
 	protected:
 		[[nodiscard]] float get_rendered_value() const override
 		{
-			return oe::utils::map(m_value, m_slider_info.value_bounds.x, m_slider_info.value_bounds.y, static_cast<value_t>(0.0), static_cast<value_t>(1.0));
+			return oe::utils::map<float>(static_cast<float>(m_value), static_cast<float>(m_slider_info.value_bounds.x), static_cast<float>(m_slider_info.value_bounds.y), 0.0f, 1.0f);
 		}
 		
 		void set_rendered_value(float val) const override
 		{
-			m_value = oe::utils::map<value_t>(val, static_cast<value_t>(0.0), static_cast<value_t>(1.0), m_slider_info.value_bounds.x, m_slider_info.value_bounds.y);
+			m_value = static_cast<value_t>(oe::utils::map<float>(val, 0.0f, 1.0f, static_cast<float>(m_slider_info.value_bounds.x), static_cast<float>(m_slider_info.value_bounds.y)));
 		}
 		
 		[[nodiscard]] std::u32string get_rendered_label() const override
@@ -151,9 +151,12 @@ namespace oe::gui
 		{
 			m_value = std::clamp(m_value, m_slider_info.value_bounds.x, m_slider_info.value_bounds.y);
 			
-			m_value /= m_slider_info.step_size;
-			m_value = std::round(m_value);
-			m_value *= m_slider_info.step_size;
+			if(m_slider_info.step_size != static_cast<value_t>(0))
+			{
+				m_value /= m_slider_info.step_size;
+				m_value = std::round(m_value);
+				m_value *= m_slider_info.step_size;
+			}
 		}
 
 		void send_hover_event() override
@@ -169,7 +172,7 @@ namespace oe::gui
 		
 		void step(float mult) override
 		{
-			m_value += mult * m_slider_info.step_size;
+			m_value += mult * std::max(m_slider_info.step_size, static_cast<value_t>(1));
 		}
 
 	public:

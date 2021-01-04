@@ -84,6 +84,7 @@ namespace oe::gui
 		~ColorPicker() override;
 
 		virtual void virtual_toggle(bool enabled) override;
+		[[nodiscard]] inline bool dragging() const { return m_dragging_wheel || m_dragging_triangle; }
 	
 	private:
 		void update_from_value(bool update_dir);

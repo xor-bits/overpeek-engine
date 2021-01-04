@@ -1,5 +1,9 @@
 #pragma once
 
+#include <vector>
+#include <cstdint>
+#include <string>
+
 
 
 namespace oe::utils
@@ -18,12 +22,12 @@ namespace oe::utils
 		FontFile(const std::string& name);
 		FontFile();
 
-		const void load(const oe::utils::byte_string& bytes);
+		void load(const oe::utils::byte_string& bytes);
 
 		[[nodiscard]] constexpr inline size_t getID() const noexcept { return id; }
 		[[nodiscard]] const oe::utils::byte_string& fontFile() const;
 		[[nodiscard]] const static oe::utils::byte_string& getFontFile(const size_t id);
-		[[nodiscard]] const bool loaded();
+		[[nodiscard]] bool loaded();
 		[[nodiscard]] constexpr inline bool operator==(const FontFile &other) const noexcept { return id == other.id; }
 	};
 }

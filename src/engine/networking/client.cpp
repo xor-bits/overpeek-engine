@@ -1,167 +1,212 @@
 #include "client.hpp"
-
-#include <enet/enet.h>
-
+#include "enet_wrap.hpp"
 #include "engine/internal_libs.hpp"
-#include "server.hpp"
 
 
 
-namespace oe::networking {
+namespace oe::networking
+{
+	struct client_enet_data
+	{
+		ENetHostWrapper m_client{};
+		ENetAddress m_address{};
+		ENetCompressor m_compressor{};
+		ENetPeer* m_peer = nullptr;
+		size_t m_channel_id = 0;
+	};
 
-	const uint8_t channel_count = 16;
 
 
-
-	Client::Client() {
-		m_peer = nullptr;
-		m_address = new ENetAddress();
-		m_keep_running = false;
-		m_channel_id = 0;
-
-		m_client = enet_host_create(
-			NULL,
-			4,
-			channel_count,
-			0,
-			0
-		);
-		if (!m_client) {
-			spdlog::critical("Could not create ENet client");
-		}
+	Client::Client(size_t max_channels)
+		: m_data(std::make_unique<client_enet_data>())
+		, m_max_channels(max_channels)
+	{
+		init_enet();
 	}
 
-	Client::~Client() {
+	Client::~Client()
+	{
 		close();
 	}
 
-	int Client::connect(std::string ip, int port, uint32_t timeout) {
+	result Client::connect(const std::string& ip, uint16_t port, std::chrono::milliseconds timeout)
+	{
+		{
+			std::scoped_lock lock(mtx);
+			if(!m_data->m_client.m_host)
+			{
+				m_data->m_client = { nullptr, 1, 1 };
+				if(!m_data->m_client.m_host)
+					return result{ "Client could not be created" };
+
+				enet_host_compress(m_data->m_client.m_host, &m_data->m_compressor);
+			}
+		}
+
+		// address
+		enet_address_set_host(&m_data->m_address, ip.c_str());
+		m_data->m_address.port = port;
+
+		// disconnect and then connect
 		disconnect();
-
-		enet_address_set_host(m_address, ip.c_str());
-		m_address->port = port;
-
-		mtx.lock();
-		m_peer = enet_host_connect(m_client, m_address, channel_count, 0);
-		mtx.unlock();
-		if (!m_peer) {
-			spdlog::critical("No available peers for initiating an ENet connection");
-			return -1;
+		{
+			std::scoped_lock lock(mtx);
+			m_data->m_peer = enet_host_connect(m_data->m_client.m_host, &m_data->m_address, m_max_channels, 0);
+			if (m_data->m_peer == nullptr)
+				return result{ "No available peers for initiating an ENet connection" };
 		}
+		
 
+		// operate until it fails to connect or connects successfully
 		ENetEvent event;
-		mtx.lock();
-		if (enet_host_service(m_client, &event, timeout) > 0 && event.type == ENET_EVENT_TYPE_CONNECT) {
-			enet_host_flush(m_client);
-			if (m_callback_connect) m_callback_connect();
-			m_connected = true;
-		}
-		else {
-			enet_peer_reset(m_peer);
-			spdlog::critical("failed to connect to {}:{}", ip, port);
-			m_connected = false;
-			mtx.unlock();
-			return -1;
-		}
-		mtx.unlock();
+		const int32_t service_return = m_data->m_client.run_service(mtx, event, timeout);
+		m_running = service_return > 0 && event.type == ENET_EVENT_TYPE_CONNECT;
+		
+		if(!m_running)
+		{
+			std::scoped_lock lock(mtx);
+			enet_peer_reset(m_data->m_peer);
 
-		m_keep_running = true;
+			if(service_return == 0)
+				return result{ "Timeout" };
+			else
+				return result{ "Connection failed" };
+		}
+
 		m_thread = std::thread(&Client::operate, this);
-
-		return 0;
+		return result{};
 	}
 
-	int Client::disconnect() {
-		if (!m_connected) {
-			return -1;
-		}
+	result Client::disconnect()
+	{
+		if (!m_running)
+			return result{ "Not connected", false };
 
 		// wait for event service to stop
-		m_keep_running = false;
-		if (m_thread.joinable()) m_thread.join();
+		m_running = false;
+		if (m_thread.joinable())
+			m_thread.join();
 
-		enet_peer_disconnect(m_peer, 0);
+		// send the disconnect request
+		{
+			std::scoped_lock lock(mtx);
+			enet_peer_disconnect(m_data->m_peer, 0);
+		}
+
 		ENetEvent event;
 		while (true)
 		{
-			mtx.lock();
-			if (enet_host_service(m_client, &event, 1000) <= 0) {
-				mtx.unlock();
-				break;
-			}
-			mtx.unlock();
+			const int32_t service_return = m_data->m_client.run_service(mtx, event, std::chrono::seconds{ 1 });
+			if (service_return <= 0)
+				break; // error or timeout
 
 			switch (event.type)
 			{
+			default:/* case ENET_EVENT_TYPE_NONE: */
+				break;
+			
 			case ENET_EVENT_TYPE_RECEIVE:
 				enet_packet_destroy(event.packet);
 				break;
+			
 			case ENET_EVENT_TYPE_DISCONNECT:
-				if (m_callback_disconnect) m_callback_disconnect();
-				m_connected = false;
-				return 0;
-			default:
-				break; // ignore
+				return result{};
 			}
 		}
 
-		enet_peer_reset(m_peer);
-		if (m_callback_disconnect) m_callback_disconnect();
-		m_connected = false;
-		return 0;
+		disconnect_force();
+		return result{ "Disconnect forced", false };
+	}
+	
+	result Client::disconnect_force()
+	{
+		std::scoped_lock lock(mtx);
+		enet_peer_reset(m_data->m_peer);
+		return result{};
 	}
 
-	int Client::close() {
-		if (m_connected) {
-			disconnect();
-		}
+	result Client::close()
+	{
+		disconnect();
 
 		// close the server
-		mtx.lock();
-		if (m_client) enet_host_destroy(m_client);
-		m_client = nullptr;
-		mtx.unlock();
-		return 0;
+		std::scoped_lock lock(mtx);
+		m_data->m_client.destroy();
+		return result{};
 	}
 
-	int Client::send(const unsigned char* bytes, size_t count) {
-		m_channel_id++; if (m_channel_id >= channel_count) m_channel_id = 0;
+	result Client::send(const uint8_t* bytes, size_t count)
+	{
+		const size_t channel = next_channel();
+		
+		ENetPacket*	packet = enet_packet_create(bytes, count, ENET_PACKET_FLAG_RELIABLE);
+		
+		// std::scoped_lock lock(mtx);
+		enet_peer_send(m_data->m_peer, channel, packet);
+		enet_host_flush(m_data->m_client.m_host);
 
-		ENetPacket* packet = enet_packet_create(bytes, count, ENET_PACKET_FLAG_RELIABLE);
-		enet_peer_send(m_peer, m_channel_id, packet);
-		mtx.lock();
-		enet_host_flush(m_client);
-		mtx.unlock();
-		return 0;
+		return result{};
 	}
 
-	void Client::operate() {
-		ENetEvent event;
+	void Client::operate()
+	{
+		ENetEvent event{};
 
-		while (m_keep_running) {
-			mtx.lock();
-			if (enet_host_service(m_client, &event, 0) <= 0) {
-				mtx.unlock();
+		while (m_running)
+		{
+			enet_host_flush(m_data->m_client.m_host);
+			spdlog::info("CLIENT OP");
+			const int32_t r = m_data->m_client.run_service(mtx, event, std::chrono::milliseconds(50));
+			if (r < 0)
+				spdlog::warn("Client ENet service error");
+			if (r == 0)
 				continue;
-			}
-			mtx.unlock();
 
-			if (event.type == ENET_EVENT_TYPE_NONE) {}
-			else if (event.type == ENET_EVENT_TYPE_CONNECT) {
-				if (m_callback_connect) m_callback_connect();
-			}
-			else if (event.type == ENET_EVENT_TYPE_DISCONNECT) {
-				if (m_callback_disconnect) m_callback_disconnect();
-			}
-			else if (event.type == ENET_EVENT_TYPE_RECEIVE) {
-				if (m_callback_recieve) m_callback_recieve(event.packet->data, event.packet->dataLength);
+			spdlog::info("CLIENT EVENT");
+
+			switch (event.type)
+			{
+			default:/* case ENET_EVENT_TYPE_NONE: */
+				break;
+			
+			case ENET_EVENT_TYPE_DISCONNECT:
+				m_dispatcher.trigger(ClientDisconnectEvent{});
+				break;
+			
+			case ENET_EVENT_TYPE_RECEIVE:
+				m_dispatcher.trigger(ClientReceiveEvent{ { event.packet->data, event.packet->dataLength } });
 				enet_packet_destroy(event.packet);
+				break;
 			}
 		}
 	}
+	
+	[[nodiscard]] size_t Client::next_channel()
+	{
+		m_data->m_channel_id++; // overflow (not gonna happen) is just going to make the next step easy
+		
+		if (m_data->m_channel_id >= m_max_channels)
+			m_data->m_channel_id = 0;
+		
+		return m_data->m_channel_id;
+	}
 
-	float Client::getPacketLoss() {
-		return static_cast<float>(m_peer->packetLoss) / static_cast<float>(ENET_PEER_PACKET_LOSS_SCALE);
+	[[nodiscard]] std::string Client::server_address() const
+	{
+		std::string ip{ 100, '\0' };
+		enet_address_get_host_ip(&m_data->m_address, ip.data(), 100);
+		ip.erase(0, ip.find_first_not_of('\0'));
+		return ip;
+	}
+
+	[[nodiscard]] uint16_t Client::server_port() const
+	{
+		return m_data->m_address.port;
+	}
+
+	[[nodiscard]] float Client::server_packet_loss() const
+	{
+		return static_cast<float>(m_data->m_peer->packetLoss) / static_cast<float>(ENET_PEER_PACKET_LOSS_SCALE);
 	}
 
 }

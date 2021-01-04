@@ -282,7 +282,7 @@ namespace oe::gui
 		if (e.button != oe::mouse_buttons::button_left || e.action != oe::actions::press)
 			return;
 
-		if (!oe::utils::bounding_box_test(
+		if (!m_popup_picker->dragging() && !oe::utils::bounding_box_test(
 			e.cursor_pos.cursor_windowspace,
 			glm::min(m_preview_button->m_render_position, m_popup_picker->m_render_position),
 			glm::max(m_preview_button->m_render_position + m_preview_button->m_render_size, m_popup_picker->m_render_position + m_popup_picker->m_render_size) - glm::min(m_preview_button->m_render_position, m_popup_picker->m_render_position)))
@@ -297,7 +297,7 @@ namespace oe::gui
 			return;
 
 		constexpr int bbox_padding = 30;
-		if (!oe::utils::bounding_box_test(
+		if (!m_popup_picker->dragging() && !oe::utils::bounding_box_test(
 			e.cursor_windowspace,
 			glm::min(m_preview_button->m_render_position, m_popup_picker->m_render_position) - glm::ivec2{ bbox_padding },
 			glm::max(m_preview_button->m_render_position + m_preview_button->m_render_size, m_popup_picker->m_render_position + m_popup_picker->m_render_size) - glm::min(m_preview_button->m_render_position, m_popup_picker->m_render_position) + glm::ivec2{ bbox_padding * 2 }))

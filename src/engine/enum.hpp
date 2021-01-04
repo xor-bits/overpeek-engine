@@ -420,6 +420,7 @@ namespace oe {
 		uint8_t swap_interval = 1;
 		size_t main_updatesystem_ups = 60;
 	};
+	enum class file_extype { must_exist, must_not_exist, does_not_matter };
 
 	// renderer create info
 	struct RendererInfo
@@ -474,9 +475,6 @@ namespace oe {
 	// engine create info
 	struct EngineInfo
 	{
-		bool networking = false;
-		bool networking_init_noexcept = true;
-
 		graphics_api api = oe::graphics_api::OpenGL;
 		gpu favored_gpu_vulkan = gpu::dedicated;
 		bool debug_mode = true;
@@ -485,8 +483,11 @@ namespace oe {
 
 	struct TextureInfo
 	{
+		enum class data_types { bytes, floats };
+
 		bool empty = false;
-		const uint8_t* data;
+		const void* data;
+		data_types data_type = data_types::bytes;
 		oe::formats data_format = oe::formats::rgba;
 		bool generate_mipmaps = false;
 

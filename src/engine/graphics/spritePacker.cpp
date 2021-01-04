@@ -42,10 +42,11 @@ namespace oe::graphics {
 
 
 	SpritePack::SpritePack(int border)
-		: m_usr_data(new __usr_data())
+		: m_usr_data(nullptr)
 		, m_border(border)
 		, m_constructed(false)
 	{
+		m_usr_data = new __usr_data{};
 		clear();
 	}
 
@@ -53,6 +54,7 @@ namespace oe::graphics {
 	{
 		m_usr_data->m_images.clear();
 		m_usr_data->m_rectangles.clear();
+		delete m_usr_data;
 		m_sprites.clear();
 	}
 

@@ -159,7 +159,7 @@ namespace oe::gui
 
 
 	ColorPicker::ColorPicker(Widget* parent, GUI& gui_manager, const info_t& color_picker_info, value_t& value_ref)
-		: SpritePanel(parent, gui_manager, { color_picker_info.color_input_info.background_color, color_picker_info.color_input_info.sprite, 0.0f, color_picker_info.color_input_info.widget_info })
+		: SpritePanel(parent, gui_manager, { color_picker_info.color_input_info.background_color, color_picker_info.color_input_info.sprite, 0.0f, oe::alignments::top_left, color_picker_info.color_input_info.widget_info })
 		, m_color_picker_info(color_picker_info)
 		, m_value(value_ref)
 	{

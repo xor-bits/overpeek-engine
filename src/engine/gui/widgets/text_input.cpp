@@ -179,12 +179,12 @@ namespace oe::gui
 
 		// text selection
 		const glm::ivec2 selection = { std::min(std::get<0>(m_state.selection()), std::get<1>(m_state.selection())), std::max(std::get<0>(m_state.selection()), std::get<1>(m_state.selection())) };
-		const size_t lines = std::accumulate(
+		const size_t lines = selection.x == selection.y ? 0 : std::accumulate(
 			m_value.begin() + selection.x,
 			m_value.begin() + selection.y,
 			size_t(1),
 			[](size_t so_far, char_type ch){ return so_far + static_cast<int>(ch == '\n'); });
-		const size_t lines_before = std::accumulate(
+		const size_t lines_before = selection.x == selection.y ? 0 : std::accumulate(
 			m_value.begin(),
 			m_value.begin() + selection.x,
 			size_t(0),
@@ -192,6 +192,11 @@ namespace oe::gui
 
 		switch (lines)
 		{
+		case 0:
+			m_text_selection_quads[0]->setSize({ 0.0f, 0.0f });
+			m_text_selection_quads[1]->setSize({ 0.0f, 0.0f });
+			m_text_selection_quads[2]->setSize({ 0.0f, 0.0f });
+			break;
 		case 1:
 			{
 				m_text_selection_quads[1]->setSize({ 0.0f, 0.0f });
@@ -249,6 +254,7 @@ namespace oe::gui
 		m_state.key(c);
 		reformat();
 		regen_cache();
+		m_state.clamp();
 		
 		BasicTextInputInputEvent<char_type> e { event.codepoint, m_value };
 		m_dispatcher.trigger(e);
@@ -265,6 +271,7 @@ namespace oe::gui
 		m_state.key(event.key, event.mods);
 		reformat();
 		regen_cache();
+		m_state.clamp();
 
 		BasicTextInputInputEvent<char_type> e { U'\0', m_value };
 		m_dispatcher.trigger(e);
@@ -298,13 +305,21 @@ namespace oe::gui
 				m_state.click(event.cursor_pos.cursor_windowspace - m_text_label_pos);
 				
 			// double click
-			const auto since_last = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch() - m_timer_key_pressed.time_since_epoch());
-			if(since_last < m_double_click_delay)
+			constexpr std::chrono::milliseconds double_click_delay{ 500 };
+			const auto nano_diff = std::chrono::high_resolution_clock::now() - m_timer_clicked;
+			const auto since_last = std::chrono::duration_cast<std::chrono::milliseconds>(nano_diff);
+			if(!m_double_click_last && since_last < double_click_delay && m_double_click_pos == event.cursor_pos.cursor_windowspace)
 			{
+				m_double_click_last = true;
 				std::get<0>(selection()) = m_value.size();
 				std::get<1>(selection()) = 0;
 				m_state.clamp();
 			}
+			else
+				m_double_click_last = false;
+
+			m_timer_clicked = std::chrono::high_resolution_clock::now();
+			m_double_click_pos = event.cursor_pos.cursor_windowspace;
 
 			// 
 			resetTimer();

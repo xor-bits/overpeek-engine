@@ -114,7 +114,8 @@ Application::Application()
 	text_options.weight = 0.25f;
 	text_options.outline_weight = 0.0f;
 	text_options.scale = { 0.5f, 0.5f };
-	text_options.resolution = 80;
+	text_options.resolution = 160;
+	text_options.anti_alias = 0.0f;
 
 	oe::graphics::text_render_cache cache{};
 	cache.create<char32_t>({{ U"Hello\n", oe::colors::red }, { U"World", oe::colors::blue }}, font, text_options);

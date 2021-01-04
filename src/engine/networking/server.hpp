@@ -6,63 +6,62 @@
 #include <functional>
 #include <unordered_map>
 #include <mutex>
+#include <entt/entt.hpp>
+
+#include "shared.hpp"
 
 
 
-struct _ENetHost; struct _ENetAddress; struct _ENetPeer; struct _ENetCompressor;
-namespace oe::networking {
+namespace oe::networking
+{
+	void init_enet();
+	struct server_enet_data;
 
-	class enet {
+	
+	
+	class Server
+	{
 	private:
-		static bool initialized;
-
-	public:
-		static void initEnet();
-		static void deinitEnet();
-	};
-
-	class Server {
-	private:
-		_ENetAddress* m_address = nullptr;
-		_ENetHost* m_server = nullptr;
-		_ENetCompressor* m_compressor = nullptr;
+		std::unique_ptr<server_enet_data> m_data;
 
 		std::mutex mtx;
-
-		std::atomic<bool> m_keep_running = false;
+		std::atomic<bool> m_running = false;
 		std::thread m_thread;
-		std::unordered_map<size_t, _ENetPeer*> m_peers = std::unordered_map<size_t, _ENetPeer*>();
-
-		uint8_t m_channel_id;
-
-		typedef std::function<void(size_t client_id)> func_connect;
-		typedef func_connect func_disconnect;
-		typedef std::function<void(size_t client_id, const uint8_t* data, size_t size)> func_recieve;
-
-		func_connect m_callback_connect = nullptr;
-		func_disconnect m_callback_disconnect = nullptr;
-		func_recieve m_callback_recieve = nullptr;
-
-		bool m_opened = false;
+		size_t m_max_clients;
+		size_t m_max_channels;
 
 		void operate();
+		[[nodiscard]] size_t next_channel();
 
 	public:
-		Server();
+		entt::dispatcher m_dispatcher;
+		
+		Server(size_t max_clients = 32, size_t max_channels = 32);
 		~Server();
 
-		int open(std::string ip, int port);
-		int close();
-		int send(const uint8_t* bytes, size_t count, size_t client_id); // send to specific client
-		int send(const uint8_t* bytes, size_t count); // send to all clients
+		result open(uint16_t port);
+		result close();
+		result send_to(const uint8_t* bytes, size_t count, size_t client_id); // send to specific client
+		result send(const uint8_t* bytes, size_t count); // send to all clients
+		
+		/* contiguous_iterator_tag */
+		template<typename Iterator>
+		inline result send_to(Iterator begin, Iterator end, size_t client_id)
+		{
+			if (begin == end) return result{};
+			return send_to(reinterpret_cast<const uint8_t*>(&*begin), std::distance(begin, end) * sizeof(typename std::iterator_traits<Iterator>::value_type), client_id);
+		}
+		/* contiguous_iterator_tag */
+		template<typename Iterator>
+		inline result send(Iterator begin, Iterator end)
+		{
+			if (begin == end) return result{};
+			return send(reinterpret_cast<const uint8_t*>(&*begin), std::distance(begin, end) * sizeof(typename std::iterator_traits<Iterator>::value_type));
+		}
 
-		void setConnectCallback(func_connect callback_connect) { m_callback_connect = callback_connect; }
-		void setDisconnectCallback(func_disconnect callback_disconnect) { m_callback_disconnect = callback_disconnect; }
-		void setReciveCallback(func_recieve callback_recieve) { m_callback_recieve = callback_recieve; }
-
-		std::string getClientIP(size_t client_id);
-		int getClientPort(size_t client_id);
-		float getPacketLoss(size_t client_id);
+		[[nodiscard]] std::string client_address(size_t client_id) const;
+		[[nodiscard]] uint16_t client_port(size_t client_id) const;
+		[[nodiscard]] float client_packet_loss(size_t client_id) const;
 
 	};
 

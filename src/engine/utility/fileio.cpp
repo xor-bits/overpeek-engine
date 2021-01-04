@@ -18,10 +18,29 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnullability-extension"
 #elif __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdelete-incomplete"
 #endif
 
 // #include <miniz/miniz_zip.h>
 #include <zip.h>
+
+static void* stbi_realloc_impl(void* ptr, size_t oldsize, size_t newsize)
+{
+	uint8_t* data = new uint8_t[newsize]{};
+	if(ptr != nullptr)
+	{
+		memcpy(data, ptr, oldsize);
+		delete[] ptr;
+	}
+	return data;
+}
+
+#define STBI_MALLOC(size)                            (new uint8_t[size]{})
+#define STBI_REALLOC_SIZED(ptr, oldsize, newsize)    (stbi_realloc_impl(ptr, oldsize, newsize))
+#define STBI_FREE(ptr)                               (delete[] ptr)
+// gif loader bug workaround
+#define STBI_REALLOC(ptr, newsize)                   (STBI_REALLOC_SIZED(ptr, 0, newsize))
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -35,6 +54,7 @@
 #ifdef __clang__
 #pragma clang diagnostic pop
 #elif __GNUC__
+#pragma GCC diagnostic pop
 #endif
 
 
@@ -143,7 +163,8 @@ namespace oe::utils
 
 	image_data::~image_data()
 	{
-		if(data) delete data;
+		if(data)
+			delete[] data;
 	}
 	
 	image_data& image_data::operator=(const image_data& copy_assign)
@@ -276,7 +297,8 @@ namespace oe::utils
 
 	audio_data::~audio_data()
 	{
-		if(data) delete data;
+		if(data)
+			delete[] data;
 	}
 	
 	audio_data& audio_data::operator=(const audio_data& copy_assign)
@@ -348,7 +370,7 @@ namespace oe::utils
 		: FontFile(oe::asset::Fonts::roboto_regular())
 	{}
 	
-	const void FontFile::load(const oe::utils::byte_string& bytes)
+	void FontFile::load(const oe::utils::byte_string& bytes)
 	{
 		auto& font_file_map = FontFileMapSingleton::get().font_file_map;
 		if(font_file_map.find(id) == font_file_map.end())
@@ -374,7 +396,7 @@ namespace oe::utils
 		return iter->second;
 	}
 
-	[[nodiscard]] const bool FontFile::loaded()
+	[[nodiscard]] bool FontFile::loaded()
 	{
 		auto& font_file_map = FontFileMapSingleton::get().font_file_map;
 		return font_file_map.find(id) != font_file_map.end();

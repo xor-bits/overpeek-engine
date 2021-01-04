@@ -6,51 +6,51 @@
 #include <functional>
 #include <mutex>
 
+#include "shared.hpp"
 
 
-struct _ENetPeer; struct _ENetAddress; struct _ENetEvent; struct _ENetHost;
-namespace oe::networking {
 
-	class Client {
+namespace oe::networking
+{
+	struct client_enet_data;
+
+	class Client
+	{
 	private:
-		_ENetPeer* m_peer = nullptr;
-		_ENetAddress* m_address = nullptr;
-		_ENetHost* m_client = nullptr;
-		
+		std::unique_ptr<client_enet_data> m_data;
+
 		std::mutex mtx;
-
-		std::atomic<bool> m_keep_running = false;
+		std::atomic<bool> m_running = false;
 		std::thread m_thread;
-
-		uint8_t m_channel_id;
-
-		typedef std::function<void()> func_connect;
-		typedef func_connect func_disconnect;
-		typedef std::function<void(const unsigned char* data, size_t size)> func_recieve;
-
-		func_connect m_callback_connect = nullptr;
-		func_disconnect m_callback_disconnect = nullptr;
-		func_recieve m_callback_recieve = nullptr;
-
-		bool m_connected = false;
+		size_t m_max_channels;
 
 		void operate();
+		[[nodiscard]] size_t next_channel();
 
 	public:
-		Client();
+		entt::dispatcher m_dispatcher;
+		
+		Client(size_t max_channels = 2);
 		~Client();
 
-		// timeout in milliseconds
-		int connect(std::string ip, int port, uint32_t timeout = 3000);
-		int disconnect();
-		int close();
-		int send(const unsigned char* bytes, size_t count);
+		// timeout 0 for no timeout
+		result connect(const std::string& ip, uint16_t port, std::chrono::milliseconds timeout = std::chrono::seconds{ 10 });
+		result disconnect();
+		result disconnect_force();
+		result close();
+		result send(const uint8_t* bytes, size_t count);
 
-		void setConnectCallback(func_connect callback_connect) { m_callback_connect = callback_connect; }
-		void setDisconnectCallback(func_disconnect callback_disconnect) { m_callback_disconnect = callback_disconnect; }
-		void setReciveCallback(func_recieve callback_recieve) { m_callback_recieve = callback_recieve; }
+		/* contiguous_iterator_tag */
+		template<typename Iterator>
+		inline result send(Iterator begin, Iterator end)
+		{
+			if (begin == end) return result{};
+			return send(reinterpret_cast<const uint8_t*>(&*begin), std::distance(begin, end) * sizeof(typename std::iterator_traits<Iterator>::value_type));
+		}
 
-		float getPacketLoss();
+		[[nodiscard]] std::string server_address() const;
+		[[nodiscard]] uint16_t server_port() const;
+		[[nodiscard]] float server_packet_loss() const;
 
 	};
 

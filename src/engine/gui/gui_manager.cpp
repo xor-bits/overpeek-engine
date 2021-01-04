@@ -43,6 +43,8 @@ namespace oe::gui
 
 	GUI::~GUI()
 	{
+		m_main_frame.reset();
+
 		delete m_renderer;
 		delete m_shader;
 	}

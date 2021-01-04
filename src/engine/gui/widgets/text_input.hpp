@@ -90,8 +90,10 @@ namespace oe::gui
 	private:
 		oe::utils::stb_textedit<char_type> m_state;
 		bool m_dragging = false;
-		std::chrono::milliseconds m_double_click_delay = std::chrono::milliseconds(500);
+		glm::ivec2 m_double_click_pos{};
+		bool m_double_click_last = false;
 
+		std::chrono::high_resolution_clock::time_point m_timer_clicked;
 		std::chrono::high_resolution_clock::time_point m_timer_key_pressed;
 
 	public:

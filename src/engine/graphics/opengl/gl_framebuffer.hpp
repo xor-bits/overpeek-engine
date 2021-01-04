@@ -11,7 +11,7 @@ namespace oe::graphics
 	class GLFrameBuffer : public IFrameBuffer
 	{
 	private:
-		uint32_t m_rbo;
+		// uint32_t m_rbo;
 		uint32_t m_id;
 
 		Texture m_texture;

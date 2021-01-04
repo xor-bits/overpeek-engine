@@ -35,12 +35,13 @@ namespace oe::gui {
 		if(!m_cg_render)
 			return;
 
-		quad->setPosition(m_render_position);
+		quad->setPosition(m_render_position + oe::alignmentOffsetRound(m_render_size, sprite_panel_info.rotation_alignment));
 		quad->setSize(m_render_size);
 		quad->setZ(m_z);
 		quad->setColor(sprite_panel_info.color_tint);
 		quad->setSprite(sprite_panel_info.sprite);
 		quad->setRotation(sprite_panel_info.rotation);
+		quad->setRotationAlignment(sprite_panel_info.rotation_alignment);
 	}
 
 }

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 
 # set c++ 17 and other stuff
-set(CMAKE_CXX_STANDARD 17)
+# set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_USE_RELATIVE_PATHS TRUE)
 set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
@@ -157,6 +157,7 @@ set(source_list ${source_list}
 	"engine/gui/widgets/graph.hpp"
 	)
 set(source_list ${source_list} 
+	"engine/networking/shared.hpp"
 	"engine/networking/client.cpp"
 	"engine/networking/client.hpp"
 	"engine/networking/server.cpp"
@@ -188,11 +189,11 @@ set(target_name "engine")
 add_library(${target_name} STATIC ${source_list} "engine/ecs/world.hpp" "engine/ecs/world.cpp"    "engine/interfacegen_renderer.hpp")
 set_target_properties(${target_name} PROPERTIES FOLDER engine)
 if(OE_BUILD_MODE EQUAL 0)
-target_compile_definitions(${target_name} PUBLIC "OE_BUILD_MODE_GL")
+	target_compile_definitions(${target_name} PUBLIC "OE_BUILD_MODE_GL")
 elseif(OE_BUILD_MODE EQUAL 1)
-target_compile_definitions(${target_name} PUBLIC "OE_BUILD_MODE_SHADERC")
+	target_compile_definitions(${target_name} PUBLIC "OE_BUILD_MODE_SHADERC")
 elseif(OE_BUILD_MODE EQUAL 2)
-target_compile_definitions(${target_name} PUBLIC "OE_BUILD_MODE_VULKAN")
+	target_compile_definitions(${target_name} PUBLIC "OE_BUILD_MODE_VULKAN")
 endif()
 # link cmrc asset
 target_link_libraries(${target_name} PRIVATE asset)
@@ -227,7 +228,7 @@ target_include_directories(${target_name} PUBLIC ${CONAN_INCLUDE_DIRS})
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 if(OE_BUILD_MODE EQUAL 2)
-	find_package(Vulkan REQUIRED)
+find_package(Vulkan REQUIRED)
 endif()
 # rectpack2D
 target_include_directories(${target_name} PUBLIC "vendor/rectpack2D/include")
@@ -235,6 +236,10 @@ target_include_directories(${target_name} PUBLIC "vendor/rectpack2D/include")
 target_include_directories(${target_name} PUBLIC "vendor/earcut/include")
 # miniaudio
 target_include_directories(${target_name} PUBLIC "vendor/miniaudio")
+# nativefiledialog
+add_subdirectory("vendor/nativefiledialog")
+target_link_libraries(${target_name} PUBLIC "nativefiledialog")
+target_include_directories(${target_name} PUBLIC "vendor/nativefiledialog/src/include")
 
 
 
