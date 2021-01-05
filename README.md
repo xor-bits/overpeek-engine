@@ -1,4 +1,7 @@
-![Logo](/.github/oe_logo.png)
+<p align="center">
+ <img src="/.github/oe_logo.svg" width="200px" height="200px"/>
+</p>
+
 # overpeek-engine
 Minimal game engine/library.
 Primary focus on 2D side.
@@ -61,19 +64,16 @@ node: Vulkan build is experimental and still lacking basic features
 #### tests/entities
 - Box2D physics and entt entities
 - Translucent bordered window
-
-![entities](/.github/tests/entities.png)
+<img src="/.github/tests/entities.png"/>
 
 #### tests/game-of-life
 - Conway's game of life simulator
-
-![gol](/.github/tests/gol.png)
+<img src="/.github/tests/gol.png"/>
 
 #### tests/guis
 - Simple gui demo
 - List Widget is under developement so the cube is not animated
-
-![guis](/.github/tests/guis.png)
+<img src="/.github/tests/guis.png"/>
 
 ---
 ## Why?
