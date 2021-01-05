@@ -30,7 +30,7 @@ namespace oe::networking
 	public:
 		entt::dispatcher m_dispatcher;
 		
-		Client(size_t max_channels = 2);
+		Client(size_t max_channels = 32);
 		~Client();
 
 		// timeout 0 for no timeout

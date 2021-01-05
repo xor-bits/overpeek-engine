@@ -62,11 +62,6 @@ int main()
 
 	// initial message
 	result = server.send(init_message.begin(), init_message.end());
-	result = server.send(init_message.begin(), init_message.end());
-	result = server.send(init_message.begin(), init_message.end());
-	result = server.send(init_message.begin(), init_message.end());
-	result = server.send(init_message.begin(), init_message.end());
-	result = server.send(init_message.begin(), init_message.end());
 	if (result.failed())
 		spdlog::critical("Server send failed: {}", result.message());
 

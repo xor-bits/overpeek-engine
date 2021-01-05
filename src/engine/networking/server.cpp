@@ -83,7 +83,6 @@ namespace oe::networking
 	result Server::send_to(const unsigned char* bytes, size_t count, size_t client_id)
 	{
 		const size_t channel = next_channel();
-
 		ENetPacket*	packet = enet_packet_create(bytes, count, ENET_PACKET_FLAG_RELIABLE);
 		
 		// std::scoped_lock lock(mtx);
@@ -96,7 +95,6 @@ namespace oe::networking
 	result Server::send(const unsigned char* bytes, size_t count)
 	{
 		const size_t channel = next_channel();
-		
 		ENetPacket*	packet = enet_packet_create(bytes, count, ENET_PACKET_FLAG_RELIABLE);
 		
 		// std::scoped_lock lock(mtx);
@@ -114,14 +112,11 @@ namespace oe::networking
 		while (m_running)
 		{
 			enet_host_flush(m_data->m_server.m_host);
-			spdlog::info("SERVER OP");
 			const int32_t r = m_data->m_server.run_service(mtx, event, std::chrono::milliseconds(50));
 			if (r < 0)
 				spdlog::warn("Server ENet service error");
 			if (r == 0)
 				continue;
-
-			spdlog::info("SERVER EVENT");
 
 			switch (event.type)
 			{
