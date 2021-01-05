@@ -280,7 +280,7 @@ void Application::on_key(const oe::KeyboardEvent& e)
 	if (e.action == oe::actions::press && e.mods == oe::modifiers::control && e.key == oe::keys::key_s)
 	{
 		char* savePath = nullptr;
-		nfdresult_t result = NFD_SaveDialog("gof", NULL, &savePath);
+		nfdresult_t result = NFD_SaveDialog("gol", nullptr, &savePath);
 
 		if(result == NFD_OKAY)
 		{
@@ -301,7 +301,7 @@ void Application::on_key(const oe::KeyboardEvent& e)
 	if (e.action == oe::actions::press && e.mods == oe::modifiers::control && (e.key == oe::keys::key_o || e.key == oe::keys::key_l))
 	{
 		char* savePath = nullptr;
-		nfdresult_t result = NFD_OpenDialog("gof", NULL, &savePath);
+		nfdresult_t result = NFD_OpenDialog("gol", nullptr, &savePath);
 
 		if(result == NFD_OKAY)
 		{
@@ -311,12 +311,16 @@ void Application::on_key(const oe::KeyboardEvent& e)
 			auto bytes = file.read<oe::utils::byte_string>();
 			std::memcpy(&bits, bytes.data(), std::min(sizeof(bits), bytes.size()));
 
+			free(savePath);
+
 			// load from bitset (there are better ways for this, but this looks simple)
 			for (size_t y = 0; y < h; y++)
 				for (size_t x = 0; x < w; x++)
+				{
 					(*pixel_states_front)[y][x] = bits[x + y * w];
-
-			free(savePath);
+					pixels[y][x] = bits[x + y * w] ? oe::colors::black : oe::colors::white;
+				}
+			main_texture->setData(texture_info);
 		}
 	}
 }
