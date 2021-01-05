@@ -1,10 +1,5 @@
 ![Logo](/.github/oe_logo.png)
-
-#### CI/CD
-|System         |Status                                                                                                                             |Notes   |
-|:-------------:|:---------------------------------------------------------------------------------------------------------------------------------:|:------:|
-|Travis-CI      |[![Build Status](https://travis-ci.com/Overpeek/overpeek-engine.svg?branch=master)](https://travis-ci.com/Overpeek/overpeek-engine)|Disabled|
-|...            |...                                                                                                                                |        |
+                                                                                                                           |        |
 # overpeek-engine
 Minimal game engine/library.
 Primary focus on 2D side.
@@ -13,7 +8,14 @@ Should be easy to use.
  - Linux
  - OSX
 
+---
+#### CI/CD
+|System         |Status                                                                                                                             |Notes   |
+|:-------------:|:---------------------------------------------------------------------------------------------------------------------------------:|:------:|
+|Travis-CI      |[![Build Status](https://travis-ci.com/Overpeek/overpeek-engine.svg?branch=master)](https://travis-ci.com/Overpeek/overpeek-engine)|Disabled|
+|...            |...   
 
+---
 ## Building
 #### Build
 
@@ -34,9 +36,6 @@ Create a conan package:
 conan create . --build=missing
 ```
 
-
-
-
 buildmode 0 being OpenGL only,
 buildmode 1 being OpenGL with shaderc and
 buildmode 2 being Vulkan/OpenGL with shaderc
@@ -47,7 +46,7 @@ node: Vulkan build is experimental and still lacking basic features
 - CMake
 - Conan and some packages listed in conanfile.py
 
-
+---
 ## Features
 - Window creation (glfw) 
 - Audio (Not yet)
@@ -58,7 +57,7 @@ node: Vulkan build is experimental and still lacking basic features
 - Networking (basic)
 - General utility tools (that I find useful)
 
-
+---
 ## Demo images
 #### tests/entities
 - Box2D physics and entt entities
@@ -77,6 +76,6 @@ node: Vulkan build is experimental and still lacking basic features
 
 ![guis](/.github/tests/guis.png)
 
-
+---
 ## Why?
 I created this as I am making my game and it's own 'engine' and I thought someone could find this project somewhat useful. Or so I hope.
