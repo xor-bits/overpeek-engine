@@ -12,6 +12,7 @@ public:
 	void run();
 	void init();
 	void fill(bool state);
+	void update(bool force);
 
 public:
 	constexpr static size_t ups = 10;
@@ -47,6 +48,7 @@ private:
 	bool paused = true;
 	size_t cells_live = 0;
 	size_t cells_dead = 0;
+	size_t step = 0;
 
 	oe::graphics::Window window;
 	oe::asset::DefaultShader shader;
@@ -71,6 +73,7 @@ oe::WindowInfo Application::gen_window_info()
 	w_info.main_updatesystem_ups = ups;
 	w_info.resizeable = false;
 	w_info.title = "game of life";
+	w_info.swap_interval = 1;
 	return std::move(w_info);
 }
 
@@ -128,6 +131,8 @@ Game of life
 cellular automata.
 Press <space> to
 pause/unpause.
+Press <s> to step
+1 update forward.
 
 Press/hold <mbl>
 to paint life.
@@ -156,6 +161,7 @@ to load from file.
 
 void Application::init()
 {
+	step = 0;
 	auto& rand = oe::utils::Random::getSingleton();
 	for (size_t y = 0; y < h; y++)
 		for (size_t x = 0; x < w; x++)
@@ -174,6 +180,7 @@ void Application::init()
 
 void Application::fill(bool state)
 {
+	step = 0;
 	if(!state)
 		for (size_t y = 0; y < h; y++)
 			for (size_t x = 0; x < w; x++)
@@ -199,21 +206,7 @@ void Application::fill(bool state)
 	main_texture->setData(texture_info);
 }
 
-
-void Application::run()
-{
-	window->getGameloop().start();
-}
-
-void Application::on_render(const oe::RenderEvent& /* e */)
-{
-	shader.bind();
-	renderer.render();
-
-	gui.render();
-}
-
-void Application::on_update(const oe::UpdateEvent<ups>& /* e */)
+void Application::update(bool force)
 {
 	auto calculate_neighbours = [this](size_t x, size_t y)
 	{
@@ -231,8 +224,9 @@ void Application::on_update(const oe::UpdateEvent<ups>& /* e */)
 		return count;
 	};
 	
-	if(!paused)
+	if(!paused || force)
 	{
+		step++;
 		cells_live = 0;
 		cells_dead = 0;
 		for (size_t y = 0; y < h; y++)
@@ -279,8 +273,27 @@ void Application::on_update(const oe::UpdateEvent<ups>& /* e */)
 		{ U"Total cells: ", oe::colors::white }, { fmt::format(U"{}\n", cells_total), oe::colors::grey },
 		{ U"Live cells: ", oe::colors::white }, { fmt::format(U"{}\n", cells_live), oe::colors::cyan },
 		{ U"Dead cells: ", oe::colors::white }, { fmt::format(U"{}\n", cells_dead), oe::colors::light_red },
+		{ U"Iteration: ", oe::colors::white }, { fmt::format(U"{}\n", step), oe::colors::lime },
 		{ (paused ? U"PAUSED" : U""), oe::colors::white },
 	};
+}
+
+void Application::run()
+{
+	window->getGameloop().start();
+}
+
+void Application::on_render(const oe::RenderEvent& /* e */)
+{
+	shader.bind();
+	renderer.render();
+
+	gui.render();
+}
+
+void Application::on_update(const oe::UpdateEvent<ups>& /* e */)
+{
+	update(false);
 }
 
 void Application::on_cursor(const oe::CursorPosEvent& e)
@@ -310,16 +323,19 @@ void Application::on_button(const oe::MouseButtonEvent& e)
 
 void Application::on_key(const oe::KeyboardEvent& e)
 {
-	if (e.action == oe::actions::press && e.key == oe::keys::key_space)
+	if (e.action != oe::actions::release && e.key == oe::keys::key_space)
 		paused = !paused;
+
+	if(paused && e.action != oe::actions::release && e.mods != oe::modifiers::control && e.key == oe::keys::key_s)
+		update(true);
 		
-	if (e.action == oe::actions::press && e.key == oe::keys::key_r)
+	if (e.action != oe::actions::release && e.key == oe::keys::key_r)
 		init();
 
-	if (e.action == oe::actions::press && e.key == oe::keys::key_f)
+	if (e.action != oe::actions::release && e.key == oe::keys::key_f)
 		fill(true);
 
-	if (e.action == oe::actions::press && e.key == oe::keys::key_c)
+	if (e.action != oe::actions::release && e.key == oe::keys::key_c)
 		fill(false);
 
 	if (e.action == oe::actions::press && e.mods == oe::modifiers::control && e.key == oe::keys::key_s)
@@ -367,6 +383,7 @@ void Application::on_key(const oe::KeyboardEvent& e)
 				}
 			main_texture->setData(texture_info);
 			paused = true;
+			step = 0;
 		}
 	}
 }
