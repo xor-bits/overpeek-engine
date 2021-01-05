@@ -11,14 +11,16 @@ public:
 
 	void run();
 	void init();
-	void clear();
+	void fill(bool state);
 
 public:
 	constexpr static size_t ups = 10;
 	constexpr static size_t w = 90;
 	constexpr static size_t h = 60;
+	constexpr static size_t cells_total = w * h;
 	constexpr static size_t cell_pixel_size = 10;
 	constexpr static size_t panel_width = 150;
+	constexpr static size_t border = 10;
 
 private:
 	oe::WindowInfo gen_window_info();
@@ -42,13 +44,16 @@ private:
 	two_dim_array<bool>* pixel_states_front;
 	two_dim_array<bool>* pixel_states_back;
 
-	bool paused = false;
+	bool paused = true;
+	size_t cells_live = 0;
+	size_t cells_dead = 0;
 
 	oe::graphics::Window window;
 	oe::asset::DefaultShader shader;
 	oe::graphics::Renderer renderer;
 	oe::graphics::Texture main_texture;
 	oe::gui::GUI gui;
+	std::shared_ptr<oe::gui::TextPanel> statistics;
 	
 	oe::utils::connect_guard cg_on_render;
 	oe::utils::connect_guard cg_on_update;
@@ -118,7 +123,7 @@ Application::Application()
 
 	// gui
 	oe::gui::TextPanel::info_t tpi;
-	tpi.text = { UR"(
+	tpi.text = { fmt::format(UR"(
 Game of life
 cellular automata.
 Press <space> to
@@ -131,20 +136,26 @@ to paint death.
 
 Press <r> to
 randomize/reset.
+Press <f> to
+fill with life.
+({} cell border)
 Press <c> to
-fill death.
+fill with death.
 
 Press <ctrl-s>
 to save to file.
 Press <ctrl-o/l>
 to load from file.
-)", oe::colors::white };
-	gui.create(tpi);
+)", border), oe::colors::white };
+	auto infobox = gui.create(tpi);
+	tpi.text = { U"", oe::colors::white };
+	tpi.widget_info.pixel_origon_offset = { 0, 50 };
+	tpi.widget_info.fract_origon_offset = oe::alignments::bottom_left;
+	statistics = infobox->create(tpi);
 }
 
 void Application::init()
 {
-	constexpr size_t border = 10;
 	auto& rand = oe::utils::Random::getSingleton();
 	for (size_t y = 0; y < h; y++)
 		for (size_t x = 0; x < w; x++)
@@ -161,14 +172,30 @@ void Application::init()
 	main_texture->setData(texture_info);
 }
 
-void Application::clear()
+void Application::fill(bool state)
 {
-	for (size_t y = 0; y < h; y++)
-		for (size_t x = 0; x < w; x++)
-			{
-				(*pixel_states_front)[y][x] = false;
-				pixels[y][x] = oe::colors::white;
-			}
+	if(!state)
+		for (size_t y = 0; y < h; y++)
+			for (size_t x = 0; x < w; x++)
+				{
+					(*pixel_states_front)[y][x] = false;
+					pixels[y][x] = oe::colors::white;
+				}
+	else
+		for (size_t y = 0; y < h; y++)
+			for (size_t x = 0; x < w; x++)
+				if(x > border && x < w - border && y > border && y < h - border)
+				{
+					(*pixel_states_front)[y][x] = true;
+					pixels[y][x] = oe::colors::black;
+				}
+				else
+				{
+					(*pixel_states_front)[y][x] = false;
+					pixels[y][x] = oe::colors::white;
+				}
+				
+	
 	main_texture->setData(texture_info);
 }
 
@@ -188,9 +215,6 @@ void Application::on_render(const oe::RenderEvent& /* e */)
 
 void Application::on_update(const oe::UpdateEvent<ups>& /* e */)
 {
-	if(paused)
-		return;
-
 	auto calculate_neighbours = [this](size_t x, size_t y)
 	{
 		size_t count = 0;
@@ -207,38 +231,56 @@ void Application::on_update(const oe::UpdateEvent<ups>& /* e */)
 		return count;
 	};
 	
-	for (size_t y = 0; y < h; y++)
-		for (size_t x = 0; x < w; x++)
-		{
-			const size_t neighbours = calculate_neighbours(x, y);
-			(*pixel_states_back)[y][x] = (*pixel_states_front)[y][x];
+	if(!paused)
+	{
+		cells_live = 0;
+		cells_dead = 0;
+		for (size_t y = 0; y < h; y++)
+			for (size_t x = 0; x < w; x++)
+			{
+				const size_t neighbours = calculate_neighbours(x, y);
+				(*pixel_states_back)[y][x] = (*pixel_states_front)[y][x];
 
-			// Rules
-			// 1. Any live cell with fewer than two live neighbours dies, as if by underpopulation.
-			if ((*pixel_states_front)[y][x] && neighbours < 2)
-				(*pixel_states_back)[y][x] = false;
+				// Rules
+				// 1. Any live cell with fewer than two live neighbours dies, as if by underpopulation.
+				if ((*pixel_states_front)[y][x] && neighbours < 2)
+					(*pixel_states_back)[y][x] = false;
 
-			// 2. Any live cell with two or three live neighbours lives on to the next generation.
-			else if ((*pixel_states_front)[y][x] && neighbours == 2 && neighbours == 3)
-				(*pixel_states_back)[y][x] = true;
+				// 2. Any live cell with two or three live neighbours lives on to the next generation.
+				else if ((*pixel_states_front)[y][x] && neighbours == 2 && neighbours == 3)
+					(*pixel_states_back)[y][x] = true;
 
-			// 3. Any live cell with more than three live neighbours dies, as if by overpopulation.
-			else if ((*pixel_states_front)[y][x] && neighbours > 3)
-				(*pixel_states_back)[y][x] = false;
+				// 3. Any live cell with more than three live neighbours dies, as if by overpopulation.
+				else if ((*pixel_states_front)[y][x] && neighbours > 3)
+					(*pixel_states_back)[y][x] = false;
 
-			// 4. Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-			else if (!(*pixel_states_front)[y][x] && neighbours == 3)
-				(*pixel_states_back)[y][x] = true;
+				// 4. Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+				else if (!(*pixel_states_front)[y][x] && neighbours == 3)
+					(*pixel_states_back)[y][x] = true;
 
-			// Set color
-			if((*pixel_states_back)[y][x])
-				pixels[y][x] = oe::colors::black;
-			else
-				pixels[y][x] = oe::colors::white;
-		}
-	std::swap(pixel_states_front, pixel_states_back);
-	
-	main_texture->setData(texture_info);
+				// Set color
+				if((*pixel_states_back)[y][x])
+				{
+					pixels[y][x] = oe::colors::black;
+					cells_live++;
+				}
+				else
+				{
+					pixels[y][x] = oe::colors::white;
+					cells_dead++;
+				}
+			}
+		std::swap(pixel_states_front, pixel_states_back);
+		main_texture->setData(texture_info);
+	}
+
+	// update statistics
+	statistics->text_panel_info.text = {
+		{ U"Total cells: ", oe::colors::white }, { fmt::format(U"{}\n", cells_total), oe::colors::grey },
+		{ U"Live cells: ", oe::colors::white }, { fmt::format(U"{}\n", cells_live), oe::colors::cyan },
+		{ U"Dead cells: ", oe::colors::white }, { fmt::format(U"{}\n", cells_dead), oe::colors::light_red },
+		{ (paused ? U"PAUSED" : U""), oe::colors::white },
+	};
 }
 
 void Application::on_cursor(const oe::CursorPosEvent& e)
@@ -274,8 +316,11 @@ void Application::on_key(const oe::KeyboardEvent& e)
 	if (e.action == oe::actions::press && e.key == oe::keys::key_r)
 		init();
 
+	if (e.action == oe::actions::press && e.key == oe::keys::key_f)
+		fill(true);
+
 	if (e.action == oe::actions::press && e.key == oe::keys::key_c)
-		clear();
+		fill(false);
 
 	if (e.action == oe::actions::press && e.mods == oe::modifiers::control && e.key == oe::keys::key_s)
 	{
@@ -321,6 +366,7 @@ void Application::on_key(const oe::KeyboardEvent& e)
 					pixels[y][x] = bits[x + y * w] ? oe::colors::black : oe::colors::white;
 				}
 			main_texture->setData(texture_info);
+			paused = true;
 		}
 	}
 }
