@@ -31,6 +31,8 @@ namespace oe::utils
 		color_string(std::initializer_list<color_string_part<char_type>> args)
 			: vec(args)
 		{
+			vec.erase(std::remove_if(vec.begin(), vec.end(), [](auto& part){ return std::get<0>(part).size() == 0; }), vec.end());
+
 			size_t string_size = std::accumulate(vec.cbegin(), vec.cend(), static_cast<size_t>(0), [](size_t since, const color_string_part<char_type>& part){ return since + std::get<0>(part).size(); });
 			string.reserve(string_size); // single allocation for the string
 			for (auto& part : vec)
