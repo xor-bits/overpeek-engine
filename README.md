@@ -57,17 +57,22 @@ node: Vulkan build is experimental and still lacking basic features
 
 
 ## Demo images
-#### tests/guis
-- Simple gui demo
-- List Widget is under developement so the cube is not animated
-
-![guis](/.github/tests/guis.png)
-
 #### tests/entities
 - Box2D physics and entt entities
 - Translucent bordered window
 
 ![entities](/.github/tests/entities.png)
+
+#### tests/game-of-life
+- Conway's game of life simulator
+
+![gol](/.github/tests/gol.png)
+
+#### tests/guis
+- Simple gui demo
+- List Widget is under developement so the cube is not animated
+
+![guis](/.github/tests/guis.png)
 
 
 ## Why?
