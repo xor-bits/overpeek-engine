@@ -165,7 +165,7 @@ void Application::init()
 	auto& rand = oe::utils::Random::getSingleton();
 	for (size_t y = 0; y < h; y++)
 		for (size_t x = 0; x < w; x++)
-			if (x > border && x < w - border && y > border && y < h - border && rand.randomf(0.0f, 1.0f) > 0.5f)
+			if (x >= border && x < w - border && y >= border && y < h - border && rand.randomf(0.0f, 1.0f) > 0.5f)
 			{
 				(*pixel_states_front)[y][x] = true;
 				pixels[y][x] = oe::colors::black;
@@ -191,7 +191,7 @@ void Application::fill(bool state)
 	else
 		for (size_t y = 0; y < h; y++)
 			for (size_t x = 0; x < w; x++)
-				if(x > border && x < w - border && y > border && y < h - border)
+				if(x >= border && x < w - border && y >= border && y < h - border)
 				{
 					(*pixel_states_front)[y][x] = true;
 					pixels[y][x] = oe::colors::black;
