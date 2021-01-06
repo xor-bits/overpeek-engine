@@ -39,6 +39,7 @@ namespace oe::networking
 		result disconnect_force();
 		result close();
 		result send(const uint8_t* bytes, size_t count);
+		[[nodiscard]] inline bool running() const noexcept { return m_running; }
 
 		/* contiguous_iterator_tag */
 		template<typename Iterator>

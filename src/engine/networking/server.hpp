@@ -43,6 +43,7 @@ namespace oe::networking
 		result close();
 		result send_to(const uint8_t* bytes, size_t count, size_t client_id); // send to specific client
 		result send(const uint8_t* bytes, size_t count); // send to all clients
+		[[nodiscard]] inline bool running() const noexcept { return m_running; }
 		
 		/* contiguous_iterator_tag */
 		template<typename Iterator>
