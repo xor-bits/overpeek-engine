@@ -305,6 +305,7 @@ yyyyyyyyyyyyy
 		color_picker_info.primary_input = oe::gui::input_type::slider;
 		color_picker_info.text_options.pixel_res(16);
 		color_picker_info.text_options.align = oe::alignments::center_center;
+		color_picker_info.initial_color = color;
 		gui->create(color_picker_info, color);
 	}
 	{ // color picker 2
@@ -318,6 +319,7 @@ yyyyyyyyyyyyy
 		color_picker_info.primary_input = oe::gui::input_type::dragger;
 		color_picker_info.text_options.pixel_res(12);
 		color_picker_info.text_options.align = oe::alignments::center_center;
+		color_picker_info.initial_color = color;
 		gui->create(color_picker_info, color);
 	}
 	{ // color picker 3
@@ -329,6 +331,7 @@ yyyyyyyyyyyyy
 		color_picker_info.sprite = pack->emptySprite();
 		color_picker_info.popup_color_picker = true;
 		color_picker_info.primary_input = oe::gui::input_type::none;
+		color_picker_info.initial_color = color;
 		gui->create(color_picker_info, color);
 	}
 	{

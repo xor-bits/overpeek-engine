@@ -47,7 +47,8 @@ namespace oe::gui
 		info.widget_info.fract_render_offset = oe::alignments::top_left;
 
 		BasicSliderInput<float>::info_t common;
-		common.value_bounds = glm::vec2(0.0f, 1.0f);
+		common.value_bounds = { 0.0f, 1.0f };
+		common.step_size = 1.0f / 256.0f;
 		common.text_options = color_input_info.text_options;
 		common.slider_sprite = color_input_info.sprite;
 		common.knob_sprite = color_input_info.sprite;
@@ -81,10 +82,10 @@ namespace oe::gui
 		info.widget_info.fract_render_offset = oe::alignments::top_left;
 
 		NumberInput::info_t common;
-		common.value_bounds = glm::vec2(0.0f, 1.0f);
+		common.value_bounds = { 0.0f, 1.0f };
+		common.step_size = 1.0f / 256.0f;
 		common.sprite = color_input_info.sprite;
 		common.interact_flags = interact_type_flags::cursor | interact_type_flags::scroll;
-		common.stepsize = 1.0f / 256.0f;
 		common.text_options = color_input_info.text_options;
 		common.background_color = oe::colors::darker_grey;
 

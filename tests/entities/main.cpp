@@ -12,6 +12,7 @@ constexpr oe::RasterizerInfo fill_rasterizer{ oe::modes::enable, oe::depth_funct
 constexpr oe::RasterizerInfo line_rasterizer{ oe::modes::enable, oe::depth_functions::less_than_or_equal, oe::culling_modes::back, oe::polygon_mode::lines };
 float sim_speed = 1.0f;
 int32_t entity_count;
+bool transparent_background;
 std::vector<oe::ecs::Entity> entities;
 oe::ecs::World* world;
 b2World box2d_world(b2Vec2(0.0f, 9.81f));
@@ -177,12 +178,16 @@ void setup()
 	auto& generic_src_box = box.setScriptComponent<GenericScript>(b2BodyType::b2_dynamicBody, glm::vec2{ 10.0f, 15.0f }, glm::vec2{ 1.5f, 15.0f }, glm::quarter_pi<float>(), oe::color(random.randomVec3(0.0f, 1.0f), 1.0f), 0.1f);
 	auto& generic_src_motor = motor_mid.setScriptComponent<GenericScript>(b2BodyType::b2_dynamicBody, glm::vec2{ 0.0f, 15.0f }, glm::vec2{ 1.0f, 1.0f }, glm::quarter_pi<float>(), oe::color(random.randomVec3(0.0f, 1.0f), 1.0f), 1.0f);
 	
-	// ground box
-	auto gbox = world->create(); // world::create()
-	auto& generic_src_gbox = gbox.setScriptComponent<GenericScript>(b2BodyType::b2_staticBody, glm::vec2{ -15.0f, 0.0f }, glm::vec2{ 10.0f, 2.0f }, 0.0f, oe::color(random.randomVec3(0.0f, 1.0f), 1.0f), 0.1f);
+	// ground box1
+	auto gbox1 = world->create(); // world::create()
+	auto& generic_src_gbox1 = gbox1.setScriptComponent<GenericScript>(b2BodyType::b2_staticBody, glm::vec2{ -20.0f, 12.0f }, glm::vec2{ 2.0f, 10.0f }, 0.0f, oe::color(random.randomVec3(0.0f, 1.0f), 1.0f), 0.1f);
+	
+	// ground box2
+	auto gbox2 = world->create(); // world::create()
+	auto& generic_src_gbox2 = gbox2.setScriptComponent<GenericScript>(b2BodyType::b2_staticBody, glm::vec2{ 0.0f, 18.0f }, glm::vec2{ 400.0f, 2.0f }, 0.0f, oe::color(random.randomVec3(0.0f, 1.0f), 1.0f), 0.1f);
 	
 	// motor script
-	motor_mid.setScriptComponent<MotorScript>(box, gbox);
+	motor_mid.setScriptComponent<MotorScript>(box, gbox1);
 	
 	// static filter
 	b2Filter static_filter;
@@ -190,13 +195,14 @@ void setup()
 	static_filter.maskBits = dynamic_category;
 	generic_src_box.m_body->GetFixtureList()[0].SetFilterData(static_filter);
 	generic_src_motor.m_body->GetFixtureList()[0].SetFilterData(static_filter);
-	generic_src_gbox.m_body->GetFixtureList()[0].SetFilterData(static_filter);
+	generic_src_gbox1.m_body->GetFixtureList()[0].SetFilterData(static_filter);
+	generic_src_gbox2.m_body->GetFixtureList()[0].SetFilterData(static_filter);
 }
 
 // render event
 void render(oe::RenderEvent)
 {
-	window->clear(oe::colors::transparent);
+	window->clear(transparent_background ? oe::colors::transparent : oe::colors::clear_color);
 
 	// submitting
 	float update_fraction = window->getGameloop().getUpdateLag<updates_per_second>();
@@ -275,10 +281,10 @@ void update()
 	if(std::max(0, entity_count) > entities.size())
 		for(size_t i = 0; i < std::max(0, entity_count) - entities.size(); i++)
 		{
-			glm::vec2 pos = { random.randomf(-2.0f, 2.0f), random.randomf(-30.0f, 5.0f) };
+			glm::vec2 pos = { random.randomf(-10.0f, 10.0f), random.randomf(-10.0f, 10.0f) };
 			glm::vec2 size = random.randomVec2(0.1f, 1.0f);
 			auto entity = world->create();
-			entity.setScriptComponent<GenericScript>(b2BodyType::b2_dynamicBody, pos, size, random.randomf(0.0f, glm::two_pi<float>()), oe::color(random.randomVec3(0.0f, 1.0f), 1.0f), 1.0f);
+			entity.setScriptComponent<GenericScript>(b2BodyType::b2_dynamicBody, pos, size, random.randomf(0.0f, glm::two_pi<float>()), oe::color(glm::normalize(random.randomVec3(0.1f, 1.0f)), 1.0f), 1.0f);
 			entities.push_back(entity);
 		}
 	if(std::max(0, entity_count) < entities.size())
@@ -340,6 +346,7 @@ void gui()
 		s_info.linear_color = true;
 		s_info.slider_sprite = pack->emptySprite();
 		s_info.value_bounds = { -10.0f, 10.0f, };
+		s_info.step_size = 0.0f;
 		s_info.text_format = [](float v){ return fmt::format(U"motor speed: {:.2f}", v); };
 		s_info.text_options.pixel_res(14);
 		s_info.text_options.align = oe::alignments::center_center;
@@ -368,6 +375,8 @@ void gui()
 		s_info.slider_rcolor = oe::colors::dark_blue;
 		s_info.slider_sprite = pack->emptySprite();
 		s_info.value_bounds = { 0.0f, 2.0f, };
+		s_info.initial_value = 1.0f;
+		s_info.step_size = 0.0f;
 		s_info.text_format = [](float v){ return fmt::format(U"simulation speed: {:.2f}", v); };
 		s_info.text_options.pixel_res(14);
 		s_info.text_options.align = oe::alignments::center_center;
@@ -382,6 +391,7 @@ void gui()
 		n_info.widget_info.fract_origon_offset = oe::alignments::top_left;
 		n_info.widget_info.pixel_origon_offset = { 0, y };
 		n_info.value_bounds = { 0, 1000 };
+		n_info.initial_value = entity_count;
 		n_info.interact_flags = oe::interact_type_flags::scroll | oe::interact_type_flags::cursor;
 		n_info.text_format = [](int32_t v){ return fmt::format("entities: {}", v); };
 		n_info.text_options.pixel_res(14);
@@ -433,6 +443,37 @@ void cleanup()
 
 int main(int argc, char* argv[])
 {
+	bool vsync = false;
+	transparent_background = false;
+	entity_count = 0;
+	std::vector<std::string> args{ argv + 1, argv + argc };
+	for(size_t i = 0; i < args.size(); i++)
+	{
+		if(args[i] == "-tpbg" || args[i] == "--transparent-background")
+			transparent_background = true;
+		else if(args[i] == "-vs" || args[i] == "--vsync")
+			vsync = true;
+		else if((args[i] == "-ec" || args[i] == "--entity-count") && i == args.size() - 1)
+		{
+			spdlog::error("Missing entity count: {} [number]", args[i]);
+			return -1;
+		}
+		else if((args[i] == "-ec" || args[i] == "--entity-count"))
+		{
+			try{
+				entity_count = std::stoi(args[i+1]);
+			}catch(...){
+				spdlog::error("Invalid entity count: \"{}\"", args[i+1]);
+				return -2;
+			}
+			i++;
+		}
+		else
+			spdlog::error("Invalid arg ignored: \"{}\"", args[i]);
+	}
+	
+	
+
 	auto& engine = oe::Engine::getSingleton();
 
 	// engine
@@ -445,8 +486,8 @@ int main(int argc, char* argv[])
 	oe::WindowInfo window_info;
 	window_info.title = "Entities";
 	window_info.multisamples = 0; // multisample will break the window transparency, possibly a bug with glfw 3.3.2?
-	window_info.transparent = true;
-	window_info.swap_interval = 1;
+	window_info.transparent = transparent_background;
+	window_info.swap_interval = vsync;
 	// window_info.borderless = true;
 	window = oe::graphics::Window(window_info);
 

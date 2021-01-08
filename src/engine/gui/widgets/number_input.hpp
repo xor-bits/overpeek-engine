@@ -21,7 +21,8 @@ namespace oe::gui
 
 			// value
 			T                                        initial_value = { 0 };
-			T                                             stepsize = { 1 };
+			T                                            step_size = { 1 };
+			float                                       drag_speed = 1.0f / 500.0f;
 			glm::vec<2,T>                             value_bounds = { std::numeric_limits<T>::min(), std::numeric_limits<T>::max() };
 			// visuals
 			std::function<std::string(const value_t&)> text_format = &default_formatter; // only when keyboard input is disabled
@@ -123,6 +124,13 @@ namespace oe::gui
 		void clamp() noexcept
 		{
 			m_value = std::clamp(m_value, m_number_input_info.value_bounds.x, m_number_input_info.value_bounds.y);
+			
+			if(m_number_input_info.step_size != static_cast<value_t>(0))
+			{
+				m_value /= m_number_input_info.step_size;
+				m_value = std::round(m_value);
+				m_value *= m_number_input_info.step_size;
+			}
 		}
 
 	private:
@@ -156,9 +164,9 @@ namespace oe::gui
 				return;
 
 			if(e.key == oe::keys::key_down)
-				m_value -= m_number_input_info.stepsize;
+				m_value -= m_number_input_info.step_size;
 			else if(e.key == oe::keys::key_up)
-				m_value += m_number_input_info.stepsize;
+				m_value += m_number_input_info.step_size;
 			clamp();
 			on_pre_render({});
 		}
@@ -179,9 +187,10 @@ namespace oe::gui
 			if(!m_dragging)
 				return;
 			
-			const auto offset = static_cast<glm::fvec2>(e.cursor_windowspace - m_drag_start);
+			const auto range = std::abs(static_cast<float>(m_number_input_info.value_bounds.x - m_number_input_info.value_bounds.y));
+			const auto offset = static_cast<glm::fvec2>(e.cursor_windowspace - m_drag_start) * range * m_number_input_info.drag_speed;
 
-			m_value = m_value_start + offset.x * m_number_input_info.stepsize;
+			m_value = m_value_start + offset.x;
 			clamp();
 			on_pre_render({});
 		}
@@ -190,7 +199,7 @@ namespace oe::gui
 			if(!m_selected || !static_cast<bool>(m_number_input_info.interact_flags & interact_type_flags::scroll))
 				return;
 
-			m_value += (e.scroll_delta.y - e.scroll_delta.x) * m_number_input_info.stepsize;
+			m_value += (e.scroll_delta.y - e.scroll_delta.x) * m_number_input_info.step_size;
 			clamp();
 			on_pre_render({});
 		}

@@ -94,8 +94,8 @@ void init(int argc, char** argv)
 	// window
 	oe::WindowInfo window_info;
 	window_info.title = "Renderer";
-	window_info.multisamples = 4;
 	window_info.size = { 900, 600 };
+	window_info.swap_interval = 0;
 	window = oe::graphics::Window(window_info);
 
 	// connect events

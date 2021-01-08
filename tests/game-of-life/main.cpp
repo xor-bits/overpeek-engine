@@ -134,9 +134,10 @@ pause/unpause.
 Press <s> to step
 1 update forward.
 
-Press/hold <mbl>
+Press/hold <lmb>
 to paint life.
-Press/hold <mbr>
+Press/hold <rmb>
+or <shift-lmb>
 to paint death.
 
 Press <r> to
@@ -308,7 +309,7 @@ void Application::on_cursor(const oe::CursorPosEvent& e)
 		pixels[tex_space.y][tex_space.x] = oe::colors::black;
 		main_texture->setData(texture_info);
 	}
-	if(window->getButton(oe::mouse_buttons::button_right))
+	if((window->getButton(oe::mouse_buttons::button_left) && (window->getKey(oe::keys::key_left_shift) || window->getKey(oe::keys::key_right_shift))) || window->getButton(oe::mouse_buttons::button_right))
 	{
 		(*pixel_states_front)[tex_space.y][tex_space.x] = false;
 		pixels[tex_space.y][tex_space.x] = oe::colors::white;
