@@ -13,6 +13,7 @@ function(test_exe test_name)
 endfunction()
 
 test_exe("entities")
+test_exe("experimental")
 test_exe("game-of-life")
 test_exe("guis")
 test_exe("hello-world")

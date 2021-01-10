@@ -29,6 +29,7 @@
 #include "utility/extra.hpp"
 #include "utility/connect_guard.hpp"
 #include "utility/connect_guard_additions.hpp"
+#include "utility/ts_queue.hpp"
 
 // Gui
 #include "gui/gui_manager.hpp"
@@ -61,3 +62,17 @@
 #include "asset/font_shader/font_shader.hpp"
 #include "asset/texture_set/texture_set.hpp"
 #include "asset/fonts.hpp"
+
+
+
+#if defined(OE_USING_NAMESPACES)
+namespace oe
+{
+	using namespace audio;
+	using namespace ecs;
+	using namespace graphics;
+	using namespace gui;
+	using namespace networking;
+	using namespace utils;
+}
+#endif

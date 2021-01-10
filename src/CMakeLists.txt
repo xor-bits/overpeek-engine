@@ -184,6 +184,7 @@ set(source_list ${source_list}
 	"engine/utility/text_edit_wchar_t.cpp"
 	"engine/utility/text_edit_char16_t.cpp"
 	"engine/utility/text_edit_char32_t.cpp"
+	"engine/utility/ts_queue.hpp"
 )
 
 set(target_name "engine")
