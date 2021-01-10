@@ -1,49 +1,26 @@
-#include <engine/utility/ts_queue.hpp>
-#include <spdlog/spdlog.h>
+#include <engine/include.hpp>
+#include <engine/graphics/opengl/gl_command_buffer.hpp>
+#include <engine/graphics/opengl/gl_include.hpp>
 
 
 
 int main()
 {
-	oe::utils::ts_queue<std::string> events;
-	
-	std::atomic<bool> run{ true };
-	std::thread event_creator{[&](){
-		while(run)
-		{
-			events.push("test 1");
-			events.push("test 2");
+	oe::Engine::getSingleton().init({});
+	oe::graphics::Window window{{}};
 
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
-		}
-	}};
+	oe::graphics::GLCommandBuffer cb{};
 
-	std::this_thread::sleep_for(std::chrono::seconds(1));
+	while (!window->shouldClose())
+	{
+		cb.clearColor(oe::colors::clear_color.r, oe::colors::clear_color.g, oe::colors::clear_color.b, oe::colors::clear_color.a);
+		cb.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		while (cb.run()) { spdlog::debug("[][]"); }
 
-	std::thread event_listener{[&](){
-		while(run)
-		{
-			std::string copied_string{};
-			bool had_value{};
-			{
-				auto front = events.wait_for_front(std::chrono::milliseconds(100));
-				had_value = front.has_value();
-				if(had_value)
-					copied_string = front.value().first;
-			}
-
-			if(had_value)
-			{
-				events.pop();
-				spdlog::info(copied_string);
-			}
-		}
-	}};
-
-	std::this_thread::sleep_for(std::chrono::seconds(1));
-	run = false;
-	if(event_creator.joinable()) event_creator.join();
-	if(event_listener.joinable()) event_listener.join();
-
+		window->update();
+		window->pollEvents();
+	}
+		
 	return 0;
 }

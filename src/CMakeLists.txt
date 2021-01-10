@@ -55,6 +55,7 @@ set(source_list ${source_list}
 	"engine/graphics/renderer.hpp"
 )
 set(source_list ${source_list} 
+	"engine/graphics/interface/command_buffer.hpp"
 	"engine/graphics/interface/framebuffer.cpp"
 	"engine/graphics/interface/framebuffer.hpp"
 	"engine/graphics/interface/index_buffer_gen.hpp"
@@ -70,6 +71,8 @@ set(source_list ${source_list}
 	"engine/graphics/interface/window.hpp"
 )
 set(source_list ${source_list} 
+	"engine/graphics/opengl/gl_command_buffer.cpp"
+	"engine/graphics/opengl/gl_command_buffer.hpp"
 	"engine/graphics/opengl/gl_framebuffer.cpp"
 	"engine/graphics/opengl/gl_framebuffer.hpp"
 	"engine/graphics/opengl/gl_include.hpp"

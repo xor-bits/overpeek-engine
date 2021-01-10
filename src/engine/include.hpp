@@ -1,6 +1,7 @@
 #pragma once
 
 // Graphics
+#include "graphics/interface/command_buffer.hpp"
 #include "graphics/interface/framebuffer.hpp"
 #include "graphics/interface/instance.hpp"
 #include "graphics/interface/poly_renderer.hpp"
@@ -63,7 +64,22 @@
 #include "asset/texture_set/texture_set.hpp"
 #include "asset/fonts.hpp"
 
-
+// POSSIBLE DEFINES:
+// - OE_DEBUG_API_CALLS
+//   - print opengl / vulkan calls with their arguments
+//   - compiled
+// - OE_USING_NAMESPACES
+//   - shorter namespaces
+//   - headers (obviously)
+// - BUILD_VULKAN
+//   - enable experimental vulkan
+//   - compiled
+// - OE_BUILD_MODE_SHADERC
+//   - enable shaderc glsl optimizer
+//   - compiled
+// - OE_TERMINATE_IS_THROW
+//   - fatal errors throw instead of assert
+//   - compiled
 
 #if defined(OE_USING_NAMESPACES)
 namespace oe

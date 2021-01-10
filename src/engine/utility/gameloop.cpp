@@ -8,7 +8,13 @@ namespace oe::utils
 {
 	void GameLoop::start()
 	{
+
 		m_frame_counter_start = std::chrono::high_resolution_clock::now();
+
+		std::thread glfw_thread;
+		std::thread graphics_thread;
+		std::thread event_thread;
+		// this_thread => user_thread
 
 		m_should_run = true;
 		m_host_window->inactive_context(); // release context from main thread
