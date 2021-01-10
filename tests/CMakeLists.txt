@@ -1,6 +1,9 @@
 # include(CTest)
 enable_testing()
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 function(test_exe test_name)
 	add_executable(${test_name} "${test_name}/main.cpp")
 	set_target_properties(${test_name} PROPERTIES FOLDER "engine/tests")
