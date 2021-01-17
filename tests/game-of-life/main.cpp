@@ -64,7 +64,7 @@ public:
 public:
 	constexpr static size_t ups = 10;
 	constexpr static size_t w = 90;
-	constexpr static size_t h = 60;
+	constexpr static size_t h = 70;
 	constexpr static size_t cells_total = w * h;
 	constexpr static size_t cell_pixel_size = 10;
 	constexpr static size_t panel_width = 150;
@@ -335,13 +335,20 @@ void Application::update(bool force, bool draw)
 
 	// update statistics
 	if(draw)
+	{
+		const auto& gl = window->getGameloop();
 		statistics->text_panel_info.text = {
 			{ (paused ? U"PAUSED\n" : U"\n"), oe::colors::white },
 			{ U"Total cells: ", oe::colors::white }, { fmt::format(U"{}\n", cells_total), oe::colors::grey },
 			{ U"Live cells: ", oe::colors::white }, { fmt::format(U"{}\n", cells_live), oe::colors::cyan },
 			{ U"Dead cells: ", oe::colors::white }, { fmt::format(U"{}\n", cells_dead), oe::colors::light_red },
 			{ U"Iteration: ", oe::colors::white }, { fmt::format(U"{}\n", step), oe::colors::lime },
+			{ U"FPS: ", oe::colors::white }, { fmt::format(U"{}", gl.getAverageFPS()), oe::colors::white },
+			{ U" (", oe::colors::white }, { fmt::format(U"{:.1f} ms)\n", std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gl.getFrametime()).count()), oe::colors::white },
+			{ U"UPS: ", oe::colors::white }, { fmt::format(U"{}", gl.getAverageUPS<ups>()), oe::colors::white },
+			{ U" (", oe::colors::white }, { fmt::format(U"{:.1f} ms)", std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gl.getUpdatetime<ups>()).count()), oe::colors::white },
 		};
+	}
 }
 
 void Application::run()
