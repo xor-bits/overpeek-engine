@@ -19,14 +19,20 @@ uniform vec4 u_color = vec4(1.0);
 
 uniform vec2 u_tex_size;
 uniform vec2 u_tex_offs;
+uniform vec2 u_cursor;
 uniform int u_gridmode;
+uniform float u_brush_size;
 
 void main()
 {
-	vec2 tex_pos = fract((gl_FragCoord.xy - u_tex_offs) / u_tex_size);
+	vec2 tex_pos = (gl_FragCoord.xy - u_tex_offs) / u_tex_size;
+	vec2 grid_pos = fract(tex_pos);
+	vec2 grid_id = floor(tex_pos);
+	float grid_d_cursor = length(grid_id - u_cursor);
+
 	float edge =
-		int(u_gridmode==0) * smoothstep(0.0, 0.1, min(tex_pos.x, tex_pos.y)) +
-		int(u_gridmode==1) * smoothstep(0.0, 0.1, max(tex_pos.x, tex_pos.y)) +
+		int(u_gridmode==0) * smoothstep(0.0, 0.1, min(grid_pos.x, grid_pos.y)) +
+		int(u_gridmode==1) * smoothstep(0.0, 0.1, max(grid_pos.x, grid_pos.y)) +
 		int(u_gridmode==2) * (1.0f);
 	
 	color =
@@ -36,6 +42,10 @@ void main()
 	color.rgb =
 		int(edge <= 0.8) * (vec3(1.0) - color.rgb) +
 		int(edge >  0.8) * (color.rgb);
+
+	color.rgb =
+		int(grid_d_cursor <= u_brush_size) * vec3(clamp(color.r, 0.2f, 0.8f), clamp(color.g, 0.2f, 0.8f), 1.0f)+
+		int(grid_d_cursor >  u_brush_size) * (color.rgb);
 }
 )";
 
@@ -49,7 +59,7 @@ public:
 	void run();
 	void init();
 	void fill(bool state);
-	void update(bool force);
+	void update(bool force, bool draw);
 
 public:
 	constexpr static size_t ups = 10;
@@ -69,6 +79,7 @@ private:
 	void on_update(const oe::UpdateEvent<ups>&);
 	void on_cursor(const oe::CursorPosEvent&);
 	void on_button(const oe::MouseButtonEvent&);
+	void on_scroll(const oe::ScrollEvent&);
 	void on_key(const oe::KeyboardEvent&);
 
 private:
@@ -87,6 +98,7 @@ private:
 	size_t cells_dead = 0;
 	size_t step = 0;
 	int32_t gridmode = 1;
+	float brush_size = 5.0f;
 
 	oe::graphics::Window window;
 	oe::asset::DefaultShader shader;
@@ -99,6 +111,7 @@ private:
 	oe::utils::connect_guard cg_on_update;
 	oe::utils::connect_guard cg_on_cursor;
 	oe::utils::connect_guard cg_on_button;
+	oe::utils::connect_guard cg_on_scroll;
 	oe::utils::connect_guard cg_on_key;
 };
 
@@ -144,15 +157,17 @@ Application::Application()
 	cg_on_update.connect<oe::RenderEvent, &Application::on_render>(window, this);
 	cg_on_cursor.connect<oe::CursorPosEvent, &Application::on_cursor>(window, this);
 	cg_on_button.connect<oe::MouseButtonEvent, &Application::on_button>(window, this);
+	cg_on_scroll.connect<oe::ScrollEvent, &Application::on_scroll>(window, this);
 	cg_on_key.connect<oe::KeyboardEvent, &Application::on_key>(window, this);
 
 	// shader
 	const glm::vec4 s = { -static_cast<float>(panel_width), static_cast<float>(w * cell_pixel_size), static_cast<float>(h * cell_pixel_size), 0.0f };
 	const glm::mat4 pr_matrix = glm::ortho(-static_cast<float>(panel_width), static_cast<float>(w * cell_pixel_size), static_cast<float>(h * cell_pixel_size), 0.0f);
 	shader.setProjectionMatrix(pr_matrix);
-	shader.getShader()->setUniform("u_gridmode", gridmode);
 	shader.getShader()->setUniform("u_tex_size", glm::vec2{ cell_pixel_size, cell_pixel_size });
 	shader.getShader()->setUniform("u_tex_offs", glm::vec2{ panel_width, 0.0f });
+	shader.getShader()->setUniform("u_gridmode", gridmode);
+	shader.getShader()->setUniform("u_brush_size", brush_size);
 
 	// main texture renderer
 	std::unique_ptr<oe::graphics::Quad> quad = renderer.create();
@@ -174,6 +189,8 @@ Press <space> to
 pause/unpause.
 Press <s> to step
 1 update forward.
+Press <shift-f> to
+ff 10000 updates.
 Press <tab> to
 cycle gridmode.
 
@@ -182,6 +199,8 @@ to paint life.
 Press/hold <rmb>
 or <shift-lmb>
 to paint death.
+Scroll to change
+the brush size.
 
 Press <r> to
 randomize/reset.
@@ -197,10 +216,11 @@ Press <ctrl-o/l>
 to load from file.
 )", border), oe::colors::white };
 	auto infobox = gui.create(tpi);
+	
 	tpi.text = { U"", oe::colors::white };
-	tpi.widget_info.pixel_origon_offset = { 0, 50 };
+	tpi.widget_info.fract_render_offset = oe::alignments::bottom_left;
 	tpi.widget_info.fract_origon_offset = oe::alignments::bottom_left;
-	statistics = infobox->create(tpi);
+	statistics = gui.create(tpi);
 }
 
 void Application::init()
@@ -250,7 +270,7 @@ void Application::fill(bool state)
 	main_texture->setData(texture_info);
 }
 
-void Application::update(bool force)
+void Application::update(bool force, bool draw)
 {
 	auto calculate_neighbours = [this](size_t x, size_t y)
 	{
@@ -309,17 +329,19 @@ void Application::update(bool force)
 				}
 			}
 		std::swap(pixel_states_front, pixel_states_back);
-		main_texture->setData(texture_info);
+		if(draw)
+			main_texture->setData(texture_info);
 	}
 
 	// update statistics
-	statistics->text_panel_info.text = {
-		{ U"Total cells: ", oe::colors::white }, { fmt::format(U"{}\n", cells_total), oe::colors::grey },
-		{ U"Live cells: ", oe::colors::white }, { fmt::format(U"{}\n", cells_live), oe::colors::cyan },
-		{ U"Dead cells: ", oe::colors::white }, { fmt::format(U"{}\n", cells_dead), oe::colors::light_red },
-		{ U"Iteration: ", oe::colors::white }, { fmt::format(U"{}\n", step), oe::colors::lime },
-		{ (paused ? U"PAUSED" : U""), oe::colors::white },
-	};
+	if(draw)
+		statistics->text_panel_info.text = {
+			{ (paused ? U"PAUSED\n" : U"\n"), oe::colors::white },
+			{ U"Total cells: ", oe::colors::white }, { fmt::format(U"{}\n", cells_total), oe::colors::grey },
+			{ U"Live cells: ", oe::colors::white }, { fmt::format(U"{}\n", cells_live), oe::colors::cyan },
+			{ U"Dead cells: ", oe::colors::white }, { fmt::format(U"{}\n", cells_dead), oe::colors::light_red },
+			{ U"Iteration: ", oe::colors::white }, { fmt::format(U"{}\n", step), oe::colors::lime },
+		};
 }
 
 void Application::run()
@@ -337,25 +359,41 @@ void Application::on_render(const oe::RenderEvent& /* e */)
 
 void Application::on_update(const oe::UpdateEvent<ups>& /* e */)
 {
-	update(false);
+	update(false, true);
 }
 
 void Application::on_cursor(const oe::CursorPosEvent& e)
 {
+	auto set_tile = [this](int32_t x, int32_t y, bool state)
+	{
+		if(x < 0 || x >= w || y < 0 || y >= h)
+			return;
+			
+		(*pixel_states_front)[y][x] = state;
+		pixels[y][x] = state ? oe::colors::black : oe::colors::white;
+	};
+
+	auto loop_tiles_check_dist = [set_tile, this](int32_t x, int32_t y, const glm::ivec2& cursor, bool state)
+	{
+		for(int32_t yo = -brush_size; yo < brush_size + 1; yo++)
+			for(int32_t xo = -brush_size; xo < brush_size + 1; xo++)
+				if(glm::length(glm::vec2{ x + xo - cursor.x, y + yo - cursor.y }) <= brush_size)
+					set_tile(x + xo, y + yo, state);
+	};
+
 	const glm::ivec2 tex_space = static_cast<glm::ivec2>(static_cast<glm::vec2>(e.cursor_windowspace - glm::ivec2{ panel_width, 0 }) / static_cast<float>(cell_pixel_size));
-	if(tex_space.x < 0 || tex_space.x >= w || tex_space.y < 0 || tex_space.y >= h)
-		return;
+	const glm::ivec2 cursor = glm::ivec2{ tex_space.x, tex_space.y };
+	const glm::ivec2 cursor_y_flip = glm::ivec2{ tex_space.x, h - tex_space.y - 1 };
+	shader.getShader()->setUniform("u_cursor", static_cast<glm::vec2>(cursor_y_flip));
 	
 	if(window->getButton(oe::mouse_buttons::button_left))
 	{
-		(*pixel_states_front)[tex_space.y][tex_space.x] = true;
-		pixels[tex_space.y][tex_space.x] = oe::colors::black;
+		loop_tiles_check_dist(tex_space.x, tex_space.y, cursor, true);
 		main_texture->setData(texture_info);
 	}
 	if((window->getButton(oe::mouse_buttons::button_left) && (window->getKey(oe::keys::key_left_shift) || window->getKey(oe::keys::key_right_shift))) || window->getButton(oe::mouse_buttons::button_right))
 	{
-		(*pixel_states_front)[tex_space.y][tex_space.x] = false;
-		pixels[tex_space.y][tex_space.x] = oe::colors::white;
+		loop_tiles_check_dist(tex_space.x, tex_space.y, cursor, false);
 		main_texture->setData(texture_info);
 	}
 }
@@ -365,13 +403,28 @@ void Application::on_button(const oe::MouseButtonEvent& e)
 	on_cursor(e.cursor_pos);
 }
 
+void Application::on_scroll(const oe::ScrollEvent& e)
+{
+	brush_size += e.scroll_delta.x + e.scroll_delta.y;
+	brush_size = std::clamp(brush_size, 0.0f, 16.0f);
+	
+	shader.getShader()->setUniform("u_brush_size", brush_size);
+}
+
 void Application::on_key(const oe::KeyboardEvent& e)
 {
 	if (e.action != oe::actions::release && e.key == oe::keys::key_space)
 		paused = !paused;
 
 	if(paused && e.action != oe::actions::release && e.mods != oe::modifiers::control && e.key == oe::keys::key_s)
-		update(true);
+		update(true, true);
+
+	if(e.action != oe::actions::release && e.mods == oe::modifiers::shift && e.key == oe::keys::key_f)
+	{
+		for (size_t i = 0; i < 9999; i++)
+			update(true, false);
+		update(true, true);
+	}
 		
 	if (e.action != oe::actions::release && e.key == oe::keys::key_tab)
 	{
@@ -384,7 +437,7 @@ void Application::on_key(const oe::KeyboardEvent& e)
 	if (e.action != oe::actions::release && e.key == oe::keys::key_r)
 		init();
 
-	if (e.action != oe::actions::release && e.key == oe::keys::key_f)
+	if (e.action != oe::actions::release && e.mods != oe::modifiers::shift && e.key == oe::keys::key_f)
 		fill(true);
 
 	if (e.action != oe::actions::release && e.key == oe::keys::key_c)
