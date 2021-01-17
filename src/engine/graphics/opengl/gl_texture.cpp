@@ -22,6 +22,8 @@ namespace oe::graphics
 			return GL_RGB;
 		case oe::formats::mono:
 			return GL_RED;
+		case oe::formats::none:
+			break;
 		}
 		return 0;
 	}
@@ -36,6 +38,8 @@ namespace oe::graphics
 			return GL_RGB8;
 		case oe::formats::mono:
 			return GL_R8;
+		case oe::formats::none:
+			break;
 		}
 		return 0;
 	}

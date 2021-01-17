@@ -173,6 +173,8 @@ namespace oe::graphics {
 					}
 				}
 				break;
+			case oe::formats::none:
+				break;
 			}
 		}
 

@@ -429,9 +429,8 @@ int main(int argc, char** argv)
 	shader = new oe::asset::DefaultShader();
 
 	// spritepack
-	auto img = oe::asset::TextureSet::oe_logo_img;
 	pack = new oe::graphics::SpritePack();
-	sprite = pack->create(img);
+	sprite = pack->create(oe::asset::TextureSet::oe_logo_img);
 	pack->construct();
 
 	// gui

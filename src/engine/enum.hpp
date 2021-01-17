@@ -18,6 +18,7 @@ namespace oe {
 	enum class formats {
 		// all channels are one byte wide
 
+		none,
 		rgba, // red channel byte 0, green channel byte 2, blue channel byte 3, alpha channel byte 4, repeat
 		rgb, // red channel byte 0, green channel byte 2, blue channel byte 3, repeat
 		mono // white channel byte 0, repeat

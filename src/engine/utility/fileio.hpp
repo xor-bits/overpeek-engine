@@ -38,6 +38,7 @@ namespace oe::utils
 
 		image_data& operator=(const image_data& copy_assign);
 		image_data& operator=(image_data&& move_assign);
+		image_data cast(oe::formats format = oe::formats::none, int width = -1, int height = -1) const;
 
 		byte_string save() const;
 	};

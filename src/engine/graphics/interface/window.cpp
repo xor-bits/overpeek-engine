@@ -8,6 +8,7 @@
 #include "engine/utility/extra.hpp"
 #include "engine/utility/connect_guard.hpp"
 #include "engine/engine.hpp"
+#include "engine/asset/texture_set/texture_set.hpp"
 
 
 
@@ -145,6 +146,7 @@ namespace oe::graphics
 		glfwSetWindowSize(m_window_handle, m_window_info.size.x, m_window_info.size.y);
 
 		swapInterval(m_window_info.swap_interval);
+		setIcon(oe::asset::TextureSet::oe_logo_img);
 
 		connect_listener<oe::ResizeEvent, &resize_viewport>();
 	}
@@ -174,8 +176,12 @@ namespace oe::graphics
 
 	void IWindow::setIcon(const oe::utils::image_data& image) 
 	{
+		oe::utils::image_data icon = image.cast(oe::formats::rgba, 32, 32);
+
 		GLFWimage glfwicon; 
-		glfwicon.height = image.height; glfwicon.width = image.width; glfwicon.pixels = const_cast<unsigned char*>(image.data);
+		glfwicon.height = icon.height;
+		glfwicon.width = icon.width;
+		glfwicon.pixels = const_cast<unsigned char*>(icon.data);
 		glfwSetWindowIcon(m_window_handle, 1, &glfwicon);
 	}
 

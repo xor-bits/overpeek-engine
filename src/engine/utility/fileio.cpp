@@ -68,6 +68,8 @@ constexpr int stb_i_format(oe::formats format) {
 		return STBI_rgb;
 	case oe::formats::mono:
 		return STBI_grey;
+	case oe::formats::none:
+		return STBI_default;
 	}
 	return 0;
 }
@@ -81,6 +83,8 @@ constexpr int stb_i_channels(oe::formats format) {
 		return 3;
 	case oe::formats::mono:
 		return 1;
+	case oe::formats::none:
+		return 0;
 	}
 	return 0;
 }
@@ -97,18 +101,23 @@ namespace oe::utils
 
 	} */
 
-
+	constexpr static inline std::string_view invalid_format = "invalid_format";
 
 	image_data::image_data(oe::formats _format, int _width, int _height)
 		: format(_format)
 		, width(_width), height(_height)
-		, size(_width* _height* stb_i_channels(_format))
+		, size(_width * _height * stb_i_channels(_format))
 	{
+		if(_format == oe::formats::none)
+			std::runtime_error(invalid_format.data());
 		data = new uint8_t[size];
 	}
 
 	image_data::image_data(fs::path path, oe::formats _format)
 	{
+		if(_format == oe::formats::none)
+			std::runtime_error(invalid_format.data());
+
 		int channels;
 		data = stbi_load(path.string().c_str(), &width, &height, &channels, stb_i_format(_format));
 		
@@ -121,6 +130,9 @@ namespace oe::utils
 
 	image_data::image_data(const uint8_t* _data, size_t data_size, oe::formats _format)
 	{
+		if(_format == oe::formats::none)
+			std::runtime_error(invalid_format.data());
+
 		int channels;
 		data = stbi_load_from_memory(_data, data_size, &width, &height, &channels, stb_i_format(_format));
 		
@@ -136,6 +148,9 @@ namespace oe::utils
 		, width(_width), height(_height)
 		, size(_width* _height* stb_i_channels(_format))
 	{
+		if(_format == oe::formats::none)
+			std::runtime_error(invalid_format.data());
+
 		data = new uint8_t[size];
 		std::memcpy(data, _data, size);
 	}
@@ -195,6 +210,98 @@ namespace oe::utils
 		move_assign.data = 0;
 
 		return *this;
+	}
+
+	constexpr static inline uint8_t u8max = std::numeric_limits<uint8_t>::max();
+	static inline float to_float(uint8_t byte)
+	{ return static_cast<float>(byte) / static_cast<float>(u8max); }
+
+	static inline glm::vec<4, uint8_t> to_rgba(const glm::vec<4, uint8_t>& rgba)
+	{ return rgba; }
+	static inline glm::vec<4, uint8_t> to_rgba(const glm::vec<3, uint8_t>& rgb)
+	{ return { rgb, u8max }; }
+	static inline glm::vec<4, uint8_t> to_rgba(const glm::vec<1, uint8_t>& mono)
+	{ return { mono, mono, mono, u8max }; }
+	
+	static inline glm::vec<3, uint8_t> to_rgb(const glm::vec<4, uint8_t>& rgba)
+	{ return { rgba.r * to_float(rgba.a), rgba.g * to_float(rgba.a), rgba.b * to_float(rgba.a) }; }
+	static inline glm::vec<3, uint8_t> to_rgb(const glm::vec<3, uint8_t>& rgb)
+	{ return rgb; }
+	static inline glm::vec<3, uint8_t> to_rgb(const glm::vec<1, uint8_t>& mono)
+	{ return { mono, mono, mono }; }
+	
+	static inline glm::vec<1, uint8_t> to_mono(const glm::vec<4, uint8_t>& rgba)
+	{ return glm::vec<1, uint8_t>{ static_cast<uint8_t>(glm::length(static_cast<glm::vec<4, float>>(rgba)) * to_float(rgba.a)) }; }
+	static inline glm::vec<1, uint8_t> to_mono(const glm::vec<3, uint8_t>& rgb)
+	{ return glm::vec<1, uint8_t>{ static_cast<uint8_t>(glm::length(static_cast<glm::vec<3, float>>(rgb))) }; }
+	static inline glm::vec<1, uint8_t> to_mono(const glm::vec<1, uint8_t>& mono)
+	{ return mono; }
+
+	image_data image_data::cast(oe::formats new_format, int new_width, int new_height) const
+	{
+		if(new_format == format && new_width == width && new_height == height)
+			return *this;
+		
+		if(new_format == oe::formats::none || format == oe::formats::none)
+			std::runtime_error(invalid_format.data());
+		
+		const glm::vec2 ratio = {
+			static_cast<float>(width) / static_cast<float>(new_width),
+			static_cast<float>(height) / static_cast<float>(new_height)
+		};
+		image_data new_image{ new_format, new_width, new_height };
+
+		spdlog::info("conversion ratio: {}", ratio);
+
+		for (int y = 0; y < new_height; y++)
+			for (int x = 0; x < new_width; x++)
+			{
+				const size_t new_data_pos =
+					x + y * new_width;
+				const size_t old_data_pos =
+					std::clamp<int>(int(x * ratio.x), 0, width) +
+					std::clamp<int>(int(y * ratio.y), 0, height) * width;
+				
+				auto* new_data = &new_image.data[std::clamp<size_t>(new_data_pos * stb_i_channels(new_format), 0, new_image.size - stb_i_channels(new_format))];
+				auto* old_data = &data[std::clamp<size_t>(old_data_pos * stb_i_channels(format), 0, size - stb_i_channels(format))];
+
+				constexpr auto shift = sizeof(oe::formats) / 2;
+				switch (static_cast<size_t>(new_format) | static_cast<size_t>(format) << shift)
+				{
+				case static_cast<size_t>(oe::formats::rgba) | static_cast<size_t>(oe::formats::rgba) << shift:
+					*reinterpret_cast<glm::vec<4, uint8_t>*>(new_data) = to_rgba(*reinterpret_cast<glm::vec<4, uint8_t>*>(old_data));
+					break;
+				case static_cast<size_t>(oe::formats::rgba) | static_cast<size_t>(oe::formats::rgb) << shift:
+					*reinterpret_cast<glm::vec<4, uint8_t>*>(new_data) = to_rgba(*reinterpret_cast<glm::vec<3, uint8_t>*>(old_data));
+					break;
+				case static_cast<size_t>(oe::formats::rgba) | static_cast<size_t>(oe::formats::mono) << shift:
+					*reinterpret_cast<glm::vec<4, uint8_t>*>(new_data) = to_rgba(*reinterpret_cast<glm::vec<1, uint8_t>*>(old_data));
+					break;
+				case static_cast<size_t>(oe::formats::rgb) | static_cast<size_t>(oe::formats::rgba) << shift:
+					*reinterpret_cast<glm::vec<3, uint8_t>*>(new_data) = to_rgb(*reinterpret_cast<glm::vec<4, uint8_t>*>(old_data));
+					break;
+				case static_cast<size_t>(oe::formats::rgb) | static_cast<size_t>(oe::formats::rgb) << shift:
+					*reinterpret_cast<glm::vec<3, uint8_t>*>(new_data) = to_rgb(*reinterpret_cast<glm::vec<3, uint8_t>*>(old_data));
+					break;
+				case static_cast<size_t>(oe::formats::rgb) | static_cast<size_t>(oe::formats::mono) << shift:
+					*reinterpret_cast<glm::vec<3, uint8_t>*>(new_data) = to_rgb(*reinterpret_cast<glm::vec<1, uint8_t>*>(old_data));
+					break;
+				case static_cast<size_t>(oe::formats::mono) | static_cast<size_t>(oe::formats::rgba) << shift:
+					*reinterpret_cast<glm::vec<1, uint8_t>*>(new_data) = to_mono(*reinterpret_cast<glm::vec<4, uint8_t>*>(old_data));
+					break;
+				case static_cast<size_t>(oe::formats::mono) | static_cast<size_t>(oe::formats::rgb) << shift:
+					*reinterpret_cast<glm::vec<1, uint8_t>*>(new_data) = to_mono(*reinterpret_cast<glm::vec<3, uint8_t>*>(old_data));
+					break;
+				case static_cast<size_t>(oe::formats::mono) | static_cast<size_t>(oe::formats::mono) << shift:
+					*reinterpret_cast<glm::vec<1, uint8_t>*>(new_data) = to_mono(*reinterpret_cast<glm::vec<1, uint8_t>*>(old_data));
+					break;
+				
+				default:
+					break;
+				}
+			}
+		
+		return new_image;
 	}
 
 	byte_string image_data::save() const
