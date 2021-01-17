@@ -100,28 +100,28 @@ namespace oe::graphics
 		p_shader_program = glCreateProgram();
 
 		std::vector<GLuint> modules;
-		for (auto& stage : shader_info.shader_stages)
+		for (auto& stage : shader_info.stages)
 		{
 #ifdef OE_BUILD_MODE_SHADERC // OPTIMIZE GLSL
 			// optimization and <#include>:s
-			std::unique_ptr<Includer> includer = std::make_unique<Includer>(stage.include_path);
+			std::unique_ptr<Includer> includer = std::make_unique<Includer>(stage.second.include_path);
 
 			shaderc::Compiler compiler = shaderc::Compiler();
 			shaderc::CompileOptions options = shaderc::CompileOptions();
 			if(shader_info.shaderc_optimize)
 				options.SetOptimizationLevel(shaderc_optimization_level::shaderc_optimization_level_performance);
 			options.SetIncluder(std::move(includer));
-			auto result = compiler.PreprocessGlsl(stage.source.data(), shader_kind(stage.stage), shader_module_name(shader_info.name.data(), stage.stage).c_str(), options);
+			auto result = compiler.PreprocessGlsl(stage.second.source.data(), shader_kind(stage.first), shader_module_name(shader_info.name.data(), stage.first).c_str(), options);
 
 			if (result.GetNumErrors() != 0)
 				throw oe::utils::formatted_error("IShader ({}) compilation failed: {}", shader_info.name, result.GetErrorMessage());
 			std::string_view preprocessed_glsl = { result.begin(), static_cast<size_t>(std::max<int64_t>(0, std::distance(result.begin(), result.end()))) };
 #else  // DON'T OPTIMIZE GLSL
-			std::string_view preprocessed_glsl = stage.source;
+			std::string_view preprocessed_glsl = stage.second.source;
 #endif
 
 			// shader compilation
-			GLuint shader_module = loadShader(shader_info.name, preprocessed_glsl, stage.stage);
+			GLuint shader_module = loadShader(shader_info.name, preprocessed_glsl, stage.first);
 			modules.push_back(shader_module);
 
 			// attach shader stage

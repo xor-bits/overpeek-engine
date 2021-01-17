@@ -4,6 +4,43 @@
 
 
 
+constexpr static std::string_view shader_frag_custom = R"(
+#version 140
+#extension GL_ARB_explicit_attrib_location : enable
+
+layout(location = 0) out vec4 color;
+		
+in vec2 shader_uv_frag;
+in vec4 shader_color_frag;
+
+uniform sampler2D u_tex;
+uniform int u_usetex = 1;
+uniform vec4 u_color = vec4(1.0);
+
+uniform vec2 u_tex_size;
+uniform vec2 u_tex_offs;
+uniform int u_gridmode;
+
+void main()
+{
+	vec2 tex_pos = fract((gl_FragCoord.xy - u_tex_offs) / u_tex_size);
+	float edge =
+		int(u_gridmode==0) * smoothstep(0.0, 0.1, min(tex_pos.x, tex_pos.y)) +
+		int(u_gridmode==1) * smoothstep(0.0, 0.1, max(tex_pos.x, tex_pos.y)) +
+		int(u_gridmode==2) * (1.0f);
+	
+	color =
+		int(u_usetex==1) * (texture(u_tex, shader_uv_frag) * shader_color_frag * u_color) +
+		int(u_usetex==0) * (shader_color_frag * u_color);
+
+	color.rgb =
+		int(edge <= 0.8) * (vec3(1.0) - color.rgb) +
+		int(edge >  0.8) * (color.rgb);
+}
+)";
+
+
+
 class Application
 {
 public:
@@ -49,6 +86,7 @@ private:
 	size_t cells_live = 0;
 	size_t cells_dead = 0;
 	size_t step = 0;
+	int32_t gridmode = 1;
 
 	oe::graphics::Window window;
 	oe::asset::DefaultShader shader;
@@ -96,7 +134,7 @@ Application::Application()
 	, pixel_states_front(&pixel_states_A)
 	, pixel_states_back(&pixel_states_B)
 	, window(gen_window_info())
-	, shader()
+	, shader(oe::shader_stages::fragment_shader, shader_frag_custom)
 	, renderer(1)
 	, main_texture(texture_info)
 	, gui(window)
@@ -112,6 +150,9 @@ Application::Application()
 	const glm::vec4 s = { -static_cast<float>(panel_width), static_cast<float>(w * cell_pixel_size), static_cast<float>(h * cell_pixel_size), 0.0f };
 	const glm::mat4 pr_matrix = glm::ortho(-static_cast<float>(panel_width), static_cast<float>(w * cell_pixel_size), static_cast<float>(h * cell_pixel_size), 0.0f);
 	shader.setProjectionMatrix(pr_matrix);
+	shader.getShader()->setUniform("u_gridmode", gridmode);
+	shader.getShader()->setUniform("u_tex_size", glm::vec2{ cell_pixel_size, cell_pixel_size });
+	shader.getShader()->setUniform("u_tex_offs", glm::vec2{ panel_width, 0.0f });
 
 	// main texture renderer
 	std::unique_ptr<oe::graphics::Quad> quad = renderer.create();
@@ -133,6 +174,8 @@ Press <space> to
 pause/unpause.
 Press <s> to step
 1 update forward.
+Press <tab> to
+cycle gridmode.
 
 Press/hold <lmb>
 to paint life.
@@ -329,6 +372,14 @@ void Application::on_key(const oe::KeyboardEvent& e)
 
 	if(paused && e.action != oe::actions::release && e.mods != oe::modifiers::control && e.key == oe::keys::key_s)
 		update(true);
+		
+	if (e.action != oe::actions::release && e.key == oe::keys::key_tab)
+	{
+		gridmode++;
+		gridmode %= 3;
+
+		shader.getShader()->setUniform("u_gridmode", gridmode);
+	}
 		
 	if (e.action != oe::actions::release && e.key == oe::keys::key_r)
 		init();

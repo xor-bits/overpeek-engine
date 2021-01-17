@@ -445,16 +445,14 @@ namespace oe {
 	// shader per stage create info
 	struct ShaderStageInfo
 	{
-		shader_stages stage;
 		std::string source;
 		std::string include_path; // optional
 	};
 
-	// shader create info, shader_stages is non-owning
 	struct ShaderInfo
 	{
 		std::string name;
-		std::vector<ShaderStageInfo> shader_stages;
+		std::unordered_map<shader_stages, ShaderStageInfo> stages;
 #ifdef OE_BUILD_MODE_SHADERC
 		bool shaderc_optimize = true;
 #endif // OE_BUILD_MODE_SHADERC

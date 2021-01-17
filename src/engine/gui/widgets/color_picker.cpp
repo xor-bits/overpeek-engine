@@ -105,13 +105,17 @@ namespace oe::gui
 			: c_shader({ "asset:color_picker_shader", {
 					{
 						oe::shader_stages::vertex_shader,
-						oe::asset::AssetLoader::resource_string("shader/default_shader/shader.vert.glsl"),
-						{}
+						{
+							oe::asset::AssetLoader::resource_string("shader/default_shader/shader.vert.glsl"),
+							{}
+						}
 					},
 					{
 						oe::shader_stages::fragment_shader,
-						oe::asset::AssetLoader::resource_string("shader/gui/color_picker.frag.glsl"),
-						{}
+						{
+							oe::asset::AssetLoader::resource_string("shader/gui/color_picker.frag.glsl"),
+							{}
+						}
 					}
 				}})
 			, c_renderer_circle(oe::RendererInfo{ 1 })

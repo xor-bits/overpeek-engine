@@ -17,15 +17,19 @@ namespace oe::asset {
 			ShaderInfo {
 				default_shader_name,
 				{
-					ShaderStageInfo {
+					{
 						shader_stages::vertex_shader,
-						oe::asset::AssetLoader::resource_string("shader/default_shader/shader.vert.glsl"),
-						{}
+						{
+							oe::asset::AssetLoader::resource_string("shader/default_shader/shader.vert.glsl"),
+							{}
+						}
 					},
-					ShaderStageInfo {
+					{
 						shader_stages::fragment_shader,
-						oe::asset::AssetLoader::resource_string("shader/default_shader/shader.frag.glsl"),
-						{}
+						{
+							oe::asset::AssetLoader::resource_string("shader/default_shader/shader.frag.glsl"),
+							{}
+						}
 					}
 				}
 			}
@@ -35,15 +39,19 @@ namespace oe::asset {
 			ShaderInfo {
 				default_shader_name,
 				{
-					ShaderStageInfo {
+					{
 						shader_stages::vertex_shader,
-						oe::asset::AssetLoader::resource_string("shader/default_shader/shader.vert.glsl"),
-						{}
+						{
+							oe::asset::AssetLoader::resource_string("shader/default_shader/shader.vert.glsl"),
+							{}
+						}
 					},
-					ShaderStageInfo {
+					{
 						shader_stages::fragment_shader,
-						oe::asset::AssetLoader::resource_string("shader/default_shader/shader.frag.glsl"),
-						{}
+						{
+							oe::asset::AssetLoader::resource_string("shader/default_shader/shader.frag.glsl"),
+							{}
+						}
 					}
 				}
 			}
@@ -54,18 +62,39 @@ namespace oe::asset {
 		}
 	};
 
-	
+
 
 	DefaultShader::DefaultShader()
 	{
 		try{
-			m_shader = oe::graphics::Shader(default_shader_info.at(Engine::getSingleton().engine_info.api));
+			m_shader = { default_shader_info.at(Engine::getSingleton().engine_info.api) };
 		}catch(...){
 			throw oe::utils::formatted_error("Unknown graphics api: {}", static_cast<int>(Engine::getSingleton().engine_info.api));
 		}
+	}
 
-		setColor(oe::colors::white);
-		setTexture(true);
+	DefaultShader::DefaultShader(oe::shader_stages state_overwrite, std::string_view stage_code)
+		: DefaultShader([state_overwrite, stage_code](){
+				auto sti = default_shader_info.at(Engine::getSingleton().engine_info.api).stages;
+				sti.at(state_overwrite).source = stage_code;
+				return sti;
+			}())
+	{}
+
+	DefaultShader::DefaultShader(std::string_view vertex_stage_code, std::string_view fragment_stage_code)
+		: DefaultShader([vertex_stage_code, fragment_stage_code](){
+			auto sti = default_shader_info.at(Engine::getSingleton().engine_info.api).stages;
+			sti.at(oe::shader_stages::vertex_shader).source = vertex_stage_code;
+			sti.at(oe::shader_stages::fragment_shader).source = fragment_stage_code;
+			return sti;
+		}())
+	{}
+	
+	DefaultShader::DefaultShader(const std::unordered_map<oe::shader_stages, oe::ShaderStageInfo>& custom_sti)
+	{
+		oe::ShaderInfo info_copy = default_shader_info.at(Engine::getSingleton().engine_info.api);
+		info_copy.stages = custom_sti;
+		m_shader = { info_copy };
 	}
 
 	void DefaultShader::bind() const

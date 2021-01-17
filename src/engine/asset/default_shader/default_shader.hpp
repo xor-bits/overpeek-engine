@@ -19,6 +19,9 @@ namespace oe::asset
 
 	public:
 		DefaultShader();
+		DefaultShader(oe::shader_stages state_overwrite, std::string_view stage_code);
+		DefaultShader(std::string_view vertex_stage_code, std::string_view fragment_stage_code);
+		DefaultShader(const std::unordered_map<oe::shader_stages, oe::ShaderStageInfo>& custom_sti);
 
 		void bind() const;
 		void unbind() const;

@@ -21,16 +21,21 @@ namespace oe::gui
 		GraphRenderer(const GraphRenderer& copy) = delete;
 		GraphRenderer()
 			: g_shader({ "asset:graph_shader", {
+				{
+					oe::shader_stages::vertex_shader,
 					{
-						oe::shader_stages::vertex_shader,
 						oe::asset::AssetLoader::resource_string("shader/default_shader/shader.vert.glsl"),
 						{}
-					},
+					}
+				},
+				{
+
+					oe::shader_stages::fragment_shader,
 					{
-						oe::shader_stages::fragment_shader,
 						oe::asset::AssetLoader::resource_string("shader/gui/graph.frag.glsl"),
 						{}
 					}
+				}
 				}})
 			, g_renderer(1)
 			, g_pack()
