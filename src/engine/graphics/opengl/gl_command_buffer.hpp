@@ -34,7 +34,7 @@ namespace oe::graphics
 		constexpr GLCommandEntry(gl_command _command, Args&& ... _args)
 			: command(_command)
 			, arguments({ std::forward<Args>(_args)... })
-			, argument_count(sizeof...(_args))
+			/* , argument_count(sizeof...(_args)) */
 		{}
 
 		void run();
@@ -42,7 +42,7 @@ namespace oe::graphics
 	private:
 		gl_command command = gl_command::none;
 		std::array<possible_types, max_possible_arg_count> arguments{};
-		size_t argument_count = 0;
+		/* size_t argument_count = 0; */
 	};
 
 

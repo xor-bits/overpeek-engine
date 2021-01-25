@@ -31,14 +31,14 @@ static void* stbi_realloc_impl(void* ptr, size_t oldsize, size_t newsize)
 	if(ptr != nullptr)
 	{
 		memcpy(data, ptr, oldsize);
-		delete[] ptr;
+		delete[] reinterpret_cast<uint8_t*>(ptr);
 	}
 	return data;
 }
 
 #define STBI_MALLOC(size)                            (new uint8_t[size]{})
 #define STBI_REALLOC_SIZED(ptr, oldsize, newsize)    (stbi_realloc_impl(ptr, oldsize, newsize))
-#define STBI_FREE(ptr)                               (delete[] ptr)
+#define STBI_FREE(ptr)                               (delete[] reinterpret_cast<uint8_t*>(ptr))
 // gif loader bug workaround
 #define STBI_REALLOC(ptr, newsize)                   (STBI_REALLOC_SIZED(ptr, 0, newsize))
 
