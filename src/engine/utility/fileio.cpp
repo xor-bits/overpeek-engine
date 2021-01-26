@@ -274,8 +274,8 @@ namespace oe::utils
 		const int bytes_per_pixel = stb_i_channels(format);
 		image_data new_image{ format, new_width, new_height };
 
-		for (int y = offset_y; y < new_height; y++)
-			for (int x = offset_x; x < new_width; x++)
+		for (int y = offset_y; y < offset_y + new_height; y++)
+			for (int x = offset_x; x < offset_x + new_width; x++)
 				for (int b = 0; b < bytes_per_pixel; b++)
 					new_image.data[(x - offset_x) * bytes_per_pixel + (y - offset_y) * new_width * bytes_per_pixel + b]
 						= data[x * bytes_per_pixel + y * width * bytes_per_pixel + b];
