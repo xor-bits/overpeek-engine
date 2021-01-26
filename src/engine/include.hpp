@@ -33,6 +33,7 @@
 #include "utility/ts_queue.hpp"
 
 // Gui
+#include "gui/jgui.hpp"
 #include "gui/gui_manager.hpp"
 #include "gui/widgets/widget.hpp"
 #include "gui/widgets/text_panel.hpp"

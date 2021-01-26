@@ -6,7 +6,7 @@
 
 
 
-oe::gui::GUI* gui;
+oe::gui::JGUI* jgui;
 std::shared_ptr<oe::gui::BasicTextInput<char32_t>> textbox;
 std::shared_ptr<oe::gui::TextPanel> textpanel;
 std::shared_ptr<oe::gui::SpritePanel> box;
@@ -158,7 +158,7 @@ void render(oe::RenderEvent)
 	cube();
 
 	// gui
-	gui->render();
+	jgui->render();
 }
 
 // framebuffer resize
@@ -230,7 +230,7 @@ void setup_gui()
 		sprite_panel_info.widget_info.fract_origon_offset = oe::alignments::bottom_left;
 		sprite_panel_info.widget_info.fract_render_offset = oe::alignments::bottom_left;
 		sprite_panel_info.sprite = &sprite_logo;
-		box = gui->create(sprite_panel_info);
+		box = jgui->gui().create(sprite_panel_info);
 	}
 	{
 		oe::gui::u32TextInput::info_t text_input_info;
@@ -246,7 +246,7 @@ yyyyyyyyyyyyy
 		text_input_info.text_options.pixel_res(16);
 		text_input_info.text_options.align = oe::alignments::center_center;
 		text_input_info.sprite = &sprite_empty;
-		textbox = gui->create(text_input_info);
+		textbox = jgui->gui().create(text_input_info);
 	}
 	{
 		oe::gui::Vec<oe::gui::fSliderInput, 4>::info_t vecslider_info;
@@ -264,16 +264,29 @@ yyyyyyyyyyyyy
 		vecslider_info.common.fill(common);
 		vecslider_info.common[0].value_bounds *= glm::pi<float>();
 		vecslider_info.common[0].initial_value = 0.0f;
-		quat_slider = gui->create(vecslider_info);
+		quat_slider = jgui->gui().create(vecslider_info);
 	}
 	{
-		oe::gui::Checkbox::info_t ci;
+		/* oe::gui::Checkbox::info_t ci;
 		ci.widget_info.pixel_size = { 24, 24 };
 		ci.widget_info.pixel_origon_offset = { 0, -35 };
 		ci.widget_info.fract_origon_offset = oe::alignments::bottom_center;
 		ci.widget_info.fract_render_offset = oe::alignments::bottom_center;
 		ci.sprite = &sprite_empty;
-		checkbox = gui->create(ci);
+		checkbox = jgui->gui().create(ci); */
+
+		checkbox = jgui->load_widget_T<oe::gui::Checkbox>(nlohmann::json::parse(R"(
+			{
+				"type": "checkbox",
+				
+				"pos_px": [ 0, -35 ],
+				"size_px": [ 24, 24 ],
+				"pos_rel": [ 0.5, 1.0 ],
+				"offset_rel": [ 0.5, 1.0 ]
+			}
+		)"));
+		// or
+		// jgui->load_widget(...);
 
 		{
 			oe::gui::DecoratedButton::info_t button_info;
@@ -307,7 +320,7 @@ yyyyyyyyyyyyy
 		color_picker_info.text_options.pixel_res(16);
 		color_picker_info.text_options.align = oe::alignments::center_center;
 		color_picker_info.initial_color = color;
-		gui->create(color_picker_info, color);
+		jgui->gui().create(color_picker_info, color);
 	}
 	{ // color picker 2
 		oe::gui::ColorInput::info_t color_picker_info;
@@ -321,7 +334,7 @@ yyyyyyyyyyyyy
 		color_picker_info.text_options.pixel_res(12);
 		color_picker_info.text_options.align = oe::alignments::center_center;
 		color_picker_info.initial_color = color;
-		gui->create(color_picker_info, color);
+		jgui->gui().create(color_picker_info, color);
 	}
 	{ // color picker 3
 		oe::gui::ColorInput::info_t color_picker_info;
@@ -333,7 +346,7 @@ yyyyyyyyyyyyy
 		color_picker_info.popup_color_picker = true;
 		color_picker_info.primary_input = oe::gui::input_type::none;
 		color_picker_info.initial_color = color;
-		gui->create(color_picker_info, color);
+		jgui->gui().create(color_picker_info, color);
 	}
 	{
 		oe::gui::BasicNumberInput<uint32_t>::info_t number_input_info;
@@ -346,7 +359,7 @@ yyyyyyyyyyyyy
 		number_input_info.sprite = &sprite_empty;
 		number_input_info.text_options.pixel_res(16);
 		number_input_info.text_options.align = oe::alignments::center_center;
-		gui->create(number_input_info);
+		jgui->gui().create(number_input_info);
 	}
 	{
 		oe::gui::TextPanel::info_t text_panel_info;
@@ -358,7 +371,7 @@ yyyyyyyyyyyyy
 		text_panel_info.text_options.font = oe::utils::FontFile{ oe::asset::Fonts::roboto_italic() };
 		text_panel_info.text_options.pixel_res(24);
 		/* text_panel_info.background_color = oe::colors::translucent_black; */
-		textpanel = gui->create(text_panel_info);
+		textpanel = jgui->gui().create(text_panel_info);
 
 		if constexpr (graphs) {
 			oe::gui::Graph::info_t graph_info;
@@ -434,7 +447,7 @@ int main(int argc, char** argv)
 	sprite_empty = oe::asset::TextureSet::sprites().at("empty");
 
 	// gui
-	gui = new oe::gui::GUI(window, oe::utils::FontFile{ oe::asset::Fonts::roboto_regular() });
+	jgui = new oe::gui::JGUI(window);
 	setup_gui();
 
 	update_30({});
@@ -469,7 +482,7 @@ int main(int argc, char** argv)
 	quat_slider.reset();
 	graph_fps.reset();
 	graph_ups.reset();
-	delete gui;
+	delete jgui;
 	delete shader;
 
 	renderer.reset();

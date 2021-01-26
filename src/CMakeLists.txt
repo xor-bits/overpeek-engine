@@ -134,6 +134,8 @@ endif()
 set(source_list ${source_list} 
 	"engine/gui/gui_manager.cpp"
 	"engine/gui/gui_manager.hpp"
+	"engine/gui/jgui.cpp"
+	"engine/gui/jgui.hpp"
 	"engine/gui/widgets/button.cpp"
 	"engine/gui/widgets/button.hpp"
 	"engine/gui/widgets/button_decorated.cpp"
