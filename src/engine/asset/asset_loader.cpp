@@ -39,7 +39,7 @@ namespace oe::asset
 		return std::get<T>(variant);
 	}
 
-	[[nodiscard]] oe::utils::image_data AssetLoader::resource_texture(const std::string& resource_path)
+	[[nodiscard]] oe::utils::image_data AssetLoader::resource_image(const std::string& resource_path)
 	{
 		using T = oe::utils::image_data;
 		auto variant = resource(resource_path, asset_type::texture);

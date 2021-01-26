@@ -57,7 +57,7 @@ void resize(const oe::ResizeEvent& event) {
 										glm::translate(
 											glm::mat4(1.0f),
 											glm::vec3{ -1.0f, -1.0f, 0.0f }),
-										glm::vec3{ s_zoom }),
+										glm::vec3{ s_zoom, s_zoom, 1.0f }),
 									glm::vec3{ (1.0f / s_zoom + offset.x * 0.1f), (1.0f / s_zoom + offset.y * 0.1f), (0.0f) });
 	shader->setProjectionMatrix(pr_matrix);
 	shader->setModelMatrix(ml_matrix);

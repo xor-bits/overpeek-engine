@@ -14,7 +14,7 @@ class OverpeekEngineConan(ConanFile):
     options = {"shared": [True, False], "oe_build_tests": [
         True, False], "oe_build_mode": ["opengl", "shaderc", "vulkan"]}
     generators = "cmake"
-    requires = "glad/0.1.33", "box2d/2.4.0", "libzip/1.7.3", "enet/1.3.16", "ms-gsl/3.1.0", "entt/3.5.2", "fmt/7.0.3", "spdlog/1.8.0", "stb/20200203", "minimp3/20200304", "glm/0.9.9.5", "gcem/1.12.0"
+    requires = "glad/0.1.33", "box2d/2.4.0", "libzip/1.7.3", "enet/1.3.16", "ms-gsl/3.1.0", "entt/3.5.2", "fmt/7.0.3", "spdlog/1.8.0", "stb/20200203", "minimp3/20200304", "glm/0.9.9.5", "gcem/1.12.0", "nlohmann_json/3.9.1"
     default_options = {"shared": False, "oe_build_tests": True, "oe_build_mode": "opengl",
                        "glad:gl_version": "4.6", "libzip:crypto": False, "fmt:header_only": True, "spdlog:header_only": True}
     keep_imports = True

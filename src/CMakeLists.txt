@@ -23,6 +23,8 @@ set(source_list ${source_list}
 	"engine/asset/default_shader/default_shader.hpp"
 	"engine/asset/font_shader/font_shader.cpp"
 	"engine/asset/font_shader/font_shader.hpp"
+	"engine/asset/texture_set/texture_set.cpp"
+	"engine/asset/texture_set/texture_set.hpp"
 	"engine/asset/asset_loader.cpp"
 	"engine/asset/asset_loader.hpp"
 	"engine/asset/fonts.hpp"

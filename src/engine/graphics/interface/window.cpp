@@ -146,7 +146,7 @@ namespace oe::graphics
 		glfwSetWindowSize(m_window_handle, m_window_info.size.x, m_window_info.size.y);
 
 		swapInterval(m_window_info.swap_interval);
-		setIcon(oe::asset::TextureSet::oe_logo_img);
+		setIcon(oe::asset::TextureSet::sprite("logo"));
 
 		connect_listener<oe::ResizeEvent, &resize_viewport>();
 	}

@@ -22,8 +22,9 @@ oe::graphics::Window window;
 constexpr oe::RasterizerInfo line_rasterizer{ oe::modes::enable, oe::depth_functions::less_than_or_equal, oe::culling_modes::neither, oe::polygon_mode::lines };
 oe::asset::DefaultShader* shader;
 oe::graphics::PrimitiveRenderer renderer;
-oe::graphics::SpritePack* pack;
-const oe::graphics::Sprite* sprite;
+
+oe::graphics::Sprite sprite_logo;
+oe::graphics::Sprite sprite_empty;
 
 oe::color color = { 0.4f, 0.5f, 0.4f, 1.0f };
 glm::quat cube_rotation;
@@ -228,7 +229,7 @@ void setup_gui()
 		sprite_panel_info.widget_info.pixel_origon_offset = { 0, 0 };
 		sprite_panel_info.widget_info.fract_origon_offset = oe::alignments::bottom_left;
 		sprite_panel_info.widget_info.fract_render_offset = oe::alignments::bottom_left;
-		sprite_panel_info.sprite = sprite;
+		sprite_panel_info.sprite = &sprite_logo;
 		box = gui->create(sprite_panel_info);
 	}
 	{
@@ -244,7 +245,7 @@ yyyyyyyyyyyyy
 		text_input_info.widget_info.fract_render_offset = oe::alignments::center_right;
 		text_input_info.text_options.pixel_res(16);
 		text_input_info.text_options.align = oe::alignments::center_center;
-		text_input_info.sprite = pack->emptySprite();
+		text_input_info.sprite = &sprite_empty;
 		textbox = gui->create(text_input_info);
 	}
 	{
@@ -255,7 +256,7 @@ yyyyyyyyyyyyy
 		vecslider_info.widget_info.fract_origon_offset = oe::alignments::bottom_center;
 		vecslider_info.widget_info.fract_render_offset = oe::alignments::bottom_center;
 		oe::gui::fSliderInput::info_t common;
-		common.slider_sprite = pack->emptySprite();
+		common.slider_sprite = &sprite_empty;
 		common.value_bounds = { -1.0f, 1.0f };
 		common.initial_value = 1.0f;
 		common.text_options.pixel_res(16);
@@ -271,7 +272,7 @@ yyyyyyyyyyyyy
 		ci.widget_info.pixel_origon_offset = { 0, -35 };
 		ci.widget_info.fract_origon_offset = oe::alignments::bottom_center;
 		ci.widget_info.fract_render_offset = oe::alignments::bottom_center;
-		ci.sprite = pack->emptySprite();
+		ci.sprite = &sprite_empty;
 		checkbox = gui->create(ci);
 
 		{
@@ -280,7 +281,7 @@ yyyyyyyyyyyyy
 			button_info.button_info.pixel_origon_offset = { 5, 0 };
 			button_info.button_info.fract_origon_offset = oe::alignments::center_right;
 			button_info.button_info.fract_render_offset = oe::alignments::center_left;
-			button_info.sprite = pack->emptySprite();
+			button_info.sprite = &sprite_empty;
 			button_info.text = { U"log", oe::colors::white };
 			button_info.text_options.pixel_res(20);
 			button_info.text_options.align = oe::alignments::center_center;
@@ -300,7 +301,7 @@ yyyyyyyyyyyyy
 		color_picker_info.widget_info.pixel_origon_offset = { 0, 35 };
 		color_picker_info.widget_info.fract_origon_offset = oe::alignments::center_left;
 		color_picker_info.widget_info.fract_render_offset = oe::alignments::center_left;
-		color_picker_info.sprite = pack->emptySprite();
+		color_picker_info.sprite = &sprite_empty;
 		color_picker_info.popup_color_picker = true;
 		color_picker_info.primary_input = oe::gui::input_type::slider;
 		color_picker_info.text_options.pixel_res(16);
@@ -314,7 +315,7 @@ yyyyyyyyyyyyy
 		color_picker_info.widget_info.pixel_origon_offset = { 0, -40 };
 		color_picker_info.widget_info.fract_origon_offset = oe::alignments::center_left;
 		color_picker_info.widget_info.fract_render_offset = oe::alignments::center_left;
-		color_picker_info.sprite = pack->emptySprite();
+		color_picker_info.sprite = &sprite_empty;
 		color_picker_info.popup_color_picker = true;
 		color_picker_info.primary_input = oe::gui::input_type::dragger;
 		color_picker_info.text_options.pixel_res(12);
@@ -328,7 +329,7 @@ yyyyyyyyyyyyy
 		color_picker_info.widget_info.pixel_origon_offset = { 0, -65 };
 		color_picker_info.widget_info.fract_origon_offset = oe::alignments::center_left;
 		color_picker_info.widget_info.fract_render_offset = oe::alignments::center_left;
-		color_picker_info.sprite = pack->emptySprite();
+		color_picker_info.sprite = &sprite_empty;
 		color_picker_info.popup_color_picker = true;
 		color_picker_info.primary_input = oe::gui::input_type::none;
 		color_picker_info.initial_color = color;
@@ -342,7 +343,7 @@ yyyyyyyyyyyyy
 		number_input_info.widget_info.fract_render_offset = oe::alignments::top_center;
 		number_input_info.initial_value = 42;
 		number_input_info.value_bounds = { std::numeric_limits<uint32_t>::min(), std::numeric_limits<uint32_t>::max() };
-		number_input_info.sprite = pack->emptySprite();
+		number_input_info.sprite = &sprite_empty;
 		number_input_info.text_options.pixel_res(16);
 		number_input_info.text_options.align = oe::alignments::center_center;
 		gui->create(number_input_info);
@@ -365,7 +366,7 @@ yyyyyyyyyyyyy
 			graph_info.bg_panel_info.widget_info.pixel_origon_offset = { 0, 5 };
 			graph_info.bg_panel_info.widget_info.fract_origon_offset = oe::alignments::bottom_left;
 			graph_info.bg_panel_info.widget_info.fract_render_offset = oe::alignments::top_left;
-			graph_info.bg_panel_info.sprite = pack->emptySprite();
+			graph_info.bg_panel_info.sprite = &sprite_empty;
 			graph_info.bg_panel_info.color_tint = oe::colors::translucent_black;
 			graph_info.graph_color = oe::colors::green;
 			graph_fps = textpanel->create(graph_info);
@@ -378,7 +379,7 @@ yyyyyyyyyyyyy
 	/* if constexpr(false) {
 		oe::gui::ListInfo list_info;
 		list_info.widget_info = { { 200, 400 }, { 0, 0 }, oe::alignments::top_right, oe::alignments::top_right };
-		list_info.sprite = pack->emptySprite();
+		list_info.sprite = &sprite_empty;
 		list_info.title = U"Loglist";
 		list_info.title_height = 28;
 		list = gui->create<oe::gui::List>(list_info);
@@ -428,10 +429,9 @@ int main(int argc, char** argv)
 	// shader
 	shader = new oe::asset::DefaultShader();
 
-	// spritepack
-	pack = new oe::graphics::SpritePack();
-	sprite = pack->create(oe::asset::TextureSet::oe_logo_img);
-	pack->construct();
+	// sprites
+	sprite_logo = oe::asset::TextureSet::sprites().at("logo");
+	sprite_empty = oe::asset::TextureSet::sprites().at("empty");
 
 	// gui
 	gui = new oe::gui::GUI(window, oe::utils::FontFile{ oe::asset::Fonts::roboto_regular() });
@@ -470,7 +470,6 @@ int main(int argc, char** argv)
 	graph_fps.reset();
 	graph_ups.reset();
 	delete gui;
-	delete pack;
 	delete shader;
 
 	renderer.reset();

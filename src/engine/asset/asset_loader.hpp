@@ -19,7 +19,7 @@ namespace oe::asset
 	public:
 		[[nodiscard]] static res_variant resource(const std::string& resource_path, asset_type type);
 		[[nodiscard]] static std::string resource_string(const std::string& resource_path);
-		[[nodiscard]] static oe::utils::image_data resource_texture(const std::string& resource_path);
+		[[nodiscard]] static oe::utils::image_data resource_image(const std::string& resource_path);
 		[[nodiscard]] static oe::utils::audio_data resource_audio(const std::string& resource_path);
 		[[nodiscard]] static oe::utils::byte_string resource_bytes(const std::string& resource_path);
 	};

@@ -59,7 +59,7 @@ static void* stbi_realloc_impl(void* ptr, size_t oldsize, size_t newsize)
 
 
 
-constexpr int stb_i_format(oe::formats format) {
+constexpr static int stb_i_format(oe::formats format) {
 	switch (format)
 	{
 	case oe::formats::rgba:
@@ -70,21 +70,6 @@ constexpr int stb_i_format(oe::formats format) {
 		return STBI_grey;
 	case oe::formats::none:
 		return STBI_default;
-	}
-	return 0;
-}
-
-constexpr int stb_i_channels(oe::formats format) {
-	switch (format)
-	{
-	case oe::formats::rgba:
-		return 4;
-	case oe::formats::rgb:
-		return 3;
-	case oe::formats::mono:
-		return 1;
-	case oe::formats::none:
-		return 0;
 	}
 	return 0;
 }
@@ -104,9 +89,7 @@ namespace oe::utils
 	constexpr static inline std::string_view invalid_format = "invalid_format";
 
 	image_data::image_data(oe::formats _format, int _width, int _height)
-		: format(_format)
-		, width(_width), height(_height)
-		, size(_width * _height * stb_i_channels(_format))
+		: image_data_base(nullptr, _format, _width, _height)
 	{
 		if(_format == oe::formats::none)
 			std::runtime_error(invalid_format.data());
@@ -114,6 +97,7 @@ namespace oe::utils
 	}
 
 	image_data::image_data(fs::path path, oe::formats _format)
+		: image_data_base()
 	{
 		if(_format == oe::formats::none)
 			std::runtime_error(invalid_format.data());
@@ -129,6 +113,7 @@ namespace oe::utils
 	}
 
 	image_data::image_data(const uint8_t* _data, size_t data_size, oe::formats _format)
+		: image_data_base()
 	{
 		if(_format == oe::formats::none)
 			std::runtime_error(invalid_format.data());
@@ -144,9 +129,7 @@ namespace oe::utils
 	}
 
 	image_data::image_data(const uint8_t* _data, oe::formats _format, int _width, int _height)
-		: format(_format)
-		, width(_width), height(_height)
-		, size(_width* _height* stb_i_channels(_format))
+		: image_data_base(nullptr, _format, _width, _height)
 	{
 		if(_format == oe::formats::none)
 			std::runtime_error(invalid_format.data());
@@ -155,20 +138,15 @@ namespace oe::utils
 		std::memcpy(data, _data, size);
 	}
 
-	image_data::image_data(const image_data& _copied)
-		: format(_copied.format)
-		, width(_copied.width), height(_copied.height)
-		, size(_copied.width* _copied.height* stb_i_channels(_copied.format))
+	image_data::image_data(const image_data_base& _copied)
+		: image_data_base(nullptr, _copied.format, _copied.width, _copied.height)
 	{
 		data = new uint8_t[size];
 		std::memcpy(data, _copied.data, size);
 	}
 
 	image_data::image_data(image_data&& move)
-		: data(move.data)
-		, format(move.format)
-		, width(move.width), height(move.height)
-		, size(move.size)
+		: image_data_base(move.data, move.format, move.width, move.height)
 	{
 		move.format = oe::formats::mono;
 		move.width = 0; move.height = 0;
@@ -182,7 +160,7 @@ namespace oe::utils
 			delete[] data;
 	}
 	
-	image_data& image_data::operator=(const image_data& copy_assign)
+	image_data& image_data::operator=(const image_data_base& copy_assign)
 	{
 		this->~image_data();
 		
@@ -212,33 +190,13 @@ namespace oe::utils
 		return *this;
 	}
 
-	constexpr static inline uint8_t u8max = std::numeric_limits<uint8_t>::max();
-	static inline float to_float(uint8_t byte)
-	{ return static_cast<float>(byte) / static_cast<float>(u8max); }
-
-	static inline glm::vec<4, uint8_t> to_rgba(const glm::vec<4, uint8_t>& rgba)
-	{ return rgba; }
-	static inline glm::vec<4, uint8_t> to_rgba(const glm::vec<3, uint8_t>& rgb)
-	{ return { rgb, u8max }; }
-	static inline glm::vec<4, uint8_t> to_rgba(const glm::vec<1, uint8_t>& mono)
-	{ return { mono, mono, mono, u8max }; }
-	
-	static inline glm::vec<3, uint8_t> to_rgb(const glm::vec<4, uint8_t>& rgba)
-	{ return { rgba.r * to_float(rgba.a), rgba.g * to_float(rgba.a), rgba.b * to_float(rgba.a) }; }
-	static inline glm::vec<3, uint8_t> to_rgb(const glm::vec<3, uint8_t>& rgb)
-	{ return rgb; }
-	static inline glm::vec<3, uint8_t> to_rgb(const glm::vec<1, uint8_t>& mono)
-	{ return { mono, mono, mono }; }
-	
-	static inline glm::vec<1, uint8_t> to_mono(const glm::vec<4, uint8_t>& rgba)
-	{ return glm::vec<1, uint8_t>{ static_cast<uint8_t>(glm::length(static_cast<glm::vec<4, float>>(rgba)) * to_float(rgba.a)) }; }
-	static inline glm::vec<1, uint8_t> to_mono(const glm::vec<3, uint8_t>& rgb)
-	{ return glm::vec<1, uint8_t>{ static_cast<uint8_t>(glm::length(static_cast<glm::vec<3, float>>(rgb))) }; }
-	static inline glm::vec<1, uint8_t> to_mono(const glm::vec<1, uint8_t>& mono)
-	{ return mono; }
-
-	image_data image_data::cast(oe::formats new_format, int new_width, int new_height) const
+	image_data image_data_base::cast(oe::formats new_format, int new_width, int new_height) const
 	{
+		if(new_width == -1)
+			new_width = width;
+		if(new_height == -1)
+			new_height = width;
+
 		if(new_format == format && new_width == width && new_height == height)
 			return *this;
 		
@@ -250,8 +208,6 @@ namespace oe::utils
 			static_cast<float>(height) / static_cast<float>(new_height)
 		};
 		image_data new_image{ new_format, new_width, new_height };
-
-		spdlog::info("conversion ratio: {}", ratio);
 
 		for (int y = 0; y < new_height; y++)
 			for (int x = 0; x < new_width; x++)
@@ -304,7 +260,30 @@ namespace oe::utils
 		return new_image;
 	}
 
-	byte_string image_data::save() const
+	image_data image_data_base::crop(int offset_x, int offset_y, int new_width, int new_height) const
+	{
+		if(new_width == -1)
+			new_width = width;
+		if(new_height == -1)
+			new_height = width;
+
+		offset_x = std::max(offset_x, 0);
+		offset_y = std::max(offset_y, 0);
+		new_width = std::min(width, offset_x + new_width) - offset_x;
+		new_height = std::min(height, offset_y + new_height) - offset_y;
+		const int bytes_per_pixel = stb_i_channels(format);
+		image_data new_image{ format, new_width, new_height };
+
+		for (int y = offset_y; y < new_height; y++)
+			for (int x = offset_x; x < new_width; x++)
+				for (int b = 0; b < bytes_per_pixel; b++)
+					new_image.data[(x - offset_x) * bytes_per_pixel + (y - offset_y) * new_width * bytes_per_pixel + b]
+						= data[x * bytes_per_pixel + y * width * bytes_per_pixel + b];
+
+		return new_image;
+	}
+
+	byte_string image_data_base::save() const
 	{
 		int channels = stb_i_channels(format);
 		int size;
