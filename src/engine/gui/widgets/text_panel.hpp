@@ -13,6 +13,7 @@ namespace oe::gui
 	class TextPanel : public Widget
 	{
 	public:
+		using value_t = void;
 		struct Info
 		{
 			using widget_t = TextPanel;

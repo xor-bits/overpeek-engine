@@ -9,7 +9,6 @@
 oe::gui::JGUI* jgui;
 std::shared_ptr<oe::gui::BasicTextInput<char32_t>> textbox;
 std::shared_ptr<oe::gui::TextPanel> textpanel;
-std::shared_ptr<oe::gui::SpritePanel> box;
 /* std::shared_ptr<oe::gui::List> list; */
 std::shared_ptr<oe::gui::Checkbox> checkbox;
 std::shared_ptr<oe::gui::Vec<oe::gui::SliderInput, 4>> quat_slider;
@@ -224,15 +223,6 @@ void append_list(const glm::quat& quat)
 void setup_gui()
 {
 	{
-		oe::gui::SpritePanel::info_t sprite_panel_info;
-		sprite_panel_info.widget_info.pixel_size = { 150, 150 };
-		sprite_panel_info.widget_info.pixel_origon_offset = { 0, 0 };
-		sprite_panel_info.widget_info.fract_origon_offset = oe::alignments::bottom_left;
-		sprite_panel_info.widget_info.fract_render_offset = oe::alignments::bottom_left;
-		sprite_panel_info.sprite = &sprite_logo;
-		box = jgui->gui().create(sprite_panel_info);
-	}
-	{
 		oe::gui::u32TextInput::info_t text_input_info;
 		text_input_info.initial_value =
 UR"(wwwwwwwwwwww
@@ -259,6 +249,7 @@ yyyyyyyyyyyyy
 		common.slider_sprite = &sprite_empty;
 		common.value_bounds = { -1.0f, 1.0f };
 		common.initial_value = 1.0f;
+		common.step_size = 0.0f;
 		common.text_options.pixel_res(16);
 		common.text_options.align = oe::alignments::center_center;
 		vecslider_info.common.fill(common);
@@ -267,86 +258,109 @@ yyyyyyyyyyyyy
 		quat_slider = jgui->gui().create(vecslider_info);
 	}
 	{
-		/* oe::gui::Checkbox::info_t ci;
-		ci.widget_info.pixel_size = { 24, 24 };
-		ci.widget_info.pixel_origon_offset = { 0, -35 };
-		ci.widget_info.fract_origon_offset = oe::alignments::bottom_center;
-		ci.widget_info.fract_render_offset = oe::alignments::bottom_center;
-		ci.sprite = &sprite_empty;
-		checkbox = jgui->gui().create(ci); */
+		const std::vector<std::any> refs = { &color };
+		jgui->load_sprite("logo", sprite_logo);
 
-		checkbox = jgui->load_widget_T<oe::gui::Checkbox>(nlohmann::json::parse(R"(
-			{
-				"type": "checkbox",
-				
-				"pos_px": [ 0, -35 ],
-				"size_px": [ 24, 24 ],
-				"pos_rel": [ 0.5, 1.0 ],
-				"offset_rel": [ 0.5, 1.0 ]
-			}
-		)"));
-		// or
-		// jgui->load_widget(...);
+		jgui->load(nlohmann::json::parse(R"json(
+			[
+				{ // statistics
+					"name": "stat_panel",
+					"type": "text_panel",
 
-		{
-			oe::gui::DecoratedButton::info_t button_info;
-			button_info.button_info.pixel_size = { 60, 24 };
-			button_info.button_info.pixel_origon_offset = { 5, 0 };
-			button_info.button_info.fract_origon_offset = oe::alignments::center_right;
-			button_info.button_info.fract_render_offset = oe::alignments::center_left;
-			button_info.sprite = &sprite_empty;
-			button_info.text = { U"log", oe::colors::white };
-			button_info.text_options.pixel_res(20);
-			button_info.text_options.align = oe::alignments::center_center;
-			auto button = checkbox->create(button_info);
+					"text": {
+						"placeholder": [ 1.0, 1.0, 1.0, 1.0 ]
+					},
+					"text_options": {
+						"align": [ 0.5, 0.5 ],
+						"resolution": 24,
+						"scale": [ 24.0, 24.0 ]
+					}
+				},
+				{ // logo
+					"type": "sprite_panel",
+					
+					"size_px": [ 150, 150 ],
+					"pos_px": [ 0, 0 ],
+					"pos_rel": [ 0.0, 1.0 ],
+					"offset_rel": [ 0.0, 1.0 ],
 
-			button->create_event_cg().connect<oe::gui::ButtonUseEvent>(button->m_dispatcher, [&](const oe::gui::ButtonUseEvent& e) {
-				if (e.action == oe::actions::release && e.button == oe::mouse_buttons::button_left) {
-					glm::vec4 quat_slider_val = quat_slider->m_value;
-					append_list(glm::angleAxis(quat_slider_val.w, glm::normalize(glm::vec3(quat_slider_val.x, quat_slider_val.y, quat_slider_val.z))));
+					"sprite": "logo"
+				},
+				{ // invert switch
+					"name": "log_checkbox",
+					"type": "toggle",
+					
+					"size_px": [ 24, 24 ],
+					"pos_px": [ 0, -35 ],
+					"pos_rel": [ 0.5, 1.0 ],
+					"offset_rel": [ 0.5, 1.0 ],
+
+					"subwidgets": [
+						{ // log button
+							"name": "log_button",
+							"type": "btn_d",
+							
+							"size_px": [ 30, 20 ],
+							"pos_px": [ 5, 0 ],
+							"pos_rel": [ 1.0, 0.5 ],
+							"offset_rel": [ 0.0, 0.5 ],
+
+							"text": {
+								"log": [ 1.0, 1.0, 1.0, 1.0 ]
+							},
+							"text_options": { "align": [ 0.5, 0.5 ] }
+						}
+					]
+				},
+				{ // color input 1
+					"type": "color_input",
+					"ref": 0,
+					
+					"size_px": [ 200, 120 ],
+					"pos_px": [ 0, 35 ],
+					"pos_rel": [ 0.0, 0.5 ],
+					"offset_rel": [ 0.0, 0.5 ],
+
+					"input": "slider",
+					"text_options": { "align": [ 0.5, 0.5 ] }
+				},
+				{ // color input 2
+					"type": "color_input",
+					"ref": 0,
+					
+					"size_px": [ 200, 20 ],
+					"pos_px": [ 0, -40 ],
+					"pos_rel": [ 0.0, 0.5 ],
+					"offset_rel": [ 0.0, 0.5 ],
+
+					"input": "dragger",
+					"text_options": { "align": [ 0.5, 0.5 ], "resolution": 12, "scale": [ 12.0, 12.0 ] }
+				},
+				{ // color input 3
+					"type": "color_input",
+					"ref": 0,
+					
+					"size_px": [ 20, 20 ],
+					"pos_px": [ 0, -65 ],
+					"pos_rel": [ 0.0, 0.5 ],
+					"offset_rel": [ 0.0, 0.5 ],
+
+					"input": "none",
+					"text_options": { "align": [ 0.5, 0.5 ] }
 				}
-			});
-		}
-	}
-	{ // color picker 1
-		oe::gui::ColorInput::info_t color_picker_info;
-		color_picker_info.widget_info.pixel_size = { 200, 120 };
-		color_picker_info.widget_info.pixel_origon_offset = { 0, 35 };
-		color_picker_info.widget_info.fract_origon_offset = oe::alignments::center_left;
-		color_picker_info.widget_info.fract_render_offset = oe::alignments::center_left;
-		color_picker_info.sprite = &sprite_empty;
-		color_picker_info.popup_color_picker = true;
-		color_picker_info.primary_input = oe::gui::input_type::slider;
-		color_picker_info.text_options.pixel_res(16);
-		color_picker_info.text_options.align = oe::alignments::center_center;
-		color_picker_info.initial_color = color;
-		jgui->gui().create(color_picker_info, color);
-	}
-	{ // color picker 2
-		oe::gui::ColorInput::info_t color_picker_info;
-		color_picker_info.widget_info.pixel_size = { 200, 20 };
-		color_picker_info.widget_info.pixel_origon_offset = { 0, -40 };
-		color_picker_info.widget_info.fract_origon_offset = oe::alignments::center_left;
-		color_picker_info.widget_info.fract_render_offset = oe::alignments::center_left;
-		color_picker_info.sprite = &sprite_empty;
-		color_picker_info.popup_color_picker = true;
-		color_picker_info.primary_input = oe::gui::input_type::dragger;
-		color_picker_info.text_options.pixel_res(12);
-		color_picker_info.text_options.align = oe::alignments::center_center;
-		color_picker_info.initial_color = color;
-		jgui->gui().create(color_picker_info, color);
-	}
-	{ // color picker 3
-		oe::gui::ColorInput::info_t color_picker_info;
-		color_picker_info.widget_info.pixel_size = { 20, 20 };
-		color_picker_info.widget_info.pixel_origon_offset = { 0, -65 };
-		color_picker_info.widget_info.fract_origon_offset = oe::alignments::center_left;
-		color_picker_info.widget_info.fract_render_offset = oe::alignments::center_left;
-		color_picker_info.sprite = &sprite_empty;
-		color_picker_info.popup_color_picker = true;
-		color_picker_info.primary_input = oe::gui::input_type::none;
-		color_picker_info.initial_color = color;
-		jgui->gui().create(color_picker_info, color);
+			]
+		)json", nullptr, true, true), refs);
+		
+		checkbox = jgui->at_T<oe::gui::Checkbox>("log_checkbox");
+		auto button = jgui->at_T<oe::gui::DecoratedButton>("log_checkbox.log_button");
+		textpanel = jgui->at_T<oe::gui::TextPanel>("stat_panel");
+		
+		button->create_event_cg().connect<oe::gui::ButtonUseEvent>(button->m_dispatcher, [&](const oe::gui::ButtonUseEvent& e) {
+			if (e.action == oe::actions::release && e.button == oe::mouse_buttons::button_left) {
+				glm::vec4 quat_slider_val = quat_slider->m_value;
+				append_list(glm::angleAxis(quat_slider_val.w, glm::normalize(glm::vec3(quat_slider_val.x, quat_slider_val.y, quat_slider_val.z))));
+			}
+		});
 	}
 	{
 		oe::gui::BasicNumberInput<uint32_t>::info_t number_input_info;
@@ -361,33 +375,20 @@ yyyyyyyyyyyyy
 		number_input_info.text_options.align = oe::alignments::center_center;
 		jgui->gui().create(number_input_info);
 	}
-	{
-		oe::gui::TextPanel::info_t text_panel_info;
-		text_panel_info.widget_info.pixel_size = { 0, 0 };
-		text_panel_info.widget_info.pixel_origon_offset = { 0, 0 };
-		text_panel_info.widget_info.fract_origon_offset = oe::alignments::top_left;
-		text_panel_info.widget_info.fract_render_offset = oe::alignments::top_left;
-		text_panel_info.text = { U"placeholder", oe::colors::white };
-		text_panel_info.text_options.font = oe::utils::FontFile{ oe::asset::Fonts::roboto_italic() };
-		text_panel_info.text_options.pixel_res(24);
-		/* text_panel_info.background_color = oe::colors::translucent_black; */
-		textpanel = jgui->gui().create(text_panel_info);
-
-		if constexpr (graphs) {
-			oe::gui::Graph::info_t graph_info;
-			graph_info.bg_panel_info.widget_info.pixel_size = { 200, 100 };
-			graph_info.bg_panel_info.widget_info.pixel_origon_offset = { 0, 5 };
-			graph_info.bg_panel_info.widget_info.fract_origon_offset = oe::alignments::bottom_left;
-			graph_info.bg_panel_info.widget_info.fract_render_offset = oe::alignments::top_left;
-			graph_info.bg_panel_info.sprite = &sprite_empty;
-			graph_info.bg_panel_info.color_tint = oe::colors::translucent_black;
-			graph_info.graph_color = oe::colors::green;
-			graph_fps = textpanel->create(graph_info);
-			
-			graph_info.bg_panel_info.widget_info.pixel_origon_offset = { 205, 5 };
-			graph_info.graph_color = oe::colors::blue;
-			graph_ups = textpanel->create(graph_info);
-		}
+	if constexpr (graphs) {
+		oe::gui::Graph::info_t graph_info;
+		graph_info.bg_panel_info.widget_info.pixel_size = { 200, 100 };
+		graph_info.bg_panel_info.widget_info.pixel_origon_offset = { 0, 5 };
+		graph_info.bg_panel_info.widget_info.fract_origon_offset = oe::alignments::bottom_left;
+		graph_info.bg_panel_info.widget_info.fract_render_offset = oe::alignments::top_left;
+		graph_info.bg_panel_info.sprite = &sprite_empty;
+		graph_info.bg_panel_info.color_tint = oe::colors::translucent_black;
+		graph_info.graph_color = oe::colors::green;
+		graph_fps = textpanel->create(graph_info);
+		
+		graph_info.bg_panel_info.widget_info.pixel_origon_offset = { 205, 5 };
+		graph_info.graph_color = oe::colors::blue;
+		graph_ups = textpanel->create(graph_info);
 	}
 	/* if constexpr(false) {
 		oe::gui::ListInfo list_info;
@@ -447,7 +448,7 @@ int main(int argc, char** argv)
 	sprite_empty = oe::asset::TextureSet::sprites().at("empty");
 
 	// gui
-	jgui = new oe::gui::JGUI(window);
+	jgui = new oe::gui::JGUI(window, true);
 	setup_gui();
 
 	update_30({});
@@ -476,7 +477,6 @@ int main(int argc, char** argv)
 	// cleanup
 	textbox.reset();
 	textpanel.reset();
-	box.reset();
 	/* list.reset(); */
 	checkbox.reset();
 	quat_slider.reset();

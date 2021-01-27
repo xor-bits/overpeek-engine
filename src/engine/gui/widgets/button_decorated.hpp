@@ -20,6 +20,7 @@ namespace oe::gui
 	class DecoratedButton : public Button
 	{
 	public:
+		using value_t = void;
 		using hover_event_t = DecoratedButtonHoverEvent;
 		using use_event_t = DecoratedButtonUseEvent;
 		struct info_t

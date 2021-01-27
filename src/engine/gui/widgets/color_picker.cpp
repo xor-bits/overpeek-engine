@@ -212,6 +212,7 @@ namespace oe::gui
 			s_info.slider_sprite = &renderer.c_checkerboard;
 			s_info.knob_sprite = &renderer.c_checkerboard;
 			s_info.value_bounds = { 0.0f, 1.0f };
+			s_info.step_size = 0.0f;
 			s_info.linear_color = true;
 			s_info.slider_lcolor = oe::colors::white;
 			s_info.slider_rcolor = oe::colors::black;

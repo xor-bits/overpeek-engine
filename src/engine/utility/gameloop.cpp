@@ -40,9 +40,7 @@ namespace oe::utils
 		});
 
 		while(m_should_run)
-		{
-			m_host_window->waitEvents();
-		}
+			m_host_window->waitEvents(0.1f);
 
 		if(second_thread.joinable()) second_thread.join();
 		m_host_window->active_context();

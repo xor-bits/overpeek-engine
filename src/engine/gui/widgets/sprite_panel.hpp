@@ -13,6 +13,7 @@ namespace oe::gui
 	class SpritePanel : public Widget
 	{
 	public:
+		using value_t = void;
 		struct info_t
 		{
 			using widget_t = SpritePanel;

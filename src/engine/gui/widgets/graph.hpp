@@ -13,6 +13,7 @@ namespace oe::gui
     class Graph : public SpritePanel
     {
     public:
+		using value_t = void;
 		struct info_t
 		{
 			using widget_t = Graph;

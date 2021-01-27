@@ -29,7 +29,13 @@ namespace oe::utils
 		
 		// usage: color_string({ string, color }, { string, color }, ... , { string, color })
 		color_string(std::initializer_list<color_string_part<char_type>> args)
-			: vec(args)
+			: color_string(args.begin(), args.end())
+		{}
+
+		// usage: color_string({ string, color }, { string, color }, ... , { string, color })
+		template<typename Iter>
+		color_string(Iter begin, Iter end)
+			: vec(begin, end)
 		{
 			vec.erase(std::remove_if(vec.begin(), vec.end(), [](auto& part){ return std::get<0>(part).size() == 0; }), vec.end());
 
