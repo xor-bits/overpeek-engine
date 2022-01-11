@@ -206,10 +206,10 @@ namespace oe::graphics
 		if (m_texture_info.size_offset.size() != 2)
 			throw oe::utils::formatted_error("Texture dimensions must be 2x2 to getImageData");
 
-		size_t size = 1;
-		size *= m_texture_info.size_offset[0].first;
-		size *= m_texture_info.size_offset[1].first;
-		size *= oe::sizeofFormat(m_texture_info.data_format);
+		// size_t size = 1;
+		// size *= m_texture_info.size_offset[0].first;
+		// size *= m_texture_info.size_offset[1].first;
+		// size *= oe::sizeofFormat(m_texture_info.data_format);
 
 		auto img = oe::utils::image_data(m_texture_info.data_format, m_texture_info.size_offset[0].first, m_texture_info.size_offset[1].first);
 		GLTexture::bind();

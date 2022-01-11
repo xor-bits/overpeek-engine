@@ -221,7 +221,7 @@ elseif(APPLE)
 	target_compile_options(${target_name} PRIVATE "-Werror" "-Wall" "-Wextra" "-Wpedantic")
 elseif(UNIX)
 	target_link_libraries(${target_name} PRIVATE "stdc++fs")
-	target_compile_options(${target_name} PRIVATE "-Werror" "-Wall" "-Wextra" "-Wpedantic")
+	#target_compile_options(${target_name} PRIVATE "-Werror" "-Wall" "-Wextra" "-Wpedantic")
 endif()
 
 
